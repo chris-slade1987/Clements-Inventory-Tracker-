@@ -36,19 +36,23 @@ async function main() {
   console.log("deploy-db: running prisma db push…");
   execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
 
-  // Seed only when the database is empty (don't wipe data on every redeploy).
+  // Seed sample data only when the database is empty; otherwise just backfill
+  // any missing standard branches (e.g. Naples) without touching existing data.
   const { PrismaClient } = await import("@prisma/client");
-  const { seedDatabase } = await import("../prisma/seed-core");
+  const { seedDatabase, ensureWarehouses } = await import("../prisma/seed-core");
   const prisma = new PrismaClient();
   try {
-    const count = await prisma.warehouse.count();
-    if (count === 0) {
+    const users = await prisma.user.count();
+    if (users === 0) {
       const c = await seedDatabase(prisma, { reset: false });
       console.log(
         `deploy-db: seeded ${c.warehouses} warehouses, ${c.technicians} technicians, ${c.products} products.`
       );
     } else {
-      console.log(`deploy-db: database already has ${count} warehouses — not seeding.`);
+      const map = await ensureWarehouses(prisma);
+      console.log(
+        `deploy-db: database already populated (${users} users) — ensured ${map.size} branches exist.`
+      );
     }
   } finally {
     await prisma.$disconnect();

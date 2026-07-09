@@ -1,5 +1,24 @@
 import type { PrismaClient } from "@prisma/client";
 import { randomBytes, scryptSync } from "node:crypto";
+import { STANDARD_WAREHOUSES } from "../lib/constants";
+
+/**
+ * Ensure each standard branch exists (idempotent). Used both by the initial
+ * seed and by the deploy bootstrap to backfill new branches (e.g. Naples) into
+ * an already-populated production database without touching existing rows.
+ * Returns a name -> id map.
+ */
+export async function ensureWarehouses(
+  prisma: PrismaClient
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  for (const name of STANDARD_WAREHOUSES) {
+    const existing = await prisma.warehouse.findFirst({ where: { name } });
+    const wh = existing ?? (await prisma.warehouse.create({ data: { name } }));
+    map.set(name, wh.id);
+  }
+  return map;
+}
 
 // Local copy of the password hasher so the seed has no app-import dependencies.
 function hashPassword(password: string): string {
@@ -34,9 +53,11 @@ export async function seedDatabase(
   }
 
   // --- Warehouses -----------------------------------------------------
-  const vero = await prisma.warehouse.create({ data: { name: "Vero Beach (HQ)" } });
-  const stuart = await prisma.warehouse.create({ data: { name: "Stuart" } });
-  const orlando = await prisma.warehouse.create({ data: { name: "Orlando" } });
+  const wh = await ensureWarehouses(prisma);
+  const vero = { id: wh.get("Vero Beach (HQ)")! };
+  const stuart = { id: wh.get("Stuart")! };
+  const orlando = { id: wh.get("Orlando")! };
+  const naples = { id: wh.get("Naples")! };
 
   // --- Manager --------------------------------------------------------
   const manager = await prisma.user.create({
@@ -57,6 +78,8 @@ export async function seedDatabase(
     ["Sarah Bishop", stuart.id, "FL-2002"],
     ["Tyrone Woods", orlando.id, "FL-3001"],
     ["Kayla Nguyen", orlando.id, "FL-3002"],
+    ["Marco Ferreira", naples.id, "FL-4001"],
+    ["Ashley Reed", naples.id, "FL-4002"],
   ];
   const techs: { id: string; homeWarehouseId: string }[] = [];
   for (const [name, wh, card] of techSpec) {
@@ -68,22 +91,24 @@ export async function seedDatabase(
 
   // --- Products -------------------------------------------------------
   const productSpec = [
-    ["Termidor SC", "BASF", "7969-210", "bottle", "Termiticide", "072845079692"],
-    ["Taurus SC", "Control Solutions", "53883-279", "bottle", "Termiticide", "758211532793"],
-    ["Talstar P Professional", "FMC", "279-3206", "gallon", "Insecticide", "049969032061"],
-    ["Bifen I/T", "Control Solutions", "53883-118", "gallon", "Insecticide", "758211181182"],
-    ["Demand CS", "Syngenta", "100-1066", "bottle", "Insecticide", "010667010663"],
-    ["Temprid FX", "Envu", "432-1483", "bottle", "Insecticide", "043214814831"],
-    ["Suspend PolyZone", "Envu", "432-1514", "bottle", "Insecticide", "043214815142"],
-    ["Tempo SC Ultra", "Envu", "432-1363", "bottle", "Insecticide", "043214813636"],
-    ["Alpine WSG", "BASF", "499-561", "bottle", "Insecticide", null],
-    ["Advion Ant Gel", "Syngenta", "100-1484", "box", "Bait", "010667014845"],
-    ["Advion Cockroach Gel", "Syngenta", "100-1498", "box", "Bait", "010667014982"],
-    ["Optigard Ant Gel", "Syngenta", "100-1483", "box", "Bait", null],
-    ["Gentrol IGR", "Zoecon", "2724-484", "bottle", "IGR", null],
-    ["CimeXa Dust", "Rockwell Labs", "73079-1", "bottle", "Dust", "857641002019"],
-    ["Contrac Blox", "Bell Labs", "12455-79", "pail", "Rodenticide", "744627124556"],
-    ["Fastrac Blox", "Bell Labs", "12455-95", "pail", "Rodenticide", null],
+    ["Termidor SC", "BASF", "7969-210", "bottle", "Termite", "072845079692"],
+    ["Taurus SC", "Control Solutions", "53883-279", "bottle", "Termite", "758211532793"],
+    ["Talstar P Professional", "FMC", "279-3206", "gallon", "General Pest", "049969032061"],
+    ["Bifen I/T", "Control Solutions", "53883-118", "gallon", "General Pest", "758211181182"],
+    ["Demand CS", "Syngenta", "100-1066", "bottle", "General Pest", "010667010663"],
+    ["Temprid FX", "Envu", "432-1483", "bottle", "General Pest", "043214814831"],
+    ["Suspend PolyZone", "Envu", "432-1514", "bottle", "General Pest", "043214815142"],
+    ["Tempo SC Ultra", "Envu", "432-1363", "bottle", "General Pest", "043214813636"],
+    ["Alpine WSG", "BASF", "499-561", "bottle", "General Pest", null],
+    ["Advion Ant Gel", "Syngenta", "100-1484", "box", "General Pest", "010667014845"],
+    ["Advion Cockroach Gel", "Syngenta", "100-1498", "box", "General Pest", "010667014982"],
+    ["Optigard Ant Gel", "Syngenta", "100-1483", "box", "General Pest", null],
+    ["Gentrol IGR", "Zoecon", "2724-484", "bottle", "General Pest", null],
+    ["CimeXa Dust", "Rockwell Labs", "73079-1", "bottle", "General Pest", "857641002019"],
+    ["Contrac Blox", "Bell Labs", "12455-79", "pail", "Rodent", "744627124556"],
+    ["Fastrac Blox", "Bell Labs", "12455-95", "pail", "Rodent", null],
+    ["Barricade 4FL", "Syngenta", "100-834", "gallon", "Lawn", null],
+    ["Dimension 2EW", "Corteva", "62719-542", "gallon", "Lawn", null],
   ] as const;
 
   const products: Record<string, { id: string }> = {};
@@ -201,6 +226,17 @@ export async function seedDatabase(
       ["CimeXa Dust", 6, 29.0],
     ],
   });
+  await seedInvoice({
+    warehouseId: naples.id,
+    number: "SO-104990",
+    date: daysAgo(7),
+    lines: [
+      ["Barricade 4FL", 8, 118.0],
+      ["Dimension 2EW", 6, 132.5],
+      ["Talstar P Professional", 6, 63.0],
+      ["Contrac Blox", 4, 42.0],
+    ],
+  });
 
   // --- Sample check-outs ----------------------------------------------
   const checkout = (name: string, warehouseId: string, techId: string, q: number, dAgo: number) =>
@@ -222,13 +258,15 @@ export async function seedDatabase(
   await checkout("Taurus SC", stuart.id, techs[2].id, 2, 2);
   await checkout("Advion Ant Gel", stuart.id, techs[3].id, 4, 1);
   await checkout("Suspend PolyZone", orlando.id, techs[4].id, 3, 1);
+  await checkout("Barricade 4FL", naples.id, techs[6].id, 2, 1);
+  await checkout("Dimension 2EW", naples.id, techs[7].id, 1, 1);
 
   await prisma.setting.create({
     data: { key: "price_increase_threshold_pct", value: "10" },
   });
 
   return {
-    warehouses: 3,
+    warehouses: STANDARD_WAREHOUSES.length,
     technicians: techs.length,
     products: Object.keys(products).length,
   };

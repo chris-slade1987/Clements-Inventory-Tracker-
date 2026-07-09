@@ -9,5 +9,9 @@ export default async function AppGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireUser();
-  return <AppShell managerName={user.name}>{children}</AppShell>;
+  return (
+    <AppShell managerName={user.name} isAdmin={user.role === "admin"}>
+      {children}
+    </AppShell>
+  );
 }

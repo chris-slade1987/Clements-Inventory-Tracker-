@@ -28,9 +28,11 @@ function isActive(pathname: string, href: string) {
 export default function AppShell({
   children,
   managerName,
+  isAdmin = false,
 }: {
   children: React.ReactNode;
   managerName?: string;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -66,7 +68,23 @@ export default function AppShell({
             );
           })}
         </nav>
-        <div className="px-3 pb-2">
+        <div className="px-3 pb-2 space-y-1">
+          {isAdmin ? (
+            <Link
+              href="/manage"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                isActive(pathname, "/manage")
+                  ? "bg-brand-50 text-brand-700"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-ink"
+              }`}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <path d="M10.3 3.3a1 1 0 011.4 0l1 1a1 1 0 00.9.3l1.4-.2a1 1 0 011.1.7l.4 1.3a1 1 0 00.7.7l1.3.4a1 1 0 01.7 1.1l-.2 1.4a1 1 0 00.3.9l1 1a1 1 0 010 1.4l-1 1a1 1 0 00-.3.9l.2 1.4a1 1 0 01-.7 1.1l-1.3.4a1 1 0 00-.7.7l-.4 1.3a1 1 0 01-1.1.7l-1.4-.2a1 1 0 00-.9.3l-1 1a1 1 0 01-1.4 0l-1-1a1 1 0 00-.9-.3l-1.4.2a1 1 0 01-1.1-.7l-.4-1.3a1 1 0 00-.7-.7l-1.3-.4a1 1 0 01-.7-1.1l.2-1.4a1 1 0 00-.3-.9l-1-1a1 1 0 010-1.4l1-1a1 1 0 00.3-.9l-.2-1.4a1 1 0 01.7-1.1l1.3-.4a1 1 0 00.7-.7l.4-1.3a1 1 0 011.1-.7l1.4.2a1 1 0 00.9-.3z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              Manage
+            </Link>
+          ) : null}
           <Link
             href="/help"
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -105,10 +123,22 @@ export default function AppShell({
             C
           </span>
           <span className="font-semibold">Clements Inventory</span>
+          {isAdmin ? (
+            <Link
+              href="/manage"
+              aria-label="Manage"
+              className="ml-auto p-1 text-slate-500 hover:text-ink"
+            >
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" />
+              </svg>
+            </Link>
+          ) : null}
           <Link
             href="/help"
             aria-label="Help"
-            className="ml-auto p-1 text-slate-500 hover:text-ink"
+            className={`${isAdmin ? "" : "ml-auto"} p-1 text-slate-500 hover:text-ink`}
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.8}>
               <circle cx="12" cy="12" r="9" />

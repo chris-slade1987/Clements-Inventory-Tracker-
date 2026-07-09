@@ -1,0 +1,23 @@
+import { prisma } from "@/lib/prisma";
+import ManageProducts from "./ManageProducts";
+
+export const dynamic = "force-dynamic";
+
+export default async function ManageProductsPage() {
+  const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
+  return (
+    <ManageProducts
+      products={products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        manufacturer: p.manufacturer,
+        epaRegNumber: p.epaRegNumber,
+        unitOfMeasure: p.unitOfMeasure,
+        category: p.category,
+        barcode: p.barcode,
+        distributorSku: p.distributorSku,
+        active: p.active,
+      }))}
+    />
+  );
+}

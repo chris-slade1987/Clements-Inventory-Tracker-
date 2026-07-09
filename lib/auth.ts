@@ -82,6 +82,13 @@ export async function requireUser(): Promise<SessionUser> {
   return user;
 }
 
+/** Require an admin. Redirects non-admins to the dashboard. */
+export async function requireAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.role !== "admin") redirect("/dashboard");
+  return user;
+}
+
 export async function destroySession(): Promise<void> {
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;
