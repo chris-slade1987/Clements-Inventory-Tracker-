@@ -1,6 +1,10 @@
 // Clements Inventory — Prisma schema
-// Sandbox uses SQLite (local file). Swap datasource to Postgres for production.
-// Models are added in Prompt 1.
+// Sandbox uses SQLite (local file). For production, change datasource.provider
+// to "postgresql" and point DATABASE_URL at Postgres (see README / deploy guide).
+//
+// SQLite has no native enums, so "type"/"status"/"severity" are strings with
+// documented allowed values. Column/table names are mapped to snake_case to
+// match the spec while keeping idiomatic camelCase in TypeScript.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +13,184 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  technicians Technician[]
+  users       User[]
+  invoices    Invoice[]
+  movements   StockMovement[]
+
+  @@map("warehouses")
+}
+
+model Technician {
+  id              String  @id @default(cuid())
+  name            String
+  homeWarehouseId String  @map("home_warehouse_id")
+  employeeIdCard  String? @map("employee_id_card") // FDACS card #, optional
+  active          Boolean @default(true)
+
+  homeWarehouse Warehouse       @relation(fields: [homeWarehouseId], references: [id])
+  movements     StockMovement[]
+
+  @@index([homeWarehouseId])
+  @@map("technicians")
+}
+
+// Managers only — v1 has no technician logins.
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("manager") // "manager" | "admin"
+  warehouseId  String?  @map("warehouse_id") // null = access to all warehouses
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])
+  sessions  Session[]
+  invoices  Invoice[]
+  movements StockMovement[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// Master chemical catalog.
+model Product {
+  id             String  @id @default(cuid())
+  name           String
+  manufacturer   String?
+  epaRegNumber   String? @map("epa_reg_number")
+  unitOfMeasure  String  @map("unit_of_measure") // e.g. "jug", "case", "lb", "gal"
+  category       String?
+  barcode        String? @unique
+  distributorSku String? @map("distributor_sku")
+  active          Boolean @default(true)
+
+  invoiceLines InvoiceLine[]
+  movements    StockMovement[]
+  alerts       Alert[]
+
+  @@map("products")
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  distributor   String
+  invoiceNumber String   @map("invoice_number")
+  invoiceDate   DateTime @map("invoice_date")
+  warehouseId   String   @map("warehouse_id")
+  filePath      String?  @map("file_path")
+  subtotal      Float?
+  total         Float?
+  status        String   @default("parsed") // "parsed" | "confirmed"
+  uploadedById  String?  @map("uploaded_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  warehouse  Warehouse       @relation(fields: [warehouseId], references: [id])
+  uploadedBy User?           @relation(fields: [uploadedById], references: [id])
+  lines      InvoiceLine[]
+  movements  StockMovement[]
+
+  @@index([warehouseId])
+  @@index([distributor, invoiceNumber])
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id             String  @id @default(cuid())
+  invoiceId      String  @map("invoice_id")
+  productId      String? @map("product_id")
+  descriptionRaw String  @map("description_raw")
+  quantity       Float
+  unit           String?
+  unitPrice      Float?  @map("unit_price")
+  lineTotal      Float?  @map("line_total")
+  matched        Boolean @default(false)
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([invoiceId])
+  @@index([productId])
+  @@map("invoice_lines")
+}
+
+// Every stock change is a movement. On-hand = SUM(quantity) per product+warehouse.
+// check_in => positive, check_out => negative, adjustment => either sign.
+model StockMovement {
+  id              String   @id @default(cuid())
+  type            String // "check_in" | "check_out" | "adjustment"
+  productId       String   @map("product_id")
+  warehouseId     String   @map("warehouse_id")
+  technicianId    String?  @map("technician_id")
+  quantity        Float
+  unitPrice       Float?   @map("unit_price")
+  sourceInvoiceId String?  @map("source_invoice_id")
+  reason          String?
+  userId          String?  @map("user_id")
+  // Reconciliation: reversals reference the movement they undo. Nothing is ever
+  // hard-deleted; a reversed movement stays and gets an offsetting entry.
+  reversalOfId    String?  @unique @map("reversal_of_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  product       Product        @relation(fields: [productId], references: [id])
+  warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
+  technician    Technician?    @relation(fields: [technicianId], references: [id])
+  sourceInvoice Invoice?       @relation(fields: [sourceInvoiceId], references: [id])
+  user          User?          @relation(fields: [userId], references: [id])
+  reversalOf    StockMovement? @relation("Reversal", fields: [reversalOfId], references: [id])
+  reversedBy    StockMovement? @relation("Reversal")
+
+  @@index([productId, warehouseId])
+  @@index([warehouseId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  type      String // "price_increase" | "duplicate_invoice" | "negative_stock" | "quantity_spike"
+  productId String?  @map("product_id")
+  message   String
+  severity  String   @default("warning") // "info" | "warning" | "critical"
+  status    String   @default("open") // "open" | "dismissed"
+  // De-dupe key so the agent doesn't re-file the same anomaly every run.
+  dedupeKey String?  @unique @map("dedupe_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([status])
+  @@map("alerts")
+}
+
+// Simple key/value app settings (e.g. price-increase threshold).
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("settings")
 }
