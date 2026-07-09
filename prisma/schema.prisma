@@ -30,11 +30,14 @@ model Warehouse {
   @@map("warehouses")
 }
 
+// Field employees (the people stock is checked out to). Not app logins.
 model Technician {
   id              String  @id @default(cuid())
   name            String
   homeWarehouseId String  @map("home_warehouse_id")
   employeeIdCard  String? @map("employee_id_card") // FDACS card #, optional
+  role            String  @default("Technician") // Technician | Manager | Sales Advisor
+  division        String? // Lawn | Service | General Pest
   active          Boolean @default(true)
 
   homeWarehouse Warehouse       @relation(fields: [homeWarehouseId], references: [id])

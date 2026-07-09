@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { normalizeRole, normalizeDivision } from "@/lib/constants";
 
 async function guard() {
   const user = await getSessionUser();
@@ -35,6 +36,8 @@ export async function POST(req: Request) {
         name,
         homeWarehouseId,
         employeeIdCard: clean(body?.employeeIdCard),
+        role: normalizeRole(body?.role),
+        division: normalizeDivision(body?.division),
       };
 
       if (action === "create") {

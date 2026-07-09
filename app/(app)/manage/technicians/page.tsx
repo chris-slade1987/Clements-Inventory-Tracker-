@@ -20,6 +20,8 @@ export default async function ManageTechniciansPage() {
         homeWarehouseId: t.homeWarehouseId,
         homeWarehouseName: t.homeWarehouse.name,
         employeeIdCard: t.employeeIdCard,
+        role: t.role,
+        division: t.division,
         active: t.active,
       }))}
     />

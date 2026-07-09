@@ -21,6 +21,31 @@ export const STANDARD_WAREHOUSES = [
   "Naples",
 ];
 
+// Employee profile taxonomies.
+export const EMPLOYEE_ROLES = ["Technician", "Manager", "Sales Advisor"] as const;
+export const EMPLOYEE_DIVISIONS = ["Lawn", "General Pest", "Service"] as const;
+
+/** Normalize a free role string to one of the canonical roles. */
+export function normalizeRole(raw: string | null | undefined): string {
+  const v = (raw ?? "").toLowerCase().trim();
+  if (/sales|advisor/.test(v)) return "Sales Advisor";
+  if (/manager|mgr|supervisor/.test(v)) return "Manager";
+  if (/tech/.test(v)) return "Technician";
+  const exact = EMPLOYEE_ROLES.find((r) => r.toLowerCase() === v);
+  return exact ?? "Technician";
+}
+
+/** Normalize a free division string to one of the canonical divisions, or null. */
+export function normalizeDivision(raw: string | null | undefined): string | null {
+  const v = (raw ?? "").toLowerCase().trim();
+  if (!v) return null;
+  if (/lawn|turf/.test(v)) return "Lawn";
+  if (/general|pest/.test(v)) return "General Pest";
+  if (/service/.test(v)) return "Service";
+  const exact = EMPLOYEE_DIVISIONS.find((d) => d.toLowerCase() === v);
+  return exact ?? null;
+}
+
 /**
  * Best-effort mapping of a product name/category string to one of the fixed
  * tags. Ordered so the most specific signal wins. Imported data is only a
