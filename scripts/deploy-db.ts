@@ -1,0 +1,61 @@
+/**
+ * Deploy-time database bootstrap. Runs during `npm run build`.
+ *
+ * - Local / SQLite (DATABASE_URL starts with "file:"): does nothing, so the
+ *   local sandbox and `npm run dev` are unaffected.
+ * - Postgres (DATABASE_URL starts with "postgres"): flips the Prisma datasource
+ *   provider to postgresql (build-time only, not committed), creates the schema
+ *   with `prisma db push`, and loads sample data if the database is empty.
+ *
+ * This lets a fresh Vercel deploy come up fully working with zero manual steps.
+ */
+import { execSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const url = process.env.DATABASE_URL ?? "";
+
+async function main() {
+  if (!/^postgres(ql)?:\/\//i.test(url)) {
+    console.log("deploy-db: non-Postgres DATABASE_URL — skipping (local/dev).");
+    return;
+  }
+
+  // Switch the datasource to Postgres for this build only.
+  const schemaPath = join(process.cwd(), "prisma", "schema.prisma");
+  const schema = readFileSync(schemaPath, "utf8");
+  if (schema.includes('provider = "sqlite"')) {
+    writeFileSync(
+      schemaPath,
+      schema.replace('provider = "sqlite"', 'provider = "postgresql"')
+    );
+    console.log("deploy-db: switched Prisma provider to postgresql.");
+  }
+
+  // Create/align the schema (also regenerates the client for Postgres).
+  console.log("deploy-db: running prisma db push…");
+  execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
+
+  // Seed only when the database is empty (don't wipe data on every redeploy).
+  const { PrismaClient } = await import("@prisma/client");
+  const { seedDatabase } = await import("../prisma/seed-core");
+  const prisma = new PrismaClient();
+  try {
+    const count = await prisma.warehouse.count();
+    if (count === 0) {
+      const c = await seedDatabase(prisma, { reset: false });
+      console.log(
+        `deploy-db: seeded ${c.warehouses} warehouses, ${c.technicians} technicians, ${c.products} products.`
+      );
+    } else {
+      console.log(`deploy-db: database already has ${count} warehouses — not seeding.`);
+    }
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+main().catch((e) => {
+  console.error("deploy-db failed:", e);
+  process.exit(1);
+});

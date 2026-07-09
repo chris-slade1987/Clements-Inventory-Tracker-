@@ -30,14 +30,23 @@ export async function POST(req: Request) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
 
-  // Persist the original file locally (sandbox: public/uploads).
+  // Persist the original file locally (sandbox: public/uploads). On a
+  // read-only/serverless filesystem (e.g. Vercel) this is best-effort — the
+  // parse still works from the in-memory bytes, we just don't keep the file.
+  // For durable production storage, upload to Supabase Storage here (see
+  // DEPLOY.md) instead of the local disk.
   const rawName = (file as File).name || "invoice";
   const safeName = rawName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
   const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safeName}`;
-  const dir = join(process.cwd(), "public", "uploads");
-  await mkdir(dir, { recursive: true });
-  await writeFile(join(dir, stored), bytes);
-  const filePath = `/uploads/${stored}`;
+  let filePath: string | null = null;
+  try {
+    const dir = join(process.cwd(), "public", "uploads");
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, stored), bytes);
+    filePath = `/uploads/${stored}`;
+  } catch {
+    filePath = null; // read-only FS — proceed without storing the file
+  }
 
   // Parse (Claude vision or mock).
   let invoice;
