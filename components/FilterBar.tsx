@@ -9,12 +9,20 @@ type Option = { id: string; name: string };
 export default function FilterBar({
   products,
   warehouses,
+  categories,
   initial,
   exportBase,
 }: {
   products: Option[];
   warehouses?: Option[];
-  initial: { from?: string; to?: string; productId?: string; warehouseId?: string };
+  categories?: readonly string[];
+  initial: {
+    from?: string;
+    to?: string;
+    productId?: string;
+    warehouseId?: string;
+    category?: string;
+  };
   /** If set, renders an "Export CSV" link to `${exportBase}?<current filters>`. */
   exportBase?: string;
 }) {
@@ -24,6 +32,7 @@ export default function FilterBar({
   const [to, setTo] = useState(initial.to ?? "");
   const [productId, setProductId] = useState(initial.productId ?? "");
   const [warehouseId, setWarehouseId] = useState(initial.warehouseId ?? "");
+  const [category, setCategory] = useState(initial.category ?? "");
 
   function params() {
     const p = new URLSearchParams();
@@ -31,6 +40,7 @@ export default function FilterBar({
     if (to) p.set("to", to);
     if (productId) p.set("productId", productId);
     if (warehouseId) p.set("warehouseId", warehouseId);
+    if (category) p.set("category", category);
     return p;
   }
 
@@ -43,6 +53,7 @@ export default function FilterBar({
     setTo("");
     setProductId("");
     setWarehouseId("");
+    setCategory("");
     router.push(pathname);
   }
 
@@ -67,6 +78,23 @@ export default function FilterBar({
             className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink"
           />
         </label>
+        {categories ? (
+          <label className="text-xs font-medium text-muted">
+            Category
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink bg-surface"
+            >
+              <option value="">All categories</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         {warehouses ? (
           <label className="text-xs font-medium text-muted">
             Warehouse

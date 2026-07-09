@@ -2,11 +2,13 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  onHandByCategory,
   onHandByProduct,
   parseFilters,
   warehouseMetrics,
 } from "@/lib/reporting";
 import { money, qty } from "@/lib/format";
+import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import FilterBar from "@/components/FilterBar";
 import GroupedBarChart, { REPORT_SERIES } from "@/components/GroupedBarChart";
 
@@ -21,12 +23,15 @@ export default async function ReportsPage({
   const sp = await searchParams;
   const filters = parseFilters(sp);
 
-  const [warehouses, products, metrics, productRows] = await Promise.all([
-    prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
-    prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    warehouseMetrics(filters),
-    onHandByProduct(filters),
-  ]);
+  const [warehouses, products, metrics, productRows, categoryRows] =
+    await Promise.all([
+      prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+      prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+      warehouseMetrics(filters),
+      onHandByProduct(filters),
+      onHandByCategory(filters),
+    ]);
+  const categoryMax = Math.max(1, ...categoryRows.map((c) => c.qty));
 
   const shownWarehouses = filters.warehouseId
     ? warehouses.filter((w) => w.id === filters.warehouseId)
@@ -66,6 +71,7 @@ export default async function ReportsPage({
       <FilterBar
         products={products}
         warehouses={warehouses}
+        categories={PRODUCT_CATEGORIES}
         initial={sp}
         exportBase="/api/reports/export"
       />
@@ -122,6 +128,31 @@ export default async function ReportsPage({
         </div>
       </Card>
 
+      {/* On-hand by category */}
+      <Card className="p-4 mb-6">
+        <h2 className="text-sm font-semibold text-ink mb-3">On-hand by category</h2>
+        {categoryRows.length === 0 ? (
+          <p className="text-sm text-muted">No stock matches these filters.</p>
+        ) : (
+          <div className="space-y-2">
+            {categoryRows.map((c) => (
+              <div key={c.category} className="flex items-center gap-3">
+                <div className="w-28 shrink-0 text-sm text-ink">{c.category}</div>
+                <div className="flex-1 h-5 rounded bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full bg-brand-500 rounded"
+                    style={{ width: `${Math.max(3, (c.qty / categoryMax) * 100)}%` }}
+                  />
+                </div>
+                <div className="w-16 shrink-0 text-right text-sm font-medium tabular-nums">
+                  {qty(c.qty)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       {/* On-hand by product */}
       <Card className="p-0 overflow-hidden">
         <div className="px-4 py-3 border-b border-line">
@@ -132,6 +163,7 @@ export default async function ReportsPage({
             <thead>
               <tr className="text-left text-xs text-muted border-b border-line">
                 <th className="px-4 py-2 font-medium">Product</th>
+                <th className="px-2 py-2 font-medium">Category</th>
                 <th className="px-2 py-2 font-medium">Unit</th>
                 {shownWarehouses.map((w) => (
                   <th key={w.id} className="px-2 py-2 font-medium text-right">
@@ -144,7 +176,7 @@ export default async function ReportsPage({
             <tbody>
               {productRows.length === 0 ? (
                 <tr>
-                  <td colSpan={shownWarehouses.length + 3} className="px-4 py-6 text-center text-muted">
+                  <td colSpan={shownWarehouses.length + 4} className="px-4 py-6 text-center text-muted">
                     No stock movements match these filters.
                   </td>
                 </tr>
@@ -152,6 +184,7 @@ export default async function ReportsPage({
                 productRows.map((p) => (
                   <tr key={p.productId} className="border-b border-line last:border-0">
                     <td className="px-4 py-2">{p.name}</td>
+                    <td className="px-2 py-2 text-muted">{p.category}</td>
                     <td className="px-2 py-2 text-muted">{p.unit}</td>
                     {shownWarehouses.map((w) => (
                       <td key={w.id} className="px-2 py-2 text-right tabular-nums">

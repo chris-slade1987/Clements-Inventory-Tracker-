@@ -61,11 +61,12 @@ export async function GET(req: Request) {
 
   // Section 2: on-hand by product per warehouse.
   lines.push("On-hand by product");
-  lines.push(row(["Product", "Unit", ...warehouses.map((w) => w.name), "Total"]));
+  lines.push(row(["Product", "Category", "Unit", ...warehouses.map((w) => w.name), "Total"]));
   for (const p of productRows) {
     lines.push(
       row([
         p.name,
+        p.category,
         p.unit,
         ...warehouses.map((w) => p.byWarehouse[w.id] ?? 0),
         p.total,

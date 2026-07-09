@@ -8,6 +8,7 @@ import {
   warehouseMetrics,
 } from "@/lib/reporting";
 import { money, qty } from "@/lib/format";
+import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import FilterBar from "@/components/FilterBar";
 import GroupedBarChart, { REPORT_SERIES } from "@/components/GroupedBarChart";
 
@@ -57,6 +58,7 @@ export default async function DashboardPage({
 
       <FilterBar
         products={products}
+        categories={PRODUCT_CATEGORIES}
         initial={sp}
       />
 
