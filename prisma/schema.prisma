@@ -1,0 +1,12 @@
+// Clements Inventory — Prisma schema
+// Sandbox uses SQLite (local file). Swap datasource to Postgres for production.
+// Models are added in Prompt 1.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}

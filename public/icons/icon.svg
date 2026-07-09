@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Clements Inventory">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M136 196 L256 136 L376 196 L376 332 L256 392 L136 332 Z"/>
+    <path d="M136 196 L256 256 L376 196"/>
+    <path d="M256 256 L256 392"/>
+  </g>
+  <circle cx="360" cy="360" r="70" fill="#ffffff"/>
+  <path d="M330 360 l22 22 l40 -48" fill="none" stroke="#047857" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
