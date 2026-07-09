@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { runAnomalyChecks } from "@/lib/anomaly";
 
 type NewProduct = {
   name: string;
@@ -123,6 +124,13 @@ export async function POST(req: Request) {
 
     return { invoiceId: invoice.id, itemCount, lineCount: lines.length };
   });
+
+  // Run the anomaly agent on the freshly confirmed invoice (best-effort).
+  try {
+    await runAnomalyChecks();
+  } catch {
+    /* alerts are non-critical; never fail the check-in on their account */
+  }
 
   return NextResponse.json({
     ok: true,
