@@ -55,8 +55,26 @@ scripts/            # icon generation
 clone. Real secrets (production `DATABASE_URL`, `AUTH_SECRET`,
 `ANTHROPIC_API_KEY`) go in `.env.local` or your host's env — see `.env.example`.
 
+## Features
+
+- **Check-Out** — disperse stock to a technician (search or barcode scan, live
+  on-hand, negative-stock guard).
+- **Check-In** — upload a distributor invoice; Claude vision (or the mock
+  parser) extracts line items for review before posting.
+- **Dashboard & Reports** — purchased / dispersed / on-hand per warehouse, with
+  filters and CSV export.
+- **Reconcile** — reverse, correct, or adjust any movement; nothing is deleted.
+- **Alerts** — automated anomaly checks (price increases, duplicate invoices,
+  negative stock, quantity spikes).
+- **Help** — in-app guide to the two workflows and installing the PWA.
+
 ## Regenerating icons
 
 ```bash
 node scripts/gen-icons.mjs   # rebuilds PNGs from public/icons/icon.svg
 ```
+
+## Going live
+
+See [DEPLOY.md](./DEPLOY.md) for Vercel + Supabase (Postgres, storage) setup and
+the SQLite → Postgres migration.

@@ -10,12 +10,13 @@ export default function FilterBar({
   products,
   warehouses,
   initial,
-  exportHref,
+  exportBase,
 }: {
   products: Option[];
   warehouses?: Option[];
   initial: { from?: string; to?: string; productId?: string; warehouseId?: string };
-  exportHref?: (params: URLSearchParams) => string;
+  /** If set, renders an "Export CSV" link to `${exportBase}?<current filters>`. */
+  exportBase?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -106,8 +107,11 @@ export default function FilterBar({
         <button onClick={clear} className={btn.secondary}>
           Clear
         </button>
-        {exportHref ? (
-          <a href={exportHref(params())} className={`${btn.secondary} ml-auto`}>
+        {exportBase ? (
+          <a
+            href={`${exportBase}?${params().toString()}`}
+            className={`${btn.secondary} ml-auto`}
+          >
             Export CSV
           </a>
         ) : null}

@@ -67,7 +67,7 @@ export default async function ReportsPage({
         products={products}
         warehouses={warehouses}
         initial={sp}
-        exportHref={(p) => `/api/reports/export?${p.toString()}`}
+        exportBase="/api/reports/export"
       />
 
       <Card className="p-4 mb-6">
