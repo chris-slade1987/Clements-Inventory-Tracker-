@@ -7,6 +7,7 @@ const TABS = [
   { href: "/manage/products", label: "Products" },
   { href: "/manage/technicians", label: "Technicians" },
   { href: "/manage/managers", label: "Managers" },
+  { href: "/manage/inventory", label: "Stock import" },
 ];
 
 export default function ManageTabs() {
