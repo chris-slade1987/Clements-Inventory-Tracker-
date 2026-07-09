@@ -14,15 +14,24 @@ export async function POST(req: Request) {
     );
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  // Same message whether the email is unknown or the password is wrong.
-  if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    // Same message whether the email is unknown or the password is wrong.
+    if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
+      return NextResponse.json(
+        { error: "Invalid email or password." },
+        { status: 401 }
+      );
+    }
+
+    await createSession(user.id);
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    // Surface the underlying cause (e.g. database not reachable / not migrated)
+    // instead of a generic failure, so setup issues are diagnosable.
     return NextResponse.json(
-      { error: "Invalid email or password." },
-      { status: 401 }
+      { error: `Sign-in error: ${(e as Error).message}` },
+      { status: 500 }
     );
   }
-
-  await createSession(user.id);
-  return NextResponse.json({ ok: true });
 }
