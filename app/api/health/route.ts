@@ -9,16 +9,25 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const dbScheme = (process.env.DATABASE_URL ?? "").split(":")[0] || "unset";
   try {
-    const [warehouses, users, products] = await Promise.all([
-      prisma.warehouse.count(),
-      prisma.user.count(),
-      prisma.product.count(),
-    ]);
+    const [warehouses, users, products, techActive, techTotal] =
+      await Promise.all([
+        prisma.warehouse.count(),
+        prisma.user.count(),
+        prisma.product.count(),
+        prisma.technician.count({ where: { active: true } }),
+        prisma.technician.count(),
+      ]);
     return NextResponse.json({
       ok: true,
       dbScheme,
       seeded: users > 0 && warehouses > 0,
-      counts: { warehouses, users, products },
+      counts: {
+        warehouses,
+        users,
+        products,
+        techniciansActive: techActive,
+        techniciansTotal: techTotal,
+      },
     });
   } catch (e) {
     return NextResponse.json(
