@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { parseCsvObjects } from "@/lib/csv";
 import { readXlsxObjects } from "@/lib/xlsx";
-import { normalizeRole, normalizeDivision } from "@/lib/constants";
+import { normalizeRole, normalizeDivision, categorizeProduct, unitLabel } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
@@ -61,14 +61,20 @@ export async function POST(req: Request) {
         skipped.push(`Row ${i + 2}: missing name`);
         continue;
       }
+      const ai = pick(row, ["activeingredient", "active", "ai"]);
+      const target = pick(row, ["targetpest", "target", "pest"]);
+      const providedCat = pick(row, ["category", "cat"]);
       const data = {
         name: pname,
-        unitOfMeasure: unit,
+        unitOfMeasure: unitLabel(unit),
         manufacturer: pick(row, ["manufacturer", "mfr", "brand"]) || null,
-        epaRegNumber: pick(row, ["eparegnumber", "epareg", "epa"]) || null,
-        category: pick(row, ["category", "cat"]) || null,
+        epaRegNumber: pick(row, ["eparegnumber", "epareg", "epa", "eparegistration"]) || null,
+        category: providedCat || categorizeProduct(pname, ai, target, unit),
+        activeIngredient: ai || null,
+        targetPest: target || null,
+        applicationMethod: pick(row, ["applicationmethod", "application", "method"]) || null,
         barcode: pick(row, ["barcode", "upc"]) || null,
-        distributorSku: pick(row, ["distributorsku", "sku"]) || null,
+        distributorSku: pick(row, ["distributorsku", "sku", "materialcode", "material"]) || null,
       };
       try {
         const found = byName.get(pname.toLowerCase());

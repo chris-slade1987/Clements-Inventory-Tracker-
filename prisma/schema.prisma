@@ -89,6 +89,9 @@ model Product {
   category       String?
   barcode        String? @unique
   distributorSku String? @map("distributor_sku")
+  activeIngredient  String? @map("active_ingredient")
+  targetPest        String? @map("target_pest")
+  applicationMethod String? @map("application_method")
   active          Boolean @default(true)
 
   invoiceLines InvoiceLine[]

@@ -12,6 +12,9 @@ type Product = {
   epaRegNumber: string | null;
   unitOfMeasure: string;
   category: string | null;
+  activeIngredient: string | null;
+  targetPest: string | null;
+  applicationMethod: string | null;
   barcode: string | null;
   distributorSku: string | null;
   active: boolean;
@@ -23,7 +26,10 @@ const empty = {
   manufacturer: "",
   epaRegNumber: "",
   unitOfMeasure: "ea",
-  category: "General Pest",
+  category: "Insecticide/Pesticide",
+  activeIngredient: "",
+  targetPest: "",
+  applicationMethod: "",
   barcode: "",
   distributorSku: "",
 };
@@ -107,8 +113,8 @@ export default function ManageProducts({ products }: { products: Product[] }) {
       </div>
 
       <p className="text-xs text-muted mb-3">
-        CSV columns: <code>name, manufacturer, epaRegNumber, unitOfMeasure, category, barcode, distributorSku</code>.
-        Existing products (matched by name) are updated; unknown categories map to Other.
+        CSV columns: <code>name, category, manufacturer, epaRegNumber, activeIngredient, targetPest, unitOfMeasure, distributorSku</code>.
+        Existing products (matched by name) are updated; a blank category is auto-classified.
       </p>
 
       {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
@@ -121,9 +127,9 @@ export default function ManageProducts({ products }: { products: Product[] }) {
               <tr className="text-left text-xs text-muted border-b border-line">
                 <th className="px-3 py-2 font-medium">Product</th>
                 <th className="px-3 py-2 font-medium">Category</th>
+                <th className="px-3 py-2 font-medium">Active ingredient</th>
                 <th className="px-3 py-2 font-medium">Unit</th>
                 <th className="px-3 py-2 font-medium">EPA #</th>
-                <th className="px-3 py-2 font-medium">Barcode</th>
                 <th className="px-3 py-2 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -135,9 +141,9 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                     <div className="text-xs text-muted">{p.manufacturer ?? "—"}</div>
                   </td>
                   <td className="px-3 py-2">{p.category ?? "—"}</td>
+                  <td className="px-3 py-2 text-xs">{p.activeIngredient ?? "—"}</td>
                   <td className="px-3 py-2">{p.unitOfMeasure}</td>
                   <td className="px-3 py-2 text-xs">{p.epaRegNumber ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs">{p.barcode ?? "—"}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     <button
                       onClick={() =>
@@ -148,6 +154,9 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                           epaRegNumber: p.epaRegNumber ?? "",
                           unitOfMeasure: p.unitOfMeasure,
                           category: p.category ?? "Other",
+                          activeIngredient: p.activeIngredient ?? "",
+                          targetPest: p.targetPest ?? "",
+                          applicationMethod: p.applicationMethod ?? "",
                           barcode: p.barcode ?? "",
                           distributorSku: p.distributorSku ?? "",
                         })
@@ -188,11 +197,16 @@ export default function ManageProducts({ products }: { products: Product[] }) {
               <Field label="Unit" value={form.unitOfMeasure} onChange={(v) => setForm({ ...form, unitOfMeasure: v })} />
             </div>
             <Field label="Manufacturer" value={form.manufacturer} onChange={(v) => setForm({ ...form, manufacturer: v })} />
+            <Field label="Active ingredient" value={form.activeIngredient} onChange={(v) => setForm({ ...form, activeIngredient: v })} />
             <div className="grid grid-cols-2 gap-3">
               <Field label="EPA reg #" value={form.epaRegNumber} onChange={(v) => setForm({ ...form, epaRegNumber: v })} />
-              <Field label="Barcode" value={form.barcode} onChange={(v) => setForm({ ...form, barcode: v })} />
+              <Field label="Target pest" value={form.targetPest} onChange={(v) => setForm({ ...form, targetPest: v })} />
             </div>
-            <Field label="Distributor SKU" value={form.distributorSku} onChange={(v) => setForm({ ...form, distributorSku: v })} />
+            <Field label="Application method" value={form.applicationMethod} onChange={(v) => setForm({ ...form, applicationMethod: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Barcode" value={form.barcode} onChange={(v) => setForm({ ...form, barcode: v })} />
+              <Field label="Distributor SKU" value={form.distributorSku} onChange={(v) => setForm({ ...form, distributorSku: v })} />
+            </div>
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
             <div className="flex gap-2 pt-1">
               <button onClick={() => { setForm(null); setError(null); }} className={btn.secondary}>Cancel</button>

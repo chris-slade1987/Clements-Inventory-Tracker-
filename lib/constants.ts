@@ -4,10 +4,13 @@
 // cleanly. Stored on Product.category (a free string) but the UI constrains to
 // these, and CSV import maps incoming values to the closest match.
 export const PRODUCT_CATEGORIES = [
-  "General Pest",
-  "Lawn",
+  "Insecticide/Pesticide",
+  "Herbicide",
+  "Fungicide",
+  "Liquid Fertilizer",
+  "Granular Fertilizer",
+  "Termiticide",
   "Rodent",
-  "Termite",
   "Other",
 ] as const;
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
@@ -47,24 +50,42 @@ export function normalizeDivision(raw: string | null | undefined): string | null
 }
 
 /**
- * Best-effort mapping of a product name/category string to one of the fixed
- * tags. Ordered so the most specific signal wins. Imported data is only a
- * starting point — categories can be corrected in Manage afterwards.
+ * Best-effort categorization of a product into the fixed taxonomy, using its
+ * name plus (optionally) active ingredient, target pest, and unit code. Ordered
+ * so the most specific signal wins. Imported data is a starting point —
+ * categories can always be corrected in Manage afterwards.
  */
-export function normalizeCategory(raw: string | null | undefined): string {
-  const v = (raw ?? "").toLowerCase().trim();
-  if (!v) return "Other";
-  // Exact match against the canonical list wins.
-  const exact = PRODUCT_CATEGORIES.find((c) => c.toLowerCase() === v);
+export function categorizeProduct(
+  name: string,
+  activeIngredient = "",
+  targetPest = "",
+  uom = ""
+): string {
+  const s = `${name} ${activeIngredient} ${targetPest}`.toLowerCase();
+  const u = uom.trim().toUpperCase();
+  const exact = PRODUCT_CATEGORIES.find((c) => c.toLowerCase() === name.toLowerCase().trim());
   if (exact) return exact;
-  if (/termidor|termite|termiticide/.test(v)) return "Termite";
-  if (/rodent|mouse|mice|\brat\b|snap trap|glue|bait block|bait stat|blox|victor|trapper|catchmaster|eaton|stick-?em|t-rex/.test(v))
+
+  if (/termiticide|termidor|taurus sc|cyper tc|dominion 2l|altriset|topchoice|\btermite/.test(s))
+    return "Termiticide";
+  if (/rodent|bait block|bait station|snap trap|glue board|glue trap|\bmouse\b|\bmice\b|\brat\b|victor|trapper|catchmaster|eaton|contrac|fastrac|just one bite|protecta|t-rex|tomcat|stick-?em/.test(s))
     return "Rodent";
-  if (/lawn|turf|herbicide|fungicide|fertiliz|fertil|weed|lesco|sedgehammer|spreader|speedzone|avenue|artavia|heritage|phyte|k-flow|macron|granular fert|0-0-|19-19/.test(v))
-    return "Lawn";
-  if (/insect|ant\b|roach|cockroach|wasp|\bdust\b|aerosol|gel bait|\bigr\b|precor|gentrol|advion|optigard|maxforce|safari|suspend|alpine|bifen|cb-?80|uld|deltadust|extinguish|dipel/.test(v))
-    return "General Pest";
+  if (/herbicid|post emergent|pre.?emergent|\bweed\b|broadleaf|sedge|2,4-d|glyphosate|prosecutor|roundup|quikpro|non.?selective|celsius|certainty|avenue|speedzone|barricade|dimension|prodiamine|dismiss|blindside|drive xlr|metsulfuron|atrazine|\bimage\b|fusilade|ronstar|msma|nutsedge|mansion|sedgehammer|octane|mojave/.test(s))
+    return "Herbicide";
+  if (/fungicid|heritage|artavia|t-storm|cleary|3336|propiconazole|azoxystrobin|armada|banner maxx|prostar|headway|pageant|arbor otc/.test(s))
+    return "Fungicide";
+  if (/fertiliz|micronutrient|chelated|\biron\b|phyte|k-flow|k-leaf|macron|coron|ele.?max|\d+-\d+-\d+|urea|potash|micros|bio.?iron|green.?flo|promicro|promate|soil amend|sulfur|spar.?tech/.test(s)) {
+    if (u === "FB" || /granular|prill|\blb\b|\bbag\b|soluble|spar.?tech/.test(s)) return "Granular Fertilizer";
+    return "Liquid Fertilizer";
+  }
+  if (/insecticide|pesticide|\bant\b|roach|cockroach|wasp|\bbee\b|flea|tick|mosquito|\bfly\b|\bigr\b|gel bait|\bdust\b|aerosol|bifen|talstar|talak|demand|temprid|suspend|tempo|alpine|advion|optigard|maxforce|gentrol|archer|acephate|cimexa|deltamethrin|imidacloprid|indoxacarb|pyreth|cb-?80|precor|onslaught|extinguish|tim-bor|d-fense|nyguard|crosscheck|safari|phantom|microcare|ultracide|transport|vendetta|shockwave|sector|arena|dipel/.test(s))
+    return "Insecticide/Pesticide";
   return "Other";
+}
+
+/** Back-compat single-string categorizer (name only). */
+export function normalizeCategory(raw: string | null | undefined): string {
+  return categorizeProduct(raw ?? "");
 }
 
 // PestPac unit-of-measure codes -> readable unit labels.
@@ -77,8 +98,13 @@ export const UOM_LABELS: Record<string, string> = {
   AC: "can",
   FB: "bag",
   C: "case",
-  RT: "each",
+  RT: "trap",
   PK: "pack",
+  OZ: "oz",
+  LB: "lb",
+  G: "g",
+  FL: "flat",
+  EA: "each",
 };
 
 export function unitLabel(code: string | null | undefined): string {

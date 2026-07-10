@@ -33,6 +33,9 @@ export async function POST(req: Request) {
         manufacturer: clean(body?.manufacturer),
         epaRegNumber: clean(body?.epaRegNumber),
         category: clean(body?.category),
+        activeIngredient: clean(body?.activeIngredient),
+        targetPest: clean(body?.targetPest),
+        applicationMethod: clean(body?.applicationMethod),
         barcode: clean(body?.barcode),
         distributorSku: clean(body?.distributorSku),
       };
