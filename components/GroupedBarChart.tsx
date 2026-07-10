@@ -58,10 +58,10 @@ export default function GroupedBarChart({
               x2={W - padX}
               y1={t.y}
               y2={t.y}
-              stroke="#e2e8f0"
+              stroke="rgba(255,255,255,0.12)"
               strokeWidth={1}
             />
-            <text x={padX - 6} y={t.y + 4} textAnchor="end" fontSize="10" fill="#94a3b8">
+            <text x={padX - 6} y={t.y + 4} textAnchor="end" fontSize="10" fill="#9db5a8">
               {formatValue(Math.round(t.v))}
             </text>
           </g>
@@ -92,7 +92,7 @@ export default function GroupedBarChart({
                         y={by - 4}
                         textAnchor="middle"
                         fontSize="9"
-                        fill="#475569"
+                        fill="#cfe0d6"
                       >
                         {formatValue(Math.round(v))}
                       </text>
@@ -105,7 +105,7 @@ export default function GroupedBarChart({
                 y={H - padBottom + 18}
                 textAnchor="middle"
                 fontSize="11"
-                fill="#334155"
+                fill="#cfe0d6"
                 fontWeight={500}
               >
                 {g.label}
@@ -118,7 +118,7 @@ export default function GroupedBarChart({
       {/* legend */}
       <div className="mt-1 flex flex-wrap gap-4 justify-center">
         {series.map((s) => (
-          <span key={s.key} className="inline-flex items-center gap-1.5 text-xs text-slate-600">
+          <span key={s.key} className="inline-flex items-center gap-1.5 text-xs text-mint">
             <span
               className="inline-block h-3 w-3 rounded-sm"
               style={{ background: s.color }}

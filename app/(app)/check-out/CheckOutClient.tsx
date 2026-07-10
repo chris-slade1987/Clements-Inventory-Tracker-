@@ -284,7 +284,7 @@ export default function CheckOutClient({
         ) : null}
 
         {results.length > 0 ? (
-          <ul className="mt-2 divide-y divide-line rounded-lg border border-line overflow-hidden">
+          <ul className="surface-light mt-2 divide-y divide-line rounded-lg border border-line overflow-hidden">
             {results.map((p) => {
               const oh = onHandFor(p.id);
               return (
@@ -355,7 +355,7 @@ export default function CheckOutClient({
                   <button
                     type="button"
                     onClick={() => setQty(line.productId, line.quantity - 1)}
-                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100"
+                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-white/10"
                   >
                     −
                   </button>
@@ -372,7 +372,7 @@ export default function CheckOutClient({
                   <button
                     type="button"
                     onClick={() => setQty(line.productId, line.quantity + 1)}
-                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100"
+                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-white/10"
                   >
                     +
                   </button>

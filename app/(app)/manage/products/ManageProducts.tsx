@@ -176,7 +176,7 @@ export default function ManageProducts({ products }: { products: Product[] }) {
 
       {form ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full sm:max-w-md bg-surface rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[90vh] overflow-y-auto">
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold">{form.id ? "Edit product" : "Add product"}</h3>
             <Field label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
             <div className="grid grid-cols-2 gap-3">

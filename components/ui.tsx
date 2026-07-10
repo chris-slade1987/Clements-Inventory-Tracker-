@@ -67,7 +67,7 @@ export const btn = {
   primary:
     "inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-[#05271c] shadow-sm shadow-brand-600/30 hover:brightness-[0.97] active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-[filter]",
   secondary:
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink hover:bg-brand-50/60 disabled:opacity-50 transition-colors",
+    "inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white/5 px-4 py-2.5 text-sm font-medium text-ink hover:bg-white/10 disabled:opacity-50 transition-colors",
   danger:
     "inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors",
 };

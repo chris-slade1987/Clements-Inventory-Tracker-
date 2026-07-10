@@ -160,7 +160,7 @@ export default function ManageTechnicians({
 
       {form ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full sm:max-w-md bg-surface rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
             <h3 className="text-lg font-semibold">{form.id ? "Edit employee" : "Add employee"}</h3>
             <label className="block text-sm font-medium">Name
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />

@@ -46,7 +46,7 @@ export default async function HelpPage() {
 
         <Card className="p-4">
           <h2 className="font-semibold text-ink mb-2">Fixing mistakes</h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             Use <Link href="/reconcile" className="text-brand-700 font-medium hover:underline">Reconcile</Link>{" "}
             to find any movement and reverse it, correct the quantity, or add a
             manual adjustment with a reason. Nothing is ever deleted — every
@@ -56,7 +56,7 @@ export default async function HelpPage() {
 
         <Card className="p-4">
           <h2 className="font-semibold text-ink mb-2">Alerts</h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             <Link href="/alerts" className="text-brand-700 font-medium hover:underline">Alerts</Link>{" "}
             flags price jumps, likely duplicate invoices, negative stock, and
             unusually large check-outs. Acknowledge the ones you&rsquo;ve seen and
@@ -66,7 +66,7 @@ export default async function HelpPage() {
 
         <Card className="p-4">
           <h2 className="font-semibold text-ink mb-2">Install on your phone</h2>
-          <div className="text-sm text-slate-600 space-y-2">
+          <div className="text-sm text-muted space-y-2">
             <p>
               <span className="font-medium text-ink">iPhone / iPad (Safari):</span>{" "}
               tap the Share button, then <em>Add to Home Screen</em>. The app opens
@@ -108,8 +108,8 @@ function Workflow({
       </div>
       <ol className="space-y-2">
         {steps.map((s, i) => (
-          <li key={i} className="flex gap-3 text-sm text-slate-600">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
+          <li key={i} className="flex gap-3 text-sm text-muted">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-semibold text-ink">
               {i + 1}
             </span>
             {s}

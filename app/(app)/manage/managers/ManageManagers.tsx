@@ -134,7 +134,7 @@ export default function ManageManagers({
       {/* Add manager modal */}
       {addForm ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full sm:max-w-md bg-surface rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
             <h3 className="text-lg font-semibold">Add manager</h3>
             <label className="block text-sm font-medium">Name
               <input value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
@@ -171,7 +171,7 @@ export default function ManageManagers({
       {/* Reset password modal */}
       {pwFor ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full sm:max-w-md bg-surface rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
             <h3 className="text-lg font-semibold">Reset password</h3>
             <p className="text-sm text-muted">New password for <span className="font-medium text-ink">{pwFor.name}</span>. Any current sessions will be signed out.</p>
             <label className="block text-sm font-medium">New password

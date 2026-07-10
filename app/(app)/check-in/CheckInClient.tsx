@@ -402,7 +402,7 @@ export default function CheckInClient({
         </div>
       </div>
 
-      <div className="rounded-lg bg-slate-100 px-3 py-2 text-xs text-muted">
+      <div className="rounded-lg bg-white/5 px-3 py-2 text-xs text-muted">
         Invoice reader:{" "}
         <span className="font-medium">
           {mode === "claude" ? "Claude vision (live)" : "Mock parser (no API key set)"}

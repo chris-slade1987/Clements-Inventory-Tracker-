@@ -116,7 +116,7 @@ export default async function ReportsPage({
                   </tr>
                 );
               })}
-              <tr className="bg-slate-50 font-semibold">
+              <tr className="bg-white/5 font-semibold">
                 <td className="px-4 py-2">Total</td>
                 <td className="px-4 py-2 text-right tabular-nums">{qty(totals.purchasedQty)}</td>
                 <td className="px-4 py-2 text-right tabular-nums">{money(totals.purchasedValue)}</td>
@@ -138,7 +138,7 @@ export default async function ReportsPage({
             {categoryRows.map((c) => (
               <div key={c.category} className="flex items-center gap-3">
                 <div className="w-28 shrink-0 text-sm text-ink">{c.category}</div>
-                <div className="flex-1 h-5 rounded bg-slate-100 overflow-hidden">
+                <div className="flex-1 h-5 rounded bg-white/10 overflow-hidden">
                   <div
                     className="h-full bg-brand-500 rounded"
                     style={{ width: `${Math.max(3, (c.qty / categoryMax) * 100)}%` }}

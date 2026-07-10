@@ -171,7 +171,7 @@ export default function ReconcileClient({
                       {r.technicianName ? <div>Tech: {r.technicianName}</div> : null}
                       {r.invoiceNumber ? <div>Invoice: {r.invoiceNumber}</div> : null}
                       {r.unitPrice != null ? <div>@ {money(r.unitPrice)}</div> : null}
-                      {r.reason ? <div className="text-slate-600">{r.reason}</div> : null}
+                      {r.reason ? <div className="text-mint">{r.reason}</div> : null}
                       {r.userName ? <div>by {r.userName}</div> : null}
                       {r.isReversed ? <div className="text-amber-600 font-medium">Reversed</div> : null}
                     </td>
@@ -227,7 +227,7 @@ function TypeBadge({ type, isReversal }: { type: string; isReversal: boolean }) 
   const cls =
     type === "check_in" ? "bg-brand-100 text-brand-700"
       : type === "check_out" ? "bg-blue-100 text-blue-700"
-        : "bg-slate-200 text-slate-700";
+        : "bg-white/10 text-mint";
   return <span className={`${base} ${cls}`}>{TYPE_LABEL[type] ?? type}</span>;
 }
 
@@ -293,7 +293,7 @@ function ReconcileModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-md bg-surface rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
+      <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
         <h3 className="text-lg font-semibold">{title}</h3>
 
         {modal.kind !== "adjust" ? (
