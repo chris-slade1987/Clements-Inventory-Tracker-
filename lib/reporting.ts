@@ -287,9 +287,15 @@ export async function productCostMap(): Promise<Map<string, number>> {
 export type Ranked = { key: string; label: string; value: number; qty: number };
 
 /** Spend ($) by product category from confirmed invoices in a range. */
-export async function spendByCategory(from: Date, to?: Date): Promise<Ranked[]> {
+export async function spendByCategory(from: Date, to?: Date, warehouseId?: string): Promise<Ranked[]> {
   const lines = await prisma.invoiceLine.findMany({
-    where: { invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } } },
+    where: {
+      invoice: {
+        status: "confirmed",
+        warehouseId: warehouseId ?? undefined,
+        invoiceDate: { gte: from, ...(to ? { lte: to } : {}) },
+      },
+    },
     select: {
       quantity: true, unitPrice: true, lineTotal: true,
       product: { select: { category: true } },
@@ -307,9 +313,15 @@ export async function spendByCategory(from: Date, to?: Date): Promise<Ranked[]> 
 }
 
 /** Top products by spend ($) from confirmed invoices in a range. */
-export async function topProductsBySpend(from: Date, to: Date | undefined, limit = 8): Promise<Ranked[]> {
+export async function topProductsBySpend(from: Date, to: Date | undefined, limit = 8, warehouseId?: string): Promise<Ranked[]> {
   const lines = await prisma.invoiceLine.findMany({
-    where: { invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } } },
+    where: {
+      invoice: {
+        status: "confirmed",
+        warehouseId: warehouseId ?? undefined,
+        invoiceDate: { gte: from, ...(to ? { lte: to } : {}) },
+      },
+    },
     select: { quantity: true, unitPrice: true, lineTotal: true, descriptionRaw: true, product: { select: { name: true } } },
   });
   const m = new Map<string, Ranked>();
@@ -330,10 +342,16 @@ export async function topTechniciansByUsage(
   from: Date,
   to: Date | undefined,
   cost: Map<string, number>,
-  limit = 8
+  limit = 8,
+  warehouseId?: string
 ): Promise<TechUsage[]> {
   const movements = await prisma.stockMovement.findMany({
-    where: { type: "check_out", technicianId: { not: null }, createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    where: {
+      type: "check_out",
+      technicianId: { not: null },
+      warehouseId: warehouseId ?? undefined,
+      createdAt: { gte: from, ...(to ? { lte: to } : {}) },
+    },
     select: {
       productId: true, quantity: true, technicianId: true,
       technician: { select: { name: true, homeWarehouse: { select: { name: true } } } },
@@ -376,9 +394,10 @@ export async function onHandValueByWarehouse(
 }
 
 /** Current on-hand $ value grouped by product category. */
-export async function onHandValueByCategory(cost: Map<string, number>): Promise<Ranked[]> {
+export async function onHandValueByCategory(cost: Map<string, number>, warehouseId?: string): Promise<Ranked[]> {
   const rows = await prisma.stockMovement.groupBy({
     by: ["productId"],
+    where: warehouseId ? { warehouseId } : undefined,
     _sum: { quantity: true },
   });
   const productIds = rows.map((r) => r.productId);
@@ -397,6 +416,37 @@ export async function onHandValueByCategory(cost: Map<string, number>): Promise<
     m.set(cat, rk);
   }
   return [...m.values()].sort((a, b) => b.value - a.value);
+}
+
+/** Top products on hand by $ value, optionally scoped to one warehouse. */
+export async function topProductsOnHand(
+  cost: Map<string, number>,
+  warehouseId?: string,
+  limit = 8
+): Promise<Ranked[]> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["productId"],
+    where: warehouseId ? { warehouseId } : undefined,
+    _sum: { quantity: true },
+  });
+  const products = await prisma.product.findMany({
+    where: { id: { in: rows.map((r) => r.productId) } },
+    select: { id: true, name: true },
+  });
+  const nameById = new Map(products.map((p) => [p.id, p.name]));
+  return rows
+    .map((r) => {
+      const q = r._sum.quantity ?? 0;
+      return {
+        key: r.productId,
+        label: nameById.get(r.productId) ?? "Unknown",
+        qty: q,
+        value: q * (cost.get(r.productId) ?? 0),
+      };
+    })
+    .filter((r) => r.qty > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, limit);
 }
 
 export function parseFilters(sp: Record<string, string | undefined>): ReportFilters {
