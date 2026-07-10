@@ -2,6 +2,7 @@
 
 /* ---- Design tokens ---------------------------------------------------- */
 @theme {
+  /* Emerald accent scale (interactive) */
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
   --color-brand-200: #a7f3d0;
@@ -13,11 +14,19 @@
   --color-brand-800: #065f46;
   --color-brand-900: #064e3b;
 
-  --color-ink: #0f172a;
-  --color-muted: #64748b;
-  --color-line: #e2e8f0;
+  /* Forest greens (branded chrome / hero surfaces) */
+  --color-forest-light: #14503a;
+  --color-forest: #0f3d2c;
+  --color-forest-deep: #0a2e20;
+  --color-forest-ink: #08251a;
+  --color-mint: #9db5a8; /* muted text on dark forest */
+
+  /* Green-tinted neutrals (light workspace) */
+  --color-ink: #0e1b15;
+  --color-muted: #5c6b62;
+  --color-line: #e3eae5;
   --color-surface: #ffffff;
-  --color-canvas: #f1f5f9;
+  --color-canvas: #f4f7f4;
 }
 
 :root {
@@ -32,13 +41,27 @@ body {
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  /* Thin Helvetica/Arial family per brand direction. */
+  font-family: "Helvetica Neue", Arial, Helvetica, system-ui, sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   /* Respect iOS safe areas for the installed PWA. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Reusable brand gradients */
+.bg-forest-grad {
+  background:
+    radial-gradient(900px 460px at 85% -15%, rgba(52, 211, 153, 0.16), transparent 60%),
+    linear-gradient(160deg, var(--color-forest-light) 0%, var(--color-forest) 45%, var(--color-forest-ink) 100%);
+}
+.bg-emerald-grad {
+  background-image: linear-gradient(150deg, #34d399 0%, #10b981 55%, #059669 100%);
+}
+.bg-card-grad {
+  background-image: linear-gradient(160deg, #ffffff 0%, #eef5f0 100%);
 }
 
 /* Prevent iOS text-size adjustment and tap highlight for an app-like feel. */

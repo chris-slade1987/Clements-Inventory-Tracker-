@@ -67,8 +67,9 @@ export default async function DashboardPage({
         {warehouses.map((w) => {
           const m = metrics.get(w.id);
           return (
-            <Card key={w.id} className="p-4">
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            <Card key={w.id} className="p-4 overflow-hidden">
+              <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
+              <div className="text-xs font-medium uppercase tracking-wider text-muted">
                 {w.name}
               </div>
               <div className="mt-3 space-y-2">
@@ -188,7 +189,7 @@ function Metric({
     <div className="flex items-baseline justify-between">
       <span className="text-sm text-muted">{label}</span>
       <span className="text-right">
-        <span className={`text-lg font-semibold ${accent ? "text-brand-700" : "text-ink"}`}>
+        <span className={`text-xl font-light tabular-nums ${accent ? "text-brand-700" : "text-ink"}`}>
           {value}
         </span>
         {sub ? <span className="ml-2 text-xs text-muted">{sub}</span> : null}

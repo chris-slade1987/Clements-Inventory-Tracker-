@@ -9,22 +9,20 @@ export default async function LoginPage() {
   if (await getSessionUser()) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen grid place-items-center px-4 py-10">
+    <div className="min-h-screen grid place-items-center px-4 py-10 bg-forest-grad">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <span className="grid place-items-center h-14 w-14 rounded-2xl bg-brand-600 text-white text-2xl font-bold">
+          <span className="grid place-items-center h-14 w-14 rounded-2xl bg-emerald-grad text-[#05271c] text-2xl font-semibold shadow-xl shadow-brand-600/40">
             C
           </span>
-          <h1 className="mt-3 text-xl font-semibold text-ink">
+          <h1 className="mt-4 text-2xl font-light tracking-tight text-white">
             Clements Inventory
           </h1>
-          <p className="text-sm text-muted">Manager sign in</p>
+          <p className="text-sm text-mint">Manager sign in</p>
         </div>
         <LoginForm />
-        <p className="mt-6 text-center text-xs text-muted">
-          Sandbox login:{" "}
-          <span className="font-medium">manager@clementspest.com</span> /{" "}
-          <span className="font-medium">clements123</span>
+        <p className="mt-6 text-center text-[11px] tracking-widest uppercase text-mint/80">
+          Vero Beach · Stuart · Orlando · Naples
         </p>
       </div>
     </div>
