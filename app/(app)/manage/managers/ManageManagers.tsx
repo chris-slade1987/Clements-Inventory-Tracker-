@@ -87,7 +87,7 @@ export default function ManageManagers({
         Managers sign in to the app. Branch controls their default warehouse; choose &ldquo;All branches&rdquo; for someone who works across locations. Admins can manage catalog and people.
       </p>
 
-      {note ? <p className="mb-3 text-sm text-brand-700">{note}</p> : null}
+      {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
       {error && !addForm && !pwFor ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
 
       <Card className="p-0 overflow-hidden">

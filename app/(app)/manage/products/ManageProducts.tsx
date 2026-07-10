@@ -111,7 +111,7 @@ export default function ManageProducts({ products }: { products: Product[] }) {
         Existing products (matched by name) are updated; unknown categories map to Other.
       </p>
 
-      {note ? <p className="mb-3 text-sm text-brand-700">{note}</p> : null}
+      {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
       {error && !form ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
 
       <Card className="p-0 overflow-hidden">

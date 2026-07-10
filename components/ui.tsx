@@ -33,7 +33,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-line bg-card-grad shadow-sm ${className}`}
+      className={`surface-light rounded-2xl border border-line bg-card-grad shadow-lg shadow-black/10 ${className}`}
     >
       {children}
     </div>
@@ -67,7 +67,7 @@ export const btn = {
   primary:
     "inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-[#05271c] shadow-sm shadow-brand-600/30 hover:brightness-[0.97] active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-[filter]",
   secondary:
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white/5 px-4 py-2.5 text-sm font-medium text-ink hover:bg-white/10 disabled:opacity-50 transition-colors",
+    "inline-flex items-center justify-center gap-2 rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-[#0e1b15] hover:bg-[#eef5f0] disabled:opacity-50 transition-colors",
   danger:
     "inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors",
 };

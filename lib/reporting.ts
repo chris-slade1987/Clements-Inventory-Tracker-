@@ -270,6 +270,135 @@ export async function dispersedByEmployeeByWarehouse(
   return out;
 }
 
+// ---- Dollar valuation: latest known unit cost per product -------------
+// Uses the most recent priced movement (check-in or stock-count import), so
+// on-hand and dispersal can be valued in $ even before invoicing begins.
+export async function productCostMap(): Promise<Map<string, number>> {
+  const rows = await prisma.stockMovement.findMany({
+    where: { unitPrice: { not: null } },
+    select: { productId: true, unitPrice: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const m = new Map<string, number>();
+  for (const r of rows) if (r.unitPrice != null) m.set(r.productId, r.unitPrice);
+  return m;
+}
+
+export type Ranked = { key: string; label: string; value: number; qty: number };
+
+/** Spend ($) by product category from confirmed invoices in a range. */
+export async function spendByCategory(from: Date, to?: Date): Promise<Ranked[]> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: { invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } } },
+    select: {
+      quantity: true, unitPrice: true, lineTotal: true,
+      product: { select: { category: true } },
+    },
+  });
+  const m = new Map<string, Ranked>();
+  for (const l of lines) {
+    const cat = l.product?.category ?? "Other";
+    const v = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    const r = m.get(cat) ?? { key: cat, label: cat, value: 0, qty: 0 };
+    r.value += v; r.qty += l.quantity;
+    m.set(cat, r);
+  }
+  return [...m.values()].sort((a, b) => b.value - a.value);
+}
+
+/** Top products by spend ($) from confirmed invoices in a range. */
+export async function topProductsBySpend(from: Date, to: Date | undefined, limit = 8): Promise<Ranked[]> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: { invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } } },
+    select: { quantity: true, unitPrice: true, lineTotal: true, descriptionRaw: true, product: { select: { name: true } } },
+  });
+  const m = new Map<string, Ranked>();
+  for (const l of lines) {
+    const name = l.product?.name ?? l.descriptionRaw;
+    const v = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    const r = m.get(name) ?? { key: name, label: name, value: 0, qty: 0 };
+    r.value += v; r.qty += l.quantity;
+    m.set(name, r);
+  }
+  return [...m.values()].sort((a, b) => b.value - a.value).slice(0, limit);
+}
+
+export type TechUsage = { name: string; branch: string; units: number; value: number; lines: number };
+
+/** Top technicians by product consumed (check_out) in a range, valued via cost map. */
+export async function topTechniciansByUsage(
+  from: Date,
+  to: Date | undefined,
+  cost: Map<string, number>,
+  limit = 8
+): Promise<TechUsage[]> {
+  const movements = await prisma.stockMovement.findMany({
+    where: { type: "check_out", technicianId: { not: null }, createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    select: {
+      productId: true, quantity: true, technicianId: true,
+      technician: { select: { name: true, homeWarehouse: { select: { name: true } } } },
+    },
+  });
+  const m = new Map<string, TechUsage>();
+  for (const mv of movements) {
+    if (!mv.technicianId) continue;
+    const units = -mv.quantity;
+    const r = m.get(mv.technicianId) ?? {
+      name: mv.technician?.name ?? "Unknown",
+      branch: mv.technician?.homeWarehouse?.name ?? "—",
+      units: 0, value: 0, lines: 0,
+    };
+    r.units += units;
+    r.value += units * (cost.get(mv.productId) ?? 0);
+    r.lines += 1;
+    m.set(mv.technicianId, r);
+  }
+  return [...m.values()].sort((a, b) => b.value - a.value || b.units - a.units).slice(0, limit);
+}
+
+/** Current on-hand units + $ value per warehouse. */
+export async function onHandValueByWarehouse(
+  cost: Map<string, number>
+): Promise<Map<string, { units: number; value: number }>> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["warehouseId", "productId"],
+    _sum: { quantity: true },
+  });
+  const out = new Map<string, { units: number; value: number }>();
+  for (const r of rows) {
+    const q = r._sum.quantity ?? 0;
+    const cur = out.get(r.warehouseId) ?? { units: 0, value: 0 };
+    cur.units += q;
+    cur.value += q * (cost.get(r.productId) ?? 0);
+    out.set(r.warehouseId, cur);
+  }
+  return out;
+}
+
+/** Current on-hand $ value grouped by product category. */
+export async function onHandValueByCategory(cost: Map<string, number>): Promise<Ranked[]> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["productId"],
+    _sum: { quantity: true },
+  });
+  const productIds = rows.map((r) => r.productId);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, category: true },
+  });
+  const catById = new Map(products.map((p) => [p.id, p.category ?? "Other"]));
+  const m = new Map<string, Ranked>();
+  for (const r of rows) {
+    const cat = catById.get(r.productId) ?? "Other";
+    const q = r._sum.quantity ?? 0;
+    const rk = m.get(cat) ?? { key: cat, label: cat, value: 0, qty: 0 };
+    rk.value += q * (cost.get(r.productId) ?? 0);
+    rk.qty += q;
+    m.set(cat, rk);
+  }
+  return [...m.values()].sort((a, b) => b.value - a.value);
+}
+
 export function parseFilters(sp: Record<string, string | undefined>): ReportFilters {
   const from = sp.from ? new Date(sp.from) : undefined;
   const to = sp.to ? new Date(sp.to + "T23:59:59") : undefined;

@@ -355,7 +355,7 @@ export default function CheckOutClient({
                   <button
                     type="button"
                     onClick={() => setQty(line.productId, line.quantity - 1)}
-                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-white/10"
+                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100"
                   >
                     −
                   </button>
@@ -372,7 +372,7 @@ export default function CheckOutClient({
                   <button
                     type="button"
                     onClick={() => setQty(line.productId, line.quantity + 1)}
-                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-white/10"
+                    className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100"
                   >
                     +
                   </button>

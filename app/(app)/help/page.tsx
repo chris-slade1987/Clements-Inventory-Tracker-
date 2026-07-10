@@ -109,7 +109,7 @@ function Workflow({
       <ol className="space-y-2">
         {steps.map((s, i) => (
           <li key={i} className="flex gap-3 text-sm text-muted">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-semibold text-ink">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
               {i + 1}
             </span>
             {s}

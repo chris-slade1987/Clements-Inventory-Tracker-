@@ -22,7 +22,7 @@ export default function ManageTabs() {
             href={t.href}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
               active
-                ? "border-brand-600 text-brand-700"
+                ? "border-white text-white"
                 : "border-transparent text-mint hover:text-white"
             }`}
           >

@@ -118,7 +118,7 @@ export default function ManageTechnicians({
         Branch is matched by name. Tick <em>Replace roster</em> on the first load to deactivate anyone not in the file.
       </p>
 
-      {note ? <p className="mb-3 text-sm text-brand-700">{note}</p> : null}
+      {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
       {error && !form ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
 
       <Card className="p-0 overflow-hidden">

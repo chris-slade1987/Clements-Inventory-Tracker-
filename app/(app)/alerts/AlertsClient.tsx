@@ -113,7 +113,7 @@ export default function AlertsClient({
                 key={v}
                 onClick={() => setShow(v)}
                 className={`rounded-full px-3 py-1.5 font-medium capitalize ${
-                  show === v ? "bg-emerald-grad text-[#05271c]" : "bg-white/10 text-mint"
+                  show === v ? "bg-emerald-grad text-[#05271c]" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {v}
@@ -150,7 +150,7 @@ export default function AlertsClient({
                     </button>
                   ) : null}
                   {a.status !== "dismissed" ? (
-                    <button onClick={() => setStatus(a.id, "dismissed")} className="text-xs font-medium text-mint hover:underline">
+                    <button onClick={() => setStatus(a.id, "dismissed")} className="text-xs font-medium text-slate-500 hover:underline">
                       Dismiss
                     </button>
                   ) : (

@@ -171,7 +171,7 @@ export default function ReconcileClient({
                       {r.technicianName ? <div>Tech: {r.technicianName}</div> : null}
                       {r.invoiceNumber ? <div>Invoice: {r.invoiceNumber}</div> : null}
                       {r.unitPrice != null ? <div>@ {money(r.unitPrice)}</div> : null}
-                      {r.reason ? <div className="text-mint">{r.reason}</div> : null}
+                      {r.reason ? <div className="text-muted">{r.reason}</div> : null}
                       {r.userName ? <div>by {r.userName}</div> : null}
                       {r.isReversed ? <div className="text-amber-600 font-medium">Reversed</div> : null}
                     </td>
@@ -227,7 +227,7 @@ function TypeBadge({ type, isReversal }: { type: string; isReversal: boolean }) 
   const cls =
     type === "check_in" ? "bg-brand-100 text-brand-700"
       : type === "check_out" ? "bg-blue-100 text-blue-700"
-        : "bg-white/10 text-mint";
+        : "bg-slate-100 text-slate-600";
   return <span className={`${base} ${cls}`}>{TYPE_LABEL[type] ?? type}</span>;
 }
 
