@@ -43,7 +43,30 @@ export default function ManageProducts({ products }: { products: Product[] }) {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
-  const visible = products.filter((p) => showInactive || p.active);
+  // Filters
+  const [q, setQ] = useState("");
+  const [catFilter, setCatFilter] = useState("");
+  const [mfrFilter, setMfrFilter] = useState("");
+
+  const manufacturers = Array.from(
+    new Set(products.map((p) => p.manufacturer?.trim()).filter((m): m is string => !!m))
+  ).sort((a, b) => a.localeCompare(b));
+
+  const needle = q.trim().toLowerCase();
+  const visible = products.filter((p) => {
+    if (!showInactive && !p.active) return false;
+    if (catFilter && (p.category ?? "") !== catFilter) return false;
+    if (mfrFilter && (p.manufacturer ?? "") !== mfrFilter) return false;
+    if (needle) {
+      const hay = [p.name, p.manufacturer, p.activeIngredient, p.epaRegNumber, p.distributorSku, p.barcode]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!hay.includes(needle)) return false;
+    }
+    return true;
+  });
+  const filtered = catFilter || mfrFilter || needle;
 
   async function save() {
     if (!form) return;
@@ -119,6 +142,42 @@ export default function ManageProducts({ products }: { products: Product[] }) {
 
       {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
       {error && !form ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search name, ingredient, EPA #, SKU…"
+          className="min-w-[12rem] flex-1 rounded-lg border border-line px-3 py-2 text-sm text-ink"
+        />
+        <select
+          value={catFilter}
+          onChange={(e) => setCatFilter(e.target.value)}
+          className="rounded-lg border border-line px-3 py-2 text-sm bg-surface"
+        >
+          <option value="">All categories</option>
+          {PRODUCT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select
+          value={mfrFilter}
+          onChange={(e) => setMfrFilter(e.target.value)}
+          className="rounded-lg border border-line px-3 py-2 text-sm bg-surface"
+        >
+          <option value="">All manufacturers</option>
+          {manufacturers.map((m) => <option key={m} value={m}>{m}</option>)}
+        </select>
+        {filtered ? (
+          <button
+            onClick={() => { setQ(""); setCatFilter(""); setMfrFilter(""); }}
+            className="text-xs font-medium text-brand-200 hover:underline"
+          >
+            Clear
+          </button>
+        ) : null}
+        <span className="ml-auto text-xs text-muted">
+          {visible.length} of {products.filter((p) => showInactive || p.active).length} shown
+        </span>
+      </div>
 
       <Card className="p-0 overflow-hidden">
         <div className="overflow-x-auto">

@@ -19,6 +19,7 @@ const TYPE_LABEL: Record<string, string> = {
   duplicate_invoice: "Duplicate invoice",
   negative_stock: "Negative stock",
   quantity_spike: "Quantity spike",
+  savings: "Cost-saving opportunity",
 };
 
 export default function AlertsClient({
@@ -43,10 +44,12 @@ export default function AlertsClient({
       const res = await fetch("/api/alerts/run", { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        const savings = data.savingsTotal ?? 0;
         setNote(
           data.total === 0
-            ? "Checks ran — no new anomalies."
-            : `Checks ran — ${data.total} anomaly flag(s) refreshed.`
+            ? "Checks ran — nothing new flagged."
+            : `Checks ran — ${data.total} flag(s) refreshed` +
+              (savings > 0 ? `, including ${savings} cost-saving opportunity(ies).` : ".")
         );
         router.refresh();
       } else {

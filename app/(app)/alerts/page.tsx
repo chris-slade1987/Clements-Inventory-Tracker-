@@ -35,7 +35,7 @@ export default async function AlertsPage({
     <>
       <PageHeader
         title="Alerts"
-        subtitle="Anomalies flagged by the automated checks."
+        subtitle="Anomalies and cost-saving opportunities flagged by the automated checks."
       />
       <AlertsClient
         show={show}
