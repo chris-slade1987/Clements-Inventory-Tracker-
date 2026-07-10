@@ -174,6 +174,102 @@ export async function onHandByCategory(
     .sort((a, b) => b.qty - a.qty);
 }
 
+// ---- Dashboard: purchasing $ per warehouse for a date range ------------
+export async function purchasedDollarsByWarehouse(
+  from: Date,
+  to?: Date
+): Promise<Map<string, number>> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: {
+      invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } },
+    },
+    select: {
+      quantity: true,
+      unitPrice: true,
+      lineTotal: true,
+      invoice: { select: { warehouseId: true } },
+    },
+  });
+  const map = new Map<string, number>();
+  for (const l of lines) {
+    const v = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    map.set(l.invoice.warehouseId, (map.get(l.invoice.warehouseId) ?? 0) + v);
+  }
+  return map;
+}
+
+export type PurchasedProduct = { name: string; qty: number; value: number };
+
+/** Products purchased (confirmed invoices) per warehouse within a range. */
+export async function productsPurchasedByWarehouse(
+  from: Date,
+  to?: Date
+): Promise<Map<string, PurchasedProduct[]>> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: {
+      invoice: { status: "confirmed", invoiceDate: { gte: from, ...(to ? { lte: to } : {}) } },
+    },
+    select: {
+      quantity: true,
+      unitPrice: true,
+      lineTotal: true,
+      descriptionRaw: true,
+      product: { select: { name: true } },
+      invoice: { select: { warehouseId: true } },
+    },
+  });
+  const byWh = new Map<string, Map<string, PurchasedProduct>>();
+  for (const l of lines) {
+    const wid = l.invoice.warehouseId;
+    const name = l.product?.name ?? l.descriptionRaw;
+    if (!byWh.has(wid)) byWh.set(wid, new Map());
+    const inner = byWh.get(wid)!;
+    const row = inner.get(name) ?? { name, qty: 0, value: 0 };
+    row.qty += l.quantity;
+    row.value += l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    inner.set(name, row);
+  }
+  const out = new Map<string, PurchasedProduct[]>();
+  for (const [wid, inner] of byWh) {
+    out.set(wid, [...inner.values()].sort((a, b) => b.value - a.value));
+  }
+  return out;
+}
+
+export type EmployeeDispersal = { technicianId: string; name: string; units: number; lines: number };
+
+/** Dispersed (check_out) per employee per warehouse within a range. */
+export async function dispersedByEmployeeByWarehouse(
+  from: Date,
+  to?: Date
+): Promise<Map<string, EmployeeDispersal[]>> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["warehouseId", "technicianId"],
+    where: { type: "check_out", createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    _sum: { quantity: true },
+    _count: true,
+  });
+  const techIds = [...new Set(rows.map((r) => r.technicianId).filter(Boolean))] as string[];
+  const techs = await prisma.technician.findMany({
+    where: { id: { in: techIds } },
+    select: { id: true, name: true },
+  });
+  const nameById = new Map(techs.map((t) => [t.id, t.name]));
+  const out = new Map<string, EmployeeDispersal[]>();
+  for (const r of rows) {
+    if (!r.technicianId) continue;
+    if (!out.has(r.warehouseId)) out.set(r.warehouseId, []);
+    out.get(r.warehouseId)!.push({
+      technicianId: r.technicianId,
+      name: nameById.get(r.technicianId) ?? "Unknown",
+      units: -(r._sum.quantity ?? 0),
+      lines: r._count,
+    });
+  }
+  for (const list of out.values()) list.sort((a, b) => b.units - a.units);
+  return out;
+}
+
 export function parseFilters(sp: Record<string, string | undefined>): ReportFilters {
   const from = sp.from ? new Date(sp.from) : undefined;
   const to = sp.to ? new Date(sp.to + "T23:59:59") : undefined;
