@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Clements Inventory — project guide
+# Clements Command & Control — project guide
 
 Standalone, managers-only warehouse portal for Clements Pest Control. It tracks
 **exactly two movements** and nothing else:

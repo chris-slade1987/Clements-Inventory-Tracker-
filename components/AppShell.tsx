@@ -85,7 +85,7 @@ export default function AppShell({
           </span>
           <div className="leading-tight">
             <div className="font-normal text-white tracking-tight">Clements</div>
-            <div className="text-xs text-mint">{mode === "management" ? "Management" : "Inventory"}</div>
+            <div className="text-xs text-mint">Command &amp; Control</div>
           </div>
         </div>
         <div className="px-3 pt-3">

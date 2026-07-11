@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import LoginForm from "@/components/LoginForm";
 
-export const metadata = { title: "Sign in — Clements Inventory" };
+export const metadata = { title: "Sign in — Clements Command & Control" };
 
 export default async function LoginPage() {
   // Already signed in → go straight to the app.
@@ -16,7 +16,7 @@ export default async function LoginPage() {
             C
           </span>
           <h1 className="mt-4 text-2xl font-light tracking-tight text-white">
-            Clements Inventory
+            Clements Command &amp; Control
           </h1>
           <p className="text-sm text-mint">Manager sign in</p>
         </div>

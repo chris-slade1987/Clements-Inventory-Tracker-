@@ -1,4 +1,4 @@
-// Clements Inventory — Prisma schema
+// Clements Command & Control — Prisma schema
 // Sandbox uses SQLite (local file). For production, change datasource.provider
 // to "postgresql" and point DATABASE_URL at Postgres (see README / deploy guide).
 //

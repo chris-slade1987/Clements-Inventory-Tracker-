@@ -3,15 +3,15 @@ import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "Clements Inventory",
+  title: "Clements Command & Control",
   description:
-    "Warehouse check-in / check-out portal for Clements Pest Control.",
-  applicationName: "Clements Inventory",
+    "Inventory and management reporting portal for Clements Pest Control.",
+  applicationName: "Clements Command & Control",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Clements Inventory",
+    title: "Clements C&C",
   },
   icons: {
     icon: "/icons/icon.svg",

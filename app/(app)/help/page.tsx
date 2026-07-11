@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 
-export const metadata = { title: "Help — Clements Inventory" };
+export const metadata = { title: "Help — Clements Command & Control" };
 
 export default async function HelpPage() {
   await requireUser();

@@ -1,9 +1,9 @@
-// Minimal offline-friendly service worker for Clements Inventory.
+// Minimal offline-friendly service worker for Clements Command & Control.
 // Strategy: network-first for navigations (so managers always get fresh data
 // when online), falling back to a cached app shell when offline. Static assets
 // are cached on first use (stale-while-revalidate).
 
-const CACHE = "clements-inventory-v1";
+const CACHE = "clements-cc-v1";
 const APP_SHELL = ["/dashboard", "/offline"];
 
 self.addEventListener("install", (event) => {

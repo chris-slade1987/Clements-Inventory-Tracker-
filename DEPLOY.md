@@ -1,4 +1,4 @@
-# Deploying Clements Inventory
+# Deploying Clements Command & Control
 
 The sandbox runs on SQLite locally. To get a public link, deploy the app to
 **Vercel** and give it a hosted **Postgres** database. The repo is set up so a

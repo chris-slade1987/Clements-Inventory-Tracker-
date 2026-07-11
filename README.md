@@ -1,4 +1,4 @@
-# Clements Inventory
+# Clements Command & Control
 
 Standalone warehouse **check-in / check-out** portal for Clements Pest Control.
 Managers receive products into a warehouse from a distributor (Check-In) and
