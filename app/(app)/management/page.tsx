@@ -18,6 +18,7 @@ import {
   type Scope,
 } from "@/lib/management";
 import Controls from "./Controls";
+import { Waterfall, GroupedBars, Donut } from "@/components/charts";
 
 export const dynamic = "force-dynamic";
 
@@ -75,6 +76,32 @@ export default async function ManagementPage({
   const headline = headlineKeys
     .map((k) => ({ key: k, meta: cat.get(k), c: get(k) }))
     .filter((h) => h.c.actual != null);
+
+  // Route-contribution waterfall: Net Revenue → shown route costs → a reconciling
+  // "Other route costs" bucket → Route Contribution. The bucket keeps the chart
+  // balanced without ever isolating manager compensation.
+  const netRev = get("net_revenue").actual;
+  const rc = get("route_contrib").actual;
+  const costKeys = ["tech_wages", "fuel", "chemical_expense", "vehicle_rm"];
+  const shownCosts = costKeys
+    .map((k) => ({ label: cat.get(k)?.label ?? k, v: get(k).actual }))
+    .filter((c): c is { label: string; v: number } => c.v != null && c.v > 0);
+  let waterfall: { label: string; value: number; kind: "total" | "decrease" }[] | null = null;
+  if (netRev != null && rc != null && shownCosts.length > 0) {
+    const other = netRev - shownCosts.reduce((s, c) => s + c.v, 0) - rc;
+    waterfall = [
+      { label: "Net Revenue", value: netRev, kind: "total" },
+      ...shownCosts.map((c) => ({ label: c.label, value: c.v, kind: "decrease" as const })),
+      ...(other > 0 ? [{ label: "Other route costs", value: other, kind: "decrease" as const }] : []),
+      { label: "Route Contrib", value: rc, kind: "total" as const },
+    ];
+  }
+
+  // Branch production actual vs budget (company view only).
+  const prodGroups = BRANCHES.map((b) => {
+    const c = cell(values, "production", b.key, basis);
+    return { label: b.label.replace(" Beach", ""), actual: c.actual ?? 0, budget: c.budget };
+  }).filter((g) => g.actual > 0);
 
   const branchLink = (s: string) => {
     const params = new URLSearchParams();
@@ -154,6 +181,22 @@ export default async function ManagementPage({
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
+        {/* Route contribution waterfall */}
+        {waterfall ? (
+          <Card className="p-4 lg:col-span-2">
+            <PanelTitle>Where the margin goes · route contribution · {basisLabel}</PanelTitle>
+            <Waterfall steps={waterfall} />
+          </Card>
+        ) : null}
+
+        {/* Branch production actual vs budget (company view) */}
+        {isCompany && prodGroups.length > 0 ? (
+          <Card className="p-4 lg:col-span-2">
+            <PanelTitle>Production vs budget by branch · {basisLabel}</PanelTitle>
+            <GroupedBars groups={prodGroups} />
+          </Card>
+        ) : null}
+
         {/* Financial summary (P&L) */}
         <Card className="p-0 overflow-hidden">
           <PanelHead>Financial summary · {basisLabel}</PanelHead>
@@ -204,7 +247,13 @@ export default async function ManagementPage({
           {lob.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted">No line-of-business detail for this scope.</p>
           ) : (
-            <LobBars rows={lob} />
+            <div className="mt-3">
+              <Donut
+                slices={lob.map((r) => ({ label: r.lob, value: r.revenue }))}
+                centerLabel="total"
+                centerValue={`$${Math.round(lob.reduce((s, r) => s + r.revenue, 0) / 1000)}K`}
+              />
+            </div>
           )}
         </Card>
 
@@ -353,23 +402,3 @@ function TrendBars({ rows }: { rows: { label: string; actual: number | null }[] 
   );
 }
 
-function LobBars({ rows }: { rows: { lob: string; revenue: number }[] }) {
-  const total = rows.reduce((s, r) => s + r.revenue, 0) || 1;
-  const max = Math.max(1, ...rows.map((r) => r.revenue));
-  return (
-    <div className="mt-3 space-y-2.5">
-      {rows.map((r) => (
-        <div key={r.lob} className="flex items-center gap-3">
-          <div className="w-24 shrink-0 text-sm truncate">{r.lob}</div>
-          <div className="flex-1 h-4 rounded bg-slate-100 overflow-hidden">
-            <div className="h-full rounded bg-emerald-grad" style={{ width: `${Math.max(3, (r.revenue / max) * 100)}%` }} />
-          </div>
-          <div className="w-28 shrink-0 text-right text-sm tabular-nums">
-            <span className="font-medium">{money(r.revenue)}</span>
-            <span className="text-muted"> · {Math.round((r.revenue / total) * 100)}%</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}

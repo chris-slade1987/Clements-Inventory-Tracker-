@@ -15,6 +15,7 @@ import {
   type Scope,
 } from "@/lib/management";
 import Controls from "../Controls";
+import { LineChart, Donut } from "@/components/charts";
 
 export const dynamic = "force-dynamic";
 
@@ -129,7 +130,19 @@ export default async function SalesPage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* New sales by branch — trailing months */}
+        {/* New sales by branch — trend */}
+        <Card className="p-4 lg:col-span-2">
+          <div className="text-sm font-medium text-ink mb-2">New sales by branch · trend</div>
+          <LineChart
+            xLabels={monthCols.map((m) => m.label)}
+            series={salesByBranch.map((sb) => ({
+              name: sb.branch.label.replace(" Beach", ""),
+              points: sb.series.map((s) => s.actual),
+            }))}
+          />
+        </Card>
+
+        {/* New sales by branch — trailing months table */}
         <Card className="p-0 overflow-hidden lg:col-span-2">
           <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">New sales by branch · trailing months</div>
           <div className="overflow-x-auto">
@@ -161,6 +174,13 @@ export default async function SalesPage({
             <p className="px-4 py-8 text-center text-sm text-muted">No lead-source detail for this month.</p>
           ) : (
             <div className="overflow-x-auto">
+              <div className="px-4 pt-4">
+                <Donut
+                  slices={sources.map((s) => ({ label: s.source, value: s.revenueMonth }))}
+                  centerLabel="new sales"
+                  centerValue={`$${Math.round(sources.reduce((a, s) => a + s.revenueMonth, 0) / 1000)}K`}
+                />
+              </div>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-muted border-b border-line">
