@@ -18,7 +18,7 @@ import {
   type Scope,
 } from "@/lib/management";
 import Controls from "./Controls";
-import { Waterfall, GroupedBars, Donut } from "@/components/charts";
+import { Waterfall, GroupedBars, Donut, AreaTrend } from "@/components/charts";
 
 export const dynamic = "force-dynamic";
 
@@ -238,7 +238,9 @@ export default async function ManagementPage({
         {/* Forward book value trend */}
         <Card className="p-4">
           <PanelTitle>Forward 12-mo book value</PanelTitle>
-          <TrendBars rows={bookTrend} />
+          <div className="mt-2">
+            <AreaTrend points={bookTrend.map((r) => ({ label: r.label.replace(" 2026", ""), value: r.actual, budget: r.budget }))} />
+          </div>
         </Card>
 
         {/* Revenue by line of business */}
@@ -379,26 +381,4 @@ function KpiTable({
   );
 }
 
-function TrendBars({ rows }: { rows: { label: string; actual: number | null }[] }) {
-  const vals = rows.map((r) => r.actual ?? 0);
-  const max = Math.max(1, ...vals);
-  const min = Math.min(...vals.filter((v) => v > 0), max);
-  if (rows.length === 0) return <p className="py-6 text-center text-sm text-muted">No trend data.</p>;
-  return (
-    <div className="mt-3 flex items-end gap-2 h-40">
-      {rows.map((r) => {
-        const v = r.actual ?? 0;
-        // Scale within [min*0.95, max] so month-to-month change is visible.
-        const h = max > min ? 15 + ((v - min * 0.95) / (max - min * 0.95)) * 80 : 60;
-        return (
-          <div key={r.label} className="flex-1 flex flex-col items-center justify-end gap-1">
-            <div className="text-[10px] tabular-nums text-ink">{v >= 1000 ? `$${(v / 1_000_000).toFixed(2)}M` : "—"}</div>
-            <div className="w-full rounded-t bg-emerald-grad" style={{ height: `${Math.max(6, h)}%` }} />
-            <div className="text-[10px] text-muted">{r.label.replace(" 2026", "")}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
