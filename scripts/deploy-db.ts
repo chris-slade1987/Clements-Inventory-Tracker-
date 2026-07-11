@@ -54,6 +54,15 @@ async function main() {
         `deploy-db: database already populated (${users} users) — ensured ${map.size} branches exist.`
       );
     }
+    // Seed management KPIs only when empty, so uploaded months are never clobbered.
+    const kpiValues = await prisma.kpiValue.count();
+    if (kpiValues === 0) {
+      const { seedManagement } = await import("../prisma/seed-management");
+      const m = await seedManagement(prisma);
+      console.log(`deploy-db: seeded management KPIs (${m.periods} periods, ${m.values} values).`);
+    } else {
+      console.log(`deploy-db: management KPIs present (${kpiValues} values) — left as-is.`);
+    }
   } finally {
     await prisma.$disconnect();
   }

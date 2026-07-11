@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS } from "@/lib/nav";
+import { INVENTORY_NAV, MANAGEMENT_NAV } from "@/lib/nav";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -23,6 +23,25 @@ function Icon({ path, className }: { path: string; className?: string }) {
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
+}
+
+// Segmented control switching between the Inventory and Management dashboards.
+function ModeToggle({ mode, compact = false }: { mode: "inventory" | "management"; compact?: boolean }) {
+  const base = compact ? "px-2 py-1 text-[11px]" : "flex-1 px-2 py-1.5 text-xs";
+  const opt = (active: boolean) =>
+    `${base} rounded-lg font-medium text-center transition-colors ${
+      active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+    }`;
+  return (
+    <div className="flex gap-1 rounded-xl bg-black/20 p-1">
+      <Link href="/dashboard" className={opt(mode === "inventory")}>
+        Inventory
+      </Link>
+      <Link href="/management" className={opt(mode === "management")}>
+        Management
+      </Link>
+    </div>
+  );
 }
 
 // Shared classes for dark-chrome nav links.
@@ -48,6 +67,13 @@ export default function AppShell({
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
+  const mode: "inventory" | "management" = pathname.startsWith("/management") ? "management" : "inventory";
+  const items = mode === "management" ? MANAGEMENT_NAV : INVENTORY_NAV;
+  // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
+  const activeHref = items
+    .map((i) => i.href)
+    .filter((h) => pathname === h || pathname.startsWith(h + "/"))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <div className="flex min-h-screen">
@@ -59,12 +85,15 @@ export default function AppShell({
           </span>
           <div className="leading-tight">
             <div className="font-normal text-white tracking-tight">Clements</div>
-            <div className="text-xs text-mint">Inventory</div>
+            <div className="text-xs text-mint">{mode === "management" ? "Management" : "Inventory"}</div>
           </div>
         </div>
+        <div className="px-3 pt-3">
+          <ModeToggle mode={mode} />
+        </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(pathname, item.href);
+          {items.map((item) => {
+            const active = item.href === activeHref;
             return (
               <Link key={item.href} href={item.href} className={navClass(active)}>
                 <Icon path={item.icon} className="h-5 w-5 shrink-0" />
@@ -114,9 +143,8 @@ export default function AppShell({
           <span className="grid place-items-center h-7 w-7 rounded-lg bg-emerald-grad text-[#05271c] text-sm font-semibold">
             C
           </span>
-          <span className="font-normal text-white tracking-tight">
-            Clements Inventory
-          </span>
+          <span className="font-normal text-white tracking-tight">Clements</span>
+          <div className="ml-1"><ModeToggle mode={mode} compact /></div>
           {isAdmin ? (
             <Link href="/manage" aria-label="Manage" className="ml-auto p-1 text-mint hover:text-white">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>
@@ -143,9 +171,12 @@ export default function AppShell({
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid grid-cols-6">
-        {NAV_ITEMS.map((item) => {
-          const active = isActive(pathname, item.href);
+      <nav
+        className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      >
+        {items.map((item) => {
+          const active = item.href === activeHref;
           return (
             <Link
               key={item.href}

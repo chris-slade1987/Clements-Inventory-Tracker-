@@ -193,6 +193,115 @@ model Alert {
   @@map("alerts")
 }
 
+// ---------------------------------------------------------------------------
+// Management reporting (board / management KPIs). Separate from inventory.
+// Monthly snapshots of KPIs, each with actual vs budget, at company or branch
+// scope. IMPORTANT: manager compensation is never stored or shown here.
+// ---------------------------------------------------------------------------
+
+// A reporting month, e.g. 2026-05 ("May 2026 Financials").
+model ReportPeriod {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int // 1-12
+  label     String // e.g. "May 2026"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  kpiValues   KpiValue[]
+  lobRevenues LobRevenue[]
+  techProd    TechProduction[]
+  leadSources LeadSource[]
+
+  @@unique([year, month])
+  @@map("report_periods")
+}
+
+// A KPI definition. `group` buckets it in the UI; `higherIsBetter` drives
+// favorable/unfavorable variance coloring (revenue up = good, fuel up = bad).
+model Kpi {
+  id             String  @id @default(cuid())
+  key            String  @unique // e.g. "net_revenue", "ebitda_pct"
+  label          String
+  group          String // "Headline" | "Production" | "RouteContribution" | "PnL" | "Sales" | "Attrition" | "BalanceSheet"
+  unit           String  @default("usd") // "usd" | "pct" | "pts" | "count"
+  higherIsBetter Boolean @default(true)
+  sortOrder      Int     @default(0)
+
+  values KpiValue[]
+
+  @@map("kpis")
+}
+
+// One KPI value for a period/scope/basis. scope = "company" or a branch key.
+// basis = "month" | "ytd" | "cy_forecast".
+model KpiValue {
+  id       String @id @default(cuid())
+  periodId String @map("period_id")
+  kpiKey   String @map("kpi_key")
+  scope    String @default("company") // "company" | "vero" | "stuart" | "orlando" | "naples"
+  basis    String @default("month") // "month" | "ytd" | "cy_forecast"
+  actual   Float?
+  budget   Float?
+
+  period ReportPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  kpi    Kpi          @relation(fields: [kpiKey], references: [key])
+
+  @@unique([periodId, kpiKey, scope, basis])
+  @@index([kpiKey])
+  @@map("kpi_values")
+}
+
+// Revenue by line of business (service category) per branch per period.
+model LobRevenue {
+  id         String  @id @default(cuid())
+  periodId   String  @map("period_id")
+  scope      String  @default("company") // "company" | branch key
+  lob        String // "Pest" | "Fertilizer" | "L&O" | "Termite" | "Rat" | ...
+  revenue    Float   @default(0)
+  jobs       Int?
+  budget     Float?
+
+  period ReportPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@unique([periodId, scope, lob])
+  @@map("lob_revenue")
+}
+
+// New-sales lead sources per period/scope. leads/won drive close rate when
+// that lead-level data is available (not in the MBR — fed separately).
+model LeadSource {
+  id           String  @id @default(cuid())
+  periodId     String  @map("period_id")
+  scope        String  @default("company")
+  source       String
+  revenueMonth Float   @default(0) @map("revenue_month")
+  revenueYtd   Float?  @map("revenue_ytd")
+  leads        Int?
+  won          Int?
+
+  period ReportPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@unique([periodId, scope, source])
+  @@map("lead_sources")
+}
+
+// Per-technician production (NOT compensation). Production actual vs budget so
+// managers can see who is over/under plan. No wage or comp fields, ever.
+model TechProduction {
+  id       String  @id @default(cuid())
+  periodId String  @map("period_id")
+  scope    String // branch key
+  techName String  @map("tech_name")
+  lob      String? // "PC" | "LO" | "Service" | ...
+  actual   Float   @default(0)
+  budget   Float   @default(0)
+
+  period ReportPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@index([periodId, scope])
+  @@map("tech_production")
+}
+
 // Simple key/value app settings (e.g. price-increase threshold).
 model Setting {
   key       String   @id
