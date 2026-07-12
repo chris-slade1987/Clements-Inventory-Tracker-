@@ -5,11 +5,13 @@ import { prisma } from "@/lib/prisma";
 import {
   onHandValueByCategory,
   productCostMap,
+  productFlow,
   purchasedDollarsByWarehouse,
   spendByCategory,
   topProductsBySpend,
   topProductsOnHand,
   topTechniciansByUsage,
+  type ProductFlow,
   type Ranked,
 } from "@/lib/reporting";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
@@ -34,7 +36,7 @@ export default async function DashboardPage({
   const scopeId = selected?.id; // undefined = all branches
   const cost = await productCostMap();
 
-  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, topOnHand, openAlerts] =
+  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, topOnHand, flow, openAlerts] =
     await Promise.all([
       purchasedDollarsByWarehouse(p.monthStart),
       purchasedDollarsByWarehouse(p.yearStart),
@@ -43,6 +45,7 @@ export default async function DashboardPage({
       topTechniciansByUsage(p.monthStart, undefined, cost, 8, scopeId),
       onHandValueByCategory(cost, scopeId),
       topProductsOnHand(cost, scopeId, 8),
+      productFlow(p.monthStart, undefined, scopeId),
       prisma.alert.findMany({
         where: { status: "open" },
         orderBy: { createdAt: "desc" },
@@ -123,6 +126,18 @@ export default async function DashboardPage({
 
       {/* One detail section, scoped to the selection */}
       <div className="grid gap-4 lg:grid-cols-2">
+        {/* Product movement — what actually moved this month, purchased vs dispersed */}
+        <Card className="p-4 lg:col-span-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <PanelTitle>Product movement · on-hand, purchased & dispersed</PanelTitle>
+            <div className="flex items-center gap-3 text-[11px] text-muted">
+              <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#0e7a52" }} /> Purchased (in)</span>
+              <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#39b07f" }} /> Dispersed (out)</span>
+            </div>
+          </div>
+          <FlowBars rows={flow} />
+        </Card>
+
         <Card className="p-4">
           <PanelTitle>Top spend by category</PanelTitle>
           <RankBars rows={catSpend} empty="No purchases recorded this month yet." />
@@ -226,6 +241,47 @@ function BudgetBar({ spent, budget }: { spent: number; budget: number }) {
           {over ? `${money(-remaining)} over` : `${money(remaining)} left`}
         </span>
       </div>
+    </div>
+  );
+}
+
+function FlowBars({ rows }: { rows: ProductFlow[] }) {
+  if (rows.length === 0)
+    return <p className="py-8 text-center text-sm text-muted">No products with stock or movement for this scope yet.</p>;
+  // Bars for purchased/dispersed share one scale; on-hand is shown as a number.
+  const max = Math.max(1, ...rows.flatMap((r) => [r.purchased, r.dispersed]));
+  const IN = "#0e7a52", OUT = "#39b07f";
+  return (
+    <div className="mt-3 max-h-[30rem] overflow-y-auto pr-1 space-y-3">
+      {rows.map((r) => (
+        <div key={r.name}>
+          <div className="flex justify-between items-baseline text-sm gap-2">
+            <span className="truncate pr-2">{r.name}</span>
+            <span className="shrink-0 tabular-nums text-xs">
+              <span className="font-semibold text-ink">{qty(r.onHand)}</span>
+              <span className="text-muted"> on hand</span>
+              {r.purchased > 0 || r.dispersed > 0 ? (
+                <>
+                  <span className="text-muted"> · </span>
+                  <span className="font-medium" style={{ color: IN }}>{qty(r.purchased)} in</span>
+                  <span className="text-muted"> · </span>
+                  <span className="font-medium" style={{ color: OUT }}>{qty(r.dispersed)} out</span>
+                </>
+              ) : null}
+            </span>
+          </div>
+          {r.purchased > 0 || r.dispersed > 0 ? (
+            <div className="mt-1 space-y-1">
+              <div className="h-2.5 rounded bg-slate-100 overflow-hidden">
+                <div className="h-full rounded" style={{ width: `${(r.purchased / max) * 100}%`, background: IN }} />
+              </div>
+              <div className="h-2.5 rounded bg-slate-100 overflow-hidden">
+                <div className="h-full rounded" style={{ width: `${(r.dispersed / max) * 100}%`, background: OUT }} />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }

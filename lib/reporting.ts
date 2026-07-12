@@ -236,6 +236,65 @@ export async function productsPurchasedByWarehouse(
   return out;
 }
 
+export type ProductFlow = { name: string; purchased: number; dispersed: number; onHand: number };
+
+/**
+ * Per-product view, optionally scoped to one warehouse:
+ *  - purchased  = quantity checked IN this window (confirmed receipts)
+ *  - dispersed  = quantity checked OUT this window (to technicians)
+ *  - onHand     = current stock (SUM of ALL movements, all-time — includes the
+ *                 stock-count import, so this is accurate from day one even
+ *                 before any invoices/check-outs are entered)
+ * Returns every product that has stock on hand OR movement in the window,
+ * most stock first. This is the "what we have / what moved" view.
+ */
+export async function productFlow(
+  from: Date,
+  to: Date | undefined,
+  warehouseId?: string
+): Promise<ProductFlow[]> {
+  const [flowRows, onHandRows] = await Promise.all([
+    prisma.stockMovement.groupBy({
+      by: ["productId", "type"],
+      where: {
+        type: { in: ["check_in", "check_out"] },
+        warehouseId: warehouseId ?? undefined,
+        createdAt: { gte: from, ...(to ? { lte: to } : {}) },
+      },
+      _sum: { quantity: true },
+    }),
+    prisma.stockMovement.groupBy({
+      by: ["productId"],
+      where: { warehouseId: warehouseId ?? undefined },
+      _sum: { quantity: true },
+    }),
+  ]);
+  const byProduct = new Map<string, { purchased: number; dispersed: number; onHand: number }>();
+  const ensure = (id: string) => {
+    if (!byProduct.has(id)) byProduct.set(id, { purchased: 0, dispersed: 0, onHand: 0 });
+    return byProduct.get(id)!;
+  };
+  for (const r of flowRows) {
+    const cur = ensure(r.productId);
+    const q = r._sum.quantity ?? 0;
+    if (r.type === "check_in") cur.purchased += q;
+    else cur.dispersed += Math.abs(q);
+  }
+  for (const r of onHandRows) ensure(r.productId).onHand = r._sum.quantity ?? 0;
+
+  const ids = [...byProduct.keys()];
+  if (ids.length === 0) return [];
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, name: true },
+  });
+  const nameById = new Map(products.map((p) => [p.id, p.name]));
+  return ids
+    .map((id) => ({ name: nameById.get(id) ?? "Unknown", ...byProduct.get(id)! }))
+    .filter((r) => r.purchased > 0 || r.dispersed > 0 || Math.abs(r.onHand) > 1e-6)
+    .sort((a, b) => b.onHand - a.onHand || b.purchased + b.dispersed - (a.purchased + a.dispersed));
+}
+
 export type EmployeeDispersal = { technicianId: string; name: string; units: number; lines: number };
 
 /** Dispersed (check_out) per employee per warehouse within a range. */
