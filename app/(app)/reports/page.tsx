@@ -2,15 +2,19 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  dispersedValueByWarehouse,
   onHandByCategory,
   onHandByProduct,
+  onHandValueByWarehouse,
   parseFilters,
+  productCostMap,
+  purchasedDollarsByWarehouse,
   warehouseMetrics,
 } from "@/lib/reporting";
 import { money, qty } from "@/lib/format";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import FilterBar from "@/components/FilterBar";
-import GroupedBarChart, { REPORT_SERIES } from "@/components/GroupedBarChart";
+import GroupedBarChart from "@/components/GroupedBarChart";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +27,17 @@ export default async function ReportsPage({
   const sp = await searchParams;
   const filters = parseFilters(sp);
 
-  const [warehouses, products, metrics, productRows, categoryRows] =
+  const cost = await productCostMap();
+  const [warehouses, products, metrics, productRows, categoryRows, purch$, disp$, onHand$] =
     await Promise.all([
       prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
       prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
       warehouseMetrics(filters),
       onHandByProduct(filters),
       onHandByCategory(filters),
+      purchasedDollarsByWarehouse(filters.from ?? new Date(0), filters.to),
+      dispersedValueByWarehouse(filters.from ?? new Date(0), filters.to, cost),
+      onHandValueByWarehouse(cost),
     ]);
   const categoryMax = Math.max(1, ...categoryRows.map((c) => c.qty));
 
@@ -37,16 +45,31 @@ export default async function ReportsPage({
     ? warehouses.filter((w) => w.id === filters.warehouseId)
     : warehouses;
 
+  // Units only make sense for a single product (same unit of measure). Across
+  // all products, sum DOLLARS instead — units of a gel box + a gallon are not
+  // comparable. So the chart flips between units and dollars by context.
+  const singleProduct = !!filters.productId;
+  const productName = singleProduct ? products.find((p) => p.id === filters.productId)?.name ?? "Product" : null;
+
+  const chartTitle = singleProduct ? `Units by warehouse · ${productName}` : "Inventory value by warehouse";
+  const chartSeries = singleProduct
+    ? [
+        { key: "purchasedQty", label: "Purchased", color: "#0b6b45" },
+        { key: "dispersedQty", label: "Dispersed", color: "#2f9e73" },
+        { key: "onHandQty", label: "On-hand", color: "#8ed1b2" },
+      ]
+    : [
+        { key: "purchasedValue", label: "Purchased $", color: "#0b6b45" },
+        { key: "dispersedValue", label: "Dispersed $", color: "#2f9e73" },
+        { key: "onHandValue", label: "On-hand $", color: "#8ed1b2" },
+      ];
+  const chartFormat = singleProduct ? (n: number) => qty(n) : (n: number) => money(n);
   const chartGroups = shownWarehouses.map((w) => {
     const m = metrics.get(w.id);
-    return {
-      label: w.name.replace(" (HQ)", ""),
-      values: {
-        purchasedQty: m?.purchasedQty ?? 0,
-        dispersedQty: m?.dispersedQty ?? 0,
-        onHandQty: m?.onHandQty ?? 0,
-      },
-    };
+    const values: Record<string, number> = singleProduct
+      ? { purchasedQty: m?.purchasedQty ?? 0, dispersedQty: m?.dispersedQty ?? 0, onHandQty: m?.onHandQty ?? 0 }
+      : { purchasedValue: purch$.get(w.id) ?? 0, dispersedValue: disp$.get(w.id) ?? 0, onHandValue: onHand$.get(w.id)?.value ?? 0 };
+    return { label: w.name.replace(" (HQ)", ""), values };
   });
 
   const totals = shownWarehouses.reduce(
@@ -77,14 +100,14 @@ export default async function ReportsPage({
       />
 
       <Card className="p-4 mb-6">
-        <h2 className="text-sm font-semibold text-ink mb-2">
-          Quantity by warehouse
-        </h2>
-        <GroupedBarChart
-          groups={chartGroups}
-          series={REPORT_SERIES}
-          formatValue={(n) => qty(n)}
-        />
+        <h2 className="text-sm font-semibold text-ink mb-2">{chartTitle}</h2>
+        {!singleProduct ? (
+          <p className="text-xs text-muted mb-2">
+            Across all products, quantities aren&rsquo;t comparable (a case ≠ a gallon), so this shows dollar value.
+            Pick a product above to compare units by branch.
+          </p>
+        ) : null}
+        <GroupedBarChart groups={chartGroups} series={chartSeries} formatValue={chartFormat} />
       </Card>
 
       {/* Warehouse summary */}

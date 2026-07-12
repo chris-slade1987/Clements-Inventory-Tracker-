@@ -433,6 +433,25 @@ export async function topTechniciansByUsage(
   return [...m.values()].sort((a, b) => b.value - a.value || b.units - a.units).slice(0, limit);
 }
 
+/** Dispersed (check_out) $ value per warehouse within a range, valued at cost. */
+export async function dispersedValueByWarehouse(
+  from: Date,
+  to: Date | undefined,
+  cost: Map<string, number>
+): Promise<Map<string, number>> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["warehouseId", "productId"],
+    where: { type: "check_out", createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    _sum: { quantity: true },
+  });
+  const m = new Map<string, number>();
+  for (const r of rows) {
+    const v = Math.abs(r._sum.quantity ?? 0) * (cost.get(r.productId) ?? 0);
+    m.set(r.warehouseId, (m.get(r.warehouseId) ?? 0) + v);
+  }
+  return m;
+}
+
 /** Current on-hand units + $ value per warehouse. */
 export async function onHandValueByWarehouse(
   cost: Map<string, number>
