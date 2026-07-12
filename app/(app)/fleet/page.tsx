@@ -2,15 +2,21 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
-import { branchLabel } from "@/lib/management";
+import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
 import FleetControls from "./FleetControls";
 
 export const dynamic = "force-dynamic";
 
-export default async function FleetPage() {
+export default async function FleetPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const user = await requireUser();
-  const vehicles = await listVehicles();
+  const sp = await searchParams;
+  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const vehicles = await listVehicles(branch ?? undefined);
   const active = vehicles.filter((v) => v.status === "active");
   const ytdSpend = vehicles.reduce((s, v) => s + v.ytdCost, 0);
   const cpmVals = vehicles.map((v) => v.costPerMile).filter((n): n is number => n != null);
@@ -23,10 +29,28 @@ export default async function FleetPage() {
 
       {user.role === "admin" ? <FleetControls /> : null}
 
+      <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+        <BranchPill href="/fleet" label="All branches" active={branch === null} />
+        {BRANCHES.map((b) => (
+          <BranchPill
+            key={b.key}
+            href={`/fleet?branch=${b.key}`}
+            label={b.label}
+            active={branch === b.key}
+          />
+        ))}
+      </div>
+
       {vehicles.length === 0 ? (
         <EmptyState
-          title="No vehicles yet"
-          hint={user.role === "admin" ? "Add a vehicle or import your fleet sheet to get started." : "Ask an admin to load the fleet."}
+          title={branch ? `No vehicles in ${branchLabel(branch)}` : "No vehicles yet"}
+          hint={
+            branch
+              ? "Try another branch or view all branches."
+              : user.role === "admin"
+                ? "Add a vehicle or import your fleet sheet to get started."
+                : "Ask an admin to load the fleet."
+          }
         />
       ) : (
         <>
@@ -91,6 +115,19 @@ export default async function FleetPage() {
         </>
       )}
     </>
+  );
+}
+
+function BranchPill({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+        active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }
 
