@@ -73,6 +73,12 @@ export const MANAGEMENT_NAV: NavItem[] = [
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
   {
+    href: "/management/scorecards",
+    label: "Scorecards",
+    shortLabel: "Scores",
+    icon: "M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11",
+  },
+  {
     href: "/management/upload",
     label: "Upload MBR",
     shortLabel: "Upload",

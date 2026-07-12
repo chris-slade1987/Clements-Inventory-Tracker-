@@ -302,6 +302,25 @@ model TechProduction {
   @@map("tech_production")
 }
 
+// Quarterly branch-manager bonus scorecard. One row per (quarter, branch,
+// metric). Binary Met/Not-Met per the company template; targets are entered by
+// the reviewer (some come from the MBR budget, some TBD). Weighted to 100%.
+model ScorecardResult {
+  id        String   @id @default(cuid())
+  year      Int
+  quarter   Int // 1-4
+  branch    String // "vero" | "stuart" | "orlando" | "naples"
+  metricKey String   @map("metric_key")
+  target    String? // reviewer-entered target (free text; some TBD)
+  met       Boolean? // null = not yet scored
+  note      String?
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([year, quarter, branch, metricKey])
+  @@index([year, quarter, branch])
+  @@map("scorecard_results")
+}
+
 // Simple key/value app settings (e.g. price-increase threshold).
 model Setting {
   key       String   @id
