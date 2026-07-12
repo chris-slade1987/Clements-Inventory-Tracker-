@@ -44,17 +44,27 @@ function Tip({ hover, W }: { hover: Hover; W: number }) {
 }
 
 // ---- Waterfall -------------------------------------------------------------
+const INCREASE = "#1f9d63"; // waterfall additions (positive)
+
 export function Waterfall({
   steps,
   height = 240,
 }: {
-  steps: { label: string; value: number; kind: "total" | "decrease" }[];
+  steps: { label: string; value: number; kind: "total" | "decrease" | "increase" }[];
   height?: number;
 }) {
   const [hover, setHover] = useState<Hover>(null);
   const W = 640, H = height, padL = 8, padR = 8, padT = 24, padB = 44;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  const max = Math.max(...steps.map((s) => s.value), 0);
+  // Scale to the highest running balance reached, not just the largest step.
+  let peak = 0, run = 0;
+  for (const s of steps) {
+    if (s.kind === "total") run = s.value;
+    else if (s.kind === "increase") run += s.value;
+    else run -= s.value;
+    peak = Math.max(peak, run, s.value);
+  }
+  const max = peak || 1;
   const y = (v: number) => padT + plotH - (v / max) * plotH;
   const n = steps.length, gap = 14, bw = (plotW - gap * (n - 1)) / n;
 
@@ -63,6 +73,7 @@ export function Waterfall({
     const x = padL + i * (bw + gap);
     let top: number, bot: number, color: string;
     if (s.kind === "total") { top = y(s.value); bot = y(0); color = EMERALD; running = s.value; }
+    else if (s.kind === "increase") { const start = running; const end = running + s.value; top = y(end); bot = y(start); color = INCREASE; running = end; }
     else { const start = running; const end = running - s.value; top = y(start); bot = y(end); color = DECREASE; running = end; }
     return { s, x, top, h: Math.max(2, bot - top), color, runY: y(running) };
   });
