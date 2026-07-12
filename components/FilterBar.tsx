@@ -48,6 +48,27 @@ export default function FilterBar({
     const p = params();
     router.push(`${pathname}?${p.toString()}`);
   }
+
+  // Quick date ranges — easier than typing. Applies immediately.
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  function preset(range: "thisMonth" | "lastMonth" | "last3" | "ytd") {
+    const now = new Date();
+    let f: Date, t: Date;
+    if (range === "thisMonth") { f = new Date(now.getFullYear(), now.getMonth(), 1); t = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+    else if (range === "lastMonth") { f = new Date(now.getFullYear(), now.getMonth() - 1, 1); t = new Date(now.getFullYear(), now.getMonth(), 0); }
+    else if (range === "last3") { f = new Date(now.getFullYear(), now.getMonth() - 2, 1); t = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+    else { f = new Date(now.getFullYear(), 0, 1); t = now; }
+    const fromV = iso(f), toV = iso(t);
+    setFrom(fromV); setTo(toV);
+    const p = params(); p.set("from", fromV); p.set("to", toV);
+    router.push(`${pathname}?${p.toString()}`);
+  }
+  const PRESETS: { key: "thisMonth" | "lastMonth" | "last3" | "ytd"; label: string }[] = [
+    { key: "thisMonth", label: "This month" },
+    { key: "lastMonth", label: "Last month" },
+    { key: "last3", label: "Last 3 months" },
+    { key: "ytd", label: "Year to date" },
+  ];
   function clear() {
     setFrom("");
     setTo("");
@@ -59,6 +80,17 @@ export default function FilterBar({
 
   return (
     <Card className="p-3 mb-5">
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {PRESETS.map((r) => (
+          <button
+            key={r.key}
+            onClick={() => preset(r.key)}
+            className="rounded-full border border-line px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+          >
+            {r.label}
+          </button>
+        ))}
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="text-xs font-medium text-muted">
           From

@@ -131,8 +131,9 @@ export default function GroupedBarChart({
   );
 }
 
+// Clements greens, dark → light, so the three series read as one brand ramp.
 export const REPORT_SERIES: Series[] = [
-  { key: "purchasedQty", label: "Purchased", color: "#059669" },
-  { key: "dispersedQty", label: "Dispersed", color: "#f59e0b" },
-  { key: "onHandQty", label: "On-hand", color: "#3b82f6" },
+  { key: "purchasedQty", label: "Purchased", color: "#0b6b45" },
+  { key: "dispersedQty", label: "Dispersed", color: "#2f9e73" },
+  { key: "onHandQty", label: "On-hand", color: "#8ed1b2" },
 ];
