@@ -49,3 +49,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent worktrees (isolated subagent checkouts)
+.claude/worktrees/
