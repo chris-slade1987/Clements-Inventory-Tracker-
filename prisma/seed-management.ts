@@ -135,11 +135,12 @@ const PERIODS: {
       { kpi: "net_income", basis: "ytd", actual: 78324, budget: -17033 },
       { kpi: "new_sales", basis: "ytd", actual: 590416, budget: 475000 },
       { kpi: "attrition", basis: "ytd", actual: 284547 },
-      // Branch — production scorecard (month)
-      { kpi: "production", scope: "vero", actual: 384869, budget: 372178 },
-      { kpi: "production", scope: "stuart", actual: 82059, budget: 72340 },
-      { kpi: "production", scope: "orlando", actual: 55816, budget: 43293 },
-      { kpi: "production", scope: "naples", actual: 40203, budget: 38456 },
+      // Branch — production scorecard (month). Source: MBR "Preliminary Total"
+      // branch rollup (the authoritative CFO figures), not the CEO-brief scorecard.
+      { kpi: "production", scope: "vero", actual: 328821, budget: 299772 },
+      { kpi: "production", scope: "stuart", actual: 83020, budget: 81331 },
+      { kpi: "production", scope: "orlando", actual: 103232, budget: 103145 },
+      { kpi: "production", scope: "naples", actual: 47874, budget: 42019 },
       // Branch + company — production YTD (MBR Preliminary Total, YTD 05/31/26)
       { kpi: "production", basis: "ytd", actual: 2806913, budget: 2587602 },
       { kpi: "production", scope: "vero", basis: "ytd", actual: 1511301, budget: 1393528 },
