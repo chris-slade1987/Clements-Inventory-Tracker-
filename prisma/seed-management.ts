@@ -25,6 +25,31 @@ const KPIS: { key: string; label: string; group: string; unit: string; higherIsB
   { key: "vehicle_rm", label: "Vehicle R&M", group: "RouteContribution", unit: "usd", higherIsBetter: false },
   { key: "sga", label: "Total SG&A", group: "PnL", unit: "usd", higherIsBetter: false },
   { key: "net_income", label: "Net Income", group: "PnL", unit: "usd", higherIsBetter: true },
+  // Below-the-line P&L
+  { key: "depreciation", label: "Depreciation", group: "PnL", unit: "usd", higherIsBetter: false },
+  { key: "amortization", label: "Amortization", group: "PnL", unit: "usd", higherIsBetter: false },
+  { key: "interest_expense", label: "Interest Expense", group: "PnL", unit: "usd", higherIsBetter: false },
+  { key: "management_fee", label: "Management Fee", group: "PnL", unit: "usd", higherIsBetter: false },
+  // Balance sheet
+  { key: "accounts_receivable", label: "Accounts Receivable", group: "BalanceSheet", unit: "usd", higherIsBetter: true },
+  { key: "total_current_assets", label: "Total Current Assets", group: "BalanceSheet", unit: "usd", higherIsBetter: true },
+  { key: "net_ppe", label: "Net PP&E", group: "BalanceSheet", unit: "usd", higherIsBetter: true },
+  { key: "total_assets", label: "Total Assets", group: "BalanceSheet", unit: "usd", higherIsBetter: true },
+  { key: "line_of_credit", label: "Line of Credit", group: "BalanceSheet", unit: "usd", higherIsBetter: false },
+  { key: "total_current_liabilities", label: "Total Current Liabilities", group: "BalanceSheet", unit: "usd", higherIsBetter: false },
+  { key: "total_lt_debt", label: "Total Long-Term Debt", group: "BalanceSheet", unit: "usd", higherIsBetter: false },
+  { key: "total_liabilities", label: "Total Liabilities", group: "BalanceSheet", unit: "usd", higherIsBetter: false },
+  { key: "total_equity", label: "Total Equity", group: "BalanceSheet", unit: "usd", higherIsBetter: true },
+  // Cash flow
+  { key: "cash_ops", label: "Cash from Operations", group: "CashFlow", unit: "usd", higherIsBetter: true },
+  { key: "cash_investing", label: "Cash from Investing", group: "CashFlow", unit: "usd", higherIsBetter: true },
+  { key: "cash_financing", label: "Cash from Financing", group: "CashFlow", unit: "usd", higherIsBetter: true },
+  { key: "cash_net", label: "Net Change in Cash", group: "CashFlow", unit: "usd", higherIsBetter: true },
+  // AR aging
+  { key: "ar_current", label: "Current", group: "Receivables", unit: "usd", higherIsBetter: true },
+  { key: "ar_30_60", label: "30–60 days", group: "Receivables", unit: "usd", higherIsBetter: false },
+  { key: "ar_60_plus", label: "60+ days", group: "Receivables", unit: "usd", higherIsBetter: false },
+  { key: "ar_stale", label: "Pre-2026 (stale)", group: "Receivables", unit: "usd", higherIsBetter: false },
 ];
 
 type V = { kpi: string; scope?: string; basis?: string; actual?: number | null; budget?: number | null };
@@ -97,6 +122,16 @@ const PERIODS: {
       { kpi: "attrition", scope: "orlando", actual: 5519 },
       { kpi: "attrition", scope: "naples", actual: 11384 },
       { kpi: "attrition", actual: 62141 },
+      // Balance sheet — as of Apr 30 (for the May month-over-month view)
+      { kpi: "accounts_receivable", actual: 471753 },
+      { kpi: "total_current_assets", actual: 937428 },
+      { kpi: "net_ppe", actual: 288002 },
+      { kpi: "total_assets", actual: 3181772 },
+      { kpi: "line_of_credit", actual: 220831 },
+      { kpi: "total_current_liabilities", actual: 309504 },
+      { kpi: "total_lt_debt", actual: 679408 },
+      { kpi: "total_liabilities", actual: 988911 },
+      { kpi: "total_equity", actual: 2192861 },
     ],
   },
   {
@@ -135,6 +170,42 @@ const PERIODS: {
       { kpi: "net_income", basis: "ytd", actual: 78324, budget: -17033 },
       { kpi: "new_sales", basis: "ytd", actual: 590416, budget: 475000 },
       { kpi: "attrition", basis: "ytd", actual: 284547 },
+      // Below-the-line P&L (month / YTD / CY forecast)
+      { kpi: "depreciation", actual: 4926, budget: 35405 },
+      { kpi: "depreciation", basis: "ytd", actual: 24630, budget: 55110 },
+      { kpi: "amortization", actual: 30514, budget: 45019 },
+      { kpi: "amortization", basis: "ytd", actual: 143699, budget: 225097 },
+      { kpi: "interest_expense", actual: 4808, budget: 3370 },
+      { kpi: "interest_expense", basis: "ytd", actual: 27511, budget: 17528 },
+      { kpi: "management_fee", actual: 12084, budget: 12083 },
+      // CY (full-year) forecast — the board's forward view
+      { kpi: "operating_income", basis: "cy_forecast", actual: 804934, budget: 921974 },
+      { kpi: "ebitda", basis: "cy_forecast", actual: 892505, budget: 1008084 },
+      { kpi: "ebitda_pct", basis: "cy_forecast", actual: 13.0, budget: 14.9 },
+      // Balance sheet — as of May 31 (month-end snapshot)
+      { kpi: "accounts_receivable", actual: 472016 },
+      { kpi: "total_current_assets", actual: 930371 },
+      { kpi: "net_ppe", actual: 318785 },
+      { kpi: "total_assets", actual: 3174983 },
+      { kpi: "line_of_credit", actual: 210831 },
+      { kpi: "total_current_liabilities", actual: 294227 },
+      { kpi: "total_lt_debt", actual: 695064 },
+      { kpi: "total_liabilities", actual: 989291 },
+      { kpi: "total_equity", actual: 2185693 },
+      // Cash flow (month / YTD)
+      { kpi: "cash_ops", actual: 11086 },
+      { kpi: "cash_ops", basis: "ytd", actual: 94286 },
+      { kpi: "cash_investing", actual: -35709 },
+      { kpi: "cash_investing", basis: "ytd", actual: -68277 },
+      { kpi: "cash_financing", actual: 15656 },
+      { kpi: "cash_financing", basis: "ytd", actual: -46884 },
+      { kpi: "cash_net", actual: -18967 },
+      { kpi: "cash_net", basis: "ytd", actual: -20875 },
+      // AR aging — as of May 31
+      { kpi: "ar_current", actual: 404843 },
+      { kpi: "ar_30_60", actual: 87673 },
+      { kpi: "ar_60_plus", actual: 10237 },
+      { kpi: "ar_stale", actual: 12448 },
       // Branch — production scorecard (month). Source: MBR "Preliminary Total"
       // branch rollup (the authoritative CFO figures), not the CEO-brief scorecard.
       { kpi: "production", scope: "vero", actual: 328821, budget: 299772 },

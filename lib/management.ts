@@ -45,6 +45,13 @@ export async function resolvePeriod(key?: string): Promise<PeriodRef | null> {
   return periods[0];
 }
 
+/** The period immediately before the given one (by year/month), or null. */
+export async function priorPeriod(period: PeriodRef): Promise<PeriodRef | null> {
+  const periods = await listPeriods();
+  const idx = periods.findIndex((p) => p.id === period.id);
+  return idx >= 0 && idx + 1 < periods.length ? periods[idx + 1] : null;
+}
+
 export type Cell = { actual: number | null; budget: number | null; variance: number | null; favorable: boolean | null };
 
 /** All KPI values for one period, keyed `${kpiKey}:${scope}:${basis}`. */

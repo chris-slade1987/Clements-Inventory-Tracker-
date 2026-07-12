@@ -55,9 +55,15 @@ export const INVENTORY_NAV: NavItem[] = [
 
 export const MANAGEMENT_NAV: NavItem[] = [
   {
+    href: "/management/board",
+    label: "Board / Executive",
+    shortLabel: "Board",
+    icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
+  },
+  {
     href: "/management",
-    label: "Overview",
-    shortLabel: "Overview",
+    label: "Management",
+    shortLabel: "Mgmt",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {

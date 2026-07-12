@@ -71,7 +71,7 @@ export default async function ManagementPage({
 
   // Headline KPIs, scope-aware; only those with an actual value are shown.
   const headlineKeys = isCompany
-    ? ["net_revenue", "operating_income", "ebitda_pct", "route_contrib_pct", "ending_cash"]
+    ? ["net_revenue", "production", "route_contrib_pct", "new_sales", "attrition"]
     : ["production", "route_contrib", "route_contrib_pct", "new_sales", "attrition"];
   const headline = headlineKeys
     .map((k) => ({ key: k, meta: cat.get(k), c: get(k) }))
@@ -196,15 +196,6 @@ export default async function ManagementPage({
             <GroupedBars groups={prodGroups} />
           </Card>
         ) : null}
-
-        {/* Financial summary (P&L) */}
-        <Card className="p-0 overflow-hidden">
-          <PanelHead>Financial summary · {basisLabel}</PanelHead>
-          <KpiTable
-            values={values} cat={cat} scope={scope} basis={basis}
-            keys={["net_revenue", "route_contrib", "route_contrib_pct", "sga", "operating_income", "ebitda", "ebitda_pct", "net_income"]}
-          />
-        </Card>
 
         {/* Route contribution detail */}
         <Card className="p-0 overflow-hidden">
