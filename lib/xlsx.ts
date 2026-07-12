@@ -116,3 +116,67 @@ export function readXlsxObjects(buf: Uint8Array): {
   }
   return { headers, rows };
 }
+
+// ---- Multi-sheet, column-indexed access (for the fleet sheet) --------------
+
+type Grid = Map<number, Map<number, string>>;
+
+function parseSheetGrid(sheetXml: string, shared: string[]): Grid {
+  const grid: Grid = new Map();
+  const cellRe = /<c\s+([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+  let m: RegExpExecArray | null;
+  while ((m = cellRe.exec(sheetXml))) {
+    const attrs = m[1];
+    const inner = m[2] ?? "";
+    const ref = attrs.match(/r="([A-Z]+\d+)"/)?.[1];
+    if (!ref) continue;
+    const t = attrs.match(/t="([^"]+)"/)?.[1];
+    let val = "";
+    if (t === "s") val = shared[Number(inner.match(/<v>(\d+)<\/v>/)?.[1] ?? "-1")] ?? "";
+    else if (t === "inlineStr") val = decode([...inner.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((x) => x[1]).join(""));
+    else val = decode(inner.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? "");
+    const r = rowNum(ref);
+    if (!grid.has(r)) grid.set(r, new Map());
+    grid.get(r)!.set(colIndex(ref), val.trim());
+  }
+  return grid;
+}
+
+/** All worksheets in workbook (tab) order, each as a row/col grid. */
+export function readXlsxGrids(buf: Uint8Array): { name: string; grid: Grid }[] {
+  const files = unzipSync(buf);
+  const shared: string[] = [];
+  const ssFile = files["xl/sharedStrings.xml"];
+  if (ssFile) {
+    for (const si of strFromU8(ssFile).match(/<si>[\s\S]*?<\/si>/g) ?? []) {
+      shared.push(decode([...si.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((x) => x[1]).join("")));
+    }
+  }
+  // Map r:id -> worksheet file via rels.
+  const relsXml = files["xl/_rels/workbook.xml.rels"] ? strFromU8(files["xl/_rels/workbook.xml.rels"]) : "";
+  const relTarget = new Map<string, string>();
+  for (const r of relsXml.matchAll(/<Relationship[^>]*Id="([^"]+)"[^>]*Target="([^"]+)"/g)) {
+    relTarget.set(r[1], r[2].replace(/^\/?xl\//, "").replace(/^\//, ""));
+  }
+  // Sheets in tab order from workbook.xml.
+  const wbXml = files["xl/workbook.xml"] ? strFromU8(files["xl/workbook.xml"]) : "";
+  const out: { name: string; grid: Grid }[] = [];
+  for (const s of wbXml.matchAll(/<sheet[^>]*name="([^"]+)"[^>]*r:id="([^"]+)"/g)) {
+    const name = decode(s[1]);
+    const target = relTarget.get(s[2]);
+    const file = target ? `xl/${target}` : undefined;
+    if (file && files[file]) out.push({ name, grid: parseSheetGrid(strFromU8(files[file]), shared) });
+  }
+  return out;
+}
+
+/** Excel serial date (1900 system) -> JS Date, or null. */
+export function excelDate(v: string): Date | null {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return new Date(Date.UTC(1899, 11, 30) + Math.round(n) * 86400000);
+}
+
+export function gridRows(grid: Grid): { r: number; cells: Map<number, string> }[] {
+  return [...grid.keys()].sort((a, b) => a - b).map((r) => ({ r, cells: grid.get(r)! }));
+}

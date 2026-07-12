@@ -52,3 +52,6 @@ next-env.d.ts
 
 # Agent worktrees (isolated subagent checkouts)
 .claude/worktrees/
+
+# Local scratch / working files
+/scratchpad/

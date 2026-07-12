@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { INVENTORY_NAV, MANAGEMENT_NAV } from "@/lib/nav";
+import { INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -25,21 +25,25 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-// Segmented control switching between the Inventory and Management dashboards.
-function ModeToggle({ mode, compact = false }: { mode: "inventory" | "management"; compact?: boolean }) {
-  const base = compact ? "px-2 py-1 text-[11px]" : "flex-1 px-2 py-1.5 text-xs";
+// Segmented control switching between the Inventory, Management, and Fleet centers.
+function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }) {
+  const base = compact ? "px-2 py-1 text-[10px]" : "flex-1 px-1.5 py-1.5 text-[11px]";
   const opt = (active: boolean) =>
     `${base} rounded-lg font-medium text-center transition-colors ${
       active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
     }`;
+  const centers: { href: string; label: string; m: Mode }[] = [
+    { href: "/dashboard", label: "Inventory", m: "inventory" },
+    { href: "/management", label: "Management", m: "management" },
+    { href: "/fleet", label: "Fleet", m: "fleet" },
+  ];
   return (
     <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-      <Link href="/dashboard" className={opt(mode === "inventory")}>
-        Inventory
-      </Link>
-      <Link href="/management" className={opt(mode === "management")}>
-        Management
-      </Link>
+      {centers.map((c) => (
+        <Link key={c.m} href={c.href} className={opt(mode === c.m)}>
+          {c.label}
+        </Link>
+      ))}
     </div>
   );
 }
@@ -67,8 +71,12 @@ export default function AppShell({
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
-  const mode: "inventory" | "management" = pathname.startsWith("/management") ? "management" : "inventory";
-  const items = mode === "management" ? MANAGEMENT_NAV : INVENTORY_NAV;
+  const mode: Mode = pathname.startsWith("/management")
+    ? "management"
+    : pathname.startsWith("/fleet")
+      ? "fleet"
+      : "inventory";
+  const items = mode === "management" ? MANAGEMENT_NAV : mode === "fleet" ? FLEET_NAV : INVENTORY_NAV;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = items
     .map((i) => i.href)

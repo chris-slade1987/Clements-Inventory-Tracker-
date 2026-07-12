@@ -12,7 +12,7 @@ export type NavItem = {
 
 // Two operating modes. The nav shows one group at a time; a toggle in the
 // shell switches between them.
-export type Mode = "inventory" | "management";
+export type Mode = "inventory" | "management" | "fleet";
 
 export const INVENTORY_NAV: NavItem[] = [
   {
@@ -83,6 +83,21 @@ export const MANAGEMENT_NAV: NavItem[] = [
     label: "Upload MBR",
     shortLabel: "Upload",
     icon: "M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2",
+  },
+];
+
+export const FLEET_NAV: NavItem[] = [
+  {
+    href: "/fleet",
+    label: "Fleet Overview",
+    shortLabel: "Fleet",
+    icon: "M3 13l2-5h11l3 5M5 13h14v4H5zM7 17a2 2 0 104 0 2 2 0 00-4 0zm8 0a2 2 0 104 0 2 2 0 00-4 0z",
+  },
+  {
+    href: "/fleet/service",
+    label: "Log Service",
+    shortLabel: "Service",
+    icon: "M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.6 2.6-2-2 2.6-2.6z",
   },
 ];
 

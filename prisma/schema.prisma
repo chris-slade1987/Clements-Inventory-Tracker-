@@ -321,6 +321,71 @@ model ScorecardResult {
   @@map("scorecard_results")
 }
 
+// ---------------------------------------------------------------------------
+// Fleet management. Vehicle registry + maintenance/repair/cost history, so
+// operating cost, cost-per-mile, and replacement timing can be tracked. GPS
+// integration (auto next-service scheduling) is a later phase; the next-due
+// fields are here so it can slot in.
+// ---------------------------------------------------------------------------
+model Vehicle {
+  id             String    @id @default(cuid())
+  unitNumber     String?   @map("unit_number") // fleet unit / asset number
+  name           String // e.g. "2019 Ford Transit 250"
+  year           Int?
+  make           String?
+  model          String?
+  vin            String?   @unique
+  plate          String?
+  branch         String? // "vero" | "stuart" | "orlando" | "naples"
+  assignedTo     String?   @map("assigned_to") // technician / driver name
+  status         String    @default("active") // "active" | "retired"
+  acquiredDate   DateTime? @map("acquired_date")
+  purchasePrice  Float?    @map("purchase_price")
+  currentMileage Int?      @map("current_mileage")
+  mileageAsOf    DateTime? @map("mileage_as_of") // date the mileage reading is from
+  statusNotes    String?   @map("status_notes") // replacement/condition notes
+
+  // Registration / access / telematics
+  driverCard          String?   @map("driver_card") // fuel card (Coast)
+  driverLicense       String?   @map("driver_license")
+  registrationRenewal DateTime? @map("registration_renewal")
+  gps                 String? // GPS device / "NO GPS"
+
+  // Financing (loan). hasLoan is derived from these being present.
+  loanBank       String?   @map("loan_bank")
+  loanNumber     String?   @map("loan_number")
+  monthlyPayment Float?    @map("monthly_payment")
+  loanBalance    Float?    @map("loan_balance")
+  payoffDate     DateTime? @map("payoff_date") // maturity
+
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  services VehicleService[]
+
+  @@index([branch])
+  @@map("vehicles")
+}
+
+model VehicleService {
+  id            String    @id @default(cuid())
+  vehicleId     String    @map("vehicle_id")
+  date          DateTime
+  type          String // "oil_change" | "repair" | "inspection" | "tires" | "pm" | "other"
+  description   String?
+  cost          Float     @default(0)
+  mileage       Int? // odometer at service
+  vendor        String?
+  invoiceRef    String?   @map("invoice_ref")
+  nextDueMileage Int?     @map("next_due_mileage")
+  nextDueDate   DateTime? @map("next_due_date")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+  @@map("vehicle_services")
+}
+
 // Simple key/value app settings (e.g. price-increase threshold).
 model Setting {
   key       String   @id
