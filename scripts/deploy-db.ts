@@ -63,6 +63,16 @@ async function main() {
     } else {
       console.log(`deploy-db: management KPIs present (${kpiValues} values) — left as-is.`);
     }
+
+    // Seed the fleet registry only when empty, so re-imports / edits are never clobbered.
+    const vehicles = await prisma.vehicle.count();
+    if (vehicles === 0) {
+      const { seedFleet } = await import("../prisma/seed-fleet");
+      const f = await seedFleet(prisma);
+      console.log(`deploy-db: seeded fleet (${f.total} vehicles).`);
+    } else {
+      console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
+    }
   } finally {
     await prisma.$disconnect();
   }

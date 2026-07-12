@@ -9,6 +9,9 @@ export const maxDuration = 60;
 const str = (v: string | undefined) => { const s = (v ?? "").trim(); return s === "" ? null : s; };
 const int = (v: string | undefined) => { const n = parseFloat((v ?? "").replace(/[^0-9.-]/g, "")); return Number.isFinite(n) ? Math.trunc(n) : null; };
 const flt = (v: string | undefined) => { const n = parseFloat((v ?? "").replace(/[^0-9.-]/g, "")); return Number.isFinite(n) ? n : null; };
+// Expand a scientific-notation number (e.g. a GPS id Excel stored as "4.67E9")
+// back to a plain integer string; leave normal text alone.
+const plainNum = (v: string | null) => { if (v == null) return null; if (/^\d+(?:\.\d+)?[eE]\+?\d+$/.test(v)) { const n = Number(v); if (Number.isFinite(n)) return String(Math.round(n)); } return v; };
 
 function matchBranch(v: string | null): string | null {
   const s = (v ?? "").toLowerCase();
@@ -82,7 +85,7 @@ export async function POST(req: Request) {
       driverCard: str(g(3)),
       driverLicense: str(g(9)),
       registrationRenewal: excelDate(g(11)),
-      gps: str(g(14)),
+      gps: plainNum(str(g(14))),
       loanBank: str(g(15)),
       loanNumber: str(g(16)),
       monthlyPayment: flt(g(17)),
