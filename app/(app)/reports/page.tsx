@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   dispersedValueByWarehouse,
-  onHandByCategory,
   onHandByProduct,
   onHandValueByWarehouse,
   parseFilters,
@@ -28,18 +27,16 @@ export default async function ReportsPage({
   const filters = parseFilters(sp);
 
   const cost = await productCostMap();
-  const [warehouses, products, metrics, productRows, categoryRows, purch$, disp$, onHand$] =
+  const [warehouses, products, metrics, productRows, purch$, disp$, onHand$] =
     await Promise.all([
       prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
       prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
       warehouseMetrics(filters),
       onHandByProduct(filters),
-      onHandByCategory(filters),
       purchasedDollarsByWarehouse(filters.from ?? new Date(0), filters.to),
       dispersedValueByWarehouse(filters.from ?? new Date(0), filters.to, cost),
       onHandValueByWarehouse(cost),
     ]);
-  const categoryMax = Math.max(1, ...categoryRows.map((c) => c.qty));
 
   const shownWarehouses = filters.warehouseId
     ? warehouses.filter((w) => w.id === filters.warehouseId)
@@ -149,31 +146,6 @@ export default async function ReportsPage({
             </tbody>
           </table>
         </div>
-      </Card>
-
-      {/* On-hand by category */}
-      <Card className="p-4 mb-6">
-        <h2 className="text-sm font-semibold text-ink mb-3">On-hand by category</h2>
-        {categoryRows.length === 0 ? (
-          <p className="text-sm text-muted">No stock matches these filters.</p>
-        ) : (
-          <div className="space-y-2">
-            {categoryRows.map((c) => (
-              <div key={c.category} className="flex items-center gap-3">
-                <div className="w-28 shrink-0 text-sm text-ink">{c.category}</div>
-                <div className="flex-1 h-5 rounded bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full bg-brand-500 rounded"
-                    style={{ width: `${Math.max(3, (c.qty / categoryMax) * 100)}%` }}
-                  />
-                </div>
-                <div className="w-16 shrink-0 text-right text-sm font-medium tabular-nums">
-                  {qty(c.qty)}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </Card>
 
       {/* On-hand by product */}
