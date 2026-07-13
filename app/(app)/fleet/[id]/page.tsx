@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { vehicleDetail, serviceLabel } from "@/lib/fleet";
+import { vehicleInspections } from "@/lib/inspection";
 import ServiceForm from "./ServiceForm";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,9 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const detail = await vehicleDetail(id);
   if (!detail) notFound();
   const { vehicle: v, services, totalCost } = detail;
+  const inspections = await vehicleInspections(id);
+  const now = new Date();
+  const thisMonthDone = inspections.some((i) => i.year === now.getFullYear() && i.month === now.getMonth() + 1);
 
   return (
     <>
@@ -70,6 +74,57 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         </Card>
       </div>
 
+      {/* Monthly inspection */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
+          <div className="text-sm font-medium text-ink">
+            Monthly inspection
+            {thisMonthDone ? (
+              <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">This month done</span>
+            ) : (
+              <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Due this month</span>
+            )}
+          </div>
+          {user.role === "admin" ? (
+            <Link href={`/fleet/${v.id}/inspect`} className="text-xs font-medium text-brand-700 hover:underline">
+              {thisMonthDone ? "View / edit →" : "Start inspection →"}
+            </Link>
+          ) : null}
+        </div>
+        {inspections.length === 0 ? (
+          <p className="px-4 py-6 text-center text-sm text-muted">No inspections recorded yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted border-b border-line">
+                  <th className="px-4 py-2 font-medium">Period</th>
+                  <th className="px-3 py-2 font-medium">Date</th>
+                  <th className="px-3 py-2 font-medium">Technician</th>
+                  <th className="px-3 py-2 font-medium">Inspector</th>
+                  <th className="px-3 py-2 font-medium text-right">Score</th>
+                  <th className="px-4 py-2 font-medium text-center">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inspections.map((ins) => (
+                  <tr key={ins.id} className="border-b border-line last:border-0">
+                    <td className="px-4 py-2 whitespace-nowrap">{MONTH_ABBR[ins.month]} {ins.year}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{dateShort(ins.date)}</td>
+                    <td className="px-3 py-2 text-muted">{ins.technicianName ?? "—"}</td>
+                    <td className="px-3 py-2 text-muted">{ins.inspectorName ?? "—"}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{ins.score}/{ins.maxScore} · {ins.scorePct}%</td>
+                    <td className="px-4 py-2 text-center">
+                      <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${ins.grade === "A" || ins.grade === "B" ? "bg-emerald-100 text-emerald-700" : ins.grade === "C" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{ins.grade}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
       {user.role === "admin" ? <ServiceForm vehicleId={v.id} /> : null}
 
       <Card className="p-0 overflow-hidden">
@@ -112,6 +167,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
     </>
   );
 }
+
+const MONTH_ABBR = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function Info({ label, value }: { label: string; value: string }) {
   return (

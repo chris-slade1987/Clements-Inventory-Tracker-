@@ -360,7 +360,8 @@ model Vehicle {
 
   createdAt      DateTime  @default(now()) @map("created_at")
 
-  services VehicleService[]
+  services    VehicleService[]
+  inspections VehicleInspection[]
 
   @@index([branch])
   @@map("vehicles")
@@ -384,6 +385,53 @@ model VehicleService {
 
   @@index([vehicleId])
   @@map("vehicle_services")
+}
+
+// Monthly on-site vehicle inspection completed by a branch manager. Mirrors the
+// paper form: condition ratings (1-3), a maintenance-log review, and pass/fail
+// compliance checks (FDACS / insurance / maintenance). Scores the technician
+// assigned to the vehicle and feeds the quarterly scorecard's inspection metric.
+model VehicleInspection {
+  id             String   @id @default(cuid())
+  vehicleId      String   @map("vehicle_id")
+  branch         String?
+  year           Int
+  month          Int // 1-12 — one inspection per vehicle per month
+  date           DateTime // date the inspection was performed
+  technicianName String?  @map("technician_name") // driver assigned to the vehicle (graded)
+  inspectorName  String?  @map("inspector_name") // manager completing the form
+
+  // Section A — condition ratings (1-3) and per-item "issues to address" notes.
+  ratings      String @default("{}") // {"outside":3,"inside":2,"toolbox":3,"truckbed":1}
+  ratingIssues String @default("{}") @map("rating_issues")
+
+  // Section C — FDACS / insurance / maintenance pass-fail checks (1 pt each).
+  checks String @default("{}") // {"id_card":true,"pesticides_locked":true,...}
+
+  // Section B — routine maintenance log review.
+  oilChangeLast    DateTime? @map("oil_change_last")
+  oilChangeNext    DateTime? @map("oil_change_next")
+  tireRotationLast DateTime? @map("tire_rotation_last")
+  tireRotationNext DateTime? @map("tire_rotation_next")
+  otherMaintLast   DateTime? @map("other_maint_last")
+  otherMaintNext   DateTime? @map("other_maint_next")
+  mileage          Int?
+  notes            String?
+
+  // Computed grade (points earned out of maxScore).
+  score    Int    @default(0)
+  maxScore Int    @default(20) @map("max_score")
+  scorePct Float  @default(0) @map("score_pct")
+  grade    String @default("") // A | B | C | D | F
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([vehicleId, year, month])
+  @@index([branch, year, month])
+  @@index([technicianName])
+  @@map("vehicle_inspections")
 }
 
 // Simple key/value app settings (e.g. price-increase threshold).

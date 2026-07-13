@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
+import { managerReminders } from "@/lib/reminders";
 import FleetControls from "./FleetControls";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function FleetPage({
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const vehicles = await listVehicles(branch ?? undefined);
+  const reminders = await managerReminders(branch ?? undefined);
   const active = vehicles.filter((v) => v.status === "active");
   const ytdSpend = vehicles.reduce((s, v) => s + v.ytdCost, 0);
   const cpmVals = vehicles.map((v) => v.costPerMile).filter((n): n is number => n != null);
@@ -40,6 +42,19 @@ export default async function FleetPage({
           />
         ))}
       </div>
+
+      {reminders.length > 0 ? (
+        <Link href="/my-branch" className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100/70">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </span>
+          <span className="flex-1 text-sm">
+            <span className="font-medium text-amber-800">{reminders.length} reminder{reminders.length === 1 ? "" : "s"} need attention</span>
+            <span className="block text-xs text-amber-700">{reminders.slice(0, 2).map((r) => r.detail).join(" · ")}{reminders.length > 2 ? " …" : ""}</span>
+          </span>
+          <span className="text-amber-700 text-sm">View →</span>
+        </Link>
+      ) : null}
 
       {vehicles.length === 0 ? (
         <EmptyState

@@ -12,7 +12,24 @@ export type NavItem = {
 
 // Two operating modes. The nav shows one group at a time; a toggle in the
 // shell switches between them.
-export type Mode = "inventory" | "management" | "fleet";
+export type Mode = "manager" | "inventory" | "management" | "fleet";
+
+// Branch-manager home: their operational dashboard — reminders, this month's
+// inspections, and the responsibilities that feed their quarterly scorecard.
+export const MANAGER_NAV: NavItem[] = [
+  {
+    href: "/my-branch",
+    label: "My Dashboard",
+    shortLabel: "Home",
+    icon: "M3 12l9-9 9 9M5 10v10h14V10M9 21v-6h6v6",
+  },
+  {
+    href: "/my-branch/inspections",
+    label: "Inspections",
+    shortLabel: "Inspect",
+    icon: "M9 11l3 3 8-8M9 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+  },
+];
 
 export const INVENTORY_NAV: NavItem[] = [
   {

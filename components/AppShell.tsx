@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
+import { MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -27,14 +27,15 @@ function isActive(pathname: string, href: string) {
 
 // Segmented control switching between the Inventory, Management, and Fleet centers.
 function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }) {
-  const base = compact ? "px-2 py-1 text-[10px]" : "flex-1 px-1.5 py-1.5 text-[11px]";
+  const base = compact ? "px-1.5 py-1 text-[10px]" : "flex-1 px-1 py-1.5 text-[10px]";
   const opt = (active: boolean) =>
     `${base} rounded-lg font-medium text-center transition-colors ${
       active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
     }`;
   const centers: { href: string; label: string; m: Mode }[] = [
+    { href: "/my-branch", label: "My Branch", m: "manager" },
     { href: "/dashboard", label: "Inventory", m: "inventory" },
-    { href: "/management", label: "Management", m: "management" },
+    { href: "/management", label: "Mgmt", m: "management" },
     { href: "/fleet", label: "Fleet", m: "fleet" },
   ];
   return (
@@ -71,12 +72,15 @@ export default function AppShell({
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
-  const mode: Mode = pathname.startsWith("/management")
-    ? "management"
-    : pathname.startsWith("/fleet")
-      ? "fleet"
-      : "inventory";
-  const items = mode === "management" ? MANAGEMENT_NAV : mode === "fleet" ? FLEET_NAV : INVENTORY_NAV;
+  const mode: Mode = pathname.startsWith("/my-branch")
+    ? "manager"
+    : pathname.startsWith("/management")
+      ? "management"
+      : pathname.startsWith("/fleet")
+        ? "fleet"
+        : "inventory";
+  const items =
+    mode === "manager" ? MANAGER_NAV : mode === "management" ? MANAGEMENT_NAV : mode === "fleet" ? FLEET_NAV : INVENTORY_NAV;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = items
     .map((i) => i.href)
