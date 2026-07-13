@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { requireAdmin } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
 import { parseJson } from "@/lib/inspection";
@@ -18,12 +18,14 @@ export default async function InspectPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const user = await requireAdmin();
+  const user = await requireUser();
   const { id } = await params;
   const sp = await searchParams;
 
   const vehicle = await prisma.vehicle.findUnique({ where: { id } });
   if (!vehicle) notFound();
+  // A branch manager can only inspect vehicles at their own branch.
+  if (branchLocked(user) && vehicle.branch !== user.branch) redirect("/my-branch/inspections");
 
   const now = new Date();
   const year = Number(sp.year) || now.getFullYear();

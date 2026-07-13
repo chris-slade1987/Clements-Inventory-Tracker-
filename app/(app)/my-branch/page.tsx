@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { managerReminders, type Reminder } from "@/lib/reminders";
@@ -18,7 +18,9 @@ export default async function MyBranchPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const branch = scopedBranch(user, requested);
+  const locked = branchLocked(user);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -48,12 +50,14 @@ export default async function MyBranchPage({
         subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your reminders & responsibilities`}
       />
 
-      <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-        <BranchPill href="/my-branch" label="All branches" active={branch === null} />
-        {BRANCHES.map((b) => (
-          <BranchPill key={b.key} href={`/my-branch?branch=${b.key}`} label={b.label} active={branch === b.key} />
-        ))}
-      </div>
+      {locked ? null : (
+        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+          <BranchPill href="/my-branch" label="All branches" active={branch === null} />
+          {BRANCHES.map((b) => (
+            <BranchPill key={b.key} href={`/my-branch?branch=${b.key}`} label={b.label} active={branch === b.key} />
+          ))}
+        </div>
+      )}
 
       {/* Tiles */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">

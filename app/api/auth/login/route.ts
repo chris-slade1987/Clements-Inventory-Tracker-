@@ -25,7 +25,9 @@ export async function POST(req: Request) {
     }
 
     await createSession(user.id);
-    return NextResponse.json({ ok: true });
+    // Branch managers land on their branch home; admins/exec on the inventory dashboard.
+    const redirect = user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
+    return NextResponse.json({ ok: true, redirect });
   } catch (e) {
     // Surface the underlying cause (e.g. database not reachable / not migrated)
     // instead of a generic failure, so setup issues are diagnosable.

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { inspectionStatus, technicianGrades, gradeLetter } from "@/lib/inspection";
 
@@ -18,9 +18,11 @@ export default async function InspectionsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const branch = scopedBranch(user, requested);
+  const locked = branchLocked(user);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -28,19 +30,21 @@ export default async function InspectionsPage({
 
   const [insp, grades] = await Promise.all([
     inspectionStatus(year, month, branch ?? undefined),
-    technicianGrades(),
+    technicianGrades(branch ?? undefined),
   ]);
 
   return (
     <>
       <PageHeader title="Vehicle Inspections" subtitle={`${MONTHS[month]} ${year} — ${insp.completed}/${insp.total} complete`} />
 
-      <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-        <BranchPill href="/my-branch/inspections" label="All branches" active={branch === null} />
-        {BRANCHES.map((b) => (
-          <BranchPill key={b.key} href={`/my-branch/inspections?branch=${b.key}`} label={b.label} active={branch === b.key} />
-        ))}
-      </div>
+      {locked ? null : (
+        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+          <BranchPill href="/my-branch/inspections" label="All branches" active={branch === null} />
+          {BRANCHES.map((b) => (
+            <BranchPill key={b.key} href={`/my-branch/inspections?branch=${b.key}`} label={b.label} active={branch === b.key} />
+          ))}
+        </div>
+      )}
 
       {/* This month's inspection status */}
       <Card className="p-0 overflow-hidden mb-5">

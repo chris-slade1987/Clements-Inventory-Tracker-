@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, homePath } from "@/lib/auth";
 import LoginForm from "@/components/LoginForm";
 
 export const metadata = { title: "Sign in — Clements Command & Control" };
 
 export default async function LoginPage() {
-  // Already signed in → go straight to the app.
-  if (await getSessionUser()) redirect("/dashboard");
+  // Already signed in → go straight to the right home.
+  const existing = await getSessionUser();
+  if (existing) redirect(homePath(existing));
 
   return (
     <div className="min-h-screen grid place-items-center px-4 py-10 bg-forest-grad">

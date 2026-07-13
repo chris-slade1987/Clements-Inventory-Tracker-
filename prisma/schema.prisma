@@ -55,6 +55,7 @@ model User {
   passwordHash String   @map("password_hash")
   role         String   @default("manager") // "manager" | "admin"
   warehouseId  String?  @map("warehouse_id") // null = access to all warehouses
+  branch       String? // "vero" | "stuart" | "orlando" | "naples" — a branch manager's home branch (null = all-branch / exec)
   active       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
 

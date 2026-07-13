@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, branchLocked } from "@/lib/auth";
 import { scoreInspection, criticalFailures, type Ratings, type Checks } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
 
@@ -11,8 +11,9 @@ const int = (v: unknown) => { const n = parseInt(String(v ?? "").replace(/[^0-9-
 const date = (v: unknown) => { if (!v) return null; const d = new Date(String(v)); return isNaN(d.getTime()) ? null : d; };
 
 export async function POST(req: Request) {
+  // Inspections are completed by branch managers as well as admins.
   const user = await getSessionUser();
-  if (!user || user.role !== "admin")
+  if (!user || (user.role !== "admin" && user.role !== "manager"))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
@@ -30,6 +31,8 @@ export async function POST(req: Request) {
     if (!vehicleId) return NextResponse.json({ error: "Missing vehicle." }, { status: 400 });
     const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
     if (!vehicle) return NextResponse.json({ error: "Vehicle not found." }, { status: 404 });
+    if (branchLocked(user) && vehicle.branch !== user.branch)
+      return NextResponse.json({ error: "That vehicle is not at your branch." }, { status: 403 });
 
     const when = date(body?.date) ?? new Date();
     const year = int(body?.year) ?? when.getFullYear();

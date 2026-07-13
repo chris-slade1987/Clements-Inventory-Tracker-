@@ -76,11 +76,11 @@ export async function vehicleInspections(vehicleId: string) {
 }
 
 /** Per-technician rolling grade — average score across their inspections. */
-export async function technicianGrades(): Promise<
+export async function technicianGrades(branch?: string): Promise<
   { technicianName: string; count: number; avgPct: number; grade: string; lastDate: Date }[]
 > {
   const rows = await prisma.vehicleInspection.findMany({
-    where: { technicianName: { not: null } },
+    where: { technicianName: { not: null }, ...(branch ? { branch } : {}) },
     select: { technicianName: true, scorePct: true, date: true },
   });
   const by = new Map<string, { sum: number; count: number; last: Date }>();
@@ -119,4 +119,21 @@ export async function inspectionStatus(year: number, month: number, branch?: str
   const rows = vehicles.map((v) => ({ ...v, inspection: doneMap.get(v.id) ?? null }));
   const completed = rows.filter((r) => r.inspection).length;
   return { rows, total: vehicles.length, completed, pending: vehicles.length - completed };
+}
+
+/**
+ * Quarterly inspection completion for a branch — expected = active vehicles ×
+ * months in the quarter. Powers the scorecard's inspection-compliance
+ * auto-suggestion (met only when every vehicle was inspected every month).
+ */
+export async function quarterInspectionCompliance(year: number, quarter: number, branch: string) {
+  const months: Record<number, number[]> = { 1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9], 4: [10, 11, 12] };
+  const qMonths = months[quarter] ?? [];
+  const [vehicleCount, done] = await Promise.all([
+    prisma.vehicle.count({ where: { status: "active", branch } }),
+    prisma.vehicleInspection.count({ where: { year, month: { in: qMonths }, branch } }),
+  ]);
+  const expected = vehicleCount * qMonths.length;
+  const pct = expected > 0 ? Math.round((done / expected) * 1000) / 10 : 0;
+  return { done, expected, vehicleCount, months: qMonths.length, pct, complete: expected > 0 && done >= expected };
 }

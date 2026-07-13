@@ -49,7 +49,27 @@ export type SessionUser = {
   role: string;
   warehouseId: string | null;
   warehouseName: string | null;
+  branch: string | null;
 };
+
+/** A branch manager (non-admin with a home branch) only sees their own branch. */
+export function branchLocked(user: SessionUser): boolean {
+  return user.role !== "admin" && !!user.branch;
+}
+
+/**
+ * Resolve which branch a page should show. Branch-locked managers are always
+ * pinned to their own branch; admins/exec honor the requested branch (which may
+ * be null = all branches).
+ */
+export function scopedBranch(user: SessionUser, requested: string | null): string | null {
+  return branchLocked(user) ? user.branch : requested;
+}
+
+/** Where a user lands after signing in — managers to their branch home. */
+export function homePath(user: SessionUser): string {
+  return branchLocked(user) ? "/my-branch" : "/dashboard";
+}
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   const jar = await cookies();
@@ -72,6 +92,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     role: u.role,
     warehouseId: u.warehouseId,
     warehouseName: u.warehouse?.name ?? null,
+    branch: u.branch,
   };
 }
 

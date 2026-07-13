@@ -24,13 +24,13 @@ export default function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         setError(data.error ?? "Sign in failed.");
         setBusy(false);
         return;
       }
-      router.push("/dashboard");
+      router.push(typeof data.redirect === "string" ? data.redirect : "/dashboard");
       router.refresh();
     } catch {
       setError("Network error. Try again.");

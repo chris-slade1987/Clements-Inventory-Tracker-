@@ -85,7 +85,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Due this month</span>
             )}
           </div>
-          {user.role === "admin" ? (
+          {user.role === "admin" || user.role === "manager" ? (
             <Link href={`/fleet/${v.id}/inspect`} className="text-xs font-medium text-brand-700 hover:underline">
               {thisMonthDone ? "View / edit →" : "Start inspection →"}
             </Link>

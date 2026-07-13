@@ -59,7 +59,7 @@ export async function seedDatabase(
   const orlando = { id: wh.get("Orlando")! };
   const naples = { id: wh.get("Naples")! };
 
-  // --- Manager --------------------------------------------------------
+  // --- Manager (admin / all-branch access) ----------------------------
   const manager = await prisma.user.create({
     data: {
       name: "Chris Slade",
@@ -69,6 +69,20 @@ export async function seedDatabase(
       warehouseId: vero.id,
     },
   });
+
+  // --- Branch managers (branch-scoped logins) -------------------------
+  // Each sees only their own branch: dashboard, inspections, scorecard.
+  const branchManagers: Array<[string, string, string, string]> = [
+    ["Ray Whitfield", "vero@clementspestcontrol.com", "vero", vero.id],
+    ["Dana Holloway", "stuart@clementspestcontrol.com", "stuart", stuart.id],
+    ["Miguel Santos", "orlando@clementspestcontrol.com", "orlando", orlando.id],
+    ["Karen Pruitt", "naples@clementspestcontrol.com", "naples", naples.id],
+  ];
+  for (const [name, email, branch, warehouseId] of branchManagers) {
+    await prisma.user.create({
+      data: { name, email, passwordHash: hashPassword(MANAGER_PASSWORD), role: "manager", branch, warehouseId },
+    });
+  }
 
   // --- Technicians (no logins; pick-list only) ------------------------
   const techSpec: Array<[string, string, string]> = [

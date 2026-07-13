@@ -17,6 +17,7 @@ type Row = {
   met: boolean | null;
   note: string | null;
   suggested: boolean | null;
+  detail?: string | null;
 };
 
 export default function ScorecardClient({
@@ -99,6 +100,7 @@ export default function ScorecardClient({
                         {r.type === "auto" ? "Auto from reports" : r.type === "compliance" ? "Compliance · Y/N" : "Manual"}
                         {r.suggested != null ? ` · suggested: ${r.suggested ? "Met" : "Not Met"}` : ""}
                       </div>
+                      {r.detail ? <div className="text-[11px] text-brand-600">{r.detail}</div> : null}
                     </td>
                     <td className="px-2 py-2 text-right tabular-nums text-muted">{r.weight}%</td>
                     <td className="px-3 py-2 text-right tabular-nums">
