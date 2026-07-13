@@ -18,6 +18,7 @@ const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
 
 type Prefill = {
   date: string;
+  employeeId: string;
   technicianName: string;
   inspectorName: string;
   mileage: string;
@@ -40,6 +41,7 @@ export default function InspectionForm({
   month,
   isEdit,
   prefill,
+  employees,
 }: {
   vehicleId: string;
   vehicleLabel: string;
@@ -47,10 +49,12 @@ export default function InspectionForm({
   month: number;
   isEdit: boolean;
   prefill: Prefill;
+  employees: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [f, setF] = useState({
     date: prefill.date,
+    employeeId: prefill.employeeId,
     technicianName: prefill.technicianName,
     inspectorName: prefill.inspectorName,
     mileage: prefill.mileage,
@@ -118,7 +122,20 @@ export default function InspectionForm({
           Inspection period · <span className="text-ink font-medium">{MONTHS[month]} {year}</span>
           {isEdit ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] text-amber-700">Editing existing</span> : null}
         </div>
-        <Field label="Technician (assigned driver)" v={f.technicianName} on={(v) => set({ technicianName: v })} />
+        <label className="block text-sm font-medium">Technician (assigned driver)
+          <select
+            value={f.employeeId}
+            onChange={(e) => {
+              const emp = employees.find((x) => x.id === e.target.value);
+              set({ employeeId: e.target.value, technicianName: emp ? emp.name : f.technicianName });
+            }}
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"
+          >
+            <option value="">{f.technicianName ? `${f.technicianName} (not linked)` : "— Select employee —"}</option>
+            {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+          </select>
+          <span className="mt-0.5 block text-[11px] font-normal text-muted">Report &amp; score tag to this profile</span>
+        </label>
         <Field label="Inspector (manager)" v={f.inspectorName} on={(v) => set({ inspectorName: v })} />
         <label className="block text-sm font-medium">Inspection date
           <input type="date" value={f.date} onChange={(e) => set({ date: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm text-ink" />

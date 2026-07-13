@@ -96,6 +96,18 @@ export const MANAGEMENT_NAV: NavItem[] = [
     icon: "M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11",
   },
   {
+    href: "/management/audits",
+    label: "Branch Audits",
+    shortLabel: "Audits",
+    icon: "M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4",
+  },
+  {
+    href: "/management/people",
+    label: "People / HR",
+    shortLabel: "People",
+    icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
+  },
+  {
     href: "/management/upload",
     label: "Upload MBR",
     shortLabel: "Upload",

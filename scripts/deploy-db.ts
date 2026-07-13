@@ -73,6 +73,16 @@ async function main() {
     } else {
       console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
     }
+
+    // Seed personnel profiles only when empty.
+    const employees = await prisma.employee.count();
+    if (employees === 0) {
+      const { seedEmployees } = await import("../prisma/seed-employees");
+      const e = await seedEmployees(prisma);
+      console.log(`deploy-db: seeded people (${e.total} employees).`);
+    } else {
+      console.log(`deploy-db: people present (${employees} employees) — left as-is.`);
+    }
   } finally {
     await prisma.$disconnect();
   }

@@ -5,6 +5,7 @@ import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
 import { parseJson } from "@/lib/inspection";
+import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import InspectionForm from "./InspectionForm";
 
 export const dynamic = "force-dynamic";
@@ -46,8 +47,14 @@ export default async function InspectPage({
     orderBy: { date: "desc" },
   });
 
+  // Personnel for this branch, and the best match for the assigned driver.
+  const employees = await listEmployees(vehicle.branch ?? undefined);
+  const empLite = employees.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch }));
+  const matchedEmployeeId = existing?.employeeId ?? matchEmployeeByName(vehicle.assignedTo, empLite);
+
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
+    employeeId: matchedEmployeeId ?? "",
     technicianName: existing?.technicianName ?? vehicle.assignedTo ?? "",
     inspectorName: existing?.inspectorName ?? user.name ?? user.email,
     mileage: existing?.mileage != null ? String(existing.mileage) : vehicle.currentMileage != null ? String(vehicle.currentMileage) : "",
@@ -81,6 +88,7 @@ export default async function InspectPage({
         month={month}
         isEdit={!!existing}
         prefill={prefill}
+        employees={empLite.map((e) => ({ id: e.id, name: e.name }))}
       />
     </>
   );

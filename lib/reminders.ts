@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { isDueSoon, listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
+import { openFollowUps } from "@/lib/audit";
 import { branchLabel } from "@/lib/management";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
@@ -12,7 +13,8 @@ export type ReminderKind =
   | "inspection_due"
   | "maintenance_due"
   | "registration_expiring"
-  | "loan_payoff";
+  | "loan_payoff"
+  | "audit_followup";
 
 export type Reminder = {
   kind: ReminderKind;
@@ -103,6 +105,22 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         });
       }
     }
+  }
+
+  // Open audit action items assigned to the branch manager (deadline-driven).
+  const followUps = await openFollowUps(branch);
+  for (const fu of followUps) {
+    const days = fu.dueDate ? Math.round((fu.dueDate.getTime() - now.getTime()) / DAY) : null;
+    const overdue = days != null && days < 0;
+    reminders.push({
+      kind: "audit_followup",
+      severity: overdue ? "critical" : days != null && days <= 7 ? "warning" : "info",
+      title: overdue ? "Audit action item overdue" : "Audit action item",
+      detail: `${fu.description}${fu.dueDate ? ` — ${overdue ? `overdue ${Math.abs(days!)}d` : days === 0 ? "due today" : `due in ${days}d`} (${fu.dueDate.toLocaleDateString()})` : ""} · from Q${fu.audit.quarter} ${fu.audit.year} audit.`,
+      branch: fu.branch,
+      href: "/management/audits",
+      dueDate: fu.dueDate,
+    });
   }
 
   const rank = { critical: 0, warning: 1, info: 2 } as const;

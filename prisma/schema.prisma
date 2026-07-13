@@ -399,6 +399,7 @@ model VehicleInspection {
   year           Int
   month          Int // 1-12 — one inspection per vehicle per month
   date           DateTime // date the inspection was performed
+  employeeId     String?  @map("employee_id") // personnel profile of the graded driver
   technicianName String?  @map("technician_name") // driver assigned to the vehicle (graded)
   inspectorName  String?  @map("inspector_name") // manager completing the form
 
@@ -427,12 +428,154 @@ model VehicleInspection {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  employee Employee? @relation(fields: [employeeId], references: [id])
 
   @@unique([vehicleId, year, month])
   @@index([branch, year, month])
   @@index([technicianName])
+  @@index([employeeId])
   @@map("vehicle_inspections")
+}
+
+// ---------------------------------------------------------------------------
+// People / HR. A personnel profile for every employee. Inspection reports and
+// (future) annual reviews tag to the profile so scores accrue to the person.
+// ---------------------------------------------------------------------------
+model Employee {
+  id            String    @id @default(cuid())
+  name          String
+  email         String? // work email (for emailing inspection scores); filled later
+  phone         String?
+  role          String? // "Technician" | "Manager" | "Sales Advisor" | ...
+  division      String? // "Lawn" | "Service" | "General Pest" | ...
+  branch        String? // "vero" | "stuart" | "orlando" | "naples"
+  title         String?
+  status        String    @default("active") // "active" | "inactive"
+  hireDate      DateTime? @map("hire_date")
+  licenseNumber String?   @map("license_number")
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  inspections VehicleInspection[]
+  rideAlongs  AuditRideAlong[]
+
+  @@index([branch])
+  @@index([name])
+  @@map("employees")
+}
+
+// Outbound email log. Every send (or skip when no provider is configured) is
+// recorded so admin/HR can see what went out. The sender is provider-agnostic.
+model EmailLog {
+  id          String   @id @default(cuid())
+  to          String
+  subject     String
+  kind        String // "inspection_score" | "audit_report" | ...
+  status      String // "sent" | "skipped_no_provider" | "skipped_no_address" | "error"
+  error       String?
+  relatedType String?  @map("related_type")
+  relatedId   String?  @map("related_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([kind])
+  @@map("email_logs")
+}
+
+// ---------------------------------------------------------------------------
+// Quarterly branch audit (Director of Field Ops). A pre-visit prep checklist,
+// the on-site audit form (ride-alongs + facility + personnel), and follow-up
+// action items with deadlines that alert the branch manager.
+// ---------------------------------------------------------------------------
+model BranchAudit {
+  id          String   @id @default(cuid())
+  branch      String
+  year        Int
+  quarter     Int // 1-4
+  visitDate   DateTime @map("visit_date")
+  auditorName String?  @map("auditor_name")
+  status      String   @default("draft") // "draft" | "submitted"
+
+  // Section scores stored as JSON keyed by item.
+  facility  String @default("{}") // A + B: 1-3 ratings; C: yes/no
+  personnel String @default("{}") // yes/no answers
+  ratings   String @default("{}") // section overall 1-5 ratings (equipment, personnel)
+
+  facilityIssues  String? @map("facility_issues")
+  concerns        String? // branch-specific concerns
+  suggestions     String? // engagement / inclusion suggestions
+  nextQuarterPlan String? @map("next_quarter_plan")
+
+  score       Int      @default(0)
+  maxScore    Int      @default(0) @map("max_score")
+  scorePct    Float    @default(0) @map("score_pct")
+  submittedAt DateTime? @map("submitted_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rideAlongs AuditRideAlong[]
+  followUps  AuditFollowUp[]
+
+  @@unique([branch, year, quarter])
+  @@index([branch])
+  @@map("branch_audits")
+}
+
+model AuditRideAlong {
+  id          String  @id @default(cuid())
+  auditId     String  @map("audit_id")
+  employeeId  String? @map("employee_id")
+  technicianName String? @map("technician_name")
+  serviceType String? @map("service_type") // general_pest | termite | lawn | mosquito | rodent | other
+
+  // 1-5 ratings.
+  customerInteraction Int? @map("customer_interaction")
+  serviceExecution    Int? @map("service_execution")
+  equipmentPrep       Int? @map("equipment_prep")
+  safety              Int?
+
+  customerNotes  String? @map("customer_notes")
+  executionNotes String? @map("execution_notes")
+  equipmentNotes String? @map("equipment_notes")
+  safetyNotes    String? @map("safety_notes")
+  strengths      String?
+  improvement    String?
+  coaching       String?
+
+  audit    BranchAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  employee Employee?   @relation(fields: [employeeId], references: [id])
+
+  @@index([auditId])
+  @@map("audit_ride_alongs")
+}
+
+model AuditFollowUp {
+  id          String    @id @default(cuid())
+  auditId     String    @map("audit_id")
+  branch      String
+  description String
+  dueDate     DateTime? @map("due_date")
+  status      String    @default("open") // "open" | "done"
+  resolvedAt  DateTime? @map("resolved_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  audit BranchAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([branch, status])
+  @@map("audit_follow_ups")
+}
+
+// Pre-visit prep checklist for a branch/quarter (Director of Field Ops).
+model AuditPrecheck {
+  id        String   @id @default(cuid())
+  branch    String
+  year      Int
+  quarter   Int
+  items     String   @default("{}") // {itemKey: true/false}
+  notes     String?
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([branch, year, quarter])
+  @@map("audit_prechecks")
 }
 
 // Simple key/value app settings (e.g. price-increase threshold).

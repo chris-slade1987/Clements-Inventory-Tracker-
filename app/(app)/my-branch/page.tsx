@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { managerReminders, type Reminder } from "@/lib/reminders";
 import { inspectionStatus } from "@/lib/inspection";
+import { openFollowUps } from "@/lib/audit";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
+import FollowUps from "./FollowUps";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +29,21 @@ export default async function MyBranchPage({
   const month = now.getMonth() + 1;
   const quarter = Math.floor((month - 1) / 3) + 1;
 
-  const [reminders, insp, openAlerts] = await Promise.all([
+  const [reminders, insp, openAlerts, followUps] = await Promise.all([
     managerReminders(branch ?? undefined),
     inspectionStatus(year, month, branch ?? undefined),
     prisma.alert.count({ where: { status: "open" } }),
+    openFollowUps(branch ?? undefined),
   ]);
+  const nowMs = now.getTime();
+  const followUpItems = followUps.map((f) => ({
+    id: f.id,
+    description: f.description,
+    dueDate: f.dueDate ? f.dueDate.toISOString() : null,
+    quarter: f.audit.quarter,
+    year: f.audit.year,
+    overdue: !!f.dueDate && f.dueDate.getTime() < nowMs,
+  }));
 
   // Scorecard snapshot — current quarter, for the selected branch (or the first
   // branch when viewing all, just to show progress).
@@ -89,6 +101,9 @@ export default async function MyBranchPage({
           </ul>
         )}
       </Card>
+
+      {/* Audit action items (resolvable) */}
+      <FollowUps items={followUpItems} />
 
       {/* Responsibilities */}
       <Card className="p-4">

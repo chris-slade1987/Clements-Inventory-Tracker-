@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
 import { scoreInspection, criticalFailures, type Ratings, type Checks } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
+import { listEmployees, matchEmployeeByName } from "@/lib/people";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -42,13 +44,22 @@ export async function POST(req: Request) {
     const { score, maxScore, scorePct, grade } = scoreInspection(ratings, checks);
     const mileage = int(body?.mileage);
 
+    // Resolve the graded employee: explicit pick wins; else match by name.
+    const technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
+    let employeeId = str(body?.employeeId);
+    if (!employeeId && technicianName) {
+      const emps = await listEmployees(vehicle.branch ?? undefined);
+      employeeId = matchEmployeeByName(technicianName, emps.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch })));
+    }
+
     const data = {
       vehicleId,
       branch: vehicle.branch,
       year,
       month,
       date: when,
-      technicianName: str(body?.technicianName) ?? vehicle.assignedTo,
+      employeeId,
+      technicianName,
       inspectorName: str(body?.inspectorName) ?? user.name ?? user.email,
       ratings: JSON.stringify(ratings),
       ratingIssues: JSON.stringify(body?.ratingIssues ?? {}),
@@ -101,7 +112,27 @@ export async function POST(req: Request) {
       await prisma.alert.deleteMany({ where: { dedupeKey } });
     }
 
-    return NextResponse.json({ ok: true, id: saved.id, score, maxScore, scorePct, grade, criticalFailures: fails.length });
+    // Email the graded employee a copy of their score (no-ops + logs until
+    // addresses / an email provider are configured).
+    let emailStatus: string | null = null;
+    if (employeeId) {
+      const emp = await prisma.employee.findUnique({ where: { id: employeeId } });
+      if (emp) {
+        const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
+        const res = await sendEmail({
+          to: emp.email,
+          subject: `Your ${monthName} ${year} vehicle inspection — grade ${grade} (${scorePct}%)`,
+          kind: "inspection_score",
+          relatedType: "vehicle_inspection",
+          relatedId: saved.id,
+          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— Clements Command & Control`,
+          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— Clements Command &amp; Control</p>`,
+        });
+        emailStatus = res.status;
+      }
+    }
+
+    return NextResponse.json({ ok: true, id: saved.id, score, maxScore, scorePct, grade, criticalFailures: fails.length, emailStatus });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }
