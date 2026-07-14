@@ -54,6 +54,11 @@ export async function employeeDetail(id: string) {
     orderBy: { id: "desc" },
     include: { audit: { select: { year: true, quarter: true, visitDate: true } } },
   });
+  const training = await prisma.trainingAssignment.findMany({
+    where: { employeeId: id },
+    orderBy: [{ status: "asc" }, { assignedAt: "desc" }],
+    include: { course: { select: { title: true, category: true } } },
+  });
   // Vehicles currently assigned to this person (matched by name).
   const vehicles = await prisma.vehicle.findMany({
     where: { status: "active", branch: employee.branch ?? undefined },
@@ -68,6 +73,7 @@ export async function employeeDetail(id: string) {
     employee,
     inspections,
     rideAlongs,
+    training,
     assigned,
     avgPct,
     grade: avgPct == null ? null : gradeLetter(avgPct),

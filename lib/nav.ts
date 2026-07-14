@@ -12,7 +12,23 @@ export type NavItem = {
 
 // Two operating modes. The nav shows one group at a time; a toggle in the
 // shell switches between them.
-export type Mode = "manager" | "inventory" | "management" | "fleet";
+export type Mode = "employee" | "manager" | "inventory" | "management" | "fleet";
+
+// Employee ("My Work") home — their assigned training + lesson library.
+export const EMPLOYEE_NAV: NavItem[] = [
+  {
+    href: "/me",
+    label: "My Work",
+    shortLabel: "Home",
+    icon: "M3 12l9-9 9 9M5 10v10h14V10M9 21v-6h6v6",
+  },
+  {
+    href: "/me/library",
+    label: "Lesson Library",
+    shortLabel: "Library",
+    icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM8 7h6M8 11h8M8 15h8",
+  },
+];
 
 // Branch-manager home: their operational dashboard — reminders, this month's
 // inspections, and the responsibilities that feed their quarterly scorecard.
@@ -118,6 +134,12 @@ export const MANAGEMENT_NAV: NavItem[] = [
     label: "Branch Audits",
     shortLabel: "Audits",
     icon: "M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4",
+  },
+  {
+    href: "/management/training",
+    label: "Training",
+    shortLabel: "Training",
+    icon: "M12 4L2 9l10 5 8-4v6M6 12v5c0 1 3 2 6 2s6-1 6-2v-5",
   },
   {
     href: "/management/people",

@@ -25,8 +25,9 @@ export async function POST(req: Request) {
     }
 
     await createSession(user.id);
-    // Branch managers land on their branch home; admins/exec on the inventory dashboard.
-    const redirect = user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
+    // Employees → their work home; branch managers → their branch; admins → dashboard.
+    const redirect =
+      user.role === "employee" ? "/me" : user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
     return NextResponse.json({ ok: true, redirect });
   } catch (e) {
     // Surface the underlying cause (e.g. database not reachable / not migrated)

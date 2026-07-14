@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -66,21 +66,31 @@ export default function AppShell({
   children,
   managerName,
   isAdmin = false,
+  isEmployee = false,
 }: {
   children: React.ReactNode;
   managerName?: string;
   isAdmin?: boolean;
+  isEmployee?: boolean;
 }) {
   const pathname = usePathname();
-  const mode: Mode = pathname.startsWith("/my-branch")
-    ? "manager"
-    : pathname.startsWith("/management")
-      ? "management"
-      : pathname.startsWith("/fleet")
-        ? "fleet"
-        : "inventory";
+  const mode: Mode = pathname.startsWith("/me")
+    ? "employee"
+    : pathname.startsWith("/my-branch")
+      ? "manager"
+      : pathname.startsWith("/management")
+        ? "management"
+        : pathname.startsWith("/fleet")
+          ? "fleet"
+          : "inventory";
   const items =
-    mode === "manager" ? MANAGER_NAV : mode === "management" ? MANAGEMENT_NAV : mode === "fleet" ? FLEET_NAV : INVENTORY_NAV;
+    mode === "employee" ? EMPLOYEE_NAV
+      : mode === "manager" ? MANAGER_NAV
+        : mode === "management" ? MANAGEMENT_NAV
+          : mode === "fleet" ? FLEET_NAV
+            : INVENTORY_NAV;
+  // Employees have a single self-service area — no center switcher, no admin.
+  const showCenters = !isEmployee;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = items
     .map((i) => i.href)
@@ -100,9 +110,11 @@ export default function AppShell({
             <div className="text-xs text-mint">Command &amp; Control</div>
           </div>
         </div>
-        <div className="px-3 pt-3">
-          <ModeToggle mode={mode} />
-        </div>
+        {showCenters ? (
+          <div className="px-3 pt-3">
+            <ModeToggle mode={mode} />
+          </div>
+        ) : null}
         <nav className="flex-1 px-3 py-4 space-y-1">
           {items.map((item) => {
             const active = item.href === activeHref;
@@ -156,7 +168,7 @@ export default function AppShell({
             C
           </span>
           <span className="font-normal text-white tracking-tight">Clements</span>
-          <div className="ml-1"><ModeToggle mode={mode} compact /></div>
+          {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
           {isAdmin ? (
             <Link href="/manage" aria-label="Manage" className="ml-auto p-1 text-mint hover:text-white">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>

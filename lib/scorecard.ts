@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cell, periodValues, type Cell } from "@/lib/management";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
+import { quarterTrainingCompliance } from "@/lib/training";
 
 // The quarterly branch-manager bonus scorecard. Binary Met/Not-Met, weighted to
 // 100%, per the company template. Five metrics can be auto-computed from the
@@ -128,11 +129,12 @@ export type ScorecardRow = {
  * completion. Shared by the admin scorecard and a manager's own scorecard view.
  */
 export async function buildScorecardRows(year: number, quarter: number, branch: string): Promise<ScorecardRow[]> {
-  const [auto, saved, inspComp, whComp] = await Promise.all([
+  const [auto, saved, inspComp, whComp, trComp] = await Promise.all([
     autoActuals(year, quarter, branch),
     savedResults(year, quarter, branch),
     quarterInspectionCompliance(year, quarter, branch),
     quarterWarehouseCompliance(year, quarter, branch),
+    quarterTrainingCompliance(year, quarter, branch),
   ]);
   return SCORECARD_METRICS.map((m) => {
     const a = auto[m.key];
@@ -147,6 +149,10 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     if (m.key === "warehouse_inspections") {
       suggested = whComp.complete;
       detail = `${whComp.done}/${whComp.expected} monthly warehouse inspections this quarter`;
+    }
+    if (m.key === "training_ceu" && trComp.total > 0) {
+      suggested = trComp.complete;
+      detail = `${trComp.completed}/${trComp.total} training assignments completed this quarter (${trComp.pct}%)`;
     }
     return {
       key: m.key,

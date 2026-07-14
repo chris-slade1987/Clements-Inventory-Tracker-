@@ -79,9 +79,19 @@ async function main() {
     if (employees === 0) {
       const { seedEmployees } = await import("../prisma/seed-employees");
       const e = await seedEmployees(prisma);
-      console.log(`deploy-db: seeded people (${e.total} employees).`);
+      console.log(`deploy-db: seeded people (${e.total} employees, ${e.logins} logins).`);
     } else {
       console.log(`deploy-db: people present (${employees} employees) — left as-is.`);
+    }
+
+    // Seed a sample training course only when none exist.
+    const courses = await prisma.course.count();
+    if (courses === 0) {
+      const { seedTraining } = await import("../prisma/seed-training");
+      const t = await seedTraining(prisma);
+      console.log(`deploy-db: seeded training (${t.created} course, ${t.assigned} assignments).`);
+    } else {
+      console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
     }
   } finally {
     await prisma.$disconnect();

@@ -50,6 +50,7 @@ export type SessionUser = {
   warehouseId: string | null;
   warehouseName: string | null;
   branch: string | null;
+  employeeId: string | null;
 };
 
 /** A branch manager (non-admin with a home branch) only sees their own branch. */
@@ -66,8 +67,10 @@ export function scopedBranch(user: SessionUser, requested: string | null): strin
   return branchLocked(user) ? user.branch : requested;
 }
 
-/** Where a user lands after signing in — managers to their branch home. */
+/** Where a user lands after signing in — employees to their work home,
+ *  branch managers to their branch, admins to the inventory dashboard. */
 export function homePath(user: SessionUser): string {
+  if (user.role === "employee") return "/me";
   return branchLocked(user) ? "/my-branch" : "/dashboard";
 }
 
@@ -93,6 +96,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     warehouseId: u.warehouseId,
     warehouseName: u.warehouse?.name ?? null,
     branch: u.branch,
+    employeeId: u.employeeId,
   };
 }
 

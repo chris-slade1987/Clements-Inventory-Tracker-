@@ -53,13 +53,15 @@ model User {
   name         String
   email        String   @unique
   passwordHash String   @map("password_hash")
-  role         String   @default("manager") // "manager" | "admin"
+  role         String   @default("manager") // "employee" | "manager" | "admin"
   warehouseId  String?  @map("warehouse_id") // null = access to all warehouses
-  branch       String? // "vero" | "stuart" | "orlando" | "naples" — a branch manager's home branch (null = all-branch / exec)
+  branch       String? // "vero" | "stuart" | "orlando" | "naples" — home branch (null = all-branch / exec)
+  employeeId   String?  @unique @map("employee_id") // personnel profile (for employee logins)
   active       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
 
   warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])
+  employee  Employee?       @relation(fields: [employeeId], references: [id])
   sessions  Session[]
   invoices  Invoice[]
   movements StockMovement[]
@@ -459,10 +461,66 @@ model Employee {
 
   inspections VehicleInspection[]
   rideAlongs  AuditRideAlong[]
+  assignments TrainingAssignment[]
+  user        User?
 
   @@index([branch])
   @@index([name])
   @@map("employees")
+}
+
+// ---------------------------------------------------------------------------
+// Training / LMS. Admins create courses (uploaded material + a quiz) and assign
+// them to employees with a due date. Completions file into the employee's
+// personnel profile and feed the manager scorecard + year-end review.
+// ---------------------------------------------------------------------------
+model Course {
+  id            String   @id @default(cuid())
+  title         String
+  category      String   @default("ceu") // "onboarding" | "ceu"
+  description   String? // lesson body / summary (markdown-ish text)
+  materialFile  String?  @map("material_file") // uploaded lesson (pdf/slides), best-effort stored
+  materialName  String?  @map("material_name")
+  questions     String   @default("[]") // JSON: [{prompt, options:[...], correctIndex}]
+  passingScore  Int      @default(80) @map("passing_score") // percent
+  active        Boolean  @default(true)
+  createdById   String?  @map("created_by_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  assignments TrainingAssignment[]
+
+  @@index([category])
+  @@map("courses")
+}
+
+model TrainingAssignment {
+  id           String    @id @default(cuid())
+  courseId     String    @map("course_id")
+  employeeId   String    @map("employee_id")
+  branch       String? // snapshot of the employee's branch (for manager rollups)
+  assignedById String?   @map("assigned_by_id")
+  assignedAt   DateTime  @default(now()) @map("assigned_at")
+  dueDate      DateTime? @map("due_date")
+
+  status      String    @default("not_started") // "not_started" | "in_progress" | "completed"
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  answers     String    @default("{}") // JSON: {questionIndex: chosenIndex}
+  score       Int? // percent
+  passed      Boolean?
+  attempts    Int       @default(0)
+
+  // Email cadence: assignment notice + daily reminders until complete.
+  notifiedAt     DateTime? @map("notified_at")
+  lastReminderAt DateTime? @map("last_reminder_at")
+
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, employeeId])
+  @@index([employeeId, status])
+  @@index([branch, status])
+  @@map("training_assignments")
 }
 
 // Outbound email log. Every send (or skip when no provider is configured) is

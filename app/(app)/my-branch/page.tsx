@@ -50,6 +50,10 @@ export default async function MyBranchPage({
   // branch when viewing all, just to show progress).
   const scBranch = branch ?? BRANCHES[0].key;
   const warehouse = await warehouseStatus(year, month, scBranch);
+  // CEU/training: complete when the branch has assignments and none are open.
+  const openTraining = await prisma.trainingAssignment.count({ where: { status: { not: "completed" }, ...(branch ? { branch } : {}) } });
+  const totalTraining = await prisma.trainingAssignment.count({ where: branch ? { branch } : undefined });
+  const trainingDone = totalTraining > 0 && openTraining === 0;
   const saved = await savedResults(year, quarter, scBranch);
   const metState = Object.fromEntries(SCORECARD_METRICS.map((m) => [m.key, saved[m.key]?.met ?? null]));
   const scScore = weightedScore(metState);
@@ -120,7 +124,7 @@ export default async function MyBranchPage({
           />
           <Responsibility done={warehouse.done} label="Warehouse inspection report" href="/my-branch/warehouse" />
           <Responsibility done={false} label="Quality control reports" href="/my-branch/qc" />
-          <Responsibility done={false} label="Onboarding / CEU training current" href="/my-branch/training" />
+          <Responsibility done={trainingDone} label="Onboarding / CEU training current" href="/my-branch/training" />
         </ul>
       </Card>
     </>

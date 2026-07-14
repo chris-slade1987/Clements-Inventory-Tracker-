@@ -10,7 +10,7 @@ export default async function AppGroupLayout({
 }) {
   const user = await requireUser();
   return (
-    <AppShell managerName={user.name} isAdmin={user.role === "admin"}>
+    <AppShell managerName={user.name} isAdmin={user.role === "admin"} isEmployee={user.role === "employee"}>
       {children}
     </AppShell>
   );

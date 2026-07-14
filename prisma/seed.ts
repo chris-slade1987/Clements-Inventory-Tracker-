@@ -3,6 +3,7 @@ import { seedDatabase, MANAGER_EMAIL, MANAGER_PASSWORD } from "./seed-core";
 import { seedManagement } from "./seed-management";
 import { seedFleet } from "./seed-fleet";
 import { seedEmployees } from "./seed-employees";
+import { seedTraining } from "./seed-training";
 
 const prisma = new PrismaClient();
 
@@ -12,6 +13,7 @@ seedDatabase(prisma, { reset: true })
     const mgmt = await seedManagement(prisma);
     const fleet = await seedFleet(prisma);
     const people = await seedEmployees(prisma);
+    await seedTraining(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`

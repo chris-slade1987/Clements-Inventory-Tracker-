@@ -22,7 +22,8 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const detail = await employeeDetail(id);
   if (!detail) notFound();
-  const { employee: e, inspections, rideAlongs, assigned, avgPct, grade } = detail;
+  const { employee: e, inspections, rideAlongs, training, assigned, avgPct, grade } = detail;
+  const STATUS_LABEL: Record<string, string> = { not_started: "Not started", in_progress: "In progress", completed: "Completed" };
   const canEdit = user.role === "admin";
 
   return (
@@ -134,6 +135,41 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           </div>
         </Card>
       ) : null}
+
+      {/* Training record (personnel folder) */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Training record</div>
+        {training.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">No training assigned yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted border-b border-line">
+                  <th className="px-4 py-2 font-medium">Course</th>
+                  <th className="px-3 py-2 font-medium">Category</th>
+                  <th className="px-3 py-2 font-medium">Completed</th>
+                  <th className="px-3 py-2 font-medium text-right">Score</th>
+                  <th className="px-4 py-2 font-medium text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {training.map((t) => (
+                  <tr key={t.id} className="border-b border-line last:border-0">
+                    <td className="px-4 py-2 font-medium">{t.course.title}</td>
+                    <td className="px-3 py-2 text-muted capitalize">{t.course.category}</td>
+                    <td className="px-3 py-2 text-muted">{t.completedAt ? dateShort(t.completedAt) : "—"}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{t.score != null ? `${t.score}%` : "—"}</td>
+                    <td className="px-4 py-2 text-center">
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.status === "completed" ? "bg-emerald-100 text-emerald-700" : t.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600"}`}>{STATUS_LABEL[t.status]}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
 
       {/* Annual review — placeholder */}
       <Card className="p-4">

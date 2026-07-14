@@ -21,7 +21,7 @@ export async function ensureWarehouses(
 }
 
 // Local copy of the password hasher so the seed has no app-import dependencies.
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");
   const hash = scryptSync(password, salt, 64).toString("hex");
   return `${salt}:${hash}`;
