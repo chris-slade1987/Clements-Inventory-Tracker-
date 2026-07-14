@@ -61,7 +61,13 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
                   {r.actionTaken ? <div className="mt-1 text-xs"><span className="font-medium text-ink">Action:</span> <span className="text-muted">{r.actionTaken}</span></div> : null}
                   {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
                   {(r.type === "writeup" || r.type === "accident") ? (
-                    <SignatureBlock recordId={r.id} type={r.type} signatures={r.signatures.map((s) => ({ id: s.id, role: s.role, signerName: s.signerName, signedAt: s.signedAt }))} />
+                    <SignatureBlock
+                      recordId={r.id}
+                      type={r.type}
+                      employeeEmail={employee.email ?? ""}
+                      signatures={r.signatures.map((s) => ({ id: s.id, role: s.role, signerName: s.signerName, signedAt: s.signedAt }))}
+                      requests={r.signatureRequests.map((q) => ({ id: q.id, role: q.role, email: q.email }))}
+                    />
                   ) : null}
                 </li>
               );

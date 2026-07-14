@@ -493,8 +493,9 @@ model PersonnelRecord {
   acknowledgedAt DateTime? @map("acknowledged_at") // future: employee sign-off
   createdAt    DateTime  @default(now()) @map("created_at")
 
-  employee   Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  signatures PersonnelSignature[]
+  employee          Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  signatures        PersonnelSignature[]
+  signatureRequests SignatureRequest[]
 
   @@index([employeeId])
   @@index([branch, type])
@@ -517,6 +518,28 @@ model PersonnelSignature {
 
   @@index([recordId])
   @@map("personnel_signatures")
+}
+
+// A remote e-signature request: a tokenized link emailed to a signer who isn't
+// with the manager (e.g. an injured employee sent home). They open the link and
+// sign without logging in. Reminders re-send daily until signed.
+model SignatureRequest {
+  id             String    @id @default(cuid())
+  recordId       String    @map("record_id")
+  role           String
+  token          String    @unique
+  email          String
+  signerName     String?   @map("signer_name")
+  sentAt         DateTime  @default(now()) @map("sent_at")
+  lastReminderAt DateTime? @map("last_reminder_at")
+  signedAt       DateTime? @map("signed_at")
+  createdById    String?   @map("created_by_id")
+
+  record PersonnelRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@index([recordId])
+  @@index([signedAt])
+  @@map("signature_requests")
 }
 
 // ---------------------------------------------------------------------------

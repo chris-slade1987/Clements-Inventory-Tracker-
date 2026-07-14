@@ -174,7 +174,7 @@ export async function employeeRecords(employeeId: string) {
   return prisma.personnelRecord.findMany({
     where: { employeeId },
     orderBy: { createdAt: "desc" },
-    include: { signatures: { orderBy: { signedAt: "asc" } } },
+    include: { signatures: { orderBy: { signedAt: "asc" } }, signatureRequests: { where: { signedAt: null } } },
   });
 }
 

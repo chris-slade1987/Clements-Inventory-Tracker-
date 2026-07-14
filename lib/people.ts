@@ -62,7 +62,7 @@ export async function employeeDetail(id: string) {
   const records = await prisma.personnelRecord.findMany({
     where: { employeeId: id },
     orderBy: { createdAt: "desc" },
-    include: { signatures: { orderBy: { signedAt: "asc" } } },
+    include: { signatures: { orderBy: { signedAt: "asc" } }, signatureRequests: { where: { signedAt: null } } },
   });
   // Vehicles currently assigned to this person (matched by name).
   const vehicles = await prisma.vehicle.findMany({

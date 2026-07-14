@@ -33,6 +33,8 @@ export async function POST(req: Request) {
     await prisma.personnelSignature.create({
       data: { recordId, role, signerName, statement: roleDef.statement, signedByUserId: user.id },
     });
+    // If a remote link was out for this role, mark it done so reminders stop.
+    await prisma.signatureRequest.updateMany({ where: { recordId, role, signedAt: null }, data: { signedAt: new Date(), signerName } });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
