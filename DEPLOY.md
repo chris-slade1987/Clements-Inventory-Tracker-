@@ -77,3 +77,35 @@ URLs to view them.
 - **Provider switch is automatic.** `scripts/deploy-db.ts` flips the Prisma
   datasource to `postgresql` at build time when it sees a Postgres URL; the
   committed schema stays on SQLite for local use.
+
+---
+
+## Activating email + daily reminders (phase-1 wiring)
+
+The app captures everything and is wired for email, but **nothing is sent until
+you provide an email provider**. Until then every send is recorded in the
+`EmailLog` table and safely skipped.
+
+### 1. Turn on email (Resend)
+1. Create a [Resend](https://resend.com) account, verify your sending domain
+   (`clementspestcontrol.com`), and create an API key.
+2. In the Vercel project → Settings → Environment Variables, set:
+   - `RESEND_API_KEY` — the key from Resend
+   - `EMAIL_FROM` — e.g. `Clements Command & Control <no-reply@clementspestcontrol.com>`
+   - `APP_URL` — your deployed URL (used to build links in emails)
+3. Redeploy. Inspection scores, training assignments/reminders, personnel-record
+   notifications (to April + Graham + Chris + Tim), and e-signature links will
+   now actually deliver.
+
+### 2. Turn on daily reminders (Vercel Cron)
+`vercel.json` already declares a daily cron that calls `/api/cron/daily`
+(training reminders + outstanding e-signature reminders).
+1. Set `CRON_SECRET` (any long random string: `openssl rand -hex 32`) in the
+   Vercel env. Vercel automatically sends it as a bearer token on cron runs, and
+   the endpoint rejects anything else.
+2. Redeploy. The cron runs once a day (13:00 UTC ≈ morning ET). You can also
+   trigger it manually as an admin by POSTing to `/api/cron/daily`.
+
+### 3. Notification recipients (optional)
+Defaults resolve to the seeded company addresses. Override with `HR_EMAIL`,
+`FIELD_OPS_EMAIL`, `COO_EMAIL`, `OWNER_EMAIL` if they change.
