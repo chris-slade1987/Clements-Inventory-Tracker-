@@ -14,20 +14,20 @@
   --color-brand-800: #065f46;
   --color-brand-900: #064e3b;
 
-  /* Warm orange ground (the app background) */
-  --color-forest-light: #c2410c;
-  --color-forest: #9a3412;
-  --color-forest-deep: #6d2410;
-  --color-forest-ink: #431407;
-  --color-mint: #e8c4a8; /* muted text on the orange ground */
+  /* Forest greens (the app ground) */
+  --color-forest-light: #14503a;
+  --color-forest: #0f3d2c;
+  --color-forest-deep: #0a2e20;
+  --color-forest-ink: #08251a;
+  --color-mint: #9db5a8; /* muted text on forest */
 
   /* Neutral tokens — DARK by default (the whole app rides on forest).
      Popovers (dropdowns, dialogs) opt back into light via .surface-light. */
   --color-ink: #eef5f0; /* primary text on forest */
   --color-muted: #9db5a8; /* secondary text on forest */
   --color-line: rgba(255, 255, 255, 0.12);
-  --color-surface: rgba(255, 255, 255, 0.05); /* card / panel on the ground */
-  --color-canvas: #9a3412;
+  --color-surface: rgba(255, 255, 255, 0.05); /* card / panel on forest */
+  --color-canvas: #0f3d2c;
 }
 
 :root {
@@ -40,11 +40,11 @@ body {
 }
 
 body {
-  /* The orange ground shows everywhere the chrome and cards don't cover. */
+  /* The forest ground shows everywhere the chrome and cards don't cover. */
   background:
-    radial-gradient(1100px 620px at 88% -12%, rgba(251, 146, 60, 0.18), transparent 60%),
-    linear-gradient(165deg, #c2410c 0%, #9a3412 42%, #431407 100%) fixed;
-  background-color: #9a3412;
+    radial-gradient(1100px 620px at 88% -12%, rgba(52, 211, 153, 0.14), transparent 60%),
+    linear-gradient(165deg, #14503a 0%, #0f3d2c 42%, #08251a 100%) fixed;
+  background-color: #0f3d2c;
   color: var(--color-ink);
   font-family: "Helvetica Neue", Arial, Helvetica, system-ui, sans-serif;
   font-weight: 300;
@@ -57,7 +57,7 @@ body {
 /* Reusable brand gradients */
 .bg-forest-grad {
   background:
-    radial-gradient(900px 460px at 85% -15%, rgba(251, 146, 60, 0.2), transparent 60%),
+    radial-gradient(900px 460px at 85% -15%, rgba(52, 211, 153, 0.16), transparent 60%),
     linear-gradient(160deg, var(--color-forest-light) 0%, var(--color-forest) 45%, var(--color-forest-ink) 100%);
 }
 .bg-emerald-grad {
