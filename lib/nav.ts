@@ -25,9 +25,27 @@ export const MANAGER_NAV: NavItem[] = [
   },
   {
     href: "/my-branch/inspections",
-    label: "Inspections",
-    shortLabel: "Inspect",
+    label: "Vehicle Inspections",
+    shortLabel: "Vehicles",
     icon: "M9 11l3 3 8-8M9 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+  },
+  {
+    href: "/my-branch/warehouse",
+    label: "Warehouse Inspection",
+    shortLabel: "Warehouse",
+    icon: "M3 21h18M4 21V8l8-4 8 4v13M9 21v-6h6v6M8 11h.01M16 11h.01",
+  },
+  {
+    href: "/my-branch/qc",
+    label: "Quality Control",
+    shortLabel: "QC",
+    icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
+  },
+  {
+    href: "/my-branch/scorecard",
+    label: "Scorecard",
+    shortLabel: "Score",
+    icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
 ];
 

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { cell, periodValues, type Cell } from "@/lib/management";
+import { quarterInspectionCompliance } from "@/lib/inspection";
 
 // The quarterly branch-manager bonus scorecard. Binary Met/Not-Met, weighted to
 // 100%, per the company template. Five metrics can be auto-computed from the
@@ -103,4 +104,57 @@ export function weightedScore(metState: Record<string, boolean | null>): number 
   let earned = 0;
   for (const m of SCORECARD_METRICS) if (metState[m.key] === true) earned += m.weight;
   return earned;
+}
+
+export type ScorecardRow = {
+  key: string;
+  label: string;
+  weight: number;
+  type: MetricType;
+  unit: "usd" | "pct" | null;
+  actual: number | null;
+  budgetTarget: number | null;
+  target: string | null;
+  met: boolean | null;
+  note: string | null;
+  suggested: boolean | null;
+  detail: string | null;
+};
+
+/**
+ * Build the scorecard rows for a branch/quarter — auto actuals + budget targets,
+ * saved Met/Not, and the vehicle-inspection auto-suggestion from real
+ * completion. Shared by the admin scorecard and a manager's own scorecard view.
+ */
+export async function buildScorecardRows(year: number, quarter: number, branch: string): Promise<ScorecardRow[]> {
+  const [auto, saved, inspComp] = await Promise.all([
+    autoActuals(year, quarter, branch),
+    savedResults(year, quarter, branch),
+    quarterInspectionCompliance(year, quarter, branch),
+  ]);
+  return SCORECARD_METRICS.map((m) => {
+    const a = auto[m.key];
+    const savedRow = saved[m.key] ?? { target: null, met: null, note: null };
+    const budgetTarget = a?.budget ?? null;
+    let suggested = m.type === "auto" ? suggestMet(m.direction, a?.actual ?? null, budgetTarget) : null;
+    let detail: string | null = null;
+    if (m.key === "vehicle_inspections" && inspComp.expected > 0) {
+      suggested = inspComp.complete;
+      detail = `${inspComp.done}/${inspComp.expected} inspections this quarter (${inspComp.pct}%)`;
+    }
+    return {
+      key: m.key,
+      label: m.label,
+      weight: m.weight,
+      type: m.type,
+      unit: a?.unit ?? m.unit ?? null,
+      actual: a?.actual ?? null,
+      budgetTarget,
+      target: savedRow.target,
+      met: savedRow.met,
+      note: savedRow.note,
+      suggested,
+      detail,
+    };
+  });
 }

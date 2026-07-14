@@ -21,7 +21,7 @@ type Row = {
 };
 
 export default function ScorecardClient({
-  year, quarter, branch, years, branches, rows, canEdit,
+  year, quarter, branch, years, branches, rows, canEdit, basePath = "/management/scorecards",
 }: {
   year: number;
   quarter: number;
@@ -30,6 +30,7 @@ export default function ScorecardClient({
   branches: { key: string; label: string }[];
   rows: Row[];
   canEdit: boolean;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [state, setState] = useState<Record<string, { met: boolean | null; target: string }>>(
@@ -42,7 +43,7 @@ export default function ScorecardClient({
 
   function nav(next: Record<string, string | number>) {
     const p = new URLSearchParams({ year: String(year), quarter: String(quarter), branch, ...Object.fromEntries(Object.entries(next).map(([k, v]) => [k, String(v)])) });
-    router.push(`/management/scorecards?${p.toString()}`);
+    router.push(`${basePath}?${p.toString()}`);
   }
 
   async function save(metricKey: string, patch: { met?: boolean | null; target?: string }) {
