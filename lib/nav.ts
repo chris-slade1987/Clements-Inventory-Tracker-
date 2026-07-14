@@ -40,6 +40,12 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M3 12l9-9 9 9M5 10v10h14V10M9 21v-6h6v6",
   },
   {
+    href: "/my-branch/team",
+    label: "My Team",
+    shortLabel: "Team",
+    icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
+  },
+  {
     href: "/my-branch/inspections",
     label: "Vehicle Inspections",
     shortLabel: "Vehicles",

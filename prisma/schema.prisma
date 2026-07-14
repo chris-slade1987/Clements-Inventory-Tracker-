@@ -462,11 +462,42 @@ model Employee {
   inspections VehicleInspection[]
   rideAlongs  AuditRideAlong[]
   assignments TrainingAssignment[]
+  records     PersonnelRecord[]
   user        User?
 
   @@index([branch])
   @@index([name])
   @@map("employees")
+}
+
+// Manager-submitted personnel records about an employee: write-ups, coaching
+// notes, recognition, and workplace accident reports. Every submission is
+// emailed to HR and filed on the employee's profile.
+model PersonnelRecord {
+  id           String    @id @default(cuid())
+  employeeId   String    @map("employee_id")
+  branch       String?
+  type         String // "writeup" | "note" | "recognition" | "accident"
+  category     String? // writeup: verbal|written|final|pip ; accident: minor|recordable|serious
+  title        String?
+  body         String?
+  incidentDate DateTime? @map("incident_date")
+  actionTaken  String?   @map("action_taken")
+  followUp     String?   @map("follow_up")
+  details      String    @default("{}") // JSON: accident fields + manager checklist state
+  attachmentFile String? @map("attachment_file")
+  attachmentName String? @map("attachment_name")
+  authorId     String?   @map("author_id")
+  authorName   String?   @map("author_name")
+  hrNotified   Boolean   @default(false) @map("hr_notified")
+  acknowledgedAt DateTime? @map("acknowledged_at") // future: employee sign-off
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([branch, type])
+  @@map("personnel_records")
 }
 
 // ---------------------------------------------------------------------------

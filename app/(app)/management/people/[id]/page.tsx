@@ -22,8 +22,10 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const detail = await employeeDetail(id);
   if (!detail) notFound();
-  const { employee: e, inspections, rideAlongs, training, assigned, avgPct, grade } = detail;
+  const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
   const STATUS_LABEL: Record<string, string> = { not_started: "Not started", in_progress: "In progress", completed: "Completed" };
+  const RECORD_STYLE: Record<string, string> = { writeup: "bg-amber-100 text-amber-700", note: "bg-slate-100 text-slate-600", recognition: "bg-emerald-100 text-emerald-700", accident: "bg-red-100 text-red-700" };
+  const RECORD_LABEL: Record<string, string> = { writeup: "Write-up", note: "Note", recognition: "Recognition", accident: "Accident" };
   const canEdit = user.role === "admin";
 
   return (
@@ -135,6 +137,28 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           </div>
         </Card>
       ) : null}
+
+      {/* Personnel records — write-ups, notes, recognition, accidents (HR view) */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Personnel records</div>
+        {records.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">No write-ups, notes, or reports filed.</p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {records.map((r) => (
+              <li key={r.id} className="px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${RECORD_STYLE[r.type] ?? "bg-slate-100 text-slate-600"}`}>{RECORD_LABEL[r.type] ?? r.type}{r.category ? ` · ${r.category}` : ""}</span>
+                  <span className="text-xs text-muted">{dateShort(r.createdAt)} · filed by {r.authorName ?? "—"}</span>
+                </div>
+                {r.title ? <div className="mt-1 text-sm font-medium text-ink">{r.title}</div> : null}
+                {r.body ? <div className="mt-0.5 text-sm text-muted whitespace-pre-line">{r.body}</div> : null}
+                {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* Training record (personnel folder) */}
       <Card className="p-0 overflow-hidden mb-5">
