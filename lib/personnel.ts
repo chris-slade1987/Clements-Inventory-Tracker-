@@ -10,42 +10,89 @@ export const RECORD_TYPES = [
   { key: "accident", label: "Accident report", icon: "🚑" },
 ] as const;
 
+// Matches the company's Employee Disciplinary Action Form.
 export const WRITEUP_CATEGORIES = [
   { key: "verbal", label: "Verbal warning" },
   { key: "written", label: "Written warning" },
-  { key: "final", label: "Final warning" },
-  { key: "pip", label: "Performance improvement plan" },
+  { key: "suspension", label: "Suspension" },
+  { key: "termination", label: "Termination" },
+  { key: "other", label: "Other" },
+];
+
+// Extra write-up fields (Disciplinary Action Form), stored in details JSON.
+export const WRITEUP_FIELDS = [
+  { key: "policyViolated", label: "Policy / procedure violated", area: false },
+  { key: "priorActions", label: "Prior disciplinary actions (dates & descriptions)", area: true },
+  { key: "consequences", label: "Consequences of non-compliance", area: true },
+  { key: "employeeComments", label: "Employee comments (optional)", area: true },
 ];
 
 export const ACCIDENT_SEVERITY = [
-  { key: "minor", label: "Minor (first aid only)" },
-  { key: "recordable", label: "OSHA recordable" },
-  { key: "serious", label: "Serious / lost time" },
+  { key: "minor", label: "Minor" },
+  { key: "moderate", label: "Moderate" },
+  { key: "severe", label: "Severe" },
 ];
 
-// Structured fields captured for a workplace accident (stored in details JSON).
+// Structured fields from the Workplace Accident Report template (details JSON).
 export const ACCIDENT_FIELDS = [
-  { key: "location", label: "Location of incident" },
-  { key: "injuryType", label: "Type of injury / illness" },
-  { key: "bodyPart", label: "Body part affected" },
-  { key: "medicalTreatment", label: "Medical treatment provided" },
+  { key: "time", label: "Time of accident (AM/PM)" },
+  { key: "location", label: "Location of accident" },
+  { key: "city", label: "City" },
+  { key: "zip", label: "Zip" },
+  { key: "jobTitle", label: "Job title" },
   { key: "witnesses", label: "Witness(es)" },
-  { key: "equipmentInvolved", label: "Equipment / chemical involved" },
+  { key: "immediateActions", label: "Immediate actions taken" },
+  { key: "natureOfInjury", label: "Nature of injury" },
+  { key: "bodyPart", label: "Body part(s) injured" },
+  { key: "medicalTreatment", label: "Medical treatment provided" },
 ];
 
-// Manager checklist to work through in the event of an accident. (Default set —
-// will be aligned to the company's uploaded checklist.)
-export const ACCIDENT_CHECKLIST = [
-  { key: "secure", label: "Secure the scene and remove ongoing hazards" },
-  { key: "medical", label: "Ensure injured party receives appropriate medical care" },
-  { key: "notify_hr", label: "Notify HR (April Williford) immediately" },
-  { key: "notify_mgmt", label: "Notify branch/senior management" },
-  { key: "photos", label: "Photograph the scene / equipment involved" },
-  { key: "witnesses", label: "Collect witness statements" },
-  { key: "document", label: "Document what happened while fresh" },
-  { key: "workers_comp", label: "Begin workers' comp / insurance reporting if applicable" },
-  { key: "drug_test", label: "Arrange post-accident drug screening per policy (if applicable)" },
-  { key: "corrective", label: "Identify corrective action to prevent recurrence" },
+// The company's Supervisor's Checklist for Workplace Injury Response.
+export const ACCIDENT_CHECKLIST_GROUPS = [
+  {
+    group: "Ensure immediate safety",
+    items: [
+      { key: "secure", label: "Secure the area to prevent further accidents or injuries" },
+      { key: "first_aid", label: "Provide immediate first aid or call for medical assistance if required" },
+      { key: "emergency", label: "If an emergency, call 911; if serious but not an emergency, accompany the employee to the ER / urgent care" },
+      { key: "no_drive", label: "If serious / needs outside treatment, do NOT let the injured employee operate a company vehicle" },
+      { key: "emergency_contact", label: "Inform the employee's emergency contact if necessary" },
+    ],
+  },
+  {
+    group: "Communicate with employee & management",
+    items: [
+      { key: "offer_treatment", label: "Offer medical treatment immediately (ask if they need it). If declined, note it on the report" },
+      { key: "notify_hr", label: "Notify HR / Benefits Coordinator — April Williford" },
+      { key: "notify_ops", label: "Notify Director of Field Operations — Graham Foster" },
+      { key: "notify_coo", label: "Notify COO — Chris Slade" },
+    ],
+  },
+  {
+    group: "Preserve the scene",
+    items: [
+      { key: "preserve", label: "Maintain the scene without altering evidence until the investigation is complete" },
+      { key: "restrict", label: "Restrict access to the area if needed" },
+      { key: "photos", label: "Take photographs / record the scene if possible and appropriate" },
+    ],
+  },
+  {
+    group: "Gather information & complete the report",
+    items: [
+      { key: "employee_report", label: "If alert & capable, have the employee complete this Workplace Accident Report" },
+      { key: "supervisor_notes", label: "Fill in the remaining supervisor notes & sign" },
+      { key: "witness_statements", label: "Collect statements from any witnesses" },
+      { key: "attach_docs", label: "Attach supporting documents (witness statements, photographs)" },
+      { key: "submit", label: "Submit to April Williford and save a scanned copy to the Management Drive" },
+    ],
+  },
+];
+
+// Standing rules to surface prominently on the accident form.
+export const ACCIDENT_NOTES = [
+  "Emergencies: call 911 immediately.",
+  "Non-emergency treatment must use a workers'-comp-approved provider. For specialists (back, shoulder, etc.), the employee must speak with Chris Slade before making arrangements.",
+  "Notify April Williford (HR), Graham Foster (Field Ops), and Chris Slade (COO).",
 ];
 
 export function recordTypeLabel(type: string): string {
