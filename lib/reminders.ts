@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { isDueSoon, listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
-import { branchLabel } from "@/lib/management";
+import { warehouseStatus } from "@/lib/warehouse";
+import { BRANCHES, branchLabel } from "@/lib/management";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
 // manager logging in knows what needs attention this month — vehicle
@@ -14,7 +15,8 @@ export type ReminderKind =
   | "maintenance_due"
   | "registration_expiring"
   | "loan_payoff"
-  | "audit_followup";
+  | "audit_followup"
+  | "warehouse_due";
 
 export type Reminder = {
   kind: ReminderKind;
@@ -104,6 +106,23 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
           dueDate: v.payoffDate,
         });
       }
+    }
+  }
+
+  // Monthly warehouse safety inspection outstanding (per branch).
+  const whBranches = branch ? [branch] : BRANCHES.map((b) => b.key);
+  for (const bk of whBranches) {
+    const wh = await warehouseStatus(year, month, bk);
+    if (!wh.done) {
+      reminders.push({
+        kind: "warehouse_due",
+        severity: "warning",
+        title: "Warehouse inspection due",
+        detail: `${branchLabel(bk)} has no warehouse safety inspection logged this month.`,
+        branch: bk,
+        href: `/my-branch/warehouse?branch=${bk}`,
+        dueDate: null,
+      });
     }
   }
 

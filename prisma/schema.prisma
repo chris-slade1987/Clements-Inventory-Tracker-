@@ -564,6 +564,32 @@ model AuditFollowUp {
   @@map("audit_follow_ups")
 }
 
+// Monthly warehouse safety inspection (FL Statute 482 / FDACS + OSHA). One per
+// branch per month; feeds the scorecard's warehouse-inspection compliance.
+model WarehouseInspection {
+  id            String   @id @default(cuid())
+  branch        String
+  year          Int
+  month         Int
+  date          DateTime
+  inspectorName String?  @map("inspector_name")
+
+  checks   String @default("{}") // {itemKey: true/false}
+  comments String @default("{}") // {itemKey: "corrective action"}
+  notes    String?
+
+  score    Int    @default(0)
+  maxScore Int    @default(0) @map("max_score")
+  scorePct Float  @default(0) @map("score_pct")
+  grade    String @default("")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([branch, year, month])
+  @@index([branch, year, month])
+  @@map("warehouse_inspections")
+}
+
 // Pre-visit prep checklist for a branch/quarter (Director of Field Ops).
 model AuditPrecheck {
   id        String   @id @default(cuid())

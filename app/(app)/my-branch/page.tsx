@@ -6,6 +6,7 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 import { managerReminders, type Reminder } from "@/lib/reminders";
 import { inspectionStatus } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
+import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
 import FollowUps from "./FollowUps";
 
@@ -48,6 +49,7 @@ export default async function MyBranchPage({
   // Scorecard snapshot — current quarter, for the selected branch (or the first
   // branch when viewing all, just to show progress).
   const scBranch = branch ?? BRANCHES[0].key;
+  const warehouse = await warehouseStatus(year, month, scBranch);
   const saved = await savedResults(year, quarter, scBranch);
   const metState = Object.fromEntries(SCORECARD_METRICS.map((m) => [m.key, saved[m.key]?.met ?? null]));
   const scScore = weightedScore(metState);
@@ -116,7 +118,7 @@ export default async function MyBranchPage({
             label={`Complete monthly vehicle inspections (${insp.completed}/${insp.total})`}
             href="/my-branch/inspections"
           />
-          <Responsibility done={false} label="Warehouse inspection report" href="/my-branch/warehouse" />
+          <Responsibility done={warehouse.done} label="Warehouse inspection report" href="/my-branch/warehouse" />
           <Responsibility done={false} label="Quality control reports" href="/my-branch/qc" />
           <Responsibility done={false} label="Onboarding / CEU training current" href="/my-branch/training" />
         </ul>

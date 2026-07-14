@@ -9,10 +9,10 @@ export async function seedEmployees(prisma: PrismaClient) {
   for (const e of EMPLOYEES) {
     const existing = await prisma.employee.findFirst({ where: { name: e.name, branch: e.branch } });
     if (existing) {
-      await prisma.employee.update({ where: { id: existing.id }, data: { role: e.role, division: e.division } });
+      await prisma.employee.update({ where: { id: existing.id }, data: { email: e.email, role: e.role, division: e.division } });
       updated++;
     } else {
-      await prisma.employee.create({ data: { name: e.name, role: e.role, division: e.division, branch: e.branch } });
+      await prisma.employee.create({ data: { name: e.name, email: e.email, role: e.role, division: e.division, branch: e.branch } });
       created++;
     }
   }
