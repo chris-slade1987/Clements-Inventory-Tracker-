@@ -10,7 +10,7 @@ export type SendResult = { status: "sent" | "skipped_no_provider" | "skipped_no_
 const FROM = process.env.EMAIL_FROM || "Clements Command & Control <no-reply@clementspestcontrol.com>";
 
 export async function sendEmail(opts: {
-  to: string | null | undefined;
+  to: string | string[] | null | undefined;
   subject: string;
   html: string;
   text?: string;
@@ -18,7 +18,11 @@ export async function sendEmail(opts: {
   relatedType?: string;
   relatedId?: string;
 }): Promise<SendResult> {
-  const to = (opts.to ?? "").trim();
+  const recipients = (Array.isArray(opts.to) ? opts.to : [opts.to])
+    .map((t) => (t ?? "").trim().toLowerCase())
+    .filter(Boolean);
+  const unique = [...new Set(recipients)];
+  const to = unique.join(", ");
   let result: SendResult;
 
   if (!to) {

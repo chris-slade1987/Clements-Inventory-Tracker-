@@ -99,6 +99,68 @@ export function recordTypeLabel(type: string): string {
   return RECORD_TYPES.find((t) => t.key === type)?.label ?? type;
 }
 
+// ---- E-signatures ---------------------------------------------------------
+export type SignRole = { key: string; label: string; statement: string };
+
+const ACK = {
+  writeupEmployee:
+    "I acknowledge that I have received and discussed this disciplinary action with my supervisor. My signature indicates receipt — not necessarily agreement — and I understand I may submit a written response. I understand my employment is at-will.",
+  writeupSupervisor:
+    "I certify that I reviewed this matter with the employee and that the information recorded is accurate to the best of my knowledge.",
+  hr: "Reviewed and processed by Human Resources.",
+  accidentEmployee:
+    "I certify that the information I have provided about this incident is true and accurate to the best of my knowledge. I understand that knowingly providing false information may result in disciplinary action.",
+  accidentSupervisor:
+    "I certify that I responded to and documented this incident in accordance with company procedure.",
+  witness: "I certify that this statement is a true account of what I witnessed.",
+};
+
+export function signatureRoles(type: string): SignRole[] {
+  if (type === "writeup")
+    return [
+      { key: "employee", label: "Employee", statement: ACK.writeupEmployee },
+      { key: "supervisor", label: "Supervisor", statement: ACK.writeupSupervisor },
+      { key: "hr", label: "HR representative", statement: ACK.hr },
+    ];
+  if (type === "accident")
+    return [
+      { key: "employee", label: "Employee", statement: ACK.accidentEmployee },
+      { key: "supervisor", label: "Supervisor", statement: ACK.accidentSupervisor },
+      { key: "witness", label: "Witness (optional)", statement: ACK.witness },
+    ];
+  return [];
+}
+
+// Legal / compliance footers surfaced on the forms and stored context.
+export const WRITEUP_LEGAL =
+  "This action is issued in accordance with company policy. Employment with Clements Pest Control is at-will and may be terminated by either party at any time, with or without cause. Clements does not retaliate against employees for lawful, good-faith conduct. The employee may attach a written rebuttal, which will be retained with this record.";
+
+export const ACCIDENT_LEGAL =
+  "This report supports workers' compensation and OSHA recordkeeping. Report all work-related injuries/illnesses immediately (within 24 hours). Non-emergency treatment must use a workers'-comp-approved provider. Medical information is confidential and maintained separately from the personnel file. Retaliation for reporting a workplace injury is prohibited.";
+
+// Compliance yes/no fields for the accident report (stored in details JSON).
+export const ACCIDENT_COMPLIANCE = [
+  { key: "medicalOffered", label: "Was medical treatment offered to the employee?" },
+  { key: "medicalDeclined", label: "Did the employee decline medical treatment?" },
+  { key: "oshaRecordable", label: "Is this potentially OSHA-recordable?" },
+  { key: "workersComp", label: "Workers' comp claim initiated?" },
+];
+
+// Escalation recipients (env-overridable). Every write-up / accident notifies
+// HR (April) plus Field Ops (Graham), COO (Chris), and Tim Slade.
+export const ESCALATION = {
+  fieldOps: process.env.FIELD_OPS_EMAIL || "gfoster@clementspestcontrol.com",
+  coo: process.env.COO_EMAIL || "c.slade@clementspestcontrol.com",
+  owner: process.env.OWNER_EMAIL || "tslade@clementspestcontrol.com",
+};
+
+/** Who to email for a given record type. HR on everything; leadership on the serious ones. */
+export async function notifyList(type: string): Promise<string[]> {
+  const list = [await getHrEmail()];
+  if (type === "writeup" || type === "accident") list.push(ESCALATION.fieldOps, ESCALATION.coo, ESCALATION.owner);
+  return [...new Set(list.filter(Boolean))];
+}
+
 /** Resolve the HR notification address: env override → April Williford → fallback. */
 export async function getHrEmail(): Promise<string> {
   if (process.env.HR_EMAIL) return process.env.HR_EMAIL;
@@ -109,7 +171,11 @@ export async function getHrEmail(): Promise<string> {
 }
 
 export async function employeeRecords(employeeId: string) {
-  return prisma.personnelRecord.findMany({ where: { employeeId }, orderBy: { createdAt: "desc" } });
+  return prisma.personnelRecord.findMany({
+    where: { employeeId },
+    orderBy: { createdAt: "desc" },
+    include: { signatures: { orderBy: { signedAt: "asc" } } },
+  });
 }
 
 /** Team roster for a branch with per-member record counts (for the Team tab). */

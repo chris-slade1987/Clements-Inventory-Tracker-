@@ -8,6 +8,7 @@ import { dateShort } from "@/lib/format";
 import { employeeRecords, recordTypeLabel } from "@/lib/personnel";
 import { parseJson } from "@/lib/inspection";
 import RecordForm from "./RecordForm";
+import SignatureBlock from "./SignatureBlock";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,9 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
                   ) : null}
                   {r.actionTaken ? <div className="mt-1 text-xs"><span className="font-medium text-ink">Action:</span> <span className="text-muted">{r.actionTaken}</span></div> : null}
                   {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
+                  {(r.type === "writeup" || r.type === "accident") ? (
+                    <SignatureBlock recordId={r.id} type={r.type} signatures={r.signatures.map((s) => ({ id: s.id, role: s.role, signerName: s.signerName, signedAt: s.signedAt }))} />
+                  ) : null}
                 </li>
               );
             })}

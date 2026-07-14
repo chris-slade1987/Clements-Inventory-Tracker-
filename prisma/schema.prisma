@@ -493,11 +493,30 @@ model PersonnelRecord {
   acknowledgedAt DateTime? @map("acknowledged_at") // future: employee sign-off
   createdAt    DateTime  @default(now()) @map("created_at")
 
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee   Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  signatures PersonnelSignature[]
 
   @@index([employeeId])
   @@index([branch, type])
   @@map("personnel_records")
+}
+
+// Electronic signature on a personnel record (write-up / accident report).
+// Typed full name + acknowledgment statement + timestamp + attribution — a
+// valid e-signature under E-SIGN / UETA for in-person capture.
+model PersonnelSignature {
+  id             String   @id @default(cuid())
+  recordId       String   @map("record_id")
+  role           String // "employee" | "supervisor" | "hr" | "witness"
+  signerName     String   @map("signer_name")
+  statement      String? // the acknowledgment text agreed to
+  signedByUserId String?  @map("signed_by_user_id") // the logged-in user who captured it
+  signedAt       DateTime @default(now()) @map("signed_at")
+
+  record PersonnelRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@index([recordId])
+  @@map("personnel_signatures")
 }
 
 // ---------------------------------------------------------------------------

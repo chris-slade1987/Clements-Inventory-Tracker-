@@ -6,6 +6,7 @@ import { Card, btn } from "@/components/ui";
 import {
   RECORD_TYPES, WRITEUP_CATEGORIES, WRITEUP_FIELDS,
   ACCIDENT_SEVERITY, ACCIDENT_FIELDS, ACCIDENT_CHECKLIST_GROUPS, ACCIDENT_NOTES,
+  ACCIDENT_COMPLIANCE, WRITEUP_LEGAL, ACCIDENT_LEGAL,
 } from "@/lib/personnel";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -53,7 +54,8 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Save failed.");
-    setMsg(`Filed. HR ${data.emailStatus === "sent" ? "emailed" : "notification queued"} (${data.hrEmail}).`);
+    const n = Array.isArray(data.notified) ? data.notified.length : 0;
+    setMsg(`Filed. ${data.emailStatus === "sent" ? `Emailed to ${n} recipient${n === 1 ? "" : "s"}` : `Notification queued for ${n} recipient${n === 1 ? "" : "s"}`}.`);
     setType(null);
     router.refresh();
   }
@@ -62,7 +64,7 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
     return (
       <Card className="p-4">
         <div className="text-sm font-medium text-ink mb-1">File a record for {employeeName.split(" ")[0]}</div>
-        <p className="text-xs text-muted mb-3">Every submission is emailed to HR (April Williford) and filed to this profile.</p>
+        <p className="text-xs text-muted mb-3">Filed to this profile and emailed to HR (April Williford). Write-ups &amp; accident reports also notify Graham Foster, Chris Slade, and Tim Slade.</p>
         <div className="flex flex-wrap gap-2">
           {RECORD_TYPES.map((t) => (
             <button key={t.key} onClick={() => pick(t.key)} className={`${btn.secondary} flex items-center gap-2`}><span>{t.icon}</span>{t.label}</button>
@@ -140,6 +142,20 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
               </label>
             ))}
           </div>
+          <div className="rounded-lg border border-line p-3">
+            <div className="text-sm font-medium text-ink mb-2">Compliance</div>
+            <div className="space-y-1.5">
+              {ACCIDENT_COMPLIANCE.map((c) => (
+                <div key={c.key} className="flex items-center gap-2">
+                  <div className="flex-1 text-sm text-ink">{c.label}</div>
+                  <div className="flex gap-1 rounded-xl bg-black/20 p-1">
+                    <button onClick={() => setD(c.key, "Yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "Yes" ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>Yes</button>
+                    <button onClick={() => setD(c.key, "No")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "No" ? "bg-red-500 text-white shadow" : "text-mint hover:text-white"}`}>No</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <label className="block text-sm font-medium">Supervisor&rsquo;s comments
             <textarea value={actionTaken} onChange={(e) => setActionTaken(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
           </label>
@@ -168,11 +184,16 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
         <input type="file" accept="application/pdf,image/*,.doc,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-brand-700" />
       </label>
 
+      {isWriteup || isAccident ? (
+        <p className="text-[11px] leading-relaxed text-muted border-t border-line pt-2">{isWriteup ? WRITEUP_LEGAL : ACCIDENT_LEGAL}</p>
+      ) : null}
+
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex gap-2">
         <button onClick={() => setType(null)} className={btn.secondary}>Cancel</button>
         <button onClick={submit} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Filing…" : `File ${typeLabel.toLowerCase()} & notify HR`}</button>
       </div>
+      {isWriteup || isAccident ? <p className="text-[11px] text-muted">A signature panel opens on the filed record for employee/supervisor{isWriteup ? "/HR" : ""} e-signatures.</p> : null}
     </Card>
   );
 }

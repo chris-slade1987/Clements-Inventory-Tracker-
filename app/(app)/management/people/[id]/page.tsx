@@ -7,6 +7,7 @@ import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
+import SignatureBlock from "@/app/(app)/my-branch/team/[id]/SignatureBlock";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +155,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
                 {r.title ? <div className="mt-1 text-sm font-medium text-ink">{r.title}</div> : null}
                 {r.body ? <div className="mt-0.5 text-sm text-muted whitespace-pre-line">{r.body}</div> : null}
                 {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
+                {(r.type === "writeup" || r.type === "accident") ? (
+                  <SignatureBlock recordId={r.id} type={r.type} signatures={r.signatures.map((s) => ({ id: s.id, role: s.role, signerName: s.signerName, signedAt: s.signedAt }))} />
+                ) : null}
               </li>
             ))}
           </ul>

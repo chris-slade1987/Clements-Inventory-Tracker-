@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
-import { getHrEmail, recordTypeLabel } from "@/lib/personnel";
+import { recordTypeLabel, notifyList } from "@/lib/personnel";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -71,13 +71,20 @@ export async function POST(req: Request) {
       },
     });
 
-    // Notify HR (April Williford) of every submission.
-    const hr = await getHrEmail();
+    // The filing supervisor's e-signature is captured automatically.
+    if (type === "writeup" || type === "accident") {
+      await prisma.personnelSignature.create({
+        data: { recordId: record.id, role: "supervisor", signerName: user.name, statement: "Filed and certified by supervisor.", signedByUserId: user.id },
+      });
+    }
+
+    // Notify HR always; add leadership (Graham, Chris, Tim) on write-ups/accidents.
+    const recipients = await notifyList(type);
     const label = recordTypeLabel(type);
     const b = employee.branch ? ` (${branchLabel(employee.branch)})` : "";
     const summary = str(form.get("title")) ?? str(form.get("body"))?.slice(0, 120) ?? label;
     const res = await sendEmail({
-      to: hr,
+      to: recipients,
       subject: `${label} filed: ${employee.name}${b} — by ${user.name}`,
       kind: "personnel_record",
       relatedType: "personnel_record",
@@ -87,7 +94,7 @@ export async function POST(req: Request) {
     });
     if (res.status === "sent") await prisma.personnelRecord.update({ where: { id: record.id }, data: { hrNotified: true } });
 
-    return NextResponse.json({ ok: true, id: record.id, hrEmail: hr, emailStatus: res.status });
+    return NextResponse.json({ ok: true, id: record.id, notified: recipients, emailStatus: res.status });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
   }
