@@ -25,11 +25,11 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
         </div>
 
         {!request ? (
-          <Panel><p className="text-sm text-muted">This signing link is not valid or has expired. Please contact your manager or HR.</p></Panel>
+          <Panel><p className="text-sm text-slate-600">This signing link is not valid or has expired. Please contact your manager or HR.</p></Panel>
         ) : request.signedAt ? (
           <Panel>
-            <h2 className="text-lg font-semibold text-ink">Already signed</h2>
-            <p className="mt-1 text-sm text-muted">This document was e-signed by {request.signerName ?? "the signer"} on {MONTH(request.signedAt)}. No further action is needed.</p>
+            <h2 className="text-lg font-semibold text-slate-900">Already signed</h2>
+            <p className="mt-1 text-sm text-slate-600">This document was e-signed by {request.signerName ?? "the signer"} on {MONTH(request.signedAt)}. No further action is needed.</p>
           </Panel>
         ) : (
           (() => {
@@ -39,15 +39,15 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
             const detailRows = Object.entries(details).filter(([, v]) => v && typeof v === "string");
             return (
               <Panel>
-                <div className="text-xs uppercase tracking-wider text-muted">{recordTypeLabel(r.type)}{r.category ? ` · ${r.category}` : ""}</div>
-                <h2 className="mt-1 text-lg font-semibold text-ink">{r.title || recordTypeLabel(r.type)}</h2>
-                <p className="text-sm text-muted">{r.employee.name}{r.employee.branch ? ` · ${branchLabel(r.employee.branch)}` : ""}{r.incidentDate ? ` · ${MONTH(r.incidentDate)}` : ""}</p>
+                <div className="text-xs uppercase tracking-wider text-slate-500">{recordTypeLabel(r.type)}{r.category ? ` · ${r.category}` : ""}</div>
+                <h2 className="mt-1 text-lg font-semibold text-slate-900">{r.title || recordTypeLabel(r.type)}</h2>
+                <p className="text-sm text-slate-500">{r.employee.name}{r.employee.branch ? ` · ${branchLabel(r.employee.branch)}` : ""}{r.incidentDate ? ` · ${MONTH(r.incidentDate)}` : ""}</p>
 
-                {r.body ? <p className="mt-3 text-sm text-ink whitespace-pre-line">{r.body}</p> : null}
-                {r.actionTaken ? <p className="mt-2 text-sm text-ink"><span className="font-medium">Action / comments:</span> {r.actionTaken}</p> : null}
+                {r.body ? <p className="mt-3 text-sm text-slate-800 whitespace-pre-line">{r.body}</p> : null}
+                {r.actionTaken ? <p className="mt-2 text-sm text-slate-800"><span className="font-medium">Action / comments:</span> {r.actionTaken}</p> : null}
                 {detailRows.length > 0 ? (
                   <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                    {detailRows.map(([k, v]) => <div key={k} className="contents"><dt className="text-muted">{k}</dt><dd className="text-ink">{String(v)}</dd></div>)}
+                    {detailRows.map(([k, v]) => <div key={k} className="contents"><dt className="text-slate-500">{k}</dt><dd className="text-slate-800">{String(v)}</dd></div>)}
                   </dl>
                 ) : null}
 
