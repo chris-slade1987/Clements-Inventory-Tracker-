@@ -5,11 +5,12 @@ import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { vehicleDetail, serviceLabel, dispositionLabel, DISPOSITIONS } from "@/lib/fleet";
-import { docsForVehicle, categoryLabel } from "@/lib/documents";
+import { docsForVehicle } from "@/lib/documents";
 import { remindersForVehicle } from "@/lib/manual-reminders";
 import { vehicleInspections } from "@/lib/inspection";
 import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
+import VehicleDocuments from "./VehicleDocuments";
 import RemindersCard from "@/components/RemindersCard";
 
 export const dynamic = "force-dynamic";
@@ -103,33 +104,14 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         </Card>
       </div>
 
-      {/* Documents — insurance, registration, title */}
-      <Card className="p-0 overflow-hidden mb-5">
-        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
-          <div className="text-sm font-medium text-ink">Documents</div>
-          {user.role === "admin" || user.role === "manager" ? (
-            <Link href={`/fleet/documents?vehicle=${v.id}`} className="text-xs font-medium text-brand-700 hover:underline">Upload / manage →</Link>
-          ) : null}
-        </div>
-        {documents.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-muted">No documents on file. Upload insurance, registration, or title docs from the Document Center.</p>
-        ) : (
-          <ul className="divide-y divide-line">
-            {documents.map((d) => {
-              const exp = d.expirationDate ? d.expirationDate.getTime() : null;
-              const soon = exp != null && exp - now.getTime() <= 45 * 864e5;
-              return (
-                <li key={d.id} className="flex flex-wrap items-center gap-2 px-4 py-2.5">
-                  <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">{categoryLabel(d.category)}</span>
-                  {d.filePath ? <a href={d.filePath} target="_blank" className="text-sm font-medium text-brand-700 hover:underline">{d.title}</a> : <span className="text-sm font-medium text-ink">{d.title}</span>}
-                  {d.insurer ? <span className="text-xs text-muted">{d.insurer}{d.policyNumber ? ` · ${d.policyNumber}` : ""}</span> : null}
-                  {d.expirationDate ? <span className={`ml-auto text-xs font-medium ${exp! < now.getTime() ? "text-red-600" : soon ? "text-amber-600" : "text-muted"}`}>renews {dateShort(d.expirationDate)}</span> : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Card>
+      {/* Documents — insurance, registration, title, bill of sale */}
+      <VehicleDocuments
+        vehicleId={v.id}
+        vehicleLabel={`${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}`}
+        sold={v.status !== "active"}
+        canManage={canManage}
+        documents={documents.map((d) => ({ id: d.id, title: d.title, category: d.category, filePath: d.filePath, insurer: d.insurer, policyNumber: d.policyNumber, expirationDate: d.expirationDate ? d.expirationDate.toISOString() : null }))}
+      />
 
       {/* Reminders tagged to this vehicle */}
       <RemindersCard

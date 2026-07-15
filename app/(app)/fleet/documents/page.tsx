@@ -5,6 +5,7 @@ import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { listVehicles } from "@/lib/fleet";
 import { pendingDocs, recentFiledDocs, expiringDocs, categoryLabel } from "@/lib/documents";
+import DeleteDocButton from "./DeleteDocButton";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
                 <span className="text-sm text-ink">{d.title}</span>
                 {d.filePath ? <a href={d.filePath} target="_blank" className="text-xs text-brand-700 hover:underline">view file</a> : null}
                 <span className="ml-auto text-xs text-muted">uploaded {dateShort(d.createdAt)}</span>
+                <DeleteDocButton id={d.id} label="Discard" />
               </li>
             ))}
           </ul>
@@ -96,7 +98,8 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
                   <th className="px-3 py-2 font-medium">Category</th>
                   <th className="px-3 py-2 font-medium">Vehicle</th>
                   <th className="px-3 py-2 font-medium">Renewal</th>
-                  <th className="px-4 py-2 font-medium text-right">Filed</th>
+                  <th className="px-3 py-2 font-medium text-right">Filed</th>
+                  <th className="px-4 py-2 font-medium text-right"></th>
                 </tr>
               </thead>
               <tbody>
@@ -109,7 +112,8 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
                     <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${CAT_STYLE[d.category]}`}>{categoryLabel(d.category)}</span></td>
                     <td className="px-3 py-2">{d.vehicle ? <Link href={`/fleet/${d.vehicleId}`} className="text-brand-700 hover:underline">{d.vehicle.unitNumber ? `#${d.vehicle.unitNumber} · ` : ""}{d.vehicle.name}</Link> : "—"}</td>
                     <td className="px-3 py-2 text-muted">{d.expirationDate ? dateShort(d.expirationDate) : "—"}</td>
-                    <td className="px-4 py-2 text-right text-muted">{dateShort(d.createdAt)}</td>
+                    <td className="px-3 py-2 text-right text-muted">{dateShort(d.createdAt)}</td>
+                    <td className="px-4 py-2 text-right"><DeleteDocButton id={d.id} /></td>
                   </tr>
                 ))}
               </tbody>

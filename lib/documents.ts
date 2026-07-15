@@ -8,6 +8,7 @@ export const DOC_CATEGORIES = [
   { key: "insurance", label: "Insurance" },
   { key: "registration", label: "Registration" },
   { key: "title", label: "Title" },
+  { key: "bill_of_sale", label: "Bill of sale" },
   { key: "inspection", label: "Inspection / emissions" },
   { key: "other", label: "Other" },
 ] as const;
@@ -48,7 +49,7 @@ export function documentReaderMode(): "claude" | "mock" {
 const EXTRACT_PROMPT = `You are filing a document for a pest-control company's vehicle fleet. Read the document and return JSON with EXACTLY this shape and nothing else:
 
 {
-  "category": "insurance" | "registration" | "title" | "inspection" | "other",
+  "category": "insurance" | "registration" | "title" | "bill_of_sale" | "inspection" | "other",
   "title": string,                 // short human title, e.g. "Progressive Commercial Auto Policy"
   "insurer": string | null,        // insurer / issuing authority, if any
   "policy_number": string | null,  // policy or document number
