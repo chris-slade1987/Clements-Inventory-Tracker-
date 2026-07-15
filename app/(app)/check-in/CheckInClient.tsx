@@ -86,10 +86,10 @@ export default function CheckInClient({
     setTotal(null);
     setFilePath(null);
     setError(null);
-    setLines([blankLine(true)]);
+    setLines([blankLine()]);
   }
   function addLine() {
-    setLines((prev) => [...(prev ?? []), blankLine(manualMode)]);
+    setLines((prev) => [...(prev ?? []), blankLine()]);
   }
 
   async function readInvoice() {
@@ -140,6 +140,19 @@ export default function CheckInClient({
   }
   function removeLine(key: string) {
     setLines((prev) => (prev ? prev.filter((l) => l.key !== key) : prev));
+  }
+  // Selecting a product auto-fills the unit from that product's approved unit
+  // (its unit of measure) and labels the line with the product name.
+  function pickProduct(key: string, productId: string) {
+    const patch: Partial<ReviewLine> = { productId };
+    if (productId && productId !== "__new__") {
+      const prod = products.find((p) => p.id === productId);
+      if (prod) {
+        patch.unit = prod.unit || "ea";
+        patch.descriptionRaw = prod.name;
+      }
+    }
+    updateLine(key, patch);
   }
 
   async function confirm() {
@@ -317,17 +330,29 @@ export default function CheckInClient({
             const unmatched = l.productId === "";
             return (
               <Card key={l.key} className="p-3">
+                {/* Product first — the identity of the line. */}
                 <div className="flex items-start justify-between gap-2">
-                  <input
-                    value={l.descriptionRaw}
-                    onChange={(e) =>
-                      updateLine(l.key, { descriptionRaw: e.target.value })
-                    }
-                    className="flex-1 rounded-lg border border-line px-2 py-1.5 text-sm font-medium"
-                  />
+                  <div className="flex-1">
+                    <label className="text-xs text-muted">Product</label>
+                    <select
+                      value={l.productId}
+                      onChange={(e) => pickProduct(l.key, e.target.value)}
+                      className={`mt-0.5 w-full rounded-lg border px-2 py-2 text-sm bg-surface ${
+                        unmatched ? "border-amber-400" : "border-line"
+                      }`}
+                    >
+                      <option value="">— Select a product —</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                      <option value="__new__">+ Create new product…</option>
+                    </select>
+                  </div>
                   <button
                     onClick={() => removeLine(l.key)}
-                    className="text-muted hover:text-red-600 p-1"
+                    className="mt-5 text-muted hover:text-red-600 p-1"
                     aria-label="Remove line"
                   >
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8}>
@@ -335,6 +360,26 @@ export default function CheckInClient({
                     </svg>
                   </button>
                 </div>
+
+                {l.productId === "__new__" ? (
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    <input
+                      value={l.newName}
+                      onChange={(e) => updateLine(l.key, { newName: e.target.value, descriptionRaw: e.target.value })}
+                      placeholder="New product name"
+                      className="col-span-2 rounded-lg border border-line px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      value={l.newUnit}
+                      onChange={(e) => updateLine(l.key, { newUnit: e.target.value, unit: e.target.value })}
+                      placeholder="unit"
+                      className="rounded-lg border border-line px-2 py-1.5 text-sm"
+                    />
+                  </div>
+                ) : null}
+                {unmatched ? (
+                  <p className="mt-1 text-xs text-amber-600">Pick a product or create one — otherwise this line is skipped.</p>
+                ) : null}
 
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   <label className="text-xs text-muted">
@@ -356,6 +401,7 @@ export default function CheckInClient({
                       onChange={(e) => updateLine(l.key, { unit: e.target.value })}
                       className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
                     />
+                    <span className="mt-0.5 block text-[10px] text-muted/80">defaults to the product&rsquo;s approved unit</span>
                   </label>
                   <label className="text-xs text-muted">
                     Unit price
@@ -373,52 +419,30 @@ export default function CheckInClient({
                   </label>
                 </div>
 
-                <div className="mt-2">
-                  <label className="text-xs text-muted">Product</label>
-                  <select
-                    value={l.productId}
-                    onChange={(e) => updateLine(l.key, { productId: e.target.value })}
-                    className={`mt-0.5 w-full rounded-lg border px-2 py-1.5 text-sm bg-surface ${
-                      unmatched ? "border-amber-400" : "border-line"
-                    }`}
-                  >
-                    <option value="">— Unmatched (won&rsquo;t be added) —</option>
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                    <option value="__new__">+ Create new product…</option>
-                  </select>
-                  {l.productId === "__new__" ? (
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      <input
-                        value={l.newName}
-                        onChange={(e) => updateLine(l.key, { newName: e.target.value })}
-                        placeholder="New product name"
-                        className="col-span-2 rounded-lg border border-line px-2 py-1.5 text-sm"
-                      />
-                      <input
-                        value={l.newUnit}
-                        onChange={(e) => updateLine(l.key, { newUnit: e.target.value })}
-                        placeholder="unit"
-                        className="rounded-lg border border-line px-2 py-1.5 text-sm"
-                      />
-                    </div>
-                  ) : null}
-                  {unmatched ? (
-                    <p className="mt-1 text-xs text-amber-600">
-                      Match to a product or create one, or this line is skipped.
-                    </p>
-                  ) : null}
-                </div>
+                {/* Invoice mode keeps the raw line text visible/editable. */}
+                {!manualMode ? (
+                  <label className="mt-2 block text-xs text-muted">
+                    Invoice line text
+                    <input
+                      value={l.descriptionRaw}
+                      onChange={(e) => updateLine(l.key, { descriptionRaw: e.target.value })}
+                      className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
+                    />
+                  </label>
+                ) : null}
               </Card>
             );
           })}
         </div>
 
-        <button onClick={addLine} className="w-full rounded-xl border border-dashed border-line py-2.5 text-sm font-medium text-brand-700 hover:bg-black/[0.02]">
-          + Add {manualMode ? "product" : "line"}
+        <button
+          onClick={addLine}
+          className="w-full rounded-xl border border-brand-300 bg-surface py-3 text-sm font-semibold text-brand-700 shadow-sm hover:bg-brand-50 transition-colors flex items-center justify-center gap-2"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+          </svg>
+          Add {manualMode ? "another product" : "line"}
         </button>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
