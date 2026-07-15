@@ -53,7 +53,38 @@ export default function CheckInClient({
   const [total, setTotal] = useState<number | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null);
   const [lines, setLines] = useState<ReviewLine[] | null>(null);
+  const [manualMode, setManualMode] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+
+  function blankLine(preferNew = false): ReviewLine {
+    return {
+      key: `l${keySeq++}`,
+      descriptionRaw: "",
+      quantity: 1,
+      unit: "ea",
+      unitPrice: null,
+      lineTotal: null,
+      productId: preferNew ? "__new__" : "",
+      newName: "",
+      newUnit: "ea",
+    };
+  }
+
+  // Start a manual check-in — no invoice, one blank line ready to add a product.
+  function startManual() {
+    setManualMode(true);
+    setDistributor("");
+    setInvoiceNumber("");
+    setInvoiceDate(new Date().toISOString().slice(0, 10));
+    setSubtotal(null);
+    setTotal(null);
+    setFilePath(null);
+    setError(null);
+    setLines([blankLine(true)]);
+  }
+  function addLine() {
+    setLines((prev) => [...(prev ?? []), blankLine(manualMode)]);
+  }
 
   async function readInvoice() {
     if (!file) return;
@@ -153,6 +184,7 @@ export default function CheckInClient({
   function reset() {
     setReceipt(null);
     setLines(null);
+    setManualMode(false);
     setFile(null);
     setFilePath(null);
     setDistributor("");
@@ -197,6 +229,10 @@ export default function CheckInClient({
   if (lines) {
     return (
       <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-semibold text-ink">{manualMode ? "Manual check-in" : "Review invoice"}</h2>
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{manualMode ? "no invoice" : "from invoice"}</span>
+        </div>
         <Card className="p-4 grid gap-3 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium mb-1">Warehouse</label>
@@ -344,11 +380,15 @@ export default function CheckInClient({
           })}
         </div>
 
+        <button onClick={addLine} className="w-full rounded-xl border border-dashed border-line py-2.5 text-sm font-medium text-brand-700 hover:bg-black/[0.02]">
+          + Add {manualMode ? "product" : "line"}
+        </button>
+
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
         <div className="flex gap-2">
           <button onClick={reset} className={btn.secondary}>
-            Start over
+            {manualMode ? "Cancel" : "Start over"}
           </button>
           <button
             onClick={confirm}
@@ -419,6 +459,19 @@ export default function CheckInClient({
       >
         {busy ? "Reading invoice…" : "Read invoice"}
       </button>
+
+      <div className="flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-line" />
+        or
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
+      <button onClick={startManual} disabled={busy} className={`${btn.secondary} w-full`}>
+        Manual check-in (enter products by hand)
+      </button>
+      <p className="text-center text-xs text-muted">
+        No invoice on hand? Add products and quantities manually — pick existing products or create new ones.
+      </p>
     </div>
   );
 }
