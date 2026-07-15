@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { saveUpload } from "@/lib/storage";
 import { isHrDirector } from "@/lib/personnel";
 import { type SeparationDoc } from "@/lib/separation";
 
@@ -68,17 +66,9 @@ export async function POST(req: Request) {
       const docs: SeparationDoc[] = [];
       if (form) {
         const files = form.getAll("docs").filter((f): f is File => f instanceof File && f.size > 0);
-        if (files.length) {
-          const dir = join(process.cwd(), "public", "uploads");
-          await mkdir(dir, { recursive: true }).catch(() => {});
-          for (const file of files) {
-            const safe = (file.name || "document").replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-            const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safe}`;
-            try {
-              await writeFile(join(dir, stored), Buffer.from(await file.arrayBuffer()));
-              docs.push({ file: `/uploads/${stored}`, name: file.name || safe });
-            } catch { /* best-effort */ }
-          }
+        for (const file of files) {
+          const url = await saveUpload(Buffer.from(await file.arrayBuffer()), file.name || "document", file.type || "application/octet-stream", "separation-docs");
+          if (url) docs.push({ file: url, name: file.name || "document" });
         }
       }
 

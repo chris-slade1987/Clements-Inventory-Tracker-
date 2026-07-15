@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { saveUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -37,16 +35,7 @@ export async function POST(req: Request) {
   if (file instanceof Blob && file.size > 0) {
     const rawName = (file as File).name || "lesson";
     materialName = rawName;
-    const safe = rawName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-    const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safe}`;
-    try {
-      const dir = join(process.cwd(), "public", "uploads");
-      await mkdir(dir, { recursive: true });
-      await writeFile(join(dir, stored), Buffer.from(await file.arrayBuffer()));
-      materialFile = `/uploads/${stored}`;
-    } catch {
-      materialFile = null;
-    }
+    materialFile = await saveUpload(Buffer.from(await file.arrayBuffer()), rawName, (file as File).type || "application/octet-stream", "course-materials");
   }
 
   const data = {

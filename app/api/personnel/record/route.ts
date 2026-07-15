@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
+import { saveUpload } from "@/lib/storage";
 import { branchLabel } from "@/lib/management";
 import { recordTypeLabel, notifyList } from "@/lib/personnel";
 import { sendEmail } from "@/lib/email";
@@ -33,22 +31,13 @@ export async function POST(req: Request) {
   if (branchLocked(user) && employee.branch !== user.branch)
     return NextResponse.json({ error: "That employee is not on your team." }, { status: 403 });
 
-  // Optional attachment (best-effort local storage).
+  // Optional attachment.
   let attachmentFile: string | null = null;
   let attachmentName: string | null = null;
   const file = form.get("file");
   if (file instanceof Blob && file.size > 0) {
     attachmentName = (file as File).name || "attachment";
-    const safe = attachmentName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-    const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safe}`;
-    try {
-      const dir = join(process.cwd(), "public", "uploads");
-      await mkdir(dir, { recursive: true });
-      await writeFile(join(dir, stored), Buffer.from(await file.arrayBuffer()));
-      attachmentFile = `/uploads/${stored}`;
-    } catch {
-      attachmentFile = null;
-    }
+    attachmentFile = await saveUpload(Buffer.from(await file.arrayBuffer()), attachmentName, (file as File).type || "application/octet-stream", "personnel-records");
   }
 
   try {

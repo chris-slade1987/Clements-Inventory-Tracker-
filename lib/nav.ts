@@ -154,10 +154,10 @@ export const MANAGEMENT_NAV: NavItem[] = [
     icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
   },
   {
-    href: "/management/upload",
-    label: "Upload MBR",
-    shortLabel: "Upload",
-    icon: "M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2",
+    href: "/management/documents",
+    label: "Document Center",
+    shortLabel: "Docs",
+    icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
 ];
 
@@ -173,12 +173,6 @@ export const FLEET_NAV: NavItem[] = [
     label: "Log Service",
     shortLabel: "Service",
     icon: "M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.6 2.6-2-2 2.6-2.6z",
-  },
-  {
-    href: "/fleet/documents",
-    label: "Document Center",
-    shortLabel: "Docs",
-    icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
 ];
 

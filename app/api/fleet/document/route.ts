@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile, unlink } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { saveUpload, deleteUpload } from "@/lib/storage";
 import { analyzeDocument, matchDocVehicle, documentReaderMode, DOC_CATEGORIES } from "@/lib/documents";
 
 export const runtime = "nodejs";
@@ -64,9 +62,7 @@ export async function POST(req: Request) {
     const id = s(body?.id);
     if (!id) return NextResponse.json({ error: "Missing document." }, { status: 400 });
     const doc = await prisma.vehicleDocument.findUnique({ where: { id } });
-    if (doc?.filePath) {
-      try { await unlink(join(process.cwd(), "public", doc.filePath.replace(/^\//, ""))); } catch { /* best-effort */ }
-    }
+    await deleteUpload(doc?.filePath);
     await prisma.vehicleDocument.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   }
@@ -85,15 +81,7 @@ async function analyze(req: Request, user: { id: string; name: string }) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const rawName = (file as File).name || "document";
-  const safeName = rawName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-  const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safeName}`;
-  let filePath: string | null = null;
-  try {
-    const dir = join(process.cwd(), "public", "uploads");
-    await mkdir(dir, { recursive: true });
-    await writeFile(join(dir, stored), bytes);
-    filePath = `/uploads/${stored}`;
-  } catch { filePath = null; }
+  const filePath = await saveUpload(bytes, rawName, mime, "vehicle-docs");
 
   let analysis;
   try {

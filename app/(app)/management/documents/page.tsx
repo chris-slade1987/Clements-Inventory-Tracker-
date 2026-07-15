@@ -41,7 +41,6 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <div className="mb-2"><Link href="/fleet" className="text-xs font-medium text-brand-300 hover:underline">← Fleet</Link></div>
       <PageHeader title="Document Center" subtitle="Upload insurance, registration & title docs — the reader files them to the right vehicle" />
 
       <DocCenter vehicles={vehicleOpts} defaultVehicleId={sp.vehicle ?? null} />

@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { randomBytes } from "node:crypto";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { saveUpload } from "@/lib/storage";
 import { parseInvoice, invoiceReaderMode } from "@/lib/invoice/parse";
 import { matchProduct } from "@/lib/invoice/match";
 
@@ -30,23 +28,10 @@ export async function POST(req: Request) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
 
-  // Persist the original file locally (sandbox: public/uploads). On a
-  // read-only/serverless filesystem (e.g. Vercel) this is best-effort — the
-  // parse still works from the in-memory bytes, we just don't keep the file.
-  // For durable production storage, upload to Supabase Storage here (see
-  // DEPLOY.md) instead of the local disk.
+  // Persist the original invoice (Vercel Blob in prod, local in dev). Best-effort:
+  // the parse still works from the in-memory bytes if storage isn't available.
   const rawName = (file as File).name || "invoice";
-  const safeName = rawName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-  const stored = `${Date.now()}-${randomBytes(4).toString("hex")}-${safeName}`;
-  let filePath: string | null = null;
-  try {
-    const dir = join(process.cwd(), "public", "uploads");
-    await mkdir(dir, { recursive: true });
-    await writeFile(join(dir, stored), bytes);
-    filePath = `/uploads/${stored}`;
-  } catch {
-    filePath = null; // read-only FS — proceed without storing the file
-  }
+  const filePath = await saveUpload(bytes, rawName, mime, "invoices");
 
   // Parse (Claude vision or mock).
   let invoice;

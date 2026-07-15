@@ -60,12 +60,32 @@ Paste the output into `users.password_hash` for the manager row (Neon has a SQL
 editor, or use any Postgres client). Add more managers by inserting rows the
 same way.
 
-**Durable invoice files (optional).** Uploaded invoices are not persisted on
-Vercel's serverless filesystem — parsing still works (it reads the file in
-memory), the original just isn't kept. To store originals, add a Supabase (or
-Vercel Blob) bucket and upload in `app/api/check-in/parse/route.ts` where the
-local `writeFile` currently runs; store the returned path and generate signed
-URLs to view them.
+**Durable file storage (uploads).** All uploads — vehicle documents (insurance,
+registration, title, bill of sale), personnel-record attachments, separation
+docs, training materials, and parsed invoices — go through `lib/storage.ts`.
+
+- **Production:** set `BLOB_READ_WRITE_TOKEN` and files are stored in **Vercel
+  Blob** (Vercel project → Storage → create a Blob store; the token is added to
+  the project automatically). Nothing else to configure.
+- **Local dev / no token:** files fall back to `public/uploads` on local disk.
+
+Without a token in production the app still works — parsing/reads use the
+in-memory bytes — the original just isn't retained (Vercel's filesystem is
+ephemeral), so set the token to keep documents.
+
+Stored URLs are public-but-unguessable (same as before). Vehicle-insurance and
+HR documents can contain sensitive data (e.g. driver's-license numbers); before
+going live, consider gating downloads behind an authenticated proxy route
+(`/api/file/[id]` that checks the session, then streams from Blob) and switching
+`access` to non-public in `lib/storage.ts`. This pairs with the role/access-control
+work.
+
+**Linking to Google Drive / other clouds (later, optional).** Vercel Blob already
+gives durable storage, so Drive isn't required for the app to work. Add a Drive
+(or SharePoint/Dropbox) integration only if you want documents to *also* live in
+your existing Workspace so staff can browse them outside the portal — that's an
+OAuth + Drive API mirror we can layer on `lib/storage.ts` without touching the
+callers.
 
 ---
 
