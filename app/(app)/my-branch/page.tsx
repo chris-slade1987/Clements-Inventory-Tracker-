@@ -5,7 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { managerReminders, type Reminder } from "@/lib/reminders";
 import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
+import { listEmployees } from "@/lib/people";
+import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
+import RemindersCard from "@/components/RemindersCard";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
@@ -63,6 +66,14 @@ export default async function MyBranchPage({
 
   const scopeLabel = branch ? branchLabel(branch) : "All branches";
 
+  // Employee + vehicle pick lists for the "+ Reminder" pop-up.
+  const [remEmployees, remVehicles] = await Promise.all([
+    listEmployees(branch ?? undefined),
+    listVehicles(branch ?? undefined, "active"),
+  ]);
+  const employeeOpts = remEmployees.map((e) => ({ id: e.id, label: `${e.name}${e.branch ? ` · ${branchLabel(e.branch)}` : ""}` }));
+  const vehicleOpts = remVehicles.map((v) => ({ id: v.id, label: `${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}` }));
+
   return (
     <>
       <PageHeader
@@ -95,9 +106,12 @@ export default async function MyBranchPage({
 
       {/* Reminders */}
       <Card className="p-0 overflow-hidden mb-5">
-        <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
           <div className="text-sm font-medium text-ink">Reminders &amp; to-dos</div>
-          <div className="text-xs text-muted">{reminders.length} item{reminders.length === 1 ? "" : "s"}</div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted">{reminders.length} item{reminders.length === 1 ? "" : "s"}</span>
+            <RemindersCard mode="button" employees={employeeOpts} vehicles={vehicleOpts} />
+          </div>
         </div>
         {reminders.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up. 🎉</p>

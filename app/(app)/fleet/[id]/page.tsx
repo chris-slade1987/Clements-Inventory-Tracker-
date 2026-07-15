@@ -6,9 +6,11 @@ import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { vehicleDetail, serviceLabel, dispositionLabel, DISPOSITIONS } from "@/lib/fleet";
 import { docsForVehicle, categoryLabel } from "@/lib/documents";
+import { remindersForVehicle } from "@/lib/manual-reminders";
 import { vehicleInspections } from "@/lib/inspection";
 import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
+import RemindersCard from "@/components/RemindersCard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const { vehicle: v, services, totalCost } = detail;
   const inspections = await vehicleInspections(id);
   const documents = await docsForVehicle(id);
+  const reminders = await remindersForVehicle(id);
+  const canManage = user.role === "admin" || user.role === "manager";
   const now = new Date();
   const thisMonthDone = inspections.some((i) => i.year === now.getFullYear() && i.month === now.getMonth() + 1);
 
@@ -126,6 +130,13 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           </ul>
         )}
       </Card>
+
+      {/* Reminders tagged to this vehicle */}
+      <RemindersCard
+        preset={{ vehicleId: v.id, label: `${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}` }}
+        canManage={canManage}
+        reminders={reminders.map((r) => ({ id: r.id, title: r.title, notes: r.notes, dueDate: r.dueDate.toISOString(), severity: r.severity, status: r.status }))}
+      />
 
       {/* Monthly inspection */}
       <Card className="p-0 overflow-hidden mb-5">

@@ -5,6 +5,8 @@ import { requireUser } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { separationForEmployee, SEPARATION_TYPES, REASON_CATEGORIES, EXIT_INTERVIEW, parseJson, type SeparationDoc } from "@/lib/separation";
+import { remindersForEmployee } from "@/lib/manual-reminders";
+import RemindersCard from "@/components/RemindersCard";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
@@ -29,6 +31,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
   const reviews = await reviewsForEmployee(e.id);
+  const empReminders = await remindersForEmployee(e.id);
   const sep = await separationForEmployee(e.id);
   const separation = sep
     ? {
@@ -102,6 +105,13 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         types={SEPARATION_TYPES.map((t) => ({ key: t.key, label: t.label }))}
         reasons={REASON_CATEGORIES.map((r) => ({ key: r.key, label: r.label }))}
         exitForm={EXIT_INTERVIEW}
+      />
+
+      {/* Reminders tagged to this employee */}
+      <RemindersCard
+        preset={{ employeeId: e.id, label: e.name }}
+        canManage={user.role === "admin" || user.role === "manager" || hr}
+        reminders={empReminders.map((r) => ({ id: r.id, title: r.title, notes: r.notes, dueDate: r.dueDate.toISOString(), severity: r.severity, status: r.status }))}
       />
 
       {/* Inspection history */}

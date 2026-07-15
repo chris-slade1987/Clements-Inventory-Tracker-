@@ -373,9 +373,45 @@ model Vehicle {
   services    VehicleService[]
   inspections VehicleInspection[]
   documents   VehicleDocument[]
+  reminders   Reminder[]
 
   @@index([branch])
   @@map("vehicles")
+}
+
+// A manual reminder / alert a manager or HR sets, optionally tagged to an
+// employee or a vehicle (e.g. "move Sam to Auto-Owners after 6-month
+// probation"). Surfaces on dashboards and the tagged profile, and emails the
+// chosen recipients starting `leadDays` before it's due.
+model Reminder {
+  id       String   @id @default(cuid())
+  title    String
+  notes    String?
+  dueDate  DateTime @map("due_date")
+  leadDays Int      @default(14) @map("lead_days")
+  severity String   @default("info") // "info" | "warning" | "critical"
+  status   String   @default("open") // "open" | "done" | "dismissed"
+
+  entityType String  @default("general") @map("entity_type") // "employee" | "vehicle" | "general"
+  employeeId String? @map("employee_id")
+  vehicleId  String? @map("vehicle_id")
+  branch     String?
+
+  notify         String    @default("hr") // "hr" | "creator" | "both"
+  lastReminderAt DateTime? @map("last_reminder_at")
+
+  createdByUserId String?  @map("created_by_user_id")
+  createdByName   String?  @map("created_by_name")
+  createdByEmail  String?  @map("created_by_email")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  employee Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  vehicle  Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([status, dueDate])
+  @@index([employeeId])
+  @@index([vehicleId])
+  @@map("reminders")
 }
 
 // A document attached to a vehicle profile — insurance policy, registration,
@@ -517,6 +553,7 @@ model Employee {
   records     PersonnelRecord[]
   reviews     NewHireReview[]
   separation  EmployeeSeparation?
+  reminders   Reminder[]
   user        User?
 
   @@index([branch])

@@ -16,7 +16,8 @@ export type ReminderKind =
   | "registration_expiring"
   | "loan_payoff"
   | "audit_followup"
-  | "warehouse_due";
+  | "warehouse_due"
+  | "manual";
 
 export type Reminder = {
   kind: ReminderKind;
@@ -139,6 +140,28 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: fu.branch,
       href: "/management/audits",
       dueDate: fu.dueDate,
+    });
+  }
+
+  // Manual reminders (tagged to an employee/vehicle) whose lead window is open.
+  const manual = await prisma.reminder.findMany({
+    where: { status: "open", ...(branch ? { branch } : {}) },
+    orderBy: { dueDate: "asc" },
+    include: { employee: { select: { name: true } }, vehicle: { select: { id: true, unitNumber: true, name: true } } },
+  });
+  for (const r of manual) {
+    if (r.dueDate.getTime() - r.leadDays * DAY > now.getTime()) continue; // lead window not open yet
+    const days = Math.round((r.dueDate.getTime() - now.getTime()) / DAY);
+    const overdue = days < 0;
+    const tag = r.employee ? ` · ${r.employee.name}` : r.vehicle ? ` · ${r.vehicle.unitNumber ? `#${r.vehicle.unitNumber} ` : ""}${r.vehicle.name}` : "";
+    reminders.push({
+      kind: "manual",
+      severity: overdue ? "critical" : (r.severity as Reminder["severity"]) ?? "info",
+      title: r.title,
+      detail: `${r.notes ? `${r.notes} — ` : ""}${overdue ? `overdue ${Math.abs(days)}d` : days === 0 ? "due today" : `due in ${days}d`} (${r.dueDate.toLocaleDateString()})${tag}`,
+      branch: r.branch,
+      href: r.vehicle ? `/fleet/${r.vehicle.id}` : r.employeeId ? `/management/people/${r.employeeId}` : "/my-branch",
+      dueDate: r.dueDate,
     });
   }
 

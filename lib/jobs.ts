@@ -175,6 +175,53 @@ export async function remindVehicleDocs() {
   return { candidates: docs.length, emailed: sent };
 }
 
+/**
+ * Manual reminders (tagged to an employee/vehicle). Once the lead window opens,
+ * email the chosen recipients (HR and/or the creator) once per day and file an
+ * Alert, until the reminder is completed or dismissed.
+ */
+export async function remindManual() {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const open = await prisma.reminder.findMany({
+    where: { status: "open", OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }] },
+    include: { employee: { select: { name: true } }, vehicle: { select: { unitNumber: true, name: true } } },
+  });
+  let sent = 0;
+  for (const r of open) {
+    if (r.dueDate.getTime() - r.leadDays * 864e5 > now.getTime()) continue; // lead window not open
+    const days = Math.round((r.dueDate.getTime() - now.getTime()) / 864e5);
+    const overdue = days < 0;
+    const tag = r.employee ? ` — ${r.employee.name}` : r.vehicle ? ` — ${r.vehicle.unitNumber ? `#${r.vehicle.unitNumber} ` : ""}${r.vehicle.name}` : "";
+    const b = r.branch ? ` (${branchLabel(r.branch)})` : "";
+    const when = overdue ? `overdue (was due ${r.dueDate.toLocaleDateString()})` : days === 0 ? "due today" : `due in ${days} days (${r.dueDate.toLocaleDateString()})`;
+
+    await prisma.alert.upsert({
+      where: { dedupeKey: `reminder:${r.id}` },
+      create: { dedupeKey: `reminder:${r.id}`, type: "reminder", severity: overdue ? "critical" : (r.severity === "critical" ? "critical" : r.severity === "warning" ? "warning" : "info"), status: "open", message: `${r.title}${tag}${b} — ${when}.` },
+      update: {},
+    });
+
+    const to: string[] = [];
+    if (r.notify === "hr" || r.notify === "both") to.push(await getHrEmail());
+    if ((r.notify === "creator" || r.notify === "both") && r.createdByEmail) to.push(r.createdByEmail);
+    if (to.length) {
+      const res = await sendEmail({
+        to,
+        subject: `Reminder: ${r.title}${tag} — ${overdue ? "overdue" : days === 0 ? "due today" : `due in ${days}d`}`,
+        kind: "manual_reminder",
+        relatedType: "reminder",
+        relatedId: r.id,
+        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— Clements Command & Control`,
+        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— Clements Command &amp; Control</p>`,
+      });
+      if (res.status === "sent") sent++;
+    }
+    await prisma.reminder.update({ where: { id: r.id }, data: { lastReminderAt: now } });
+  }
+  return { candidates: open.length, emailed: sent };
+}
+
 /** Email signers with an outstanding signature request — starts 24h out, then daily. */
 export async function remindSignatures() {
   const now = new Date();
