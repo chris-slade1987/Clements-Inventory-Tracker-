@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 type Opt = { key: string; label: string };
 type ExitItem = { key: string; type: "choice" | "textarea" | "yesno"; label: string; options?: string[] };
@@ -105,7 +106,7 @@ function TerminatePanel({ employeeId, employeeName, types, reasons, onDone }: { 
           </select>
         </label>
         <label className="block text-sm font-medium">Last day worked
-          <input type="date" value={f.lastDay} onChange={(e) => setF({ ...f, lastDay: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+          <DateInput className="mt-1" value={f.lastDay} onChange={(v) => setF({ ...f, lastDay: v })} />
         </label>
         <label className="block text-sm font-medium">Eligible for rehire
           <select value={f.rehireEligible} onChange={(e) => setF({ ...f, rehireEligible: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">

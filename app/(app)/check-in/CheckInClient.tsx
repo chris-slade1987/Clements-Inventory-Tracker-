@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 type Warehouse = { id: string; name: string };
 type Product = { id: string; name: string; unit: string };
@@ -316,12 +317,7 @@ export default function CheckInClient({
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Invoice date</label>
-            <input
-              type="date"
-              value={invoiceDate}
-              onChange={(e) => setInvoiceDate(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2.5 text-sm"
-            />
+            <DateInput value={invoiceDate} onChange={setInvoiceDate} />
           </div>
         </Card>
 

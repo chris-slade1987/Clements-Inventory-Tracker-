@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import {
   SERVICE_TYPES, SCALE_5, SCALE_3, RIDE_ALONG_RATINGS,
   FACILITY_SAFETY, FACILITY_CLEAN, EQUIPMENT_YESNO, PERSONNEL_YESNO, scoreAudit,
@@ -68,7 +69,7 @@ export default function AuditForm({
           <input value={auditorName} onChange={(e) => setAuditorName(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm" />
         </label>
         <label className="block text-sm font-medium">Date of visit
-          <input type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm text-ink" />
+          <DateInput className="mt-1" value={visitDate} onChange={setVisitDate} />
         </label>
       </Card>
 
@@ -142,7 +143,7 @@ export default function AuditForm({
           {followUps.map((fu, i) => (
             <div key={i} className="flex gap-2 mb-2">
               <input value={fu.description} onChange={(e) => upd(setFollowUps, i, { description: e.target.value })} placeholder="Action item" className="flex-1 rounded-lg border border-line px-2 py-1.5 text-sm" />
-              <input type="date" value={fu.dueDate} onChange={(e) => upd(setFollowUps, i, { dueDate: e.target.value })} className="rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
+              <DateInput className="w-44 shrink-0" value={fu.dueDate} onChange={(v) => upd(setFollowUps, i, { dueDate: v })} />
               {followUps.length > 1 ? <button onClick={() => setFollowUps((s) => s.filter((_, x) => x !== i))} className="text-muted hover:text-red-600 px-1">✕</button> : null}
             </div>
           ))}

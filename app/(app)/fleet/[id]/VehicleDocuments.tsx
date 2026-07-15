@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 export type DocRow = {
   id: string; title: string; category: string; filePath: string | null;
@@ -140,7 +141,7 @@ export default function VehicleDocuments({
                 </select>
               </label>
               <label className="block text-sm font-medium">Renewal / expiration
-                <input type="date" value={form.expirationDate} onChange={(e) => setForm({ ...form, expirationDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+                <DateInput className="mt-1" value={form.expirationDate} onChange={(v) => setForm({ ...form, expirationDate: v })} />
               </label>
               <label className="block text-sm font-medium sm:col-span-2">Title
                 <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />

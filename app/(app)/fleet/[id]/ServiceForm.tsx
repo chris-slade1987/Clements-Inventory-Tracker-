@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 const TYPES = [
   { key: "oil_change", label: "Oil change" },
@@ -48,7 +49,7 @@ export default function ServiceForm({ vehicleId }: { vehicleId: string }) {
       <div className="text-sm font-medium text-ink">Log a service / repair</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <label className="block text-sm font-medium">Date
-          <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+          <DateInput className="mt-1" value={form.date} onChange={(v) => setForm({ ...form, date: v })} />
         </label>
         <label className="block text-sm font-medium">Type
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
@@ -63,7 +64,7 @@ export default function ServiceForm({ vehicleId }: { vehicleId: string }) {
       <F label="Description" v={form.description} on={(v) => setForm({ ...form, description: v })} />
       <div className="grid grid-cols-2 gap-3">
         <label className="block text-sm font-medium">Next due date
-          <input type="date" value={form.nextDueDate} onChange={(e) => setForm({ ...form, nextDueDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+          <DateInput className="mt-1" value={form.nextDueDate} onChange={(v) => setForm({ ...form, nextDueDate: v })} />
         </label>
         <F label="Next due mileage" v={form.nextDueMileage} on={(v) => setForm({ ...form, nextDueMileage: v })} />
       </div>

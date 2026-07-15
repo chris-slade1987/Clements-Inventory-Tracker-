@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import {
   RECORD_TYPES, WRITEUP_CATEGORIES, WRITEUP_FIELDS,
   ACCIDENT_SEVERITY, ACCIDENT_FIELDS, ACCIDENT_CHECKLIST_GROUPS, ACCIDENT_NOTES,
@@ -97,7 +98,7 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
             </select>
           </label>
           <label className="block text-sm font-medium">{isAccident ? "Date of accident" : "Date of incident"}
-            <input type="date" value={incidentDate} onChange={(e) => setIncidentDate(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+            <DateInput className="mt-1" value={incidentDate} onChange={setIncidentDate} />
           </label>
         </div>
       ) : null}
@@ -125,7 +126,7 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
               <textarea value={actionTaken} onChange={(e) => setActionTaken(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
             </label>
             <label className="block text-sm font-medium">Deadline for improvement
-              <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+              <DateInput className="mt-1" value={deadline} onChange={setDeadline} />
             </label>
           </div>
           <p className="text-[11px] text-muted">Employee &amp; supervisor signature and HR sign-off are captured on the filed record; digital sign-off is coming.</p>

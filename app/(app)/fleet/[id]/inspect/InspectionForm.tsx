@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import {
   CONDITION_ITEMS,
   RATING_SCALE,
@@ -138,7 +139,7 @@ export default function InspectionForm({
         </label>
         <Field label="Inspector (manager)" v={f.inspectorName} on={(v) => set({ inspectorName: v })} />
         <label className="block text-sm font-medium">Inspection date
-          <input type="date" value={f.date} onChange={(e) => set({ date: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm text-ink" />
+          <DateInput className="mt-1" value={f.date} onChange={(v) => set({ date: v })} />
         </label>
         <Field label="Mileage" v={f.mileage} on={(v) => set({ mileage: v })} hint="Pre-filled from file; updating syncs the vehicle" />
       </Card>
@@ -274,10 +275,10 @@ function MaintRow({ label, last, next, onLast, onNext }: { label: string; last: 
     <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr] gap-2 items-center">
       <div className="text-sm font-medium text-ink">{label}</div>
       <label className="text-xs text-muted">Last service
-        <input type="date" value={last} onChange={(e) => onLast(e.target.value)} className="mt-0.5 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink" />
+        <DateInput className="mt-0.5" value={last} onChange={onLast} />
       </label>
       <label className="text-xs text-muted">Next scheduled
-        <input type="date" value={next} onChange={(e) => onNext(e.target.value)} className="mt-0.5 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink" />
+        <DateInput className="mt-0.5" value={next} onChange={onNext} />
       </label>
     </div>
   );

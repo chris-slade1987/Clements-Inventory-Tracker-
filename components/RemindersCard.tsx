@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 export type ReminderRow = {
   id: string;
@@ -102,7 +103,7 @@ export default function RemindersCard({
         ) : null}
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm font-medium">Due date
-            <input type="date" min={today} value={f.dueDate} onChange={(e) => setF({ ...f, dueDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+            <DateInput className="mt-1" min={today} value={f.dueDate} onChange={(v) => setF({ ...f, dueDate: v })} />
           </label>
           <label className="block text-sm font-medium">Remind me this many days early
             <input value={f.leadDays} onChange={(e) => setF({ ...f, leadDays: e.target.value.replace(/[^0-9]/g, "") })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />

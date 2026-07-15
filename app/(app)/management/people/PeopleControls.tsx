@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 const BRANCHES = [
   { key: "vero", label: "Vero Beach" },
@@ -62,7 +63,7 @@ export default function PeopleControls({ defaultBranch }: { defaultBranch: strin
                 </select>
               </label>
               <label className="block text-sm font-medium">Hire date
-                <input type="date" value={form.hireDate} onChange={(e) => setForm({ ...form, hireDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+                <DateInput className="mt-1" value={form.hireDate} onChange={(v) => setForm({ ...form, hireDate: v })} />
               </label>
             </div>
             <p className="text-[11px] text-muted">Hire date schedules the 30 & 60-day new-hire reviews automatically.</p>

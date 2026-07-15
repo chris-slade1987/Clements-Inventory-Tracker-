@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 const TYPES = [
   { key: "oil_change", label: "Oil change" },
@@ -246,7 +247,7 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
               <input value={invoiceRef} onChange={(e) => setInvoiceRef(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
             </label>
             <label className="block text-sm font-medium">Date
-              <input type="date" value={headerDate} onChange={(e) => applyHeaderDate(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+              <DateInput className="mt-1" value={headerDate} onChange={applyHeaderDate} />
             </label>
           </Card>
 

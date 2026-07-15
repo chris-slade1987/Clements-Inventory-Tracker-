@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 export default function EmployeeContact({
   id,
@@ -62,7 +63,11 @@ function Row({ label, v, on, disabled, placeholder, type }: { label: string; v: 
   return (
     <label className="flex items-center justify-between gap-3 text-sm">
       <span className="text-muted">{label}</span>
-      <input type={type ?? "text"} value={v} onChange={(e) => on(e.target.value)} disabled={disabled} placeholder={placeholder} className="w-56 rounded-lg border border-line px-2 py-1.5 text-sm text-ink disabled:opacity-70" />
+      {type === "date" ? (
+        <DateInput className="w-56" value={v} onChange={on} disabled={disabled} />
+      ) : (
+        <input type={type ?? "text"} value={v} onChange={(e) => on(e.target.value)} disabled={disabled} placeholder={placeholder} className="w-56 rounded-lg border border-line px-2 py-1.5 text-sm text-ink disabled:opacity-70" />
+      )}
     </label>
   );
 }

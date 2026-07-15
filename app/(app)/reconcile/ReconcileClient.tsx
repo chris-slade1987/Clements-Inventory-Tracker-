@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import { qty, money } from "@/lib/format";
 
 type Option = { id: string; name: string };
@@ -113,8 +114,8 @@ export default function ReconcileClient({
             <option value="">All technicians</option>
             {technicians.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <input type="date" value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} className="rounded-lg border border-line px-2 py-2 text-sm" />
-          <input type="date" value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} className="rounded-lg border border-line px-2 py-2 text-sm" />
+          <DateInput value={f.from} onChange={(v) => setF({ ...f, from: v })} />
+          <DateInput value={f.to} onChange={(v) => setF({ ...f, to: v })} />
         </div>
         <div className="mt-3 flex gap-2">
           <button onClick={() => applyFilters()} className={btn.primary}>Apply</button>

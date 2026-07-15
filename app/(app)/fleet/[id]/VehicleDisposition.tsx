@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 type Opt = { key: string; label: string };
 type Disp = { disposition: string | null; dispositionDate: string | null; salePrice: number | null; dispositionNotes: string | null } | null;
@@ -60,7 +61,7 @@ export default function VehicleDisposition({ vehicleId, status, dispositions, cu
           </select>
         </label>
         <label className="block text-sm font-medium">Date
-          <input type="date" value={f.dispositionDate} onChange={(e) => setF({ ...f, dispositionDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+          <DateInput className="mt-1" value={f.dispositionDate} onChange={(v) => setF({ ...f, dispositionDate: v })} />
         </label>
         <label className="block text-sm font-medium">Sale price
           <input value={f.salePrice} onChange={(e) => setF({ ...f, salePrice: e.target.value })} placeholder="$ (if sold/traded)" className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />

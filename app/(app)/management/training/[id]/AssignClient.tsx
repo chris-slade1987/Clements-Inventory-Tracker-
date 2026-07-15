@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import { BRANCHES, branchLabel } from "@/lib/management";
 
 type Emp = { id: string; name: string; branch: string | null };
@@ -44,7 +45,7 @@ export default function AssignClient({ courseId, employees, assignedIds }: { cou
           <option value="all">All branches</option>
           {BRANCHES.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
         </select>
-        <label className="text-xs text-muted flex items-center gap-1">Due<input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="rounded-lg border border-line px-2 py-1.5 text-sm text-ink" /></label>
+        <label className="text-xs text-muted flex items-center gap-1">Due<DateInput className="w-40" value={dueDate} onChange={setDueDate} /></label>
         <button onClick={selectAll} className="text-xs font-medium text-brand-700 hover:underline">Select all</button>
       </div>
       <div className="max-h-60 overflow-y-auto rounded-lg border border-line divide-y divide-line">

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 
 type VehicleOpt = { id: string; label: string };
 type Analysis = {
@@ -125,10 +126,10 @@ export default function DocumentCenter({ vehicles, defaultVehicleId }: { vehicle
               <input value={form.policyNumber} onChange={(e) => setForm({ ...form, policyNumber: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
             </label>
             <label className="block text-sm font-medium">Effective date
-              <input type="date" value={form.effectiveDate} onChange={(e) => setForm({ ...form, effectiveDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+              <DateInput className="mt-1" value={form.effectiveDate} onChange={(v) => setForm({ ...form, effectiveDate: v })} />
             </label>
             <label className="block text-sm font-medium">Expiration / renewal date
-              <input type="date" value={form.expirationDate} onChange={(e) => setForm({ ...form, expirationDate: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm text-ink" />
+              <DateInput className="mt-1" value={form.expirationDate} onChange={(v) => setForm({ ...form, expirationDate: v })} />
             </label>
           </div>
           <label className="mt-3 flex items-center gap-2 text-sm text-ink">

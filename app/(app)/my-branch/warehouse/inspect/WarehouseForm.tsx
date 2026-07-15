@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import DateInput from "@/components/DateInput";
 import { WAREHOUSE_SECTIONS, scoreWarehouse, WAREHOUSE_ITEMS, type Checks } from "@/lib/warehouse";
 
 type Prefill = { date: string; inspectorName: string; checks: Record<string, boolean>; comments: Record<string, string>; notes: string };
@@ -67,7 +68,7 @@ export default function WarehouseForm({
           <input value={inspectorName} onChange={(e) => setInspectorName(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm" />
         </label>
         <label className="block text-sm font-medium">Date of inspection
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm text-ink" />
+          <DateInput className="mt-1" value={date} onChange={setDate} />
         </label>
       </Card>
 
