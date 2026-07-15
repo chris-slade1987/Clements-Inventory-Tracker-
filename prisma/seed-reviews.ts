@@ -42,6 +42,9 @@ export async function seedReviews(prisma: PrismaClient) {
         employeeToken: randomBytes(24).toString("hex"), hrNotifiedAt: now, sentAt: now,
       },
     });
+  } else if (reviewer && has30.reviewerUserId !== reviewer.id) {
+    // Re-runs recreate users (new ids) but keep reviews — relink the reviewer.
+    await prisma.newHireReview.update({ where: { id: has30.id }, data: { reviewerUserId: reviewer.id, reviewerName: reviewer.name } });
   }
 
   // 60-day: just reached its mark — awaiting HR to assign a reviewer.

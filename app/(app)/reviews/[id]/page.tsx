@@ -66,6 +66,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         canSignReviewer={(isReviewer || hr) && !review.reviewerSignedAt && !completed}
         canSignEmployee={(isSubjectEmployee || hr) && !review.employeeSignedAt && !completed}
         canApproveHr={hr && !review.hrSignedAt && !completed}
+        canReset={hr}
       />
     </>
   );

@@ -32,6 +32,7 @@ export default function ReviewForm({
   canSignReviewer,
   canSignEmployee,
   canApproveHr,
+  canReset,
 }: {
   reviewId: string;
   form: FormDef;
@@ -44,6 +45,7 @@ export default function ReviewForm({
   canSignReviewer: boolean;
   canSignEmployee: boolean;
   canApproveHr: boolean;
+  canReset: boolean;
 }) {
   const router = useRouter();
   const [r, setR] = useState<Record<string, string>>(initialResponses ?? {});
@@ -90,13 +92,15 @@ export default function ReviewForm({
         <p className="text-xs text-muted mb-3">Three signatures finalize this review: the reviewer, the employee, then HR approval.</p>
         <div className="space-y-2">
           <SignRow label={`Reviewer${reviewerName ? ` · ${reviewerName}` : ""}`} name={sig.reviewerSignedName} at={sig.reviewerSignedAt}
-            canSign={canSignReviewer} reviewId={reviewId} role="reviewer" statement={ACK.reviewer} defaultName={reviewerName ?? ""} onDone={() => router.refresh()} />
+            canSign={canSignReviewer} canReset={canReset} reviewId={reviewId} role="reviewer" statement={ACK.reviewer} defaultName={reviewerName ?? ""} onDone={() => router.refresh()} />
           <SignRow label={`Employee · ${employeeName}`} name={sig.employeeSignedName} at={sig.employeeSignedAt}
-            canSign={canSignEmployee} reviewId={reviewId} role="employee" statement={ACK.employee} defaultName={employeeName} onDone={() => router.refresh()} />
+            canSign={canSignEmployee} canReset={canReset} reviewId={reviewId} role="employee" statement={ACK.employee} defaultName={employeeName} onDone={() => router.refresh()} />
           <SignRow label="HR final approval" name={sig.hrSignedName} at={sig.hrSignedAt}
-            canSign={canApproveHr} locked={!sig.reviewerSignedAt || !sig.employeeSignedAt} lockedHint="Awaiting reviewer & employee signatures"
+            canSign={canApproveHr} canReset={canReset} locked={!sig.reviewerSignedAt || !sig.employeeSignedAt} lockedHint="Awaiting reviewer & employee signatures"
             reviewId={reviewId} role="hr" statement={ACK.hr} defaultName="" onDone={() => router.refresh()} />
         </div>
+
+        {canReset ? <HrTools reviewId={reviewId} onDone={() => router.refresh()} /> : null}
       </Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -156,9 +160,9 @@ function ItemRow({ it, value, onChange, readOnly }: { it: ReviewItem; value: str
 }
 
 function SignRow({
-  label, name, at, canSign, locked, lockedHint, reviewId, role, statement, defaultName, onDone,
+  label, name, at, canSign, canReset, locked, lockedHint, reviewId, role, statement, defaultName, onDone,
 }: {
-  label: string; name: string | null; at: string | null; canSign: boolean; locked?: boolean; lockedHint?: string;
+  label: string; name: string | null; at: string | null; canSign: boolean; canReset?: boolean; locked?: boolean; lockedHint?: string;
   reviewId: string; role: string; statement: string; defaultName: string; onDone: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -177,12 +181,23 @@ function SignRow({
     setOpen(false); setAck(false); onDone();
   }
 
+  async function reset() {
+    if (!confirm(`Reset the ${role} signature? They'll need to sign again.`)) return;
+    setBusy(true); setError(null);
+    const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "reset_signature", reviewId, role }) });
+    setBusy(false);
+    if (!res.ok) { const d = await res.json().catch(() => ({})); return setError(d.error ?? "Reset failed."); }
+    onDone();
+  }
+
   return (
     <div className="text-sm">
       <div className="flex items-center gap-2 flex-wrap">
         <span className="w-44 shrink-0 text-muted">{label}</span>
         {name && at ? (
-          <span className="flex-1 text-ink">✅ {name} <span className="text-xs text-muted">· {new Date(at).toLocaleDateString()}</span></span>
+          <span className="flex-1 flex items-center gap-2 text-ink">✅ {name} <span className="text-xs text-muted">· {new Date(at).toLocaleDateString()}</span>
+            {canReset ? <button onClick={reset} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Reset</button> : null}
+          </span>
         ) : locked ? (
           <span className="flex-1 text-xs text-muted italic">{lockedHint ?? "Not yet available"}</span>
         ) : canSign ? (
@@ -201,6 +216,33 @@ function SignRow({
         </div>
       ) : null}
       {error && !open ? <p className="ml-0 sm:ml-44 mt-1 text-xs text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
+function HrTools({ reviewId, onDone }: { reviewId: string; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function act(action: "reopen" | "recreate", confirmMsg: string) {
+    if (!confirm(confirmMsg)) return;
+    setBusy(true); setError(null);
+    const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, reviewId }) });
+    setBusy(false);
+    if (!res.ok) { const d = await res.json().catch(() => ({})); return setError(d.error ?? "Failed."); }
+    onDone();
+  }
+
+  return (
+    <div className="mt-4 border-t border-line pt-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1.5">HR tools</div>
+      <div className="flex flex-wrap items-center gap-3">
+        <button onClick={() => act("reopen", "Reopen this review for editing? All signatures are cleared but the answers are kept.")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Reopen &amp; clear signatures</button>
+        <span className="text-muted">·</span>
+        <button onClick={() => act("recreate", "Recreate this review from scratch? All answers AND signatures are cleared — this can't be undone.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Recreate (clear all answers)</button>
+      </div>
+      <p className="mt-1 text-[11px] text-muted">Reopen keeps the answers and returns the review to editable. Recreate wipes it back to a blank form.</p>
+      {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

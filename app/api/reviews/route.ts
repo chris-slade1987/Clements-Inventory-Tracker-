@@ -160,6 +160,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // ---- reset / reopen / recreate (HR & admin only) ------------------------
+    // Undo signatures or send a review back to editable when a correction is
+    // needed (e.g. someone signed by mistake).
+    if (action === "reset_signature" || action === "reopen" || action === "recreate") {
+      if (!hr) return NextResponse.json({ error: "Only HR or an admin can reset a review." }, { status: 403 });
+
+      const data: Record<string, unknown> = {};
+      if (action === "reset_signature") {
+        const role = str(body?.role);
+        if (role === "reviewer") { data.reviewerSignedName = null; data.reviewerSignedAt = null; }
+        else if (role === "employee") { data.employeeSignedName = null; data.employeeSignedAt = null; }
+        else if (role === "hr") { data.hrSignedName = null; data.hrSignedAt = null; }
+        else return NextResponse.json({ error: "Unknown signature role." }, { status: 400 });
+      } else {
+        // reopen / recreate clear every signature and completion.
+        data.reviewerSignedName = null; data.reviewerSignedAt = null;
+        data.employeeSignedName = null; data.employeeSignedAt = null;
+        data.hrSignedName = null; data.hrSignedAt = null;
+        data.completedAt = null;
+        if (action === "recreate") { data.responses = "{}"; data.overallRating = null; data.nextSteps = null; }
+      }
+      // Clearing the HR signature always drops it out of "completed".
+      data.completedAt = null;
+      await prisma.newHireReview.update({ where: { id: review.id }, data });
+
+      // Recompute status from what remains.
+      const fresh = await prisma.newHireReview.findUnique({ where: { id: review.id } });
+      let status = "due";
+      if (fresh) {
+        const hasResponses = fresh.responses && fresh.responses !== "{}";
+        if (fresh.hrSignedAt) status = "completed";
+        else if (fresh.reviewerSignedAt && fresh.employeeSignedAt) status = "pending_approval";
+        else if (fresh.reviewerSignedAt || fresh.employeeSignedAt || hasResponses) status = "in_progress";
+        else status = fresh.reviewerUserId ? "sent" : "due";
+      }
+      await prisma.newHireReview.update({ where: { id: review.id }, data: { status } });
+      return NextResponse.json({ ok: true, status });
+    }
+
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
