@@ -5,6 +5,8 @@ import { isHrDirector } from "@/lib/personnel";
 import { allReviews } from "@/lib/review";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { employeeRoster } from "@/lib/people";
+import { formerEmployees } from "@/lib/separation";
+import PeopleControls from "./PeopleControls";
 
 export const dynamic = "force-dynamic";
 
@@ -27,10 +29,13 @@ export default async function PeoplePage({
   const roster = await employeeRoster(branch ?? undefined);
   const reviews = hr ? await allReviews() : [];
   const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;
+  const former = hr ? await formerEmployees(branch ?? undefined) : [];
 
   return (
     <>
       <PageHeader title="People / HR" subtitle="Personnel profiles — inspection & review history by branch" />
+
+      {hr ? <PeopleControls defaultBranch={branch} /> : null}
 
       {hr ? (
         <Link href="/management/people/reviews" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
@@ -42,6 +47,20 @@ export default async function PeoplePage({
             <span className="block text-xs text-muted">30 & 60-day reviews — assign reviewers, track signatures, final approval</span>
           </span>
           {reviewsNeedAction > 0 ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">{reviewsNeedAction} need action</span> : null}
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
+
+      {hr ? (
+        <Link href="/management/people/inactive" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-100 text-slate-500">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21v-2a4 4 0 014-4h4M17 17l4 4m0-4l-4 4" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Former employees</span>
+            <span className="block text-xs text-muted">Terminated / departed staff — separation records & exit interviews, all data retained</span>
+          </span>
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{former.length}</span>
           <span className="text-muted text-sm">→</span>
         </Link>
       ) : null}

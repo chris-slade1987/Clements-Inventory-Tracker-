@@ -51,10 +51,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    if (action === "retire" || action === "reactivate") {
+    // Take a vehicle out of service (sold / retired / etc.). All data is kept;
+    // it just moves to the sold & retired list.
+    if (action === "dispose" || action === "retire") {
       const id = str(body?.id);
       if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
-      await prisma.vehicle.update({ where: { id }, data: { status: action === "retire" ? "retired" : "active" } });
+      await prisma.vehicle.update({
+        where: { id },
+        data: {
+          status: "inactive",
+          disposition: str(body?.disposition) ?? "retired",
+          dispositionDate: date(body?.dispositionDate) ?? new Date(),
+          salePrice: flt(body?.salePrice),
+          dispositionNotes: str(body?.dispositionNotes),
+        },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === "reactivate") {
+      const id = str(body?.id);
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      await prisma.vehicle.update({
+        where: { id },
+        data: { status: "active", disposition: null, dispositionDate: null, salePrice: null, dispositionNotes: null },
+      });
       return NextResponse.json({ ok: true });
     }
 

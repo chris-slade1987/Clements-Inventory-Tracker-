@@ -4,9 +4,10 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
-import { vehicleDetail, serviceLabel } from "@/lib/fleet";
+import { vehicleDetail, serviceLabel, dispositionLabel, DISPOSITIONS } from "@/lib/fleet";
 import { vehicleInspections } from "@/lib/inspection";
 import ServiceForm from "./ServiceForm";
+import VehicleDisposition from "./VehicleDisposition";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +35,30 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         <Info label="Mileage" value={v.currentMileage != null ? v.currentMileage.toLocaleString() : "—"} />
         <Info label="Total maintenance" value={money(totalCost)} />
         <Info label="Cost / mile" value={v.currentMileage && v.currentMileage > 0 ? `$${(totalCost / v.currentMileage).toFixed(3)}` : "—"} />
-        <Info label="Status" value={v.status === "active" ? "Active" : "Retired"} />
+        <Info label="Status" value={v.status === "active" ? "Active" : dispositionLabel(v.disposition)} />
       </div>
+
+      {v.status !== "active" ? (
+        <Card className="p-4 mb-5 ring-1 ring-slate-200 bg-slate-50">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-700">Out of service · {dispositionLabel(v.disposition)}</span>
+            {v.dispositionDate ? <span className="text-xs text-muted">{dateShort(v.dispositionDate)}</span> : null}
+            {v.salePrice != null ? <span className="text-xs text-muted">· sale {money(v.salePrice)}</span> : null}
+          </div>
+          {v.dispositionNotes ? <p className="mt-2 text-sm text-muted whitespace-pre-line">{v.dispositionNotes}</p> : null}
+        </Card>
+      ) : null}
+
+      {user.role === "admin" ? (
+        <div className="mb-5">
+          <VehicleDisposition
+            vehicleId={v.id}
+            status={v.status}
+            dispositions={DISPOSITIONS.map((d) => ({ key: d.key, label: d.label }))}
+            current={{ disposition: v.disposition, dispositionDate: v.dispositionDate ? v.dispositionDate.toISOString() : null, salePrice: v.salePrice, dispositionNotes: v.dispositionNotes }}
+          />
+        </div>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2 mb-5">
         <Card className="p-4">

@@ -341,9 +341,16 @@ model Vehicle {
   plate          String?
   branch         String? // "vero" | "stuart" | "orlando" | "naples"
   assignedTo     String?   @map("assigned_to") // technician / driver name
-  status         String    @default("active") // "active" | "retired"
+  status         String    @default("active") // "active" | "inactive" (sold/retired/etc.)
   acquiredDate   DateTime? @map("acquired_date")
   purchasePrice  Float?    @map("purchase_price")
+
+  // Disposition (when no longer in service). All data is retained; the vehicle
+  // just moves to the sold/retired list.
+  disposition      String?   // "sold" | "retired" | "totaled" | "traded" | "transferred"
+  dispositionDate  DateTime? @map("disposition_date")
+  salePrice        Float?    @map("sale_price")
+  dispositionNotes String?   @map("disposition_notes")
   currentMileage Int?      @map("current_mileage")
   mileageAsOf    DateTime? @map("mileage_as_of") // date the mileage reading is from
   statusNotes    String?   @map("status_notes") // replacement/condition notes
@@ -453,8 +460,9 @@ model Employee {
   division      String? // "Lawn" | "Service" | "General Pest" | ...
   branch        String? // "vero" | "stuart" | "orlando" | "naples"
   title         String?
-  status        String    @default("active") // "active" | "inactive"
+  status        String    @default("active") // "active" | "inactive" (former employee)
   hireDate      DateTime? @map("hire_date")
+  terminatedAt  DateTime? @map("terminated_at")
   licenseNumber String?   @map("license_number")
   notes         String?
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -464,6 +472,7 @@ model Employee {
   assignments TrainingAssignment[]
   records     PersonnelRecord[]
   reviews     NewHireReview[]
+  separation  EmployeeSeparation?
   user        User?
 
   @@index([branch])
@@ -519,6 +528,38 @@ model PersonnelSignature {
 
   @@index([recordId])
   @@map("personnel_signatures")
+}
+
+// Offboarding record for a terminated / departed employee. Holds the reason,
+// supporting documents, and the HR-conducted exit interview (which HR may
+// bypass when a separation is not on good terms). Created when an employee is
+// moved to inactive; the profile and all linked data are retained.
+model EmployeeSeparation {
+  id             String  @id @default(cuid())
+  employeeId     String  @unique @map("employee_id")
+  separationType String  @map("separation_type") // "voluntary" | "involuntary" | "layoff" | "other"
+  reasonCategory String? @map("reason_category") // resignation | performance | misconduct | attendance | job_abandonment | layoff | other
+  reasonNotes    String? @map("reason_notes")
+  lastDay        DateTime @map("last_day")
+  rehireEligible Boolean? @map("rehire_eligible")
+
+  // Supporting documents — JSON array of { file, name }.
+  docs String @default("[]")
+
+  // HR-conducted exit interview.
+  exitStatus       String    @default("pending") // "pending" | "completed" | "bypassed"
+  exitBypassReason String?   @map("exit_bypass_reason")
+  exitResponses    String    @default("{}") @map("exit_responses") // JSON answers
+  exitInterviewAt  DateTime? @map("exit_interview_at")
+  exitInterviewBy  String?   @map("exit_interview_by")
+
+  createdByUserId String?  @map("created_by_user_id")
+  createdByName   String?  @map("created_by_name")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("employee_separations")
 }
 
 // New-hire 30 / 60-day review. HR-managed: scheduled off the start date, sent

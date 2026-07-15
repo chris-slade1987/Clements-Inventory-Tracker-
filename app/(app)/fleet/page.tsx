@@ -17,13 +17,16 @@ export default async function FleetPage({
   const user = await requireUser();
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
-  const vehicles = await listVehicles(branch ?? undefined);
-  const reminders = await managerReminders(branch ?? undefined);
-  const active = vehicles.filter((v) => v.status === "active");
+  const [vehicles, inactive, reminders] = await Promise.all([
+    listVehicles(branch ?? undefined, "active"),
+    listVehicles(branch ?? undefined, "inactive"),
+    managerReminders(branch ?? undefined),
+  ]);
+  const active = vehicles;
   const ytdSpend = vehicles.reduce((s, v) => s + v.ytdCost, 0);
   const cpmVals = vehicles.map((v) => v.costPerMile).filter((n): n is number => n != null);
   const avgCpm = cpmVals.length ? cpmVals.reduce((s, n) => s + n, 0) / cpmVals.length : null;
-  const dueSoon = vehicles.filter((v) => v.status === "active" && isDueSoon(v));
+  const dueSoon = vehicles.filter((v) => isDueSoon(v));
 
   return (
     <>
@@ -42,6 +45,18 @@ export default async function FleetPage({
           />
         ))}
       </div>
+
+      <Link href={`/fleet/retired${branch ? `?branch=${branch}` : ""}`} className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-100 text-slate-500">
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M3 13l2-5h11l3 5M5 13h14v4H5zM7 17a2 2 0 104 0M15 17a2 2 0 104 0M18 6l3 3m0-3l-3 3" /></svg>
+        </span>
+        <span className="flex-1">
+          <span className="block text-sm font-medium text-ink">Sold &amp; retired vehicles</span>
+          <span className="block text-xs text-muted">Out-of-service vehicles — disposition, sale price & full history retained</span>
+        </span>
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{inactive.length}</span>
+        <span className="text-muted text-sm">→</span>
+      </Link>
 
       {reminders.length > 0 ? (
         <Link href="/my-branch" className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100/70">

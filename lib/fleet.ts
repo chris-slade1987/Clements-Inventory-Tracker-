@@ -33,11 +33,17 @@ export type VehicleRow = {
   hasLoan: boolean;
   monthlyPayment: number | null;
   payoffDate: Date | null;
+  disposition: string | null;
+  dispositionDate: Date | null;
+  salePrice: number | null;
 };
 
-export async function listVehicles(branch?: string): Promise<VehicleRow[]> {
+/** List vehicles. `scope`: "active" (default) hides disposed ones; "inactive"
+ *  shows only sold/retired; "all" shows everything. */
+export async function listVehicles(branch?: string, scope: "active" | "inactive" | "all" = "active"): Promise<VehicleRow[]> {
+  const statusWhere = scope === "active" ? { status: "active" } : scope === "inactive" ? { status: { not: "active" } } : {};
   const vehicles = await prisma.vehicle.findMany({
-    where: branch ? { branch } : undefined,
+    where: { ...(branch ? { branch } : {}), ...statusWhere },
     include: { services: true },
     orderBy: [{ status: "asc" }, { name: "asc" }],
   });
@@ -71,8 +77,23 @@ export async function listVehicles(branch?: string): Promise<VehicleRow[]> {
       hasLoan: !!(v.loanBank || v.loanNumber || v.monthlyPayment),
       monthlyPayment: v.monthlyPayment ?? null,
       payoffDate: v.payoffDate ?? null,
+      disposition: v.disposition ?? null,
+      dispositionDate: v.dispositionDate ?? null,
+      salePrice: v.salePrice ?? null,
     };
   });
+}
+
+export const DISPOSITIONS = [
+  { key: "sold", label: "Sold" },
+  { key: "retired", label: "Retired" },
+  { key: "totaled", label: "Totaled" },
+  { key: "traded", label: "Traded in" },
+  { key: "transferred", label: "Transferred" },
+] as const;
+
+export function dispositionLabel(key: string | null): string {
+  return DISPOSITIONS.find((d) => d.key === key)?.label ?? (key ? key : "Retired");
 }
 
 export async function vehicleDetail(id: string) {

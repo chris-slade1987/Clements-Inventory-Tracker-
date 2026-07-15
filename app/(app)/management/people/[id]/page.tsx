@@ -4,11 +4,13 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
+import { separationForEmployee, SEPARATION_TYPES, REASON_CATEGORIES, EXIT_INTERVIEW, parseJson, type SeparationDoc } from "@/lib/separation";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
+import Offboarding from "./Offboarding";
 import SignatureBlock from "@/app/(app)/my-branch/team/[id]/SignatureBlock";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +29,23 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
   const reviews = await reviewsForEmployee(e.id);
+  const sep = await separationForEmployee(e.id);
+  const separation = sep
+    ? {
+        separationType: sep.separationType,
+        reasonCategory: sep.reasonCategory,
+        reasonNotes: sep.reasonNotes,
+        lastDay: sep.lastDay.toISOString(),
+        rehireEligible: sep.rehireEligible,
+        docs: parseJson<SeparationDoc[]>(sep.docs, []),
+        exitStatus: sep.exitStatus,
+        exitBypassReason: sep.exitBypassReason,
+        exitResponses: parseJson<Record<string, string>>(sep.exitResponses, {}),
+        exitInterviewAt: sep.exitInterviewAt ? sep.exitInterviewAt.toISOString() : null,
+        exitInterviewBy: sep.exitInterviewBy,
+        createdByName: sep.createdByName,
+      }
+    : null;
   const TRAINING_STATUS: Record<string, string> = { not_started: "Not started", in_progress: "In progress", completed: "Completed" };
   const RECORD_STYLE: Record<string, string> = { writeup: "bg-amber-100 text-amber-700", note: "bg-slate-100 text-slate-600", recognition: "bg-emerald-100 text-emerald-700", accident: "bg-red-100 text-red-700" };
   const RECORD_LABEL: Record<string, string> = { writeup: "Write-up", note: "Note", recognition: "Recognition", accident: "Accident" };
@@ -72,6 +91,18 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           ) : null}
         </Card>
       </div>
+
+      {/* Employment status / offboarding (HR & admin) */}
+      <Offboarding
+        employeeId={e.id}
+        employeeName={e.name}
+        status={e.status}
+        separation={separation}
+        canManage={canEdit}
+        types={SEPARATION_TYPES.map((t) => ({ key: t.key, label: t.label }))}
+        reasons={REASON_CATEGORIES.map((r) => ({ key: r.key, label: r.label }))}
+        exitForm={EXIT_INTERVIEW}
+      />
 
       {/* Inspection history */}
       <Card className="p-0 overflow-hidden mb-5">
