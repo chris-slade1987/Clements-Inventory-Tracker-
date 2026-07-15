@@ -51,11 +51,20 @@ below has been changed. Each item cites the file(s) involved.
   `COO_EMAIL`, `OWNER_EMAIL`, `HR_EMAIL` fall back to literal `@clementspestcontrol.com`
   addresses; not in `.env.example`. HR email also resolves via a `Setting` row `hr_email` that
   has no admin UI to set. — `lib/personnel.ts:151-171`
-- [ ] **Uploaded invoice files are not durably stored.** `app/api/check-in/parse/route.ts:42-49`
-  writes to `public/uploads` best-effort; on serverless FS the original is dropped (parse still
-  works). No blob/Supabase integration wired (documented as a manual step in `DEPLOY.md`).
-- [ ] **Fleet service invoice & MBR uploads share the same non-durable pattern** — verify
-  storage for `app/api/fleet/service/parse/route.ts` and `app/api/management/upload/route.ts`.
+- [x] **Durable file storage — DONE (Vercel Blob).** All uploads (vehicle documents, personnel
+  attachments, separation docs, training materials, check-in & maintenance invoices) route through
+  `lib/storage.ts`; production uses Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set, dev falls back to
+  local `public/uploads`. Set the token in Vercel to persist files.
+- [ ] **Google Drive redundancy / mirror (down the road).** Clements runs Google Workspace with Drive
+  storage, so mirror every uploaded document into a Shared Drive as a backup + human-browsable copy
+  (e.g. `/Fleet/<unit>/`, `/HR/<employee>/`). Layer a Drive writer onto `lib/storage.ts` (dual-write to
+  Blob + Drive; store both refs on the record) via a Workspace service account / domain-wide delegation,
+  or the existing Google MCP connector. Blob stays the app's primary (fast, signed access); Drive is the
+  redundant of-record copy staff already know how to navigate. Also lets Finance/HR retention live where
+  it already does. — pairs with the access-control + `/api/file/[id]` proxy work.
+- [ ] **Gate sensitive document downloads.** Stored URLs are public-but-unguessable; vehicle-insurance
+  and HR/separation docs can carry PII (driver's-license #s). Add an authenticated `/api/file/[id]`
+  proxy and flip Blob `access` to private. — `lib/storage.ts`
 
 ## Placeholders & missing forms
 
