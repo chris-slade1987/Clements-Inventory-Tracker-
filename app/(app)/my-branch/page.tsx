@@ -4,6 +4,7 @@ import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { managerReminders, type Reminder } from "@/lib/reminders";
+import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { inspectionStatus } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
@@ -30,11 +31,12 @@ export default async function MyBranchPage({
   const month = now.getMonth() + 1;
   const quarter = Math.floor((month - 1) / 3) + 1;
 
-  const [reminders, insp, openAlerts, followUps] = await Promise.all([
+  const [reminders, insp, openAlerts, followUps, myReviews] = await Promise.all([
     managerReminders(branch ?? undefined),
     inspectionStatus(year, month, branch ?? undefined),
     prisma.alert.count({ where: { status: "open" } }),
     openFollowUps(branch ?? undefined),
+    reviewsForReviewer(user.id),
   ]);
   const nowMs = now.getTime();
   const followUpItems = followUps.map((f) => ({
@@ -107,6 +109,30 @@ export default async function MyBranchPage({
           </ul>
         )}
       </Card>
+
+      {/* New-hire reviews this manager is conducting */}
+      {myReviews.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">New-hire reviews to complete</div>
+          <ul className="divide-y divide-line">
+            {myReviews.map((r) => (
+              <li key={r.id}>
+                <Link href={`/reviews/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${r.dueDate.getTime() < nowMs ? "bg-red-500" : "bg-amber-500"}`} />
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium text-ink">{r.employee.name} — {REVIEW_LABEL[r.type]}</span>
+                    <span className="block text-xs text-muted">
+                      {r.status === "pending_approval" ? "Signed — awaiting HR approval" : r.reviewerSignedAt ? "You signed — awaiting employee" : "Complete & sign with the employee"}
+                      {` · due ${r.dueDate.toLocaleDateString()}`}
+                    </span>
+                  </span>
+                  <span className="text-xs font-medium text-brand-700 mt-0.5">Open →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {/* Audit action items (resolvable) */}
       <FollowUps items={followUpItems} />

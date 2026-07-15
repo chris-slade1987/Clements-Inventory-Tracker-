@@ -167,6 +167,16 @@ export async function notifyList(type: string): Promise<string[]> {
   return [...new Set(list.filter(Boolean))];
 }
 
+/** The HR director's email (env override → fallback to April Williford). */
+export function hrDirectorEmail(): string {
+  return (process.env.HR_EMAIL || "awilliford@clementspestcontrol.com").toLowerCase();
+}
+
+/** True for admins and the HR director — who manage HR reviews / final approvals. */
+export function isHrDirector(user: { role: string; email: string }): boolean {
+  return user.role === "admin" || user.email.toLowerCase() === hrDirectorEmail();
+}
+
 /** Resolve the HR notification address: env override → April Williford → fallback. */
 export async function getHrEmail(): Promise<string> {
   if (process.env.HR_EMAIL) return process.env.HR_EMAIL;

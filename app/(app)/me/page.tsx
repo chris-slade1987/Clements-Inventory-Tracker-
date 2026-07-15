@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
+import { openReviewsForEmployee, REVIEW_LABEL } from "@/lib/review";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,13 @@ export default async function MyWorkPage() {
     );
   }
 
-  const assignments = await employeeAssignments(user.employeeId);
+  const [assignments, reviews] = await Promise.all([
+    employeeAssignments(user.employeeId),
+    openReviewsForEmployee(user.employeeId),
+  ]);
   const open = assignments.filter((a) => a.status !== "completed");
   const completed = assignments.filter((a) => a.status === "completed");
+  const reviewsToSign = reviews.filter((r) => !r.employeeSignedAt);
   const now = Date.now();
 
   return (
@@ -30,6 +35,26 @@ export default async function MyWorkPage() {
         <Tile label="Completed" value={String(completed.length)} tone="good" />
         <Tile label="Assigned total" value={String(assignments.length)} />
       </div>
+
+      {reviewsToSign.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Your new-hire review{reviewsToSign.length === 1 ? "" : "s"}</div>
+          <ul className="divide-y divide-line">
+            {reviewsToSign.map((r) => (
+              <li key={r.id}>
+                <Link href={`/reviews/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium text-ink">{REVIEW_LABEL[r.type]}</span>
+                    <span className="block text-xs text-muted">Review this with your manager, then add your signature · due {r.dueDate.toLocaleDateString()}</span>
+                  </span>
+                  <span className="text-xs font-medium text-brand-700 mt-0.5">Open &amp; sign →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       <Card className="p-0 overflow-hidden mb-5">
         <div className="px-4 py-3 border-b border-line flex items-center justify-between">

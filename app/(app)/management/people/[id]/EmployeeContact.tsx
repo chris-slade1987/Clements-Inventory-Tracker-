@@ -12,7 +12,7 @@ export default function EmployeeContact({
 }: {
   id: string;
   canEdit: boolean;
-  initial: { email: string; phone: string; title: string; status: string };
+  initial: { email: string; phone: string; title: string; status: string; hireDate: string };
   emailConfigured: boolean;
 }) {
   const router = useRouter();
@@ -40,7 +40,9 @@ export default function EmployeeContact({
         <Row label="Work email" v={f.email} on={(v) => setF({ ...f, email: v })} disabled={!canEdit} placeholder="name@clementspestcontrol.com" type="email" />
         <Row label="Phone" v={f.phone} on={(v) => setF({ ...f, phone: v })} disabled={!canEdit} />
         <Row label="Title" v={f.title} on={(v) => setF({ ...f, title: v })} disabled={!canEdit} />
+        <Row label="Hire date" v={f.hireDate} on={(v) => setF({ ...f, hireDate: v })} disabled={!canEdit} type="date" />
       </div>
+      {canEdit ? <p className="mt-2 text-[11px] text-muted">Hire date schedules the 30 & 60-day new-hire reviews automatically.</p> : null}
       {!f.email ? (
         <p className="mt-2 text-[11px] text-amber-600">No email on file — inspection-score emails are logged but not delivered until an address is added.</p>
       ) : !emailConfigured ? (

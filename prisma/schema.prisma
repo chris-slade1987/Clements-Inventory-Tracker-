@@ -463,6 +463,7 @@ model Employee {
   rideAlongs  AuditRideAlong[]
   assignments TrainingAssignment[]
   records     PersonnelRecord[]
+  reviews     NewHireReview[]
   user        User?
 
   @@index([branch])
@@ -518,6 +519,52 @@ model PersonnelSignature {
 
   @@index([recordId])
   @@map("personnel_signatures")
+}
+
+// New-hire 30 / 60-day review. HR-managed: scheduled off the start date, sent
+// to a reviewer (supervisor/coordinator), completed & signed by reviewer +
+// employee, then finally approved & signed by the HR director. Three signatures.
+model NewHireReview {
+  id         String   @id @default(cuid())
+  employeeId String   @map("employee_id")
+  branch     String?
+  type       String // "30_day" | "60_day"
+  startDate  DateTime @map("start_date")
+  dueDate    DateTime @map("due_date")
+  // due -> sent -> in_progress -> pending_approval -> completed
+  status     String   @default("due")
+
+  reviewerUserId String? @map("reviewer_user_id")
+  reviewerName   String? @map("reviewer_name")
+
+  responses     String  @default("{}") // form answers
+  overallRating String? @map("overall_rating")
+  nextSteps     String? @map("next_steps")
+  hrNotes       String? @map("hr_notes")
+
+  // Three e-signatures.
+  reviewerSignedName String?   @map("reviewer_signed_name")
+  reviewerSignedAt   DateTime? @map("reviewer_signed_at")
+  employeeSignedName String?   @map("employee_signed_name")
+  employeeSignedAt   DateTime? @map("employee_signed_at")
+  hrSignedName       String?   @map("hr_signed_name")
+  hrSignedAt         DateTime? @map("hr_signed_at")
+
+  // Remote-sign token for the employee (emailed link when not on-site).
+  employeeToken     String?   @unique @map("employee_token")
+  lastReminderAt    DateTime? @map("last_reminder_at")
+
+  hrNotifiedAt DateTime? @map("hr_notified_at")
+  sentAt       DateTime? @map("sent_at")
+  completedAt  DateTime? @map("completed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, type])
+  @@index([status])
+  @@index([branch, status])
+  @@map("newhire_reviews")
 }
 
 // A remote e-signature request: a tokenized link emailed to a signer who isn't

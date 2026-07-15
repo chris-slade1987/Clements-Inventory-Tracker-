@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { isHrDirector } from "@/lib/personnel";
+import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
@@ -24,10 +26,12 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const detail = await employeeDetail(id);
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
-  const STATUS_LABEL: Record<string, string> = { not_started: "Not started", in_progress: "In progress", completed: "Completed" };
+  const reviews = await reviewsForEmployee(e.id);
+  const TRAINING_STATUS: Record<string, string> = { not_started: "Not started", in_progress: "In progress", completed: "Completed" };
   const RECORD_STYLE: Record<string, string> = { writeup: "bg-amber-100 text-amber-700", note: "bg-slate-100 text-slate-600", recognition: "bg-emerald-100 text-emerald-700", accident: "bg-red-100 text-red-700" };
   const RECORD_LABEL: Record<string, string> = { writeup: "Write-up", note: "Note", recognition: "Recognition", accident: "Accident" };
-  const canEdit = user.role === "admin";
+  const hr = isHrDirector(user);
+  const canEdit = user.role === "admin" || hr;
 
   return (
     <>
@@ -44,7 +48,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         <EmployeeContact
           id={e.id}
           canEdit={canEdit}
-          initial={{ email: e.email ?? "", phone: e.phone ?? "", title: e.title ?? "", status: e.status }}
+          initial={{ email: e.email ?? "", phone: e.phone ?? "", title: e.title ?? "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
           emailConfigured={emailConfigured()}
         />
 
@@ -195,13 +199,44 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
                     <td className="px-3 py-2 text-muted">{t.completedAt ? dateShort(t.completedAt) : "—"}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{t.score != null ? `${t.score}%` : "—"}</td>
                     <td className="px-4 py-2 text-center">
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.status === "completed" ? "bg-emerald-100 text-emerald-700" : t.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600"}`}>{STATUS_LABEL[t.status]}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.status === "completed" ? "bg-emerald-100 text-emerald-700" : t.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600"}`}>{TRAINING_STATUS[t.status]}</span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+        )}
+      </Card>
+
+      {/* New-hire 30 / 60-day reviews */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+          <div className="text-sm font-medium text-ink">New-hire reviews</div>
+          {hr ? <Link href="/management/people/reviews" className="text-xs font-medium text-brand-300 hover:underline">Manage →</Link> : null}
+        </div>
+        {reviews.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">No 30 or 60-day reviews on file{e.hireDate ? "" : " — add a hire date to schedule them"}.</p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {reviews.map((r) => (
+              <li key={r.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${r.status === "completed" ? "bg-emerald-100 text-emerald-700" : r.status === "pending_approval" ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700"}`}>{REVIEW_LABEL[r.type]}</span>
+                  <span className="text-xs text-muted">{STATUS_LABEL[r.status] ?? r.status}</span>
+                  <span className="text-xs text-muted">due {dateShort(r.dueDate)}{r.completedAt ? ` · approved ${dateShort(r.completedAt)}` : ""}</span>
+                  <Link href={`/reviews/${r.id}`} className="ml-auto text-xs font-medium text-brand-700 hover:underline">View →</Link>
+                </div>
+                {r.status === "completed" ? (
+                  <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] text-muted">
+                    {r.reviewerSignedName ? <span>Reviewer: {r.reviewerSignedName} ✅</span> : null}
+                    {r.employeeSignedName ? <span>Employee: {r.employeeSignedName} ✅</span> : null}
+                    {r.hrSignedName ? <span>HR: {r.hrSignedName} ✅</span> : null}
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         )}
       </Card>
 

@@ -93,6 +93,16 @@ async function main() {
     } else {
       console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
     }
+
+    // Seed a demo new-hire + reviews only when none exist.
+    const reviews = await prisma.newHireReview.count();
+    if (reviews === 0) {
+      const { seedReviews } = await import("../prisma/seed-reviews");
+      const r = await seedReviews(prisma);
+      console.log(`deploy-db: seeded demo new-hire reviews (${r.employee}).`);
+    } else {
+      console.log(`deploy-db: new-hire reviews present (${reviews}) — left as-is.`);
+    }
   } finally {
     await prisma.$disconnect();
   }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { isHrDirector } from "@/lib/personnel";
+import { allReviews } from "@/lib/review";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { employeeRoster } from "@/lib/people";
 
@@ -21,11 +23,28 @@ export default async function PeoplePage({
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
+  const hr = isHrDirector(user);
   const roster = await employeeRoster(branch ?? undefined);
+  const reviews = hr ? await allReviews() : [];
+  const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;
 
   return (
     <>
       <PageHeader title="People / HR" subtitle="Personnel profiles — inspection & review history by branch" />
+
+      {hr ? (
+        <Link href="/management/people/reviews" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">New-hire reviews</span>
+            <span className="block text-xs text-muted">30 & 60-day reviews — assign reviewers, track signatures, final approval</span>
+          </span>
+          {reviewsNeedAction > 0 ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">{reviewsNeedAction} need action</span> : null}
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
 
       {locked ? null : (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
