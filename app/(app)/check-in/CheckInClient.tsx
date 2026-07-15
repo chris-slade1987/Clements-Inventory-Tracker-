@@ -29,6 +29,9 @@ type Receipt = {
 
 let keySeq = 0;
 
+// Distributors used for manual check-in (no invoice to read the name from).
+const DISTRIBUTORS = ["Site One", "Helena", "Howards", "Other"];
+
 export default function CheckInClient({
   mode,
   defaultWarehouseId,
@@ -47,6 +50,8 @@ export default function CheckInClient({
 
   const [warehouseId, setWarehouseId] = useState(defaultWarehouseId);
   const [distributor, setDistributor] = useState("");
+  // Manual mode: dropdown selection ("Other" reveals the free-text `distributor`).
+  const [distributorChoice, setDistributorChoice] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
   const [subtotal, setSubtotal] = useState<number | null>(null);
@@ -74,6 +79,7 @@ export default function CheckInClient({
   function startManual() {
     setManualMode(true);
     setDistributor("");
+    setDistributorChoice("");
     setInvoiceNumber("");
     setInvoiceDate(new Date().toISOString().slice(0, 10));
     setSubtotal(null);
@@ -141,10 +147,17 @@ export default function CheckInClient({
     setBusy(true);
     setError(null);
     try {
+      // In manual mode the distributor comes from the dropdown (or the free-text
+      // box when "Other" is chosen); invoice mode keeps the AI-read name.
+      const effectiveDistributor = manualMode
+        ? distributorChoice === "Other"
+          ? distributor.trim()
+          : distributorChoice
+        : distributor;
       const payload = {
         warehouseId,
         filePath,
-        distributor,
+        distributor: effectiveDistributor,
         invoiceNumber,
         invoiceDate,
         subtotal,
@@ -188,6 +201,7 @@ export default function CheckInClient({
     setFile(null);
     setFilePath(null);
     setDistributor("");
+    setDistributorChoice("");
     setInvoiceNumber("");
     setInvoiceDate("");
     setSubtotal(null);
@@ -250,11 +264,34 @@ export default function CheckInClient({
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Distributor</label>
-            <input
-              value={distributor}
-              onChange={(e) => setDistributor(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2.5 text-sm"
-            />
+            {manualMode ? (
+              <>
+                <select
+                  value={distributorChoice}
+                  onChange={(e) => setDistributorChoice(e.target.value)}
+                  className="w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"
+                >
+                  <option value="">— Select distributor —</option>
+                  {DISTRIBUTORS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                {distributorChoice === "Other" ? (
+                  <input
+                    value={distributor}
+                    onChange={(e) => setDistributor(e.target.value)}
+                    placeholder="Distributor name"
+                    className="mt-2 w-full rounded-lg border border-line px-3 py-2.5 text-sm"
+                  />
+                ) : null}
+              </>
+            ) : (
+              <input
+                value={distributor}
+                onChange={(e) => setDistributor(e.target.value)}
+                className="w-full rounded-lg border border-line px-3 py-2.5 text-sm"
+              />
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Invoice #</label>
