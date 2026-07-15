@@ -211,16 +211,25 @@ export async function reviewById(id: string) {
   });
 }
 
-/** Managers / admins HR can assign as the reviewer — that branch first, then all-branch. */
-export async function reviewerCandidates(branch?: string | null) {
-  return prisma.user.findMany({
-    where: {
-      active: true,
-      role: { in: ["manager", "admin"] },
-      ...(branch ? { OR: [{ branch }, { branch: null }] } : {}),
-    },
+/**
+ * Everyone HR can assign to conduct a review. A reviewer signs in to fill and
+ * sign, so candidates are people with a login: every active employee account
+ * plus any manager/admin. Not role-restricted — HR can pick any employee.
+ */
+export async function reviewerCandidates(_branch?: string | null) {
+  const users = await prisma.user.findMany({
+    where: { active: true, OR: [{ employeeId: { not: null } }, { role: { in: ["manager", "admin"] } }] },
     select: { id: true, name: true, email: true, role: true, branch: true },
-    orderBy: [{ branch: "asc" }, { name: "asc" }],
+    orderBy: [{ name: "asc" }],
+  });
+  // De-dupe by name (a person shouldn't appear twice) and drop the generic
+  // shared admin login from the picker.
+  const seen = new Set<string>();
+  return users.filter((u) => {
+    const key = u.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
 

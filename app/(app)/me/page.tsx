@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
-import { openReviewsForEmployee, REVIEW_LABEL } from "@/lib/review";
+import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +17,10 @@ export default async function MyWorkPage() {
     );
   }
 
-  const [assignments, reviews] = await Promise.all([
+  const [assignments, reviews, conducting] = await Promise.all([
     employeeAssignments(user.employeeId),
     openReviewsForEmployee(user.employeeId),
+    reviewsForReviewer(user.id),
   ]);
   const open = assignments.filter((a) => a.status !== "completed");
   const completed = assignments.filter((a) => a.status === "completed");
@@ -49,6 +50,29 @@ export default async function MyWorkPage() {
                     <span className="block text-xs text-muted">Review this with your manager, then add your signature · due {r.dueDate.toLocaleDateString()}</span>
                   </span>
                   <span className="text-xs font-medium text-brand-700 mt-0.5">Open &amp; sign →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
+      {conducting.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">New-hire review{conducting.length === 1 ? "" : "s"} to conduct</div>
+          <ul className="divide-y divide-line">
+            {conducting.map((r) => (
+              <li key={r.id}>
+                <Link href={`/reviews/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${r.dueDate.getTime() < now ? "bg-red-500" : "bg-amber-500"}`} />
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium text-ink">{r.employee.name} — {REVIEW_LABEL[r.type]}</span>
+                    <span className="block text-xs text-muted">
+                      {r.status === "pending_approval" ? "Signed — awaiting HR approval" : r.reviewerSignedAt ? "You signed — awaiting employee" : "Complete & sign with the employee"}
+                      {` · due ${r.dueDate.toLocaleDateString()}`}
+                    </span>
+                  </span>
+                  <span className="text-xs font-medium text-brand-700 mt-0.5">Open →</span>
                 </Link>
               </li>
             ))}

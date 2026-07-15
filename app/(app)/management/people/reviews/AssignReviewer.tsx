@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const BRANCH_LABEL: Record<string, string> = { vero: "Vero Beach", stuart: "Stuart", orlando: "Orlando", naples: "Naples" };
+
 type Candidate = { id: string; name: string; role: string; branch: string | null };
 
 export default function AssignReviewer({
@@ -41,7 +43,7 @@ export default function AssignReviewer({
       <select value={reviewerUserId} onChange={(e) => setReviewerUserId(e.target.value)} className="rounded-lg border border-line px-2 py-1.5 text-sm bg-surface">
         <option value="">— Select reviewer —</option>
         {options.map((c) => (
-          <option key={c.id} value={c.id}>{c.name}{c.branch && c.branch !== branch ? " (other branch)" : ""} · {c.role}</option>
+          <option key={c.id} value={c.id}>{c.name}{c.branch ? ` · ${BRANCH_LABEL[c.branch] ?? c.branch}` : ""}{c.branch && branch && c.branch !== branch ? " (other branch)" : ""}</option>
         ))}
       </select>
       <button onClick={send} disabled={busy} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">
