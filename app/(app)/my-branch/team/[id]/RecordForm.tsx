@@ -67,7 +67,10 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
         <p className="text-xs text-muted mb-3">Filed to this profile and emailed to HR (April Williford). Write-ups &amp; accident reports also notify Graham Foster, Chris Slade, and Tim Slade.</p>
         <div className="flex flex-wrap gap-2">
           {RECORD_TYPES.map((t) => (
-            <button key={t.key} onClick={() => pick(t.key)} className={`${btn.secondary} flex items-center gap-2`}><span>{t.icon}</span>{t.label}</button>
+            <button key={t.key} onClick={() => pick(t.key)} className={`${btn.secondary} flex items-center gap-2`}>
+              <svg viewBox="0 0 24 24" className="h-4 w-4 text-brand-600 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={t.icon} /></svg>
+              {t.label}
+            </button>
           ))}
         </div>
         {msg ? <p className="mt-3 text-sm text-brand-700">{msg}</p> : null}
@@ -148,9 +151,9 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
               {ACCIDENT_COMPLIANCE.map((c) => (
                 <div key={c.key} className="flex items-center gap-2">
                   <div className="flex-1 text-sm text-ink">{c.label}</div>
-                  <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-                    <button onClick={() => setD(c.key, "Yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "Yes" ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>Yes</button>
-                    <button onClick={() => setD(c.key, "No")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "No" ? "bg-red-500 text-white shadow" : "text-mint hover:text-white"}`}>No</button>
+                  <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+                    <button onClick={() => setD(c.key, "Yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "Yes" ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+                    <button onClick={() => setD(c.key, "No")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "No" ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
                   </div>
                 </div>
               ))}

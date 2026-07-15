@@ -83,9 +83,9 @@ export default function WarehouseForm({
                     {it.label}
                     {it.critical ? <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 align-middle">critical</span> : null}
                   </div>
-                  <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>Yes</button>
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-mint hover:text-white"}`}>No</button>
+                  <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
                   </div>
                 </div>
                 {val === false ? (

@@ -3,11 +3,17 @@ import { prisma } from "@/lib/prisma";
 // Personnel records (write-ups, notes, recognition, accident reports) that
 // branch managers file on their team members. Every submission notifies HR.
 
+// `icon` is inline-SVG path data (24x24 viewBox, stroke, currentColor) to match
+// the site's nav icons — rendered by the record-type buttons.
 export const RECORD_TYPES = [
-  { key: "writeup", label: "Write-up", icon: "⚠️" },
-  { key: "note", label: "Note / coaching", icon: "📝" },
-  { key: "recognition", label: "Recognition", icon: "⭐" },
-  { key: "accident", label: "Accident report", icon: "🚑" },
+  // Document with an exclamation — disciplinary paperwork.
+  { key: "writeup", label: "Write-up", icon: "M14 3H7a1 1 0 00-1 1v16a1 1 0 001 1h10a1 1 0 001-1V8zM14 3v5h5M12 11.5v3m0 2.6h.01" },
+  // Speech bubble with lines — an internal note / coaching comment.
+  { key: "note", label: "Note / coaching", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v10a1 1 0 01-1 1H9l-4 4v-4H5a1 1 0 01-1-1zM8 9h8M8 12.5h5" },
+  // Award medal with ribbon — recognition.
+  { key: "recognition", label: "Recognition", icon: "M12 3a4.5 4.5 0 100 9 4.5 4.5 0 000-9zM8.6 11.4L7 21l5-3 5 3-1.6-9.6" },
+  // Safety shield with a medical cross — accident / injury report.
+  { key: "accident", label: "Accident report", icon: "M12 3l7 3v5c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6zM12 9v5M9.5 11.5h5" },
 ] as const;
 
 // Matches the company's Employee Disciplinary Action Form.
