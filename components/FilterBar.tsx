@@ -1,10 +1,45 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, btn } from "@/components/ui";
 
 type Option = { id: string; name: string };
+
+/** Date field whose calendar opens on click anywhere (or the calendar button),
+ *  not just the tiny native icon. */
+function DateField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const open = () => {
+    const el = ref.current as (HTMLInputElement & { showPicker?: () => void }) | null;
+    try { el?.showPicker?.(); } catch { /* not supported / no gesture — ignore */ }
+  };
+  return (
+    <label className="text-xs font-medium text-muted">
+      {label}
+      <div className="relative mt-1">
+        <input
+          ref={ref}
+          type="date"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onClick={open}
+          className="date-clean w-full cursor-pointer rounded-lg border border-line px-2 py-2 pr-9 text-sm text-ink"
+        />
+        <button
+          type="button"
+          onClick={open}
+          aria-label="Open calendar"
+          className="absolute inset-y-0 right-0 flex items-center px-2 text-muted hover:text-brand-700"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
+            <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </label>
+  );
+}
 
 export default function FilterBar({
   products,
@@ -92,24 +127,8 @@ export default function FilterBar({
         ))}
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="text-xs font-medium text-muted">
-          From
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink"
-          />
-        </label>
-        <label className="text-xs font-medium text-muted">
-          To
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink"
-          />
-        </label>
+        <DateField label="From" value={from} onChange={setFrom} />
+        <DateField label="To" value={to} onChange={setTo} />
         {categories ? (
           <label className="text-xs font-medium text-muted">
             Category

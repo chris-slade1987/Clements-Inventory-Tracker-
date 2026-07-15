@@ -96,3 +96,10 @@ textarea::placeholder { color: #94a3b8 !important; }
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Date fields with a custom calendar button hide the default browser icon so
+   there aren't two calendar affordances. The whole field opens the picker. */
+input[type="date"].date-clean::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}

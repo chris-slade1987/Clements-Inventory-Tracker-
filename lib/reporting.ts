@@ -106,6 +106,91 @@ export async function warehouseMetrics(
   return metrics;
 }
 
+export type WarehouseProductRow = {
+  productId: string;
+  name: string;
+  unit: string;
+  purchasedQty: number;
+  purchasedValue: number;
+  dispersedQty: number;
+  dispersedValue: number;
+  onHandQty: number;
+};
+
+/**
+ * Per-warehouse, per-product breakdown for the warehouse summary. Each product
+ * line shows what came in (purchased qty + $) and went out (dispersed qty + $)
+ * this window, plus current on-hand. Purchased/dispersed respect the date
+ * range; on-hand is current. Dispersed $ is valued at the product's cost.
+ */
+export async function warehouseProductBreakdown(
+  f: ReportFilters,
+  cost: Map<string, number>
+): Promise<Map<string, WarehouseProductRow[]>> {
+  const df = dateWhere(f);
+  const byWh = new Map<string, Map<string, WarehouseProductRow>>();
+  const ensure = (w: string, p: string) => {
+    if (!byWh.has(w)) byWh.set(w, new Map());
+    const inner = byWh.get(w)!;
+    if (!inner.has(p))
+      inner.set(p, { productId: p, name: "", unit: "", purchasedQty: 0, purchasedValue: 0, dispersedQty: 0, dispersedValue: 0, onHandQty: 0 });
+    return inner.get(p)!;
+  };
+
+  // PURCHASED — confirmed invoice lines.
+  const invLines = await prisma.invoiceLine.findMany({
+    where: {
+      productId: f.productId ?? undefined,
+      product: productFilter(f),
+      invoice: { status: "confirmed", warehouseId: f.warehouseId ?? undefined, ...(df ? { invoiceDate: df } : {}) },
+    },
+    select: { productId: true, quantity: true, unitPrice: true, lineTotal: true, invoice: { select: { warehouseId: true } } },
+  });
+  for (const l of invLines) {
+    if (!l.productId) continue; // unmatched invoice lines aren't stocked
+    const r = ensure(l.invoice.warehouseId, l.productId);
+    r.purchasedQty += l.quantity;
+    r.purchasedValue += l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+  }
+
+  // DISPERSED — check_out movements (stored negative).
+  const outs = await prisma.stockMovement.groupBy({
+    by: ["warehouseId", "productId"],
+    where: { type: "check_out", productId: f.productId ?? undefined, product: productFilter(f), warehouseId: f.warehouseId ?? undefined, ...(df ? { createdAt: df } : {}) },
+    _sum: { quantity: true },
+  });
+  for (const o of outs) {
+    const r = ensure(o.warehouseId, o.productId);
+    const q = -(o._sum.quantity ?? 0);
+    r.dispersedQty += q;
+    r.dispersedValue += q * (cost.get(o.productId) ?? 0);
+  }
+
+  // ON-HAND — current (all movement types).
+  const onHand = await prisma.stockMovement.groupBy({
+    by: ["warehouseId", "productId"],
+    where: { productId: f.productId ?? undefined, product: productFilter(f), warehouseId: f.warehouseId ?? undefined },
+    _sum: { quantity: true },
+  });
+  for (const h of onHand) ensure(h.warehouseId, h.productId).onHandQty += h._sum.quantity ?? 0;
+
+  // Resolve names/units and drop empty rows.
+  const pids = new Set<string>();
+  for (const inner of byWh.values()) for (const pid of inner.keys()) pids.add(pid);
+  const products = await prisma.product.findMany({ where: { id: { in: [...pids] } }, select: { id: true, name: true, unitOfMeasure: true } });
+  const pById = new Map(products.map((p) => [p.id, p]));
+
+  const out = new Map<string, WarehouseProductRow[]>();
+  for (const [w, inner] of byWh) {
+    const rows = [...inner.values()]
+      .map((r) => ({ ...r, name: pById.get(r.productId)?.name ?? "Unknown", unit: pById.get(r.productId)?.unitOfMeasure ?? "" }))
+      .filter((r) => r.purchasedQty > 0 || Math.abs(r.dispersedQty) > 1e-6 || Math.abs(r.onHandQty) > 1e-6)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    out.set(w, rows);
+  }
+  return out;
+}
+
 export type ProductRow = {
   productId: string;
   name: string;

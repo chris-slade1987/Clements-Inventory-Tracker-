@@ -9,11 +9,13 @@ import {
   productCostMap,
   purchasedDollarsByWarehouse,
   warehouseMetrics,
+  warehouseProductBreakdown,
 } from "@/lib/reporting";
 import { money, qty } from "@/lib/format";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import FilterBar from "@/components/FilterBar";
 import GroupedBarChart from "@/components/GroupedBarChart";
+import WarehouseBreakdown from "@/components/WarehouseBreakdown";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +29,7 @@ export default async function ReportsPage({
   const filters = parseFilters(sp);
 
   const cost = await productCostMap();
-  const [warehouses, products, metrics, productRows, purch$, disp$, onHand$] =
+  const [warehouses, products, metrics, productRows, purch$, disp$, onHand$, breakdown] =
     await Promise.all([
       prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
       prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -36,6 +38,7 @@ export default async function ReportsPage({
       purchasedDollarsByWarehouse(filters.from ?? new Date(0), filters.to),
       dispersedValueByWarehouse(filters.from ?? new Date(0), filters.to, cost),
       onHandValueByWarehouse(cost),
+      warehouseProductBreakdown(filters, cost),
     ]);
 
   const shownWarehouses = filters.warehouseId
@@ -69,18 +72,6 @@ export default async function ReportsPage({
     return { label: w.name.replace(" (HQ)", ""), values };
   });
 
-  const totals = shownWarehouses.reduce(
-    (acc, w) => {
-      const m = metrics.get(w.id);
-      acc.purchasedQty += m?.purchasedQty ?? 0;
-      acc.purchasedValue += m?.purchasedValue ?? 0;
-      acc.dispersedQty += m?.dispersedQty ?? 0;
-      acc.onHandQty += m?.onHandQty ?? 0;
-      return acc;
-    },
-    { purchasedQty: 0, purchasedValue: 0, dispersedQty: 0, onHandQty: 0 }
-  );
-
   return (
     <>
       <PageHeader
@@ -107,45 +98,16 @@ export default async function ReportsPage({
         <GroupedBarChart groups={chartGroups} series={chartSeries} formatValue={chartFormat} />
       </Card>
 
-      {/* Warehouse summary */}
+      {/* Warehouse summary — per-branch with a product-level breakdown */}
       <Card className="p-0 overflow-hidden mb-6">
-        <div className="px-4 py-3 border-b border-line">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-ink">Warehouse summary</h2>
+          <span className="text-xs text-muted">Click a branch to expand its products · $ in = purchased, $ out = dispersed</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-muted border-b border-line">
-                <th className="px-4 py-2 font-medium">Warehouse</th>
-                <th className="px-4 py-2 font-medium text-right">Purchased</th>
-                <th className="px-4 py-2 font-medium text-right">Purchased $</th>
-                <th className="px-4 py-2 font-medium text-right">Dispersed</th>
-                <th className="px-4 py-2 font-medium text-right">On-hand</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shownWarehouses.map((w) => {
-                const m = metrics.get(w.id);
-                return (
-                  <tr key={w.id} className="border-b border-line">
-                    <td className="px-4 py-2">{w.name}</td>
-                    <td className="px-4 py-2 text-right tabular-nums">{qty(m?.purchasedQty ?? 0)}</td>
-                    <td className="px-4 py-2 text-right tabular-nums">{money(m?.purchasedValue ?? 0)}</td>
-                    <td className="px-4 py-2 text-right tabular-nums">{qty(m?.dispersedQty ?? 0)}</td>
-                    <td className="px-4 py-2 text-right tabular-nums font-medium">{qty(m?.onHandQty ?? 0)}</td>
-                  </tr>
-                );
-              })}
-              <tr className="bg-slate-50 font-semibold">
-                <td className="px-4 py-2">Total</td>
-                <td className="px-4 py-2 text-right tabular-nums">{qty(totals.purchasedQty)}</td>
-                <td className="px-4 py-2 text-right tabular-nums">{money(totals.purchasedValue)}</td>
-                <td className="px-4 py-2 text-right tabular-nums">{qty(totals.dispersedQty)}</td>
-                <td className="px-4 py-2 text-right tabular-nums">{qty(totals.onHandQty)}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <WarehouseBreakdown
+          warehouses={shownWarehouses.map((w) => ({ id: w.id, name: w.name }))}
+          data={Object.fromEntries(shownWarehouses.map((w) => [w.id, breakdown.get(w.id) ?? []]))}
+        />
       </Card>
 
       {/* On-hand by product */}
