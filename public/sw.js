@@ -3,7 +3,7 @@
 // when online), falling back to a cached app shell when offline. Static assets
 // are cached on first use (stale-while-revalidate).
 
-const CACHE = "clements-cc-v1";
+const CACHE = "clements-cc-v3";
 const APP_SHELL = ["/dashboard", "/offline"];
 
 self.addEventListener("install", (event) => {
@@ -48,16 +48,36 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Content-hashed, immutable build assets are safe to serve cache-first (a new
+  // deploy ships new filenames, so this never goes stale).
+  const immutable =
+    url.pathname.startsWith("/_next/static/") ||
+    /\.(?:js|css|woff2?|png|svg|ico|webp|jpe?g)$/.test(url.pathname);
+
+  if (immutable) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) =>
+          cached ||
+          fetch(request).then((res) => {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy));
+            return res;
+          })
+      )
+    );
+    return;
+  }
+
+  // Everything else (RSC payloads, dynamic data) — network-first so a new
+  // deploy is picked up immediately; fall back to cache only when offline.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy));
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(request, copy));
+        return res;
+      })
+      .catch(() => caches.match(request))
   );
 });
