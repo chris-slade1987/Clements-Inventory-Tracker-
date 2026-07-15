@@ -174,6 +174,12 @@ export const FLEET_NAV: NavItem[] = [
     shortLabel: "Service",
     icon: "M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.6 2.6-2-2 2.6-2.6z",
   },
+  {
+    href: "/fleet/documents",
+    label: "Document Center",
+    shortLabel: "Docs",
+    icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
+  },
 ];
 
 // Back-compat: default export used by older imports.

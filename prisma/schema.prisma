@@ -372,9 +372,53 @@ model Vehicle {
 
   services    VehicleService[]
   inspections VehicleInspection[]
+  documents   VehicleDocument[]
 
   @@index([branch])
   @@map("vehicles")
+}
+
+// A document attached to a vehicle profile — insurance policy, registration,
+// title, etc. Uploaded through the Document Center, where the AI reads it and
+// proposes where it should be filed (which vehicle + category) before the user
+// confirms. Expiration dates drive renewal reminders to HR.
+model VehicleDocument {
+  id        String  @id @default(cuid())
+  vehicleId String? @map("vehicle_id") // null until filed / confirmed
+  category  String  @default("other") // "insurance" | "registration" | "title" | "inspection" | "other"
+  title     String
+  fileName  String  @map("file_name")
+  filePath  String? @map("file_path")
+  fileSize  Int?    @map("file_size")
+  mimeType  String? @map("mime_type")
+
+  // Extracted / entered metadata.
+  insurer        String?
+  policyNumber   String?   @map("policy_number")
+  effectiveDate  DateTime? @map("effective_date")
+  expirationDate DateTime? @map("expiration_date")
+  notes          String?
+
+  // AI routing suggestion (kept for transparency after filing).
+  aiSummary            String? @map("ai_summary")
+  aiSuggestedVehicleId String? @map("ai_suggested_vehicle_id")
+  aiSuggestedCategory  String? @map("ai_suggested_category")
+  status               String  @default("pending") // "pending" (awaiting confirm) | "filed"
+
+  // Renewal reminders → HR.
+  remindHr       Boolean   @default(true) @map("remind_hr")
+  lastReminderAt DateTime? @map("last_reminder_at")
+
+  uploadedByUserId String?  @map("uploaded_by_user_id")
+  uploadedByName   String?  @map("uploaded_by_name")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([status])
+  @@index([expirationDate])
+  @@map("vehicle_documents")
 }
 
 model VehicleService {

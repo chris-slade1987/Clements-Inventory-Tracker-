@@ -130,6 +130,51 @@ export async function remindReviewSignatures() {
   return { candidates: pending.length, emailed: sent };
 }
 
+/**
+ * Vehicle-document renewals (insurance, registration). Emails HR when a filed
+ * document with remindHr is within 45 days of expiring (or already expired),
+ * once per day, and files an Alert.
+ */
+export async function remindVehicleDocs() {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const cutoff = new Date(now.getTime() + 45 * 864e5);
+  const docs = await prisma.vehicleDocument.findMany({
+    where: {
+      status: "filed",
+      remindHr: true,
+      expirationDate: { not: null, lte: cutoff },
+      OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }],
+    },
+    include: { vehicle: { select: { unitNumber: true, name: true, branch: true } } },
+  });
+  let sent = 0;
+  for (const d of docs) {
+    const exp = d.expirationDate!;
+    const overdue = exp < now;
+    const veh = d.vehicle ? `${d.vehicle.unitNumber ? `#${d.vehicle.unitNumber} ` : ""}${d.vehicle.name}` : "a vehicle";
+    const b = d.vehicle?.branch ? ` (${branchLabel(d.vehicle.branch)})` : "";
+    const cat = d.category === "registration" ? "registration" : d.category === "insurance" ? "insurance" : "document";
+    await prisma.alert.upsert({
+      where: { dedupeKey: `doc_renewal:${d.id}` },
+      create: { dedupeKey: `doc_renewal:${d.id}`, type: "doc_renewal", severity: overdue ? "critical" : "warning", status: "open", message: `${veh}${b}: ${cat} "${d.title}" ${overdue ? "expired" : "renews"} ${exp.toLocaleDateString()}.` },
+      update: {},
+    });
+    const res = await sendEmail({
+      to: await getHrEmail(),
+      subject: `${overdue ? "Expired" : "Renewal due"}: ${d.title} — ${veh}`,
+      kind: "doc_renewal",
+      relatedType: "vehicle_document",
+      relatedId: d.id,
+      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— Clements Command & Control`,
+      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— Clements Command &amp; Control</p>`,
+    });
+    await prisma.vehicleDocument.update({ where: { id: d.id }, data: { lastReminderAt: now } });
+    if (res.status === "sent") sent++;
+  }
+  return { candidates: docs.length, emailed: sent };
+}
+
 /** Email signers with an outstanding signature request — starts 24h out, then daily. */
 export async function remindSignatures() {
   const now = new Date();

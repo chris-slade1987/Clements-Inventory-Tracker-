@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { remindTraining, remindSignatures, remindReviewSignatures, scheduleNewHireReviews } from "@/lib/jobs";
+import { remindTraining, remindSignatures, remindReviewSignatures, remindVehicleDocs, scheduleNewHireReviews } from "@/lib/jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -16,9 +16,10 @@ async function run(req: Request) {
   }
   const reviews = await scheduleNewHireReviews();
   const reviewSignatures = await remindReviewSignatures();
+  const vehicleDocs = await remindVehicleDocs();
   const training = await remindTraining();
   const signatures = await remindSignatures();
-  return NextResponse.json({ ok: true, ranAt: new Date().toISOString(), reviews, reviewSignatures, training, signatures });
+  return NextResponse.json({ ok: true, ranAt: new Date().toISOString(), reviews, reviewSignatures, vehicleDocs, training, signatures });
 }
 
 export async function GET(req: Request) {
