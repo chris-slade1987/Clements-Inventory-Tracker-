@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import { listPosts, calendarFeed, canPostBulletin, postTypeLabel, type BulletinTile, type CalendarItem } from "@/lib/bulletin";
 import { NewPostButton, NewEventButton, DeletePost, PinPost } from "./BulletinClient";
+import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Company Bulletin — Clements Command & Control" };
@@ -19,13 +20,13 @@ const ACCENT: Record<string, { grad: string; chip: string }> = {
   event: { grad: "from-sky-800 to-cyan-600", chip: "bg-sky-100 text-sky-800" },
 };
 
-const KIND_STYLE: Record<string, { dot: string; icon: string }> = {
-  holiday: { dot: "bg-emerald-500", icon: "🏖️" },
-  closure: { dot: "bg-red-500", icon: "🔒" },
-  early_release: { dot: "bg-amber-500", icon: "⏰" },
-  event: { dot: "bg-sky-500", icon: "📅" },
-  birthday: { dot: "bg-fuchsia-500", icon: "🎂" },
-  anniversary: { dot: "bg-violet-500", icon: "🎉" },
+const KIND_STYLE: Record<string, { color: string; icon: string }> = {
+  holiday: { color: "text-emerald-600", icon: "sun" },
+  closure: { color: "text-red-600", icon: "lock" },
+  early_release: { color: "text-amber-600", icon: "clock" },
+  event: { color: "text-sky-600", icon: "calendar" },
+  birthday: { color: "text-fuchsia-600", icon: "cake" },
+  anniversary: { color: "text-violet-600", icon: "award" },
 };
 
 export default async function BulletinPage() {
@@ -115,7 +116,7 @@ function Tile({ p, author, featured = false }: { p: BulletinTile; author: boolea
         <h3 className={`font-semibold text-white text-balance ${featured ? "text-xl" : "text-lg"} leading-snug`}>{p.title}</h3>
         {p.excerpt ? <p className="mt-1 text-sm text-white/85 line-clamp-2">{p.excerpt}</p> : null}
         <div className="mt-2 flex items-center gap-2 text-[11px] text-white/70">
-          {p.honoreeName ? <span>👏 {p.honoreeName}</span> : null}
+          {p.honoreeName ? <span className="inline-flex items-center gap-1"><Glyph name="star" className="h-3 w-3" /> {p.honoreeName}</span> : null}
           {p.branch ? <span>{branchLabel(p.branch)}</span> : null}
           {p.authorName ? <span>· {p.authorName}</span> : null}
         </div>
@@ -148,9 +149,9 @@ function CalendarRow({ it }: { it: CalendarItem }) {
       <div className="w-12 shrink-0 text-center">
         <div className="text-[11px] font-semibold text-ink tabular-nums">{fmtDay(it.date)}</div>
       </div>
-      <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${st.dot}`} />
+      <span className={`mt-0.5 shrink-0 ${st.color}`}><Glyph name={st.icon} className="h-4 w-4" /></span>
       <div className="min-w-0 flex-1">
-        <div className="text-sm text-ink leading-snug">{st.icon} {it.title}</div>
+        <div className="text-sm text-ink leading-snug">{it.title}</div>
         <div className="text-[11px] text-muted">
           {it.kind === "birthday" || it.kind === "anniversary" ? "" : it.kind.replace("_", " ")}
           {it.timeLabel ? ` · ${it.timeLabel}` : ""}

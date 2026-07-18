@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listPosts } from "@/lib/bulletin";
+import Glyph from "@/components/Glyph";
 
 // A "stay informed" banner + tile preview that links into the Company Bulletin.
 // Dropped on the tech and manager landing pages so the latest news greets people
@@ -12,7 +13,7 @@ export default async function BulletinBanner() {
     <Link href="/bulletin" className="group mb-5 block">
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-forest-grad text-white shadow-lg shadow-black/10">
         <div className="flex items-center gap-4 p-4 sm:p-5">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 text-2xl">📣</div>
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 text-mint"><Glyph name="megaphone" className="h-6 w-6" /></div>
           <div className="min-w-0 flex-1">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">Company Bulletin</div>
             <div className="font-semibold text-white">Stay informed on all the news</div>

@@ -5,6 +5,7 @@ import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
 import BulletinBanner from "@/components/BulletinBanner";
+import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ function RoutineChecklist() {
       <ul className="divide-y divide-line">
         {TECH_ROUTINES.map((r) => (
           <li key={r.key} className="flex items-start gap-3 px-4 py-3">
-            <span className="mt-0.5 text-lg leading-none">{r.icon}</span>
+            <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"><Glyph name={r.icon} className="h-4 w-4" /></span>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-medium text-ink">{r.label}</div>
               {r.detail ? <div className="text-xs text-muted">{r.detail}</div> : null}
@@ -125,7 +126,7 @@ export default async function MyWorkPage() {
           <Link href="/me/library" className="text-xs font-medium text-brand-300 hover:underline">Lesson library →</Link>
         </div>
         {open.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up. 🎉</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up.</p>
         ) : (
           <ul className="divide-y divide-line">
             {open.map((a) => {

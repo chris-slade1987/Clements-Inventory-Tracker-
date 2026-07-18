@@ -13,6 +13,7 @@ export type Routine = {
   detail?: string;
   /** Optional link — e.g. the CEU routine points at the lesson library. */
   href?: string;
+  /** Glyph name from components/Glyph. */
   icon: string;
 };
 
@@ -24,9 +25,9 @@ export const CADENCE_LABEL: Record<Cadence, string> = {
 };
 
 export const TECH_ROUTINES: Routine[] = [
-  { key: "vehicle_cleaning", label: "Weekly vehicle cleaning", cadence: "weekly", detail: "Wash the exterior and clean out the cab & bed of your assigned truck.", icon: "🚚" },
-  { key: "monthly_ceu", label: "Monthly CEU course", cadence: "monthly", detail: "Complete this month's continuing-education lesson in your training.", href: "/me/library", icon: "🎓" },
-  { key: "vehicle_inspection", label: "Monthly vehicle inspection", cadence: "monthly", detail: "Walk-around inspection — tires, lights, fluids, equipment.", icon: "🔧" },
-  { key: "equipment_check", label: "Equipment & PPE check", cadence: "weekly", detail: "Confirm sprayers, safety gear, and PPE are stocked and in good shape.", icon: "🦺" },
+  { key: "vehicle_cleaning", label: "Weekly vehicle cleaning", cadence: "weekly", detail: "Wash the exterior and clean out the cab & bed of your assigned truck.", icon: "truck" },
+  { key: "monthly_ceu", label: "Monthly CEU course", cadence: "monthly", detail: "Complete this month's continuing-education lesson in your training.", href: "/me/library", icon: "cap" },
+  { key: "vehicle_inspection", label: "Monthly vehicle inspection", cadence: "monthly", detail: "Walk-around inspection — tires, lights, fluids, equipment.", icon: "wrench" },
+  { key: "equipment_check", label: "Equipment & PPE check", cadence: "weekly", detail: "Confirm sprayers, safety gear, and PPE are stocked and in good shape.", icon: "shield" },
   // Add more routine to-dos here as they're defined.
 ];

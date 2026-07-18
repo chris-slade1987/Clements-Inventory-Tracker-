@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import { postDetail, postTypeLabel, canPostBulletin } from "@/lib/bulletin";
 import { EditPostButton } from "../BulletinClient";
+import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
 
@@ -47,10 +48,10 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
 
           {post.eventDate ? (
             <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-sm text-sky-800">
-              📅 {fmt(post.eventDate)}{post.location ? ` · ${post.location}` : ""}
+              <Glyph name="calendar" className="h-4 w-4" /> {fmt(post.eventDate)}{post.location ? ` · ${post.location}` : ""}
             </div>
           ) : null}
-          {post.honoreeName ? <div className="mt-2 text-sm text-violet-700">👏 Celebrating {post.honoreeName}</div> : null}
+          {post.honoreeName ? <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-violet-700"><Glyph name="star" className="h-4 w-4" /> Celebrating {post.honoreeName}</div> : null}
 
           {post.body ? (
             <div className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-ink/90">{post.body}</div>

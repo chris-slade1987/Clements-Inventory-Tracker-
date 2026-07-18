@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
+import Glyph from "@/components/Glyph";
 
 const inp = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface";
 
@@ -193,7 +194,7 @@ export function PinPost({ id, pinned }: { id: string; pinned: boolean }) {
     await fetch("/api/bulletin/post", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "pin", id }) });
     router.refresh();
   }
-  return <button onClick={toggle} title={pinned ? "Unfeature" : "Feature"} className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white text-xs hover:bg-black/65">{pinned ? "★" : "☆"}</button>;
+  return <button onClick={toggle} title={pinned ? "Unfeature" : "Feature"} className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white hover:bg-black/65"><Glyph name="star" filled={pinned} className="h-3.5 w-3.5" /></button>;
 }
 export function DeletePost({ id }: { id: string }) {
   const router = useRouter();
@@ -202,5 +203,5 @@ export function DeletePost({ id }: { id: string }) {
     await fetch("/api/bulletin/post", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete", id }) });
     router.refresh();
   }
-  return <button onClick={del} title="Delete" className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white text-xs hover:bg-red-600">🗑</button>;
+  return <button onClick={del} title="Delete" className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white hover:bg-red-600"><Glyph name="trash" className="h-3.5 w-3.5" /></button>;
 }
