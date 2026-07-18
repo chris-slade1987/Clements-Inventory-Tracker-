@@ -83,7 +83,13 @@ const REFERENCE_DOCS: { branch: string; category: string; title: string; file?: 
 ];
 
 export async function seedBranchHub(prisma: PrismaClient) {
-  let created = 0;
+  let created = 0, updated = 0;
+
+  // Only seed-owned rows are reconciled; a doc a manager uploaded or edited
+  // (uploadedByName != "Seed") is never touched. An already-stored PDF is
+  // reused so a reconcile never re-uploads the same file.
+  const isSeed = (row: { uploadedByName: string | null } | null) => !row || row.uploadedByName === "Seed";
+
   for (const l of LICENSES) {
     const emp = await prisma.employee.findFirst({ where: { name: l.employeeName } });
     // Some holders (Chris, Tim) have a null home branch — set it as noted.
@@ -91,56 +97,71 @@ export async function seedBranchHub(prisma: PrismaClient) {
 
     const short = l.employeeName.replace("Christopher", "Chris").replace("Timothy", "Tim");
     const title = `CPO License — ${short}`;
+    // Key a numbered cert on its license number GLOBALLY (a cert # is unique
+    // regardless of branch). So when a holder is assigned to the branch they
+    // actually certify — e.g. Chris moving Vero → Naples — the existing row is
+    // updated in place instead of leaving a stale duplicate on the old branch.
     const existing = l.number
-      ? await prisma.branchDocument.findFirst({ where: { branch: l.branch, licenseNumber: l.number } })
-      : await prisma.branchDocument.findFirst({ where: { branch: l.branch, category: "licensing", holderName: l.employeeName } });
-    const filePath = l.file ? await storePdf(l.file) : null;
+      ? await prisma.branchDocument.findFirst({ where: { category: "licensing", licenseType: "cpo", licenseNumber: l.number } })
+      : await prisma.branchDocument.findFirst({ where: { category: "licensing", licenseType: "cpo", holderName: l.employeeName } });
+    if (existing && !isSeed(existing)) continue; // manager owns this row
+    const filePath = existing?.filePath ?? (l.file ? await storePdf(l.file) : null);
     const data = {
       branch: l.branch, category: "licensing", title, employeeId: emp?.id ?? null, holderName: l.employeeName,
       licenseType: "cpo", licenseNumber: l.number ?? null, categories: l.categories ?? null,
       issueDate: l.issue ? D(l.issue) : null, expirationDate: l.expiration ? D(l.expiration) : null,
-      fileName: l.file ?? null, filePath, mimeType: l.file ? "application/pdf" : null, notes: l.notes ?? null, uploadedByName: "Seed",
+      fileName: l.file ?? existing?.fileName ?? null, filePath, mimeType: filePath ? "application/pdf" : null, notes: l.notes ?? null, uploadedByName: "Seed",
     };
-    if (existing) await prisma.branchDocument.update({ where: { id: existing.id }, data });
+    if (existing) { await prisma.branchDocument.update({ where: { id: existing.id }, data }); updated++; }
     else { await prisma.branchDocument.create({ data }); created++; }
   }
 
-  // FDACS business license per branch.
+  // Remove any stale seed-owned CPO rows whose cert # is no longer canonical
+  // (e.g. an old branch-scoped duplicate left by an earlier seed run).
+  const keepNumbers = LICENSES.map((l) => l.number).filter(Boolean) as string[];
+  await prisma.branchDocument.deleteMany({
+    where: { category: "licensing", licenseType: "cpo", uploadedByName: "Seed", NOT: { licenseNumber: { in: keepNumbers } } },
+  });
+
+  // FDACS business license per branch (keyed by number, globally).
   for (const b of BUSINESS_LICENSES) {
+    const existing = await prisma.branchDocument.findFirst({ where: { category: "licensing", licenseType: "business", licenseNumber: b.number } });
+    if (existing && !isSeed(existing)) continue;
     const data = {
       branch: b.branch, category: "licensing", title: "FDACS Business License", licenseType: "business",
       licenseNumber: b.number, expirationDate: D(b.expiration), uploadedByName: "Seed",
     };
-    const existing = await prisma.branchDocument.findFirst({ where: { branch: b.branch, licenseNumber: b.number } });
-    if (existing) await prisma.branchDocument.update({ where: { id: existing.id }, data });
+    if (existing) { await prisma.branchDocument.update({ where: { id: existing.id }, data }); updated++; }
     else { await prisma.branchDocument.create({ data }); created++; }
   }
 
-  // Leases.
+  // Leases (keyed by branch + title).
   for (const l of LEASES) {
-    const filePath = l.file ? await storePdf(l.file) : null;
+    const existing = await prisma.branchDocument.findFirst({ where: { branch: l.branch, category: "lease", title: l.title } });
+    if (existing && !isSeed(existing)) continue;
+    const filePath = existing?.filePath ?? (l.file ? await storePdf(l.file) : null);
     const data = {
       branch: l.branch, category: l.category ?? "lease", title: l.title, landlord: l.landlord ?? null,
       monthlyRent: l.monthlyRent ?? null, rentAsOf: l.monthlyRent != null ? D("2026-07-01") : null,
       leaseStart: l.leaseStart ? D(l.leaseStart) : null, leaseEnd: l.leaseEnd ? D(l.leaseEnd) : null,
-      fileName: l.file ?? null, filePath, mimeType: l.file ? "application/pdf" : null, notes: l.notes ?? null, uploadedByName: "Seed",
+      fileName: l.file ?? existing?.fileName ?? null, filePath, mimeType: filePath ? "application/pdf" : null, notes: l.notes ?? null, uploadedByName: "Seed",
     };
-    const existing = await prisma.branchDocument.findFirst({ where: { branch: l.branch, category: "lease", title: l.title } });
-    if (existing) await prisma.branchDocument.update({ where: { id: existing.id }, data });
+    if (existing) { await prisma.branchDocument.update({ where: { id: existing.id }, data }); updated++; }
     else { await prisma.branchDocument.create({ data }); created++; }
   }
 
-  // Reference / supporting docs.
+  // Reference / supporting docs (keyed by branch + title).
   for (const r of REFERENCE_DOCS) {
-    const filePath = r.file ? await storePdf(r.file) : null;
-    const data = { branch: r.branch, category: r.category, title: r.title, fileName: r.file ?? null, filePath, mimeType: r.file ? "application/pdf" : null, notes: r.notes ?? null, uploadedByName: "Seed" };
     const existing = await prisma.branchDocument.findFirst({ where: { branch: r.branch, title: r.title } });
-    if (existing) await prisma.branchDocument.update({ where: { id: existing.id }, data });
+    if (existing && !isSeed(existing)) continue;
+    const filePath = existing?.filePath ?? (r.file ? await storePdf(r.file) : null);
+    const data = { branch: r.branch, category: r.category, title: r.title, fileName: r.file ?? existing?.fileName ?? null, filePath, mimeType: filePath ? "application/pdf" : null, notes: r.notes ?? null, uploadedByName: "Seed" };
+    if (existing) { await prisma.branchDocument.update({ where: { id: existing.id }, data }); updated++; }
     else { await prisma.branchDocument.create({ data }); created++; }
   }
 
-  console.log(`Seeded branch hub: ${created} documents created (${LICENSES.length} operators + ${BUSINESS_LICENSES.length} business licenses + ${LEASES.length} leases + ${REFERENCE_DOCS.length} refs).`);
-  return { created, total: LICENSES.length + BUSINESS_LICENSES.length + LEASES.length + REFERENCE_DOCS.length };
+  console.log(`Branch hub reconciled: ${created} created, ${updated} updated (${LICENSES.length} operators + ${BUSINESS_LICENSES.length} business licenses + ${LEASES.length} leases + ${REFERENCE_DOCS.length} refs).`);
+  return { created, updated, total: LICENSES.length + BUSINESS_LICENSES.length + LEASES.length + REFERENCE_DOCS.length };
 }
 
 if (process.argv[1] && process.argv[1].includes("seed-branch")) {

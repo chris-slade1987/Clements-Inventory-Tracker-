@@ -129,3 +129,38 @@ you provide an email provider**. Until then every send is recorded in the
 ### 3. Notification recipients (optional)
 Defaults resolve to the seeded company addresses. Override with `HR_EMAIL`,
 `FIELD_OPS_EMAIL`, `COO_EMAIL`, `OWNER_EMAIL` if they change.
+
+---
+
+## ⚠️ Circle back at go-live: automated spreadsheet feeds
+
+Some data comes from live Google Sheets that auto-refresh from an outside system
+(today: **Sales Center**, via the sheet's hourly API feed). These feeds **cannot
+be tested from the dev sandbox** — its network blocks `docs.google.com` — so they
+only come alive once the app is deployed on Vercel **and** the sheet is shared.
+Run this checklist when the site goes live, and again whenever a new automated
+sheet is added:
+
+### Sales Center (built — needs the sheet shared)
+- [ ] **Share the sheet for reading without a login.** In the Google Sheet →
+  **Share → General access → "Anyone with the link – Viewer"** (or **File →
+  Share → Publish to web**). Until then the app gets a Google login page instead
+  of data and the Sales page shows a "sheet sync error" note.
+- [ ] **(Optional) Pin the sheet URL.** The default is baked in, but you can
+  override it with a `SALES_SHEET_URL` env var or a `sales_sheet_url` row in the
+  `Setting` table (env wins). Use this to point at a different workbook/tab
+  (`export?format=csv&gid=<tab-gid>`).
+- [ ] **Set `CRON_SECRET`** (same one as the daily cron above). `vercel.json`
+  already declares the hourly job `/api/cron/sales-sync`; Vercel sends the secret
+  as a bearer token and the endpoint rejects anything else.
+- [ ] **Verify.** After deploy, open **Management → Sales & Attrition** and click
+  **Sync now** (admin/manager). You should see the live tiles populate (MTD/QTD/
+  YTD close rates, by-branch, reps, sources). The hourly cron keeps it fresh.
+
+### Pattern for future automated sheets
+When wiring another auto-updating spreadsheet (e.g. a finance or ops feed), reuse
+the Sales Center shape: a `lib/*-sync.ts` reader (CSV export URL + parser + a
+`*Snapshot` table), an admin-triggered `POST /api/.../sync` route, and a
+`vercel.json` cron guarded by `CRON_SECRET`. **Each new sheet must be shared
+"Anyone with the link – Viewer" before its feed will work in production** — add
+it to this checklist when you build it.

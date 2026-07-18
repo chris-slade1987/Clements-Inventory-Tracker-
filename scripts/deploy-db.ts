@@ -125,15 +125,14 @@ async function main() {
       console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
     }
 
-    // Seed branch hub (certified operator licenses) only when empty.
-    const branchDocs = await prisma.branchDocument.count();
-    if (branchDocs === 0) {
-      const { seedBranchHub } = await import("../prisma/seed-branch");
-      const bh = await seedBranchHub(prisma);
-      console.log(`deploy-db: seeded branch hub (${bh.total} licenses).`);
-    } else {
-      console.log(`deploy-db: branch documents present (${branchDocs}) — left as-is.`);
-    }
+    // Reconcile the branch hub on every deploy. seedBranchHub is idempotent and
+    // self-healing: it keys CPO/business licenses by license number globally, so
+    // it repairs an older deploy (a holder assigned to the wrong branch, a
+    // missing operator, or leases added after the first seed) without touching
+    // manager-uploaded docs or re-storing PDFs that are already on file.
+    const { seedBranchHub } = await import("../prisma/seed-branch");
+    const bh = await seedBranchHub(prisma);
+    console.log(`deploy-db: reconciled branch hub (${bh.created} created, ${bh.updated} updated).`);
 
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
