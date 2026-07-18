@@ -9,6 +9,7 @@ import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import RemindersCard from "@/components/RemindersCard";
+import ComposeThread from "@/components/ComposeThread";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
@@ -188,8 +189,8 @@ export default async function MyBranchPage({
 function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
   const dot = r.severity === "critical" ? "bg-red-500" : r.severity === "warning" ? "bg-amber-500" : "bg-brand-400";
   return (
-    <li>
-      <Link href={r.href} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+    <li className="flex items-start gap-2 pr-3">
+      <Link href={r.href} className="flex flex-1 items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
         <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} />
         <span className="flex-1">
           <span className="block text-sm font-medium text-ink">
@@ -198,8 +199,14 @@ function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
           </span>
           <span className="block text-xs text-muted">{r.detail}</span>
         </span>
-        <span className="text-muted text-xs mt-0.5">→</span>
       </Link>
+      <div className="shrink-0 self-center">
+        <ComposeThread
+          variant="link"
+          label="Discuss"
+          context={{ type: "reminder", label: r.title, href: r.href, subject: `Re: ${r.title}` }}
+        />
+      </div>
     </li>
   );
 }

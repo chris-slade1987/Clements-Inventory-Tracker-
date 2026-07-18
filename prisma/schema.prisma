@@ -783,6 +783,76 @@ model EmailLog {
 }
 
 // ---------------------------------------------------------------------------
+// Internal discussions. A lightweight threaded message system so managers, HR,
+// management, and employees can discuss an item (a reminder, an alert, an
+// employee, a vehicle — or nothing in particular) inside the app instead of
+// jumping to email. Each participant has their own read state: opening the
+// thread clears their unread "alert". Notifications also go out by email.
+// ---------------------------------------------------------------------------
+model Thread {
+  id      String @id @default(cuid())
+  subject String
+  branch  String?
+  status  String @default("open") // "open" | "resolved"
+
+  // What this thread is about — used to deep-link back to the source item.
+  contextType  String  @default("general") @map("context_type") // "reminder" | "alert" | "employee" | "vehicle" | "general"
+  contextId    String? @map("context_id")
+  contextLabel String? @map("context_label")
+  contextHref  String? @map("context_href")
+
+  createdByUserId String?  @map("created_by_user_id")
+  createdByName   String?  @map("created_by_name")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  participants ThreadParticipant[]
+  messages     ThreadMessage[]
+
+  @@index([status, updatedAt])
+  @@index([branch])
+  @@map("threads")
+}
+
+// A person linked to a thread. `userId` is set when they have a login (so it
+// shows in their in-app inbox); `email` is always kept so email-only recipients
+// (e.g. an employee without a login) still get notified. `lastReadAt` drives the
+// per-person unread badge — null means never opened.
+model ThreadParticipant {
+  id         String    @id @default(cuid())
+  threadId   String    @map("thread_id")
+  userId     String?   @map("user_id")
+  employeeId String?   @map("employee_id")
+  name       String
+  email      String?
+  role       String    @default("member") // "owner" | "member"
+  lastReadAt DateTime? @map("last_read_at")
+  notifyEmail Boolean  @default(true) @map("notify_email")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, userId])
+  @@index([userId, lastReadAt])
+  @@index([threadId])
+  @@map("thread_participants")
+}
+
+model ThreadMessage {
+  id           String   @id @default(cuid())
+  threadId     String   @map("thread_id")
+  authorUserId String?  @map("author_user_id")
+  authorName   String   @map("author_name")
+  body         String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+  @@map("thread_messages")
+}
+
+// ---------------------------------------------------------------------------
 // Quarterly branch audit (Director of Field Ops). A pre-visit prep checklist,
 // the on-site audit form (ride-alongs + facility + personnel), and follow-up
 // action items with deadlines that alert the branch manager.

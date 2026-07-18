@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { Card, btn } from "@/components/ui";
+import ComposeThread from "@/components/ComposeThread";
 
 type Alert = {
   id: string;
@@ -147,6 +148,17 @@ export default function AlertsClient({
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-2">
+                  <ComposeThread
+                    variant="link"
+                    label="Discuss"
+                    context={{
+                      type: "alert",
+                      id: a.id,
+                      label: `${TYPE_LABEL[a.type] ?? a.type}${a.productName ? ` · ${a.productName}` : ""}`,
+                      href: "/alerts",
+                      subject: `Re: ${TYPE_LABEL[a.type] ?? a.type}${a.productName ? ` — ${a.productName}` : ""}`,
+                    }}
+                  />
                   {a.status !== "acknowledged" && a.status !== "dismissed" ? (
                     <button onClick={() => setStatus(a.id, "acknowledged")} className="text-xs font-medium text-brand-700 hover:underline">
                       Acknowledge

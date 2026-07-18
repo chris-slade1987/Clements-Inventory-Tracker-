@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
+import NotificationBell from "@/components/NotificationBell";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -80,11 +81,13 @@ export default function AppShell({
   managerName,
   isAdmin = false,
   isEmployee = false,
+  unread = 0,
 }: {
   children: React.ReactNode;
   managerName?: string;
   isAdmin?: boolean;
   isEmployee?: boolean;
+  unread?: number;
 }) {
   const pathname = usePathname();
   const mode: Mode = pathname.startsWith("/me")
@@ -141,6 +144,7 @@ export default function AppShell({
           })}
         </nav>
         <div className="px-3 pb-2 space-y-1">
+          <NotificationBell initialCount={unread} layout="row" />
           {isAdmin ? (
             <Link href="/manage" className={navClass(isActive(pathname, "/manage"))}>
               <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>
@@ -181,8 +185,10 @@ export default function AppShell({
           <img src="/clements-mark.svg" alt="Clements" className="h-7 w-7 shrink-0" />
           <span className="font-semibold text-white tracking-[0.12em]">CLEMENTS</span>
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
+          <div className="ml-auto flex items-center gap-2">
+          <NotificationBell initialCount={unread} />
           {isAdmin ? (
-            <Link href="/manage" aria-label="Manage" className="ml-auto p-1 text-mint hover:text-white">
+            <Link href="/manage" aria-label="Manage" className="p-1 text-mint hover:text-white">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" />
@@ -192,13 +198,14 @@ export default function AppShell({
           <Link
             href="/help"
             aria-label="Help"
-            className={`${isAdmin ? "" : "ml-auto"} p-1 text-mint hover:text-white`}
+            className="p-1 text-mint hover:text-white"
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>
               <circle cx="12" cy="12" r="9" />
               <path d={HELP} strokeLinecap="round" />
             </svg>
           </Link>
+          </div>
         </header>
 
         <main className="flex-1 px-4 py-5 md:px-8 md:py-8 pb-24 md:pb-8 max-w-5xl w-full mx-auto">
