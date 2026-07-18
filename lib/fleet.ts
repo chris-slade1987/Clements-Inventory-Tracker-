@@ -20,6 +20,7 @@ export type VehicleRow = {
   id: string;
   unitNumber: string | null;
   name: string;
+  year: number | null;
   branch: string | null;
   status: string;
   currentMileage: number | null;
@@ -64,6 +65,7 @@ export async function listVehicles(branch?: string, scope: "active" | "inactive"
       id: v.id,
       unitNumber: v.unitNumber,
       name: v.name,
+      year: v.year ?? null,
       branch: v.branch,
       status: v.status,
       currentMileage: v.currentMileage,

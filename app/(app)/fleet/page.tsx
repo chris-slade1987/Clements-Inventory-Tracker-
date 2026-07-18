@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -29,6 +30,16 @@ export default async function FleetPage({
   const cpmVals = vehicles.map((v) => v.costPerMile).filter((n): n is number => n != null);
   const avgCpm = cpmVals.length ? cpmVals.reduce((s, n) => s + n, 0) / cpmVals.length : null;
   const dueSoon = vehicles.filter((v) => isDueSoon(v));
+
+  // Group the roster by branch (Vero → Stuart → Orlando → Naples), oldest to
+  // newest vehicle within each office.
+  const byYear = (a: (typeof vehicles)[number], b: (typeof vehicles)[number]) =>
+    (a.year ?? Infinity) - (b.year ?? Infinity) || (a.unitNumber ?? "").localeCompare(b.unitNumber ?? "", undefined, { numeric: true });
+  const vehicleGroups: { key: string; label: string; items: typeof vehicles }[] = BRANCHES
+    .map((b) => ({ key: b.key as string, label: b.label as string, items: vehicles.filter((v) => v.branch === b.key).sort(byYear) }))
+    .filter((g) => g.items.length > 0);
+  const unassigned = vehicles.filter((v) => !BRANCHES.some((b) => b.key === v.branch)).sort(byYear);
+  if (unassigned.length) vehicleGroups.push({ key: "none", label: "Unassigned", items: unassigned });
 
   return (
     <>
@@ -126,37 +137,46 @@ export default async function FleetPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {vehicles.map((v) => {
-                    const due = v.status === "active" && isDueSoon(v);
-                    return (
-                      <tr key={v.id} className={`border-b border-line last:border-0 ${v.status !== "active" ? "opacity-50" : ""}`}>
-                        <td className="px-4 py-2">
-                          <Link href={`/fleet/${v.id}`} className="font-medium text-brand-700 hover:underline">
-                            {v.unitNumber ? `${v.unitNumber} · ` : ""}{v.name}
-                          </Link>
-                          {v.status !== "active" ? <span className="ml-2 text-[10px] uppercase text-muted">retired</span> : null}
-                        </td>
-                        <td className="px-3 py-2 text-muted">{v.branch ? branchLabel(v.branch) : "—"}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{v.currentMileage != null ? v.currentMileage.toLocaleString() : "—"}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{money(v.ytdCost)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{money(v.totalCost)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{v.costPerMile == null ? "—" : `$${v.costPerMile.toFixed(3)}`}</td>
-                        <td className="px-3 py-2">
-                          {v.hasLoan ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                              {v.monthlyPayment != null ? `${money(v.monthlyPayment)}/mo` : "Loan"}
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-muted">Owned</span>
-                          )}
-                        </td>
-                        <td className={`px-3 py-2 ${due ? "text-amber-600 font-medium" : "text-muted"}`}>
-                          {v.nextDueDate ? dateShort(v.nextDueDate) : v.nextDueMileage != null ? `${v.nextDueMileage.toLocaleString()} mi` : "—"}
-                          {due ? " · due" : ""}
+                  {vehicleGroups.map((g) => (
+                    <Fragment key={g.key}>
+                      <tr>
+                        <td colSpan={8} className="bg-black/[0.03] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                          {g.label} · {g.items.length}
                         </td>
                       </tr>
-                    );
-                  })}
+                      {g.items.map((v) => {
+                        const due = v.status === "active" && isDueSoon(v);
+                        return (
+                          <tr key={v.id} className={`border-b border-line last:border-0 ${v.status !== "active" ? "opacity-50" : ""}`}>
+                            <td className="px-4 py-2">
+                              <Link href={`/fleet/${v.id}`} className="font-medium text-brand-700 hover:underline">
+                                {v.unitNumber ? `${v.unitNumber} · ` : ""}{v.name}
+                              </Link>
+                              {v.status !== "active" ? <span className="ml-2 text-[10px] uppercase text-muted">retired</span> : null}
+                            </td>
+                            <td className="px-3 py-2 text-muted">{v.branch ? branchLabel(v.branch) : "—"}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{v.currentMileage != null ? v.currentMileage.toLocaleString() : "—"}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{money(v.ytdCost)}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{money(v.totalCost)}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{v.costPerMile == null ? "—" : `$${v.costPerMile.toFixed(3)}`}</td>
+                            <td className="px-3 py-2">
+                              {v.hasLoan ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                                  {v.monthlyPayment != null ? `${money(v.monthlyPayment)}/mo` : "Loan"}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-muted">Owned</span>
+                              )}
+                            </td>
+                            <td className={`px-3 py-2 ${due ? "text-amber-600 font-medium" : "text-muted"}`}>
+                              {v.nextDueDate ? dateShort(v.nextDueDate) : v.nextDueMileage != null ? `${v.nextDueMileage.toLocaleString()} mi` : "—"}
+                              {due ? " · due" : ""}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </Fragment>
+                  ))}
                 </tbody>
               </table>
             </div>

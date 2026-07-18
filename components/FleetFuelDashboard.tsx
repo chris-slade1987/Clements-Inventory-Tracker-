@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui";
 import RangeToggle from "@/components/RangeToggle";
 import { money } from "@/lib/format";
-import { branchLabel } from "@/lib/management";
+import { BRANCHES, branchLabel } from "@/lib/management";
 import { computeFuelRange, okMpg, isoDay, type FuelRangeMode } from "@/lib/fuel-format";
 
 export type FleetRow = {
@@ -19,6 +19,7 @@ export type FleetRow = {
   vehicleId: string;
   unit: string | null;
   name: string;
+  year: number | null;
   branch: string | null;
 };
 
@@ -67,19 +68,27 @@ export default function FleetFuelDashboard({
     return { spend, gallons, vehicleCount: vehicles.size, avgCpg: gallons > 0 ? spend / gallons : null };
   }, [inRange]);
 
-  const perVehicle = useMemo(() => {
-    const m = new Map<string, { name: string; unit: string | null; branch: string | null; spend: number; gallons: number; count: number; mpgs: number[] }>();
+  // Per-vehicle rollup, grouped by branch (Vero → Stuart → Orlando → Naples),
+  // oldest to newest vehicle within each office.
+  const vehicleGroups = useMemo(() => {
+    const m = new Map<string, { name: string; unit: string | null; year: number | null; branch: string | null; spend: number; gallons: number; count: number; mpgs: number[] }>();
     for (const r of inRange) {
-      if (!m.has(r.vehicleId)) m.set(r.vehicleId, { name: r.name, unit: r.unit, branch: r.branch, spend: 0, gallons: 0, count: 0, mpgs: [] });
+      if (!m.has(r.vehicleId)) m.set(r.vehicleId, { name: r.name, unit: r.unit, year: r.year, branch: r.branch, spend: 0, gallons: 0, count: 0, mpgs: [] });
       const e = m.get(r.vehicleId)!;
       e.spend += r.amount;
       e.gallons += r.gallons ?? 0;
       e.count += 1;
       if (okMpg(r.calculatedMpg)) e.mpgs.push(r.calculatedMpg);
     }
-    return [...m.entries()]
-      .map(([id, e]) => ({ id, ...e, avgMpg: e.mpgs.length ? e.mpgs.reduce((s, x) => s + x, 0) / e.mpgs.length : null }))
-      .sort((a, b) => b.spend - a.spend);
+    const rows = [...m.entries()].map(([id, e]) => ({ id, ...e, avgMpg: e.mpgs.length ? e.mpgs.reduce((s, x) => s + x, 0) / e.mpgs.length : null }));
+    const byYear = (a: typeof rows[number], b: typeof rows[number]) =>
+      (a.year ?? Infinity) - (b.year ?? Infinity) || (a.unit ?? "").localeCompare(b.unit ?? "", undefined, { numeric: true });
+    const groups: { key: string; label: string; items: typeof rows }[] = BRANCHES
+      .map((b) => ({ key: b.key as string, label: b.label as string, items: rows.filter((r) => r.branch === b.key).sort(byYear) }))
+      .filter((g) => g.items.length > 0);
+    const other = rows.filter((r) => !BRANCHES.some((b) => b.key === r.branch)).sort(byYear);
+    if (other.length) groups.push({ key: "none", label: "Unassigned", items: other });
+    return groups;
   }, [inRange]);
 
   const maxMonth = Math.max(1, ...months.map((m) => m.spend));
@@ -131,7 +140,7 @@ export default function FleetFuelDashboard({
           <div className="text-sm font-medium text-ink">Spend by vehicle</div>
           <span className="text-xs text-muted">{inRange.length} purchase{inRange.length === 1 ? "" : "s"} in range</span>
         </div>
-        {perVehicle.length === 0 ? (
+        {vehicleGroups.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No fuel purchases in this range.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -139,7 +148,6 @@ export default function FleetFuelDashboard({
               <thead>
                 <tr className="text-left text-xs text-muted border-b border-line">
                   <th className="px-4 py-2 font-medium">Vehicle</th>
-                  <th className="px-3 py-2 font-medium">Branch</th>
                   <th className="px-3 py-2 font-medium text-right">Fills</th>
                   <th className="px-3 py-2 font-medium text-right">Gallons</th>
                   <th className="px-3 py-2 font-medium text-right">Avg MPG</th>
@@ -147,20 +155,30 @@ export default function FleetFuelDashboard({
                 </tr>
               </thead>
               <tbody>
-                {perVehicle.map((v) => (
-                  <tr key={v.id} className="border-b border-line last:border-0">
-                    <td className="px-4 py-2">
-                      <Link href={`/fleet/${v.id}`} className="font-medium text-brand-700 hover:underline">
-                        {v.unit ? `${v.unit} · ` : ""}{v.name}
-                      </Link>
-                    </td>
-                    <td className="px-3 py-2 text-muted">{v.branch ? branchLabel(v.branch) : "—"}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{v.count}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{v.gallons.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{v.avgMpg ? v.avgMpg.toFixed(1) : "—"}</td>
-                    <td className="px-3 py-2 text-right tabular-nums font-medium">{money(v.spend)}</td>
-                  </tr>
-                ))}
+                {vehicleGroups.map((g) => {
+                  const groupSpend = g.items.reduce((s, v) => s + v.spend, 0);
+                  return (
+                    <Fragment key={g.key}>
+                      <tr>
+                        <td colSpan={4} className="bg-black/[0.03] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">{g.label} · {g.items.length}</td>
+                        <td className="bg-black/[0.03] px-3 py-1.5 text-right text-[11px] font-semibold tabular-nums text-muted">{money(groupSpend)}</td>
+                      </tr>
+                      {g.items.map((v) => (
+                        <tr key={v.id} className="border-b border-line last:border-0">
+                          <td className="px-4 py-2">
+                            <Link href={`/fleet/${v.id}`} className="font-medium text-brand-700 hover:underline">
+                              {v.unit ? `${v.unit} · ` : ""}{v.name}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">{v.count}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{v.gallons.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{v.avgMpg ? v.avgMpg.toFixed(1) : "—"}</td>
+                          <td className="px-3 py-2 text-right tabular-nums font-medium">{money(v.spend)}</td>
+                        </tr>
+                      ))}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

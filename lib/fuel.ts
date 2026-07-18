@@ -373,6 +373,7 @@ export type FleetFuelRow = {
   vehicleId: string;
   unit: string | null;
   name: string;
+  year: number | null;
   branch: string | null;
 };
 
@@ -388,7 +389,7 @@ export async function fleetFuelRows(branch?: string | null) {
   const [linked, account] = await Promise.all([
     prisma.fuelTransaction.findMany({
       where: linkedWhere,
-      select: { id: true, date: true, amount: true, gallons: true, costPerGallon: true, calculatedMpg: true, type: true, vehicle: { select: { id: true, unitNumber: true, name: true, branch: true } } },
+      select: { id: true, date: true, amount: true, gallons: true, costPerGallon: true, calculatedMpg: true, type: true, vehicle: { select: { id: true, unitNumber: true, name: true, year: true, branch: true } } },
       orderBy: { date: "desc" },
     }),
     // Account-level rows (subscription fees, auto-payments, rebates) are company-
@@ -409,6 +410,7 @@ export async function fleetFuelRows(branch?: string | null) {
       vehicleId: r.vehicle!.id,
       unit: r.vehicle!.unitNumber,
       name: r.vehicle!.name,
+      year: r.vehicle!.year ?? null,
       branch: r.vehicle!.branch,
     }));
 
