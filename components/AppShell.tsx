@@ -105,7 +105,7 @@ export default function AppShell({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/clements-mark.svg" alt="Clements" className="h-9 w-9 shrink-0" />
           <div className="leading-tight">
-            <div className="font-normal text-white tracking-tight">Clements</div>
+            <div className="font-semibold text-white tracking-[0.14em]">CLEMENTS</div>
             <div className="text-xs text-mint">Command &amp; Control</div>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function AppShell({
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/clements-mark.svg" alt="Clements" className="h-7 w-7 shrink-0" />
-          <span className="font-normal text-white tracking-tight">Clements</span>
+          <span className="font-semibold text-white tracking-[0.12em]">CLEMENTS</span>
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
           {isAdmin ? (
             <Link href="/manage" aria-label="Manage" className="ml-auto p-1 text-mint hover:text-white">

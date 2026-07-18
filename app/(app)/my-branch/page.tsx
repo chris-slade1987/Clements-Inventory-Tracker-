@@ -42,6 +42,15 @@ export default async function MyBranchPage({
     reviewsForReviewer(user.id),
   ]);
   const nowMs = now.getTime();
+
+  // The recurring monthly duties (vehicle inspections, warehouse, QC, training)
+  // live in the checklist below; audit items have their own resolvable card.
+  // "Needs attention" is only the event-driven items that aren't shown elsewhere,
+  // so nothing is listed three times.
+  const attention = reminders.filter(
+    (r) => r.kind !== "inspection_due" && r.kind !== "warehouse_due" && r.kind !== "audit_followup"
+  );
+
   const followUpItems = followUps.map((f) => ({
     id: f.id,
     description: f.description,
@@ -78,7 +87,7 @@ export default async function MyBranchPage({
     <>
       <PageHeader
         title={`Welcome, ${user.name?.split(" ")[0] ?? "Manager"}`}
-        subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your reminders & responsibilities`}
+        subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
       />
 
       {locked ? null : (
@@ -93,31 +102,53 @@ export default async function MyBranchPage({
       {/* Tiles */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
         <Tile
-          label="Inspections this month"
+          label="Vehicle inspections"
           value={`${insp.completed}/${insp.total}`}
           tone={insp.pending > 0 ? "warn" : "good"}
           sub={insp.pending > 0 ? `${insp.pending} outstanding` : "All done"}
           href="/my-branch/inspections"
         />
-        <Tile label="Reminders" value={String(reminders.length)} tone={reminders.some((r) => r.severity === "critical") ? "bad" : reminders.length ? "warn" : "good"} sub={reminders.length ? "Need attention" : "All clear"} />
+        <Tile label="Needs attention" value={String(attention.length)} tone={attention.some((r) => r.severity === "critical") ? "bad" : attention.length ? "warn" : "good"} sub={attention.length ? "Fleet & reminders" : "All clear"} />
         <Tile label="Open alerts" value={String(openAlerts)} tone={openAlerts ? "warn" : "good"} href="/alerts" />
         <Tile label={`Q${quarter} scorecard`} value={`${scScore}%`} sub={`${scScored}/${SCORECARD_METRICS.length} scored`} href={`/my-branch/scorecard?branch=${scBranch}&year=${year}&quarter=${quarter}`} />
       </div>
 
-      {/* Reminders */}
+      {/* This month's checklist — the single home for the recurring monthly duties
+          that feed the quarterly scorecard. */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line">
+          <div className="text-sm font-medium text-ink">This month&rsquo;s checklist</div>
+          <p className="text-xs text-muted mt-0.5">Your recurring monthly duties. These feed your Q{quarter} scorecard.</p>
+        </div>
+        <ul className="divide-y divide-line">
+          <ChecklistRow
+            done={insp.total > 0 && insp.pending === 0}
+            label="Vehicle inspections"
+            detail={insp.total > 0 ? `${insp.completed} of ${insp.total} completed` : "No vehicles assigned"}
+            href="/my-branch/inspections"
+          />
+          <ChecklistRow done={warehouse.done} label="Warehouse safety inspection" detail={warehouse.done ? "Logged this month" : "Not logged yet"} href="/my-branch/warehouse" />
+          <ChecklistRow done={false} label="Quality control reports" detail="Not logged yet" href="/my-branch/qc" />
+          <ChecklistRow done={trainingDone} label="Onboarding / CEU training" detail={totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`} href="/my-branch/training" />
+        </ul>
+      </Card>
+
+      {/* Needs attention — event-driven items only (fleet maintenance,
+          registrations, custom reminders). Inspections live in the checklist;
+          audit items have their own card below, so nothing repeats. */}
       <Card className="p-0 overflow-hidden mb-5">
         <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
-          <div className="text-sm font-medium text-ink">Reminders &amp; to-dos</div>
+          <div className="text-sm font-medium text-ink">Needs attention</div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted">{reminders.length} item{reminders.length === 1 ? "" : "s"}</span>
+            <span className="text-xs text-muted">{attention.length} item{attention.length === 1 ? "" : "s"}</span>
             <RemindersCard mode="button" employees={employeeOpts} vehicles={vehicleOpts} />
           </div>
         </div>
-        {reminders.length === 0 ? (
+        {attention.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up. 🎉</p>
         ) : (
           <ul className="divide-y divide-line">
-            {reminders.slice(0, 12).map((r, i) => (
+            {attention.slice(0, 12).map((r, i) => (
               <ReminderRow key={i} r={r} showBranch={branch === null} />
             ))}
           </ul>
@@ -150,23 +181,6 @@ export default async function MyBranchPage({
 
       {/* Audit action items (resolvable) */}
       <FollowUps items={followUpItems} />
-
-      {/* Responsibilities — anything not complete is flagged red. Each links to
-          the specific form to complete (not the scorecard). */}
-      <Card className="p-4">
-        <div className="text-sm font-medium text-ink mb-1">Monthly responsibilities</div>
-        <p className="text-xs text-muted mb-3">These feed your quarterly scorecard. Anything in red still needs attention.</p>
-        <ul className="space-y-2 text-sm">
-          <Responsibility
-            done={insp.total > 0 && insp.pending === 0}
-            label={`Complete monthly vehicle inspections (${insp.completed}/${insp.total})`}
-            href="/my-branch/inspections"
-          />
-          <Responsibility done={warehouse.done} label="Warehouse inspection report" href="/my-branch/warehouse" />
-          <Responsibility done={false} label="Quality control reports" href="/my-branch/qc" />
-          <Responsibility done={trainingDone} label="Onboarding / CEU training current" href="/my-branch/training" />
-        </ul>
-      </Card>
     </>
   );
 }
@@ -190,12 +204,17 @@ function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
   );
 }
 
-function Responsibility({ done, label, href }: { done: boolean; label: string; href: string }) {
+function ChecklistRow({ done, label, detail, href }: { done: boolean; label: string; detail: string; href: string }) {
   return (
-    <li className="flex items-center gap-2">
-      <span className={`grid h-5 w-5 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : "bg-red-100 text-red-600"}`}>{done ? "✓" : "!"}</span>
-      <Link href={href} className={`hover:underline ${done ? "text-muted" : "text-red-600 font-medium"}`}>{label}</Link>
-      {!done ? <span className="ml-auto text-[11px] font-medium text-red-600">Action needed</span> : <span className="ml-auto text-[11px] text-brand-600">Done</span>}
+    <li>
+      <Link href={href} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
+        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
+        <span className="flex-1">
+          <span className={`block text-sm font-medium ${done ? "text-ink" : "text-ink"}`}>{label}</span>
+          <span className="block text-xs text-muted">{detail}</span>
+        </span>
+        <span className={`text-[11px] font-medium ${done ? "text-brand-600" : "text-amber-600"}`}>{done ? "Done" : "Action needed"}</span>
+      </Link>
     </li>
   );
 }

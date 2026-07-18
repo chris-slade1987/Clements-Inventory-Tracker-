@@ -15,8 +15,9 @@ export default async function LoginPage() {
         <div className="flex flex-col items-center mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/clements-mark.svg" alt="Clements" className="h-16 w-16" />
-          <h1 className="mt-4 text-2xl font-light tracking-tight text-white">
-            Clements Command &amp; Control
+          <h1 className="mt-4 text-2xl tracking-tight text-white">
+            <span className="font-semibold tracking-[0.14em]">CLEMENTS</span>{" "}
+            <span className="font-light">Command &amp; Control</span>
           </h1>
           <p className="text-sm text-mint">Manager sign in</p>
         </div>
