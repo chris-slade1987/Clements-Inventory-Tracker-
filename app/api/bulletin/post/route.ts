@@ -16,7 +16,9 @@ export async function POST(req: Request) {
 
   const ct = req.headers.get("content-type") || "";
 
-  // Multipart = create (optionally with a hero photo).
+  // Multipart = create, or update (when an `id` is present), optionally with a
+  // hero photo. Editing can replace the photo (new file), remove it
+  // (removeImage=true), or leave it as-is.
   if (ct.includes("multipart/form-data")) {
     const form = await req.formData();
     const g = (k: string) => s(form.get(k));
@@ -24,15 +26,35 @@ export async function POST(req: Request) {
     if (!title) return NextResponse.json({ error: "Give the post a title." }, { status: 400 });
     const type = TYPES.has(String(g("type"))) ? String(g("type")) : "story";
 
-    let imagePath: string | null = null, imageAlt: string | null = g("imageAlt");
+    // A newly uploaded photo (if any).
+    let newImagePath: string | null = null, hasNewImage = false;
     const file = form.get("image");
     if (file instanceof File && file.size > 0) {
       const bytes = Buffer.from(await file.arrayBuffer());
-      imagePath = await saveUpload(bytes, file.name, file.type || "image/jpeg", "bulletin").catch(() => null);
+      newImagePath = await saveUpload(bytes, file.name, file.type || "image/jpeg", "bulletin").catch(() => null);
+      hasNewImage = !!newImagePath;
     }
 
-    // Publish mode: "now" (default), "draft", or "schedule" (with publishAt).
-    // A schedule time already in the past just publishes immediately.
+    const common = {
+      type, title, excerpt: g("excerpt"), body: g("body"), imageAlt: g("imageAlt"),
+      linkUrl: g("linkUrl"), eventDate: dateOf(g("eventDate")), eventEnd: dateOf(g("eventEnd")),
+      location: g("location"), honoreeName: g("honoreeName"), branch: g("branch"),
+      requireAck: g("requireAck") === "true",
+    };
+
+    const id = g("id");
+    if (id) {
+      const existing = await prisma.bulletinPost.findUnique({ where: { id } });
+      if (!existing) return NextResponse.json({ error: "Not found." }, { status: 404 });
+      let imagePath = existing.imagePath;
+      if (hasNewImage) { if (existing.imagePath) await deleteUpload(existing.imagePath); imagePath = newImagePath; }
+      else if (g("removeImage") === "true") { if (existing.imagePath) await deleteUpload(existing.imagePath); imagePath = null; }
+      await prisma.bulletinPost.update({ where: { id }, data: { ...common, imagePath } });
+      return NextResponse.json({ ok: true, id });
+    }
+
+    // Create. Publish mode: "now" (default), "draft", or "schedule" (with
+    // publishAt). A schedule time already in the past just publishes now.
     const mode = g("publishMode") ?? "now";
     const schedAt = dateOf(g("publishAt"));
     let published = true, publishAt: Date | null = null;
@@ -40,13 +62,7 @@ export async function POST(req: Request) {
     else if (mode === "schedule" && schedAt && schedAt.getTime() > Date.now()) { published = false; publishAt = schedAt; }
 
     const post = await prisma.bulletinPost.create({
-      data: {
-        type, title, excerpt: g("excerpt"), body: g("body"), imagePath, imageAlt,
-        linkUrl: g("linkUrl"), eventDate: dateOf(g("eventDate")), eventEnd: dateOf(g("eventEnd")),
-        location: g("location"), honoreeId: g("honoreeId"), honoreeName: g("honoreeName"),
-        branch: g("branch"), pinned: g("pinned") === "true", requireAck: g("requireAck") === "true", published, publishAt,
-        authorId: user.id, authorName: user.name,
-      },
+      data: { ...common, imagePath: newImagePath, honoreeId: g("honoreeId"), pinned: g("pinned") === "true", published, publishAt, authorId: user.id, authorName: user.name },
     });
     return NextResponse.json({ ok: true, id: post.id });
   }

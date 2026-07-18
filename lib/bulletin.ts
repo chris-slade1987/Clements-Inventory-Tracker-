@@ -87,15 +87,37 @@ async function promoteDue() {
   await prisma.bulletinPost.updateMany({ where: { published: false, publishAt: { lte: new Date() } }, data: { published: true } });
 }
 
-/** The board feed: published only, pinned first, then newest. */
-export async function listPosts(opts: { type?: string; limit?: number } = {}) {
+// Posts stay on the active board for 60 days, then move to the Past bulletin.
+// A pinned/featured post stays put no matter its age, and an event whose date is
+// still upcoming never ages out early.
+export const ACTIVE_DAYS = 60;
+function isActive(p: { createdAt: Date; eventDate: Date | null; pinned: boolean }, now: number): boolean {
+  if (p.pinned) return true;
+  if (p.createdAt.getTime() >= now - ACTIVE_DAYS * DAY) return true;
+  if (p.eventDate && p.eventDate.getTime() >= now) return true;
+  return false;
+}
+
+/** The board feed. scope "active" (default) = last 60 days + pinned + upcoming
+ *  events; "past" = everything else. Pinned first, then newest. */
+export async function listPosts(opts: { type?: string; limit?: number; scope?: "active" | "past" } = {}) {
   await promoteDue();
+  const scope = opts.scope ?? "active";
   const posts = await prisma.bulletinPost.findMany({
     where: { published: true, ...(opts.type ? { type: opts.type } : {}) },
     orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
-    take: opts.limit,
   });
-  return posts.map(shape);
+  const now = Date.now();
+  const filtered = posts.filter((p) => (scope === "active" ? isActive(p, now) : !isActive(p, now)));
+  return (opts.limit ? filtered.slice(0, opts.limit) : filtered).map(shape);
+}
+
+/** How many published posts have aged into the Past bulletin. */
+export async function pastCount(): Promise<number> {
+  await promoteDue();
+  const posts = await prisma.bulletinPost.findMany({ where: { published: true }, select: { createdAt: true, eventDate: true, pinned: true } });
+  const now = Date.now();
+  return posts.filter((p) => !isActive(p, now)).length;
 }
 
 /** Authors' unpublished queue — drafts (no publishAt) and scheduled (future). */

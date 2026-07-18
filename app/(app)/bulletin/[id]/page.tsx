@@ -51,7 +51,7 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
             <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${CHIP[post.type] ?? CHIP.story}`}>{postTypeLabel(post.type)}</span>
             {post.pinned ? <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-semibold text-brand-700">★ Featured</span> : null}
             {post.branch ? <span className="text-[11px] text-muted">{branchLabel(post.branch)}</span> : null}
-            {author ? <span className="ml-auto"><EditPostButton post={{ id: post.id, type: post.type, title: post.title, excerpt: post.excerpt, body: post.body, linkUrl: post.linkUrl, location: post.location, honoreeName: post.honoreeName, branch: post.branch, eventDate: post.eventDate ? post.eventDate.toISOString().slice(0, 10) : null }} /></span> : null}
+            {author ? <span className="ml-auto"><EditPostButton post={{ id: post.id, type: post.type, title: post.title, excerpt: post.excerpt, body: post.body, linkUrl: post.linkUrl, location: post.location, honoreeName: post.honoreeName, branch: post.branch, eventDate: post.eventDate ? post.eventDate.toISOString().slice(0, 10) : null, requireAck: post.requireAck, hasImage: !!post.imagePath }} /></span> : null}
           </div>
 
           <h1 className="mt-3 text-2xl sm:text-3xl font-light tracking-tight text-ink text-balance">{post.title}</h1>

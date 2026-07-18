@@ -31,6 +31,7 @@ const EVENT_KINDS = [
 type PostSeed = {
   id?: string; type: string; title: string; excerpt: string | null; body: string | null;
   linkUrl: string | null; location: string | null; honoreeName: string | null; branch: string | null; eventDate: string | null;
+  requireAck?: boolean; hasImage?: boolean;
 };
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -63,9 +64,10 @@ function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => 
   const [f, setF] = useState<PostSeed & { pinned: boolean; publishMode: string; publishAt: string; requireAck: boolean }>({
     type: seed?.type ?? "story", title: seed?.title ?? "", excerpt: seed?.excerpt ?? "", body: seed?.body ?? "",
     linkUrl: seed?.linkUrl ?? "", location: seed?.location ?? "", honoreeName: seed?.honoreeName ?? "",
-    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false, publishMode: "now", publishAt: "", requireAck: false,
+    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false, publishMode: "now", publishAt: "", requireAck: seed?.requireAck ?? false,
   });
   const [file, setFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string | boolean) => setF((s) => ({ ...s, [k]: v }));
@@ -73,15 +75,11 @@ function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => 
   async function save() {
     if (!f.title.trim()) return setError("Give the post a title.");
     setBusy(true); setError(null);
-    let res: Response;
-    if (editing) {
-      res = await fetch("/api/bulletin/post", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update", id: seed!.id, ...f }) });
-    } else {
-      const fd = new FormData();
-      Object.entries(f).forEach(([k, v]) => { if (v !== "" && v != null && v !== false) fd.append(k, String(v)); });
-      if (file) fd.append("image", file);
-      res = await fetch("/api/bulletin/post", { method: "POST", body: fd });
-    }
+    const fd = new FormData();
+    Object.entries(f).forEach(([k, v]) => { if (v !== "" && v != null && v !== false) fd.append(k, String(v)); });
+    if (editing) { fd.set("id", seed!.id!); if (removeImage) fd.append("removeImage", "true"); }
+    if (file) fd.append("image", file);
+    const res = await fetch("/api/bulletin/post", { method: "POST", body: fd });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Could not save.");
@@ -110,11 +108,17 @@ function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => 
 
       <Field label="External link (optional)"><input value={f.linkUrl ?? ""} onChange={(e) => set("linkUrl", e.target.value)} className={inp} placeholder="https://… — tile opens this instead of a detail page" /></Field>
 
+      <Field label={editing && seed?.hasImage ? "Replace photo (optional)" : "Photo (optional)"}>
+        <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setRemoveImage(false); }} className="mt-1 w-full text-sm" />
+      </Field>
+      {editing && seed?.hasImage ? (
+        <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={removeImage} onChange={(e) => setRemoveImage(e.target.checked)} /> Remove current photo</label>
+      ) : null}
+      <label className="flex items-start gap-2 text-sm text-ink"><input type="checkbox" className="mt-0.5" checked={f.requireAck} onChange={(e) => set("requireAck", e.target.checked)} /> <span>Require acknowledgment <span className="text-muted">— readers must confirm they&rsquo;ve read it (for policies, safety notices). Leave off for regular posts.</span></span></label>
+
       {!editing ? (
         <>
-          <Field label="Photo (optional)"><input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 w-full text-sm" /></Field>
           <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={f.pinned} onChange={(e) => set("pinned", e.target.checked)} /> Feature at the top</label>
-          <label className="flex items-start gap-2 text-sm text-ink"><input type="checkbox" className="mt-0.5" checked={f.requireAck} onChange={(e) => set("requireAck", e.target.checked)} /> <span>Require acknowledgment <span className="text-muted">— readers must confirm they&rsquo;ve read it (for policies, safety notices). Leave off for regular posts.</span></span></label>
 
           <div className="rounded-lg border border-line p-3">
             <div className="text-sm font-medium text-ink mb-1.5">When to publish</div>
