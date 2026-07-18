@@ -382,14 +382,18 @@ export type FleetFuelRow = {
  * account-level fee/rebate totals (which stay period-agnostic as context).
  */
 export async function fleetFuelRows(branch?: string | null) {
-  const where = branch ? { branch } : {};
+  // Filter by the LINKED VEHICLE's branch (our normalized key), not the row's
+  // own branch text — Coast writes "Vero Beach", the app uses "vero".
+  const linkedWhere = branch ? { vehicleId: { not: null }, vehicle: { branch } } : { vehicleId: { not: null } };
   const [linked, account] = await Promise.all([
     prisma.fuelTransaction.findMany({
-      where: { ...where, vehicleId: { not: null } },
+      where: linkedWhere,
       select: { id: true, date: true, amount: true, gallons: true, costPerGallon: true, calculatedMpg: true, type: true, vehicle: { select: { id: true, unitNumber: true, name: true, branch: true } } },
       orderBy: { date: "desc" },
     }),
-    prisma.fuelTransaction.findMany({ where: { ...where, vehicleId: null }, select: { type: true, amount: true } }),
+    // Account-level rows (subscription fees, auto-payments, rebates) are company-
+    // wide, not per branch — only shown when viewing all branches.
+    branch ? Promise.resolve([]) : prisma.fuelTransaction.findMany({ where: { vehicleId: null }, select: { type: true, amount: true } }),
   ]);
 
   const rows: FleetFuelRow[] = linked
@@ -423,13 +427,15 @@ export async function fleetFuelRows(branch?: string | null) {
 
 /** Fleet-wide fuel overview for a period-agnostic dashboard. */
 export async function fleetFuelOverview(branch?: string | null) {
-  const where = branch ? { branch } : {};
+  // Scope by the linked vehicle's branch key (Coast stores "Vero Beach", the app
+  // uses "vero"); account-level rows are company-wide, shown only for all-branch.
+  const linkedWhere = branch ? { vehicleId: { not: null }, vehicle: { branch } } : { vehicleId: { not: null } };
   const [linked, account] = await Promise.all([
     prisma.fuelTransaction.findMany({
-      where: { ...where, vehicleId: { not: null } },
+      where: linkedWhere,
       include: { vehicle: { select: { id: true, unitNumber: true, name: true, branch: true } } },
     }),
-    prisma.fuelTransaction.findMany({ where: { ...where, vehicleId: null } }),
+    branch ? Promise.resolve([]) : prisma.fuelTransaction.findMany({ where: { vehicleId: null } }),
   ]);
 
   const purchases = linked.filter((r) => r.type === "Purchase" || r.amount > 0);
