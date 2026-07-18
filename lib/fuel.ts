@@ -216,6 +216,10 @@ export type VehicleFuelSummary = {
 // mistyped reading yields wild values (200+, or near-0). Only average readings
 // in a physically plausible range for a work truck so fleet MPG stays honest.
 export const PLAUSIBLE_MPG = (x: number | null | undefined): x is number => x != null && x >= 2 && x <= 40;
+// Guard the $/gallon average too: some rows record a token 0.1 gal on a $60
+// charge (DEF/additive or a mis-keyed pump), yielding $400+/gal that would wreck
+// the average. Keep readings in a sane retail range.
+export const PLAUSIBLE_CPG = (x: number | null | undefined): x is number => x != null && x >= 1.5 && x <= 8;
 
 /** Summarize a vehicle's linked purchases (positive fuel spend only). */
 export function summarizeVehicleFuel(rows: { amount: number; gallons: number | null; costPerGallon: number | null; calculatedMpg: number | null; date: Date; odometer: number | null; type: string }[]): VehicleFuelSummary {
@@ -223,7 +227,7 @@ export function summarizeVehicleFuel(rows: { amount: number; gallons: number | n
   const totalSpend = purchases.reduce((s, r) => s + r.amount, 0);
   const totalGallons = purchases.reduce((s, r) => s + (r.gallons ?? 0), 0);
   const mpgs = purchases.map((r) => r.calculatedMpg).filter(PLAUSIBLE_MPG);
-  const cpgs = purchases.map((r) => r.costPerGallon).filter((x): x is number => x != null && x > 0);
+  const cpgs = purchases.map((r) => r.costPerGallon).filter(PLAUSIBLE_CPG);
   const sorted = [...purchases].sort((a, b) => b.date.getTime() - a.date.getTime());
   const withOdo = sorted.find((r) => r.odometer != null);
   return {
@@ -244,6 +248,118 @@ export async function vehicleFuel(vehicleId: string, take = 50) {
     take,
   });
   return { rows, summary: summarizeVehicleFuel(rows) };
+}
+
+// ---- Upload / ingest ------------------------------------------------------
+
+export type IngestResult = {
+  ok: boolean;
+  error?: string;
+  statementNumber: string;
+  period: string;
+  total: number;
+  purchases: number;
+  linked: number;
+  account: number;
+  unlinked: number;
+  created: number;
+  updated: number;
+  unlinkedSamples: string[];
+};
+
+/**
+ * Parse and store one uploaded Coast statement, linking each purchase to a
+ * vehicle. The matching corpus is seeded from this statement's own numbered
+ * rows AND from everything already imported (each existing linked row teaches
+ * plate→unit / card→unit), so even a statement that's mostly driver-name rows
+ * links cleanly. Idempotent: re-uploading the same statement updates in place.
+ */
+export async function ingestCoastStatement(buf: Uint8Array): Promise<IngestResult> {
+  const empty = { ok: false, statementNumber: "", period: "", total: 0, purchases: 0, linked: 0, account: 0, unlinked: 0, created: 0, updated: 0, unlinkedSamples: [] as string[] };
+  const stmt = parseCoastStatement(buf);
+  if (stmt.rows.length === 0) {
+    return { ...empty, error: "No transactions found. Make sure this is a Coast statement export (.xlsx)." };
+  }
+
+  const vehicles = await prisma.vehicle.findMany({ select: { id: true, unitNumber: true, plate: true, driverCard: true } });
+  const unitIndex = buildUnitIndex(vehicles);
+
+  // Corpus from this statement, enriched with what we already know from prior imports.
+  const corpus = buildCoastCorpus(stmt.rows);
+  const priorLinked = await prisma.fuelTransaction.findMany({
+    where: { vehicleId: { not: null } },
+    select: { plate: true, cardId: true, vehicle: { select: { unitNumber: true } } },
+  });
+  for (const r of priorLinked) {
+    const unit = normKey(r.vehicle?.unitNumber);
+    if (!unit) continue;
+    const p = normKey(r.plate);
+    const c = normKey(r.cardId);
+    if (p && !corpus.plateToUnit.has(p)) corpus.plateToUnit.set(p, unit);
+    if (c && !corpus.cardToUnit.has(c)) corpus.cardToUnit.set(c, unit);
+  }
+
+  let linked = 0, account = 0, unlinked = 0, created = 0, updated = 0, purchases = 0;
+  const unlinkedSamples: string[] = [];
+
+  for (const row of stmt.rows) {
+    const { vehicleId, method } = matchVehicle(row, corpus, unitIndex);
+    const isPurchase = row.type === "Purchase" || (method !== "account" && row.amount > 0);
+    if (isPurchase) purchases++;
+    if (vehicleId) linked++;
+    else if (method === "account") account++;
+    else {
+      unlinked++;
+      if (unlinkedSamples.length < 8) unlinkedSamples.push(`${row.date} · ${row.driver || "?"} · veh "${row.vehicleField}" · ${row.merchant} · $${row.amount}`);
+    }
+
+    const dm = row.date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    const rowDate = dm ? new Date(Date.UTC(Number(dm[3]), Number(dm[1]) - 1, Number(dm[2]))) : new Date();
+    const dedupeKey = fuelDedupeKey(stmt.statementNumber || "upload", row);
+    const data = {
+      vehicleId,
+      date: rowDate,
+      postedTime: row.time || null,
+      driverName: row.driver || null,
+      merchant: row.merchant || null,
+      description: row.description || null,
+      type: row.type || "Purchase",
+      category: row.category || null,
+      amount: row.amount,
+      gallons: row.gallons,
+      costPerGallon: row.costPerGallon,
+      fuelGrade: row.fuelGrade || null,
+      odometer: row.odometer,
+      calculatedMpg: row.calculatedMpg,
+      mileageDriven: row.mileageDriven,
+      cardId: row.cardId || null,
+      cardLast4: row.cardLast4 || null,
+      plate: row.plate || null,
+      branch: row.branch || null,
+      matchMethod: method,
+      statementNumber: stmt.statementNumber || null,
+      periodStart: stmt.periodStart,
+      periodEnd: stmt.periodEnd,
+    };
+    const existing = await prisma.fuelTransaction.findUnique({ where: { dedupeKey }, select: { id: true } });
+    await prisma.fuelTransaction.upsert({ where: { dedupeKey }, create: { dedupeKey, ...data }, update: data });
+    if (existing) updated++; else created++;
+  }
+
+  const fmt = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "?");
+  return {
+    ok: true,
+    statementNumber: stmt.statementNumber,
+    period: `${fmt(stmt.periodStart)} – ${fmt(stmt.periodEnd)}`,
+    total: stmt.rows.length,
+    purchases,
+    linked,
+    account,
+    unlinked,
+    created,
+    updated,
+    unlinkedSamples,
+  };
 }
 
 /** Fleet-wide fuel overview for a period-agnostic dashboard. */

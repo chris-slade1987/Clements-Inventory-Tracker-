@@ -6,6 +6,7 @@ import { branchLabel } from "@/lib/management";
 import { listVehicles } from "@/lib/fleet";
 import { pendingDocs, recentFiledDocs, expiringDocs, categoryLabel } from "@/lib/documents";
 import DeleteDocButton from "./DeleteDocButton";
+import FuelStatementUpload from "@/components/FuelStatementUpload";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,15 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
       <PageHeader title="Document Center" subtitle="Upload insurance, registration & title docs — the reader files them to the right vehicle" />
 
       <DocCenter vehicles={vehicleOpts} defaultVehicleId={sp.vehicle ?? null} />
+
+      {/* Coast fuel statements — parsed and linked to vehicles */}
+      <div className="mb-5">
+        <div className="mb-1.5 flex items-center justify-between">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted">Fuel statements (Coast)</div>
+          <Link href="/fleet/fuel" className="text-xs font-medium text-brand-700 hover:underline">Fuel dashboard →</Link>
+        </div>
+        <FuelStatementUpload />
+      </div>
 
       {/* Renewals coming up */}
       {expiring.length > 0 ? (

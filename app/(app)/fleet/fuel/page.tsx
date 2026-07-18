@@ -5,6 +5,7 @@ import { money } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { fleetFuelOverview } from "@/lib/fuel";
 import { prisma } from "@/lib/prisma";
+import FuelStatementUpload from "@/components/FuelStatementUpload";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Fuel — Clements Command & Control" };
@@ -15,7 +16,8 @@ const MONTH_LABEL = (ym: string) => {
 };
 
 export default async function FleetFuelPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireUser();
+  const user = await requireUser();
+  const canUpload = user.role === "admin" || user.role === "manager";
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
 
@@ -34,6 +36,8 @@ export default async function FleetFuelPage({ searchParams }: { searchParams: Pr
   return (
     <>
       <PageHeader title="Fuel" subtitle={`Coast fuel-card spend linked to vehicles${periodLabel ? ` · ${periodLabel}` : ""}`} />
+
+      {canUpload ? <FuelStatementUpload /> : null}
 
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
         <BranchPill href="/fleet/fuel" label="All branches" active={branch === null} />

@@ -53,6 +53,40 @@ export async function seedFleet(prisma: PrismaClient) {
   return { created, updated, total: FLEET_VEHICLES.length };
 }
 
+/**
+ * Non-destructive spec sync, safe to run on EVERY deploy. Updates the fleet
+ * "identity" fields (plate, fuel card, registration renewal, GPS) from the
+ * sheet for vehicles that already exist — so corrections like a plate
+ * reconciled from Coast reach an already-populated database — without touching
+ * mileage, disposition, service history, or anything edited inside the app.
+ */
+export async function syncFleetSpecs(prisma: PrismaClient) {
+  let updated = 0;
+  for (const v of FLEET_VEHICLES) {
+    const existing = await prisma.vehicle.findFirst({
+      where: { OR: [v.vin ? { vin: v.vin } : { id: "___none___" }, v.unitNumber ? { unitNumber: v.unitNumber } : { id: "___none___" }] },
+    });
+    if (!existing) continue;
+    const next = {
+      plate: v.plate,
+      driverCard: v.driverCard,
+      registrationRenewal: d(v.registrationRenewal),
+      gps: v.gps,
+    };
+    const changed =
+      existing.plate !== next.plate ||
+      existing.driverCard !== next.driverCard ||
+      (existing.registrationRenewal?.getTime() ?? null) !== (next.registrationRenewal?.getTime() ?? null) ||
+      existing.gps !== next.gps;
+    if (changed) {
+      await prisma.vehicle.update({ where: { id: existing.id }, data: next });
+      updated++;
+    }
+  }
+  console.log(`syncFleetSpecs: updated ${updated} vehicle(s) from the fleet sheet.`);
+  return { updated };
+}
+
 // CLI: `npx tsx prisma/seed-fleet.ts`
 if (process.argv[1] && process.argv[1].includes("seed-fleet")) {
   const prisma = new PrismaClient();

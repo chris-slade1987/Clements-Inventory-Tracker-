@@ -74,6 +74,13 @@ async function main() {
       console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
     }
 
+    // Keep vehicle specs (plate, fuel card, registration) in sync with the fleet
+    // sheet on every deploy — non-destructive, so it repairs an older deploy
+    // (e.g. plates reconciled from Coast) without touching mileage or disposition.
+    const { syncFleetSpecs } = await import("../prisma/seed-fleet");
+    const fs = await syncFleetSpecs(prisma);
+    console.log(`deploy-db: synced fleet specs — ${fs.updated} vehicle(s) updated.`);
+
     // Import Coast fuel statements only when empty, so re-imports/edits stay put.
     const fuel = await prisma.fuelTransaction.count();
     if (fuel === 0) {
