@@ -6,6 +6,7 @@ import { seedFuel } from "./seed-fuel";
 import { seedEmployees } from "./seed-employees";
 import { seedTraining } from "./seed-training";
 import { seedInsurance } from "./seed-insurance";
+import { seedBranchHub } from "./seed-branch";
 
 const prisma = new PrismaClient();
 
@@ -18,6 +19,7 @@ seedDatabase(prisma, { reset: true })
     const people = await seedEmployees(prisma);
     await seedTraining(prisma);
     await seedInsurance(prisma);
+    await seedBranchHub(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`

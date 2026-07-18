@@ -125,6 +125,16 @@ async function main() {
       console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
     }
 
+    // Seed branch hub (certified operator licenses) only when empty.
+    const branchDocs = await prisma.branchDocument.count();
+    if (branchDocs === 0) {
+      const { seedBranchHub } = await import("../prisma/seed-branch");
+      const bh = await seedBranchHub(prisma);
+      console.log(`deploy-db: seeded branch hub (${bh.total} licenses).`);
+    } else {
+      console.log(`deploy-db: branch documents present (${branchDocs}) — left as-is.`);
+    }
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.

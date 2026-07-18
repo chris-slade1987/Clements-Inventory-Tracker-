@@ -19,6 +19,8 @@ export type ReminderKind =
   | "warehouse_due"
   | "policy_renewal"
   | "lease_expiring"
+  | "license_expiring"
+  | "rent_increase"
   | "manual";
 
 export type Reminder = {
@@ -164,6 +166,62 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         href: "/management/insurance",
         dueDate: p.expirationDate,
       });
+    }
+  }
+
+  // Branch documents: certified-operator licenses expiring (compliance), facility
+  // leases within 9 months of expiry, and rent increases. Branch-scoped by the
+  // document's branch (a license certifies a branch, which may differ from where
+  // the operator works).
+  const LICENSE_WINDOW = 90;
+  const LEASE_WINDOW = 270; // 9 months
+  const branchDocs = await prisma.branchDocument.findMany({
+    where: { ...(branch ? { branch } : {}), category: { in: ["licensing", "lease"] } },
+    select: { id: true, branch: true, category: true, title: true, holderName: true, licenseType: true, licenseNumber: true, expirationDate: true, leaseEnd: true, monthlyRent: true, priorMonthlyRent: true, employee: { select: { name: true } } },
+  });
+  for (const d of branchDocs) {
+    if (d.category === "licensing" && d.expirationDate) {
+      const days = Math.round((d.expirationDate.getTime() - now.getTime()) / DAY);
+      if (days <= LICENSE_WINDOW) {
+        const who = d.employee?.name ?? d.holderName ?? d.title;
+        reminders.push({
+          kind: "license_expiring",
+          severity: days <= 0 ? "critical" : days <= 45 ? "warning" : "info",
+          title: days <= 0 ? "Operator license EXPIRED" : "Operator license expiring",
+          detail: `${who}${d.licenseNumber ? ` (#${d.licenseNumber})` : ""} — ${days <= 0 ? "expired" : `expires in ${days} days`} (${d.expirationDate.toLocaleDateString()}). Every branch must have a certified operator.`,
+          branch: d.branch,
+          href: `/my-branch/documents?branch=${d.branch}`,
+          dueDate: d.expirationDate,
+        });
+      }
+    }
+    if (d.category === "lease") {
+      if (d.leaseEnd) {
+        const days = Math.round((d.leaseEnd.getTime() - now.getTime()) / DAY);
+        if (days <= LEASE_WINDOW) {
+          reminders.push({
+            kind: "lease_expiring",
+            severity: days <= 0 ? "critical" : days <= 90 ? "warning" : "info",
+            title: days <= 0 ? "Facility lease expired" : "Facility lease renewal",
+            detail: `${d.title} — ${days <= 0 ? "expired" : `expires in ${days} days`} (${d.leaseEnd.toLocaleDateString()}).`,
+            branch: d.branch,
+            href: `/my-branch/documents?branch=${d.branch}`,
+            dueDate: d.leaseEnd,
+          });
+        }
+      }
+      if (d.monthlyRent != null && d.priorMonthlyRent != null && d.monthlyRent > d.priorMonthlyRent) {
+        const pct = ((d.monthlyRent - d.priorMonthlyRent) / d.priorMonthlyRent) * 100;
+        reminders.push({
+          kind: "rent_increase",
+          severity: "warning",
+          title: "Rent increased",
+          detail: `${d.title} — rent rose ${pct.toFixed(1)}% to $${d.monthlyRent.toLocaleString()}/mo (was $${d.priorMonthlyRent.toLocaleString()}).`,
+          branch: d.branch,
+          href: `/my-branch/documents?branch=${d.branch}`,
+          dueDate: null,
+        });
+      }
     }
   }
 

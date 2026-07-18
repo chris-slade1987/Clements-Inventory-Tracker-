@@ -10,6 +10,7 @@ import RemindersCard from "@/components/RemindersCard";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
+import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
 import Offboarding from "./Offboarding";
@@ -32,6 +33,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
   const reviews = await reviewsForEmployee(e.id);
   const empReminders = await remindersForEmployee(e.id);
+  const licenses = await documentsForEmployee(e.id);
   const sep = await separationForEmployee(e.id);
   const separation = sep
     ? {
@@ -106,6 +108,32 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         reasons={REASON_CATEGORIES.map((r) => ({ key: r.key, label: r.label }))}
         exitForm={EXIT_INTERVIEW}
       />
+
+      {/* Licenses & credentials (filed under Branch Hub, shown here too) */}
+      {licenses.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Licenses &amp; credentials</div>
+          <ul className="divide-y divide-line">
+            {licenses.map((l) => {
+              const days = l.expirationDate ? Math.round((l.expirationDate.getTime() - Date.now()) / 864e5) : null;
+              return (
+                <li key={l.id} className="px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {l.filePath ? <a href={`/api/branch/document/${l.id}/file`} target="_blank" className="text-sm font-medium text-brand-700 hover:underline">📄 {l.title}</a> : <span className="text-sm font-medium text-ink">{l.title}</span>}
+                      {l.categories ? <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-700">{l.categories}</span> : null}
+                    </div>
+                    <div className="text-xs text-muted mt-0.5">
+                      {[l.licenseNumber ? `#${l.licenseNumber}` : null, l.branch ? `certifies ${branchLabel(l.branch)}` : null].filter(Boolean).join(" · ")}
+                    </div>
+                  </div>
+                  {l.expirationDate ? <span className={`text-xs font-medium ${days != null && days <= 0 ? "text-red-600" : days != null && days <= 90 ? "text-amber-600" : "text-muted"}`}>expires {dateShort(l.expirationDate)}{days != null && days > 0 ? ` · ${days}d` : ""}</span> : null}
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      ) : null}
 
       {/* Reminders tagged to this employee */}
       <RemindersCard

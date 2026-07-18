@@ -604,6 +604,7 @@ model Employee {
   reviews     NewHireReview[]
   separation  EmployeeSeparation?
   reminders   Reminder[]
+  branchDocuments BranchDocument[]
   user        User?
 
   @@index([branch])
@@ -1112,6 +1113,76 @@ model InsuranceDocument {
 
   @@index([policyId])
   @@map("insurance_documents")
+}
+
+// ---------------------------------------------------------------------------
+// Branch hub. Per-branch documents (operator licensing, facility lease, other)
+// and the key vendor / service contacts a new manager needs. A license doc is
+// tied to the BRANCH it certifies AND (optionally) the employee who holds it —
+// which may be a different home branch (Graham works out of Vero but is the
+// certified operator for Orlando). Lease docs track rent + term for alerts.
+// ---------------------------------------------------------------------------
+model BranchDocument {
+  id       String @id @default(cuid())
+  branch   String // the branch this document belongs to (e.g. the branch a license certifies)
+  category String // "licensing" | "lease" | "other"
+  title    String
+  fileName String? @map("file_name")
+  filePath String? @map("file_path")
+  mimeType String? @map("mime_type")
+  fileSize Int?    @map("file_size")
+
+  // Holder — the certified operator / signer. May be a different home branch.
+  employeeId String? @map("employee_id")
+  holderName String? @map("holder_name")
+
+  // Licensing fields.
+  licenseType    String?   @map("license_type") // "cpo" | "business" | "other"
+  licenseNumber  String?   @map("license_number")
+  categories     String? // e.g. "GHP,LAWN,WDO"
+  issueDate      DateTime? @map("issue_date")
+  expirationDate DateTime? @map("expiration_date")
+
+  // Lease / facility fields.
+  landlord         String?
+  monthlyRent      Float?    @map("monthly_rent")
+  priorMonthlyRent Float?    @map("prior_monthly_rent")
+  rentAsOf         DateTime? @map("rent_as_of")
+  leaseStart       DateTime? @map("lease_start")
+  leaseEnd         DateTime? @map("lease_end")
+
+  notes          String?
+  remindHr       Boolean   @default(true) @map("remind_hr")
+  lastReminderAt DateTime? @map("last_reminder_at")
+  uploadedByName String?   @map("uploaded_by_name")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  employee Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
+  @@index([branch, category])
+  @@index([employeeId])
+  @@index([expirationDate])
+  @@map("branch_documents")
+}
+
+model BranchContact {
+  id       String @id @default(cuid())
+  branch   String
+  category String // property_manager | maintenance | chemical_vendor | fdacs | vehicle_maintenance | vehicle_wrap | utilities | landlord | other
+  name     String
+  company  String?
+  role     String?
+  phone    String?
+  email    String?
+  website  String?
+  notes    String?
+  sortOrder Int    @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([branch, category])
+  @@map("branch_contacts")
 }
 
 // Simple key/value app settings (e.g. price-increase threshold).

@@ -64,6 +64,12 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
   },
   {
+    href: "/my-branch/documents",
+    label: "Branch Hub",
+    shortLabel: "Hub",
+    icon: "M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01M9 13h.01M15 13h.01",
+  },
+  {
     href: "/my-branch/scorecard",
     label: "Scorecard",
     shortLabel: "Score",
