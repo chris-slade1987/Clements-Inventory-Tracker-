@@ -25,8 +25,14 @@ the sample data automatically the first time.
    tab → **Create Database** → **Neon (Postgres)**. Vercel provisions it and
    auto-adds a `DATABASE_URL` env var. Use the **direct** (non-pooled)
    connection string for `DATABASE_URL` — Neon shows it when you toggle off
-   "Pooled connection". (A pooled URL also works for the app, but the build's
-   schema creation is most reliable on the direct URL.)
+   "Pooled connection". The build's schema creation + data repair is most
+   reliable on the direct URL.
+
+   > ⚠️ **Pooling gotcha:** a plain **pooled / pgbouncer** Neon URL (without the
+   > flag) can make Prisma **hang** on runtime queries — the app loads but pages
+   > that hit the database spin forever. Fix: keep `DATABASE_URL` on the **direct**
+   > connection, **or** if you use the pooled endpoint, append `?pgbouncer=true`
+   > to the URL so Prisma disables prepared statements.
 
 4. **Add the remaining env vars** (Project → Settings → Environment Variables):
 
@@ -117,14 +123,29 @@ you provide an email provider**. Until then every send is recorded in the
    notifications (to April + Graham + Chris + Tim), and e-signature links will
    now actually deliver.
 
-### 2. Turn on daily reminders (Vercel Cron)
-`vercel.json` already declares a daily cron that calls `/api/cron/daily`
-(training reminders + outstanding e-signature reminders).
+### 2. Turn on the scheduled jobs (Vercel Cron)
+`vercel.json` declares two crons:
+
+| Path | Schedule | Purpose |
+| --- | --- | --- |
+| `/api/cron/daily` | `0 13 * * *` (daily) | Training + e-signature reminders |
+| `/api/cron/sales-sync` | `0 * * * *` (hourly) | Pull the Sales Center sheet |
+
 1. Set `CRON_SECRET` (any long random string: `openssl rand -hex 32`) in the
    Vercel env. Vercel automatically sends it as a bearer token on cron runs, and
-   the endpoint rejects anything else.
-2. Redeploy. The cron runs once a day (13:00 UTC ≈ morning ET). You can also
-   trigger it manually as an admin by POSTing to `/api/cron/daily`.
+   the endpoints reject anything else.
+2. Redeploy. The daily job runs at 13:00 UTC (≈ morning ET); the sales sync runs
+   hourly. You can also trigger either manually as an admin by POSTing to its path.
+
+> ⚠️ **The hourly `sales-sync` cron requires the Vercel Pro plan.** The Hobby
+> (free) plan only allows crons that run **at most once per day**, and — this is
+> the gotcha — Vercel silently **rejects every new deployment** while a sub-daily
+> cron is present (error: "Hobby accounts are limited to daily cron jobs"). That
+> looks exactly like "pushes stopped deploying" with no obvious cause. If you ever
+> run this project on Hobby, change `sales-sync` in `vercel.json` to a daily
+> schedule (e.g. `0 6 * * *`) or remove it — otherwise **nothing will deploy.**
+> The branch-data repair does **not** depend on this cron; it runs at build time
+> (`scripts/deploy-db.ts`), so a daily or removed sales cron doesn't affect it.
 
 ### 3. Notification recipients (optional)
 Defaults resolve to the seeded company addresses. Override with `HR_EMAIL`,
