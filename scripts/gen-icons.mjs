@@ -15,7 +15,7 @@ const svg = readFileSync(join(iconsDir, "icon.svg"));
 // survives Android's circular / squircle mask crop.
 const maskable = Buffer.from(
   `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-     <rect width="512" height="512" fill="#059669"/>
+     <rect width="512" height="512" fill="#ffffff"/>
      <g transform="translate(72 72) scale(0.72)">${svg
        .toString()
        .replace(/^<\?xml.*?\?>/, "")

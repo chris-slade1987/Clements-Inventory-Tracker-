@@ -13,9 +13,8 @@ export default async function LoginPage() {
     <div className="min-h-screen grid place-items-center px-4 py-10 bg-forest-grad">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <span className="grid place-items-center h-14 w-14 rounded-2xl bg-emerald-grad text-[#05271c] text-2xl font-semibold shadow-xl shadow-brand-600/40">
-            C
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clements-mark.svg" alt="Clements" className="h-16 w-16" />
           <h1 className="mt-4 text-2xl font-light tracking-tight text-white">
             Clements Command &amp; Control
           </h1>

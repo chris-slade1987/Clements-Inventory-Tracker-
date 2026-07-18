@@ -102,9 +102,8 @@ export default function AppShell({
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
         <div className="flex items-center gap-3 px-5 h-16 border-b border-white/10">
-          <span className="grid place-items-center h-9 w-9 rounded-xl bg-emerald-grad text-[#05271c] font-semibold shadow-lg shadow-brand-600/30">
-            C
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clements-mark.svg" alt="Clements" className="h-9 w-9 shrink-0" />
           <div className="leading-tight">
             <div className="font-normal text-white tracking-tight">Clements</div>
             <div className="text-xs text-mint">Command &amp; Control</div>
@@ -164,9 +163,8 @@ export default function AppShell({
       <div className="flex-1 md:pl-60 flex flex-col">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
-          <span className="grid place-items-center h-7 w-7 rounded-lg bg-emerald-grad text-[#05271c] text-sm font-semibold">
-            C
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clements-mark.svg" alt="Clements" className="h-7 w-7 shrink-0" />
           <span className="font-normal text-white tracking-tight">Clements</span>
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
           {isAdmin ? (

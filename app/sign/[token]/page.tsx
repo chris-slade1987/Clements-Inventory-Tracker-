@@ -20,7 +20,8 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
     <div className="min-h-screen bg-forest-grad px-4 py-10 flex justify-center">
       <div className="w-full max-w-xl">
         <div className="flex flex-col items-center mb-6">
-          <span className="grid place-items-center h-12 w-12 rounded-2xl bg-emerald-grad text-[#05271c] text-xl font-semibold shadow-xl">C</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clements-mark.svg" alt="Clements" className="h-12 w-12" />
           <h1 className="mt-3 text-xl font-light tracking-tight text-white">Clements Command &amp; Control</h1>
         </div>
 
