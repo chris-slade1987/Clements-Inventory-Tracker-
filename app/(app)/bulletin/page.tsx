@@ -35,7 +35,12 @@ export default async function BulletinPage() {
       <PageHeader
         title="Company Bulletin"
         subtitle="Stories, announcements, shoutouts & what's coming up across Clements"
-        actions={author ? <div className="flex gap-2"><NewEventButton /><NewPostButton /></div> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/bulletin/past" className="text-sm font-medium text-brand-300 hover:underline">Past bulletin{pastN > 0 ? ` (${pastN})` : ""} →</Link>
+            {author ? <div className="flex gap-2"><NewEventButton /><NewPostButton /></div> : null}
+          </div>
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -81,11 +86,6 @@ export default async function BulletinPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {rest.map((p) => <BulletinTile key={p.id} p={p} author={author} needsAck={p.requireAck && !ackedIds.has(p.id)} />)}
               </div>
-              {pastN > 0 ? (
-                <div className="pt-1">
-                  <Link href="/bulletin/past" className="text-sm font-medium text-brand-300 hover:underline">View past bulletin ({pastN}) →</Link>
-                </div>
-              ) : null}
             </>
           )}
         </div>

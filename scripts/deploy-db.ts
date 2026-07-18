@@ -105,6 +105,10 @@ async function main() {
       console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.logins} logins.`);
     }
 
+    // The owner account is a full admin (sees every center + admin tools).
+    const owner = await prisma.user.updateMany({ where: { email: "c.slade@clementspestcontrol.com" }, data: { role: "admin" } });
+    console.log(`deploy-db: ensured owner is admin (${owner.count}).`);
+
     // Seed a sample training course only when none exist.
     const courses = await prisma.course.count();
     if (courses === 0) {

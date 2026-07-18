@@ -30,10 +30,10 @@ export function calendarKindLabel(key: string): string {
   return CALENDAR_KINDS.find((k) => k.key === key)?.label ?? "Event";
 }
 
-/** Only explicitly granted authors may post. (Roles are intentionally NOT a
- *  shortcut here — access is a per-person grant we can change any time.) */
+/** Who may post: admins always, plus anyone explicitly granted (the designated
+ *  authors — Julie / Chris / Larry / April). Regular managers/employees can't. */
 export function canPostBulletin(user: SessionUser): boolean {
-  return !!user.canPostBulletin;
+  return user.role === "admin" || !!user.canPostBulletin;
 }
 
 const DAY = 864e5;
