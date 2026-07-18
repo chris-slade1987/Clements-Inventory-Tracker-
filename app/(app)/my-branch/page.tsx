@@ -208,12 +208,12 @@ function ChecklistRow({ done, label, detail, href }: { done: boolean; label: str
   return (
     <li>
       <Link href={href} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
-        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
+        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : "bg-red-100 text-red-700"}`}>{done ? "✓" : "!"}</span>
         <span className="flex-1">
-          <span className={`block text-sm font-medium ${done ? "text-ink" : "text-ink"}`}>{label}</span>
+          <span className={`block text-sm font-medium ${done ? "text-brand-700" : "text-red-600"}`}>{label}</span>
           <span className="block text-xs text-muted">{detail}</span>
         </span>
-        <span className={`text-[11px] font-medium ${done ? "text-brand-600" : "text-amber-600"}`}>{done ? "Done" : "Action needed"}</span>
+        <span className={`text-[11px] font-medium ${done ? "text-brand-600" : "text-red-600"}`}>{done ? "Done" : "Action needed"}</span>
       </Link>
     </li>
   );
