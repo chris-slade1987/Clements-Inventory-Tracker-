@@ -75,53 +75,84 @@ async function analyze(req: Request, user: { id: string; name: string }) {
   const file = form?.get("file");
   if (!(file instanceof Blob) || file.size === 0)
     return NextResponse.json({ error: "Choose a document to upload." }, { status: 400 });
-  const mime = file.type || "application/octet-stream";
-  if (!ACCEPTED.includes(mime))
-    return NextResponse.json({ error: "Upload a PDF or image (JPEG, PNG, WEBP)." }, { status: 400 });
+  // Trust the extension when the browser sends a generic/empty MIME type.
+  const rawNameEarly = (file as File).name || "";
+  const extOk = /\.(pdf|jpe?g|png|webp)$/i.test(rawNameEarly);
+  let mime = file.type || "application/octet-stream";
+  if (!ACCEPTED.includes(mime)) {
+    if (extOk) {
+      mime = rawNameEarly.toLowerCase().endsWith(".pdf") ? "application/pdf" : mime;
+    } else {
+      return NextResponse.json({ error: "Upload a PDF or image (JPEG, PNG, WEBP)." }, { status: 400 });
+    }
+  }
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const rawName = (file as File).name || "document";
   const filePath = await saveUpload(bytes, rawName, mime, "vehicle-docs");
 
+  // Read with the AI when possible. If the reader fails (no/invalid key, bad
+  // model, network), DON'T fail the upload — fall back to manual entry so the
+  // file is still stored and the user can fill in the details themselves.
   let analysis;
+  let readerError: string | null = null;
   try {
     analysis = await analyzeDocument(bytes.toString("base64"), mime, rawName);
   } catch (e) {
-    return NextResponse.json({ error: `Reader failed: ${(e as Error).message}` }, { status: 502 });
+    readerError = (e as Error).message;
+    console.error("document analyze failed, falling back to manual:", readerError);
+    analysis = {
+      category: "other",
+      title: rawName.replace(/\.[a-z0-9]+$/i, "").slice(0, 60) || "Document",
+      insurer: null,
+      policyNumber: null,
+      effectiveDate: null,
+      expirationDate: null,
+      vehicleHint: null,
+      driverHint: null,
+      summary: "Couldn't read this document automatically — choose the vehicle and details below.",
+      source: "mock" as const,
+    };
   }
 
-  const vehicles = await prisma.vehicle.findMany({
-    where: { status: "active" },
-    select: { id: true, unitNumber: true, name: true, plate: true, vin: true, make: true, model: true, assignedTo: true, branch: true },
-  });
-  const match = matchDocVehicle(analysis, vehicles);
+  let doc, vehicles, match;
+  try {
+    vehicles = await prisma.vehicle.findMany({
+      where: { status: "active" },
+      select: { id: true, unitNumber: true, name: true, plate: true, vin: true, make: true, model: true, assignedTo: true, branch: true },
+    });
+    match = matchDocVehicle(analysis, vehicles);
 
-  const doc = await prisma.vehicleDocument.create({
-    data: {
-      vehicleId: null,
-      category: analysis.category,
-      title: analysis.title,
-      fileName: rawName,
-      filePath,
-      fileSize: bytes.length,
-      mimeType: mime,
-      insurer: analysis.insurer,
-      policyNumber: analysis.policyNumber,
-      effectiveDate: analysis.effectiveDate ? new Date(analysis.effectiveDate) : null,
-      expirationDate: analysis.expirationDate ? new Date(analysis.expirationDate) : null,
-      aiSummary: analysis.summary,
-      aiSuggestedVehicleId: match?.id ?? null,
-      aiSuggestedCategory: analysis.category,
-      uploadedByUserId: user.id,
-      uploadedByName: user.name,
-      status: "pending",
-    },
-  });
+    doc = await prisma.vehicleDocument.create({
+      data: {
+        vehicleId: null,
+        category: analysis.category,
+        title: analysis.title,
+        fileName: rawName,
+        filePath,
+        fileSize: bytes.length,
+        mimeType: mime,
+        insurer: analysis.insurer,
+        policyNumber: analysis.policyNumber,
+        effectiveDate: analysis.effectiveDate ? new Date(analysis.effectiveDate) : null,
+        expirationDate: analysis.expirationDate ? new Date(analysis.expirationDate) : null,
+        aiSummary: analysis.summary,
+        aiSuggestedVehicleId: match?.id ?? null,
+        aiSuggestedCategory: analysis.category,
+        uploadedByUserId: user.id,
+        uploadedByName: user.name,
+        status: "pending",
+      },
+    });
+  } catch (e) {
+    return NextResponse.json({ error: `Could not save the document: ${(e as Error).message}` }, { status: 500 });
+  }
 
   const suggested = match ? vehicles.find((v) => v.id === match.id) ?? null : null;
   return NextResponse.json({
     ok: true,
-    mode: documentReaderMode(),
+    mode: readerError ? "mock" : documentReaderMode(),
+    readerError,
     doc: { id: doc.id, filePath },
     analysis,
     suggestion: {
