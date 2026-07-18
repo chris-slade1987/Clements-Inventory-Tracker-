@@ -174,6 +174,12 @@ export const FLEET_NAV: NavItem[] = [
     shortLabel: "Service",
     icon: "M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.6 2.6-2-2 2.6-2.6z",
   },
+  {
+    href: "/fleet/fuel",
+    label: "Fuel",
+    shortLabel: "Fuel",
+    icon: "M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4",
+  },
 ];
 
 // Back-compat: default export used by older imports.

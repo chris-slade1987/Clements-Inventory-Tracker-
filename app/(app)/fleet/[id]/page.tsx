@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { vehicleDetail, serviceLabel, dispositionLabel, DISPOSITIONS } from "@/lib/fleet";
+import { vehicleFuel } from "@/lib/fuel";
 import { docsForVehicle } from "@/lib/documents";
 import { remindersForVehicle } from "@/lib/manual-reminders";
 import { vehicleInspections } from "@/lib/inspection";
@@ -24,6 +25,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const inspections = await vehicleInspections(id);
   const documents = await docsForVehicle(id);
   const reminders = await remindersForVehicle(id);
+  const fuel = await vehicleFuel(id, 12);
   const canManage = user.role === "admin" || user.role === "manager";
   const now = new Date();
   const thisMonthDone = inspections.some((i) => i.year === now.getFullYear() && i.month === now.getMonth() + 1);
@@ -103,6 +105,59 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           {v.purchasePrice != null ? <div className="mt-2 text-xs text-muted">Purchase price: {money(v.purchasePrice)}</div> : null}
         </Card>
       </div>
+
+      {/* Fuel — Coast card purchases linked to this vehicle */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
+          <div className="text-sm font-medium text-ink">Fuel</div>
+          <Link href="/fleet/fuel" className="text-xs font-medium text-brand-700 hover:underline">Fleet fuel →</Link>
+        </div>
+        {fuel.summary.txCount === 0 ? (
+          <p className="px-4 py-6 text-center text-sm text-muted">No fuel purchases linked to this vehicle yet.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-line border-b border-line">
+              <FuelStat label="Total spend" value={money(fuel.summary.totalSpend)} />
+              <FuelStat label="Gallons" value={fuel.summary.totalGallons.toLocaleString(undefined, { maximumFractionDigits: 0 })} />
+              <FuelStat label="Avg MPG" value={fuel.summary.avgMpg ? fuel.summary.avgMpg.toFixed(1) : "—"} />
+              <FuelStat label="Avg $/gal" value={fuel.summary.avgCostPerGallon ? `$${fuel.summary.avgCostPerGallon.toFixed(2)}` : "—"} />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted border-b border-line">
+                    <th className="px-4 py-2 font-medium">Date</th>
+                    <th className="px-3 py-2 font-medium">Driver</th>
+                    <th className="px-3 py-2 font-medium">Merchant</th>
+                    <th className="px-3 py-2 font-medium text-right">Gallons</th>
+                    <th className="px-3 py-2 font-medium text-right">$/gal</th>
+                    <th className="px-3 py-2 font-medium text-right">MPG</th>
+                    <th className="px-3 py-2 font-medium text-right">Odometer</th>
+                    <th className="px-4 py-2 font-medium text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fuel.rows.map((f) => (
+                    <tr key={f.id} className="border-b border-line last:border-0">
+                      <td className="px-4 py-2 whitespace-nowrap">{dateShort(f.date)}</td>
+                      <td className="px-3 py-2 text-muted whitespace-nowrap">{f.driverName ?? "—"}</td>
+                      <td className="px-3 py-2 text-muted">{f.merchant ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{f.gallons != null ? f.gallons.toFixed(1) : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{f.costPerGallon != null ? `$${f.costPerGallon.toFixed(2)}` : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{f.calculatedMpg != null && f.calculatedMpg > 0 ? f.calculatedMpg.toFixed(1) : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{f.odometer != null ? f.odometer.toLocaleString() : "—"}</td>
+                      <td className="px-4 py-2 text-right tabular-nums font-medium">{money(f.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {fuel.summary.txCount > fuel.rows.length ? (
+              <div className="px-4 py-2 text-center text-xs text-muted border-t border-line">Showing latest {fuel.rows.length} of {fuel.summary.txCount} fills</div>
+            ) : null}
+          </>
+        )}
+      </Card>
 
       {/* Documents — insurance, registration, title, bill of sale */}
       <VehicleDocuments
@@ -222,6 +277,15 @@ function Info({ label, value }: { label: string; value: string }) {
       <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
       <div className="mt-1 text-xl font-light tabular-nums">{value}</div>
     </Card>
+  );
+}
+
+function FuelStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="px-4 py-3">
+      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+      <div className="mt-0.5 text-lg font-light tabular-nums text-ink">{value}</div>
+    </div>
   );
 }
 

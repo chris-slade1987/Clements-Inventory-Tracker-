@@ -374,9 +374,59 @@ model Vehicle {
   inspections VehicleInspection[]
   documents   VehicleDocument[]
   reminders   Reminder[]
+  fuel        FuelTransaction[]
 
   @@index([branch])
   @@map("vehicles")
+}
+
+// A single line from a Coast fuel-card statement. Purchases link to a vehicle
+// (by card ID, then plate, then unit number); account-level rows (subscription
+// fees, auto-payments, rebates) carry no vehicle. On-hand fuel cost per vehicle
+// = SUM(amount) of its linked purchases. Idempotent import keyed by dedupeKey.
+model FuelTransaction {
+  id        String  @id @default(cuid())
+  vehicleId String? @map("vehicle_id")
+
+  date       DateTime
+  postedTime String?  @map("posted_time")
+  driverName String?  @map("driver_name")
+  merchant   String?
+  description String?
+  type       String   @default("Purchase") // "Purchase" | "Fee" | "Credit" | "Bill Payment"
+  category   String?
+  amount     Float    @default(0)
+
+  gallons       Float?
+  costPerGallon Float? @map("cost_per_gallon")
+  fuelGrade     String? @map("fuel_grade")
+  odometer      Int?
+  calculatedMpg Float? @map("calculated_mpg")
+  mileageDriven Int?   @map("mileage_driven")
+
+  // As printed on the statement (kept even when we link by card/unit, so plate
+  // discrepancies against the registry stay visible).
+  cardId    String? @map("card_id")
+  cardLast4 String? @map("card_last4")
+  plate     String?
+  branch    String?
+
+  // How we linked it: "card" | "plate" | "plate_fuzzy" | "unit" | "account" | "none".
+  matchMethod String? @map("match_method")
+
+  statementNumber String?   @map("statement_number")
+  periodStart     DateTime? @map("period_start")
+  periodEnd       DateTime? @map("period_end")
+
+  dedupeKey String   @unique @map("dedupe_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([date])
+  @@index([type])
+  @@map("fuel_transactions")
 }
 
 // A manual reminder / alert a manager or HR sets, optionally tagged to an

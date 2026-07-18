@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { seedDatabase, MANAGER_EMAIL, MANAGER_PASSWORD } from "./seed-core";
 import { seedManagement } from "./seed-management";
 import { seedFleet } from "./seed-fleet";
+import { seedFuel } from "./seed-fuel";
 import { seedEmployees } from "./seed-employees";
 import { seedTraining } from "./seed-training";
 
@@ -12,6 +13,7 @@ seedDatabase(prisma, { reset: true })
   .then(async (counts) => {
     const mgmt = await seedManagement(prisma);
     const fleet = await seedFleet(prisma);
+    const fuel = await seedFuel(prisma);
     const people = await seedEmployees(prisma);
     await seedTraining(prisma);
     console.log("Seed complete.");
@@ -20,6 +22,7 @@ seedDatabase(prisma, { reset: true })
     );
     console.log(`  Management: ${mgmt.periods} periods, ${mgmt.values} KPI values`);
     console.log(`  Fleet: ${fleet.total} vehicles`);
+    console.log(`  Fuel: ${fuel.rows} transactions (${fuel.linked} linked)`);
     console.log(`  People: ${people.total} employees`);
     console.log(`  Manager login:  ${MANAGER_EMAIL}  /  ${MANAGER_PASSWORD}`);
     await prisma.$disconnect();

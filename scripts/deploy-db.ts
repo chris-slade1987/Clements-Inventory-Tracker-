@@ -74,6 +74,16 @@ async function main() {
       console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
     }
 
+    // Import Coast fuel statements only when empty, so re-imports/edits stay put.
+    const fuel = await prisma.fuelTransaction.count();
+    if (fuel === 0) {
+      const { seedFuel } = await import("../prisma/seed-fuel");
+      const fl = await seedFuel(prisma);
+      console.log(`deploy-db: imported fuel (${fl.rows} rows, ${fl.linked} linked to vehicles).`);
+    } else {
+      console.log(`deploy-db: fuel present (${fuel} transactions) — left as-is.`);
+    }
+
     // Seed personnel profiles when empty; otherwise backfill any missing emails
     // and logins from the roster (non-destructive — never overwrites edits). The
     // backfill is what repairs an older deploy that predates the roster emails.
