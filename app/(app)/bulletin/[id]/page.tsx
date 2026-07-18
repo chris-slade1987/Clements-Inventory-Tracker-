@@ -13,9 +13,9 @@ const fmt = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { weekday: "l
 
 const CHIP: Record<string, string> = {
   story: "bg-emerald-100 text-emerald-800",
-  announcement: "bg-amber-100 text-amber-800",
-  shoutout: "bg-violet-100 text-violet-800",
-  event: "bg-sky-100 text-sky-800",
+  announcement: "bg-teal-100 text-teal-800",
+  shoutout: "bg-lime-100 text-lime-800",
+  event: "bg-cyan-100 text-cyan-800",
 };
 
 export default async function BulletinDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -47,7 +47,7 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
           <h1 className="mt-3 text-2xl sm:text-3xl font-light tracking-tight text-ink text-balance">{post.title}</h1>
 
           {post.eventDate ? (
-            <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-sm text-sky-800">
+            <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-cyan-50 px-3 py-1.5 text-sm text-cyan-800">
               <Glyph name="calendar" className="h-4 w-4" /> {fmt(post.eventDate)}{post.location ? ` · ${post.location}` : ""}
             </div>
           ) : null}

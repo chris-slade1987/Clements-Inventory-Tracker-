@@ -70,7 +70,7 @@ export default async function MyWorkPage() {
       <BulletinBanner />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
-        <Tile label="Open training" value={String(open.length)} tone={open.length ? "warn" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
+        <Tile label="Open training" value={String(open.length)} tone={open.length ? "bad" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
         <Tile label="Completed" value={String(completed.length)} tone="good" />
         <Tile label="Assigned total" value={String(assignments.length)} />
       </div>
@@ -120,9 +120,9 @@ export default async function MyWorkPage() {
         </Card>
       ) : null}
 
-      <Card className="p-0 overflow-hidden mb-5">
+      <Card className={`p-0 overflow-hidden mb-5 ${open.length ? "ring-1 ring-red-300" : ""}`}>
         <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-          <div className="text-sm font-medium text-ink">Open items</div>
+          <div className={`text-sm font-medium ${open.length ? "text-red-600" : "text-ink"}`}>Open items{open.length ? ` · ${open.length}` : ""}</div>
           <Link href="/me/library" className="text-xs font-medium text-brand-300 hover:underline">Lesson library →</Link>
         </div>
         {open.length === 0 ? (
@@ -133,17 +133,17 @@ export default async function MyWorkPage() {
               const overdue = a.dueDate && a.dueDate.getTime() < now;
               return (
                 <li key={a.id}>
-                  <Link href={`/me/training/${a.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
-                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${overdue ? "bg-red-500" : "bg-amber-500"}`} />
+                  <Link href={`/me/training/${a.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-red-50/40">
+                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500" />
                     <span className="flex-1">
-                      <span className="block text-sm font-medium text-ink">{a.course.title}</span>
-                      <span className="block text-xs text-muted">
+                      <span className="block text-sm font-medium text-red-700">{a.course.title}</span>
+                      <span className="block text-xs text-red-500">
                         {STATUS_LABEL[a.status]}
                         {a.dueDate ? ` · ${overdue ? "overdue" : "due"} ${a.dueDate.toLocaleDateString()}` : ""}
                         {a.course.category === "onboarding" ? " · onboarding" : ""}
                       </span>
                     </span>
-                    <span className="text-xs font-medium text-brand-700 mt-0.5">{a.status === "not_started" ? "Start →" : "Resume →"}</span>
+                    <span className="text-xs font-medium text-red-600 mt-0.5">{a.status === "not_started" ? "Start →" : "Resume →"}</span>
                   </Link>
                 </li>
               );
@@ -170,8 +170,8 @@ export default async function MyWorkPage() {
   );
 }
 
-function Tile({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "good" | "warn" }) {
-  const color = tone === "warn" ? "text-amber-600" : tone === "good" ? "text-brand-600" : "";
+function Tile({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "good" | "warn" | "bad" }) {
+  const color = tone === "bad" ? "text-red-600" : tone === "warn" ? "text-amber-600" : tone === "good" ? "text-brand-600" : "";
   return (
     <Card className="p-4">
       <div className="text-xs uppercase tracking-wider text-muted">{label}</div>

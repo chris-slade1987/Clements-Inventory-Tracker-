@@ -12,12 +12,14 @@ export const metadata = { title: "Company Bulletin — Clements Command & Contro
 const fmtDay = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 const fmtLong = (d: Date) => d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
 
-// Type → tile accent (gradient used when there's no photo) + chip color.
+// Type → tile accent (gradient used when there's no photo) + chip color. All
+// four sit in the site's forest/emerald family — a green→teal→cyan spread — so
+// the board coordinates with the app ground while staying distinguishable.
 const ACCENT: Record<string, { grad: string; chip: string }> = {
-  story: { grad: "from-emerald-800 to-emerald-600", chip: "bg-emerald-100 text-emerald-800" },
-  announcement: { grad: "from-amber-800 to-amber-600", chip: "bg-amber-100 text-amber-800" },
-  shoutout: { grad: "from-fuchsia-800 to-violet-600", chip: "bg-violet-100 text-violet-800" },
-  event: { grad: "from-sky-800 to-cyan-600", chip: "bg-sky-100 text-sky-800" },
+  story: { grad: "from-emerald-900 to-emerald-600", chip: "bg-emerald-100 text-emerald-800" },
+  announcement: { grad: "from-teal-900 to-teal-600", chip: "bg-teal-100 text-teal-800" },
+  shoutout: { grad: "from-green-800 to-lime-600", chip: "bg-lime-100 text-lime-800" },
+  event: { grad: "from-cyan-900 to-cyan-600", chip: "bg-cyan-100 text-cyan-800" },
 };
 
 const KIND_STYLE: Record<string, { color: string; icon: string }> = {
