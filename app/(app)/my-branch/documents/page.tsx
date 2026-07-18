@@ -7,7 +7,7 @@ import {
   BRANCH_DOC_CATEGORIES, CONTACT_CATEGORIES, LICENSE_TYPES,
   branchDocuments, branchContacts, certifiedOperators, contactCategoryLabel, rentIncreasePct,
 } from "@/lib/branch-hub";
-import { AddDocButton, AddContactButton, DeleteX } from "./BranchHubClient";
+import { AddDocButton, AddContactButton, DeleteX, RepairButton } from "./BranchHubClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Branch Hub — Clements Command & Control" };
@@ -33,7 +33,10 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHeader title="Branch Hub" subtitle={`${branchLabel(branch)} — licenses, lease & facility, key contacts a new manager needs`} />
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <PageHeader title="Branch Hub" subtitle={`${branchLabel(branch)} — licenses, lease & facility, key contacts a new manager needs`} />
+        {(user.role === "admin" || user.role === "manager") ? <RepairButton /> : null}
+      </div>
 
       {!locked ? (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">

@@ -192,6 +192,29 @@ export function AddContactButton({ category, contactCats, branch, label = "+ Add
     </>
   );
 }
+// One-click repair: re-runs the branch-hub reconcile against the live database
+// (assigns each operator to the branch they certify, restores missing operators,
+// business licenses, and leases). Idempotent; leaves manager uploads untouched.
+export function RepairButton() {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  async function repair() {
+    setBusy(true); setMsg(null);
+    const res = await fetch("/api/branch/reconcile", { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) { setMsg(data.error ?? "Repair failed."); return; }
+    setMsg(`Repaired — ${data.created ?? 0} added, ${data.updated ?? 0} corrected.`);
+    router.refresh();
+  }
+  return (
+    <div className="flex items-center gap-2">
+      {msg ? <span className="text-[11px] text-muted">{msg}</span> : null}
+      <button onClick={repair} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline disabled:opacity-50">{busy ? "Repairing…" : "↻ Repair branch data"}</button>
+    </div>
+  );
+}
 export function DeleteX({ kind, id }: { kind: "document" | "contact"; id: string }) {
   const router = useRouter();
   async function del() {

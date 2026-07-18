@@ -85,10 +85,12 @@ const REFERENCE_DOCS: { branch: string; category: string; title: string; file?: 
 export async function seedBranchHub(prisma: PrismaClient) {
   let created = 0, updated = 0;
 
-  // Only seed-owned rows are reconciled; a doc a manager uploaded or edited
-  // (uploadedByName != "Seed") is never touched. An already-stored PDF is
+  // Only seed-owned rows are reconciled; a doc a manager actually uploaded or
+  // edited (a real name in uploadedByName) is never touched. A missing/blank
+  // uploadedByName counts as reconcilable — older deploys wrote rows without
+  // stamping "Seed", and we still need to heal those. An already-stored PDF is
   // reused so a reconcile never re-uploads the same file.
-  const isSeed = (row: { uploadedByName: string | null } | null) => !row || row.uploadedByName === "Seed";
+  const isSeed = (row: { uploadedByName: string | null } | null) => !row || !row.uploadedByName || row.uploadedByName === "Seed";
 
   for (const l of LICENSES) {
     const emp = await prisma.employee.findFirst({ where: { name: l.employeeName } });
