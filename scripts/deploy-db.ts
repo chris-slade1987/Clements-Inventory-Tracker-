@@ -74,14 +74,18 @@ async function main() {
       console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
     }
 
-    // Seed personnel profiles only when empty.
+    // Seed personnel profiles when empty; otherwise backfill any missing emails
+    // and logins from the roster (non-destructive — never overwrites edits). The
+    // backfill is what repairs an older deploy that predates the roster emails.
     const employees = await prisma.employee.count();
     if (employees === 0) {
       const { seedEmployees } = await import("../prisma/seed-employees");
       const e = await seedEmployees(prisma);
       console.log(`deploy-db: seeded people (${e.total} employees, ${e.logins} logins).`);
     } else {
-      console.log(`deploy-db: people present (${employees} employees) — left as-is.`);
+      const { syncEmployeeContacts } = await import("../prisma/seed-employees");
+      const s = await syncEmployeeContacts(prisma);
+      console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.logins} logins.`);
     }
 
     // Seed a sample training course only when none exist.
@@ -94,14 +98,16 @@ async function main() {
       console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
     }
 
-    // Seed a demo new-hire + reviews only when none exist.
-    const reviews = await prisma.newHireReview.count();
-    if (reviews === 0) {
-      const { seedReviews } = await import("../prisma/seed-reviews");
-      const r = await seedReviews(prisma);
-      console.log(`deploy-db: seeded demo new-hire reviews (${r.employee}).`);
+    // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
+    // the review flow). Deleting the profile cascades its reviews; the login goes
+    // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.
+    const demo = await prisma.employee.findFirst({ where: { email: "jordan.rivera@clementspestcontrol.com" } });
+    if (demo) {
+      await prisma.user.deleteMany({ where: { employeeId: demo.id } });
+      await prisma.employee.delete({ where: { id: demo.id } });
+      console.log("deploy-db: removed Jordan Rivera demo new-hire.");
     } else {
-      console.log(`deploy-db: new-hire reviews present (${reviews}) — left as-is.`);
+      console.log("deploy-db: no demo new-hire to remove.");
     }
   } finally {
     await prisma.$disconnect();
