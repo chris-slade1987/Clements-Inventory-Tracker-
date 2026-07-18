@@ -9,6 +9,7 @@ import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import RemindersCard from "@/components/RemindersCard";
+import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
@@ -90,6 +91,8 @@ export default async function MyBranchPage({
         title={`Welcome, ${user.name?.split(" ")[0] ?? "Manager"}`}
         subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
       />
+
+      <BulletinBanner />
 
       {locked ? null : (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">

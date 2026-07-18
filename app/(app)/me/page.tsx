@@ -3,8 +3,41 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
+import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
+import BulletinBanner from "@/components/BulletinBanner";
 
 export const dynamic = "force-dynamic";
+
+const CADENCE_CHIP: Record<Cadence, string> = {
+  daily: "bg-emerald-100 text-emerald-800",
+  weekly: "bg-sky-100 text-sky-800",
+  monthly: "bg-violet-100 text-violet-800",
+  quarterly: "bg-amber-100 text-amber-800",
+};
+
+function RoutineChecklist() {
+  return (
+    <Card className="p-0 overflow-hidden mb-5">
+      <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+        <div className="text-sm font-medium text-ink">Routine checklist</div>
+        <span className="text-[11px] text-muted">Your recurring to-dos</span>
+      </div>
+      <ul className="divide-y divide-line">
+        {TECH_ROUTINES.map((r) => (
+          <li key={r.key} className="flex items-start gap-3 px-4 py-3">
+            <span className="mt-0.5 text-lg leading-none">{r.icon}</span>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-ink">{r.label}</div>
+              {r.detail ? <div className="text-xs text-muted">{r.detail}</div> : null}
+            </div>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${CADENCE_CHIP[r.cadence]}`}>{CADENCE_LABEL[r.cadence]}</span>
+            {r.href ? <Link href={r.href} className="mt-0.5 shrink-0 text-xs font-medium text-brand-700 hover:underline">Open →</Link> : null}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
 
 export default async function MyWorkPage() {
   const user = await requireUser();
@@ -12,6 +45,8 @@ export default async function MyWorkPage() {
     return (
       <>
         <PageHeader title="My Work" subtitle="Your assignments & training" />
+        <BulletinBanner />
+        <RoutineChecklist />
         <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no assigned training to show." />
       </>
     );
@@ -29,13 +64,17 @@ export default async function MyWorkPage() {
 
   return (
     <>
-      <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your open items & training" />
+      <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your open items, routine & training" />
+
+      <BulletinBanner />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
         <Tile label="Open training" value={String(open.length)} tone={open.length ? "warn" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
         <Tile label="Completed" value={String(completed.length)} tone="good" />
         <Tile label="Assigned total" value={String(assignments.length)} />
       </div>
+
+      <RoutineChecklist />
 
       {reviewsToSign.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">

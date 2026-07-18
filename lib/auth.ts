@@ -72,6 +72,8 @@ export function scopedBranch(user: SessionUser, requested: string | null): strin
  *  branch managers to their branch, admins to the inventory dashboard. */
 export function homePath(user: SessionUser): string {
   if (user.role === "employee") return "/me";
+  // Managers land on their branch dashboard; admins on the inventory dashboard.
+  if (user.role === "manager") return "/my-branch";
   return branchLocked(user) ? "/my-branch" : "/dashboard";
 }
 

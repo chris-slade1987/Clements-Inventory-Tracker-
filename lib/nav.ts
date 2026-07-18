@@ -14,6 +14,14 @@ export type NavItem = {
 // shell switches between them.
 export type Mode = "employee" | "manager" | "inventory" | "management" | "fleet";
 
+// Company-wide bulletin — reachable from every center's nav.
+export const BULLETIN_NAV_ITEM: NavItem = {
+  href: "/bulletin",
+  label: "Company Bulletin",
+  shortLabel: "Bulletin",
+  icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
+};
+
 // Employee ("My Work") home — their assigned training + lesson library.
 export const EMPLOYEE_NAV: NavItem[] = [
   {
@@ -28,12 +36,7 @@ export const EMPLOYEE_NAV: NavItem[] = [
     shortLabel: "Library",
     icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM8 7h6M8 11h8M8 15h8",
   },
-  {
-    href: "/bulletin",
-    label: "Company Bulletin",
-    shortLabel: "Bulletin",
-    icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
-  },
+  BULLETIN_NAV_ITEM,
 ];
 
 // Branch-manager home: their operational dashboard — reminders, this month's
@@ -81,12 +84,7 @@ export const MANAGER_NAV: NavItem[] = [
     shortLabel: "Score",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
-  {
-    href: "/bulletin",
-    label: "Company Bulletin",
-    shortLabel: "Bulletin",
-    icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
-  },
+  BULLETIN_NAV_ITEM,
 ];
 
 export const INVENTORY_NAV: NavItem[] = [
@@ -126,6 +124,7 @@ export const INVENTORY_NAV: NavItem[] = [
     shortLabel: "Alerts",
     icon: "M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0",
   },
+  BULLETIN_NAV_ITEM,
 ];
 
 export const MANAGEMENT_NAV: NavItem[] = [
@@ -183,6 +182,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Insure",
     icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
   },
+  BULLETIN_NAV_ITEM,
 ];
 
 export const FLEET_NAV: NavItem[] = [
@@ -204,6 +204,7 @@ export const FLEET_NAV: NavItem[] = [
     shortLabel: "Fuel",
     icon: "M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4",
   },
+  BULLETIN_NAV_ITEM,
 ];
 
 // Back-compat: default export used by older imports.
