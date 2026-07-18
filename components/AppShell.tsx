@@ -25,23 +25,36 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-// Segmented control switching between the Inventory, Management, and Fleet centers.
+// Switcher between the Branch, Inventory, Management, and Fleet centers.
+// Desktop renders a 2×2 grid of full labels; the mobile bar uses a compact row.
+const CENTERS: { href: string; label: string; short: string; m: Mode }[] = [
+  { href: "/my-branch", label: "My Branch", short: "Branch", m: "manager" },
+  { href: "/dashboard", label: "Inventory", short: "Inventory", m: "inventory" },
+  { href: "/management", label: "Management", short: "Mgmt", m: "management" },
+  { href: "/fleet", label: "Fleet", short: "Fleet", m: "fleet" },
+];
+
 function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }) {
-  const base = compact ? "px-1.5 py-1 text-[10px]" : "flex-1 px-1 py-1.5 text-[10px]";
-  const opt = (active: boolean) =>
-    `${base} rounded-lg font-medium text-center transition-colors ${
-      active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
-    }`;
-  const centers: { href: string; label: string; m: Mode }[] = [
-    { href: "/my-branch", label: "My Branch", m: "manager" },
-    { href: "/dashboard", label: "Inventory", m: "inventory" },
-    { href: "/management", label: "Mgmt", m: "management" },
-    { href: "/fleet", label: "Fleet", m: "fleet" },
-  ];
+  const cell = (active: boolean) =>
+    `rounded-lg font-medium text-center transition-colors ${
+      compact ? "px-2.5 py-1 text-[11px]" : "px-2.5 py-2 text-xs"
+    } ${active ? "bg-emerald-grad text-[#05271c] shadow-sm" : "text-mint hover:bg-white/5 hover:text-white"}`;
+
+  if (compact) {
+    return (
+      <div className="flex gap-1 rounded-xl bg-black/20 p-1">
+        {CENTERS.map((c) => (
+          <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
+            {c.short}
+          </Link>
+        ))}
+      </div>
+    );
+  }
   return (
-    <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-      {centers.map((c) => (
-        <Link key={c.m} href={c.href} className={opt(mode === c.m)}>
+    <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/20 p-1">
+      {CENTERS.map((c) => (
+        <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
           {c.label}
         </Link>
       ))}
@@ -111,6 +124,7 @@ export default function AppShell({
         </div>
         {showCenters ? (
           <div className="px-3 pt-3">
+            <div className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-mint/70">Center</div>
             <ModeToggle mode={mode} />
           </div>
         ) : null}
