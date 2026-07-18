@@ -1233,14 +1233,34 @@ model BulletinPost {
   pinned      Boolean   @default(false) // featured at the top of the board
   published   Boolean   @default(true)
   publishAt   DateTime? @map("publish_at") // set for a scheduled post; promoted to published once due
+  requireAck  Boolean   @default(false) @map("require_ack") // readers must confirm they've read it
   authorId    String?   @map("author_id")
   authorName  String?   @map("author_name")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
 
+  acks        BulletinAck[]
+
   @@index([published, pinned])
   @@index([type])
   @@map("bulletin_posts")
+}
+
+// One row per user who has confirmed they read a post that requires it. Gives
+// authors/HR a compliance trail of who acknowledged a policy or safety notice.
+model BulletinAck {
+  id             String   @id @default(cuid())
+  postId         String   @map("post_id")
+  userId         String   @map("user_id")
+  userName       String?  @map("user_name")
+  branch         String?
+  acknowledgedAt DateTime @default(now()) @map("acknowledged_at")
+
+  post BulletinPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@map("bulletin_acks")
 }
 
 // Cascading company calendar — holidays, office closures / early releases, and

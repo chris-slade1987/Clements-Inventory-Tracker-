@@ -60,10 +60,10 @@ function Actions({ busy, onClose, onSave, label }: { busy: boolean; onClose: () 
 
 function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => void; onDone: () => void }) {
   const editing = !!seed?.id;
-  const [f, setF] = useState<PostSeed & { pinned: boolean; publishMode: string; publishAt: string }>({
+  const [f, setF] = useState<PostSeed & { pinned: boolean; publishMode: string; publishAt: string; requireAck: boolean }>({
     type: seed?.type ?? "story", title: seed?.title ?? "", excerpt: seed?.excerpt ?? "", body: seed?.body ?? "",
     linkUrl: seed?.linkUrl ?? "", location: seed?.location ?? "", honoreeName: seed?.honoreeName ?? "",
-    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false, publishMode: "now", publishAt: "",
+    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false, publishMode: "now", publishAt: "", requireAck: false,
   });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -114,6 +114,7 @@ function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => 
         <>
           <Field label="Photo (optional)"><input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 w-full text-sm" /></Field>
           <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={f.pinned} onChange={(e) => set("pinned", e.target.checked)} /> Feature at the top</label>
+          <label className="flex items-start gap-2 text-sm text-ink"><input type="checkbox" className="mt-0.5" checked={f.requireAck} onChange={(e) => set("requireAck", e.target.checked)} /> <span>Require acknowledgment <span className="text-muted">— readers must confirm they&rsquo;ve read it (for policies, safety notices). Leave off for regular posts.</span></span></label>
 
           <div className="rounded-lg border border-line p-3">
             <div className="text-sm font-medium text-ink mb-1.5">When to publish</div>
@@ -207,6 +208,16 @@ export function PinPost({ id, pinned }: { id: string; pinned: boolean }) {
     router.refresh();
   }
   return <button onClick={toggle} title={pinned ? "Unfeature" : "Feature"} className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white hover:bg-black/65"><Glyph name="star" filled={pinned} className="h-3.5 w-3.5" /></button>;
+}
+export function AckButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  async function ack() {
+    setBusy(true);
+    await fetch("/api/bulletin/ack", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ postId: id }) });
+    router.refresh();
+  }
+  return <button onClick={ack} disabled={busy} className={btn.primary}>{busy ? "Confirming…" : "I've read this — Acknowledge"}</button>;
 }
 export function PublishNow({ id }: { id: string }) {
   const router = useRouter();

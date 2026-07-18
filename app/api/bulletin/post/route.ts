@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         type, title, excerpt: g("excerpt"), body: g("body"), imagePath, imageAlt,
         linkUrl: g("linkUrl"), eventDate: dateOf(g("eventDate")), eventEnd: dateOf(g("eventEnd")),
         location: g("location"), honoreeId: g("honoreeId"), honoreeName: g("honoreeName"),
-        branch: g("branch"), pinned: g("pinned") === "true", published, publishAt,
+        branch: g("branch"), pinned: g("pinned") === "true", requireAck: g("requireAck") === "true", published, publishAt,
         authorId: user.id, authorName: user.name,
       },
     });

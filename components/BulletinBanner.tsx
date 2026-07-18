@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { listPosts } from "@/lib/bulletin";
+import { listPosts, pendingAckCount } from "@/lib/bulletin";
+import { getSessionUser } from "@/lib/auth";
 import Glyph from "@/components/Glyph";
 
 // A "stay informed" banner + tile preview that links into the Company Bulletin.
 // Dropped on the tech and manager landing pages so the latest news greets people
 // on login, without them having to hunt for the nav link.
 export default async function BulletinBanner() {
-  const posts = await listPosts({ limit: 3 });
+  const user = await getSessionUser();
+  const [posts, pending] = await Promise.all([listPosts({ limit: 3 }), user ? pendingAckCount(user.id) : Promise.resolve(0)]);
   const latest = posts[0];
 
   return (
@@ -15,7 +17,10 @@ export default async function BulletinBanner() {
         <div className="flex items-center gap-4 p-4 sm:p-5">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 text-mint"><Glyph name="megaphone" className="h-6 w-6" /></div>
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">Company Bulletin</div>
+            <div className="flex items-center gap-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">Company Bulletin</div>
+              {pending > 0 ? <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-semibold text-[#3a2a00]">{pending} need{pending === 1 ? "s" : ""} acknowledgment</span> : null}
+            </div>
             <div className="font-semibold text-white">Stay informed on all the news</div>
             {latest ? (
               <div className="mt-0.5 truncate text-sm text-white/80"><span className="text-mint">Latest:</span> {latest.title}</div>

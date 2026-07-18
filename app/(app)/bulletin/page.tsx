@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
-import { listPosts, authorQueue, calendarFeed, canPostBulletin, postTypeLabel, type BulletinTile, type CalendarItem } from "@/lib/bulletin";
+import { listPosts, authorQueue, calendarFeed, canPostBulletin, postTypeLabel, myAckedPostIds, type BulletinTile, type CalendarItem } from "@/lib/bulletin";
 import { NewPostButton, NewEventButton, DeletePost, PinPost, PublishNow, DeletePostText, EditPostButton } from "./BulletinClient";
 import Glyph from "@/components/Glyph";
 
@@ -34,7 +34,7 @@ const KIND_STYLE: Record<string, { color: string; icon: string }> = {
 export default async function BulletinPage() {
   const user = await requireUser();
   const author = canPostBulletin(user);
-  const [posts, calendar, queue] = await Promise.all([listPosts(), calendarFeed(60), author ? authorQueue() : Promise.resolve([])]);
+  const [posts, calendar, queue, ackedIds] = await Promise.all([listPosts(), calendarFeed(60), author ? authorQueue() : Promise.resolve([]), myAckedPostIds(user.id)]);
 
   const pinned = posts.filter((p) => p.pinned);
   const rest = posts.filter((p) => !p.pinned);
@@ -84,11 +84,11 @@ export default async function BulletinPage() {
             <>
               {pinned.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {pinned.map((p) => <Tile key={p.id} p={p} author={author} featured />)}
+                  {pinned.map((p) => <Tile key={p.id} p={p} author={author} needsAck={p.requireAck && !ackedIds.has(p.id)} featured />)}
                 </div>
               ) : null}
               <div className="grid gap-4 sm:grid-cols-2">
-                {rest.map((p) => <Tile key={p.id} p={p} author={author} />)}
+                {rest.map((p) => <Tile key={p.id} p={p} author={author} needsAck={p.requireAck && !ackedIds.has(p.id)} />)}
               </div>
             </>
           )}
@@ -118,7 +118,7 @@ export default async function BulletinPage() {
   );
 }
 
-function Tile({ p, author, featured = false }: { p: BulletinTile; author: boolean; featured?: boolean }) {
+function Tile({ p, author, needsAck = false, featured = false }: { p: BulletinTile; author: boolean; needsAck?: boolean; featured?: boolean }) {
   const accent = ACCENT[p.type] ?? ACCENT.story;
   const href = p.linkUrl || `/bulletin/${p.id}`;
   const external = !!p.linkUrl;
@@ -137,6 +137,7 @@ function Tile({ p, author, featured = false }: { p: BulletinTile; author: boolea
       <div className="absolute left-3 top-3 flex items-center gap-2">
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${accent.chip}`}>{postTypeLabel(p.type)}</span>
         {p.pinned ? <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-ink">★ Featured</span> : null}
+        {needsAck ? <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-semibold text-[#3a2a00]">Acknowledge</span> : null}
         {external ? <span className="rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-semibold text-ink">↗ Link</span> : null}
       </div>
 

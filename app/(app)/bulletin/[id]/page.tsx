@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { Card } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
-import { postDetail, postTypeLabel, canPostBulletin } from "@/lib/bulletin";
-import { EditPostButton } from "../BulletinClient";
+import { postDetail, postTypeLabel, canPostBulletin, myAck, ackSummary } from "@/lib/bulletin";
+import { EditPostButton, AckButton } from "../BulletinClient";
 import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,10 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
   const post = await postDetail(id);
   const author = canPostBulletin(user);
   if (!post || (!post.published && !author)) notFound();
+  const [mine, summary] = await Promise.all([
+    post.requireAck ? myAck(post.id, user.id) : Promise.resolve(null),
+    post.requireAck && author ? ackSummary(post.id) : Promise.resolve(null),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -67,6 +71,36 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
 
           {post.linkUrl ? (
             <a href={post.linkUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-medium text-brand-700 hover:underline">Read more ↗</a>
+          ) : null}
+
+          {/* Acknowledgment */}
+          {post.requireAck && post.published ? (
+            <div className="mt-5">
+              {mine ? (
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                  <Glyph name="shield" className="h-4 w-4" /> You acknowledged this on {fmt(mine.acknowledgedAt)}.
+                </div>
+              ) : (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3">
+                  <div className="mb-2 text-sm font-medium text-amber-900">This post requires your acknowledgment.</div>
+                  <AckButton id={post.id} />
+                </div>
+              )}
+              {author && summary ? (
+                <div className="mt-3 rounded-lg border border-line p-3">
+                  <div className="text-xs font-semibold text-ink">Acknowledgments · {summary.count} of {summary.total} staff</div>
+                  {summary.who.length === 0 ? (
+                    <p className="mt-1 text-xs text-muted">No one has acknowledged yet.</p>
+                  ) : (
+                    <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                      {summary.who.map((w, i) => (
+                        <li key={i} className="tabular-nums"><span className="text-ink">{w.name}</span> · {fmt(w.at)}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : null}
+            </div>
           ) : null}
 
           <div className="mt-6 border-t border-line pt-3 text-xs text-muted">

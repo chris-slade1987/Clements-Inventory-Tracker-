@@ -44,13 +44,42 @@ export type BulletinTile = Awaited<ReturnType<typeof listPosts>>[number];
 const shape = (p: {
   id: string; type: string; title: string; excerpt: string | null; imagePath: string | null; imageAlt: string | null;
   linkUrl: string | null; body: string | null; eventDate: Date | null; location: string | null; honoreeName: string | null;
-  branch: string | null; pinned: boolean; published: boolean; publishAt: Date | null; authorName: string | null; createdAt: Date;
+  branch: string | null; pinned: boolean; published: boolean; publishAt: Date | null; requireAck: boolean; authorName: string | null; createdAt: Date;
 }) => ({
   id: p.id, type: p.type, title: p.title, excerpt: p.excerpt,
   hasImage: !!p.imagePath, imageAlt: p.imageAlt, linkUrl: p.linkUrl, hasBody: !!(p.body && p.body.trim()),
   eventDate: p.eventDate, location: p.location, honoreeName: p.honoreeName, branch: p.branch,
-  pinned: p.pinned, published: p.published, publishAt: p.publishAt, authorName: p.authorName, createdAt: p.createdAt,
+  pinned: p.pinned, published: p.published, publishAt: p.publishAt, requireAck: p.requireAck, authorName: p.authorName, createdAt: p.createdAt,
 });
+
+/** Post IDs the user has already acknowledged (for badging tiles). */
+export async function myAckedPostIds(userId: string): Promise<Set<string>> {
+  const rows = await prisma.bulletinAck.findMany({ where: { userId }, select: { postId: true } });
+  return new Set(rows.map((r) => r.postId));
+}
+
+/** Count of published, ack-required posts this user hasn't confirmed yet. */
+export async function pendingAckCount(userId: string): Promise<number> {
+  const [required, acked] = await Promise.all([
+    prisma.bulletinPost.findMany({ where: { published: true, requireAck: true }, select: { id: true } }),
+    myAckedPostIds(userId),
+  ]);
+  return required.filter((r) => !acked.has(r.id)).length;
+}
+
+/** A user's own acknowledgment of a post (or null). */
+export async function myAck(postId: string, userId: string) {
+  return prisma.bulletinAck.findUnique({ where: { postId_userId: { postId, userId } } });
+}
+
+/** Author view: who has acknowledged a post, and how many of active staff. */
+export async function ackSummary(postId: string) {
+  const [acks, total] = await Promise.all([
+    prisma.bulletinAck.findMany({ where: { postId }, orderBy: { acknowledgedAt: "asc" } }),
+    prisma.user.count({ where: { active: true } }),
+  ]);
+  return { count: acks.length, total, who: acks.map((a) => ({ name: a.userName ?? "—", branch: a.branch, at: a.acknowledgedAt })) };
+}
 
 /** Promote any scheduled posts whose time has arrived. Cheap, idempotent, and
  *  run on read so no separate cron is required. */
