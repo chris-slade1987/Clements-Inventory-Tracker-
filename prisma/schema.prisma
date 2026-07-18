@@ -1185,6 +1185,20 @@ model BranchContact {
   @@map("branch_contacts")
 }
 
+// Sales Center sync snapshots. Each row is one computed rollup of the hourly
+// Google Sheet (opportunity-level export). The dashboard reads the latest "ok".
+model SalesSnapshot {
+  id       String   @id @default(cuid())
+  syncedAt DateTime @default(now()) @map("synced_at")
+  rowCount Int      @default(0) @map("row_count")
+  status   String   @default("ok") // "ok" | "error"
+  error    String?
+  data     String   @default("{}") // JSON metrics blob
+
+  @@index([syncedAt])
+  @@map("sales_snapshots")
+}
+
 // Simple key/value app settings (e.g. price-increase threshold).
 model Setting {
   key       String   @id

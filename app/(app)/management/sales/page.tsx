@@ -16,6 +16,8 @@ import {
 } from "@/lib/management";
 import Controls from "../Controls";
 import { LineChart, Donut } from "@/components/charts";
+import { latestSalesSnapshot } from "@/lib/sales-sync";
+import SalesCenterLive from "./SalesCenterLive";
 
 export const dynamic = "force-dynamic";
 
@@ -24,15 +26,26 @@ export default async function SalesPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
+  const snap = await latestSalesSnapshot();
+  const canSync = user.role === "admin" || user.role === "manager";
+  const live = (
+    <SalesCenterLive
+      metrics={snap.metrics}
+      syncedAt={snap.syncedAt ? snap.syncedAt.toISOString() : null}
+      lastError={snap.lastError ?? null}
+      canSync={canSync}
+    />
+  );
 
   const periods = await listPeriods();
   if (periods.length === 0) {
     return (
       <>
-        <PageHeader title="Sales & Attrition" subtitle="New business and cancellations" />
-        <EmptyState title="No reports uploaded yet" hint="Upload a Monthly Board Report to populate this dashboard." />
+        <PageHeader title="Sales & Attrition" subtitle="Live Sales Center pipeline + Monthly Board Report" />
+        {live}
+        <EmptyState title="No board reports uploaded yet" hint="Upload a Monthly Board Report to populate the monthly attrition/revenue sections." />
       </>
     );
   }
@@ -76,6 +89,8 @@ export default async function SalesPage({
           basePath="/management/sales"
         />
       </div>
+
+      {live}
 
       {/* Branch selector by new-sales */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-6 mt-2">
