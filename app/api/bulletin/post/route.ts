@@ -31,12 +31,20 @@ export async function POST(req: Request) {
       imagePath = await saveUpload(bytes, file.name, file.type || "image/jpeg", "bulletin").catch(() => null);
     }
 
+    // Publish mode: "now" (default), "draft", or "schedule" (with publishAt).
+    // A schedule time already in the past just publishes immediately.
+    const mode = g("publishMode") ?? "now";
+    const schedAt = dateOf(g("publishAt"));
+    let published = true, publishAt: Date | null = null;
+    if (mode === "draft") { published = false; }
+    else if (mode === "schedule" && schedAt && schedAt.getTime() > Date.now()) { published = false; publishAt = schedAt; }
+
     const post = await prisma.bulletinPost.create({
       data: {
         type, title, excerpt: g("excerpt"), body: g("body"), imagePath, imageAlt,
         linkUrl: g("linkUrl"), eventDate: dateOf(g("eventDate")), eventEnd: dateOf(g("eventEnd")),
         location: g("location"), honoreeId: g("honoreeId"), honoreeName: g("honoreeName"),
-        branch: g("branch"), pinned: g("pinned") === "true",
+        branch: g("branch"), pinned: g("pinned") === "true", published, publishAt,
         authorId: user.id, authorName: user.name,
       },
     });
@@ -58,7 +66,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
     if (action === "pin") { await prisma.bulletinPost.update({ where: { id }, data: { pinned: !existing.pinned } }); return NextResponse.json({ ok: true }); }
-    if (action === "publish") { await prisma.bulletinPost.update({ where: { id }, data: { published: !existing.published } }); return NextResponse.json({ ok: true }); }
+    // Publish a draft / scheduled post immediately (clears any scheduled time).
+    if (action === "publish") { await prisma.bulletinPost.update({ where: { id }, data: { published: true, publishAt: null } }); return NextResponse.json({ ok: true }); }
+    // Send a published post back to drafts.
+    if (action === "unpublish") { await prisma.bulletinPost.update({ where: { id }, data: { published: false, publishAt: null } }); return NextResponse.json({ ok: true }); }
     if (action === "update") {
       await prisma.bulletinPost.update({
         where: { id },

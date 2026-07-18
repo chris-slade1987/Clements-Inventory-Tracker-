@@ -22,12 +22,18 @@ export default async function BulletinDetail({ params }: { params: Promise<{ id:
   const user = await requireUser();
   const { id } = await params;
   const post = await postDetail(id);
-  if (!post || !post.published) notFound();
   const author = canPostBulletin(user);
+  if (!post || (!post.published && !author)) notFound();
 
   return (
     <div className="mx-auto max-w-3xl">
       <Link href="/bulletin" className="text-sm text-brand-700 hover:underline">← Back to bulletin</Link>
+
+      {!post.published ? (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          {post.publishAt ? `Scheduled — goes live ${fmt(post.publishAt)}.` : "Draft — not published yet."} Only authors can see this preview.
+        </div>
+      ) : null}
 
       <Card className="mt-3 overflow-hidden">
         {post.imagePath ? (

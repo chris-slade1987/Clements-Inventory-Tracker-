@@ -1232,6 +1232,7 @@ model BulletinPost {
   branch      String? // null = company-wide; otherwise the branch it pertains to
   pinned      Boolean   @default(false) // featured at the top of the board
   published   Boolean   @default(true)
+  publishAt   DateTime? @map("publish_at") // set for a scheduled post; promoted to published once due
   authorId    String?   @map("author_id")
   authorName  String?   @map("author_name")
   createdAt   DateTime  @default(now()) @map("created_at")

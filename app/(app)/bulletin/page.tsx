@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
-import { listPosts, calendarFeed, canPostBulletin, postTypeLabel, type BulletinTile, type CalendarItem } from "@/lib/bulletin";
-import { NewPostButton, NewEventButton, DeletePost, PinPost } from "./BulletinClient";
+import { listPosts, authorQueue, calendarFeed, canPostBulletin, postTypeLabel, type BulletinTile, type CalendarItem } from "@/lib/bulletin";
+import { NewPostButton, NewEventButton, DeletePost, PinPost, PublishNow, DeletePostText, EditPostButton } from "./BulletinClient";
 import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ const KIND_STYLE: Record<string, { color: string; icon: string }> = {
 export default async function BulletinPage() {
   const user = await requireUser();
   const author = canPostBulletin(user);
-  const [posts, calendar] = await Promise.all([listPosts(), calendarFeed(60)]);
+  const [posts, calendar, queue] = await Promise.all([listPosts(), calendarFeed(60), author ? authorQueue() : Promise.resolve([])]);
 
   const pinned = posts.filter((p) => p.pinned);
   const rest = posts.filter((p) => !p.pinned);
@@ -50,6 +50,34 @@ export default async function BulletinPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Feed */}
         <div className="lg:col-span-2 space-y-5">
+          {author && queue.length > 0 ? (
+            <Card className="p-0 overflow-hidden ring-1 ring-amber-200">
+              <div className="px-4 py-2.5 border-b border-line bg-black/[0.02] flex items-center justify-between">
+                <div className="text-sm font-semibold text-ink">Drafts &amp; scheduled</div>
+                <span className="text-[11px] text-muted">Only you and other authors see these</span>
+              </div>
+              <ul className="divide-y divide-line">
+                {queue.map((q) => (
+                  <li key={q.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${q.scheduled ? "bg-sky-100 text-sky-800" : "bg-amber-100 text-amber-800"}`}>{q.scheduled ? "Scheduled" : "Draft"}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-ink">{q.title}</span>
+                      <span className="block text-[11px] text-muted">
+                        {postTypeLabel(q.type)}
+                        {q.scheduled && q.publishAt ? ` · goes live ${fmtLong(q.publishAt)}` : " · not published"}
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-3">
+                      <PublishNow id={q.id} />
+                      <EditPostButton post={{ id: q.id, type: q.type, title: q.title, excerpt: q.excerpt, body: q.body, linkUrl: q.linkUrl, location: q.location, honoreeName: q.honoreeName, branch: q.branch, eventDate: q.eventDate ? q.eventDate.toISOString().slice(0, 10) : null }} />
+                      <DeletePostText id={q.id} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
+
           {posts.length === 0 ? (
             <EmptyState title="Nothing posted yet" hint={author ? "Click “New post” to share the first story, announcement, or shoutout." : "Check back soon — culture stories and announcements will show up here."} />
           ) : (

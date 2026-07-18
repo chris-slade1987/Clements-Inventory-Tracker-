@@ -60,10 +60,10 @@ function Actions({ busy, onClose, onSave, label }: { busy: boolean; onClose: () 
 
 function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => void; onDone: () => void }) {
   const editing = !!seed?.id;
-  const [f, setF] = useState<PostSeed & { pinned: boolean }>({
+  const [f, setF] = useState<PostSeed & { pinned: boolean; publishMode: string; publishAt: string }>({
     type: seed?.type ?? "story", title: seed?.title ?? "", excerpt: seed?.excerpt ?? "", body: seed?.body ?? "",
     linkUrl: seed?.linkUrl ?? "", location: seed?.location ?? "", honoreeName: seed?.honoreeName ?? "",
-    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false,
+    branch: seed?.branch ?? "", eventDate: seed?.eventDate ?? "", pinned: false, publishMode: "now", publishAt: "",
   });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -114,11 +114,23 @@ function PostModal({ seed, onClose, onDone }: { seed?: PostSeed; onClose: () => 
         <>
           <Field label="Photo (optional)"><input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 w-full text-sm" /></Field>
           <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={f.pinned} onChange={(e) => set("pinned", e.target.checked)} /> Feature at the top</label>
+
+          <div className="rounded-lg border border-line p-3">
+            <div className="text-sm font-medium text-ink mb-1.5">When to publish</div>
+            <div className="flex flex-wrap gap-3 text-sm">
+              {[["now", "Publish now"], ["draft", "Save as draft"], ["schedule", "Schedule"]].map(([k, label]) => (
+                <label key={k} className="flex items-center gap-1.5"><input type="radio" name="publishMode" checked={f.publishMode === k} onChange={() => set("publishMode", k)} /> {label}</label>
+              ))}
+            </div>
+            {f.publishMode === "schedule" ? (
+              <div className="mt-2"><Field label="Publish on"><DateInput value={f.publishAt} onChange={(v) => set("publishAt", v)} /></Field></div>
+            ) : null}
+          </div>
         </>
       ) : null}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Actions busy={busy} onClose={onClose} onSave={save} label={editing ? "Save changes" : "Publish post"} />
+      <Actions busy={busy} onClose={onClose} onSave={save} label={editing ? "Save changes" : f.publishMode === "draft" ? "Save draft" : f.publishMode === "schedule" ? "Schedule post" : "Publish post"} />
     </Modal>
   );
 }
@@ -195,6 +207,25 @@ export function PinPost({ id, pinned }: { id: string; pinned: boolean }) {
     router.refresh();
   }
   return <button onClick={toggle} title={pinned ? "Unfeature" : "Feature"} className="grid h-7 w-7 place-items-center rounded-lg bg-black/45 text-white hover:bg-black/65"><Glyph name="star" filled={pinned} className="h-3.5 w-3.5" /></button>;
+}
+export function PublishNow({ id }: { id: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  async function go() {
+    setBusy(true);
+    await fetch("/api/bulletin/post", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "publish", id }) });
+    router.refresh();
+  }
+  return <button onClick={go} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline disabled:opacity-50">{busy ? "Publishing…" : "Publish now"}</button>;
+}
+export function DeletePostText({ id }: { id: string }) {
+  const router = useRouter();
+  async function del() {
+    if (!confirm("Delete this post?")) return;
+    await fetch("/api/bulletin/post", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete", id }) });
+    router.refresh();
+  }
+  return <button onClick={del} className="text-xs font-medium text-muted hover:text-red-600">Delete</button>;
 }
 export function DeletePost({ id }: { id: string }) {
   const router = useRouter();

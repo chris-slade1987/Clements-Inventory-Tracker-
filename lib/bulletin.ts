@@ -41,30 +41,42 @@ const startOfUtcDay = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUT
 
 export type BulletinTile = Awaited<ReturnType<typeof listPosts>>[number];
 
-/** The board feed: pinned first, then newest. */
+const shape = (p: {
+  id: string; type: string; title: string; excerpt: string | null; imagePath: string | null; imageAlt: string | null;
+  linkUrl: string | null; body: string | null; eventDate: Date | null; location: string | null; honoreeName: string | null;
+  branch: string | null; pinned: boolean; published: boolean; publishAt: Date | null; authorName: string | null; createdAt: Date;
+}) => ({
+  id: p.id, type: p.type, title: p.title, excerpt: p.excerpt,
+  hasImage: !!p.imagePath, imageAlt: p.imageAlt, linkUrl: p.linkUrl, hasBody: !!(p.body && p.body.trim()),
+  eventDate: p.eventDate, location: p.location, honoreeName: p.honoreeName, branch: p.branch,
+  pinned: p.pinned, published: p.published, publishAt: p.publishAt, authorName: p.authorName, createdAt: p.createdAt,
+});
+
+/** Promote any scheduled posts whose time has arrived. Cheap, idempotent, and
+ *  run on read so no separate cron is required. */
+async function promoteDue() {
+  await prisma.bulletinPost.updateMany({ where: { published: false, publishAt: { lte: new Date() } }, data: { published: true } });
+}
+
+/** The board feed: published only, pinned first, then newest. */
 export async function listPosts(opts: { type?: string; limit?: number } = {}) {
+  await promoteDue();
   const posts = await prisma.bulletinPost.findMany({
     where: { published: true, ...(opts.type ? { type: opts.type } : {}) },
     orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
     take: opts.limit,
   });
-  return posts.map((p) => ({
-    id: p.id,
-    type: p.type,
-    title: p.title,
-    excerpt: p.excerpt,
-    hasImage: !!p.imagePath,
-    imageAlt: p.imageAlt,
-    linkUrl: p.linkUrl,
-    hasBody: !!(p.body && p.body.trim()),
-    eventDate: p.eventDate,
-    location: p.location,
-    honoreeName: p.honoreeName,
-    branch: p.branch,
-    pinned: p.pinned,
-    authorName: p.authorName,
-    createdAt: p.createdAt,
-  }));
+  return posts.map(shape);
+}
+
+/** Authors' unpublished queue — drafts (no publishAt) and scheduled (future). */
+export async function authorQueue() {
+  await promoteDue();
+  const posts = await prisma.bulletinPost.findMany({
+    where: { published: false },
+    orderBy: [{ publishAt: "asc" }, { createdAt: "desc" }],
+  });
+  return posts.map((p) => ({ ...shape(p), body: p.body, scheduled: !!p.publishAt }));
 }
 
 export async function postDetail(id: string) {
