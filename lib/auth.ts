@@ -51,6 +51,7 @@ export type SessionUser = {
   warehouseName: string | null;
   branch: string | null;
   employeeId: string | null;
+  canPostBulletin: boolean;
 };
 
 /** A branch manager (non-admin with a home branch) only sees their own branch. */
@@ -97,6 +98,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     warehouseName: u.warehouse?.name ?? null,
     branch: u.branch,
     employeeId: u.employeeId,
+    canPostBulletin: u.canPostBulletin,
   };
 }
 

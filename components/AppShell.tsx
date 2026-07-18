@@ -92,13 +92,17 @@ export default function AppShell({
   const pathname = usePathname();
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
-    : pathname.startsWith("/my-branch")
-      ? "manager"
-      : pathname.startsWith("/management")
-        ? "management"
-        : pathname.startsWith("/fleet")
-          ? "fleet"
-          : "inventory";
+    : pathname.startsWith("/bulletin")
+      // The company bulletin is shared by everyone; show it inside whichever
+      // home nav fits the viewer (employees keep their self-service shell).
+      ? (isEmployee ? "employee" : "manager")
+      : pathname.startsWith("/my-branch")
+        ? "manager"
+        : pathname.startsWith("/management")
+          ? "management"
+          : pathname.startsWith("/fleet")
+            ? "fleet"
+            : "inventory";
   const items =
     mode === "employee" ? EMPLOYEE_NAV
       : mode === "manager" ? MANAGER_NAV

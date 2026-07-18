@@ -58,6 +58,7 @@ model User {
   branch       String? // "vero" | "stuart" | "orlando" | "naples" — home branch (null = all-branch / exec)
   employeeId   String?  @unique @map("employee_id") // personnel profile (for employee logins)
   active       Boolean  @default(true)
+  canPostBulletin Boolean @default(false) @map("can_post_bulletin") // may author company bulletin posts / calendar
   createdAt    DateTime @default(now()) @map("created_at")
 
   warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])
@@ -592,6 +593,8 @@ model Employee {
   title         String?
   status        String    @default("active") // "active" | "inactive" (former employee)
   hireDate      DateTime? @map("hire_date")
+  birthMonth    Int?      @map("birth_month") // 1-12; no birth year stored (privacy) — feeds birthday celebrations
+  birthDay      Int?      @map("birth_day") // 1-31
   terminatedAt  DateTime? @map("terminated_at")
   licenseNumber String?   @map("license_number")
   notes         String?
@@ -1206,4 +1209,54 @@ model Setting {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("settings")
+}
+
+// Company bulletin — culture-focused feed of stories, announcements, shoutouts,
+// and events. Read-only for the company; only granted authors post. A post with
+// an image renders as a photo tile with a title overlay; long-form posts open a
+// detail page, while short ones (or a linkUrl) can link straight out.
+model BulletinPost {
+  id          String    @id @default(cuid())
+  type        String    @default("story") // story | announcement | shoutout | event
+  title       String
+  excerpt     String? // short teaser shown on the tile
+  body        String? // full story (markdown-ish plain text) shown on the detail page
+  imagePath   String?   @map("image_path") // hero photo (durable storage), served auth-gated
+  imageAlt    String?   @map("image_alt")
+  linkUrl     String?   @map("link_url") // if set, the tile links here instead of a detail page
+  eventDate   DateTime? @map("event_date") // for type=event / anything that belongs on the calendar
+  eventEnd    DateTime? @map("event_end")
+  location    String?
+  honoreeId   String?   @map("honoree_id") // employee celebrated in a shoutout
+  honoreeName String?   @map("honoree_name")
+  branch      String? // null = company-wide; otherwise the branch it pertains to
+  pinned      Boolean   @default(false) // featured at the top of the board
+  published   Boolean   @default(true)
+  authorId    String?   @map("author_id")
+  authorName  String?   @map("author_name")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([published, pinned])
+  @@index([type])
+  @@map("bulletin_posts")
+}
+
+// Cascading company calendar — holidays, office closures / early releases, and
+// general events. Birthdays and work anniversaries are DERIVED from employee
+// profiles at read time (not stored here).
+model CalendarEvent {
+  id            String    @id @default(cuid())
+  title         String
+  kind          String    @default("event") // holiday | closure | early_release | event
+  date          DateTime // event day (UTC midnight)
+  endDate       DateTime? @map("end_date") // multi-day span (optional)
+  timeLabel     String?   @map("time_label") // e.g. "Closing 1:00 PM"
+  branch        String? // null = company-wide
+  notes         String?
+  createdByName String?   @map("created_by_name")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([date])
+  @@map("calendar_events")
 }

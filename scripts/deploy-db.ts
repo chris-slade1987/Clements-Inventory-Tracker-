@@ -125,6 +125,12 @@ async function main() {
       console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
     }
 
+    // Company bulletin: grant posting rights every deploy (non-destructive) and
+    // seed demo posts / calendar / placeholder celebrations when empty.
+    const { seedBulletin } = await import("../prisma/seed-bulletin");
+    const bl = await seedBulletin(prisma);
+    console.log(`deploy-db: bulletin — ${bl.granted} authors, ${bl.posts} posts, ${bl.events} events, ${bl.birthdays} birthdays.`);
+
     // Reconcile the branch hub on every deploy. seedBranchHub is idempotent and
     // self-healing: it keys CPO/business licenses by license number globally, so
     // it repairs an older deploy (a holder assigned to the wrong branch, a

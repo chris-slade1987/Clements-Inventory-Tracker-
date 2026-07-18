@@ -28,6 +28,12 @@ export const EMPLOYEE_NAV: NavItem[] = [
     shortLabel: "Library",
     icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM8 7h6M8 11h8M8 15h8",
   },
+  {
+    href: "/bulletin",
+    label: "Company Bulletin",
+    shortLabel: "Bulletin",
+    icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
+  },
 ];
 
 // Branch-manager home: their operational dashboard — reminders, this month's
@@ -74,6 +80,12 @@ export const MANAGER_NAV: NavItem[] = [
     label: "Scorecard",
     shortLabel: "Score",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
+  },
+  {
+    href: "/bulletin",
+    label: "Company Bulletin",
+    shortLabel: "Bulletin",
+    icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
   },
 ];
 
