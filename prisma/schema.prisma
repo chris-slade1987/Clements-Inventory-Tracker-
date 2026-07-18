@@ -1024,6 +1024,96 @@ model AuditPrecheck {
   @@map("audit_prechecks")
 }
 
+// ---------------------------------------------------------------------------
+// Insurance. Every line of business (general liability, commercial auto, workers
+// comp, property, umbrella, professional/E&O, cyber, EPLI, inland marine,
+// management liability, D&O, …) is a policy row. Multiple policies can share a
+// line and are broken out as sublines on the dashboard. Installments capture the
+// payment schedule so monthly budgets can be forecast; documents hold the PDFs.
+// ---------------------------------------------------------------------------
+model InsurancePolicy {
+  id     String @id @default(cuid())
+  line   String // canonical line key (see INSURANCE_LINES)
+  name   String // subline / descriptor, e.g. "Fleet Auto — Auto-Owners"
+  carrier      String?
+  policyNumber String? @map("policy_number")
+  agent        String? // broker / agency
+  status       String  @default("active") // "active" | "pending" | "application" | "expired" | "cancelled"
+
+  effectiveDate  DateTime? @map("effective_date")
+  expirationDate DateTime? @map("expiration_date")
+  annualPremium  Float?    @map("annual_premium")
+  notes          String?
+
+  // Within-policy coverage breakdown — JSON [{name, limit, deductible, premium}].
+  coverages String @default("[]")
+
+  // Payment / financing (drives the monthly forecast).
+  paymentMethod    String @default("direct") @map("payment_method") // "direct" | "financed" | "agency_bill"
+  paymentFrequency String @default("annual") @map("payment_frequency") // "annual" | "semiannual" | "quarterly" | "monthly" | "financed"
+  downPayment      Float? @map("down_payment")
+  financedAmount   Float? @map("financed_amount")
+  financeCharge    Float? @map("finance_charge")
+  numberOfPayments Int?   @map("number_of_payments")
+  paymentAmount    Float? @map("payment_amount")
+  apr              Float?
+  financeCompany   String? @map("finance_company")
+  financeAccount   String? @map("finance_account")
+
+  // AI extraction transparency + review state.
+  aiSummary   String? @map("ai_summary")
+  needsReview Boolean @default(false) @map("needs_review")
+
+  remindHr        Boolean   @default(true) @map("remind_hr")
+  lastReminderAt  DateTime? @map("last_reminder_at")
+  createdByUserId String?   @map("created_by_user_id")
+  createdByName   String?   @map("created_by_name")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  installments InsuranceInstallment[]
+  documents    InsuranceDocument[]
+
+  @@index([line])
+  @@index([expirationDate])
+  @@index([status])
+  @@map("insurance_policies")
+}
+
+model InsuranceInstallment {
+  id       String   @id @default(cuid())
+  policyId String   @map("policy_id")
+  dueDate  DateTime @map("due_date")
+  amount   Float
+  label    String?
+  paid     Boolean  @default(false)
+
+  policy InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId])
+  @@index([dueDate])
+  @@map("insurance_installments")
+}
+
+model InsuranceDocument {
+  id       String  @id @default(cuid())
+  policyId String? @map("policy_id")
+  title    String
+  fileName String  @map("file_name")
+  filePath String? @map("file_path")
+  fileSize Int?    @map("file_size")
+  mimeType String? @map("mime_type")
+  category String  @default("policy") // "policy" | "dec_page" | "payment_schedule" | "endorsement" | "invoice" | "other"
+
+  uploadedByName String?  @map("uploaded_by_name")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  policy InsurancePolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
+
+  @@index([policyId])
+  @@map("insurance_documents")
+}
+
 // Simple key/value app settings (e.g. price-increase threshold).
 model Setting {
   key       String   @id

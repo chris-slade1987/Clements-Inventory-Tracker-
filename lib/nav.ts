@@ -159,6 +159,12 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Docs",
     icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
+  {
+    href: "/management/insurance",
+    label: "Insurance",
+    shortLabel: "Insure",
+    icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
+  },
 ];
 
 export const FLEET_NAV: NavItem[] = [

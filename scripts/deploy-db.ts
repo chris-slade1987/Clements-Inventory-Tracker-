@@ -115,6 +115,16 @@ async function main() {
       console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
     }
 
+    // Seed insurance policies only when empty, so edits/uploads aren't clobbered.
+    const insurance = await prisma.insurancePolicy.count();
+    if (insurance === 0) {
+      const { seedInsurance } = await import("../prisma/seed-insurance");
+      const ins = await seedInsurance(prisma);
+      console.log(`deploy-db: seeded insurance (${ins.total} policies).`);
+    } else {
+      console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
+    }
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.
