@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui";
-import DateInput from "@/components/DateInput";
+import RangeToggle from "@/components/RangeToggle";
 import { money } from "@/lib/format";
+import { computeFuelRange, okCpg, okMpg, isoDay, type FuelRangeMode } from "@/lib/fuel-format";
 
 export type FuelRow = {
   id: string;
@@ -19,24 +20,13 @@ export type FuelRow = {
   type: string;
 };
 
-type Mode = "30d" | "month" | "quarter" | "custom";
-const MODES: { key: Mode; label: string }[] = [
-  { key: "30d", label: "Last 30 days" },
-  { key: "month", label: "Last month" },
-  { key: "quarter", label: "Last quarter" },
-  { key: "custom", label: "Custom" },
-];
-
-const okMpg = (x: number | null) => x != null && x >= 2 && x <= 40;
-const okCpg = (x: number | null) => x != null && x >= 1.5 && x <= 8;
 const dayMs = 864e5;
-const iso = (d: Date) => d.toISOString().slice(0, 10);
 const fmtDate = (isoStr: string) => new Date(isoStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 
 /**
- * Per-vehicle fuel history with a date-range switch. Ranges anchor to the most
- * recent transaction (not "today") so the default always lands on real data.
- * All computation is client-side over the vehicle's rows.
+ * Per-vehicle fuel history with a date-range switch that defaults to the last
+ * 30 days. Ranges anchor to the most recent transaction (not "today"), and all
+ * computation is client-side over the vehicle's rows.
  */
 export default function VehicleFuelPanel({ rows }: { rows: FuelRow[] }) {
   const purchases = useMemo(() => rows.filter((r) => r.type === "Purchase" || r.amount > 0), [rows]);
@@ -45,39 +35,24 @@ export default function VehicleFuelPanel({ rows }: { rows: FuelRow[] }) {
     return t > 0 ? new Date(t) : new Date();
   }, [purchases]);
 
-  const [mode, setMode] = useState<Mode>("30d");
-  const [customStart, setCustomStart] = useState(iso(new Date(anchor.getTime() - 30 * dayMs)));
-  const [customEnd, setCustomEnd] = useState(iso(anchor));
+  const [mode, setMode] = useState<FuelRangeMode>("30d");
+  const [customStart, setCustomStart] = useState(isoDay(new Date(anchor.getTime() - 30 * dayMs)));
+  const [customEnd, setCustomEnd] = useState(isoDay(anchor));
 
-  const [start, end] = useMemo(() => {
-    const a = anchor;
-    if (mode === "30d") return [new Date(a.getTime() - 30 * dayMs), a] as const;
-    if (mode === "month") {
-      const s = new Date(Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), 1));
-      return [s, a] as const;
-    }
-    if (mode === "quarter") {
-      const s = new Date(Date.UTC(a.getUTCFullYear(), a.getUTCMonth() - 2, 1));
-      return [s, a] as const;
-    }
-    const s = customStart ? new Date(`${customStart}T00:00:00Z`) : new Date(0);
-    const e = customEnd ? new Date(`${customEnd}T23:59:59Z`) : a;
-    return [s, e] as const;
-  }, [mode, anchor, customStart, customEnd]);
+  const [start, end] = useMemo(() => computeFuelRange(mode, anchor, customStart, customEnd), [mode, anchor, customStart, customEnd]);
 
   const inRange = useMemo(
-    () => purchases.filter((r) => {
-      const t = Date.parse(r.date);
-      return t >= start.getTime() && t <= end.getTime();
-    }).sort((x, y) => Date.parse(y.date) - Date.parse(x.date)),
+    () => purchases
+      .filter((r) => { const t = Date.parse(r.date); return t >= start.getTime() && t <= end.getTime(); })
+      .sort((x, y) => Date.parse(y.date) - Date.parse(x.date)),
     [purchases, start, end],
   );
 
   const summary = useMemo(() => {
     const spend = inRange.reduce((s, r) => s + r.amount, 0);
     const gallons = inRange.reduce((s, r) => s + (r.gallons ?? 0), 0);
-    const mpgs = inRange.map((r) => r.calculatedMpg).filter(okMpg) as number[];
-    const cpgs = inRange.map((r) => r.costPerGallon).filter(okCpg) as number[];
+    const mpgs = inRange.map((r) => r.calculatedMpg).filter(okMpg);
+    const cpgs = inRange.map((r) => r.costPerGallon).filter(okCpg);
     return {
       spend,
       gallons,
@@ -98,29 +73,14 @@ export default function VehicleFuelPanel({ rows }: { rows: FuelRow[] }) {
         <p className="px-4 py-6 text-center text-sm text-muted">No fuel purchases linked to this vehicle yet.</p>
       ) : (
         <>
-          <div className="px-4 pt-3 flex flex-wrap items-center gap-1">
-            {MODES.map((m) => (
-              <button
-                key={m.key}
-                onClick={() => setMode(m.key)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${mode === m.key ? "bg-emerald-grad text-[#05271c] shadow-sm" : "bg-black/[0.04] text-muted hover:text-ink"}`}
-              >
-                {m.label}
-              </button>
-            ))}
-            <span className="ml-auto text-[11px] text-muted">{fmtDate(iso(start))} – {fmtDate(iso(end))}</span>
+          <div className="px-4 pt-3">
+            <RangeToggle
+              mode={mode} onMode={setMode}
+              customStart={customStart} customEnd={customEnd}
+              onCustomStart={setCustomStart} onCustomEnd={setCustomEnd}
+              start={start} end={end}
+            />
           </div>
-
-          {mode === "custom" ? (
-            <div className="px-4 pt-2 flex flex-wrap items-end gap-3">
-              <label className="text-xs font-medium text-muted">From
-                <DateInput className="mt-1" value={customStart} onChange={setCustomStart} max={customEnd || undefined} />
-              </label>
-              <label className="text-xs font-medium text-muted">To
-                <DateInput className="mt-1" value={customEnd} onChange={setCustomEnd} min={customStart || undefined} />
-              </label>
-            </div>
-          ) : null}
 
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-line border-y border-line mt-3">
             <Stat label="Spend" value={money(summary.spend)} />

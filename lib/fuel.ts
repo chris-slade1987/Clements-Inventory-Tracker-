@@ -362,6 +362,65 @@ export async function ingestCoastStatement(buf: Uint8Array): Promise<IngestResul
   };
 }
 
+export type FleetFuelRow = {
+  id: string;
+  date: string; // ISO
+  amount: number;
+  gallons: number | null;
+  costPerGallon: number | null;
+  calculatedMpg: number | null;
+  type: string;
+  vehicleId: string;
+  unit: string | null;
+  name: string;
+  branch: string | null;
+};
+
+/**
+ * Rows for the interactive fleet fuel dashboard: every linked purchase (so the
+ * client can filter by date range) plus the full-history month trend and
+ * account-level fee/rebate totals (which stay period-agnostic as context).
+ */
+export async function fleetFuelRows(branch?: string | null) {
+  const where = branch ? { branch } : {};
+  const [linked, account] = await Promise.all([
+    prisma.fuelTransaction.findMany({
+      where: { ...where, vehicleId: { not: null } },
+      select: { id: true, date: true, amount: true, gallons: true, costPerGallon: true, calculatedMpg: true, type: true, vehicle: { select: { id: true, unitNumber: true, name: true, branch: true } } },
+      orderBy: { date: "desc" },
+    }),
+    prisma.fuelTransaction.findMany({ where: { ...where, vehicleId: null }, select: { type: true, amount: true } }),
+  ]);
+
+  const rows: FleetFuelRow[] = linked
+    .filter((r) => r.vehicle)
+    .map((r) => ({
+      id: r.id,
+      date: r.date.toISOString(),
+      amount: r.amount,
+      gallons: r.gallons,
+      costPerGallon: r.costPerGallon,
+      calculatedMpg: r.calculatedMpg,
+      type: r.type,
+      vehicleId: r.vehicle!.id,
+      unit: r.vehicle!.unitNumber,
+      name: r.vehicle!.name,
+      branch: r.vehicle!.branch,
+    }));
+
+  const purchases = linked.filter((r) => r.type === "Purchase" || r.amount > 0);
+  const byMonth = new Map<string, number>();
+  for (const r of purchases) {
+    const k = `${r.date.getUTCFullYear()}-${String(r.date.getUTCMonth() + 1).padStart(2, "0")}`;
+    byMonth.set(k, (byMonth.get(k) ?? 0) + r.amount);
+  }
+  const months = [...byMonth.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([month, spend]) => ({ month, spend }));
+  const fees = account.filter((r) => r.type === "Fee").reduce((s, r) => s + r.amount, 0);
+  const rebates = account.filter((r) => r.type === "Credit").reduce((s, r) => s + r.amount, 0);
+
+  return { rows, months, fees, rebates };
+}
+
 /** Fleet-wide fuel overview for a period-agnostic dashboard. */
 export async function fleetFuelOverview(branch?: string | null) {
   const where = branch ? { branch } : {};
