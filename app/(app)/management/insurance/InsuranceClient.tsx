@@ -168,7 +168,7 @@ export default function InsuranceClient({ lines, freqs, policiesByLine }: { line
                         {p.documents.length > 0 ? (
                           <div className="mt-1 flex flex-wrap gap-2">
                             {p.documents.map((d) => (
-                              d.filePath ? <a key={d.id} href={d.filePath} target="_blank" className="text-[11px] text-brand-700 hover:underline">📄 {d.title}</a> : <span key={d.id} className="text-[11px] text-muted">📄 {d.title}</span>
+                              d.filePath ? <a key={d.id} href={`/api/insurance/document/${d.id}/file`} target="_blank" className="text-[11px] text-brand-700 hover:underline">📄 {d.title}</a> : <span key={d.id} className="text-[11px] text-muted">📄 {d.title}</span>
                             ))}
                           </div>
                         ) : null}

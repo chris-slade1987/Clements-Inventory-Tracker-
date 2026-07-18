@@ -17,6 +17,8 @@ export type ReminderKind =
   | "loan_payoff"
   | "audit_followup"
   | "warehouse_due"
+  | "policy_renewal"
+  | "lease_expiring"
   | "manual";
 
 export type Reminder = {
@@ -32,6 +34,7 @@ export type Reminder = {
 const DAY = 864e5;
 const REGISTRATION_WINDOW_DAYS = 60;
 const PAYOFF_WINDOW_DAYS = 45;
+const POLICY_RENEWAL_WINDOW_DAYS = 90;
 
 export async function managerReminders(branch?: string): Promise<Reminder[]> {
   const now = new Date();
@@ -141,6 +144,27 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       href: "/management/audits",
       dueDate: fu.dueDate,
     });
+  }
+
+  // Insurance policy renewals (company-wide, shown on the all-branch / exec view).
+  if (!branch) {
+    const policies = await prisma.insurancePolicy.findMany({
+      where: { status: { in: ["active", "pending"] }, expirationDate: { not: null } },
+      select: { id: true, name: true, carrier: true, line: true, expirationDate: true },
+    });
+    for (const p of policies) {
+      const days = Math.round((p.expirationDate!.getTime() - now.getTime()) / DAY);
+      if (days > POLICY_RENEWAL_WINDOW_DAYS) continue;
+      reminders.push({
+        kind: "policy_renewal",
+        severity: days <= 0 ? "critical" : days <= 30 ? "warning" : "info",
+        title: days <= 0 ? "Insurance policy expired" : "Insurance renewal approaching",
+        detail: `${p.name}${p.carrier ? ` (${p.carrier})` : ""} — ${days <= 0 ? "expired" : `renews in ${days} days`} (${p.expirationDate!.toLocaleDateString()}).`,
+        branch: null,
+        href: "/management/insurance",
+        dueDate: p.expirationDate,
+      });
+    }
   }
 
   // Manual reminders (tagged to an employee/vehicle) whose lead window is open.
