@@ -183,12 +183,13 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
     if (d.category === "licensing" && d.expirationDate) {
       const days = Math.round((d.expirationDate.getTime() - now.getTime()) / DAY);
       if (days <= LICENSE_WINDOW) {
-        const who = d.employee?.name ?? d.holderName ?? d.title;
+        const isBiz = d.licenseType === "business";
+        const who = isBiz ? "FDACS business license" : (d.employee?.name ?? d.holderName ?? d.title);
         reminders.push({
           kind: "license_expiring",
           severity: days <= 0 ? "critical" : days <= 45 ? "warning" : "info",
-          title: days <= 0 ? "Operator license EXPIRED" : "Operator license expiring",
-          detail: `${who}${d.licenseNumber ? ` (#${d.licenseNumber})` : ""} — ${days <= 0 ? "expired" : `expires in ${days} days`} (${d.expirationDate.toLocaleDateString()}). Every branch must have a certified operator.`,
+          title: days <= 0 ? (isBiz ? "FDACS business license EXPIRED" : "Operator license EXPIRED") : isBiz ? "FDACS business license expiring" : "Operator license expiring",
+          detail: `${who}${d.licenseNumber ? ` (#${d.licenseNumber})` : ""} — ${days <= 0 ? "expired" : `expires in ${days} days`} (${d.expirationDate.toLocaleDateString()}). ${isBiz ? "Required to operate this branch." : "Every branch must have a certified operator."}`,
           branch: d.branch,
           href: `/my-branch/documents?branch=${d.branch}`,
           dueDate: d.expirationDate,

@@ -60,7 +60,6 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
                   <span className="font-medium text-ink">{o.holder}</span>
                   {o.categories ? <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-700">{o.categories}</span> : null}
                   {o.licenseNumber ? <span className="text-xs text-muted">#{o.licenseNumber}</span> : null}
-                  {o.employeeBranch && o.employeeBranch !== branch ? <span className="text-[11px] text-muted">(works {branchLabel(o.employeeBranch)})</span> : null}
                   {o.expirationDate ? <span className={`ml-auto text-xs font-medium ${o.daysOut != null && o.daysOut <= 0 ? "text-red-600" : crit ? "text-amber-600" : "text-muted"}`}>{o.daysOut != null && o.daysOut <= 0 ? "EXPIRED" : `expires ${fmt(o.expirationDate.toISOString())}`}</span> : null}
                 </li>
               );
