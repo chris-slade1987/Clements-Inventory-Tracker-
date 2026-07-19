@@ -182,6 +182,12 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Insure",
     icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
   },
+  {
+    href: "/management/compliance",
+    label: "Compliance",
+    shortLabel: "Comply",
+    icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
+  },
   BULLETIN_NAV_ITEM,
 ];
 

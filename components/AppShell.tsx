@@ -103,12 +103,14 @@ export default function AppShell({
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";
-  const items =
+  const rawItems =
     mode === "employee" ? EMPLOYEE_NAV
       : mode === "manager" ? MANAGER_NAV
         : mode === "management" ? MANAGEMENT_NAV
           : mode === "fleet" ? FLEET_NAV
             : INVENTORY_NAV;
+  // The Compliance Command Center is senior-leadership (admin) only.
+  const items = rawItems.filter((i) => i.href !== "/management/compliance" || isAdmin);
   // Employees have a single self-service area — no center switcher, no admin.
   const showCenters = !isEmployee;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
