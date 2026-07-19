@@ -5,6 +5,7 @@ import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
+import { overdueInterviews, candidatesAwaitingDecision } from "@/lib/ats";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
 // manager logging in knows what needs attention this month — vehicle
@@ -23,6 +24,8 @@ export type ReminderKind =
   | "license_expiring"
   | "rent_increase"
   | "pto_request"
+  | "interview_overdue"
+  | "candidate_decision"
   | "manual";
 
 export type Reminder = {
@@ -167,6 +170,36 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: null,
         href: "/management/insurance",
         dueDate: p.expirationDate,
+      });
+    }
+  }
+
+  // Hiring / ATS (HR-facing, company-wide — surfaced on the all-branch view).
+  // (a) Interviews assigned but not completed past their scheduled date.
+  // (b) Candidates whose interviews are all in and await an HR decision.
+  if (!branch) {
+    const [overdue, awaiting] = await Promise.all([overdueInterviews(), candidatesAwaitingDecision()]);
+    for (const iv of overdue) {
+      const days = iv.scheduledAt ? Math.round((now.getTime() - iv.scheduledAt.getTime()) / DAY) : null;
+      reminders.push({
+        kind: "interview_overdue",
+        severity: "warning",
+        title: "Interview scorecard outstanding",
+        detail: `${iv.interviewerName ?? "Interviewer"} hasn't submitted the scorecard for ${iv.candidate.name}${days != null ? ` — interview was ${days === 0 ? "today" : `${days}d ago`}` : ""}.`,
+        branch: null,
+        href: `/management/people/candidates/${iv.candidate.id}`,
+        dueDate: iv.scheduledAt,
+      });
+    }
+    for (const c of awaiting) {
+      reminders.push({
+        kind: "candidate_decision",
+        severity: "info",
+        title: "Candidate awaiting a decision",
+        detail: `${c.name}'s interview scorecards are all in — advance to an offer, or reject.`,
+        branch: null,
+        href: `/management/people/candidates/${c.id}`,
+        dueDate: null,
       });
     }
   }

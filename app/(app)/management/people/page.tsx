@@ -7,6 +7,7 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 import { employeeRoster } from "@/lib/people";
 import { formerEmployees } from "@/lib/separation";
 import { canManagePreHire } from "@/lib/prehire";
+import { canManageAts, listJobs } from "@/lib/ats";
 import PeopleControls from "./PeopleControls";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,9 @@ export default async function PeoplePage({
   const locked = branchLocked(user);
   const hr = isHrDirector(user);
   const canPreHire = canManagePreHire(user);
+  const canAts = canManageAts(user);
+  const jobs = canAts ? await listJobs() : [];
+  const openJobs = jobs.filter((j) => j.status === "open").length;
   const roster = await employeeRoster(branch ?? undefined);
   const reviews = hr ? await allReviews() : [];
   const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;
@@ -49,6 +53,20 @@ export default async function PeoplePage({
             <span className="block text-xs text-muted">30 & 60-day reviews — assign reviewers, track signatures, final approval</span>
           </span>
           {reviewsNeedAction > 0 ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">{reviewsNeedAction} need action</span> : null}
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
+
+      {canAts ? (
+        <Link href="/management/people/jobs" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4M20 14v5a1 1 0 01-1 1h-4" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Hiring / Jobs</span>
+            <span className="block text-xs text-muted">Post jobs, move candidates through the pipeline, assign interviews with scorecards, then onboard</span>
+          </span>
+          {openJobs > 0 ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{openJobs} open</span> : null}
           <span className="text-muted text-sm">→</span>
         </Link>
       ) : null}

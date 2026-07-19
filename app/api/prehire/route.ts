@@ -61,6 +61,8 @@ export async function POST(req: Request) {
       const id = str(body?.id);
       if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
       const employeeId = await approveAndConvert(id, user.name);
+      // If this pre-hire came from a hiring candidate, complete the ATS loop.
+      await prisma.candidate.updateMany({ where: { preHireId: id }, data: { stage: "hired" } });
       return NextResponse.json({ ok: true, employeeId });
     }
 

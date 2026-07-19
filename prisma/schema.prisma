@@ -1352,6 +1352,90 @@ model PreHireDocument {
   @@map("prehire_documents")
 }
 
+// ---------------------------------------------------------------------------
+// Hiring / ATS (applicant tracking). A Job posting collects Candidates who move
+// through a pipeline (applied → screening → interviewing → offer → onboarding →
+// hired / rejected). HR assigns Interviews to logged-in team members, who each
+// complete a REQUIRED digital scorecard; a calendar invite (.ics + Google link)
+// is generated on assignment. When a candidate reaches the offer / onboarding
+// stage, a PreHire is created from the candidate (linked via Candidate.preHireId)
+// and the EXISTING onboarding portal takes over; HR approval reuses
+// approveAndConvert and marks the candidate "hired".
+// ---------------------------------------------------------------------------
+model Job {
+  id                String   @id @default(cuid())
+  title             String
+  branch            String? // "vero" | "stuart" | "orlando" | "naples"
+  openings          Int      @default(1)
+  description       String?
+  hiringManagerName String?  @map("hiring_manager_name")
+  status            String   @default("open") // open | on_hold | filled | closed
+  createdByName     String?  @map("created_by_name")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  candidates Candidate[]
+
+  @@index([status])
+  @@map("jobs")
+}
+
+model Candidate {
+  id            String   @id @default(cuid())
+  jobId         String?  @map("job_id")
+  name          String
+  email         String
+  phone         String?
+  source        String? // where they came from (Indeed, referral, walk-in, …)
+  resumePath    String?  @map("resume_path")
+  resumeName    String?  @map("resume_name")
+  stage         String   @default("applied") // applied | screening | interviewing | offer | onboarding | hired | rejected
+  notes         String?
+  preHireId     String?  @unique @map("prehire_id") // set once onboarding starts (links to PreHire)
+  createdByName String?  @map("created_by_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  job        Job?        @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  interviews Interview[]
+
+  @@index([stage])
+  @@index([jobId])
+  @@map("candidates")
+}
+
+model Interview {
+  id               String    @id @default(cuid())
+  candidateId      String    @map("candidate_id")
+  interviewerId    String?   @map("interviewer_id") // User id — the logged-in team member who conducts it
+  interviewerName  String?   @map("interviewer_name")
+  interviewerEmail String?   @map("interviewer_email")
+  scheduledAt      DateTime? @map("scheduled_at")
+  durationMins     Int       @default(45) @map("duration_mins")
+  type             String    @default("in_person") // in_person | video
+  location         String?
+  meetingLink      String?   @map("meeting_link")
+  // Reserved for a future Google Calendar API integration (Workspace service
+  // account creates the event server-side + auto-generates a Meet link).
+  calendarEventId  String?   @map("calendar_event_id")
+  status           String    @default("scheduled") // scheduled | completed | cancelled
+  assignedByName   String?   @map("assigned_by_name")
+  responses        String    @default("{}") // JSON scorecard (competency ratings + notes + basics)
+  overallRating    Int?      @map("overall_rating")
+  recommendation   String? // strong_yes | yes | lean_yes | lean_no | no
+  summary          String?
+  completedAt      DateTime? @map("completed_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([status])
+  @@index([interviewerId])
+  @@map("interviews")
+}
+
 // Cascading company calendar — holidays, office closures / early releases, and
 // general events. Birthdays and work anniversaries are DERIVED from employee
 // profiles at read time (not stored here).

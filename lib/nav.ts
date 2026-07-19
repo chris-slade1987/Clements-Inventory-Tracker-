@@ -33,6 +33,15 @@ export const PREHIRE_NAV_ITEM: NavItem = {
   icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h3M16 19l2 2 4-4",
 };
 
+// Hiring / ATS — surfaced for HR (admins + granted HR), like PREHIRE. Jobs,
+// candidates, interviews, and the pipeline through to onboarding.
+export const HIRING_NAV_ITEM: NavItem = {
+  href: "/management/people/jobs",
+  label: "Hiring",
+  shortLabel: "Hiring",
+  icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4M20 14v5a1 1 0 01-1 1h-4",
+};
+
 // Company-wide PTO calendar — admins + HR only (everyone's approved time off).
 // Surfaced like PREHIRE: not in the general management nav, but pushed onto the
 // shell for anyone who canViewAllPto (admins reach it; April gets it too).

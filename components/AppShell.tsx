@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 
 function Icon({ path, className }: { path: string; className?: string }) {
@@ -112,9 +112,11 @@ export default function AppShell({
   // self-service shell and may reach ONLY their granted management pages.
   const canViewCompliance = isAdmin || isSeniorLeadership;
   const canManagePreHire = isAdmin || isHrAccess;
+  const canManageAts = isAdmin || isHrAccess;
   const canViewAllPto = isAdmin || isHrAccess;
   const grantedMgmt: NavItem[] = [];
   if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
+  if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
   if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
   if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
   const privilegedEmployee = isEmployee && grantedMgmt.length > 0;

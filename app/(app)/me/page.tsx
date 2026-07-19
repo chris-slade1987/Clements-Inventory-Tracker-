@@ -3,6 +3,7 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
+import { interviewsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
 import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
 import { ptoBalance } from "@/lib/pto";
 import BulletinBanner from "@/components/BulletinBanner";
@@ -54,10 +55,11 @@ export default async function MyWorkPage() {
     );
   }
 
-  const [assignments, reviews, conducting, pto] = await Promise.all([
+  const [assignments, reviews, conducting, interviews, pto] = await Promise.all([
     employeeAssignments(user.employeeId),
     openReviewsForEmployee(user.employeeId),
     reviewsForReviewer(user.id),
+    interviewsForUser(user.id),
     ptoBalance(user.employeeId),
   ]);
   const open = assignments.filter((a) => a.status !== "completed");
@@ -92,6 +94,32 @@ export default async function MyWorkPage() {
           <span className="shrink-0 text-xs font-medium text-brand-700">Request PTO →</span>
         </Link>
       </Card>
+
+      {interviews.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Interview{interviews.length === 1 ? "" : "s"} to complete</div>
+          <ul className="divide-y divide-line">
+            {interviews.map((iv) => {
+              const overdue = iv.scheduledAt ? iv.scheduledAt.getTime() < now : false;
+              return (
+                <li key={iv.id}>
+                  <Link href={`/me/interviews/${iv.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${overdue ? "bg-red-500" : "bg-amber-500"}`} />
+                    <span className="flex-1">
+                      <span className="block text-sm font-medium text-ink">{iv.candidate.name}{iv.candidate.job ? ` — ${iv.candidate.job.title}` : ""}</span>
+                      <span className="block text-xs text-muted">
+                        {INTERVIEW_TYPE_LABELS[iv.type] ?? iv.type} interview · complete the scorecard
+                        {iv.scheduledAt ? ` · ${overdue ? "was" : ""} ${iv.scheduledAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+                      </span>
+                    </span>
+                    <span className="text-xs font-medium text-brand-700 mt-0.5">Open &amp; score →</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      ) : null}
 
       {reviewsToSign.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
