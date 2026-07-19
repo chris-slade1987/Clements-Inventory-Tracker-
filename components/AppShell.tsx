@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 
 function Icon({ path, className }: { path: string; className?: string }) {
@@ -83,6 +83,7 @@ export default function AppShell({
   isEmployee = false,
   isSeniorLeadership = false,
   isHrAccess = false,
+  isInterviewer = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -91,6 +92,7 @@ export default function AppShell({
   isEmployee?: boolean;
   isSeniorLeadership?: boolean;
   isHrAccess?: boolean;
+  isInterviewer?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -119,7 +121,11 @@ export default function AppShell({
   if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
   if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
   if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
-  const privilegedEmployee = isEmployee && grantedMgmt.length > 0;
+  // Interviewers (non-HR) get a scoped "My Hiring" link. HR already has the full
+  // Hiring nav, so don't double it up for them.
+  const showMyHiring = isInterviewer && !canManageAts;
+  const homeExtras: NavItem[] = [...grantedMgmt, ...(showMyHiring ? [MY_HIRING_NAV_ITEM] : [])];
+  const privilegedEmployee = isEmployee && homeExtras.length > 0;
 
   const rawItems =
     mode === "employee" ? EMPLOYEE_NAV
@@ -130,18 +136,24 @@ export default function AppShell({
 
   let items: NavItem[];
   if (mode === "management" && privilegedEmployee) {
-    // Never expose the full management nav to an employee-shell grantee — only
-    // the specific pages they're allowed to see.
-    items = grantedMgmt;
+    // Never expose the full management nav to an employee-shell grantee (incl. a
+    // tech interviewer on a job-container page) — only their allowed links.
+    items = homeExtras;
   } else {
     // The Compliance Command Center is senior-leadership only.
     let list = rawItems.filter((i) => i.href !== COMPLIANCE_NAV_ITEM.href || canViewCompliance);
-    // Surface granted management links on the grantee's employee home nav
-    // (inserted just before the company bulletin).
+    // Surface granted management links + My Hiring on the grantee's employee home
+    // nav (inserted just before the company bulletin).
     if (mode === "employee" && privilegedEmployee) {
       const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
       const at = idx === -1 ? list.length : idx;
-      list = [...list.slice(0, at), ...grantedMgmt, ...list.slice(at)];
+      list = [...list.slice(0, at), ...homeExtras, ...list.slice(at)];
+    } else if (showMyHiring && mode !== "employee") {
+      // Manager/other non-employee interviewer: add a My Hiring link before the
+      // bulletin without stripping their normal nav.
+      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
+      const at = idx === -1 ? list.length : idx;
+      list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
     }
     items = list;
   }

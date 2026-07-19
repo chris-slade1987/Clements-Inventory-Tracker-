@@ -87,12 +87,23 @@ export async function updateJob(
   return prisma.job.update({ where: { id }, data: patch });
 }
 
-/** All jobs, newest first, with candidate counts. */
+/**
+ * All jobs, newest first, with candidate counts. Each row also carries the
+ * resolved hired-candidate NAME (for the archive section) — cheap since we load
+ * the candidates' id/name alongside the count.
+ */
 export async function listJobs() {
-  return prisma.job.findMany({
+  const jobs = await prisma.job.findMany({
     orderBy: [{ createdAt: "desc" }],
-    include: { _count: { select: { candidates: true } } },
+    include: {
+      _count: { select: { candidates: true } },
+      candidates: { select: { id: true, name: true } },
+    },
   });
+  return jobs.map((j) => ({
+    ...j,
+    hiredName: j.hiredCandidateId ? j.candidates.find((c) => c.id === j.hiredCandidateId)?.name ?? null : null,
+  }));
 }
 
 export async function jobDetail(id: string) {
@@ -432,4 +443,218 @@ export async function candidatesAwaitingDecision() {
   return candidates.filter(
     (c) => c.interviews.length > 0 && c.interviews.every((i) => i.status === "completed"),
   );
+}
+
+// ---- Interviewer scoped access (Refinement 2) -----------------------------
+// Anyone assigned an interview on an ACTIVE job gets read access to that whole
+// job container (job + all candidates + all scorecards). Access is COMPUTED —
+// no stored flag — so filling/closing the job automatically revokes it.
+
+const ACTIVE_JOB_STATUSES = ["open", "on_hold"];
+
+/**
+ * Job ids the user has interviewer access to: they're assigned an interview on
+ * a candidate whose job is still active (open/on_hold).
+ */
+export async function interviewerJobIds(userId: string): Promise<Set<string>> {
+  const rows = await prisma.interview.findMany({
+    where: { interviewerId: userId, candidate: { job: { status: { in: ACTIVE_JOB_STATUSES } } } },
+    select: { candidate: { select: { jobId: true } } },
+  });
+  const ids = new Set<string>();
+  for (const r of rows) if (r.candidate.jobId) ids.add(r.candidate.jobId);
+  return ids;
+}
+
+/** HR always; otherwise only if the user is an interviewer on this active job. */
+export async function canAccessJob(user: SessionUser, jobId: string): Promise<boolean> {
+  if (canManageAts(user)) return true;
+  return (await interviewerJobIds(user.id)).has(jobId);
+}
+
+/** HR always (even if the candidate has no job); otherwise via the candidate's job. */
+export async function canAccessCandidate(user: SessionUser, candidateId: string): Promise<boolean> {
+  if (canManageAts(user)) return true;
+  const c = await prisma.candidate.findUnique({ where: { id: candidateId }, select: { jobId: true } });
+  if (!c?.jobId) return false;
+  return canAccessJob(user, c.jobId);
+}
+
+/** True when the user is currently an interviewer on any active job. */
+export async function isActiveInterviewer(userId: string): Promise<boolean> {
+  return (await interviewerJobIds(userId)).size > 0;
+}
+
+/**
+ * Active jobs the user is an interviewer on, with that user's own interviews on
+ * each (for the "My Hiring" list). Newest job first.
+ */
+export async function involvedJobsForUser(userId: string) {
+  const jobIds = await interviewerJobIds(userId);
+  if (jobIds.size === 0) return [];
+  const ids = [...jobIds];
+  const [jobs, interviews] = await Promise.all([
+    prisma.job.findMany({ where: { id: { in: ids } }, orderBy: [{ createdAt: "desc" }] }),
+    prisma.interview.findMany({
+      where: { interviewerId: userId, candidate: { jobId: { in: ids } } },
+      orderBy: [{ scheduledAt: "asc" }, { createdAt: "asc" }],
+      include: { candidate: { select: { id: true, name: true, jobId: true } } },
+    }),
+  ]);
+  return jobs.map((job) => ({
+    job,
+    myInterviews: interviews
+      .filter((iv) => iv.candidate.jobId === job.id)
+      .map((iv) => ({ id: iv.id, candidateName: iv.candidate.name, candidateId: iv.candidate.id, status: iv.status, scheduledAt: iv.scheduledAt })),
+  }));
+}
+
+// ---- Post-hire close-out (Refinement 3) -----------------------------------
+
+/**
+ * Complete a job's hiring. If a candidate was hired: mark them hired, set the
+ * job to filled and record the hire. Otherwise close the position with no hire.
+ * Either way stamp filledAt, notify every DISTINCT interviewer of the result,
+ * and idempotently stamp outcomeNotifiedAt (so their computed container access
+ * ends and the outcome shows on their "Hiring results"). Returns a summary.
+ */
+export async function closeOutHiring(jobId: string, hiredCandidateId: string | null, byName: string | null) {
+  void byName; // reserved for a future audit field; kept for a stable signature.
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: {
+      candidates: {
+        include: {
+          interviews: { select: { interviewerId: true, interviewerName: true, interviewerEmail: true } },
+        },
+      },
+    },
+  });
+  if (!job) throw new Error("Job not found.");
+
+  const hired = hiredCandidateId ? job.candidates.find((c) => c.id === hiredCandidateId) ?? null : null;
+  if (hiredCandidateId && !hired) throw new Error("Selected candidate is not on this job.");
+
+  const now = new Date();
+  if (hired) {
+    await prisma.candidate.update({ where: { id: hired.id }, data: { stage: "hired" } });
+    await prisma.job.update({ where: { id: job.id }, data: { status: "filled", hiredCandidateId: hired.id, filledAt: now } });
+  } else {
+    await prisma.job.update({ where: { id: job.id }, data: { status: "closed", hiredCandidateId: null, filledAt: now } });
+  }
+
+  const status = hired ? "filled" : "closed";
+  const hiredName = hired?.name ?? null;
+
+  // Notify each distinct interviewer across all this job's candidates' interviews.
+  const seen = new Set<string>();
+  let notified = 0;
+  for (const c of job.candidates) {
+    for (const iv of c.interviews) {
+      if (!iv.interviewerId || seen.has(iv.interviewerId)) continue;
+      seen.add(iv.interviewerId);
+      if (iv.interviewerEmail) {
+        await notifyInterviewerOutcome(iv.interviewerEmail, iv.interviewerName, job.title, hiredName, job.id);
+        notified++;
+      }
+    }
+  }
+  // Idempotency guard: stamp only where still null, so re-running won't re-notify.
+  await prisma.interview.updateMany({
+    where: { candidate: { jobId: job.id }, interviewerId: { not: null }, outcomeNotifiedAt: null },
+    data: { outcomeNotifiedAt: now },
+  });
+
+  return { status, hiredName, notified };
+}
+
+async function notifyInterviewerOutcome(
+  interviewerEmail: string,
+  interviewerName: string | null,
+  jobTitle: string,
+  hiredName: string | null,
+  jobId: string,
+) {
+  const first = (interviewerName || "there").split(/\s+/)[0];
+  const body = hiredName
+    ? `We've completed the hiring process and ${hiredName} was selected.`
+    : `The ${jobTitle} search has been closed without a hire.`;
+  const text = [
+    `Hi ${first},`,
+    "",
+    `Thanks for interviewing for ${jobTitle}. ${body} Your access to this job's hiring workspace has now closed.`,
+    "",
+    "Thank you for helping us make this decision.",
+    "",
+    "— Clements Command & Control",
+  ].join("\n");
+  const html = [
+    `<p>Hi ${first},</p>`,
+    `<p>Thanks for interviewing for <strong>${jobTitle}</strong>. ${hiredName ? `We've completed the hiring process and <strong>${hiredName}</strong> was selected.` : `The <strong>${jobTitle}</strong> search has been closed without a hire.`} Your access to this job's hiring workspace has now closed.</p>`,
+    `<p>Thank you for helping us make this decision.</p>`,
+    `<p>— Clements Command &amp; Control</p>`,
+  ].join("");
+  await sendEmail({
+    to: interviewerEmail,
+    subject: `Hiring update: ${jobTitle}`,
+    kind: "interview_outcome",
+    relatedType: "job",
+    relatedId: jobId,
+    text,
+    html,
+  });
+}
+
+/** Reopen a filled/closed job — restores computed interviewer access. */
+export async function reopenJob(jobId: string) {
+  return prisma.job.update({ where: { id: jobId }, data: { status: "open", filledAt: null, hiredCandidateId: null } });
+}
+
+/**
+ * Hiring results a (possibly former) interviewer sees after their container
+ * access is gone: their interviews that have been outcome-notified, deduped by
+ * job (most recent notification), within the last 30 days, newest first, with
+ * the hired candidate's name resolved.
+ */
+export async function hiringResultsForUser(userId: string) {
+  const since = new Date(Date.now() - 30 * 864e5);
+  const rows = await prisma.interview.findMany({
+    where: { interviewerId: userId, outcomeNotifiedAt: { not: null, gte: since } },
+    orderBy: [{ outcomeNotifiedAt: "desc" }],
+    include: { candidate: { select: { job: { select: { id: true, title: true, status: true, hiredCandidateId: true } } } } },
+  });
+  const byJob = new Map<string, { jobId: string; jobTitle: string; status: string; notifiedAt: Date; hiredCandidateId: string | null }>();
+  for (const iv of rows) {
+    const job = iv.candidate.job;
+    if (!job || byJob.has(job.id)) continue; // newest-first — keep the most recent
+    byJob.set(job.id, { jobId: job.id, jobTitle: job.title, status: job.status, notifiedAt: iv.outcomeNotifiedAt!, hiredCandidateId: job.hiredCandidateId });
+  }
+  const results = [...byJob.values()];
+  const hiredIds = results.map((r) => r.hiredCandidateId).filter((x): x is string => !!x);
+  const names = hiredIds.length
+    ? await prisma.candidate.findMany({ where: { id: { in: hiredIds } }, select: { id: true, name: true } })
+    : [];
+  const nameMap = new Map(names.map((n) => [n.id, n.name]));
+  return results.map((r) => ({
+    jobId: r.jobId,
+    jobTitle: r.jobTitle,
+    hiredName: r.hiredCandidateId ? nameMap.get(r.hiredCandidateId) ?? null : null,
+    status: r.status,
+    notifiedAt: r.notifiedAt,
+  }));
+}
+
+/**
+ * Active jobs with a candidate that has advanced to hired/onboarding — HR should
+ * close them out (notify interviewers, archive, revoke access). For reminders.
+ */
+export async function jobsAwaitingCloseout() {
+  return prisma.job.findMany({
+    where: {
+      status: { in: ACTIVE_JOB_STATUSES },
+      candidates: { some: { stage: { in: ["hired", "onboarding"] } } },
+    },
+    select: { id: true, title: true },
+    orderBy: [{ createdAt: "desc" }],
+  });
 }

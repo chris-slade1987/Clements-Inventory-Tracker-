@@ -3,7 +3,7 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
-import { interviewsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
+import { interviewsForUser, hiringResultsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
 import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
 import { ptoBalance } from "@/lib/pto";
 import BulletinBanner from "@/components/BulletinBanner";
@@ -55,13 +55,15 @@ export default async function MyWorkPage() {
     );
   }
 
-  const [assignments, reviews, conducting, interviews, pto] = await Promise.all([
+  const [assignments, reviews, conducting, interviews, hiringResults, pto] = await Promise.all([
     employeeAssignments(user.employeeId),
     openReviewsForEmployee(user.employeeId),
     reviewsForReviewer(user.id),
     interviewsForUser(user.id),
+    hiringResultsForUser(user.id),
     ptoBalance(user.employeeId),
   ]);
+  const recentHiringResults = hiringResults.slice(0, 2);
   const open = assignments.filter((a) => a.status !== "completed");
   const completed = assignments.filter((a) => a.status === "completed");
   const reviewsToSign = reviews.filter((r) => !r.employeeSignedAt);
@@ -117,6 +119,28 @@ export default async function MyWorkPage() {
                 </li>
               );
             })}
+          </ul>
+        </Card>
+      ) : null}
+
+      {recentHiringResults.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Hiring result{recentHiringResults.length === 1 ? "" : "s"}</div>
+          <ul className="divide-y divide-line">
+            {recentHiringResults.map((r) => (
+              <li key={r.jobId}>
+                <Link href="/me/hiring" className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium text-ink">{r.jobTitle}</span>
+                    <span className="block text-xs text-muted">{r.hiredName ? `${r.hiredName} was hired` : "Closed without a hire"} · you interviewed for this role</span>
+                  </span>
+                  <span className="text-xs font-medium text-brand-700 mt-0.5">My Hiring →</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </Card>
       ) : null}

@@ -4,6 +4,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
 import {
   canManageAts,
+  canAccessCandidate,
   candidateDetail,
   interviewerCandidates,
   INTERVIEW_TEMPLATE,
@@ -41,13 +42,14 @@ function ratingLabel(v: number | null | undefined): string {
 
 export default async function CandidateHubPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
-  if (!canManageAts(user)) redirect(homePath(user));
-
   const { id } = await params;
+  if (!(await canAccessCandidate(user, id))) redirect(homePath(user));
+  const canManage = canManageAts(user);
+
   const detail = await candidateDetail(id);
   if (!detail) notFound();
   const { candidate, preHire } = detail;
-  const interviewers = await interviewerCandidates();
+  const interviewers = canManage ? await interviewerCandidates() : [];
 
   return (
     <>
@@ -81,9 +83,19 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
           {candidate.notes ? <p className="mt-3 text-sm text-muted whitespace-pre-line">{candidate.notes}</p> : null}
         </Card>
 
-        <div>
-          <CandidateActions candidateId={candidate.id} stage={candidate.stage} interviewers={interviewers} />
-        </div>
+        {canManage ? (
+          <div>
+            <CandidateActions candidateId={candidate.id} stage={candidate.stage} interviewers={interviewers} />
+          </div>
+        ) : (
+          <Card className="p-4 flex items-start gap-3 bg-brand-50 border-brand-100">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-brand-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4" /></svg>
+            <div>
+              <div className="text-sm font-medium text-brand-800">Interviewer view</div>
+              <p className="text-xs text-brand-700">Read-only. You can review this candidate and everyone&rsquo;s completed scorecards; only HR advances the pipeline.</p>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Interviews + scorecards */}
@@ -151,6 +163,18 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
                         <div className="rounded-lg bg-brand-50 border border-brand-100 px-3 py-2">
                           <div className="text-xs font-medium text-brand-800 mb-0.5">Summary</div>
                           <p className="text-sm text-ink whitespace-pre-line">{iv.summary}</p>
+                        </div>
+                      ) : null}
+                      {sc.impressions ? (
+                        <div className="rounded-lg bg-black/[0.02] border border-line px-3 py-2">
+                          <div className="text-xs font-medium text-muted mb-0.5">Overall impressions &amp; culture fit</div>
+                          <p className="text-sm text-ink whitespace-pre-line">{sc.impressions}</p>
+                        </div>
+                      ) : null}
+                      {sc.additional ? (
+                        <div className="rounded-lg bg-black/[0.02] border border-line px-3 py-2">
+                          <div className="text-xs font-medium text-muted mb-0.5">Additional comments for the hiring decision</div>
+                          <p className="text-sm text-ink whitespace-pre-line">{sc.additional}</p>
                         </div>
                       ) : null}
                     </div>

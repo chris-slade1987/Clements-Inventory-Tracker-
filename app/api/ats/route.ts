@@ -12,6 +12,8 @@ import {
   moveToOnboarding,
   rejectCandidate,
   cancelInterview,
+  closeOutHiring,
+  reopenJob,
 } from "@/lib/ats";
 
 export const runtime = "nodejs";
@@ -95,6 +97,20 @@ export async function POST(req: Request) {
         hiringManagerName: body?.hiringManagerName,
         status: body?.status,
       });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === "job.closeOut") {
+      const jobId = str(body?.jobId);
+      if (!jobId) return NextResponse.json({ error: "Missing job id." }, { status: 400 });
+      const result = await closeOutHiring(jobId, str(body?.hiredCandidateId), user.name);
+      return NextResponse.json({ ok: true, status: result.status, hiredName: result.hiredName });
+    }
+
+    if (action === "job.reopen") {
+      const jobId = str(body?.jobId);
+      if (!jobId) return NextResponse.json({ error: "Missing job id." }, { status: 400 });
+      await reopenJob(jobId);
       return NextResponse.json({ ok: true });
     }
 

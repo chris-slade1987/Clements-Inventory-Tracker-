@@ -105,6 +105,10 @@ export type CompetencyResponse = { rating?: number | null; notes?: string };
 export type ScorecardResponses = {
   competencies?: Record<string, CompetencyResponse>;
   basics?: Record<string, string>;
+  // Two OPTIONAL subjective free-text sections the interviewer fills in for
+  // later reference (not part of validateScorecard — never block submission).
+  impressions?: string; // "Overall impressions & culture fit"
+  additional?: string; // "Additional comments for the hiring decision"
 };
 
 // ---- Stage / status labels -------------------------------------------------

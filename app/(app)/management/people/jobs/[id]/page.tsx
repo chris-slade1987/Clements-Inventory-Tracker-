@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
-import { canManageAts, jobDetail, STAGE_ORDER, STAGE_LABELS, JOB_STATUS_LABELS } from "@/lib/ats";
+import { canManageAts, canAccessJob, jobDetail, STAGE_ORDER, STAGE_LABELS, JOB_STATUS_LABELS } from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import NewCandidate from "./NewCandidate";
-import JobStatusControl from "./JobStatusControl";
+import JobLifecycle from "./JobLifecycle";
 
 export const dynamic = "force-dynamic";
 
@@ -22,11 +22,14 @@ const STAGE_STYLE: Record<string, string> = {
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
-  if (!canManageAts(user)) redirect(homePath(user));
-
   const { id } = await params;
+  if (!(await canAccessJob(user, id))) redirect(homePath(user));
+  const canManage = canManageAts(user);
+
   const job = await jobDetail(id);
   if (!job) notFound();
+
+  const hiredName = job.hiredCandidateId ? job.candidates.find((c) => c.id === job.hiredCandidateId)?.name ?? null : null;
 
   const byStage = new Map<string, typeof job.candidates>();
   for (const s of STAGE_ORDER) byStage.set(s, []);
@@ -39,16 +42,34 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people/jobs" className="text-xs font-medium text-brand-300 hover:underline">← Hiring / Jobs</Link>
+        <Link href={canManage ? "/management/people/jobs" : "/me/hiring"} className="text-xs font-medium text-brand-300 hover:underline">← {canManage ? "Hiring / Jobs" : "My Hiring"}</Link>
       </div>
       <PageHeader
         title={job.title}
         subtitle={[job.branch ? branchLabel(job.branch) : null, `${job.openings} opening${job.openings === 1 ? "" : "s"}`, job.hiringManagerName ? `Hiring mgr: ${job.hiringManagerName}` : null].filter(Boolean).join(" · ")}
-        actions={<NewCandidate jobId={job.id} />}
+        actions={canManage ? <NewCandidate jobId={job.id} /> : null}
       />
 
+      {canManage ? (
+        <div className="mb-5">
+          <JobLifecycle
+            id={job.id}
+            status={job.status}
+            candidates={job.candidates.map((c) => ({ id: c.id, name: c.name, stage: c.stage }))}
+            hiredName={hiredName}
+          />
+        </div>
+      ) : (
+        <Card className="p-4 mb-5 flex items-start gap-3 bg-brand-50 border-brand-100">
+          <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-brand-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4" /></svg>
+          <div>
+            <div className="text-sm font-medium text-brand-800">Interviewer access</div>
+            <p className="text-xs text-brand-700">You have read-only access to this job because you&rsquo;re assigned an interview on it. You can view all candidates and scorecards; only HR can make changes.</p>
+          </div>
+        </Card>
+      )}
+
       <Card className="p-4 mb-5 flex flex-wrap items-center gap-4">
-        <JobStatusControl id={job.id} status={job.status} />
         <span className="text-xs text-muted">Created {dateShort(job.createdAt)}{job.createdByName ? ` by ${job.createdByName}` : ""}</span>
         <span className="text-xs text-muted">{job.candidates.length} candidate{job.candidates.length === 1 ? "" : "s"} · {JOB_STATUS_LABELS[job.status] ?? job.status}</span>
       </Card>

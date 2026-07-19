@@ -42,6 +42,16 @@ export const HIRING_NAV_ITEM: NavItem = {
   icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4M20 14v5a1 1 0 01-1 1h-4",
 };
 
+// My Hiring — for employees assigned an interview: the jobs they're involved in
+// (read-only container access) plus their hiring results. A briefcase glyph,
+// distinct from the HR "Hiring" (person) icon.
+export const MY_HIRING_NAV_ITEM: NavItem = {
+  href: "/me/hiring",
+  label: "My Hiring",
+  shortLabel: "Hiring",
+  icon: "M4 7h16a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18",
+};
+
 // Company-wide PTO calendar — admins + HR only (everyone's approved time off).
 // Surfaced like PREHIRE: not in the general management nav, but pushed onto the
 // shell for anyone who canViewAllPto (admins reach it; April gets it too).

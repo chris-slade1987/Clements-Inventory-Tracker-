@@ -5,7 +5,7 @@ import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
-import { overdueInterviews, candidatesAwaitingDecision } from "@/lib/ats";
+import { overdueInterviews, candidatesAwaitingDecision, jobsAwaitingCloseout } from "@/lib/ats";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
 // manager logging in knows what needs attention this month — vehicle
@@ -26,6 +26,7 @@ export type ReminderKind =
   | "pto_request"
   | "interview_overdue"
   | "candidate_decision"
+  | "hiring_closeout"
   | "manual";
 
 export type Reminder = {
@@ -178,7 +179,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
   // (a) Interviews assigned but not completed past their scheduled date.
   // (b) Candidates whose interviews are all in and await an HR decision.
   if (!branch) {
-    const [overdue, awaiting] = await Promise.all([overdueInterviews(), candidatesAwaitingDecision()]);
+    const [overdue, awaiting, closeouts] = await Promise.all([overdueInterviews(), candidatesAwaitingDecision(), jobsAwaitingCloseout()]);
     for (const iv of overdue) {
       const days = iv.scheduledAt ? Math.round((now.getTime() - iv.scheduledAt.getTime()) / DAY) : null;
       reminders.push({
@@ -199,6 +200,17 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         detail: `${c.name}'s interview scorecards are all in — advance to an offer, or reject.`,
         branch: null,
         href: `/management/people/candidates/${c.id}`,
+        dueDate: null,
+      });
+    }
+    for (const j of closeouts) {
+      reminders.push({
+        kind: "hiring_closeout",
+        severity: "info",
+        title: `Close out hiring — ${j.title}`,
+        detail: "A candidate has advanced — notify interviewers, archive to HR, and close the job.",
+        branch: null,
+        href: `/management/people/jobs/${j.id}`,
         dueDate: null,
       });
     }

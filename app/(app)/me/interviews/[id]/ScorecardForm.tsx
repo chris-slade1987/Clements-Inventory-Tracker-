@@ -40,6 +40,8 @@ export default function ScorecardForm({
   const [overall, setOverall] = useState<number | null>(initialOverall);
   const [recommendation, setRecommendation] = useState<string>(initialRecommendation ?? "");
   const [summary, setSummary] = useState<string>(initialSummary ?? "");
+  const [impressions, setImpressions] = useState<string>(initialResponses.impressions ?? "");
+  const [additional, setAdditional] = useState<string>(initialResponses.additional ?? "");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -48,7 +50,7 @@ export default function ScorecardForm({
   const setNotes = (key: string, notes: string) => { setComps((s) => ({ ...s, [key]: { ...s[key], notes } })); setSaved(false); };
   const setBasic = (key: string, v: string) => { setBasics((s) => ({ ...s, [key]: v })); setSaved(false); };
 
-  const responses: ScorecardResponses = useMemo(() => ({ competencies: comps, basics }), [comps, basics]);
+  const responses: ScorecardResponses = useMemo(() => ({ competencies: comps, basics, impressions, additional }), [comps, basics, impressions, additional]);
   const ratedCount = template.competencies.filter((c) => typeof comps[c.key]?.rating === "number").length;
 
   async function post(action: "save" | "submit") {
@@ -182,6 +184,16 @@ export default function ScorecardForm({
         <label className="block text-sm font-medium text-ink">Summary <span className="text-red-500">*</span>
           <textarea value={summary} onChange={(e) => { setSummary(e.target.value); setSaved(false); }} disabled={readOnly} rows={4}
             placeholder="Strengths, concerns, and your recommended next step…"
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm disabled:opacity-70" />
+        </label>
+        <label className="block text-sm font-medium text-ink">Overall impressions &amp; culture fit <span className="text-xs font-normal text-muted">(optional)</span>
+          <textarea value={impressions} onChange={(e) => { setImpressions(e.target.value); setSaved(false); }} disabled={readOnly} rows={4}
+            placeholder="Your read on how they'd fit the team and culture — kept for later reference."
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm disabled:opacity-70" />
+        </label>
+        <label className="block text-sm font-medium text-ink">Additional comments for the hiring decision <span className="text-xs font-normal text-muted">(optional)</span>
+          <textarea value={additional} onChange={(e) => { setAdditional(e.target.value); setSaved(false); }} disabled={readOnly} rows={4}
+            placeholder="Anything else HR should weigh when making the call."
             className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm disabled:opacity-70" />
         </label>
       </Card>

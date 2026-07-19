@@ -1370,6 +1370,11 @@ model Job {
   description       String?
   hiringManagerName String?  @map("hiring_manager_name")
   status            String   @default("open") // open | on_hold | filled | closed
+  // Close-out: the candidate selected when hiring completes (plain scalar id —
+  // resolved manually, NOT a Prisma relation, since `candidates` already relates
+  // this job to its Candidate rows) + when the job was filled/closed.
+  hiredCandidateId  String?  @map("hired_candidate_id")
+  filledAt          DateTime? @map("filled_at")
   createdByName     String?  @map("created_by_name")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1424,6 +1429,9 @@ model Interview {
   overallRating    Int?      @map("overall_rating")
   recommendation   String? // strong_yes | yes | lean_yes | lean_no | no
   summary          String?
+  // Set when the job is closed out and this interview's interviewer is notified
+  // of the hiring result (idempotency guard for the outcome email).
+  outcomeNotifiedAt DateTime? @map("outcome_notified_at")
   completedAt      DateTime? @map("completed_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
