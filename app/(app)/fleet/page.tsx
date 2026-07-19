@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
-import { fleetFuelOverview } from "@/lib/fuel";
 import { managerReminders } from "@/lib/reminders";
 import FleetControls from "./FleetControls";
 
@@ -19,11 +18,10 @@ export default async function FleetPage({
   const user = await requireUser();
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
-  const [vehicles, inactive, reminders, fuel] = await Promise.all([
+  const [vehicles, inactive, reminders] = await Promise.all([
     listVehicles(branch ?? undefined, "active"),
     listVehicles(branch ?? undefined, "inactive"),
     managerReminders(branch ?? undefined),
-    fleetFuelOverview(branch),
   ]);
   const active = vehicles;
   const ytdSpend = vehicles.reduce((s, v) => s + v.ytdCost, 0);
@@ -70,23 +68,6 @@ export default async function FleetPage({
         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{inactive.length}</span>
         <span className="text-muted text-sm">→</span>
       </Link>
-
-      {fuel.txCount > 0 ? (
-        <Link href={`/fleet/fuel${branch ? `?branch=${branch}` : ""}`} className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-brand-600">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Fuel spend</span>
-            <span className="block text-xs text-muted">Coast fuel-card purchases linked to vehicles</span>
-          </span>
-          <span className="text-right">
-            <span className="block text-sm font-medium text-ink tabular-nums">{money(fuel.totalSpend)}</span>
-            <span className="block text-[11px] text-muted tabular-nums">{fuel.totalGallons.toLocaleString(undefined, { maximumFractionDigits: 0 })} gal</span>
-          </span>
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
 
       {reminders.length > 0 ? (
         <Link href="/my-branch" className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100/70">
