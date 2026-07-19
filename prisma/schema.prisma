@@ -1264,6 +1264,62 @@ model BulletinAck {
   @@map("bulletin_acks")
 }
 
+// ---------------------------------------------------------------------------
+// Pre-hire onboarding. HR builds a pre-hire profile for a candidate and emails
+// them a magic link (the candidate has NO company login). The candidate works
+// through a step-by-step onboarding wizard (personal + emergency contact,
+// drug-test consent, background-check authorization, policy acknowledgment) and
+// submits. HR reviews and, on approval, the pre-hire converts into an active
+// Employee with their info carried over. PRE-EMPLOYMENT ONLY — no payroll / tax
+// / SSN / bank details (Paychex handles those after hire).
+model PreHire {
+  id             String    @id @default(cuid())
+  name           String
+  email          String // personal email — the magic-link target
+  phone          String?
+  position       String?
+  branch         String? // "vero" | "stuart" | "orlando" | "naples"
+  targetStart    DateTime? @map("target_start")
+  // invited | in_progress | submitted | approved | hired | rejected
+  status         String    @default("invited")
+  token          String    @unique // random magic-link token (login-free access)
+  packet         String    @default("standard")
+  responses      String    @default("{}") // JSON keyed by step key
+  currentStep    Int       @default(0) @map("current_step")
+  invitedAt      DateTime  @default(now()) @map("invited_at")
+  startedAt      DateTime? @map("started_at")
+  submittedAt    DateTime? @map("submitted_at")
+  approvedAt     DateTime? @map("approved_at")
+  reviewedByName String?   @map("reviewed_by_name")
+  employeeId     String?   @map("employee_id") // set on conversion to Employee
+  createdByName  String?   @map("created_by_name")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  documents PreHireDocument[]
+
+  @@index([status])
+  @@map("prehires")
+}
+
+// A document tied to a pre-hire — candidate uploads or generated acknowledgment
+// PDFs. Optional in v1 but defined so uploads can slot in later.
+model PreHireDocument {
+  id        String   @id @default(cuid())
+  preHireId String   @map("prehire_id")
+  kind      String // "upload" | "acknowledgment" | "other"
+  title     String
+  filePath  String?  @map("file_path")
+  fileName  String?  @map("file_name")
+  mimeType  String?  @map("mime_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  preHire PreHire @relation(fields: [preHireId], references: [id], onDelete: Cascade)
+
+  @@index([preHireId])
+  @@map("prehire_documents")
+}
+
 // Cascading company calendar — holidays, office closures / early releases, and
 // general events. Birthdays and work anniversaries are DERIVED from employee
 // profiles at read time (not stored here).

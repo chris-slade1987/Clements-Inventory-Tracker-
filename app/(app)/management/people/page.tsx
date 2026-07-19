@@ -26,6 +26,7 @@ export default async function PeoplePage({
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
   const hr = isHrDirector(user);
+  const canPreHire = user.role === "admin" || user.role === "manager";
   const roster = await employeeRoster(branch ?? undefined);
   const reviews = hr ? await allReviews() : [];
   const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;
@@ -47,6 +48,19 @@ export default async function PeoplePage({
             <span className="block text-xs text-muted">30 & 60-day reviews — assign reviewers, track signatures, final approval</span>
           </span>
           {reviewsNeedAction > 0 ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">{reviewsNeedAction} need action</span> : null}
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
+
+      {canPreHire ? (
+        <Link href="/management/people/prehires" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Pre-hires / onboarding</span>
+            <span className="block text-xs text-muted">Invite candidates, they complete onboarding online, then approve to convert into an employee</span>
+          </span>
           <span className="text-muted text-sm">→</span>
         </Link>
       ) : null}
