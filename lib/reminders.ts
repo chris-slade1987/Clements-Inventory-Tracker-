@@ -4,6 +4,7 @@ import { inspectionStatus } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { BRANCHES, branchLabel } from "@/lib/management";
+import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
 // manager logging in knows what needs attention this month — vehicle
@@ -21,6 +22,7 @@ export type ReminderKind =
   | "lease_expiring"
   | "license_expiring"
   | "rent_increase"
+  | "pto_request"
   | "manual";
 
 export type Reminder = {
@@ -224,6 +226,23 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         });
       }
     }
+  }
+
+  // Pending PTO requests awaiting the branch supervisor's approval. One per
+  // request so the manager can see (and act on) each; branch-scoped like the
+  // rest. Deciding the request clears it (computed, so it drops off all three
+  // surfaces at once). Links to the Team page where the review panel lives.
+  const ptoPending = await pendingRequestsForBranch(branch ?? null);
+  for (const r of ptoPending) {
+    reminders.push({
+      kind: "pto_request",
+      severity: "warning",
+      title: "PTO request needs review",
+      detail: `${r.employee.name} requested ${r.days} ${ptoTypeLabel(r.type).toLowerCase()} day${r.days === 1 ? "" : "s"} — ${r.startDate.toLocaleDateString()}${r.days > 1 ? `–${r.endDate.toLocaleDateString()}` : ""}${r.note ? ` · ${r.note}` : ""}.`,
+      branch: r.employee.branch,
+      href: "/my-branch/team",
+      dueDate: r.startDate,
+    });
   }
 
   // Manual reminders (tagged to an employee/vehicle) whose lead window is open.

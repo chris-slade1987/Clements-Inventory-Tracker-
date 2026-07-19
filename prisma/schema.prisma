@@ -599,6 +599,7 @@ model Employee {
   birthDay      Int?      @map("birth_day") // 1-31
   terminatedAt  DateTime? @map("terminated_at")
   licenseNumber String?   @map("license_number")
+  ptoAllowanceDays Int?   @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
   notes         String?
   createdAt     DateTime  @default(now()) @map("created_at")
 
@@ -610,11 +611,41 @@ model Employee {
   separation  EmployeeSeparation?
   reminders   Reminder[]
   branchDocuments BranchDocument[]
+  ptoRequests PtoRequest[]
   user        User?
 
   @@index([branch])
   @@index([name])
   @@map("employees")
+}
+
+// Paid-time-off request. An employee submits a date range to their branch
+// supervisor, who approves or denies it. Approved days log against the
+// employee's annual allotment (Employee.ptoAllowanceDays); `days` is the count
+// of business days (Mon–Fri) in the inclusive range. Nothing is hard-deleted —
+// an employee cancels a still-pending request; decided requests keep the
+// reviewer + decision for the audit trail and feed the PTO calendar.
+model PtoRequest {
+  id             String    @id @default(cuid())
+  employeeId     String    @map("employee_id")
+  startDate      DateTime  @map("start_date")
+  endDate        DateTime  @map("end_date")
+  days           Int // number of PTO (business) days requested
+  type           String    @default("vacation") // vacation | sick | personal | unpaid | other
+  note           String?
+  status         String    @default("pending") // pending | approved | denied | cancelled
+  reviewedById   String?   @map("reviewed_by_id")
+  reviewedByName String?   @map("reviewed_by_name")
+  decidedAt      DateTime? @map("decided_at")
+  decisionNote   String?   @map("decision_note")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("pto_requests")
 }
 
 // Manager-submitted personnel records about an employee: write-ups, coaching

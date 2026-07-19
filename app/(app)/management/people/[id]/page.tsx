@@ -10,6 +10,7 @@ import RemindersCard from "@/components/RemindersCard";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
+import PtoProfileCard from "@/components/PtoProfileCard";
 import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
@@ -96,6 +97,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           ) : null}
         </Card>
       </div>
+
+      {/* Paid time off — balance + upcoming/recent approved (HR/admin can set allotment) */}
+      <PtoProfileCard employeeId={e.id} canManage={canEdit} />
 
       {/* Employment status / offboarding (HR & admin) */}
       <Offboarding

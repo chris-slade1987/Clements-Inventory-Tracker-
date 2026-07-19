@@ -3,6 +3,8 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { teamRoster } from "@/lib/personnel";
+import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
+import PtoReviewPanel from "@/components/PtoReviewPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +17,32 @@ export default async function TeamPage({
   const sp = await searchParams;
   const branch = scopedBranch(user, BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
   const locked = branchLocked(user);
-  const roster = await teamRoster(branch ?? undefined);
+  const [roster, pending] = await Promise.all([
+    teamRoster(branch ?? undefined),
+    pendingRequestsForBranch(branch),
+  ]);
 
   return (
     <>
-      <PageHeader title="My Team" subtitle="Select a team member to file a write-up, note, recognition, or accident report" />
+      <PageHeader
+        title="My Team"
+        subtitle="Review PTO, or select a team member to file a write-up, note, recognition, or accident report"
+        actions={<Link href={`/my-branch/pto${branch ? `?branch=${branch}` : ""}`} className="text-xs font-medium text-brand-300 hover:underline">PTO calendar →</Link>}
+      />
+
+      <PtoReviewPanel
+        showBranch={branch === null}
+        pending={pending.map((r) => ({
+          id: r.id,
+          employeeName: r.employee.name,
+          branchLabel: r.employee.branch ? branchLabel(r.employee.branch) : null,
+          days: r.days,
+          type: ptoTypeLabel(r.type).toLowerCase(),
+          startDate: r.startDate.toISOString(),
+          endDate: r.endDate.toISOString(),
+          note: r.note,
+        }))}
+      />
 
       {!locked ? (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">

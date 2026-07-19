@@ -7,6 +7,7 @@ import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import { employeeRecords, recordTypeLabel } from "@/lib/personnel";
 import { parseJson } from "@/lib/inspection";
+import PtoProfileCard from "@/components/PtoProfileCard";
 import RecordForm from "./RecordForm";
 import SignatureBlock from "./SignatureBlock";
 
@@ -32,6 +33,11 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
     <>
       <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">← My Team</Link></div>
       <PageHeader title={employee.name} subtitle={[employee.role, employee.division, employee.branch ? branchLabel(employee.branch) : null].filter(Boolean).join(" · ") || "Team member"} />
+
+      <PtoProfileCard
+        employeeId={employee.id}
+        canManage={user.role === "admin" || user.hrAccess || (user.role === "manager" && !!user.branch && user.branch === employee.branch)}
+      />
 
       <RecordForm employeeId={employee.id} employeeName={employee.name} />
 

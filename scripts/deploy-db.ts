@@ -152,6 +152,32 @@ async function main() {
     const bh = await seedBranchHub(prisma);
     console.log(`deploy-db: reconciled branch hub (${bh.created} created, ${bh.updated} updated).`);
 
+    // PTO: give active employees a default annual allotment where HR hasn't set
+    // one (non-destructive — only fills nulls), and seed a single demo pending
+    // request so the approval flow + calendar have data to show. Both idempotent.
+    const allowance = await prisma.employee.updateMany({
+      where: { status: "active", ptoAllowanceDays: null },
+      data: { ptoAllowanceDays: 10 },
+    });
+    console.log(`deploy-db: set default PTO allotment on ${allowance.count} employee(s).`);
+    const ptoCount = await prisma.ptoRequest.count();
+    if (ptoCount === 0) {
+      const demoEmp = await prisma.employee.findFirst({
+        where: { status: "active", branch: { not: null }, user: { isNot: null } },
+        orderBy: { name: "asc" },
+      });
+      if (demoEmp) {
+        const start = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 10));
+        const end = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 12));
+        await prisma.ptoRequest.create({
+          data: { employeeId: demoEmp.id, startDate: start, endDate: end, days: 3, type: "vacation", note: "Demo request", status: "pending" },
+        });
+        console.log(`deploy-db: created demo pending PTO request for ${demoEmp.name}.`);
+      }
+    } else {
+      console.log(`deploy-db: PTO requests present (${ptoCount}) — left as-is.`);
+    }
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.

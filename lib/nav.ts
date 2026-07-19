@@ -33,6 +33,16 @@ export const PREHIRE_NAV_ITEM: NavItem = {
   icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h3M16 19l2 2 4-4",
 };
 
+// Company-wide PTO calendar — admins + HR only (everyone's approved time off).
+// Surfaced like PREHIRE: not in the general management nav, but pushed onto the
+// shell for anyone who canViewAllPto (admins reach it; April gets it too).
+export const PTO_NAV_ITEM: NavItem = {
+  href: "/management/people/pto",
+  label: "PTO Calendar",
+  shortLabel: "PTO",
+  icon: "M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4",
+};
+
 // Company-wide bulletin — reachable from every center's nav.
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",

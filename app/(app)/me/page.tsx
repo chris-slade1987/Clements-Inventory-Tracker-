@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
+import { ptoBalance } from "@/lib/pto";
 import BulletinBanner from "@/components/BulletinBanner";
 import Glyph from "@/components/Glyph";
 
@@ -53,10 +54,11 @@ export default async function MyWorkPage() {
     );
   }
 
-  const [assignments, reviews, conducting] = await Promise.all([
+  const [assignments, reviews, conducting, pto] = await Promise.all([
     employeeAssignments(user.employeeId),
     openReviewsForEmployee(user.employeeId),
     reviewsForReviewer(user.id),
+    ptoBalance(user.employeeId),
   ]);
   const open = assignments.filter((a) => a.status !== "completed");
   const completed = assignments.filter((a) => a.status === "completed");
@@ -76,6 +78,20 @@ export default async function MyWorkPage() {
       </div>
 
       <RoutineChecklist />
+
+      {/* PTO snapshot — deep-links to the request page. */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <Link href="/me/pto" className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"><Glyph name="calendar" className="h-4 w-4" /></span>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium text-ink">Paid time off</div>
+            <div className="text-xs text-muted">
+              {pto.remaining} of {pto.allowance} days remaining{pto.pending ? ` · ${pto.pending} pending review` : ""}
+            </div>
+          </div>
+          <span className="shrink-0 text-xs font-medium text-brand-700">Request PTO →</span>
+        </Link>
+      </Card>
 
       {reviewsToSign.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">

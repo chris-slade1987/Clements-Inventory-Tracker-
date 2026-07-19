@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
+import { branchLabel } from "@/lib/management";
 import {
   onHandValueByCategory,
   productCostMap,
@@ -24,9 +26,13 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
   const p = currentPeriods(new Date());
+
+  // Pending PTO awaiting review — the same signal shown on /my-branch and the
+  // team page. Branch-locked managers see their branch; admins see everyone.
+  const ptoPending = await pendingRequestsForBranch(branchLocked(user) ? user.branch : null);
 
   const warehouses = await prisma.warehouse.findMany({
     where: { active: true },
@@ -63,6 +69,29 @@ export default async function DashboardPage({
   return (
     <>
       <PageHeader title="Dashboard" subtitle={`This month at a glance · ${p.monthLabel}`} />
+
+      {/* PTO requests awaiting review — surfaced here as well as on the branch
+          dashboard and team page. Clears automatically once decided. */}
+      {ptoPending.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-4 ring-1 ring-amber-200">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <div className="text-sm font-medium text-ink">PTO requests need review · {ptoPending.length}</div>
+            <Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">Review →</Link>
+          </div>
+          <ul className="divide-y divide-line">
+            {ptoPending.slice(0, 5).map((r) => (
+              <li key={r.id} className="flex items-center gap-3 px-4 py-2.5">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                <span className="flex-1 text-sm text-ink">
+                  {r.employee.name}
+                  {r.employee.branch ? <span className="ml-2 text-[11px] font-normal text-muted">{branchLabel(r.employee.branch)}</span> : null}
+                </span>
+                <span className="text-xs text-muted">{r.days} {ptoTypeLabel(r.type).toLowerCase()} day{r.days === 1 ? "" : "s"} · {r.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {/* Selector: company banner + branch cards. Click to scope the detail below. */}
       <Link href="/dashboard" className="block mb-4">
