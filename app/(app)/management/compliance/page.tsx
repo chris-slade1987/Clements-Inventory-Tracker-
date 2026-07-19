@@ -6,6 +6,7 @@ import { money } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import {
   branchHealth, needsAttention, coverageMatrix, renewalCalendar, obligations,
+  canViewCompliance,
   type ComplianceStatus,
 } from "@/lib/compliance";
 
@@ -30,7 +31,7 @@ const RAG = {
 
 export default async function CompliancePage() {
   const user = await requireUser();
-  if (user.role !== "admin") redirect("/dashboard");
+  if (!canViewCompliance(user)) redirect("/dashboard");
 
   const [health, attention, matrix, calendar, obl] = await Promise.all([
     branchHealth(), needsAttention(), coverageMatrix(), renewalCalendar(90), obligations(6),

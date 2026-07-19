@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, type Mode } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 
 function Icon({ path, className }: { path: string; className?: string }) {
@@ -81,12 +81,14 @@ export default function AppShell({
   managerName,
   isAdmin = false,
   isEmployee = false,
+  isSeniorLeadership = false,
   unread = 0,
 }: {
   children: React.ReactNode;
   managerName?: string;
   isAdmin?: boolean;
   isEmployee?: boolean;
+  isSeniorLeadership?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -103,14 +105,38 @@ export default function AppShell({
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";
+  // Employee-shell senior leaders (e.g. Julie, April): role "employee" but
+  // granted the senior-leadership flag. They keep their stripped self-service
+  // shell and may reach ONLY Compliance in the management area — never the rest.
+  const employeeSeniorLeader = isSeniorLeadership && isEmployee;
+  // Anyone who may open the Compliance Command Center (admins always qualify).
+  const canViewCompliance = isAdmin || isSeniorLeadership;
+
   const rawItems =
     mode === "employee" ? EMPLOYEE_NAV
       : mode === "manager" ? MANAGER_NAV
         : mode === "management" ? MANAGEMENT_NAV
           : mode === "fleet" ? FLEET_NAV
             : INVENTORY_NAV;
-  // The Compliance Command Center is senior-leadership (admin) only.
-  const items = rawItems.filter((i) => i.href !== "/management/compliance" || isAdmin);
+
+  let items: NavItem[];
+  if (mode === "management" && employeeSeniorLeader) {
+    // Never expose the full management nav to an employee-shell senior leader —
+    // only the Compliance page they're allowed to see.
+    items = [COMPLIANCE_NAV_ITEM];
+  } else {
+    // The Compliance Command Center is senior-leadership only.
+    let list = rawItems.filter((i) => i.href !== "/management/compliance" || canViewCompliance);
+    // Surface a Compliance link on the employee-shell senior leader's home nav
+    // (inserted just before the company bulletin).
+    if (mode === "employee" && employeeSeniorLeader) {
+      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
+      list = idx === -1
+        ? [...list, COMPLIANCE_NAV_ITEM]
+        : [...list.slice(0, idx), COMPLIANCE_NAV_ITEM, ...list.slice(idx)];
+    }
+    items = list;
+  }
   // Employees have a single self-service area — no center switcher, no admin.
   const showCenters = !isEmployee;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.

@@ -14,6 +14,16 @@ export type NavItem = {
 // shell switches between them.
 export type Mode = "employee" | "manager" | "inventory" | "management" | "fleet";
 
+// Compliance Command Center — senior-leadership only. Lives inside the
+// management nav, but is also surfaced on its own for employee-shell senior
+// leaders (Julie, April) who otherwise never see the management area.
+export const COMPLIANCE_NAV_ITEM: NavItem = {
+  href: "/management/compliance",
+  label: "Compliance",
+  shortLabel: "Comply",
+  icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
+};
+
 // Company-wide bulletin — reachable from every center's nav.
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",
@@ -182,12 +192,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Insure",
     icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
   },
-  {
-    href: "/management/compliance",
-    label: "Compliance",
-    shortLabel: "Comply",
-    icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
-  },
+  COMPLIANCE_NAV_ITEM,
   BULLETIN_NAV_ITEM,
 ];
 

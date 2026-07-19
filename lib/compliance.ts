@@ -1,5 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
+import type { SessionUser } from "@/lib/auth";
+
+/**
+ * Who may open the Compliance Command Center. Admins always qualify; the
+ * "senior leadership" group (flagged on the User record, granted at deploy in
+ * prisma/seed-access.ts) qualifies too. Add people by granting the flag — no
+ * code change needed here.
+ */
+export function canViewCompliance(user: SessionUser): boolean {
+  return user.role === "admin" || user.seniorLeadership;
+}
 
 // Compliance Command Center — a company-wide lens over the compliance data that
 // already lives in the Branch Hub (licenses, business licenses, leases),

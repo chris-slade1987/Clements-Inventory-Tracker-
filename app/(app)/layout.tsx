@@ -16,6 +16,7 @@ export default async function AppGroupLayout({
       managerName={user.name}
       isAdmin={user.role === "admin"}
       isEmployee={user.role === "employee"}
+      isSeniorLeadership={user.seniorLeadership}
       unread={unread}
     >
       {children}

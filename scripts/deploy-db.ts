@@ -135,6 +135,12 @@ async function main() {
     const bl = await seedBulletin(prisma);
     console.log(`deploy-db: bulletin — ${bl.granted} authors, ${bl.posts} posts, ${bl.events} events, ${bl.birthdays} birthdays.`);
 
+    // Senior-leadership access to the Compliance Command Center: grant every
+    // deploy (non-destructive, idempotent).
+    const { grantSeniorLeadership } = await import("../prisma/seed-access");
+    const sl = await grantSeniorLeadership(prisma);
+    console.log(`deploy-db: senior leadership — ${sl.granted} user(s) granted.`);
+
     // Reconcile the branch hub on every deploy. seedBranchHub is idempotent and
     // self-healing: it keys CPO/business licenses by license number globally, so
     // it repairs an older deploy (a holder assigned to the wrong branch, a
