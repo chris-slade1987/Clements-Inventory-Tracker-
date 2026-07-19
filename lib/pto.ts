@@ -117,6 +117,161 @@ export function approvedPtoForEmployee(employeeId: string, limit = 20) {
   });
 }
 
+/** PENDING requests overlapping a [from, to] window, for the decide-in-context
+ *  calendar overlay. Mirrors approvedPtoInRange; branch null/undefined = company-wide. */
+export function pendingPtoInRange(from: Date, to: Date, branch?: string | null) {
+  return prisma.ptoRequest.findMany({
+    where: {
+      status: "pending",
+      startDate: { lte: to },
+      endDate: { gte: from },
+      employee: branch ? { branch } : undefined,
+    },
+    include: { employee: { select: { id: true, name: true, branch: true } } },
+    orderBy: { startDate: "asc" },
+  });
+}
+
+/** Decision history — approved + denied requests, newest decision first.
+ *  branch null/undefined = company-wide. */
+export function decisionLog(branch?: string | null, limit = 100) {
+  return prisma.ptoRequest.findMany({
+    where: { status: { in: ["approved", "denied"] }, employee: branch ? { branch } : undefined },
+    include: { employee: { select: { id: true, name: true, branch: true } } },
+    orderBy: { decidedAt: "desc" },
+    take: limit,
+  });
+}
+
+// ---- Decide-in-context overlap -------------------------------------------
+export type PtoOverlap = {
+  /** Other people (approved + pending) whose time off intersects this request, same branch. */
+  others: { name: string; status: "approved" | "pending"; type: string }[];
+  /** Distinct people off in this request's range (approved + pending, incl. the requester). */
+  offCount: number;
+  /** Active headcount in the requester's branch. */
+  headcount: number;
+};
+
+type OverlapInput = {
+  id: string;
+  employeeId: string;
+  startDate: Date;
+  endDate: Date;
+  employee: { branch: string | null };
+};
+
+/**
+ * For each pending request, compute who else on the same branch is off during
+ * its range (approved + pending, excluding the request itself) plus a coverage
+ * count. Efficient: two window queries (approved + pending) over the whole
+ * pending set's min→max range, then intersect in JS — never a query per request.
+ */
+export async function overlapForRequests(pending: OverlapInput[]): Promise<Map<string, PtoOverlap>> {
+  const out = new Map<string, PtoOverlap>();
+  if (pending.length === 0) return out;
+
+  const from = new Date(Math.min(...pending.map((p) => p.startDate.getTime())));
+  const to = new Date(Math.max(...pending.map((p) => p.endDate.getTime())));
+
+  const [approved, pendingAll, headcounts] = await Promise.all([
+    prisma.ptoRequest.findMany({
+      where: { status: "approved", startDate: { lte: to }, endDate: { gte: from } },
+      include: { employee: { select: { id: true, name: true, branch: true } } },
+    }),
+    prisma.ptoRequest.findMany({
+      where: { status: "pending", startDate: { lte: to }, endDate: { gte: from } },
+      include: { employee: { select: { id: true, name: true, branch: true } } },
+    }),
+    prisma.employee.groupBy({ by: ["branch"], where: { status: "active" }, _count: { _all: true } }),
+  ]);
+
+  const headByBranch = new Map<string | null, number>(headcounts.map((h) => [h.branch, h._count._all]));
+  const universe = [
+    ...approved.map((r) => ({ ...r, _status: "approved" as const })),
+    ...pendingAll.map((r) => ({ ...r, _status: "pending" as const })),
+  ];
+
+  for (const req of pending) {
+    const rs = req.startDate.getTime();
+    const re = req.endDate.getTime();
+    const branch = req.employee.branch;
+
+    // Dedupe other people; prefer showing an approved conflict over a pending one.
+    const byPerson = new Map<string, { name: string; status: "approved" | "pending"; type: string }>();
+    const offPeople = new Set<string>([req.employeeId]); // the requester is off too
+
+    for (const r of universe) {
+      if (r.employee.branch !== branch) continue;
+      const intersects = r.startDate.getTime() <= re && r.endDate.getTime() >= rs;
+      if (!intersects) continue;
+      offPeople.add(r.employee.id);
+      if (r.id === req.id || r.employee.id === req.employeeId) continue;
+      const prev = byPerson.get(r.employee.id);
+      if (!prev || (prev.status === "pending" && r._status === "approved")) {
+        byPerson.set(r.employee.id, { name: r.employee.name, status: r._status, type: r.type });
+      }
+    }
+
+    out.set(req.id, {
+      others: [...byPerson.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      offCount: offPeople.size,
+      headcount: headByBranch.get(branch) ?? 0,
+    });
+  }
+
+  return out;
+}
+
+// ---- Balances (batched, all active employees) ----------------------------
+export type EmployeeBalance = {
+  id: string;
+  name: string;
+  branch: string | null;
+  allowance: number;
+  used: number;
+  remaining: number;
+  pending: number;
+};
+
+/**
+ * PTO balances for every active employee for a calendar year, one row each.
+ * Batched: aggregate approved + pending days grouped by employee, then join to
+ * the active roster with each person's allowance (default when unset).
+ */
+export async function balancesForAll(year: number = new Date().getUTCFullYear(), branch?: string | null): Promise<EmployeeBalance[]> {
+  const employees = await prisma.employee.findMany({
+    where: { status: "active", ...(branch ? { branch } : {}) },
+    orderBy: [{ branch: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, branch: true, ptoAllowanceDays: true },
+  });
+  if (employees.length === 0) return [];
+  const ids = employees.map((e) => e.id);
+  const yearStart = new Date(Date.UTC(year, 0, 1));
+  const yearEnd = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
+
+  const [approvedByEmp, pendingByEmp] = await Promise.all([
+    prisma.ptoRequest.groupBy({
+      by: ["employeeId"],
+      where: { employeeId: { in: ids }, status: "approved", startDate: { gte: yearStart, lte: yearEnd } },
+      _sum: { days: true },
+    }),
+    prisma.ptoRequest.groupBy({
+      by: ["employeeId"],
+      where: { employeeId: { in: ids }, status: "pending" },
+      _sum: { days: true },
+    }),
+  ]);
+  const usedMap = new Map(approvedByEmp.map((r) => [r.employeeId, r._sum.days ?? 0]));
+  const pendMap = new Map(pendingByEmp.map((r) => [r.employeeId, r._sum.days ?? 0]));
+
+  return employees.map((e) => {
+    const allowance = e.ptoAllowanceDays ?? DEFAULT_PTO_ALLOWANCE;
+    const used = usedMap.get(e.id) ?? 0;
+    return { id: e.id, name: e.name, branch: e.branch, allowance, used, remaining: allowance - used, pending: pendMap.get(e.id) ?? 0 };
+  });
+}
+
 // ---- Supervisor routing ---------------------------------------------------
 /**
  * Who supervises a branch: the manager User(s) whose home branch matches. When

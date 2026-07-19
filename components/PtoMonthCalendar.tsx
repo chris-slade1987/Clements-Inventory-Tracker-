@@ -18,15 +18,27 @@ const TYPE_DOT: Record<string, string> = {
   unpaid: "bg-slate-400",
   other: "bg-amber-500",
 };
+// Matching border colors for PENDING (outlined/hollow) entries.
+const TYPE_RING: Record<string, string> = {
+  vacation: "border-emerald-500",
+  sick: "border-red-500",
+  personal: "border-violet-500",
+  unpaid: "border-slate-400",
+  other: "border-amber-500",
+};
 
 function ymd(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
+// Internal marker so a day can carry both approved (solid) and pending (outlined).
+type DayEvent = PtoEvent & { pending: boolean };
+
 export default function PtoMonthCalendar({
   year,
   month, // 1-12
   events,
+  pending = [],
   basePath,
   preserve = {},
   showBranch = false,
@@ -34,6 +46,8 @@ export default function PtoMonthCalendar({
   year: number;
   month: number;
   events: PtoEvent[];
+  /** Pending requests, painted with a distinct outlined style. */
+  pending?: PtoEvent[];
   /** Pathname only (no query string). */
   basePath: string;
   /** Extra query params to carry across month navigation (e.g. { branch }). */
@@ -49,11 +63,15 @@ export default function PtoMonthCalendar({
   ];
   while (cells.length % 7 !== 0) cells.push(null);
 
-  // Map each day number -> events active that day.
-  const byDay = new Map<number, PtoEvent[]>();
+  // Map each day number -> events active that day (approved solid first, then pending).
+  const all: DayEvent[] = [
+    ...events.map((e) => ({ ...e, pending: false })),
+    ...pending.map((e) => ({ ...e, pending: true })),
+  ];
+  const byDay = new Map<number, DayEvent[]>();
   for (let d = 1; d <= daysInMonth; d++) {
     const key = ymd(new Date(Date.UTC(year, month - 1, d)));
-    const hits = events.filter((e) => e.startISO.slice(0, 10) <= key && key <= e.endISO.slice(0, 10));
+    const hits = all.filter((e) => e.startISO.slice(0, 10) <= key && key <= e.endISO.slice(0, 10));
     if (hits.length) byDay.set(d, hits);
   }
 
@@ -97,8 +115,8 @@ export default function PtoMonthCalendar({
                   <div className={`text-[11px] tabular-nums ${isToday ? "inline-grid h-5 w-5 place-items-center rounded-full bg-emerald-grad font-semibold text-[#05271c]" : "text-muted"}`}>{day}</div>
                   <div className="mt-1 space-y-0.5">
                     {hits.slice(0, 4).map((e) => (
-                      <div key={e.id + day} className="flex items-center gap-1 truncate rounded bg-black/[0.03] px-1 py-0.5 text-[10px] text-ink" title={`${e.employeeName} · ${e.type}${e.branch ? ` · ${branchLabel(e.branch)}` : ""}`}>
-                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${TYPE_DOT[e.type] ?? "bg-brand-400"}`} />
+                      <div key={(e.pending ? "p" : "a") + e.id + day} className={`flex items-center gap-1 truncate rounded px-1 py-0.5 text-[10px] ${e.pending ? "border border-dashed border-black/20 text-muted" : "bg-black/[0.03] text-ink"}`} title={`${e.employeeName} · ${e.type}${e.branch ? ` · ${branchLabel(e.branch)}` : ""}${e.pending ? " · pending" : ""}`}>
+                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${e.pending ? `border ${TYPE_RING[e.type] ?? "border-brand-400"} bg-transparent` : TYPE_DOT[e.type] ?? "bg-brand-400"}`} />
                         <span className="truncate">{e.employeeName.split(" ")[0]}{showBranch && e.branch ? ` · ${branchLabel(e.branch).slice(0, 4)}` : ""}</span>
                       </div>
                     ))}
@@ -116,6 +134,10 @@ export default function PtoMonthCalendar({
         {Object.entries(TYPE_DOT).map(([type, dot]) => (
           <span key={type} className="flex items-center gap-1.5 capitalize"><span className={`h-2 w-2 rounded-full ${dot}`} />{type}</span>
         ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-4 py-2 text-[11px] text-muted">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-slate-500" />solid = approved</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full border border-slate-500 bg-transparent" />outlined = pending</span>
       </div>
     </Card>
   );

@@ -1,9 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui";
 import Glyph from "@/components/Glyph";
+
+type Overlap = {
+  others: { name: string; status: "approved" | "pending"; type: string }[];
+  offCount: number;
+  headcount: number;
+};
 
 type Pending = {
   id: string;
@@ -14,6 +21,10 @@ type Pending = {
   startDate: string;
   endDate: string;
   note: string | null;
+  /** Decide-in-context: who else on the branch is off during this range. */
+  overlap?: Overlap;
+  /** Link to the calendar for this request's start month (built by the page). */
+  calendarHref?: string;
 };
 
 function fmt(iso: string): string {
@@ -66,6 +77,7 @@ export default function PtoReviewPanel({ pending, showBranch = false }: { pendin
                   <button onClick={() => { setNoteFor(noteFor === r.id ? null : r.id); setNote(""); }} className="text-xs text-muted hover:text-ink">Note</button>
                 </div>
               </div>
+              <OverlapReadout r={r} />
               {noteFor === r.id ? (
                 <input
                   value={note}
@@ -80,5 +92,36 @@ export default function PtoReviewPanel({ pending, showBranch = false }: { pendin
       )}
       {error ? <p className="px-4 pb-3 text-sm text-red-600">{error}</p> : null}
     </Card>
+  );
+}
+
+/** Decide-in-context: shows who else on the branch is off during this range,
+ *  plus a coverage count and a jump to the calendar. Purely presentational. */
+function OverlapReadout({ r }: { r: Pending }) {
+  const o = r.overlap;
+  const staff = r.branchLabel ?? "branch";
+  const heavy = !!o && o.headcount > 0 && o.offCount * 2 >= o.headcount;
+  return (
+    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+      {o ? (
+        o.others.length === 0 ? (
+          <span className="text-xs text-emerald-600">No overlap — no one else off in this range.</span>
+        ) : (
+          <span className={`text-xs ${heavy ? "text-amber-600 font-medium" : "text-muted"}`}>
+            Overlap:{" "}
+            {o.others.map((p, i) => (
+              <span key={p.name + i}>
+                {i > 0 ? ", " : ""}
+                {p.name} <span className="opacity-70">({p.status})</span>
+              </span>
+            ))}
+            {o.headcount > 0 ? <> · {o.offCount} of {o.headcount} {staff} staff out that week.</> : null}
+          </span>
+        )
+      ) : null}
+      {r.calendarHref ? (
+        <Link href={r.calendarHref} className="text-xs font-medium text-brand-700 hover:underline">View on calendar →</Link>
+      ) : null}
+    </div>
   );
 }

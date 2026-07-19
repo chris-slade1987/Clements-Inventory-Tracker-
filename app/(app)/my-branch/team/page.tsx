@@ -3,7 +3,7 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { teamRoster } from "@/lib/personnel";
-import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
+import { pendingRequestsForBranch, ptoTypeLabel, overlapForRequests } from "@/lib/pto";
 import PtoReviewPanel from "@/components/PtoReviewPanel";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,8 @@ export default async function TeamPage({
     teamRoster(branch ?? undefined),
     pendingRequestsForBranch(branch),
   ]);
+  const overlap = await overlapForRequests(pending);
+  const monthOf = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 
   return (
     <>
@@ -32,16 +34,21 @@ export default async function TeamPage({
 
       <PtoReviewPanel
         showBranch={branch === null}
-        pending={pending.map((r) => ({
-          id: r.id,
-          employeeName: r.employee.name,
-          branchLabel: r.employee.branch ? branchLabel(r.employee.branch) : null,
-          days: r.days,
-          type: ptoTypeLabel(r.type).toLowerCase(),
-          startDate: r.startDate.toISOString(),
-          endDate: r.endDate.toISOString(),
-          note: r.note,
-        }))}
+        pending={pending.map((r) => {
+          const b = branch ?? r.employee.branch;
+          return {
+            id: r.id,
+            employeeName: r.employee.name,
+            branchLabel: r.employee.branch ? branchLabel(r.employee.branch) : null,
+            days: r.days,
+            type: ptoTypeLabel(r.type).toLowerCase(),
+            startDate: r.startDate.toISOString(),
+            endDate: r.endDate.toISOString(),
+            note: r.note,
+            overlap: overlap.get(r.id),
+            calendarHref: `/my-branch/pto?month=${monthOf(r.startDate)}${b ? `&branch=${b}` : ""}`,
+          };
+        })}
       />
 
       {!locked ? (
