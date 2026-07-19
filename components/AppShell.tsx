@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 
 function Icon({ path, className }: { path: string; className?: string }) {
@@ -82,6 +82,7 @@ export default function AppShell({
   isAdmin = false,
   isEmployee = false,
   isSeniorLeadership = false,
+  isHrAccess = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -89,6 +90,7 @@ export default function AppShell({
   isAdmin?: boolean;
   isEmployee?: boolean;
   isSeniorLeadership?: boolean;
+  isHrAccess?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -105,12 +107,15 @@ export default function AppShell({
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";
-  // Employee-shell senior leaders (e.g. Julie, April): role "employee" but
-  // granted the senior-leadership flag. They keep their stripped self-service
-  // shell and may reach ONLY Compliance in the management area — never the rest.
-  const employeeSeniorLeader = isSeniorLeadership && isEmployee;
-  // Anyone who may open the Compliance Command Center (admins always qualify).
+  // Access grants (admins always qualify). Compliance = senior leadership;
+  // Pre-hires = HR. An employee-shell user with any grant keeps their stripped
+  // self-service shell and may reach ONLY their granted management pages.
   const canViewCompliance = isAdmin || isSeniorLeadership;
+  const canManagePreHire = isAdmin || isHrAccess;
+  const grantedMgmt: NavItem[] = [];
+  if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
+  if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
+  const privilegedEmployee = isEmployee && grantedMgmt.length > 0;
 
   const rawItems =
     mode === "employee" ? EMPLOYEE_NAV
@@ -120,20 +125,19 @@ export default function AppShell({
             : INVENTORY_NAV;
 
   let items: NavItem[];
-  if (mode === "management" && employeeSeniorLeader) {
-    // Never expose the full management nav to an employee-shell senior leader —
-    // only the Compliance page they're allowed to see.
-    items = [COMPLIANCE_NAV_ITEM];
+  if (mode === "management" && privilegedEmployee) {
+    // Never expose the full management nav to an employee-shell grantee — only
+    // the specific pages they're allowed to see.
+    items = grantedMgmt;
   } else {
     // The Compliance Command Center is senior-leadership only.
-    let list = rawItems.filter((i) => i.href !== "/management/compliance" || canViewCompliance);
-    // Surface a Compliance link on the employee-shell senior leader's home nav
+    let list = rawItems.filter((i) => i.href !== COMPLIANCE_NAV_ITEM.href || canViewCompliance);
+    // Surface granted management links on the grantee's employee home nav
     // (inserted just before the company bulletin).
-    if (mode === "employee" && employeeSeniorLeader) {
+    if (mode === "employee" && privilegedEmployee) {
       const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
-      list = idx === -1
-        ? [...list, COMPLIANCE_NAV_ITEM]
-        : [...list.slice(0, idx), COMPLIANCE_NAV_ITEM, ...list.slice(idx)];
+      const at = idx === -1 ? list.length : idx;
+      list = [...list.slice(0, at), ...grantedMgmt, ...list.slice(at)];
     }
     items = list;
   }

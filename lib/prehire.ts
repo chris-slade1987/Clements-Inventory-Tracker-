@@ -2,6 +2,12 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
+import type { SessionUser } from "@/lib/auth";
+
+/** Who may run the pre-hire onboarding portal: admins + granted HR (April). */
+export function canManagePreHire(user: SessionUser): boolean {
+  return user.role === "admin" || user.hrAccess;
+}
 
 // ---------------------------------------------------------------------------
 // Pre-hire onboarding. HR builds a candidate profile, emails a magic link, and

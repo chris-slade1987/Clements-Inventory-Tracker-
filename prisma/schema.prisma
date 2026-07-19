@@ -60,6 +60,7 @@ model User {
   active       Boolean  @default(true)
   canPostBulletin Boolean @default(false) @map("can_post_bulletin") // may author company bulletin posts / calendar
   seniorLeadership Boolean @default(false) @map("senior_leadership") // senior leadership group — may view the Compliance Command Center
+  hrAccess     Boolean @default(false) @map("hr_access") // HR — may run pre-hire onboarding (+ HR tools)
   createdAt    DateTime @default(now()) @map("created_at")
 
   warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])

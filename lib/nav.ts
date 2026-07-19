@@ -24,6 +24,15 @@ export const COMPLIANCE_NAV_ITEM: NavItem = {
   icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
 };
 
+// Pre-hire onboarding — surfaced for HR (admins + granted HR only), not in the
+// general management nav.
+export const PREHIRE_NAV_ITEM: NavItem = {
+  href: "/management/people/prehires",
+  label: "Pre-hires",
+  shortLabel: "Pre-hires",
+  icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h3M16 19l2 2 4-4",
+};
+
 // Company-wide bulletin — reachable from every center's nav.
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",

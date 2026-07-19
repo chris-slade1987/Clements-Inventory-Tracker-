@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
-import { createPreHire, approveAndConvert, rejectPreHire } from "@/lib/prehire";
+import { createPreHire, approveAndConvert, rejectPreHire, canManagePreHire } from "@/lib/prehire";
 
 export const runtime = "nodejs";
 
@@ -29,7 +29,7 @@ async function sendInvite(pre: { name: string; email: string; token: string; pos
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
-  if (!user || (user.role !== "admin" && user.role !== "manager"))
+  if (!user || !canManagePreHire(user))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);

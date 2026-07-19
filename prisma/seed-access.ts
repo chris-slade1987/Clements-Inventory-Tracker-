@@ -21,6 +21,19 @@ export async function grantSeniorLeadership(prisma: PrismaClient) {
   return { granted: res.count };
 }
 
+// HR access — may run the pre-hire onboarding portal (and future HR tools).
+// Admins always qualify via canManagePreHire(); this list adds named non-admins.
+// Only April for now (Chris runs it as admin). Add people here to extend.
+const HR_EMAILS = [
+  "awilliford@clementspestcontrol.com", // April — HR
+];
+
+/** Grant/refresh HR access — safe to run every deploy. */
+export async function grantHrAccess(prisma: PrismaClient) {
+  const res = await prisma.user.updateMany({ where: { email: { in: HR_EMAILS } }, data: { hrAccess: true } });
+  return { granted: res.count };
+}
+
 if (process.argv[1] && process.argv[1].includes("seed-access")) {
   const prisma = new PrismaClient();
   grantSeniorLeadership(prisma)

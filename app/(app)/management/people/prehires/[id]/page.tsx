@@ -10,6 +10,7 @@ import {
   statusLabel,
   branchName,
   formRows,
+  canManagePreHire,
   type Responses,
 } from "@/lib/prehire";
 import PreHireActions from "./PreHireActions";
@@ -27,7 +28,7 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default async function PreHireDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
-  if (user.role !== "admin" && user.role !== "manager") redirect(homePath(user));
+  if (!canManagePreHire(user)) redirect(homePath(user));
 
   const { id } = await params;
   const pre = await prisma.preHire.findUnique({ where: { id } });

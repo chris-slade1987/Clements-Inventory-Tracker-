@@ -6,6 +6,7 @@ import { allReviews } from "@/lib/review";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { employeeRoster } from "@/lib/people";
 import { formerEmployees } from "@/lib/separation";
+import { canManagePreHire } from "@/lib/prehire";
 import PeopleControls from "./PeopleControls";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function PeoplePage({
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
   const hr = isHrDirector(user);
-  const canPreHire = user.role === "admin" || user.role === "manager";
+  const canPreHire = canManagePreHire(user);
   const roster = await employeeRoster(branch ?? undefined);
   const reviews = hr ? await allReviews() : [];
   const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;

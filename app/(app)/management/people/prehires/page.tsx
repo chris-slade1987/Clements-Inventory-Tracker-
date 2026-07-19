@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
-import { listPreHires, statusLabel, branchName } from "@/lib/prehire";
+import { listPreHires, statusLabel, branchName, canManagePreHire } from "@/lib/prehire";
 import { dateShort } from "@/lib/format";
 import NewPreHire from "./NewPreHire";
 
@@ -19,7 +19,7 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default async function PreHiresPage() {
   const user = await requireUser();
-  if (user.role !== "admin" && user.role !== "manager") redirect(homePath(user));
+  if (!canManagePreHire(user)) redirect(homePath(user));
 
   const prehires = await listPreHires();
   const needsReview = prehires.filter((p) => p.status === "submitted").length;
