@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { runAnomalyChecks } from "@/lib/anomaly";
 import { runReorderChecks } from "@/lib/reorder";
+import { uomCode } from "@/lib/uom";
 
 type NewProduct = {
   name: string;
@@ -77,13 +78,16 @@ export async function POST(req: Request) {
 
     let itemCount = 0;
     for (const l of lines) {
+      // Canonical unit code for this line (falls back to Each). Never free text.
+      const lineUnit = uomCode(l.unit) ?? uomCode(l.newProduct?.unitOfMeasure) ?? "EA";
+
       // Resolve product (create if new).
       let productId = l.productId ?? null;
       if (!productId && l.newProduct?.name) {
         const created = await tx.product.create({
           data: {
             name: l.newProduct.name.trim(),
-            unitOfMeasure: (l.newProduct.unitOfMeasure ?? l.unit ?? "ea").trim(),
+            unitOfMeasure: uomCode(l.newProduct.unitOfMeasure) ?? lineUnit,
             manufacturer: l.newProduct.manufacturer?.trim() || null,
             epaRegNumber: l.newProduct.epaRegNumber?.trim() || null,
             category: l.newProduct.category?.trim() || null,
@@ -102,7 +106,7 @@ export async function POST(req: Request) {
           productId,
           descriptionRaw: l.descriptionRaw ?? "",
           quantity: qty,
-          unit: l.unit ?? null,
+          unit: lineUnit,
           unitPrice,
           lineTotal: numOrNull(l.lineTotal),
           matched: true,
@@ -116,6 +120,7 @@ export async function POST(req: Request) {
           productId,
           warehouseId,
           quantity: qty,
+          unit: lineUnit,
           unitPrice,
           sourceInvoiceId: invoice.id,
           userId: user.id,

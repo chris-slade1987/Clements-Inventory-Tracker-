@@ -22,7 +22,7 @@ export default async function CheckOutPage() {
     }),
     prisma.product.findMany({
       where: { active: true },
-      orderBy: { name: "asc" },
+      orderBy: [{ approved: "desc" }, { name: "asc" }],
     }),
     onHandMatrix(),
   ]);
@@ -51,6 +51,7 @@ export default async function CheckOutPage() {
           id: p.id,
           name: p.name,
           unit: p.unitOfMeasure,
+          approved: p.approved,
           barcode: p.barcode,
           category: p.category,
           manufacturer: p.manufacturer,

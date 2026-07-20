@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { isUomCode } from "@/lib/uom";
 
 async function guard() {
   const user = await getSessionUser();
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
       const unitOfMeasure = clean(body?.unitOfMeasure);
       if (!name) return NextResponse.json({ error: "Name is required." }, { status: 400 });
       if (!unitOfMeasure) return NextResponse.json({ error: "Unit of measure is required." }, { status: 400 });
+      if (!isUomCode(unitOfMeasure)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
 
       const data = {
         name,

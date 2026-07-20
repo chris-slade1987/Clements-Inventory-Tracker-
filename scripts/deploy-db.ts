@@ -54,6 +54,16 @@ async function main() {
         `deploy-db: database already populated (${users} users) — ensured ${map.size} branches exist.`
       );
     }
+    // Reconcile the CEO's approved product catalog + unit-of-measure governance
+    // on every deploy. Idempotent: upserts the approved products (canonical UoM
+    // codes, approved=true) and demotes off-list items to approved=false. Runs
+    // after the core seed so products exist to reconcile.
+    const { seedApprovedProducts } = await import("../prisma/seed-products-approved");
+    const ap = await seedApprovedProducts(prisma);
+    console.log(
+      `deploy-db: reconciled approved products (${ap.created} created, ${ap.updated} updated, ${ap.demoted} demoted; ${ap.approvedTotal} on catalog).`
+    );
+
     // Seed management KPIs only when empty, so uploaded months are never clobbered.
     const kpiValues = await prisma.kpiValue.count();
     if (kpiValues === 0) {

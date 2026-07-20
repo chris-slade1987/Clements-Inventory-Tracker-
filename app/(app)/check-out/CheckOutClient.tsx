@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Card, btn } from "@/components/ui";
+import { Card, btn, UnitSelect } from "@/components/ui";
+import { uomCode, uomLabel } from "@/lib/uom";
 
 const BarcodeScanner = dynamic(() => import("@/components/BarcodeScanner"), {
   ssr: false,
@@ -14,11 +15,12 @@ type Product = {
   id: string;
   name: string;
   unit: string;
+  approved: boolean;
   barcode: string | null;
   category: string | null;
   manufacturer: string | null;
 };
-type CartLine = { productId: string; quantity: number };
+type CartLine = { productId: string; quantity: number; unit: string };
 type Receipt = {
   warehouse: string;
   technician: string;
@@ -84,7 +86,10 @@ export default function CheckOutClient({
           l.productId === productId ? { ...l, quantity: l.quantity + qty } : l
         );
       }
-      return [...prev, { productId, quantity: qty }];
+      // Default the line's unit to the product's canonical unit code.
+      const prod = productById.get(productId);
+      const unit = uomCode(prod?.unit) ?? "EA";
+      return [...prev, { productId, quantity: qty, unit }];
     });
   }
 
@@ -93,6 +98,12 @@ export default function CheckOutClient({
       prev
         .map((l) => (l.productId === productId ? { ...l, quantity: qty } : l))
         .filter((l) => l.quantity > 0)
+    );
+  }
+
+  function setUnit(productId: string, unit: string) {
+    setCart((prev) =>
+      prev.map((l) => (l.productId === productId ? { ...l, unit } : l))
     );
   }
 
@@ -191,7 +202,7 @@ export default function CheckOutClient({
             <div key={i} className="flex justify-between py-2 text-sm">
               <span>{l.name}</span>
               <span className="font-medium">
-                {l.quantity} {l.unit}
+                {l.quantity} {uomLabel(l.unit)}
               </span>
             </div>
           ))}
@@ -302,7 +313,8 @@ export default function CheckOutClient({
                         {p.name}
                       </span>
                       <span className="block text-xs text-muted">
-                        {p.manufacturer ?? "—"} · {p.unit}
+                        {p.manufacturer ?? "—"} · {uomLabel(p.unit)}
+                        {p.approved ? "" : " · off-catalog"}
                       </span>
                     </span>
                     <span className="shrink-0 text-xs text-muted">
@@ -337,7 +349,7 @@ export default function CheckOutClient({
                       <span className={after < 0 ? "text-red-600 font-semibold" : ""}>
                         {after}
                       </span>{" "}
-                      {p.unit}
+                      {uomLabel(line.unit)}
                     </div>
                   </div>
                   <button
@@ -376,6 +388,14 @@ export default function CheckOutClient({
                   >
                     +
                   </button>
+                  <label className="ml-2 flex items-center gap-1 text-xs text-muted">
+                    <span className="sr-only">Unit</span>
+                    <UnitSelect
+                      value={line.unit}
+                      onChange={(code) => setUnit(line.productId, code)}
+                      className="h-10 rounded-lg border border-line px-2 text-sm bg-surface"
+                    />
+                  </label>
                   {after < 0 ? (
                     <span className="ml-auto text-xs font-medium text-red-600">
                       Over by {Math.abs(after)}

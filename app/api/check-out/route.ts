@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHandByWarehouse } from "@/lib/inventory";
+import { uomCode } from "@/lib/uom";
 
-type LineIn = { productId: string; quantity: number };
+type LineIn = { productId: string; quantity: number; unit?: string | null };
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -18,7 +19,11 @@ export async function POST(req: Request) {
 
   // Normalise + validate lines.
   const lines = rawLines
-    .map((l) => ({ productId: String(l.productId), quantity: Number(l.quantity) }))
+    .map((l) => ({
+      productId: String(l.productId),
+      quantity: Number(l.quantity),
+      unit: uomCode(l.unit),
+    }))
     .filter((l) => l.productId && Number.isFinite(l.quantity) && l.quantity > 0);
 
   if (!warehouseId) {
@@ -79,6 +84,9 @@ export async function POST(req: Request) {
           warehouseId,
           technicianId,
           quantity: -Math.abs(l.quantity),
+          // Canonical unit code chosen in the dropdown; falls back to the
+          // product's approved unit. Never free text.
+          unit: l.unit ?? uomCode(productById.get(l.productId)?.unitOfMeasure) ?? null,
           userId: user.id,
         },
       })
@@ -95,7 +103,7 @@ export async function POST(req: Request) {
       at,
       lines: lines.map((l) => ({
         name: productById.get(l.productId)?.name ?? "Unknown",
-        unit: productById.get(l.productId)?.unitOfMeasure ?? "",
+        unit: l.unit ?? uomCode(productById.get(l.productId)?.unitOfMeasure) ?? "",
         quantity: l.quantity,
       })),
       totalItems: lines.reduce((s, l) => s + l.quantity, 0),

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { uomLabel } from "@/lib/uom";
 
 export type ReportFilters = {
   from?: Date;
@@ -183,7 +184,7 @@ export async function warehouseProductBreakdown(
   const out = new Map<string, WarehouseProductRow[]>();
   for (const [w, inner] of byWh) {
     const rows = [...inner.values()]
-      .map((r) => ({ ...r, name: pById.get(r.productId)?.name ?? "Unknown", unit: pById.get(r.productId)?.unitOfMeasure ?? "" }))
+      .map((r) => ({ ...r, name: pById.get(r.productId)?.name ?? "Unknown", unit: uomLabel(pById.get(r.productId)?.unitOfMeasure) }))
       .filter((r) => r.purchasedQty > 0 || Math.abs(r.dispersedQty) > 1e-6 || Math.abs(r.onHandQty) > 1e-6)
       .sort((a, b) => a.name.localeCompare(b.name));
     out.set(w, rows);
@@ -229,7 +230,7 @@ export async function onHandByProduct(
       byProduct.set(r.productId, {
         productId: r.productId,
         name: p.name,
-        unit: p.unitOfMeasure,
+        unit: uomLabel(p.unitOfMeasure),
         category: p.category ?? "Other",
         byWarehouse: {},
         total: 0,

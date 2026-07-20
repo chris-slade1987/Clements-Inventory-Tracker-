@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { UNITS_OF_MEASURE } from "@/lib/uom";
 
 export function PageHeader({
   title,
@@ -59,6 +60,40 @@ export function EmptyState({
       <div className="font-medium text-ink">{title}</div>
       {hint ? <div className="text-sm text-muted mt-1">{hint}</div> : null}
     </Card>
+  );
+}
+
+/**
+ * Controlled unit-of-measure dropdown. THE only way a unit is chosen anywhere in
+ * the app — options come from the canonical UNITS_OF_MEASURE table, so the value
+ * is always a canonical code and never free text.
+ */
+export function UnitSelect({
+  value,
+  onChange,
+  className = "",
+  id,
+}: {
+  value: string;
+  onChange: (code: string) => void;
+  className?: string;
+  id?: string;
+}) {
+  const hasValue = UNITS_OF_MEASURE.some((u) => u.code === value);
+  return (
+    <select
+      id={id}
+      value={hasValue ? value : ""}
+      onChange={(e) => onChange(e.target.value)}
+      className={className || "w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"}
+    >
+      {hasValue ? null : <option value="">— Select unit —</option>}
+      {UNITS_OF_MEASURE.map((u) => (
+        <option key={u.code} value={u.code}>
+          {u.label} ({u.code})
+        </option>
+      ))}
+    </select>
   );
 }
 

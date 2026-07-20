@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Card, btn } from "@/components/ui";
+import { Card, btn, UnitSelect } from "@/components/ui";
 import DateInput from "@/components/DateInput";
+import { uomCode } from "@/lib/uom";
 
 type Warehouse = { id: string; name: string };
 type Product = { id: string; name: string; unit: string };
@@ -67,12 +68,12 @@ export default function CheckInClient({
       key: `l${keySeq++}`,
       descriptionRaw: "",
       quantity: 1,
-      unit: "ea",
+      unit: "EA",
       unitPrice: null,
       lineTotal: null,
       productId: preferNew ? "__new__" : "",
       newName: "",
-      newUnit: "ea",
+      newUnit: "EA",
     };
   }
 
@@ -119,12 +120,12 @@ export default function CheckInClient({
           key: `l${keySeq++}`,
           descriptionRaw: l.description,
           quantity: l.quantity ?? 0,
-          unit: l.unit ?? "ea",
+          unit: uomCode(l.unit) ?? "EA",
           unitPrice: l.unitPrice ?? null,
           lineTotal: l.lineTotal ?? null,
           productId: data.matches[i] ?? "",
           newName: l.description,
-          newUnit: l.unit ?? "ea",
+          newUnit: uomCode(l.unit) ?? "EA",
         }))
       );
       setBusy(false);
@@ -149,7 +150,7 @@ export default function CheckInClient({
     if (productId && productId !== "__new__") {
       const prod = products.find((p) => p.id === productId);
       if (prod) {
-        patch.unit = prod.unit || "ea";
+        patch.unit = uomCode(prod.unit) ?? "EA";
         patch.descriptionRaw = prod.name;
       }
     }
@@ -365,11 +366,10 @@ export default function CheckInClient({
                       placeholder="New product name"
                       className="col-span-2 rounded-lg border border-line px-2 py-1.5 text-sm"
                     />
-                    <input
+                    <UnitSelect
                       value={l.newUnit}
-                      onChange={(e) => updateLine(l.key, { newUnit: e.target.value, unit: e.target.value })}
-                      placeholder="unit"
-                      className="rounded-lg border border-line px-2 py-1.5 text-sm"
+                      onChange={(code) => updateLine(l.key, { newUnit: code, unit: code })}
+                      className="w-full rounded-lg border border-line px-2 py-1.5 text-sm bg-surface"
                     />
                   </div>
                 ) : null}
@@ -392,10 +392,10 @@ export default function CheckInClient({
                   </label>
                   <label className="text-xs text-muted">
                     Unit
-                    <input
+                    <UnitSelect
                       value={l.unit}
-                      onChange={(e) => updateLine(l.key, { unit: e.target.value })}
-                      className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
+                      onChange={(code) => updateLine(l.key, { unit: code })}
+                      className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm bg-surface"
                     />
                     <span className="mt-0.5 block text-[10px] text-muted/80">defaults to the product&rsquo;s approved unit</span>
                   </label>

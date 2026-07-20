@@ -20,6 +20,8 @@ export default async function ManageProductsPage() {
         barcode: p.barcode,
         distributorSku: p.distributorSku,
         active: p.active,
+        approved: p.approved,
+        notes: p.notes,
       }))}
     />
   );

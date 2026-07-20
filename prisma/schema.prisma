@@ -100,6 +100,15 @@ model Product {
   targetPest        String? @map("target_pest")
   applicationMethod String? @map("application_method")
   active          Boolean @default(true)
+  // Governance: whether this product is on the CEO's approved catalog. Off-list
+  // products stay usable but are flagged. unitOfMeasure holds a canonical UoM
+  // CODE from lib/uom.ts (never free text).
+  approved        Boolean @default(true)
+  // Case -> unit pack size (e.g. tubes per case). Null until a later step fills
+  // it; see unitsFromCases() in lib/uom.ts. No conversion math runs yet.
+  unitsPerCase    Int?    @map("units_per_case")
+  // Free-text note (e.g. "added from transfer history — confirm naming").
+  notes           String?
 
   invoiceLines InvoiceLine[]
   movements    StockMovement[]
@@ -159,6 +168,9 @@ model StockMovement {
   warehouseId     String   @map("warehouse_id")
   technicianId    String?  @map("technician_id")
   quantity        Float
+  // Canonical UoM code (lib/uom.ts) chosen at check-in/out. Nullable: when
+  // unset the product's unitOfMeasure governs. Never free text.
+  unit            String?
   unitPrice       Float?   @map("unit_price")
   sourceInvoiceId String?  @map("source_invoice_id")
   reason          String?

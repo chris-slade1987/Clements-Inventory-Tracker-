@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, btn } from "@/components/ui";
+import { Card, btn, UnitSelect } from "@/components/ui";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
+import { UNITS_OF_MEASURE, uomLabel } from "@/lib/uom";
 
 type Product = {
   id: string;
@@ -18,6 +19,8 @@ type Product = {
   barcode: string | null;
   distributorSku: string | null;
   active: boolean;
+  approved: boolean;
+  notes: string | null;
 };
 
 const empty = {
@@ -25,7 +28,7 @@ const empty = {
   name: "",
   manufacturer: "",
   epaRegNumber: "",
-  unitOfMeasure: "ea",
+  unitOfMeasure: "EA",
   category: "Insecticide/Pesticide",
   activeIngredient: "",
   targetPest: "",
@@ -188,6 +191,7 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                 <th className="px-3 py-2 font-medium">Category</th>
                 <th className="px-3 py-2 font-medium">Active ingredient</th>
                 <th className="px-3 py-2 font-medium">Unit</th>
+                <th className="px-3 py-2 font-medium">Approved</th>
                 <th className="px-3 py-2 font-medium">EPA #</th>
                 <th className="px-3 py-2 font-medium text-right">Actions</th>
               </tr>
@@ -201,7 +205,18 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                   </td>
                   <td className="px-3 py-2">{p.category ?? "—"}</td>
                   <td className="px-3 py-2 text-xs">{p.activeIngredient ?? "—"}</td>
-                  <td className="px-3 py-2">{p.unitOfMeasure}</td>
+                  <td className="px-3 py-2">
+                    <span title={p.unitOfMeasure}>{uomLabel(p.unitOfMeasure)}</span>
+                    <span className="text-muted"> ({p.unitOfMeasure})</span>
+                  </td>
+                  <td className="px-3 py-2">
+                    {p.approved ? (
+                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">Approved</span>
+                    ) : (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Off-catalog</span>
+                    )}
+                    {p.notes ? <div className="mt-0.5 text-[10px] text-muted">{p.notes}</div> : null}
+                  </td>
                   <td className="px-3 py-2 text-xs">{p.epaRegNumber ?? "—"}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     <button
@@ -242,6 +257,25 @@ export default function ManageProducts({ products }: { products: Product[] }) {
         </div>
       </Card>
 
+      <details className="mt-4">
+        <summary className="cursor-pointer text-sm font-medium text-brand-700">
+          Units of measure reference ({UNITS_OF_MEASURE.length} codes)
+        </summary>
+        <Card className="mt-2 p-3">
+          <p className="mb-2 text-xs text-muted">
+            The controlled list used by every unit dropdown (check-in, check-out, product admin). Units are always chosen from these codes — never typed.
+          </p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-3">
+            {UNITS_OF_MEASURE.map((u) => (
+              <div key={u.code} className="flex justify-between gap-2">
+                <span className="text-muted">{u.label}</span>
+                <span className="font-mono font-medium">{u.code}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </details>
+
       {form ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[90vh] overflow-y-auto">
@@ -253,7 +287,13 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                   {PRODUCT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </label>
-              <Field label="Unit" value={form.unitOfMeasure} onChange={(v) => setForm({ ...form, unitOfMeasure: v })} />
+              <label className="block text-sm font-medium">Unit
+                <UnitSelect
+                  value={form.unitOfMeasure}
+                  onChange={(code) => setForm({ ...form, unitOfMeasure: code })}
+                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface"
+                />
+              </label>
             </div>
             <Field label="Manufacturer" value={form.manufacturer} onChange={(v) => setForm({ ...form, manufacturer: v })} />
             <Field label="Active ingredient" value={form.activeIngredient} onChange={(v) => setForm({ ...form, activeIngredient: v })} />
