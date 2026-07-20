@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 import ManageTechnicians from "./ManageTechnicians";
 
 export const dynamic = "force-dynamic";
 
 export default async function ManageTechniciansPage() {
+  await requireAdmin();
   const [technicians, warehouses] = await Promise.all([
     prisma.technician.findMany({
       orderBy: { name: "asc" },

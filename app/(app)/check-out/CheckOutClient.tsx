@@ -17,10 +17,12 @@ type Product = {
   name: string;
   unit: string;
   approved: boolean;
+  confirmed: boolean;
   barcode: string | null;
   category: string | null;
   manufacturer: string | null;
 };
+type Unconfirmed = { productId: string; name: string };
 type CartLine = { productId: string; quantity: number; unit: string };
 type Offending = {
   productId?: string;
@@ -65,6 +67,9 @@ export default function CheckOutClient({
   // Insufficient-stock hard stop: when the server (or our own pre-check) finds a
   // line that exceeds on-hand, we surface a blocking modal — no manager override.
   const [blocked, setBlocked] = useState<Offending[] | null>(null);
+  // Unconfirmed-product hard stop: auto-added products must be confirmed by an
+  // admin before they can be dispersed. A data-quality gate — no override.
+  const [blockedUnconfirmed, setBlockedUnconfirmed] = useState<Unconfirmed[] | null>(null);
   const [escalateNote, setEscalateNote] = useState("");
   const [escalating, setEscalating] = useState(false);
   const [escalateError, setEscalateError] = useState<string | null>(null);
@@ -162,6 +167,15 @@ export default function CheckOutClient({
   }
 
   async function submit() {
+    // Block unconfirmed products up front (the server 409 is authoritative).
+    const unconfirmed: Unconfirmed[] = cart
+      .map((l) => productById.get(l.productId))
+      .filter((p): p is Product => !!p && p.confirmed === false)
+      .map((p) => ({ productId: p.id, name: p.name }));
+    if (unconfirmed.length > 0) {
+      setBlockedUnconfirmed(unconfirmed);
+      return;
+    }
     // Don't even hit the server when the cart already exceeds on-hand.
     const offending = localOffending();
     if (offending.length > 0) {
@@ -179,6 +193,11 @@ export default function CheckOutClient({
         body: JSON.stringify({ warehouseId, technicianId, lines: cart }),
       });
       const data = await res.json().catch(() => ({}));
+      if (res.status === 409 && data.error === "unconfirmed_product") {
+        setBlockedUnconfirmed((data.offending as Unconfirmed[]) ?? []);
+        setBusy(false);
+        return;
+      }
       if (res.status === 409 && data.error === "negative_stock") {
         // Hard stop — surface the blocking modal. No override for managers.
         setBlocked((data.offending as Offending[]) ?? []);
@@ -568,6 +587,48 @@ export default function CheckOutClient({
                 className={`${btn.primary} flex-1`}
               >
                 {escalating ? "Starting…" : "Message senior management for help"}
+              </button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
+
+      {blockedUnconfirmed ? (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <Card className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-lg font-semibold text-red-700">Product not confirmed</h3>
+              <button
+                onClick={() => setBlockedUnconfirmed(null)}
+                className="text-muted hover:text-ink text-xl leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="divide-y divide-line rounded-lg border border-line overflow-hidden">
+              {blockedUnconfirmed.map((o, i) => (
+                <div key={o.productId ?? i} className="px-3 py-2.5 text-sm">
+                  <div className="font-medium">{o.name}</div>
+                  <div className="mt-0.5 text-xs text-muted">Awaiting admin confirmation</div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-sm text-muted">
+              {blockedUnconfirmed.length === 1 ? "This product was" : "These products were"} auto-added
+              from an invoice or transfer history and {blockedUnconfirmed.length === 1 ? "hasn't" : "haven't"}{" "}
+              been confirmed yet. They can&apos;t be dispersed until an administrator reviews and confirms
+              {blockedUnconfirmed.length === 1 ? " it" : " them"} in Manage → Confirm queue. This is a
+              data-quality gate and cannot be overridden here — remove{" "}
+              {blockedUnconfirmed.length === 1 ? "it" : "them"} from this check-out or ask an admin to
+              confirm first.
+            </p>
+
+            <div className="flex justify-end pt-1">
+              <button onClick={() => setBlockedUnconfirmed(null)} className={btn.primary}>
+                Got it
               </button>
             </div>
           </Card>

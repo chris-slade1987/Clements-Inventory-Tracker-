@@ -15,6 +15,60 @@ export const PRODUCT_CATEGORIES = [
 ] as const;
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
 
+// ---------------------------------------------------------------------------
+// Line-of-service (division / subdivision) taxonomy. ADDITIVE to PRODUCT_CATEGORIES
+// above: `category` describes the product TYPE (insecticide, fertilizer, …) while
+// `division` describes the LINE OF SERVICE it is bought for (General Household
+// Pest, Lawn & Ornamental, Termite, Rodent, Other). Stored on Product.division /
+// Product.subdivision; the UI constrains a subdivision to its division's list.
+// ---------------------------------------------------------------------------
+export const DIVISIONS = ["GHP", "LO", "MOSQUITO", "TERMITE", "RODENT", "OTHER"] as const;
+export type Division = (typeof DIVISIONS)[number];
+
+export const DIVISION_LABELS: Record<Division, string> = {
+  GHP: "General Household Pest",
+  LO: "Lawn & Ornamental",
+  MOSQUITO: "Mosquito",
+  TERMITE: "Termite",
+  RODENT: "Rodent",
+  OTHER: "Other",
+};
+
+export const SUBDIVISIONS: Record<Division, string[]> = {
+  GHP: ["General Insecticide", "Bait", "Aerosol/Contact", "IGR", "Fly/Monitoring"],
+  LO: ["Herbicide", "Liquid Fertilizer", "Granular Fertilizer", "Fungicide", "Ornamental Insecticide", "Adjuvant"],
+  MOSQUITO: ["Adulticide", "Larvicide", "Barrier/Yard"],
+  TERMITE: ["Liquid", "Foam", "Wood/Borate"],
+  RODENT: ["Bait", "Trap", "Station"],
+  OTHER: ["Cleaner", "Misc", "Non-Chemical"],
+};
+
+/** Human label for a division code (falls back to the raw value). */
+export function divisionLabel(code: string | null | undefined): string {
+  const c = (code ?? "").trim().toUpperCase();
+  return (DIVISION_LABELS as Record<string, string>)[c] ?? (c || "—");
+}
+
+/** True when `code` is one of the canonical division codes. */
+export function isDivision(code: string | null | undefined): code is Division {
+  return DIVISIONS.includes((code ?? "").trim().toUpperCase() as Division);
+}
+
+/**
+ * Validate/normalize a (division, subdivision) pair. Returns canonical values, or
+ * nulls when unknown. A subdivision is only kept when it belongs to its division.
+ */
+export function normalizeClassification(
+  division: string | null | undefined,
+  subdivision: string | null | undefined
+): { division: Division | null; subdivision: string | null } {
+  const d = (division ?? "").trim().toUpperCase();
+  if (!isDivision(d)) return { division: null, subdivision: null };
+  const sub = (subdivision ?? "").trim();
+  const valid = SUBDIVISIONS[d].find((s) => s.toLowerCase() === sub.toLowerCase()) ?? null;
+  return { division: d, subdivision: valid };
+}
+
 // The branches. "Vero Beach (HQ)" keeps its existing name so we don't duplicate
 // the record already in production.
 export const STANDARD_WAREHOUSES = [

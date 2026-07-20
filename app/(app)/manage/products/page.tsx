@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 import ManageProducts from "./ManageProducts";
 
 export const dynamic = "force-dynamic";
 
 export default async function ManageProductsPage() {
+  await requireAdmin();
   const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
   return (
     <ManageProducts

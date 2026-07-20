@@ -108,9 +108,32 @@ export function buildProductIndex(
 export type ResolveResult = {
   productId: string | null;
   productName: string | null;
-  how: "alias" | "direct" | "sku" | "unmatched";
+  how: "alias" | "direct" | "sku" | "non_chemical" | "unmatched";
   aliasTarget?: string; // the approved name an alias pointed to (for reporting)
 };
+
+// The generic non-chemical catalog line (Part F). Must match the seed's
+// NON_CHEMICAL_PRODUCT_NAME in prisma/seed-products-approved.ts.
+export const NON_CHEMICAL_PRODUCT_NAME = "Non-Chemical Purchase";
+
+// Keywords for clearly non-chemical line items (gloves, hose reels, tools, PPE,
+// shop/office supplies). Deliberately conservative so a chemical is never
+// misrouted here; chemical MISC catch-alls stay separate.
+const NON_CHEMICAL_KEYWORDS = [
+  "glove", "hose reel", "hose", "reel", "nozzle", "backpack sprayer", "sprayer part",
+  "spray tip", "wand", "fitting", "gasket", "o-ring", "seal kit", "repair kit",
+  "ppe", "respirator", "mask", "goggle", "face shield", "boot", "coverall", "apron",
+  "uniform", "shirt", "hat", "safety", "first aid", "flashlight", "batter",
+  "tarp", "ladder", "cooler", "gas can", "fuel can", "funnel", "bucket lid",
+  "measuring cup", "office", "shop supply", "paper towel", "trash bag", "duct tape",
+];
+
+/** True when a material name looks like a clearly non-chemical purchase. */
+export function isNonChemicalMaterial(name: string | null | undefined): boolean {
+  const s = normalizeProductName(name);
+  if (!s) return false;
+  return NON_CHEMICAL_KEYWORDS.some((k) => s.includes(k));
+}
 
 /**
  * Resolve a transfer-history material name to an approved product, per the
@@ -134,6 +157,13 @@ export function resolveHistoryMaterial(material: string | null | undefined, idx:
 
   const sku = idx.bySku.get(norm);
   if (sku) return { productId: sku.id, productName: sku.name, how: "sku" };
+
+  // Part F: route clearly non-chemical items (gloves, hose reels, tools, PPE) to
+  // the generic non-chemical line when it exists in the catalog.
+  if (isNonChemicalMaterial(material)) {
+    const nc = idx.byName.get(normalizeProductName(NON_CHEMICAL_PRODUCT_NAME));
+    if (nc) return { productId: nc.id, productName: nc.name, how: "non_chemical" };
+  }
 
   return { productId: null, productName: null, how: "unmatched" };
 }

@@ -52,6 +52,7 @@ export default async function CheckOutPage() {
           name: p.name,
           unit: p.unitOfMeasure,
           approved: p.approved,
+          confirmed: p.confirmed,
           barcode: p.barcode,
           category: p.category,
           manufacturer: p.manufacturer,

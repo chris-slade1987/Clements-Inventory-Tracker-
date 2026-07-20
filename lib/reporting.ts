@@ -245,6 +245,61 @@ export async function onHandByProduct(
   return [...byProduct.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// ---- On-hand by line of service (division / subdivision) ----------------
+export type DivisionOnHand = {
+  division: string; // canonical code, or "UNCLASSIFIED"
+  products: number; // distinct products with on-hand > 0
+  qty: number; // total on-hand units
+  subdivisions: { subdivision: string; products: number; qty: number }[];
+};
+
+/**
+ * Current on-hand (SUM of movements per product) rolled up by division and
+ * subdivision. Point-in-time snapshot — never date-bounded. Scoped to a branch
+ * when `warehouseId` is given. Only products with positive on-hand are counted.
+ */
+export async function onHandByDivision(warehouseId?: string): Promise<DivisionOnHand[]> {
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["productId"],
+    where: { warehouseId: warehouseId ?? undefined },
+    _sum: { quantity: true },
+  });
+  const withStock = rows
+    .map((r) => ({ productId: r.productId, qty: r._sum.quantity ?? 0 }))
+    .filter((r) => r.qty > 0);
+  if (withStock.length === 0) return [];
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: withStock.map((r) => r.productId) } },
+    select: { id: true, division: true, subdivision: true },
+  });
+  const pById = new Map(products.map((p) => [p.id, p]));
+
+  const byDiv = new Map<string, { products: number; qty: number; subs: Map<string, { products: number; qty: number }> }>();
+  for (const r of withStock) {
+    const p = pById.get(r.productId);
+    const division = p?.division ?? "UNCLASSIFIED";
+    const subdivision = p?.subdivision ?? "—";
+    if (!byDiv.has(division)) byDiv.set(division, { products: 0, qty: 0, subs: new Map() });
+    const d = byDiv.get(division)!;
+    d.products += 1;
+    d.qty += r.qty;
+    if (!d.subs.has(subdivision)) d.subs.set(subdivision, { products: 0, qty: 0 });
+    const s = d.subs.get(subdivision)!;
+    s.products += 1;
+    s.qty += r.qty;
+  }
+
+  return [...byDiv.entries()].map(([division, d]) => ({
+    division,
+    products: d.products,
+    qty: d.qty,
+    subdivisions: [...d.subs.entries()]
+      .map(([subdivision, s]) => ({ subdivision, products: s.products, qty: s.qty }))
+      .sort((a, b) => b.qty - a.qty),
+  }));
+}
+
 /** On-hand totals grouped by product category. */
 export type CategoryRow = { category: string; qty: number };
 export async function onHandByCategory(

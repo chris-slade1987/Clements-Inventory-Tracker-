@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { requireAdmin } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import ManageTabs from "./ManageTabs";
 
 export const dynamic = "force-dynamic";
@@ -9,14 +11,21 @@ export default async function ManageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireAdmin();
+  // Admins get the full Manage area; HR (hrAccess) reaches ONLY the product
+  // confirm queue (the individual admin-only pages guard themselves as well).
+  const user = await requireUser();
+  const isAdmin = user.role === "admin";
+  if (!isAdmin && !user.hrAccess) redirect("/dashboard");
+
+  const toConfirm = await prisma.product.count({ where: { confirmed: false, active: true } });
+
   return (
     <>
       <PageHeader
         title="Manage"
         subtitle="Catalog and people. Removing an item deactivates it — history is kept."
       />
-      <ManageTabs />
+      <ManageTabs isAdmin={isAdmin} toConfirm={toConfirm} />
       {children}
     </>
   );

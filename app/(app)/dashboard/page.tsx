@@ -3,6 +3,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  onHandByDivision,
   onHandByProduct,
   onHandValueByCategory,
   productCostMap,
@@ -11,15 +12,35 @@ import {
   spendByCategory,
   topProductsBySpend,
   topTechniciansByUsage,
+  type DivisionOnHand,
   type ProductFlow,
   type ProductRow,
   type Ranked,
 } from "@/lib/reporting";
 import { computeReorderFindings, type ReorderFinding } from "@/lib/reorder";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
+import { DIVISIONS, DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+// Date-range toggle for the time-bounded analytics (spend / purchasing volume /
+// purchasing pattern). Current on-hand is a point-in-time snapshot and is NEVER
+// scoped by this range.
+const RANGES = [
+  { key: "30d", label: "Last 30 days" },
+  { key: "month", label: "This month" },
+  { key: "quarter", label: "This quarter" },
+  { key: "ytd", label: "YTD" },
+] as const;
+type RangeKey = (typeof RANGES)[number]["key"];
+
+function rangeStartFor(key: RangeKey, now: Date): Date {
+  if (key === "30d") return new Date(now.getTime() - 30 * 864e5);
+  if (key === "quarter") return new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+  if (key === "ytd") return new Date(now.getFullYear(), 0, 1);
+  return new Date(now.getFullYear(), now.getMonth(), 1); // "month"
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -28,7 +49,13 @@ export default async function DashboardPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
-  const p = currentPeriods(new Date());
+  const now = new Date();
+  const p = currentPeriods(now);
+
+  // Selected time range for the date-bounded analytics (default "month").
+  const range: RangeKey = (RANGES.find((r) => r.key === sp.range)?.key ?? "month") as RangeKey;
+  const rangeStart = rangeStartFor(range, now);
+  const rangeLabel = RANGES.find((r) => r.key === range)!.label;
 
   const warehouses = await prisma.warehouse.findMany({
     where: { active: true },
@@ -38,18 +65,29 @@ export default async function DashboardPage({
   const scopeId = selected?.id; // undefined = all branches
   const cost = await productCostMap();
 
-  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, flow, openAlerts, allLowStock] =
+  // Confirm-queue nudge (admins + HR only — they can act on it).
+  const canConfirm = user.role === "admin" || user.hrAccess;
+  const toConfirm = canConfirm
+    ? await prisma.product.count({ where: { confirmed: false, active: true } })
+    : 0;
+
+  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, ohByDivision, flow, openAlerts, allLowStock] =
     await Promise.all([
+      // Branch budget tiles compare against the MONTHLY budget, so these stay
+      // month-/year-to-date regardless of the range toggle.
       purchasedDollarsByWarehouse(p.monthStart),
       purchasedDollarsByWarehouse(p.yearStart),
-      spendByCategory(p.monthStart, undefined, scopeId),
-      topProductsBySpend(p.monthStart, undefined, 8, scopeId),
-      topTechniciansByUsage(p.monthStart, undefined, cost, 8, scopeId),
+      // Date-bounded analytics — scoped to the selected range window.
+      spendByCategory(rangeStart, now, scopeId),
+      topProductsBySpend(rangeStart, now, 8, scopeId),
+      topTechniciansByUsage(rangeStart, now, cost, 8, scopeId),
       onHandValueByCategory(cost, scopeId),
       // On-hand quantity per product × branch (the matrix). When a branch tile is
       // selected, scopeId narrows it to just that branch's stock.
       onHandByProduct({ warehouseId: scopeId }),
-      productFlow(p.monthStart, undefined, scopeId),
+      // Current on-hand by line of service — point-in-time, NOT range-scoped.
+      onHandByDivision(scopeId),
+      productFlow(rangeStart, now, scopeId),
       prisma.alert.findMany({
         where: { status: "open" },
         orderBy: { createdAt: "desc" },
@@ -69,12 +107,36 @@ export default async function DashboardPage({
   const scopeSpend = scopeId ? mtd.get(scopeId) ?? 0 : companyMtd;
   const scopeName = selected ? selected.name.replace(" (HQ)", "") : "All branches";
 
+  // Build a /dashboard href preserving branch + range unless overridden. `branch`
+  // null clears the branch scope; range "month" is the default so it's omitted.
+  const hrefWith = (opts: { branch?: string | null; range?: RangeKey }) => {
+    const branch = opts.branch === undefined ? scopeId ?? null : opts.branch;
+    const r = opts.range ?? range;
+    const params = new URLSearchParams();
+    if (branch) params.set("branch", branch);
+    if (r && r !== "month") params.set("range", r);
+    const s = params.toString();
+    return s ? `/dashboard?${s}` : "/dashboard";
+  };
+
   return (
     <>
       <PageHeader title="Dashboard" subtitle={`This month at a glance · ${p.monthLabel}`} />
 
+      {toConfirm > 0 ? (
+        <Link href="/manage/confirm" className="block mb-4">
+          <Card className="p-3 flex items-center gap-3 hover:ring-1 hover:ring-amber-300">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">{toConfirm}</span>
+            <span className="text-sm text-ink">
+              product{toConfirm === 1 ? "" : "s"} to confirm before they can be checked out
+            </span>
+            <span className="ml-auto text-xs font-medium text-brand-300">Review →</span>
+          </Card>
+        </Link>
+      ) : null}
+
       {/* Selector: company banner + branch cards. Click to scope the detail below. */}
-      <Link href="/dashboard" className="block mb-4">
+      <Link href={hrefWith({ branch: null })} className="block mb-4">
         <Card className={`p-4 transition ${!selected ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -101,7 +163,7 @@ export default async function DashboardPage({
           const spent = mtd.get(w.id) ?? 0;
           const isSel = selected?.id === w.id;
           return (
-            <Link key={w.id} href={isSel ? "/dashboard" : `/dashboard?branch=${w.id}`} className="block">
+            <Link key={w.id} href={isSel ? hrefWith({ branch: null }) : hrefWith({ branch: w.id })} className="block">
               <Card className={`p-4 overflow-hidden transition ${isSel ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
                 <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
                 <div className="text-xs font-medium uppercase tracking-wider text-muted">{w.name}</div>
@@ -124,13 +186,35 @@ export default async function DashboardPage({
         <h2 className="flex items-center gap-2 text-sm font-medium text-white">
           <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
           {scopeName}
-          <span className="text-mint font-light">· {money(scopeSpend)} spent · {money(scopeOnHandValue)} on hand</span>
+          <span className="text-mint font-light">· {money(scopeSpend)} spent (mo) · {money(scopeOnHandValue)} on hand</span>
         </h2>
         {selected ? (
-          <Link href="/dashboard" className="text-xs font-medium text-brand-300 hover:underline">
+          <Link href={hrefWith({ branch: null })} className="text-xs font-medium text-brand-300 hover:underline">
             ← Show all branches
           </Link>
         ) : null}
+      </div>
+
+      {/* Time-range toggle — scopes the spend / purchasing panels below. On-hand
+          panels stay "Current" regardless. */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-muted">Spend range</span>
+        <div className="flex flex-wrap gap-1 rounded-xl bg-black/20 p-1">
+          {RANGES.map((r) => {
+            const active = r.key === range;
+            return (
+              <Link
+                key={r.key}
+                href={hrefWith({ range: r.key })}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  active ? "bg-emerald-grad text-[#05271c] shadow-sm" : "text-mint hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {r.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {/* Reorder / low stock — driven by run-rate + purchasing cadence learned
@@ -160,11 +244,21 @@ export default async function DashboardPage({
 
       {/* One detail section, scoped to the selection */}
       <div className="grid gap-4 lg:grid-cols-2">
+        {/* Current on-hand by line of service (division / subdivision). Point-in-
+            time snapshot — NOT affected by the spend-range toggle. */}
+        <Card className="p-0 overflow-hidden lg:col-span-2">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <PanelTitle>On-hand by line of service{selected ? ` · ${scopeName}` : ""}</PanelTitle>
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-muted">Current</span>
+          </div>
+          <LineOfServiceCard rows={ohByDivision} />
+        </Card>
+
         {/* On-hand by product × branch. Selecting a branch tile narrows it to that
             branch's stock only. */}
         <Card className="p-0 overflow-hidden lg:col-span-2">
           <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>On hand by product{selected ? ` · ${scopeName}` : " & branch"}</PanelTitle>
+            <PanelTitle>Current on hand by product{selected ? ` · ${scopeName}` : " & branch"}</PanelTitle>
             <span className="text-xs text-muted">{onHandRows.length} product{onHandRows.length === 1 ? "" : "s"}</span>
           </div>
           <OnHandMatrix rows={onHandRows} columns={selected ? [selected] : warehouses} showTotal={!selected} />
@@ -173,7 +267,7 @@ export default async function DashboardPage({
         {/* Product movement — what actually moved this month, purchased vs dispersed */}
         <Card className="p-4 lg:col-span-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <PanelTitle>Product movement · on-hand, purchased & dispersed</PanelTitle>
+            <PanelTitle>Product movement · on-hand (current) · purchased &amp; dispersed ({rangeLabel})</PanelTitle>
             <div className="flex items-center gap-3 text-[11px] text-muted">
               <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#0e7a52" }} /> Purchased (in)</span>
               <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#39b07f" }} /> Dispersed (out)</span>
@@ -183,17 +277,17 @@ export default async function DashboardPage({
         </Card>
 
         <Card className="p-4">
-          <PanelTitle>Top spend by category</PanelTitle>
-          <RankBars rows={catSpend} empty="No purchases recorded this month yet." />
+          <PanelTitle>Top spend by category · {rangeLabel}</PanelTitle>
+          <RankBars rows={catSpend} empty={`No purchases recorded for ${rangeLabel.toLowerCase()} yet.`} />
         </Card>
         <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line"><PanelTitle>Top products by spend</PanelTitle></div>
-          {topProducts.length === 0 ? <Empty>No purchases recorded this month yet.</Empty> : <RankTable rows={topProducts} col="Cost" />}
+          <div className="px-4 py-3 border-b border-line"><PanelTitle>Top products by spend · {rangeLabel}</PanelTitle></div>
+          {topProducts.length === 0 ? <Empty>No purchases recorded for {rangeLabel.toLowerCase()} yet.</Empty> : <RankTable rows={topProducts} col="Cost" />}
         </Card>
 
         <Card className="p-0 overflow-hidden">
           <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>Top technicians · product used</PanelTitle>
+            <PanelTitle>Top technicians · product used · {rangeLabel}</PanelTitle>
             {topTechs.length === 0 ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">no check-outs yet</span> : null}
           </div>
           {topTechs.length === 0 ? (
@@ -255,6 +349,55 @@ function PanelTitle({ children }: { children: React.ReactNode }) {
 }
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-8 text-center text-sm text-muted">{children}</p>;
+}
+
+// Current on-hand rolled up by line of service. Iterates DIVISIONS dynamically so
+// a newly-added division (e.g. Mosquito) shows automatically; any unclassified
+// stock falls into a trailing bucket. LO always shows its subdivision breakdown;
+// other divisions show theirs when present.
+function LineOfServiceCard({ rows }: { rows: DivisionOnHand[] }) {
+  const byDiv = new Map(rows.map((r) => [r.division, r]));
+  // Canonical divisions in order, then any leftover codes (e.g. UNCLASSIFIED).
+  const known = DIVISIONS as readonly string[];
+  const order = [...known, ...rows.map((r) => r.division).filter((d) => !known.includes(d))];
+  const seen = new Set<string>();
+  const ordered = order.filter((d) => (seen.has(d) ? false : (seen.add(d), true)));
+  const present = ordered.filter((d) => byDiv.has(d));
+
+  if (present.length === 0) return <Empty>No classified stock on hand yet.</Empty>;
+
+  const label = (code: string) =>
+    code === "UNCLASSIFIED" ? "Unclassified" : (DIVISION_LABELS as Record<string, string>)[code] ?? divisionLabel(code);
+
+  return (
+    <div className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
+      {present.map((code) => {
+        const d = byDiv.get(code)!;
+        // Always break out LO subdivisions; show others' too (they're compact).
+        const showSubs = d.subdivisions.length > 0;
+        return (
+          <div key={code} className="bg-surface p-4">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm font-medium text-ink">{label(code)}</span>
+              <span className="text-[11px] text-muted">{d.products} product{d.products === 1 ? "" : "s"}</span>
+            </div>
+            <div className="mt-1 text-2xl font-light tabular-nums text-ink">{qty(d.qty)}</div>
+            <div className="text-[11px] text-muted">units on hand</div>
+            {showSubs ? (
+              <ul className="mt-2 space-y-0.5">
+                {d.subdivisions.map((s) => (
+                  <li key={s.subdivision} className="flex justify-between gap-2 text-xs">
+                    <span className="truncate text-muted">{s.subdivision}</span>
+                    <span className="shrink-0 tabular-nums">{qty(s.qty)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // On-hand quantity matrix: products down the left, one column per branch across

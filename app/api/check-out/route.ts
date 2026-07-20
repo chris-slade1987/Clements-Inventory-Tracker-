@@ -52,6 +52,22 @@ export async function POST(req: Request) {
 
   const productById = new Map(products.map((p) => [p.id, p]));
 
+  // Unconfirmed-product hard stop. Products auto-added from invoices/history that
+  // an admin hasn't confirmed are a DATA-QUALITY gate, not a permission — no
+  // manager or admin may override; an admin must confirm them first (Manage →
+  // Confirm queue). Blocked with a 409 shaped like the negative-stock stop.
+  const unconfirmed = lines
+    .map((l) => productById.get(l.productId))
+    .filter((p): p is NonNullable<typeof p> => !!p && p.confirmed === false);
+  if (unconfirmed.length > 0) {
+    // De-dupe by product id (a product may appear on multiple lines).
+    const seen = new Set<string>();
+    const offending = unconfirmed
+      .filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)))
+      .map((p) => ({ productId: p.id, name: p.name }));
+    return NextResponse.json({ error: "unconfirmed_product", offending }, { status: 409 });
+  }
+
   // Negative-stock guard.
   const onHand = await onHandByWarehouse(warehouseId);
   const wouldGoNegative = lines

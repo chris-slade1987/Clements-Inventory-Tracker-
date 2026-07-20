@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { categorizeProduct } from "../lib/constants";
+import { categorizeProduct, normalizeClassification } from "../lib/constants";
 import { isUomCode } from "../lib/uom";
 import { normalizeProductName } from "../lib/product-aliases";
 
@@ -28,7 +28,131 @@ type ApprovedRow = {
   material: string; // PestPac Material Code (kept for the history loader)
   target: string | null;
   appMethod: string | null;
+  // Line-of-service classification, stamped from CLASSIFICATION (by exact name).
+  division?: string | null;
+  subdivision?: string | null;
+  // Case -> unit pack size (owner rule; see packSizeFor()).
+  unitsPerCase?: number | null;
+  // Enrichment (Part D) — factual label data for auto-added products. Left
+  // undefined when not confidently known (never guessed).
+  manufacturer?: string | null;
+  activeIngredient?: string | null;
+  enrichNote?: string | null;
 };
+
+// Authoritative line-of-service classification, keyed by the row's EXACT product
+// name (applied verbatim — do NOT re-derive). The owner has decided every
+// judgment call, so this map is final: no "needs confirmation" note is appended.
+type Classification = { division: string; subdivision: string };
+const CLASSIFICATION: Record<string, Classification> = {
+  "Lutz Perfect Spike": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Acephate 90 Prill": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "Advion Ant Gel": { division: "GHP", subdivision: "Bait" },
+  "Advion cockroach gel bait": { division: "GHP", subdivision: "Bait" },
+  "Advion Insect Granular": { division: "GHP", subdivision: "General Insecticide" },
+  "Advion WDG Insecticide": { division: "GHP", subdivision: "General Insecticide" },
+  "Alpine Roach Gel Bait": { division: "GHP", subdivision: "Bait" },
+  "OTC Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Archer IGR": { division: "GHP", subdivision: "IGR" },
+  "Avenue South": { division: "LO", subdivision: "Herbicide" },
+  "bifen XTS": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "CB-80 Insecticide": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "Celsius": { division: "LO", subdivision: "Herbicide" },
+  "Certainty": { division: "LO", subdivision: "Herbicide" },
+  "Contrac Rodent Bait Blox": { division: "RODENT", subdivision: "Bait" },
+  "Cyper TC": { division: "TERMITE", subdivision: "Liquid" },
+  "Delta dust": { division: "GHP", subdivision: "General Insecticide" },
+  "Demand CS": { division: "GHP", subdivision: "General Insecticide" },
+  "DIPEL PRO": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "Extinguish": { division: "GHP", subdivision: "Bait" },
+  "Gentrol IGR Concentrate": { division: "GHP", subdivision: "IGR" },
+  "Invade Hot Spot": { division: "OTHER", subdivision: "Cleaner" },
+  "19-19-19 Sprayable fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "20-0-0 Liquid Fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "Fertilizer 24-0-11 (Turf)": { division: "LO", subdivision: "Granular Fertilizer" },
+  "33-0-17 Sprayable Fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "Wasp & Hornet Spray": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "Atrazine": { division: "LO", subdivision: "Herbicide" },
+  "Bandit 2F": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "Lesco Bio Iron Plus": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "0-0-7 Fertilizer + Insecticide": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Crosscheck 0.069% Plus": { division: "LO", subdivision: "Granular Fertilizer" },
+  "CrossCheck Plus": { division: "GHP", subdivision: "General Insecticide" },
+  "Lesco 10-0-12": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Lesco Fertilizer 13-0-0": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "Fertilizer - 21-0-6": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Fertilizer 8-0-10 (Shrub)": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Lesco Liquid 0-0-25": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "20-20-20 Sprayable Fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "Mansion Turf Herbicide": { division: "LO", subdivision: "Herbicide" },
+  "Blackout Fertilizer 0-0-18 (turf)": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Prosecutor": { division: "LO", subdivision: "Herbicide" },
+  "Spreader Sticker": { division: "LO", subdivision: "Adjuvant" },
+  "Lesco T&O Chelated Liquid Fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "T-Storm Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Maxforce Complete Granular Bait": { division: "GHP", subdivision: "Bait" },
+  "Maxforce Quantum Ant Bait": { division: "GHP", subdivision: "Bait" },
+  "Arena Granular Insecticide": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "Optigard Ant Gel Bait": { division: "GHP", subdivision: "Bait" },
+  "Optigard Cockroach Gel Bait": { division: "GHP", subdivision: "Bait" },
+  "Speedzone Southern Herbicide": { division: "LO", subdivision: "Herbicide" },
+  "Premise Foam": { division: "TERMITE", subdivision: "Foam" },
+  "Evo Bait Station": { division: "RODENT", subdivision: "Station" },
+  "PT Alpine": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "PT ALPINE WSG": { division: "GHP", subdivision: "General Insecticide" },
+  "PT Microcare CS": { division: "GHP", subdivision: "General Insecticide" },
+  "PT Phantom": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "PT Ultraside": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "PT wasp Freeze": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "Safari SG": { division: "LO", subdivision: "Ornamental Insecticide" },
+  "Sector": { division: "MOSQUITO", subdivision: "Adulticide" },
+  "Sedgehammer Turf Herbicide": { division: "LO", subdivision: "Herbicide" },
+  "Shockwave": { division: "GHP", subdivision: "General Insecticide" },
+  "Suspend SC": { division: "GHP", subdivision: "General Insecticide" },
+  "Headway Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Taurus SC": { division: "TERMITE", subdivision: "Liquid" },
+  "Termidor Foam": { division: "TERMITE", subdivision: "Foam" },
+  "Termidor SC": { division: "TERMITE", subdivision: "Liquid" },
+  "Timbor": { division: "TERMITE", subdivision: "Wood/Borate" },
+  "Top Choice": { division: "GHP", subdivision: "General Insecticide" },
+  "Transport Mikron Insecticide": { division: "GHP", subdivision: "General Insecticide" },
+  "T-Rex Snap Trap": { division: "RODENT", subdivision: "Trap" },
+  "ULD BP-300": { division: "GHP", subdivision: "General Insecticide" },
+  "Vendetta Plus": { division: "GHP", subdivision: "Bait" },
+  "Extinguish Plus": { division: "GHP", subdivision: "Bait" },
+  "Artavia 2SC Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Lesco 25-0-10 Granular Fert": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Suspend PolyZone Insecticide": { division: "GHP", subdivision: "General Insecticide" },
+  "Syngenta Heritage Granular Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Victor M9 Pro Rat Trap": { division: "RODENT", subdivision: "Trap" },
+  "Miscellaneous Chemical": { division: "OTHER", subdivision: "Misc" },
+  "Miscellaneous Fertilizer": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Catchmaster PB Glue Board": { division: "RODENT", subdivision: "Trap" },
+  "Precor 2000 Premise Spray": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "PT PI Pressurized Contact": { division: "GHP", subdivision: "Aerosol/Contact" },
+  "Pageant Intrinsic Fungicide": { division: "LO", subdivision: "Fungicide" },
+  "Roundup QuikPro Granular Herbicide": { division: "LO", subdivision: "Herbicide" },
+  "Vector Fruit Fly Trap": { division: "GHP", subdivision: "Fly/Monitoring" },
+  "Eaton Stick-Em Rat and Mouse": { division: "RODENT", subdivision: "Trap" },
+  "Lesco 13-3-13 Spar-Tech": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Lesco 16-0-8 Spar Tech": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Lesco Macron Soluble Fertilizer": { division: "LO", subdivision: "Liquid Fertilizer" },
+  "Promate 20-0-10": { division: "LO", subdivision: "Granular Fertilizer" },
+  "Stop The Bites!": { division: "MOSQUITO", subdivision: "Barrier/Yard" },
+};
+
+/**
+ * Owner's pack-size rule (Part B). Tube products (UoM code T) = 4 (4×30g tubes
+ * per case); products sold individually and never by case (EA/RT/BS) = null (a
+ * case pack size is meaningless); everything else = 12. Metadata only — no
+ * conversion math runs on existing movements.
+ */
+function packSizeFor(code: string): number | null {
+  const c = code.trim().toUpperCase();
+  if (c === "T") return 4;
+  if (c === "EA" || c === "RT" || c === "BS") return null;
+  return 12;
+}
 
 // The 75 approved products, from the PestPac "Product list" sheet. `name` is the
 // sheet's Product Name (a few reconciled so the alias map resolves exactly);
@@ -115,32 +239,58 @@ const APPROVED: ApprovedRow[] = [
 // approved (units taken from the history) and flagged via `notes` so HR/admin
 // can confirm the naming before the history-load build.
 const ADD_NOTE = "Added from transfer history — confirm naming with HR/admin.";
+// ADDED products stay confirmed=false (Part C) so the owner reviews the naming +
+// enrichment before they go live. `manufacturer`/`activeIngredient` are FACTUAL
+// label data (Part D); EPA numbers are deliberately left null (never guessed).
 const ADDED: ApprovedRow[] = [
-  { name: "Artavia 2SC Fungicide", code: "J", material: "ARTAVIA 2SC", target: "FUNGUS", appMethod: "SPRAYER" },
-  { name: "Lesco 25-0-10 Granular Fert", code: "FB", material: "LESCO 25-0-10", target: "FERT", appMethod: "SPREADER" },
-  { name: "Suspend PolyZone Insecticide", code: "J", material: "SUSPEND POLYZONE", target: "GHP", appMethod: "SPRAYER" },
-  { name: "Syngenta Heritage Granular Fungicide", code: "FB", material: "HERITAGE GRANULAR", target: "FUNGUS", appMethod: "SPREADER" },
-  { name: "Victor M9 Pro Rat Trap", code: "EA", material: "VICTOR M9 PRO", target: "RATS", appMethod: "HAND" },
+  { name: "Artavia 2SC Fungicide", code: "J", material: "ARTAVIA 2SC", target: "FUNGUS", appMethod: "SPRAYER", activeIngredient: "Azoxystrobin" },
+  { name: "Lesco 25-0-10 Granular Fert", code: "FB", material: "LESCO 25-0-10", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" },
+  { name: "Suspend PolyZone Insecticide", code: "J", material: "SUSPEND POLYZONE", target: "GHP", appMethod: "SPRAYER", manufacturer: "Envu (Bayer)", activeIngredient: "Deltamethrin" },
+  { name: "Syngenta Heritage Granular Fungicide", code: "FB", material: "HERITAGE GRANULAR", target: "FUNGUS", appMethod: "SPREADER", manufacturer: "Syngenta", activeIngredient: "Azoxystrobin" },
+  { name: "Victor M9 Pro Rat Trap", code: "EA", material: "VICTOR M9 PRO", target: "RATS", appMethod: "HAND", manufacturer: "Woodstream (Victor)" },
   { name: "Miscellaneous Chemical", code: "J", material: "MISC CHEMICAL", target: null, appMethod: null },
   { name: "Miscellaneous Fertilizer", code: "FB", material: "MISC FERTILIZER", target: null, appMethod: null },
   // Phase 2: genuinely-missing products found in the 4-branch transfer histories.
   // UoM code is taken from the received unit in that branch's transfer rows.
-  { name: "Catchmaster PB Glue Board", code: "RT", material: "CATCHMASTER PB GLUE BOARD", target: "RODENTS", appMethod: "HAND" }, // Orlando
-  { name: "Precor 2000 Premise Spray", code: "AC", material: "PRECOR 2000 PREMISE SPRAY 16 O", target: "FLEA", appMethod: "SPRAYER" }, // Orlando
-  { name: "PT PI Pressurized Contact", code: "AC", material: "PT PI PRESSURIZED CONTACT", target: "INSECTS", appMethod: "SPRAYER" }, // Orlando
-  { name: "Pageant Intrinsic Fungicide", code: "B", material: "PAGEANT INTRINSIC FUNGICIDE", target: "FUNGUS", appMethod: "SPRAYER" }, // Stuart
-  { name: "Roundup QuikPro Granular Herbicide", code: "J", material: "ROUNDUP QUIKRO  GRAN HERBICIDE", target: "WEEDS", appMethod: "SPRAYER" }, // Stuart + Vero
+  { name: "Catchmaster PB Glue Board", code: "RT", material: "CATCHMASTER PB GLUE BOARD", target: "RODENTS", appMethod: "HAND", manufacturer: "AP&G (Catchmaster)" }, // Orlando
+  { name: "Precor 2000 Premise Spray", code: "AC", material: "PRECOR 2000 PREMISE SPRAY 16 O", target: "FLEA", appMethod: "SPRAYER", manufacturer: "Zoecon (Central Life Sciences)", activeIngredient: "Permethrin + (S)-Methoprene" }, // Orlando
+  { name: "PT PI Pressurized Contact", code: "AC", material: "PT PI PRESSURIZED CONTACT", target: "INSECTS", appMethod: "SPRAYER", manufacturer: "BASF" }, // Orlando
+  { name: "Pageant Intrinsic Fungicide", code: "B", material: "PAGEANT INTRINSIC FUNGICIDE", target: "FUNGUS", appMethod: "SPRAYER", manufacturer: "BASF", activeIngredient: "Pyraclostrobin + Boscalid" }, // Stuart
+  { name: "Roundup QuikPro Granular Herbicide", code: "J", material: "ROUNDUP QUIKRO  GRAN HERBICIDE", target: "WEEDS", appMethod: "SPRAYER", manufacturer: "Envu (Bayer)", activeIngredient: "Glyphosate + Diquat dibromide" }, // Stuart + Vero
   { name: "Vector Fruit Fly Trap", code: "C", material: "960 VECTOR FRUIT FLY TRAP", target: "FLIES", appMethod: "HAND" }, // Vero (history UoM = Case)
-  { name: "Eaton Stick-Em Rat and Mouse", code: "RT", material: "EATON STICK-EM RAT AND MOUSE", target: "RODENTS", appMethod: "HAND" }, // Vero
-  { name: "Lesco 13-3-13 Spar-Tech", code: "FB", material: "LESCO 13-3-13 SPAR-TECH T&O GR", target: "FERT", appMethod: "SPREADER" }, // Vero
-  { name: "Lesco 16-0-8 Spar Tech", code: "FB", material: "LESCO 16-0-8 SPAR TECH", target: "FERT", appMethod: "SPREADER" }, // Vero
-  { name: "Lesco Macron Soluble Fertilizer", code: "BU", material: "LESCO MACRON SOLUBLE FERTILIZE", target: "FERT", appMethod: null }, // Vero
+  { name: "Eaton Stick-Em Rat and Mouse", code: "RT", material: "EATON STICK-EM RAT AND MOUSE", target: "RODENTS", appMethod: "HAND", manufacturer: "J.T. Eaton" }, // Vero
+  { name: "Lesco 13-3-13 Spar-Tech", code: "FB", material: "LESCO 13-3-13 SPAR-TECH T&O GR", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" }, // Vero
+  { name: "Lesco 16-0-8 Spar Tech", code: "FB", material: "LESCO 16-0-8 SPAR TECH", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" }, // Vero
+  { name: "Lesco Macron Soluble Fertilizer", code: "BU", material: "LESCO MACRON SOLUBLE FERTILIZE", target: "FERT", appMethod: null, manufacturer: "LESCO" }, // Vero
   { name: "Promate 20-0-10", code: "FB", material: "PROMATE 20-0-10", target: "FERT", appMethod: "SPREADER" }, // Vero
-  { name: "Stop The Bites!", code: "J", material: "STOP THE BITES!", target: "INSECTS", appMethod: "SPRAYER" }, // Vero
+  { name: "Stop The Bites!", code: "J", material: "STOP THE BITES!", target: "INSECTS", appMethod: "SPRAYER", manufacturer: "Control Solutions Inc.", enrichNote: "Active ingredient not verified — confirm from label before go-live." }, // Vero
 ];
 
+// Part F — a single generic catalog line for non-chemical purchases (gloves,
+// hose reels, tools, PPE, shop/office supplies). Confirmed + approved; the
+// invoice reader / history loader routes clearly non-chemical items here.
+export const NON_CHEMICAL_PRODUCT_NAME = "Non-Chemical Purchase";
+const NON_CHEMICAL: ApprovedRow = {
+  name: NON_CHEMICAL_PRODUCT_NAME,
+  code: "EA",
+  material: "NON-CHEMICAL PURCHASE",
+  target: null,
+  appMethod: null,
+  division: "OTHER",
+  subdivision: "Non-Chemical",
+};
+const NON_CHEMICAL_NOTE = "Generic line for non-chemical purchases (gloves, hose reels, equipment).";
+
+// A reconcile row carries an optional base note and its confirmation state.
+type ReconcileRow = ApprovedRow & { note?: string; confirmed: boolean; baseNote?: string };
+
 export async function seedApprovedProducts(prisma: PrismaClient) {
-  const all = [...APPROVED, ...ADDED.map((a) => ({ ...a, note: ADD_NOTE }))] as (ApprovedRow & { note?: string })[];
+  const all: ReconcileRow[] = [
+    ...APPROVED.map((a) => ({ ...a, confirmed: true })),
+    // ADDED products stay unconfirmed (Part C) until an admin confirms them.
+    ...ADDED.map((a) => ({ ...a, baseNote: ADD_NOTE, confirmed: false })),
+    { ...NON_CHEMICAL, baseNote: NON_CHEMICAL_NOTE, confirmed: true },
+  ];
 
   // Existing products, indexed by normalized name (the stable upsert key).
   const existing = await prisma.product.findMany();
@@ -153,22 +303,50 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
     const norm = normalizeProductName(row.name);
     approvedNorms.add(norm);
     const code = isUomCode(row.code) ? row.code.toUpperCase() : "EA";
-    const category = categorizeProduct(row.name, "", row.target ?? "", code);
+    const category = categorizeProduct(row.name, row.activeIngredient ?? "", row.target ?? "", code);
     const found = byNorm.get(norm);
 
+    // Line-of-service classification (authoritative; overwrite on every run).
+    const cls = CLASSIFICATION[row.name];
+    const { division, subdivision } = normalizeClassification(
+      row.division ?? cls?.division ?? null,
+      row.subdivision ?? cls?.subdivision ?? null
+    );
+    const unitsPerCase = packSizeFor(code);
+
+    // Compose notes: base note (ADD / non-chemical) + any enrichment note,
+    // appended so nothing already there is clobbered. (No classification-flag
+    // note — the owner has finalized the map.)
+    const noteParts: string[] = [];
+    if (row.baseNote) noteParts.push(row.baseNote);
+    if (row.enrichNote) noteParts.push(row.enrichNote);
+    const composedNote = noteParts.length ? noteParts.join(" ") : null;
+
     if (found) {
+      // Preserve an admin's confirmation: an ADDED row is only (re)asserted
+      // unconfirmed while still pristine (its ADD note intact). Once confirmed
+      // in-app the note is rewritten, so we keep the stored value.
+      const pristine = (found.notes ?? "").includes(ADD_NOTE);
+      const confirmed = row.confirmed ? true : (pristine ? false : found.confirmed);
       await prisma.product.update({
         where: { id: found.id },
         data: {
           unitOfMeasure: code,
           approved: true,
           active: true,
+          confirmed,
           category: found.category ?? category,
+          division,
+          subdivision,
+          unitsPerCase,
           targetPest: found.targetPest ?? row.target ?? null,
           applicationMethod: found.applicationMethod ?? row.appMethod ?? null,
+          manufacturer: found.manufacturer ?? row.manufacturer ?? null,
+          activeIngredient: found.activeIngredient ?? row.activeIngredient ?? null,
           // Keep an existing distributor SKU; otherwise stamp the PestPac code.
           distributorSku: found.distributorSku ?? row.material,
-          ...(row.note ? { notes: row.note } : {}),
+          // Only (re)write the note while pristine, so an admin's edits survive.
+          ...(composedNote && pristine ? { notes: composedNote } : {}),
         },
       });
       updated++;
@@ -178,11 +356,17 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
           name: row.name,
           unitOfMeasure: code,
           approved: true,
+          confirmed: row.confirmed,
           category,
+          division,
+          subdivision,
+          unitsPerCase,
           targetPest: row.target ?? null,
           applicationMethod: row.appMethod ?? null,
+          manufacturer: row.manufacturer ?? null,
+          activeIngredient: row.activeIngredient ?? null,
           distributorSku: row.material,
-          notes: row.note ?? null,
+          notes: composedNote,
         },
       });
       created++;
@@ -207,14 +391,45 @@ async function main() {
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
   try {
+    // Prove on-hand is untouched: StockMovement count must be identical.
+    const mvBefore = await prisma.stockMovement.count();
+    console.log(`StockMovement count BEFORE seed = ${mvBefore}`);
+
     const r = await seedApprovedProducts(prisma);
     console.log(`approved-products seed: ${r.created} created, ${r.updated} updated, ${r.demoted} demoted to off-catalog.`);
+
     const approvedCount = await prisma.product.count({ where: { approved: true } });
-    console.log(`approved products in catalog: ${approvedCount}`);
-    const checks = ["Advion Ant Gel", "bifen XTS", "Contrac Rodent Bait Blox", "Artavia 2SC Fungicide", "Victor M9 Pro Rat Trap"];
+    const confirmedCount = await prisma.product.count({ where: { approved: true, confirmed: true } });
+    const unconfirmedCount = await prisma.product.count({ where: { confirmed: false } });
+    console.log(`catalog: ${approvedCount} approved (${confirmedCount} confirmed) · ${unconfirmedCount} unconfirmed (confirm queue)`);
+
+    // Division rollup: distinct classified products per division.
+    const classified = await prisma.product.findMany({
+      where: { division: { not: null } },
+      select: { division: true, subdivision: true },
+    });
+    const byDiv = new Map<string, Map<string, number>>();
+    for (const p of classified) {
+      const d = p.division ?? "—";
+      if (!byDiv.has(d)) byDiv.set(d, new Map());
+      const subs = byDiv.get(d)!;
+      const s = p.subdivision ?? "—";
+      subs.set(s, (subs.get(s) ?? 0) + 1);
+    }
+    console.log("division rollup (distinct products):");
+    for (const [d, subs] of [...byDiv.entries()].sort()) {
+      const total = [...subs.values()].reduce((a, b) => a + b, 0);
+      console.log(`  ${d}: ${total}`);
+      for (const [s, n] of [...subs.entries()].sort()) console.log(`      ${s}: ${n}`);
+    }
+
+    const mvAfter = await prisma.stockMovement.count();
+    console.log(`StockMovement count AFTER seed  = ${mvAfter}  (${mvAfter === mvBefore ? "UNCHANGED ✓" : "CHANGED ✗"})`);
+
+    const checks = ["Advion Ant Gel", "Sector", "Stop The Bites!", "Lutz Perfect Spike", "Non-Chemical Purchase", "Victor M9 Pro Rat Trap"];
     for (const name of checks) {
-      const p = await prisma.product.findFirst({ where: { name }, select: { name: true, unitOfMeasure: true, approved: true } });
-      console.log(`  ${name} -> ${p ? `${p.unitOfMeasure} (approved=${p.approved})` : "MISSING"}`);
+      const p = await prisma.product.findFirst({ where: { name }, select: { name: true, unitOfMeasure: true, unitsPerCase: true, approved: true, confirmed: true, division: true, subdivision: true } });
+      console.log(`  ${name} -> ${p ? `${p.division}/${p.subdivision} · ${p.unitOfMeasure} (packSize=${p.unitsPerCase}) approved=${p.approved} confirmed=${p.confirmed}` : "MISSING"}`);
     }
   } finally {
     await prisma.$disconnect();

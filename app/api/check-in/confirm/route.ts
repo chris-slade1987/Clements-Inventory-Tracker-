@@ -91,6 +91,10 @@ export async function POST(req: Request) {
             manufacturer: l.newProduct.manufacturer?.trim() || null,
             epaRegNumber: l.newProduct.epaRegNumber?.trim() || null,
             category: l.newProduct.category?.trim() || null,
+            // Auto-added from an invoice — must be confirmed by an admin before it
+            // can be dispersed at check-out (Part C confirm gate).
+            confirmed: false,
+            notes: "Added from a check-in invoice — confirm details before check-out.",
           },
         });
         productId = created.id;

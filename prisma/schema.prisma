@@ -107,6 +107,16 @@ model Product {
   // Case -> unit pack size (e.g. tubes per case). Null until a later step fills
   // it; see unitsFromCases() in lib/uom.ts. No conversion math runs yet.
   unitsPerCase    Int?    @map("units_per_case")
+  // Line-of-service classification (additive to `category`). `division` is one of
+  // DIVISIONS in lib/constants.ts (GHP | LO | TERMITE | RODENT | OTHER);
+  // `subdivision` is one of that division's SUBDIVISIONS. Null for off-catalog
+  // products that haven't been classified.
+  division        String?
+  subdivision     String?
+  // Formal-approval gate: `approved` = on the CEO's catalog; `confirmed` = a human
+  // has reviewed this row's data. Auto-added products (invoice/history) start
+  // unconfirmed and are BLOCKED at check-out until an admin confirms them.
+  confirmed       Boolean @default(true)
   // Free-text note (e.g. "added from transfer history — confirm naming").
   notes           String?
 
