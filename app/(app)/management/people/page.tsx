@@ -76,6 +76,19 @@ export default async function PeoplePage({
         </Link>
       ) : null}
 
+      {canPto ? (
+        <Link href="/management/people/handbook" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 3v5h5M9 13h6M9 17h6" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Handbook acknowledgments</span>
+            <span className="block text-xs text-muted">Who has signed the current Employee Handbook, who&rsquo;s outstanding, and generate a per-employee signing link</span>
+          </span>
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
+
       {canAts ? (
         <Link href="/management/people/jobs" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">

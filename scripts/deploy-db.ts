@@ -226,6 +226,19 @@ async function main() {
     const cl = await seedChecklists(prisma);
     console.log(`deploy-db: reconciled oversight checklists (weekly=${cl.weekly} items, monthly=${cl.monthly} items).`);
 
+    // Document center: upsert the employee handbook + manager manual from the
+    // Markdown sources every deploy (idempotent by slug — refreshes body/title
+    // without touching acknowledgments, which are append-only, or bumping the
+    // version).
+    const acksBefore = await prisma.documentAcknowledgment.count();
+    const { seedDocuments } = await import("../prisma/seed-documents");
+    const docs = await seedDocuments(prisma);
+    const acksAfter = await prisma.documentAcknowledgment.count();
+    console.log(
+      `deploy-db: reconciled document center (${docs.map((d) => `${d.slug} v${d.version} ${d.length}c`).join(", ")}; ` +
+        `acknowledgments ${acksBefore}->${acksAfter} ${acksAfter === acksBefore ? "UNCHANGED" : "CHANGED"}).`,
+    );
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.

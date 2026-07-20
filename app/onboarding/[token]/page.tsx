@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
 import { PACKET_STEPS, isEditable, type Responses } from "@/lib/prehire";
+import { getDocument, HANDBOOK_SLUG } from "@/lib/policy-docs";
 import OnboardingWizard from "./OnboardingWizard";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +9,10 @@ export const metadata = { title: "Onboarding — Clements Pest Control" };
 
 export default async function OnboardingPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const pre = await prisma.preHire.findUnique({ where: { token } });
+  const [pre, handbook] = await Promise.all([
+    prisma.preHire.findUnique({ where: { token } }),
+    getDocument(HANDBOOK_SLUG),
+  ]);
 
   const invalid = !pre;
   const closed = pre && !isEditable(pre.status);
@@ -43,6 +47,8 @@ export default async function OnboardingPage({ params }: { params: Promise<{ tok
             steps={PACKET_STEPS}
             initialResponses={parseJson<Responses>(pre!.responses, {})}
             initialStep={pre!.currentStep}
+            handbookBody={handbook?.body}
+            handbookVersion={handbook?.version}
           />
         )}
       </div>

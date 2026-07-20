@@ -90,6 +90,23 @@ export const CHECKLIST_OVERSIGHT_NAV_ITEM: NavItem = {
   icon: "M4 6h16M4 12h10M4 18h7M15 15l2 2 4-4",
 };
 
+// Resources / document center. Handbook is visible to every logged-in user;
+// the Manager Operating Manual is manager/admin only. Rendered as a distinct
+// "Resources" group in the shell (not tied to a single center).
+export const HANDBOOK_NAV_ITEM: NavItem = {
+  href: "/resources/handbook",
+  label: "Employee Handbook",
+  shortLabel: "Handbook",
+  icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 3v5h5M9 13h6M9 17h6",
+};
+
+export const MANUAL_NAV_ITEM: NavItem = {
+  href: "/resources/manual",
+  label: "Manager Manual",
+  shortLabel: "Manual",
+  icon: "M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V4H6.5A2.5 2.5 0 004 6.5v13zM9 8h7M9 12h7",
+};
+
 // Company-wide bulletin — reachable from every center's nav.
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { btn } from "@/components/ui";
+import Markdown from "@/components/Markdown";
 import type { PacketStep, Responses, StepResponse } from "@/lib/prehire";
 
 export default function OnboardingWizard({
@@ -10,12 +11,16 @@ export default function OnboardingWizard({
   steps,
   initialResponses,
   initialStep,
+  handbookBody,
+  handbookVersion,
 }: {
   token: string;
   candidateName: string;
   steps: PacketStep[];
   initialResponses: Responses;
   initialStep: number;
+  handbookBody?: string;
+  handbookVersion?: number;
 }) {
   const total = steps.length;
   // Clamp entry point: land on the first unfinished step, or the review screen.
@@ -121,7 +126,7 @@ export default function OnboardingWizard({
       {onReview ? (
         <Review steps={steps} responses={responses} onEdit={(i) => { setError(null); setIdx(i); }} />
       ) : (
-        <StepView step={step!} data={responses[step!.key] ?? {}} onChange={(d) => setStepData(step!.key, d)} />
+        <StepView step={step!} data={responses[step!.key] ?? {}} onChange={(d) => setStepData(step!.key, d)} handbookBody={handbookBody} handbookVersion={handbookVersion} />
       )}
 
       {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
@@ -145,11 +150,21 @@ function Panel({ children }: { children: React.ReactNode }) {
 
 // ---- One step --------------------------------------------------------------
 
-function StepView({ step, data, onChange }: { step: PacketStep; data: StepResponse; onChange: (d: StepResponse) => void }) {
+function StepView({ step, data, onChange, handbookBody, handbookVersion }: { step: PacketStep; data: StepResponse; onChange: (d: StepResponse) => void; handbookBody?: string; handbookVersion?: number }) {
   return (
     <div>
-      <h2 className="text-lg font-semibold text-slate-900">{step.title}</h2>
+      <h2 className="text-lg font-semibold text-slate-900">{step.title}{step.handbookDoc && handbookVersion ? <span className="ml-2 text-xs font-normal text-slate-500">v{handbookVersion}</span> : null}</h2>
       {step.intro ? <p className="mt-1 text-sm text-slate-600">{step.intro}</p> : null}
+
+      {step.handbookDoc ? (
+        handbookBody ? (
+          <div className="mt-4 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+            <Markdown className="max-w-none">{handbookBody}</Markdown>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">The handbook is not available right now. You may continue; HR will follow up with a copy to acknowledge.</p>
+        )
+      ) : null}
 
       {step.kind === "form" ? (
         <div className="mt-4 grid gap-3 sm:grid-cols-2">

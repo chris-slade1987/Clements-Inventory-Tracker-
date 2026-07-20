@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -168,11 +168,18 @@ export default function AppShell({
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver;
+  // Resources / document center. Handbook is for everyone; the Manager Manual is
+  // managers/admin only. Board observers keep their fixed nav untouched.
+  const resources: NavItem[] = isBoardObserver
+    ? []
+    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : [])];
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
-  const activeHref = items
+  const activeHref = [...items, ...resources]
     .map((i) => i.href)
     .filter((h) => pathname === h || pathname.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
+  // Mobile bottom bar shows the center nav plus the resources links.
+  const mobileItems = [...items, ...resources];
 
   return (
     <div className="flex min-h-screen">
@@ -203,6 +210,21 @@ export default function AppShell({
               </Link>
             );
           })}
+          {resources.length ? (
+            <div className="pt-3 mt-2 border-t border-white/10">
+              <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-mint/70">Resources</div>
+              {resources.map((item) => {
+                const active = item.href === activeHref;
+                return (
+                  <Link key={item.href} href={item.href} className={navClass(active)}>
+                    <Icon path={item.icon} className="h-5 w-5 shrink-0" />
+                    {item.label}
+                    {active ? <span className="ml-auto text-mint">→</span> : null}
+                  </Link>
+                );
+              })}
+            </div>
+          ) : null}
         </nav>
         <div className="px-3 pb-2 space-y-1">
           <NotificationBell initialCount={unread} layout="row" />
@@ -277,9 +299,9 @@ export default function AppShell({
       {/* Mobile bottom nav */}
       <nav
         className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid"
-        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${mobileItems.length}, minmax(0, 1fr))` }}
       >
-        {items.map((item) => {
+        {mobileItems.map((item) => {
           const active = item.href === activeHref;
           return (
             <Link

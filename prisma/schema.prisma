@@ -1524,3 +1524,62 @@ model ChecklistCompletion {
   @@index([branch, cadence])
   @@map("checklist_completions")
 }
+
+// ---------------------------------------------------------------------------
+// Document center. Living company documents (the Employee Handbook, readable by
+// everyone; the Manager Operating Manual, manager-only) rendered from Markdown.
+// The handbook requires a typed-signature acknowledgment — captured in-app for
+// logged-in staff, during onboarding for new hires, or via a login-free signed
+// link for existing staff. Acknowledgments are an APPEND-ONLY record (same audit
+// principle as stock_movements / checklist_completions — never mutate or delete).
+// ---------------------------------------------------------------------------
+model PolicyDocument {
+  id        String  @id @default(cuid())
+  slug      String  @unique // "employee-handbook" | "manager-manual"
+  title     String
+  kind      String // "handbook" | "manual"
+  audience  String // "all" | "manager"
+  version   Int     @default(1)
+  summary   String?
+  body      String // Markdown
+  effective String? // effective / last-updated note
+  published Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  acknowledgments DocumentAcknowledgment[]
+  ackTokens       DocumentAckToken[]
+
+  @@map("policy_documents")
+}
+
+model DocumentAcknowledgment {
+  id             String   @id @default(cuid())
+  documentId     String   @map("document_id")
+  version        Int
+  userId         String?  @map("user_id") // logged-in acknowledger
+  employeeId     String?  @map("employee_id") // employee (onboarding / link)
+  signedName     String   @map("signed_name") // typed signature
+  email          String?
+  source         String // "onboarding" | "link" | "in_app"
+  acknowledgedAt DateTime @default(now()) @map("acknowledged_at")
+
+  document PolicyDocument @relation(fields: [documentId], references: [id])
+
+  @@index([documentId, version])
+  @@map("document_acknowledgments")
+}
+
+model DocumentAckToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  documentId String    @map("document_id")
+  employeeId String?   @map("employee_id")
+  name       String? // pre-filled employee name
+  usedAt     DateTime? @map("used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  document PolicyDocument @relation(fields: [documentId], references: [id])
+
+  @@map("document_ack_tokens")
+}

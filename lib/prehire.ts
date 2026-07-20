@@ -42,6 +42,10 @@ export type PacketStep = {
   note?: string; // extra context under the body
   documents?: { key: string; label: string }[]; // kind === "acknowledgment"
   consentLabel?: string; // checkbox label for consent / acknowledgment
+  // When set, this step renders the current Employee Handbook (from the document
+  // center) for the new hire to read and acknowledge with a typed signature. The
+  // acknowledgment is recorded as source "onboarding" on submit.
+  handbookDoc?: boolean;
 };
 
 export const PACKET_STEPS: PacketStep[] = [
@@ -83,17 +87,26 @@ export const PACKET_STEPS: PacketStep[] = [
   },
   {
     key: "policies",
-    title: "Policy & handbook acknowledgment",
+    title: "Policy acknowledgment",
     kind: "acknowledgment",
     requireSignature: true,
     intro: "Please review and acknowledge the following. Copies will be provided for your records. HR to finalize / attach the real documents.",
-    // HR to finalize — attach the real PDFs and adjust this list.
+    // HR to finalize — attach the real PDFs and adjust this list. The Employee
+    // Handbook is acknowledged on its own step below (rendered from the portal).
     documents: [
       { key: "safety", label: "Safety Policy (HR to attach)" },
       { key: "conduct", label: "Code of Conduct (HR to attach)" },
-      { key: "handbook", label: "Employee Handbook (HR to attach)" },
     ],
     consentLabel: "I acknowledge that I have received and reviewed each document listed above.",
+  },
+  {
+    key: "handbook_ack",
+    title: "Employee Handbook",
+    kind: "acknowledgment",
+    requireSignature: true,
+    handbookDoc: true,
+    intro: "Please read the Clements Pest Control Employee Handbook below, then type your full name to acknowledge that you have read and received it.",
+    consentLabel: "I have read and received the Clements Pest Control Employee Handbook and agree to abide by its policies.",
   },
 ];
 
@@ -213,6 +226,19 @@ export async function submitPreHire(token: string) {
   }
   if (missing.length) throw new Error(`Please complete: ${missing.join("; ")}`);
 
+  // Record the onboarding handbook acknowledgment (source "onboarding"). The
+  // pre-hire has no Employee profile yet, so we capture the typed name + email;
+  // approveAndConvert backfills employeeId when the profile is created.
+  const hbSig = responses["handbook_ack"]?.signature;
+  if (hbSig?.signedName) {
+    try {
+      const { recordOnboardingAck, HANDBOOK_SLUG } = await import("@/lib/policy-docs");
+      await recordOnboardingAck({ slug: HANDBOOK_SLUG, signedName: hbSig.signedName, email: pre.email });
+    } catch {
+      // If the handbook isn't published yet, don't block onboarding submission.
+    }
+  }
+
   return prisma.preHire.update({
     where: { token },
     data: { status: "submitted", submittedAt: new Date(), currentStep: PACKET_STEPS.length },
@@ -278,6 +304,15 @@ export async function approveAndConvert(id: string, reviewerName: string | null)
       reviewedByName: reviewerName,
     },
   });
+
+  // Link any onboarding handbook acknowledgment(s) captured under this pre-hire's
+  // email to the new employee profile so the HR roster reflects them.
+  if (pre.email) {
+    await prisma.documentAcknowledgment.updateMany({
+      where: { source: "onboarding", employeeId: null, email: pre.email },
+      data: { employeeId: employee.id },
+    });
+  }
 
   return employee.id;
 }
