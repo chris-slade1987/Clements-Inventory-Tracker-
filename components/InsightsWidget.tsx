@@ -78,7 +78,7 @@ export default function InsightsWidget() {
 
       {/* Chat panel */}
       {open ? (
-        <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl shadow-emerald-900/30">
+        <div className="surface-light fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-2xl shadow-emerald-900/30">
           {/* Header */}
           <div className="flex items-center gap-2 bg-forest-grad px-4 py-3">
             <svg viewBox="0 0 24 24" className="h-5 w-5 text-mint" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
