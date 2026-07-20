@@ -123,6 +123,20 @@ const ADDED: ApprovedRow[] = [
   { name: "Victor M9 Pro Rat Trap", code: "EA", material: "VICTOR M9 PRO", target: "RATS", appMethod: "HAND" },
   { name: "Miscellaneous Chemical", code: "J", material: "MISC CHEMICAL", target: null, appMethod: null },
   { name: "Miscellaneous Fertilizer", code: "FB", material: "MISC FERTILIZER", target: null, appMethod: null },
+  // Phase 2: genuinely-missing products found in the 4-branch transfer histories.
+  // UoM code is taken from the received unit in that branch's transfer rows.
+  { name: "Catchmaster PB Glue Board", code: "RT", material: "CATCHMASTER PB GLUE BOARD", target: "RODENTS", appMethod: "HAND" }, // Orlando
+  { name: "Precor 2000 Premise Spray", code: "AC", material: "PRECOR 2000 PREMISE SPRAY 16 O", target: "FLEA", appMethod: "SPRAYER" }, // Orlando
+  { name: "PT PI Pressurized Contact", code: "AC", material: "PT PI PRESSURIZED CONTACT", target: "INSECTS", appMethod: "SPRAYER" }, // Orlando
+  { name: "Pageant Intrinsic Fungicide", code: "B", material: "PAGEANT INTRINSIC FUNGICIDE", target: "FUNGUS", appMethod: "SPRAYER" }, // Stuart
+  { name: "Roundup QuikPro Granular Herbicide", code: "J", material: "ROUNDUP QUIKRO  GRAN HERBICIDE", target: "WEEDS", appMethod: "SPRAYER" }, // Stuart + Vero
+  { name: "Vector Fruit Fly Trap", code: "C", material: "960 VECTOR FRUIT FLY TRAP", target: "FLIES", appMethod: "HAND" }, // Vero (history UoM = Case)
+  { name: "Eaton Stick-Em Rat and Mouse", code: "RT", material: "EATON STICK-EM RAT AND MOUSE", target: "RODENTS", appMethod: "HAND" }, // Vero
+  { name: "Lesco 13-3-13 Spar-Tech", code: "FB", material: "LESCO 13-3-13 SPAR-TECH T&O GR", target: "FERT", appMethod: "SPREADER" }, // Vero
+  { name: "Lesco 16-0-8 Spar Tech", code: "FB", material: "LESCO 16-0-8 SPAR TECH", target: "FERT", appMethod: "SPREADER" }, // Vero
+  { name: "Lesco Macron Soluble Fertilizer", code: "BU", material: "LESCO MACRON SOLUBLE FERTILIZE", target: "FERT", appMethod: null }, // Vero
+  { name: "Promate 20-0-10", code: "FB", material: "PROMATE 20-0-10", target: "FERT", appMethod: "SPREADER" }, // Vero
+  { name: "Stop The Bites!", code: "J", material: "STOP THE BITES!", target: "INSECTS", appMethod: "SPRAYER" }, // Vero
 ];
 
 export async function seedApprovedProducts(prisma: PrismaClient) {

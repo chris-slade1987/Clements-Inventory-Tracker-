@@ -64,6 +64,23 @@ async function main() {
       `deploy-db: reconciled approved products (${ap.created} created, ${ap.updated} updated, ${ap.demoted} demoted; ${ap.approvedTotal} on catalog).`
     );
 
+    // Load the 4-branch historical purchase data (PestPac transfer histories) as
+    // CONFIRMED, analysis-only Invoice + InvoiceLine records. Idempotent (skips
+    // invoices whose "HIST-…" number already exists) and — critically — creates
+    // NO StockMovement, so current on-hand is never touched. Runs after the
+    // approved-product reconcile so every material resolves to a product.
+    const { loadPurchaseHistory } = await import("../prisma/seed-purchase-history");
+    const beforeMv = await prisma.stockMovement.count();
+    const ph = await loadPurchaseHistory(prisma);
+    const afterMv = await prisma.stockMovement.count();
+    const phInv = ph.reduce((s, r) => s + r.invoicesCreated, 0);
+    const phSkip = ph.reduce((s, r) => s + r.invoicesSkipped, 0);
+    const phSpend = ph.reduce((s, r) => s + r.totalSpend, 0);
+    console.log(
+      `deploy-db: loaded purchase history (${phInv} invoices created, ${phSkip} skipped; $${phSpend.toFixed(2)} across ${ph.length} branches; ` +
+        `stock movements ${beforeMv}->${afterMv} ${afterMv === beforeMv ? "UNCHANGED" : "CHANGED!"}).`
+    );
+
     // Seed management KPIs only when empty, so uploaded months are never clobbered.
     const kpiValues = await prisma.kpiValue.count();
     if (kpiValues === 0) {
