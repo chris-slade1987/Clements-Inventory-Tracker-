@@ -3,15 +3,16 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  onHandByProduct,
   onHandValueByCategory,
   productCostMap,
   productFlow,
   purchasedDollarsByWarehouse,
   spendByCategory,
   topProductsBySpend,
-  topProductsOnHand,
   topTechniciansByUsage,
   type ProductFlow,
+  type ProductRow,
   type Ranked,
 } from "@/lib/reporting";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
@@ -36,7 +37,7 @@ export default async function DashboardPage({
   const scopeId = selected?.id; // undefined = all branches
   const cost = await productCostMap();
 
-  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, topOnHand, flow, openAlerts] =
+  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, flow, openAlerts] =
     await Promise.all([
       purchasedDollarsByWarehouse(p.monthStart),
       purchasedDollarsByWarehouse(p.yearStart),
@@ -44,7 +45,9 @@ export default async function DashboardPage({
       topProductsBySpend(p.monthStart, undefined, 8, scopeId),
       topTechniciansByUsage(p.monthStart, undefined, cost, 8, scopeId),
       onHandValueByCategory(cost, scopeId),
-      topProductsOnHand(cost, scopeId, 8),
+      // On-hand quantity per product × branch (the matrix). When a branch tile is
+      // selected, scopeId narrows it to just that branch's stock.
+      onHandByProduct({ warehouseId: scopeId }),
       productFlow(p.monthStart, undefined, scopeId),
       prisma.alert.findMany({
         where: { status: "open" },
@@ -126,6 +129,16 @@ export default async function DashboardPage({
 
       {/* One detail section, scoped to the selection */}
       <div className="grid gap-4 lg:grid-cols-2">
+        {/* On-hand by product × branch. Selecting a branch tile narrows it to that
+            branch's stock only. */}
+        <Card className="p-0 overflow-hidden lg:col-span-2">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <PanelTitle>On hand by product{selected ? ` · ${scopeName}` : " & branch"}</PanelTitle>
+            <span className="text-xs text-muted">{onHandRows.length} product{onHandRows.length === 1 ? "" : "s"}</span>
+          </div>
+          <OnHandMatrix rows={onHandRows} columns={selected ? [selected] : warehouses} showTotal={!selected} />
+        </Card>
+
         {/* Product movement — what actually moved this month, purchased vs dispersed */}
         <Card className="p-4 lg:col-span-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
@@ -182,19 +195,6 @@ export default async function DashboardPage({
 
         <Card className="p-0 overflow-hidden">
           <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>Top products on hand</PanelTitle>
-            <span className="text-sm font-light tabular-nums">{money(scopeOnHandValue)}</span>
-          </div>
-          {topOnHand.length === 0 ? <Empty>No stock on hand yet.</Empty> : <RankTable rows={topOnHand} col="Value" />}
-        </Card>
-
-        <Card className="p-4">
-          <PanelTitle>On-hand value by category</PanelTitle>
-          <RankBars rows={ohByCat} empty="No stock on hand yet." />
-        </Card>
-
-        <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
             <PanelTitle>Open alerts</PanelTitle>
             <Link href="/alerts" className="text-xs font-medium text-brand-700 hover:underline">View all</Link>
           </div>
@@ -224,6 +224,56 @@ function PanelTitle({ children }: { children: React.ReactNode }) {
 }
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-8 text-center text-sm text-muted">{children}</p>;
+}
+
+// On-hand quantity matrix: products down the left, one column per branch across
+// the top (plus a Total). When a single branch is selected the caller passes just
+// that column and hides Total, so it reads as "what's on hand at this branch".
+function OnHandMatrix({
+  rows,
+  columns,
+  showTotal,
+}: {
+  rows: ProductRow[];
+  columns: { id: string; name: string }[];
+  showTotal: boolean;
+}) {
+  if (rows.length === 0) return <Empty>No stock on hand yet.</Empty>;
+  const short = (n: string) => n.replace(" (HQ)", "");
+  return (
+    <div className="overflow-x-auto max-h-[34rem] overflow-y-auto">
+      <table className="w-full text-sm">
+        <thead className="sticky top-0 z-10 bg-surface">
+          <tr className="text-left text-xs text-muted border-b border-line">
+            <th className="px-4 py-2 font-medium">Product</th>
+            {columns.map((c) => (
+              <th key={c.id} className="px-3 py-2 font-medium text-right whitespace-nowrap">{short(c.name)}</th>
+            ))}
+            {showTotal ? <th className="px-4 py-2 font-medium text-right">Total</th> : null}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.productId} className="border-b border-line last:border-0 hover:bg-black/[0.02]">
+              <td className="px-4 py-2">
+                <span className="block text-ink">{r.name}</span>
+                <span className="block text-[11px] text-muted">{r.category}{r.unit ? ` · ${r.unit}` : ""}</span>
+              </td>
+              {columns.map((c) => {
+                const q = r.byWarehouse[c.id] ?? 0;
+                return (
+                  <td key={c.id} className={`px-3 py-2 text-right tabular-nums ${q ? "text-ink" : "text-muted/40"}`}>
+                    {q ? qty(q) : "—"}
+                  </td>
+                );
+              })}
+              {showTotal ? <td className="px-4 py-2 text-right tabular-nums font-medium">{qty(r.total)}</td> : null}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function BudgetBar({ spent, budget }: { spent: number; budget: number }) {
