@@ -148,12 +148,13 @@ export default function ReconcileClient({
                 <th className="px-3 py-2 font-medium">Warehouse</th>
                 <th className="px-3 py-2 font-medium text-right">Qty</th>
                 <th className="px-3 py-2 font-medium">Detail</th>
+                <th className="px-3 py-2 font-medium">Logged by</th>
                 <th className="px-3 py-2 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr><td colSpan={7} className="px-3 py-8 text-center text-muted">No movements match these filters.</td></tr>
+                <tr><td colSpan={8} className="px-3 py-8 text-center text-muted">No movements match these filters.</td></tr>
               ) : (
                 rows.map((r) => (
                   <tr key={r.id} className="border-b border-line last:border-0 align-top">
@@ -173,8 +174,10 @@ export default function ReconcileClient({
                       {r.invoiceNumber ? <div>Invoice: {r.invoiceNumber}</div> : null}
                       {r.unitPrice != null ? <div>@ {money(r.unitPrice)}</div> : null}
                       {r.reason ? <div className="text-muted">{r.reason}</div> : null}
-                      {r.userName ? <div>by {r.userName}</div> : null}
                       {r.isReversed ? <div className="text-amber-600 font-medium">Reversed</div> : null}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-xs">
+                      {r.userName ? <span className="text-ink">{r.userName}</span> : <span className="text-muted">—</span>}
                     </td>
                     <td className="px-3 py-2 text-right whitespace-nowrap">
                       {r.isReversal ? (
