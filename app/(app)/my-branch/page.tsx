@@ -3,6 +3,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
+import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
 import { managerReminders, type Reminder } from "@/lib/reminders";
 import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
@@ -36,12 +37,15 @@ export default async function MyBranchPage({
   const month = now.getMonth() + 1;
   const quarter = Math.floor((month - 1) / 3) + 1;
 
-  const [reminders, insp, openAlerts, followUps, myReviews] = await Promise.all([
+  const [reminders, insp, openAlerts, followUps, myReviews, ptoPending] = await Promise.all([
     managerReminders(branch ?? undefined),
     inspectionStatus(year, month, branch ?? undefined),
     prisma.alert.count({ where: { status: "open" } }),
     openFollowUps(branch ?? undefined),
     reviewsForReviewer(user.id),
+    // Pending PTO awaiting review — the same signal shown on the team page.
+    // Branch-locked managers see their branch; admins see everyone.
+    pendingRequestsForBranch(branch),
   ]);
   const nowMs = now.getTime();
 
@@ -102,6 +106,29 @@ export default async function MyBranchPage({
           ))}
         </div>
       )}
+
+      {/* PTO requests awaiting review — also shown on the team page. Branch-locked
+          managers see their branch; admins see everyone. Clears once decided. */}
+      {ptoPending.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <div className="text-sm font-medium text-ink">PTO requests need review · {ptoPending.length}</div>
+            <Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">Review →</Link>
+          </div>
+          <ul className="divide-y divide-line">
+            {ptoPending.slice(0, 5).map((r) => (
+              <li key={r.id} className="flex items-center gap-3 px-4 py-2.5">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                <span className="flex-1 text-sm text-ink">
+                  {r.employee.name}
+                  {r.employee.branch ? <span className="ml-2 text-[11px] font-normal text-muted">{branchLabel(r.employee.branch)}</span> : null}
+                </span>
+                <span className="text-xs text-muted">{r.days} {ptoTypeLabel(r.type).toLowerCase()} day{r.days === 1 ? "" : "s"} · {r.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {/* Tiles */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
