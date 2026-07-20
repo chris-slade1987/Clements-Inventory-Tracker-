@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
+import InsightsWidget from "@/components/InsightsWidget";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -286,6 +287,9 @@ export default function AppShell({
           );
         })}
       </nav>
+
+      {/* Floating grounded-Q&A assistant — leadership only. */}
+      {isAdmin || isSeniorLeadership ? <InsightsWidget /> : null}
     </div>
   );
 }
