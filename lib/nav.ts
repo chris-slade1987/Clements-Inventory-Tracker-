@@ -72,6 +72,24 @@ export const PTO_NAV_ITEM: NavItem = {
   icon: "M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4",
 };
 
+// Manager oversight checklists — the recurring weekly + monthly attested
+// sign-offs. Surfaced in the inventory-center nav for managers/admins.
+export const CHECKLISTS_NAV_ITEM: NavItem = {
+  href: "/checklists",
+  label: "Checklists",
+  shortLabel: "Checks",
+  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2 2 2 0 01-2 2h-2a2 2 0 01-2-2zm-.5 9l2 2 4-4",
+};
+
+// Checklist oversight rollup — senior-leadership only (admins + senior
+// leadership). Lives alongside the Compliance link.
+export const CHECKLIST_OVERSIGHT_NAV_ITEM: NavItem = {
+  href: "/checklists/oversight",
+  label: "Checklist Oversight",
+  shortLabel: "Oversight",
+  icon: "M4 6h16M4 12h10M4 18h7M15 15l2 2 4-4",
+};
+
 // Company-wide bulletin — reachable from every center's nav.
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",
@@ -182,6 +200,7 @@ export const INVENTORY_NAV: NavItem[] = [
     shortLabel: "Alerts",
     icon: "M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0",
   },
+  CHECKLISTS_NAV_ITEM,
   BULLETIN_NAV_ITEM,
 ];
 
@@ -242,6 +261,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
   },
   COMPLIANCE_NAV_ITEM,
+  CHECKLIST_OVERSIGHT_NAV_ITEM,
   BULLETIN_NAV_ITEM,
 ];
 

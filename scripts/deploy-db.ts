@@ -219,6 +219,13 @@ async function main() {
       console.log(`deploy-db: PTO requests present (${ptoCount}) — left as-is.`);
     }
 
+    // Manager oversight checklists: upsert the weekly + monthly templates every
+    // deploy (idempotent by key — refreshes item text without touching signed
+    // completions, which are append-only).
+    const { seedChecklists } = await import("../prisma/seed-checklists");
+    const cl = await seedChecklists(prisma);
+    console.log(`deploy-db: reconciled oversight checklists (weekly=${cl.weekly} items, monthly=${cl.monthly} items).`);
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.

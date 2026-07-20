@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -121,6 +121,7 @@ export default function AppShell({
   const canViewAllPto = isAdmin || isHrAccess;
   const grantedMgmt: NavItem[] = [];
   if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
+  if (canViewCompliance) grantedMgmt.push(CHECKLIST_OVERSIGHT_NAV_ITEM);
   if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
   if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
   if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
@@ -147,8 +148,8 @@ export default function AppShell({
     // tech interviewer on a job-container page) — only their allowed links.
     items = homeExtras;
   } else {
-    // The Compliance Command Center is senior-leadership only.
-    let list = rawItems.filter((i) => i.href !== COMPLIANCE_NAV_ITEM.href || canViewCompliance);
+    // The Compliance Command Center + checklist oversight are senior-leadership only.
+    let list = rawItems.filter((i) => (i.href !== COMPLIANCE_NAV_ITEM.href && i.href !== CHECKLIST_OVERSIGHT_NAV_ITEM.href) || canViewCompliance);
     // Surface granted management links + My Hiring on the grantee's employee home
     // nav (inserted just before the company bulletin).
     if (mode === "employee" && privilegedEmployee) {

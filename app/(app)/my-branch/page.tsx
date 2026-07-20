@@ -9,6 +9,7 @@ import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
+import { checklistStatusForBranch } from "@/lib/checklists";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -70,6 +71,8 @@ export default async function MyBranchPage({
   // branch when viewing all, just to show progress).
   const scBranch = branch ?? BRANCHES[0].key;
   const warehouse = await warehouseStatus(year, month, scBranch);
+  // Recurring oversight sign-offs (weekly + monthly attested checklists).
+  const checklistStatuses = await checklistStatusForBranch(scBranch, now);
   // CEU/training: complete when the branch has assignments and none are open.
   const openTraining = await prisma.trainingAssignment.count({ where: { status: { not: "completed" }, ...(branch ? { branch } : {}) } });
   const totalTraining = await prisma.trainingAssignment.count({ where: branch ? { branch } : undefined });
@@ -161,6 +164,42 @@ export default async function MyBranchPage({
           <ChecklistRow done={warehouse.done} label="Warehouse safety inspection" detail={warehouse.done ? "Logged this month" : "Not logged yet"} href="/my-branch/warehouse" />
           <ChecklistRow done={false} label="Quality control reports" detail="Not logged yet" href="/my-branch/qc" />
           <ChecklistRow done={trainingDone} label="Onboarding / CEU training" detail={totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`} href="/my-branch/training" />
+        </ul>
+      </Card>
+
+      {/* Oversight sign-offs — the recurring weekly + monthly attested checklists.
+          Each links into its run; a signed period shows the manager + date. */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
+          <div>
+            <div className="text-sm font-medium text-ink">Oversight checklists</div>
+            <p className="text-xs text-muted mt-0.5">Complete each period and sign off.</p>
+          </div>
+          <Link href={`/checklists?branch=${scBranch}`} className="text-xs font-medium text-brand-300 hover:underline">Open →</Link>
+        </div>
+        <ul className="divide-y divide-line">
+          {checklistStatuses.map((s) => {
+            const done = s.completed;
+            const bad = !done && s.overdue;
+            return (
+              <li key={s.template.key}>
+                <Link href={`/checklists/${s.template.key}?branch=${scBranch}`} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : bad ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
+                  <span className="flex-1">
+                    <span className={`block text-sm font-medium ${done ? "text-brand-700" : bad ? "text-red-600" : "text-ink"}`}>
+                      {s.template.cadence === "weekly" ? "This week's checklist" : "This month's checklist"}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {done && s.completion
+                        ? `Signed by ${s.completion.signedName} on ${s.completion.createdAt.toLocaleDateString()}`
+                        : `${s.periodLabel} · not yet signed`}
+                    </span>
+                  </span>
+                  <span className={`text-[11px] font-medium ${done ? "text-brand-600" : bad ? "text-red-600" : "text-amber-600"}`}>{done ? "Done" : bad ? "Overdue" : s.dueLabel}</span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </Card>
 

@@ -1485,3 +1485,42 @@ model CalendarEvent {
   @@index([date])
   @@map("calendar_events")
 }
+
+// Manager recurring oversight checklists. A template defines the (ordered,
+// categorized) items for a cadence; a completion is a permanent, NON-EDITABLE,
+// APPEND-ONLY signed attestation that a manager personally completed those items
+// for a given branch + period (same audit principle as stock_movements — never
+// mutate or hard-delete; one signed completion per template/branch/period).
+model ChecklistTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique // "weekly" | "monthly"
+  title     String
+  cadence   String // "weekly" | "monthly"
+  intro     String? // short blurb shown atop the run
+  items     String // JSON: [{id,order,category,label,objective,suggestedTime?}]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  completions ChecklistCompletion[]
+
+  @@map("checklist_templates")
+}
+
+model ChecklistCompletion {
+  id          String   @id @default(cuid())
+  templateId  String   @map("template_id")
+  cadence     String // denormalized for easy querying: "weekly" | "monthly"
+  branch      String // "vero" | "stuart" | "orlando" | "naples"
+  periodKey   String   @map("period_key") // weekly: "2026-W29" (ISO week); monthly: "2026-07"
+  userId      String?  @map("user_id")
+  signedName  String   @map("signed_name") // typed attestation signature
+  attestation String // the statement text they signed
+  itemResults String   @map("item_results") // JSON: [{itemId,checked,note}]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  template ChecklistTemplate @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, branch, periodKey]) // one completion per branch per period
+  @@index([branch, cadence])
+  @@map("checklist_completions")
+}
