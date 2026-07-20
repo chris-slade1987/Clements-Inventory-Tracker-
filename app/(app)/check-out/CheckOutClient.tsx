@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import { uomCode, uomLabel } from "@/lib/uom";
 
@@ -21,6 +22,13 @@ type Product = {
   manufacturer: string | null;
 };
 type CartLine = { productId: string; quantity: number; unit: string };
+type Offending = {
+  productId?: string;
+  name: string;
+  onHand: number;
+  requested: number;
+  after: number;
+};
 type Receipt = {
   warehouse: string;
   technician: string;
@@ -43,6 +51,7 @@ export default function CheckOutClient({
   products: Product[];
   onHand: Record<string, Record<string, number>>;
 }) {
+  const router = useRouter();
   const [warehouseId, setWarehouseId] = useState(defaultWarehouseId);
   const [technicianId, setTechnicianId] = useState("");
   const [cart, setCart] = useState<CartLine[]>([]);
@@ -52,6 +61,13 @@ export default function CheckOutClient({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+
+  // Insufficient-stock hard stop: when the server (or our own pre-check) finds a
+  // line that exceeds on-hand, we surface a blocking modal — no manager override.
+  const [blocked, setBlocked] = useState<Offending[] | null>(null);
+  const [escalateNote, setEscalateNote] = useState("");
+  const [escalating, setEscalating] = useState(false);
+  const [escalateError, setEscalateError] = useState<string | null>(null);
 
   const productById = useMemo(
     () => new Map(products.map((p) => [p.id, p])),
@@ -128,29 +144,46 @@ export default function CheckOutClient({
     (l) => onHandFor(l.productId) - l.quantity < 0
   );
 
-  async function submit(allowNegative: boolean) {
+  // Offending lines computed locally from the cart vs. on-hand. Used to block
+  // submit proactively; the server 409 remains the authoritative trigger.
+  function localOffending(): Offending[] {
+    return cart
+      .map((l) => {
+        const oh = onHandFor(l.productId);
+        return {
+          productId: l.productId,
+          name: productById.get(l.productId)?.name ?? "Unknown",
+          onHand: oh,
+          requested: l.quantity,
+          after: oh - l.quantity,
+        };
+      })
+      .filter((o) => o.after < 0);
+  }
+
+  async function submit() {
+    // Don't even hit the server when the cart already exceeds on-hand.
+    const offending = localOffending();
+    if (offending.length > 0) {
+      setBlocked(offending);
+      setEscalateNote("");
+      setEscalateError(null);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
       const res = await fetch("/api/check-out", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ warehouseId, technicianId, lines: cart, allowNegative }),
+        body: JSON.stringify({ warehouseId, technicianId, lines: cart }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 409 && data.error === "negative_stock") {
-        // Ask for override.
-        const names = (data.offending as { name: string; after: number }[])
-          .map((o) => `${o.name} (would be ${o.after})`)
-          .join(", ");
-        if (
-          confirm(
-            `This check-out drives stock negative for: ${names}.\n\nPost it anyway?`
-          )
-        ) {
-          setBusy(false);
-          return submit(true);
-        }
+        // Hard stop — surface the blocking modal. No override for managers.
+        setBlocked((data.offending as Offending[]) ?? []);
+        setEscalateNote("");
+        setEscalateError(null);
         setBusy(false);
         return;
       }
@@ -164,6 +197,38 @@ export default function CheckOutClient({
     } catch {
       setError("Network error. Try again.");
       setBusy(false);
+    }
+  }
+
+  async function escalate() {
+    if (!blocked) return;
+    setEscalating(true);
+    setEscalateError(null);
+    try {
+      const res = await fetch("/api/check-out/escalate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          warehouseId,
+          offending: blocked.map((o) => ({
+            name: o.name,
+            onHand: o.onHand,
+            requested: o.requested,
+            after: o.after,
+          })),
+          note: escalateNote.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.threadId) {
+        setEscalateError(data.error ?? "Could not start the discussion. Try again.");
+        setEscalating(false);
+        return;
+      }
+      router.push(`/inbox/${data.threadId}`);
+    } catch {
+      setEscalateError("Network error. Try again.");
+      setEscalating(false);
     }
   }
 
@@ -427,13 +492,87 @@ export default function CheckOutClient({
           </div>
           <button
             disabled={!canSubmit}
-            onClick={() => submit(false)}
+            onClick={() => submit()}
             className={`${btn.primary} ml-auto`}
           >
             {busy ? "Posting…" : "Confirm check-out"}
           </button>
         </Card>
       </div>
+
+      {blocked ? (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <Card className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-lg font-semibold text-red-700">Not enough in stock</h3>
+              <button
+                onClick={() => setBlocked(null)}
+                className="text-muted hover:text-ink text-xl leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="divide-y divide-line rounded-lg border border-line overflow-hidden">
+              {blocked.map((o, i) => {
+                const shortfall = Math.max(0, o.requested - o.onHand);
+                return (
+                  <div key={o.productId ?? i} className="px-3 py-2.5 text-sm">
+                    <div className="font-medium">{o.name}</div>
+                    <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted">
+                      <span>On hand {o.onHand}</span>
+                      <span>Requested {o.requested}</span>
+                      <span className="font-semibold text-red-600">Short {shortfall}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-sm text-muted">
+              There isn&apos;t enough on hand to check this out. Verify the
+              warehouse&apos;s physical count, re-log the correct received amount
+              into the warehouse (Check-In or Reconcile), or ask an administrator
+              to reconcile on-hand — then try again.
+            </p>
+
+            <label className="block text-sm font-medium">
+              Add a note for senior management (optional)
+              <textarea
+                value={escalateNote}
+                onChange={(e) => setEscalateNote(e.target.value)}
+                rows={3}
+                placeholder="Anything that helps them reconcile…"
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+              />
+            </label>
+
+            {escalateError ? (
+              <p className="text-sm text-red-600" role="alert">
+                {escalateError}
+              </p>
+            ) : null}
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setBlocked(null)}
+                className={btn.secondary}
+                disabled={escalating}
+              >
+                Back
+              </button>
+              <button
+                onClick={escalate}
+                disabled={escalating}
+                className={`${btn.primary} flex-1`}
+              >
+                {escalating ? "Starting…" : "Message senior management for help"}
+              </button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
 
       {scanning ? (
         <BarcodeScanner

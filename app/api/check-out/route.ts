@@ -14,7 +14,10 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const warehouseId: string = body?.warehouseId ?? "";
   const technicianId: string = body?.technicianId ?? "";
-  const allowNegative: boolean = body?.allowNegative === true;
+  // Insufficient-stock is a HARD STOP for managers — only an admin may
+  // reconcile-through by driving stock negative. A branch manager can never
+  // override; they must escalate to reconcile on-hand instead.
+  const allowNegative: boolean = body?.allowNegative === true && user.role === "admin";
   const rawLines: LineIn[] = Array.isArray(body?.lines) ? body.lines : [];
 
   // Normalise + validate lines.

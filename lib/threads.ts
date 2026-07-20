@@ -74,6 +74,39 @@ export async function recipientOptions(me: SessionUser): Promise<RecipientOption
   return opts;
 }
 
+/**
+ * Senior management who must be alerted when a manager hits an insufficient-stock
+ * hard stop on Check-Out and asks for help reconciling on-hand. Keep this list
+ * here so it's a single place to change who gets pulled into the escalation.
+ *   - Julie Glanville — Chief of Staff
+ *   - Graham Foster — Director of Field Operations
+ *   - Chris Slade
+ */
+export const INVENTORY_ESCALATION_EMAILS = [
+  "jglanville@clementspestcontrol.com",
+  "gfoster@clementspestcontrol.com",
+  "c.slade@clementspestcontrol.com",
+] as const;
+
+/**
+ * Resolve the inventory-escalation stakeholders (by email) to `user:<id>`
+ * recipient keys, keeping only ACTIVE users that actually exist. Missing people
+ * are simply skipped so an escalation never fails because someone left. The
+ * reporting manager is filtered out (they're added to the thread as owner).
+ */
+export async function inventoryEscalationRecipientKeys(excludeUserId?: string): Promise<string[]> {
+  const users = await prisma.user.findMany({
+    where: {
+      active: true,
+      email: { in: [...INVENTORY_ESCALATION_EMAILS] },
+    },
+    select: { id: true },
+  });
+  return users
+    .filter((u) => u.id !== excludeUserId)
+    .map((u) => `user:${u.id}`);
+}
+
 /** Resolve selected recipient keys to participant rows (userId/employeeId/name/email). */
 export async function resolveRecipients(me: SessionUser, keys: string[]) {
   const opts = await recipientOptions(me);
