@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { runAnomalyChecks } from "@/lib/anomaly";
+import { runReorderChecks } from "@/lib/reorder";
 
 type NewProduct = {
   name: string;
@@ -125,9 +126,12 @@ export async function POST(req: Request) {
     return { invoiceId: invoice.id, itemCount, lineCount: lines.length };
   });
 
-  // Run the anomaly agent on the freshly confirmed invoice (best-effort).
+  // Run the anomaly + reorder agents on the freshly confirmed invoice
+  // (best-effort). A receipt shifts on-hand and the purchasing pattern, so the
+  // low-stock scan is refreshed here too.
   try {
     await runAnomalyChecks();
+    await runReorderChecks();
   } catch {
     /* alerts are non-critical; never fail the check-in on their account */
   }

@@ -20,6 +20,7 @@ const TYPE_LABEL: Record<string, string> = {
   duplicate_invoice: "Duplicate invoice",
   negative_stock: "Negative stock",
   quantity_spike: "Quantity spike",
+  low_stock: "Low stock / reorder",
   savings: "Cost-saving opportunity",
 };
 

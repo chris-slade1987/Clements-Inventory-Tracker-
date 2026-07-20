@@ -15,6 +15,7 @@ import {
   type ProductRow,
   type Ranked,
 } from "@/lib/reporting";
+import { computeReorderFindings, type ReorderFinding } from "@/lib/reorder";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
 import { money, qty } from "@/lib/format";
 
@@ -37,7 +38,7 @@ export default async function DashboardPage({
   const scopeId = selected?.id; // undefined = all branches
   const cost = await productCostMap();
 
-  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, flow, openAlerts] =
+  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, flow, openAlerts, allLowStock] =
     await Promise.all([
       purchasedDollarsByWarehouse(p.monthStart),
       purchasedDollarsByWarehouse(p.yearStart),
@@ -55,7 +56,12 @@ export default async function DashboardPage({
         include: { product: { select: { name: true } } },
         take: 6,
       }),
+      // Low-stock / reorder-due, computed from movement history (run-rate + cadence).
+      computeReorderFindings(),
     ]);
+
+  // Scope the low-stock list to the selected branch's warehouse (if any).
+  const lowStock = scopeId ? allLowStock.filter((f) => f.warehouseId === scopeId) : allLowStock;
 
   const companyMtd = [...mtd.values()].reduce((s, v) => s + v, 0);
   const companyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
@@ -126,6 +132,31 @@ export default async function DashboardPage({
           </Link>
         ) : null}
       </div>
+
+      {/* Reorder / low stock — driven by run-rate + purchasing cadence learned
+          from the movement ledger. Scoped to the selected branch. */}
+      <Card className="p-0 overflow-hidden mb-4">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+          <PanelTitle>Reorder / low stock</PanelTitle>
+          <div className="flex items-center gap-3">
+            {lowStock.length > 0 ? (
+              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                {lowStock.length} to reorder
+              </span>
+            ) : null}
+            <Link href="/alerts" className="text-xs font-medium text-brand-700 hover:underline">View alerts</Link>
+          </div>
+        </div>
+        {lowStock.length === 0 ? (
+          <Empty>Nothing running low for this scope — cover looks healthy.</Empty>
+        ) : (
+          <ul className="divide-y divide-line max-h-96 overflow-y-auto">
+            {lowStock.slice(0, 12).map((f) => (
+              <LowStockRow key={`${f.productId}:${f.warehouseId}`} f={f} showBranch={!selected} />
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* One detail section, scoped to the selection */}
       <div className="grid gap-4 lg:grid-cols-2">
@@ -376,6 +407,30 @@ function RankTable({ rows, col }: { rows: Ranked[]; col: string }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+// One low-stock / reorder row: product, current cover, and the learned cadence.
+function LowStockRow({ f, showBranch }: { f: ReorderFinding; showBranch: boolean }) {
+  const wh = f.warehouseName.replace(" (HQ)", "");
+  const stockLabel = f.outOfStock
+    ? "Out of stock"
+    : `${qty(f.onHand)} ${f.unit} on hand · ~${Math.max(0, Math.round(f.coverDays))}d cover`;
+  return (
+    <li className="px-4 py-3 flex items-start gap-3">
+      <SeverityDot severity={f.severity} />
+      <div className="min-w-0 flex-1">
+        <div className="text-sm text-ink">
+          {f.productName}
+          {showBranch ? <span className="ml-2 text-[11px] font-normal text-muted">{wh}</span> : null}
+        </div>
+        <div className="text-xs text-muted">
+          {stockLabel}
+          {f.regular ? ` · reorders ~every ${Math.round(f.cadenceDays)}d` : ` · ~${qty(Math.round(f.runRate30))}/30d`}
+          {" · reorder "}~{qty(Math.round(f.reorderQty))} {f.unit}
+        </div>
+      </div>
+    </li>
   );
 }
 

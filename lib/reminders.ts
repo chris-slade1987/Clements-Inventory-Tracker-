@@ -6,6 +6,7 @@ import { warehouseStatus } from "@/lib/warehouse";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
 import { overdueInterviews, candidatesAwaitingDecision, jobsAwaitingCloseout } from "@/lib/ats";
+import { lowStockForBranch } from "@/lib/reorder";
 
 // Manager reminders engine. Surfaces time-sensitive responsibilities so a
 // manager logging in knows what needs attention this month — vehicle
@@ -24,6 +25,7 @@ export type ReminderKind =
   | "license_expiring"
   | "rent_increase"
   | "pto_request"
+  | "reorder_due"
   | "interview_overdue"
   | "candidate_decision"
   | "hiring_closeout"
@@ -287,6 +289,22 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: r.employee.branch,
       href: "/my-branch/team",
       dueDate: r.startDate,
+    });
+  }
+
+  // Low stock / reorder due — computed from the stock-movement ledger by the
+  // reorder engine (run-rate + purchasing cadence). Branch-scoped by the
+  // warehouse the stock lives in. Restocking clears it (recomputed each load).
+  const lowStock = await lowStockForBranch(branch ?? null);
+  for (const f of lowStock) {
+    reminders.push({
+      kind: "reorder_due",
+      severity: f.severity,
+      title: f.outOfStock ? `Out of stock — ${f.productName}` : `Reorder due — ${f.productName}`,
+      detail: f.message,
+      branch: f.branch,
+      href: "/alerts",
+      dueDate: null,
     });
   }
 
