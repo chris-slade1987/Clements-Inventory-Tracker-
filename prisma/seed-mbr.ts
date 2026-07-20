@@ -27,13 +27,29 @@ type ParsedMbr = {
   source: string;
 };
 
+// P&L line-item detail keys (SG&A drilldown + below-the-line other-expense).
+// These are reconciled onto an already-loaded June even on the guarded path, so
+// the newer P&L detail reaches a month that was seeded before this data existed.
+// NO per-manager/individual comp — overhead comp is only the aggregate buckets.
+const PNL_DETAIL_KEYS = new Set<string>([
+  "depreciation", "amortization", "interest_expense", "management_fee",
+  "back_office_total", "officer_total", "advertising", "bankcard_fees",
+  "supplies_shop", "postage", "professional_fees", "software", "insurance_general",
+  "non_tech_vehicle_insurance", "employer_401_contrib", "office_expense",
+  "rent_property_tax", "repairs_maint_office", "rent_vacant_lot", "telephone",
+  "utilities", "bank_charges", "contributions", "dues_subscriptions",
+  "education_seminars", "equipment_rental", "entertainment_meals", "payroll_fees",
+  "misc_sga", "travel", "uniforms", "other_cell_phones",
+]);
+
 export async function seedMbrJune(prisma: PrismaClient) {
   const file = join(__dirname, "data", "mbr-2026-06.json");
   const p = JSON.parse(readFileSync(file, "utf8")) as ParsedMbr;
 
   // Guard: don't clobber an existing period's KPIs/tech (a later manual
-  // correction wins) — BUT always reconcile line-of-business revenue from the
-  // snapshot, so a corrected LOB mapping propagates to an already-loaded month.
+  // correction wins) — BUT always reconcile line-of-business revenue AND the
+  // P&L line-item detail from the snapshot, so corrected LOB mappings and the
+  // newer SG&A/other-expense drilldown propagate to an already-loaded month.
   const existing = await prisma.reportPeriod.findUnique({
     where: { year_month: { year: p.year, month: p.month } },
   });
@@ -48,7 +64,21 @@ export async function seedMbrJune(prisma: PrismaClient) {
         // ignore duplicate (periodId, scope, lob) collisions.
       }
     }
-    return { skipped: true as const, reconciledLob: lob, periodId: existing.id, kpis: 0, techs: 0 };
+    // Reconcile only the P&L-detail KpiValue rows (leave other KPIs untouched).
+    await prisma.kpiValue.deleteMany({ where: { periodId: existing.id, kpiKey: { in: [...PNL_DETAIL_KEYS] } } });
+    let pnlDetail = 0;
+    for (const k of p.kpis) {
+      if (!PNL_DETAIL_KEYS.has(k.key)) continue;
+      try {
+        await prisma.kpiValue.create({
+          data: { periodId: existing.id, kpiKey: k.key, scope: k.scope, basis: k.basis, actual: k.actual, budget: k.budget },
+        });
+        pnlDetail++;
+      } catch {
+        // ignore duplicate (periodId, kpiKey, scope, basis) collisions.
+      }
+    }
+    return { skipped: true as const, reconciledLob: lob, reconciledPnlDetail: pnlDetail, periodId: existing.id, kpis: 0, techs: 0 };
   }
 
   const period = await prisma.reportPeriod.create({

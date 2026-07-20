@@ -54,6 +54,21 @@ const COMPANY_KPIS = [
 // KPIs the MBR breaks out per branch.
 const BRANCH_KPIS = ["production", "route_contrib", "route_contrib_pct", "new_sales", "attrition", "attrition_rate"];
 
+// SG&A line-item detail (drilldown under Total SG&A), in P&L statement order.
+// Overhead compensation appears ONLY as aggregate buckets (Total Back-Office,
+// Total Officer) — no individual/manager compensation is ever included.
+const SGA_DETAIL_KEYS = [
+  "back_office_total", "officer_total", "advertising", "bankcard_fees",
+  "supplies_shop", "postage", "professional_fees", "software", "insurance_general",
+  "non_tech_vehicle_insurance", "employer_401_contrib", "office_expense",
+  "rent_property_tax", "repairs_maint_office", "rent_vacant_lot", "telephone",
+  "utilities", "bank_charges", "contributions", "dues_subscriptions",
+  "education_seminars", "equipment_rental", "entertainment_meals", "payroll_fees",
+  "misc_sga", "travel", "uniforms", "other_cell_phones",
+];
+// Below-the-line other-expense detail.
+const OTHER_EXPENSE_KEYS = ["depreciation", "amortization", "interest_expense", "management_fee"];
+
 function fmtValue(v: number | null | undefined, unit: string): string {
   if (v == null) return "n/a";
   if (unit === "pct") return `${v.toFixed(1)}%`;
@@ -152,6 +167,36 @@ export async function buildInsightsContext(): Promise<string> {
     }
   });
 
+  // ---- SG&A line-item detail + below-the-line, latest period (month + YTD) ---
+  {
+    const values = valuesByPeriod.get(latest.id)!;
+    const sgaTotal = cat.get("sga");
+    for (const b of ["month", "ytd"] as const) {
+      const detailLines = SGA_DETAIL_KEYS.map((k) => line(cat.get(k), k, cell(values, k, "company", b))).filter(
+        Boolean
+      ) as string[];
+      if (detailLines.length) {
+        const label = b === "month" ? "month" : "year-to-date";
+        out.push(`=== ${latest.label} — SG&A line-item detail (${label}) ===`);
+        const totalLine = line(sgaTotal, "sga", cell(values, "sga", "company", b));
+        if (totalLine) out.push(totalLine.replace(/^- /, "- (total) "));
+        out.push(...detailLines);
+        out.push(
+          "(Overhead compensation is aggregated as Total Back-Office and Total Officer only; no individual/manager compensation is stored. Lines may not tie exactly to Total SG&A due to $0/rounding lines.)"
+        );
+        out.push("");
+      }
+    }
+    const otherLines = OTHER_EXPENSE_KEYS.map((k) => line(cat.get(k), k, cell(values, k, "company", "month"))).filter(
+      Boolean
+    ) as string[];
+    if (otherLines.length) {
+      out.push(`=== ${latest.label} — Below-the-line other expense (month) ===`);
+      out.push(...otherLines);
+      out.push("");
+    }
+  }
+
   // ---- Older months: compact company month-basis headline only --------------
   const older = recent.slice(DETAIL_MONTHS);
   if (older.length) {
@@ -206,13 +251,13 @@ export async function buildInsightsContext(): Promise<string> {
   }
 
   out.push(
-    "NOTE ON COVERAGE: Only the figures above are stored. SG&A is a single total (no per-line-item breakdown). No per-account/per-stop chemical usage, and NO manager or individual compensation, is stored. If a question needs data not present here, say so plainly."
+    "NOTE ON COVERAGE: Only the figures above are stored. SG&A now includes per-line-item detail (advertising, bankcard/CC, professional fees, insurance, rent, software, travel, etc.) plus below-the-line other expense (depreciation, amortization, interest, management fee) for the latest period — use these to break down what is driving SG&A. Overhead compensation is carried ONLY as aggregate buckets (Total Back-Office, Total Officer); no per-account/per-stop chemical usage and NO manager or individual compensation is stored. If a question needs data not present here, say so plainly."
   );
 
   return out.join("\n");
 }
 
-const SYSTEM_PROMPT = `You are the financial/operations analyst for Clements Pest Control, a multi-branch (Vero Beach HQ, Stuart, Orlando, Naples) pest-control company. Answer the user's question using ONLY the DATA SNAPSHOT provided. Ground every claim in specific numbers (actual vs budget vs variance, and trends across months). When something isn't in the snapshot (e.g. individual SG&A line items — only the SG&A total is stored), say so plainly and suggest what data would be needed, rather than guessing. Never discuss or infer manager/individual compensation. Be concise and board-ready: lead with the answer, then the supporting figures.`;
+const SYSTEM_PROMPT = `You are the financial/operations analyst for Clements Pest Control, a multi-branch (Vero Beach HQ, Stuart, Orlando, Naples) pest-control company. Answer the user's question using ONLY the DATA SNAPSHOT provided. Ground every claim in specific numbers (actual vs budget vs variance, and trends across months). SG&A line-item detail IS available for the latest period (advertising, bankcard/CC, professional fees, insurance, rent, software, travel, etc.) plus below-the-line other expense — use it to explain what is driving SG&A. When something genuinely isn't in the snapshot, say so plainly and suggest what data would be needed, rather than guessing. Never discuss or infer manager/individual compensation. Be concise and board-ready: lead with the answer, then the supporting figures.`;
 
 export type InsightsMessage = { role: "user" | "assistant"; content: string };
 

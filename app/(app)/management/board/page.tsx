@@ -22,6 +22,19 @@ export const dynamic = "force-dynamic";
 
 const pct = (n: number | null | undefined) => (n == null ? "—" : `${n.toFixed(1)}%`);
 
+// SG&A line-item detail, in P&L statement order. Overhead compensation appears
+// only as aggregate buckets (Total Back-Office, Total Officer) — no individual
+// or manager compensation line exists.
+const SGA_DETAIL_KEYS = [
+  "back_office_total", "officer_total", "advertising", "bankcard_fees",
+  "supplies_shop", "postage", "professional_fees", "software", "insurance_general",
+  "non_tech_vehicle_insurance", "employer_401_contrib", "office_expense",
+  "rent_property_tax", "repairs_maint_office", "rent_vacant_lot", "telephone",
+  "utilities", "bank_charges", "contributions", "dues_subscriptions",
+  "education_seminars", "equipment_rental", "entertainment_meals", "payroll_fees",
+  "misc_sga", "travel", "uniforms", "other_cell_phones",
+];
+
 export default async function BoardPage({
   searchParams,
 }: {
@@ -333,6 +346,27 @@ export default async function BoardPage({
               </span>
             ) : null}
           </div>
+        </Card>
+
+        {/* SG&A line-item detail (collapsed by default) */}
+        <Card className="p-0 overflow-hidden lg:col-span-2">
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
+              <span>SG&amp;A detail · {basisLabel}</span>
+              <span className="flex items-center gap-2 text-[11px] font-normal text-muted">
+                <span>Total SG&amp;A {money(get("sga").actual)}</span>
+                <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </summary>
+            <div className="border-t border-line">
+              <KpiTable values={values} cat={cat} basis={basis} keys={SGA_DETAIL_KEYS} />
+            </div>
+            <div className="px-4 py-2 border-t border-line text-[11px] text-muted">
+              Overhead compensation is shown only as aggregate buckets (Total Back-Office, Total Officer); no individual or manager compensation is stored. Line items may not tie exactly to Total SG&amp;A due to $0/rounding lines.
+            </div>
+          </details>
         </Card>
 
         {/* Balance sheet */}

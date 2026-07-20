@@ -584,6 +584,678 @@
       "basis": "ytd",
       "actual": 5.07,
       "budget": null
+    },
+    {
+      "key": "back_office_total",
+      "scope": "company",
+      "basis": "month",
+      "actual": 58532,
+      "budget": 52549
+    },
+    {
+      "key": "back_office_total",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 307329,
+      "budget": 293906
+    },
+    {
+      "key": "back_office_total",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 635259,
+      "budget": 625178
+    },
+    {
+      "key": "officer_total",
+      "scope": "company",
+      "basis": "month",
+      "actual": 33632,
+      "budget": 34550
+    },
+    {
+      "key": "officer_total",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 198189,
+      "budget": 207301
+    },
+    {
+      "key": "officer_total",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 405043,
+      "budget": 414603
+    },
+    {
+      "key": "advertising",
+      "scope": "company",
+      "basis": "month",
+      "actual": 18531,
+      "budget": 9000
+    },
+    {
+      "key": "advertising",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 84996,
+      "budget": 54000
+    },
+    {
+      "key": "advertising",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 169992,
+      "budget": 108000
+    },
+    {
+      "key": "bankcard_fees",
+      "scope": "company",
+      "basis": "month",
+      "actual": 17594,
+      "budget": 11025
+    },
+    {
+      "key": "bankcard_fees",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 97730,
+      "budget": 66573
+    },
+    {
+      "key": "bankcard_fees",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 191204,
+      "budget": 137552
+    },
+    {
+      "key": "supplies_shop",
+      "scope": "company",
+      "basis": "month",
+      "actual": 5979,
+      "budget": 5907
+    },
+    {
+      "key": "supplies_shop",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 26780,
+      "budget": 35440
+    },
+    {
+      "key": "supplies_shop",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 60951,
+      "budget": 70881
+    },
+    {
+      "key": "postage",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1077,
+      "budget": 1086
+    },
+    {
+      "key": "postage",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 6018,
+      "budget": 6518
+    },
+    {
+      "key": "postage",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 12036,
+      "budget": 13036
+    },
+    {
+      "key": "professional_fees",
+      "scope": "company",
+      "basis": "month",
+      "actual": 5765,
+      "budget": 2044
+    },
+    {
+      "key": "professional_fees",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 23927,
+      "budget": 12263
+    },
+    {
+      "key": "professional_fees",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 36521,
+      "budget": 24525
+    },
+    {
+      "key": "software",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1341,
+      "budget": 4542
+    },
+    {
+      "key": "software",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 3534,
+      "budget": 27249
+    },
+    {
+      "key": "software",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 19944,
+      "budget": 54498
+    },
+    {
+      "key": "insurance_general",
+      "scope": "company",
+      "basis": "month",
+      "actual": 7310,
+      "budget": 3392
+    },
+    {
+      "key": "insurance_general",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 34979,
+      "budget": 20351
+    },
+    {
+      "key": "insurance_general",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 55636,
+      "budget": 41007
+    },
+    {
+      "key": "non_tech_vehicle_insurance",
+      "scope": "company",
+      "basis": "month",
+      "actual": 608,
+      "budget": 608
+    },
+    {
+      "key": "non_tech_vehicle_insurance",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 3650,
+      "budget": 3650
+    },
+    {
+      "key": "non_tech_vehicle_insurance",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 7300,
+      "budget": 7300
+    },
+    {
+      "key": "employer_401_contrib",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1700,
+      "budget": 991
+    },
+    {
+      "key": "employer_401_contrib",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 8284,
+      "budget": 5679
+    },
+    {
+      "key": "employer_401_contrib",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 17112,
+      "budget": 11822
+    },
+    {
+      "key": "office_expense",
+      "scope": "company",
+      "basis": "month",
+      "actual": 2534,
+      "budget": 2053
+    },
+    {
+      "key": "office_expense",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 18871,
+      "budget": 12317
+    },
+    {
+      "key": "office_expense",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 34656,
+      "budget": 24633
+    },
+    {
+      "key": "rent_property_tax",
+      "scope": "company",
+      "basis": "month",
+      "actual": 16783,
+      "budget": 15951
+    },
+    {
+      "key": "rent_property_tax",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 99695,
+      "budget": 95706
+    },
+    {
+      "key": "rent_property_tax",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 195401,
+      "budget": 191412
+    },
+    {
+      "key": "repairs_maint_office",
+      "scope": "company",
+      "basis": "month",
+      "actual": 3247,
+      "budget": 3157
+    },
+    {
+      "key": "repairs_maint_office",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 10029,
+      "budget": 18941
+    },
+    {
+      "key": "repairs_maint_office",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 22469,
+      "budget": 37881
+    },
+    {
+      "key": "rent_vacant_lot",
+      "scope": "company",
+      "basis": "month",
+      "actual": 0,
+      "budget": 832
+    },
+    {
+      "key": "rent_vacant_lot",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 1000,
+      "budget": 4990
+    },
+    {
+      "key": "rent_vacant_lot",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 5990,
+      "budget": 9979
+    },
+    {
+      "key": "telephone",
+      "scope": "company",
+      "basis": "month",
+      "actual": -194,
+      "budget": 851
+    },
+    {
+      "key": "telephone",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 3851,
+      "budget": 5060
+    },
+    {
+      "key": "telephone",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 5108,
+      "budget": 10181
+    },
+    {
+      "key": "utilities",
+      "scope": "company",
+      "basis": "month",
+      "actual": 4537,
+      "budget": 3998
+    },
+    {
+      "key": "utilities",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 21557,
+      "budget": 23987
+    },
+    {
+      "key": "utilities",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 43114,
+      "budget": 47975
+    },
+    {
+      "key": "bank_charges",
+      "scope": "company",
+      "basis": "month",
+      "actual": 325,
+      "budget": 564
+    },
+    {
+      "key": "bank_charges",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 2111,
+      "budget": 3386
+    },
+    {
+      "key": "bank_charges",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 4222,
+      "budget": 6771
+    },
+    {
+      "key": "contributions",
+      "scope": "company",
+      "basis": "month",
+      "actual": 0,
+      "budget": 117
+    },
+    {
+      "key": "contributions",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 2500,
+      "budget": 700
+    },
+    {
+      "key": "contributions",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 5000,
+      "budget": 1400
+    },
+    {
+      "key": "dues_subscriptions",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1443,
+      "budget": 613
+    },
+    {
+      "key": "dues_subscriptions",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 6618,
+      "budget": 3677
+    },
+    {
+      "key": "dues_subscriptions",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 13237,
+      "budget": 7354
+    },
+    {
+      "key": "education_seminars",
+      "scope": "company",
+      "basis": "month",
+      "actual": 100,
+      "budget": 55
+    },
+    {
+      "key": "education_seminars",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 350,
+      "budget": 330
+    },
+    {
+      "key": "education_seminars",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 680,
+      "budget": 660
+    },
+    {
+      "key": "equipment_rental",
+      "scope": "company",
+      "basis": "month",
+      "actual": 2415,
+      "budget": 757
+    },
+    {
+      "key": "equipment_rental",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 7215,
+      "budget": 4544
+    },
+    {
+      "key": "equipment_rental",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 13498,
+      "budget": 9088
+    },
+    {
+      "key": "entertainment_meals",
+      "scope": "company",
+      "basis": "month",
+      "actual": 847,
+      "budget": 852
+    },
+    {
+      "key": "entertainment_meals",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 4634,
+      "budget": 5112
+    },
+    {
+      "key": "entertainment_meals",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 8697,
+      "budget": 10224
+    },
+    {
+      "key": "payroll_fees",
+      "scope": "company",
+      "basis": "month",
+      "actual": 2611,
+      "budget": 2154
+    },
+    {
+      "key": "payroll_fees",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 17020,
+      "budget": 12921
+    },
+    {
+      "key": "payroll_fees",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 34040,
+      "budget": 25842
+    },
+    {
+      "key": "misc_sga",
+      "scope": "company",
+      "basis": "month",
+      "actual": 2510,
+      "budget": 757
+    },
+    {
+      "key": "misc_sga",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 13467,
+      "budget": 4544
+    },
+    {
+      "key": "misc_sga",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 27327,
+      "budget": 9088
+    },
+    {
+      "key": "travel",
+      "scope": "company",
+      "basis": "month",
+      "actual": 4350,
+      "budget": 476
+    },
+    {
+      "key": "travel",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 7310,
+      "budget": 2854
+    },
+    {
+      "key": "travel",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 14619,
+      "budget": 5708
+    },
+    {
+      "key": "uniforms",
+      "scope": "company",
+      "basis": "month",
+      "actual": 733,
+      "budget": 459
+    },
+    {
+      "key": "uniforms",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 12599,
+      "budget": 2752
+    },
+    {
+      "key": "uniforms",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 25197,
+      "budget": 5503
+    },
+    {
+      "key": "other_cell_phones",
+      "scope": "company",
+      "basis": "month",
+      "actual": 499,
+      "budget": 529
+    },
+    {
+      "key": "other_cell_phones",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 2997,
+      "budget": 3087
+    },
+    {
+      "key": "other_cell_phones",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 6173,
+      "budget": 6263
+    },
+    {
+      "key": "depreciation",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1855,
+      "budget": 5005
+    },
+    {
+      "key": "depreciation",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 26486,
+      "budget": 60115
+    },
+    {
+      "key": "depreciation",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 129037,
+      "budget": 199394
+    },
+    {
+      "key": "amortization",
+      "scope": "company",
+      "basis": "month",
+      "actual": 30514,
+      "budget": 45019
+    },
+    {
+      "key": "amortization",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 174214,
+      "budget": 270117
+    },
+    {
+      "key": "amortization",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 358003,
+      "budget": 540233
+    },
+    {
+      "key": "interest_expense",
+      "scope": "company",
+      "basis": "month",
+      "actual": 3545,
+      "budget": 3302
+    },
+    {
+      "key": "interest_expense",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 31235,
+      "budget": 20831
+    },
+    {
+      "key": "interest_expense",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 49695,
+      "budget": 39255
+    },
+    {
+      "key": "management_fee",
+      "scope": "company",
+      "basis": "month",
+      "actual": 12084,
+      "budget": 12083
+    },
+    {
+      "key": "management_fee",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 72504,
+      "budget": 72500
+    },
+    {
+      "key": "management_fee",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 145004,
+      "budget": 145000
     }
   ],
   "lob": [

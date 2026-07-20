@@ -155,8 +155,8 @@ export default function InsightsChat({ configured }: { configured: boolean }) {
       ) : null}
 
       <p className="text-xs text-muted">
-        Answers are grounded in stored KPI, branch, and line-of-business figures. SG&amp;A is stored as a single total —
-        line-item detail needs full P&amp;L ingestion. Manager and individual compensation is never stored or discussed.
+        Answers are grounded in stored KPI, branch, and line-of-business figures, including SG&amp;A line-item detail and
+        below-the-line other expense for the latest period. Manager and individual compensation is never stored or discussed.
       </p>
     </div>
   );

@@ -9,6 +9,17 @@ export const KPI_KEYS = [
   "route_contrib_pct", "ending_cash", "production", "book_value", "new_sales",
   "attrition", "attrition_rate", "tech_wages", "fuel", "chemical_expense",
   "vehicle_rm", "sga", "net_income",
+  // Below-the-line P&L
+  "depreciation", "amortization", "interest_expense", "management_fee",
+  // SG&A line-item detail (drilldown under Total SG&A). Overhead comp is carried
+  // ONLY as aggregate buckets (back_office_total, officer_total) — never per-manager.
+  "back_office_total", "officer_total", "advertising", "bankcard_fees",
+  "supplies_shop", "postage", "professional_fees", "software", "insurance_general",
+  "non_tech_vehicle_insurance", "employer_401_contrib", "office_expense",
+  "rent_property_tax", "repairs_maint_office", "rent_vacant_lot", "telephone",
+  "utilities", "bank_charges", "contributions", "dues_subscriptions",
+  "education_seminars", "equipment_rental", "entertainment_meals", "payroll_fees",
+  "misc_sga", "travel", "uniforms", "other_cell_phones",
 ] as const;
 
 export const SCOPES = ["company", "vero", "stuart", "orlando", "naples"] as const;
@@ -45,7 +56,9 @@ Allowed basis values: month (the reporting month), ytd (year-to-date), cy_foreca
 
 Rules:
 - Percentages as plain numbers (9.7 for 9.7%, not 0.097). Dollars as plain numbers (562499, no $ or commas).
-- Provide company-scope month values for every KPI you can find; add ytd where the report shows a YTD column.
+- Provide company-scope month values for every KPI you can find; add ytd where the report shows a YTD column, and cy_forecast where the report shows a full calendar-year forecast column.
+- Capture the Consolidated P&L SG&A / overhead line-item detail (advertising, bankcard_fees, supplies_shop, postage, professional_fees, software, insurance_general, non_tech_vehicle_insurance, employer_401_contrib, office_expense, rent_property_tax, repairs_maint_office, rent_vacant_lot, telephone, utilities, bank_charges, contributions, dues_subscriptions, education_seminars, equipment_rental, entertainment_meals, payroll_fees, misc_sga, travel, uniforms, other_cell_phones) at company scope. For overhead compensation, output ONLY the aggregate bucket totals back_office_total (Total Back-Office) and officer_total (Total Officer) — NEVER any back-office/officer/manager salary or per-person line.
+- Also capture below-the-line other-expense detail: depreciation, amortization, interest_expense (Interest), management_fee.
 - Provide per-branch values where the report breaks them out (production, route_contrib, route_contrib_pct, new_sales, attrition).
 - "lob" = revenue by line of business (Pest, Fertilizer, L&O, Termite, Rat, Ant, Mosquito, Other) per scope. Combine small categories (Bat, Bee, Wildlife, Unknown) into "Other".
 - "techProduction" = per-technician production Actual vs Budget for the month, with branch scope and line (PC/LO/Service). Use first names/labels as shown.
