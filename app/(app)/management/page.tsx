@@ -167,7 +167,7 @@ export default async function ManagementPage({
 
       {/* Headline KPI strip */}
       {headline.length > 0 ? (
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 mb-5">
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-6 mb-5">
           {headline.map((h) => (
             <Card key={h.key} className="p-4">
               <div className="text-xs uppercase tracking-wider text-muted">{h.meta?.label ?? h.key}</div>
@@ -177,6 +177,7 @@ export default async function ManagementPage({
               <VarianceChip c={h.c} unit={h.meta?.unit ?? "usd"} />
             </Card>
           ))}
+          <AttritionRateTile c={get("attrition_rate")} isMonth={basis === "month"} />
         </div>
       ) : null}
 
@@ -292,6 +293,21 @@ function PanelTitle({ children }: { children: React.ReactNode }) {
 }
 function PanelHead({ children }: { children: React.ReactNode }) {
   return <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">{children}</div>;
+}
+// Monthly attrition as a % of the forward recurring book. Best-in-class is losing
+// under 1% of book per month (green); above that is flagged red. On YTD it's the
+// cumulative cancellations rate, so the monthly benchmark isn't applied.
+function AttritionRateTile({ c, isMonth }: { c: Cell; isMonth: boolean }) {
+  const v = c.actual;
+  if (v == null) return null;
+  const tone = isMonth ? (v < 1 ? "text-emerald-700" : "text-red-600") : "text-ink";
+  return (
+    <Card className="p-4">
+      <div className="text-xs uppercase tracking-wider text-muted">Attrition Rate</div>
+      <div className={`mt-1 text-2xl font-light tabular-nums ${tone}`}>{v.toFixed(2)}%</div>
+      <div className="text-[11px] text-muted">{isMonth ? "of book / mo · <1% best-in-class" : "YTD cancellations rate"}</div>
+    </Card>
+  );
 }
 
 function fmt(v: number | null, unit: string) {
