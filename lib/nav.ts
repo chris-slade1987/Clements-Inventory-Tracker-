@@ -24,6 +24,16 @@ export const COMPLIANCE_NAV_ITEM: NavItem = {
   icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
 };
 
+// Insights assistant — conversational, grounded management Q&A. Exec-sensitive
+// financials, so only admins + senior leadership reach the page (it redirects
+// others). A chat-bubble/spark glyph, distinct from the other management icons.
+export const INSIGHTS_NAV_ITEM: NavItem = {
+  href: "/management/insights",
+  label: "Insights",
+  shortLabel: "Insights",
+  icon: "M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5zM12 7.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1L9 10.5l2.1-.9z",
+};
+
 // Pre-hire onboarding — surfaced for HR (admins + granted HR only), not in the
 // general management nav.
 export const PREHIRE_NAV_ITEM: NavItem = {
@@ -182,6 +192,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Board",
     icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
   },
+  INSIGHTS_NAV_ITEM,
   {
     href: "/management",
     label: "Management",

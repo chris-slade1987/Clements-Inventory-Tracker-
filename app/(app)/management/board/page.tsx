@@ -165,7 +165,21 @@ export default async function BoardPage({
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title="Board / Executive" subtitle={`Company financials · ${period.label}${basis === "ytd" ? " · YTD" : ""}`} />
+        <PageHeader
+          title="Board / Executive"
+          subtitle={`Company financials · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
+          actions={
+            <Link
+              href="/management/insights"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-ink hover:bg-[#eef5f0] transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5z" />
+              </svg>
+              Ask Insights
+            </Link>
+          }
+        />
         <Controls
           periods={periods.map((p) => ({ key: `${p.year}-${String(p.month).padStart(2, "0")}`, label: p.label }))}
           period={periodKey}
