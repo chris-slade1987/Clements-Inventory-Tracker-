@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { listVehicles } from "@/lib/fleet";
@@ -20,6 +21,7 @@ const CAT_STYLE: Record<string, string> = {
 
 export default async function DocumentsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
   const sp = await searchParams;
   if (user.role !== "admin" && user.role !== "manager") {
     return (

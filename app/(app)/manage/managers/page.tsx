@@ -24,6 +24,7 @@ export default async function ManageManagersPage() {
         role: u.role,
         warehouseName: u.warehouse?.name ?? null,
         active: u.active,
+        boardObserver: u.boardObserver,
       }))}
     />
   );

@@ -1,5 +1,5 @@
 import AppShell from "@/components/AppShell";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
 
@@ -23,6 +23,7 @@ export default async function AppGroupLayout({
       isSeniorLeadership={user.seniorLeadership}
       isHrAccess={user.hrAccess}
       isInterviewer={isInterviewer}
+      isBoardObserver={isBoardObserver(user)}
       unread={unread}
     >
       {children}

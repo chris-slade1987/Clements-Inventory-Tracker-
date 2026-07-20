@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -85,6 +85,7 @@ export default function AppShell({
   isSeniorLeadership = false,
   isHrAccess = false,
   isInterviewer = false,
+  isBoardObserver = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -94,6 +95,7 @@ export default function AppShell({
   isSeniorLeadership?: boolean;
   isHrAccess?: boolean;
   isInterviewer?: boolean;
+  isBoardObserver?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -136,7 +138,11 @@ export default function AppShell({
             : INVENTORY_NAV;
 
   let items: NavItem[];
-  if (mode === "management" && privilegedEmployee) {
+  if (isBoardObserver) {
+    // A board observer is a distinct read-only principal: they get their own
+    // minimal exec nav on EVERY route, never the full management/inventory nav.
+    items = BOARD_OBSERVER_NAV;
+  } else if (mode === "management" && privilegedEmployee) {
     // Never expose the full management nav to an employee-shell grantee (incl. a
     // tech interviewer on a job-container page) — only their allowed links.
     items = homeExtras;
@@ -159,7 +165,8 @@ export default function AppShell({
     items = list;
   }
   // Employees have a single self-service area — no center switcher, no admin.
-  const showCenters = !isEmployee;
+  // Board observers likewise get no center switcher — their nav is fixed.
+  const showCenters = !isEmployee && !isBoardObserver;
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = items
     .map((i) => i.href)

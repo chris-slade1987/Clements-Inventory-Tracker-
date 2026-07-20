@@ -25,9 +25,12 @@ export async function POST(req: Request) {
     }
 
     await createSession(user.id);
-    // Employees → their work home; branch managers → their branch; admins → dashboard.
+    // Board observers → the executive views; employees → their work home; branch
+    // managers → their branch; admins → dashboard.
     const redirect =
-      user.role === "employee" ? "/me" : user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
+      user.boardObserver && user.role !== "admin"
+        ? "/management/board"
+        : user.role === "employee" ? "/me" : user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
     return NextResponse.json({ ok: true, redirect });
   } catch (e) {
     // Surface the underlying cause (e.g. database not reachable / not migrated)

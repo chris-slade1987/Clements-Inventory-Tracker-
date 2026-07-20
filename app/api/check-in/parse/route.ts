@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { saveUpload } from "@/lib/storage";
 import { parseInvoice, invoiceReaderMode } from "@/lib/invoice/parse";
@@ -12,6 +12,7 @@ const ACCEPTED = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (isBoardObserver(user)) return NextResponse.json({ error: "Board observers have read-only access." }, { status: 403 });
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");

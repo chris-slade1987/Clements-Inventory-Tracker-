@@ -20,17 +20,29 @@ export async function POST(req: Request) {
       const name = String(body?.name ?? "").trim();
       const email = String(body?.email ?? "").trim().toLowerCase();
       const password = String(body?.password ?? "");
-      const role = body?.role === "admin" ? "admin" : "manager";
-      const warehouseId = body?.warehouseId ? String(body.warehouseId) : null;
+      // A board observer is a read-only exec principal: role stays "employee",
+      // no home warehouse, and the boardObserver flag drives their stripped
+      // shell + server-side write denies.
+      const asObserver = body?.boardObserver === true;
+      const role = asObserver ? "employee" : body?.role === "admin" ? "admin" : "manager";
+      const warehouseId = asObserver ? null : body?.warehouseId ? String(body.warehouseId) : null;
 
       if (!name || !email) return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
       if (password.length < 8)
         return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
 
       const m = await prisma.user.create({
-        data: { name, email, passwordHash: hashPassword(password), role, warehouseId },
+        data: { name, email, passwordHash: hashPassword(password), role, warehouseId, boardObserver: asObserver },
       });
       return NextResponse.json({ ok: true, id: m.id });
+    }
+
+    if (action === "setBoardObserver") {
+      const id = String(body?.id ?? "");
+      const boardObserver = body?.boardObserver === true;
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      await prisma.user.update({ where: { id }, data: { boardObserver } });
+      return NextResponse.json({ ok: true });
     }
 
     if (action === "setActive") {

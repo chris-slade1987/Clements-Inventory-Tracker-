@@ -12,6 +12,7 @@ type Manager = {
   role: string;
   warehouseName: string | null;
   active: boolean;
+  boardObserver: boolean;
 };
 
 export default function ManageManagers({
@@ -25,7 +26,7 @@ export default function ManageManagers({
 }) {
   const router = useRouter();
   const [showInactive, setShowInactive] = useState(false);
-  const [addForm, setAddForm] = useState<{ name: string; email: string; password: string; role: string; warehouseId: string } | null>(null);
+  const [addForm, setAddForm] = useState<{ name: string; email: string; password: string; role: string; warehouseId: string; boardObserver: boolean } | null>(null);
   const [pwFor, setPwFor] = useState<Manager | null>(null);
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -61,6 +62,14 @@ export default function ManageManagers({
     router.refresh();
   }
 
+  async function setBoardObserver(id: string, boardObserver: boolean) {
+    const { ok, data } = await post({ action: "setBoardObserver", id, boardObserver });
+    if (!ok) { setNote(null); setError(data.error ?? "Failed."); return; }
+    setError(null);
+    setNote(boardObserver ? "Granted read-only board access." : "Removed board access.");
+    router.refresh();
+  }
+
   async function resetPw() {
     if (!pwFor) return;
     setBusy(true); setError(null);
@@ -74,7 +83,7 @@ export default function ManageManagers({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <button onClick={() => setAddForm({ name: "", email: "", password: "", role: "manager", warehouseId: "" })} className={btn.primary}>
+        <button onClick={() => setAddForm({ name: "", email: "", password: "", role: "manager", warehouseId: "", boardObserver: false })} className={btn.primary}>
           + Add manager
         </button>
         <label className="ml-auto flex items-center gap-2 text-sm text-muted">
@@ -109,10 +118,25 @@ export default function ManageManagers({
                     {m.name}{m.id === currentUserId ? <span className="ml-1 text-xs text-muted">(you)</span> : null}
                   </td>
                   <td className="px-3 py-2 text-xs">{m.email}</td>
-                  <td className="px-3 py-2 capitalize">{m.role}</td>
+                  <td className="px-3 py-2 capitalize">
+                    {m.role}
+                    {m.boardObserver && m.role !== "admin" ? (
+                      <span className="ml-1 inline-block rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700 align-middle">Board observer</span>
+                    ) : null}
+                  </td>
                   <td className="px-3 py-2">{m.warehouseName ?? "All branches"}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     <button onClick={() => { setPwFor(m); setPassword(""); setError(null); }} className="text-xs font-medium text-brand-700 hover:underline">Reset password</button>
+                    {m.role !== "admin" ? (
+                      <>
+                        <span className="text-line px-1">·</span>
+                        {m.boardObserver ? (
+                          <button onClick={() => setBoardObserver(m.id, false)} className="text-xs font-medium text-red-600 hover:underline">Remove board access</button>
+                        ) : (
+                          <button onClick={() => setBoardObserver(m.id, true)} className="text-xs font-medium text-brand-700 hover:underline">Make board observer</button>
+                        )}
+                      </>
+                    ) : null}
                     {m.id !== currentUserId ? (
                       <>
                         <span className="text-line px-1">·</span>
@@ -135,7 +159,7 @@ export default function ManageManagers({
       {addForm ? (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
-            <h3 className="text-lg font-semibold">Add manager</h3>
+            <h3 className="text-lg font-semibold">{addForm.boardObserver ? "Add board observer" : "Add manager"}</h3>
             <label className="block text-sm font-medium">Name
               <input value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
             </label>
@@ -147,22 +171,29 @@ export default function ManageManagers({
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block text-sm font-medium">Role
-                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
+                <select value={addForm.role} disabled={addForm.boardObserver} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface disabled:opacity-50">
                   <option value="manager">Manager</option>
                   <option value="admin">Admin</option>
                 </select>
               </label>
               <label className="block text-sm font-medium">Branch
-                <select value={addForm.warehouseId} onChange={(e) => setAddForm({ ...addForm, warehouseId: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
+                <select value={addForm.warehouseId} disabled={addForm.boardObserver} onChange={(e) => setAddForm({ ...addForm, warehouseId: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface disabled:opacity-50">
                   <option value="">All branches</option>
                   {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
                 </select>
               </label>
             </div>
+            <label className="flex items-start gap-2 rounded-lg border border-line px-3 py-2 text-sm">
+              <input type="checkbox" className="mt-0.5" checked={addForm.boardObserver} onChange={(e) => setAddForm({ ...addForm, boardObserver: e.target.checked })} />
+              <span>
+                <span className="font-medium">Board observer (read-only)</span>
+                <span className="block text-xs text-muted">Sees only the executive views — Board, Management, Sales &amp; Attrition, Compliance. Cannot change anything. Role and branch don&rsquo;t apply.</span>
+              </span>
+            </label>
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
             <div className="flex gap-2 pt-1">
               <button onClick={() => { setAddForm(null); setError(null); }} className={btn.secondary}>Cancel</button>
-              <button onClick={createManager} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : "Add manager"}</button>
+              <button onClick={createManager} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : addForm.boardObserver ? "Add board observer" : "Add manager"}</button>
             </div>
           </div>
         </div>

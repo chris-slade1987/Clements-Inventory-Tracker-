@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { resolveRecipients, notifyThread, markRead } from "@/lib/threads";
 
 export const runtime = "nodejs";
@@ -17,6 +17,7 @@ const CONTEXT = new Set(["reminder", "alert", "employee", "vehicle", "general"])
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (isBoardObserver(user)) return NextResponse.json({ error: "Board observers have read-only access." }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   const action = s(body?.action) ?? "create";

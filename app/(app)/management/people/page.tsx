@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { allReviews } from "@/lib/review";
 import { BRANCHES, branchLabel } from "@/lib/management";
@@ -23,6 +24,7 @@ export default async function PeoplePage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
   const sp = await searchParams;
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = scopedBranch(user, requested);

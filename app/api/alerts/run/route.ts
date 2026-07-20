@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { runAnomalyChecks } from "@/lib/anomaly";
 import { runSavingsChecks } from "@/lib/savings";
 import { runReorderChecks } from "@/lib/reorder";
@@ -11,6 +11,7 @@ export const maxDuration = 60;
 export async function POST() {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (isBoardObserver(user)) return NextResponse.json({ error: "Board observers have read-only access." }, { status: 403 });
   const anomaly = await runAnomalyChecks();
   const savings = await runSavingsChecks();
   const reorder = await runReorderChecks();

@@ -9,7 +9,7 @@ import type { SessionUser } from "@/lib/auth";
  * code change needed here.
  */
 export function canViewCompliance(user: SessionUser): boolean {
-  return user.role === "admin" || user.seniorLeadership;
+  return user.role === "admin" || user.seniorLeadership || user.boardObserver;
 }
 
 // Compliance Command Center — a company-wide lens over the compliance data that

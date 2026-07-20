@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { onHandMatrix } from "@/lib/inventory";
 import CheckOutClient from "./CheckOutClient";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckOutPage() {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
 
   const [warehouses, technicians, products, matrix] = await Promise.all([
     prisma.warehouse.findMany({

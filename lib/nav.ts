@@ -245,6 +245,33 @@ export const MANAGEMENT_NAV: NavItem[] = [
   BULLETIN_NAV_ITEM,
 ];
 
+// Board Observer — a distinct, strictly read-only principal (board members who
+// log in after the board meeting). They see ONLY the executive views: Board /
+// Executive, Management, Sales & Attrition, Compliance, and the company
+// bulletin — never inventory, fleet, my-branch, HR, scorecards, or manage.
+export const BOARD_OBSERVER_NAV: NavItem[] = [
+  {
+    href: "/management/board",
+    label: "Board / Executive",
+    shortLabel: "Board",
+    icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
+  },
+  {
+    href: "/management",
+    label: "Management",
+    shortLabel: "Mgmt",
+    icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
+  },
+  {
+    href: "/management/sales",
+    label: "Sales & Attrition",
+    shortLabel: "Sales",
+    icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
+  },
+  COMPLIANCE_NAV_ITEM,
+  BULLETIN_NAV_ITEM,
+];
+
 export const FLEET_NAV: NavItem[] = [
   {
     href: "/fleet",

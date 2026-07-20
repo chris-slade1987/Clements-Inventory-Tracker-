@@ -34,6 +34,30 @@ export async function grantHrAccess(prisma: PrismaClient) {
   return { granted: res.count };
 }
 
+// Board observers — board members with strictly read-only access to the
+// executive views (Board / Executive, Management, Sales & Attrition,
+// Compliance). They are role: "employee" with the boardObserver flag; the
+// stripped shell + server-side write denies keep them read-only.
+//
+// This list is the durable grant: the CEO adds board members' emails here (once
+// they have a login) and it re-applies every deploy. The primary path for
+// creating a board-member login is the admin Manage → Managers flow ("Board
+// observer" checkbox), so this can safely start EMPTY.
+const BOARD_OBSERVER_EMAILS: string[] = [
+  // e.g. "director@example.com", — CEO adds board members' emails here.
+];
+
+/** Grant/refresh board-observer access — safe to run every deploy (no-op while
+ *  the email list is empty). Never revokes; only sets the flag. */
+export async function grantBoardObserver(prisma: PrismaClient) {
+  if (BOARD_OBSERVER_EMAILS.length === 0) return { granted: 0 };
+  const res = await prisma.user.updateMany({
+    where: { email: { in: BOARD_OBSERVER_EMAILS } },
+    data: { boardObserver: true },
+  });
+  return { granted: res.count };
+}
+
 if (process.argv[1] && process.argv[1].includes("seed-access")) {
   const prisma = new PrismaClient();
   grantSeniorLeadership(prisma)

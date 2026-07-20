@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
 import {
@@ -40,7 +40,8 @@ export default async function BoardPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const user = await requireUser();
+  const isObserver = isBoardObserver(user);
   const sp = await searchParams;
   const periods = await listPeriods();
   if (periods.length === 0) {
@@ -182,6 +183,7 @@ export default async function BoardPage({
           title="Board / Executive"
           subtitle={`Company financials · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
           actions={
+            isObserver ? null : (
             <Link
               href="/management/insights"
               className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-ink hover:bg-[#eef5f0] transition-colors"
@@ -191,6 +193,7 @@ export default async function BoardPage({
               </svg>
               Ask Insights
             </Link>
+            )
           }
         />
         <Controls

@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { invoiceReaderMode } from "@/lib/invoice/parse";
 import CheckInClient from "./CheckInClient";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckInPage() {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
   const [warehouses, products] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" } }),

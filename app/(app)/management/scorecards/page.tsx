@@ -1,5 +1,6 @@
 import { PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES } from "@/lib/management";
 import { buildScorecardRows } from "@/lib/scorecard";
 import { listPeriods } from "@/lib/management";
@@ -13,6 +14,7 @@ export default async function ScorecardsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
   const sp = await searchParams;
 
   const periods = await listPeriods();

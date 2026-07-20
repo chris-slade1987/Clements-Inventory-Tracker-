@@ -61,6 +61,7 @@ model User {
   canPostBulletin Boolean @default(false) @map("can_post_bulletin") // may author company bulletin posts / calendar
   seniorLeadership Boolean @default(false) @map("senior_leadership") // senior leadership group — may view the Compliance Command Center
   hrAccess     Boolean @default(false) @map("hr_access") // HR — may run pre-hire onboarding (+ HR tools)
+  boardObserver Boolean @default(false) @map("board_observer") // board member — read-only access to the executive views only
   createdAt    DateTime @default(now()) @map("created_at")
 
   warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])

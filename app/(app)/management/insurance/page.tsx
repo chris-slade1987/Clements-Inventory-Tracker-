@@ -1,5 +1,6 @@
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { money } from "@/lib/format";
 import {
   INSURANCE_LINES, PAYMENT_FREQUENCIES, lineLabel,
@@ -18,6 +19,7 @@ const iso = (d: Date | null) => (d ? d.toISOString() : null);
 
 export default async function InsurancePage() {
   const user = await requireUser();
+  if (isBoardObserver(user)) redirect("/management/board");
   if (user.role !== "admin" && user.role !== "manager") {
     return (
       <>

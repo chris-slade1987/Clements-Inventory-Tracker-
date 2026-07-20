@@ -54,7 +54,25 @@ export type SessionUser = {
   canPostBulletin: boolean;
   seniorLeadership: boolean;
   hrAccess: boolean;
+  boardObserver: boolean;
 };
+
+/**
+ * A board member with strictly read-only access to the executive views. Board
+ * observers are `role: "employee"` with the flag set; admins are never treated
+ * as observers even if flagged, so they retain full access. Use this everywhere
+ * we need to (a) strip the shell to the exec views and (b) block mutations.
+ */
+export function isBoardObserver(user: SessionUser): boolean {
+  return user.boardObserver === true && user.role !== "admin";
+}
+
+/** Who may VIEW the board / executive observer surfaces (Board, Management,
+ *  Sales, Compliance). Admins + senior leadership already qualify; board
+ *  observers are added here as a read-only principal. */
+export function canObserveBoard(user: SessionUser): boolean {
+  return user.role === "admin" || user.seniorLeadership || user.boardObserver;
+}
 
 /** A branch manager (non-admin with a home branch) only sees their own branch. */
 export function branchLocked(user: SessionUser): boolean {
@@ -73,6 +91,8 @@ export function scopedBranch(user: SessionUser, requested: string | null): strin
 /** Where a user lands after signing in — employees to their work home,
  *  branch managers to their branch, admins to the inventory dashboard. */
 export function homePath(user: SessionUser): string {
+  // Board observers live entirely in the executive views — send them home there.
+  if (isBoardObserver(user)) return "/management/board";
   if (user.role === "employee") return "/me";
   // Managers land on their branch dashboard; admins on the inventory dashboard.
   if (user.role === "manager") return "/my-branch";
@@ -105,6 +125,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     canPostBulletin: u.canPostBulletin,
     seniorLeadership: u.seniorLeadership,
     hrAccess: u.hrAccess,
+    boardObserver: u.boardObserver,
   };
 }
 

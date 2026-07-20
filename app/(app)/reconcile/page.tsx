@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import ReconcileClient from "./ReconcileClient";
@@ -13,7 +14,8 @@ export default async function ReconcilePage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const _obsUser = await requireUser();
+  if (isBoardObserver(_obsUser)) redirect("/management/board");
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
 
