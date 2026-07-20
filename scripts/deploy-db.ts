@@ -64,6 +64,18 @@ async function main() {
       console.log(`deploy-db: management KPIs present (${kpiValues} values) — left as-is.`);
     }
 
+    // Load the June 2026 MBR as a new period. Idempotent + guarded: seedMbrJune
+    // only writes when the 2026-06 ReportPeriod is missing, so a later in-app
+    // upload or manual correction is never clobbered on redeploy. Runs after the
+    // KPI catalog above so the kpiValue→kpi relation is satisfied.
+    const { seedMbrJune } = await import("../prisma/seed-mbr");
+    const mbr = await seedMbrJune(prisma);
+    if (mbr.skipped) {
+      console.log("deploy-db: June 2026 MBR already present — left as-is.");
+    } else {
+      console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
+    }
+
     // Seed the fleet registry only when empty, so re-imports / edits are never clobbered.
     const vehicles = await prisma.vehicle.count();
     if (vehicles === 0) {
