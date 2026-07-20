@@ -31,12 +31,24 @@ export async function seedMbrJune(prisma: PrismaClient) {
   const file = join(__dirname, "data", "mbr-2026-06.json");
   const p = JSON.parse(readFileSync(file, "utf8")) as ParsedMbr;
 
-  // Guard: never clobber an existing period (a later manual correction wins).
+  // Guard: don't clobber an existing period's KPIs/tech (a later manual
+  // correction wins) — BUT always reconcile line-of-business revenue from the
+  // snapshot, so a corrected LOB mapping propagates to an already-loaded month.
   const existing = await prisma.reportPeriod.findUnique({
     where: { year_month: { year: p.year, month: p.month } },
   });
   if (existing) {
-    return { skipped: true as const, periodId: existing.id, kpis: 0, lob: 0, techs: 0 };
+    await prisma.lobRevenue.deleteMany({ where: { periodId: existing.id } });
+    let lob = 0;
+    for (const l of p.lob) {
+      try {
+        await prisma.lobRevenue.create({ data: { periodId: existing.id, scope: l.scope, lob: l.lob, revenue: l.revenue } });
+        lob++;
+      } catch {
+        // ignore duplicate (periodId, scope, lob) collisions.
+      }
+    }
+    return { skipped: true as const, reconciledLob: lob, periodId: existing.id, kpis: 0, techs: 0 };
   }
 
   const period = await prisma.reportPeriod.create({

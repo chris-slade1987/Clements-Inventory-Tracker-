@@ -4,184 +4,1013 @@
   "label": "June 2026",
   "source": "json",
   "kpis": [
-    { "key": "production", "scope": "company", "basis": "month", "actual": 568780, "budget": 544081 },
-    { "key": "production", "scope": "company", "basis": "ytd", "actual": 3375694, "budget": 3285245 },
-    { "key": "production", "scope": "company", "basis": "cy_forecast", "actual": 6889080, "budget": 6787976 },
-
-    { "key": "net_revenue", "scope": "company", "basis": "month", "actual": 566859, "budget": 542679 },
-    { "key": "net_revenue", "scope": "company", "basis": "ytd", "actual": 3364898, "budget": 3276831 },
-    { "key": "net_revenue", "scope": "company", "basis": "cy_forecast", "actual": 6868479, "budget": 6771148 },
-
-    { "key": "route_contrib", "scope": "company", "basis": "month", "actual": 220634, "budget": 225386 },
-    { "key": "route_contrib", "scope": "company", "basis": "ytd", "actual": 1386745, "budget": 1344473 },
-    { "key": "route_contrib", "scope": "company", "basis": "cy_forecast", "actual": 2825603, "budget": 2840340 },
-
-    { "key": "route_contrib_pct", "scope": "company", "basis": "month", "actual": 38.79, "budget": 41.43 },
-    { "key": "route_contrib_pct", "scope": "company", "basis": "ytd", "actual": 41.08, "budget": 40.92 },
-    { "key": "route_contrib_pct", "scope": "company", "basis": "cy_forecast", "actual": 41.02, "budget": 41.84 },
-
-    { "key": "operating_income", "scope": "company", "basis": "month", "actual": 25823, "budget": 65518 },
-    { "key": "operating_income", "scope": "company", "basis": "ytd", "actual": 359504, "budget": 406636 },
-    { "key": "operating_income", "scope": "company", "basis": "cy_forecast", "actual": 755180, "budget": 921974 },
-
-    { "key": "ebitda", "scope": "company", "basis": "month", "actual": 43898, "budget": 73601 },
-    { "key": "ebitda", "scope": "company", "basis": "ytd", "actual": 404742, "budget": 436809 },
-    { "key": "ebitda", "scope": "company", "basis": "cy_forecast", "actual": 852991, "budget": 1008084 },
-
-    { "key": "ebitda_pct", "scope": "company", "basis": "month", "actual": 7.7, "budget": 13.5 },
-    { "key": "ebitda_pct", "scope": "company", "basis": "ytd", "actual": 12.0, "budget": 13.3 },
-    { "key": "ebitda_pct", "scope": "company", "basis": "cy_forecast", "actual": 12.4, "budget": 14.9 },
-
-    { "key": "net_income", "scope": "company", "basis": "month", "actual": -21847, "budget": 107 },
-    { "key": "net_income", "scope": "company", "basis": "ytd", "actual": 55648, "budget": -16926 },
-    { "key": "net_income", "scope": "company", "basis": "cy_forecast", "actual": 74024, "budget": -1908 },
-
-    { "key": "tech_wages", "scope": "company", "basis": "month", "actual": 142369, "budget": 153374 },
-    { "key": "tech_wages", "scope": "company", "basis": "ytd", "actual": 828523, "budget": 905741 },
-    { "key": "tech_wages", "scope": "company", "basis": "cy_forecast", "actual": 1788720, "budget": 1869815 },
-
-    { "key": "fuel", "scope": "company", "basis": "month", "actual": 15176, "budget": 12132 },
-    { "key": "fuel", "scope": "company", "basis": "ytd", "actual": 91836, "budget": 68395 },
-    { "key": "fuel", "scope": "company", "basis": "cy_forecast", "actual": 182192, "budget": 142274 },
-
-    { "key": "chemical_expense", "scope": "company", "basis": "month", "actual": 82462, "budget": 62735 },
-    { "key": "chemical_expense", "scope": "company", "basis": "ytd", "actual": 437212, "budget": 368704 },
-    { "key": "chemical_expense", "scope": "company", "basis": "cy_forecast", "actual": 873647, "budget": 752438 },
-
-    { "key": "vehicle_rm", "scope": "company", "basis": "month", "actual": 20506, "budget": 11433 },
-    { "key": "vehicle_rm", "scope": "company", "basis": "ytd", "actual": 84834, "budget": 69744 },
-    { "key": "vehicle_rm", "scope": "company", "basis": "cy_forecast", "actual": 168894, "budget": 138344 },
-
-    { "key": "sga", "scope": "company", "basis": "month", "actual": 194811, "budget": 159868 },
-    { "key": "sga", "scope": "company", "basis": "ytd", "actual": 1027242, "budget": 937837 },
-    { "key": "sga", "scope": "company", "basis": "cy_forecast", "actual": 2070424, "budget": 1918366 },
-
-    { "key": "ending_cash", "scope": "company", "basis": "month", "actual": 344585, "budget": null },
-
-    { "key": "book_value", "scope": "company", "basis": "month", "actual": 6549886, "budget": null },
-
-    { "key": "new_sales", "scope": "company", "basis": "month", "actual": 138008, "budget": 117000 },
-    { "key": "new_sales", "scope": "company", "basis": "ytd", "actual": 727739, "budget": 592000 },
-
-    { "key": "attrition", "scope": "company", "basis": "month", "actual": 104019, "budget": null },
-    { "key": "attrition", "scope": "company", "basis": "ytd", "actual": 388916, "budget": null },
-
-    { "key": "attrition_rate", "scope": "company", "basis": "month", "actual": 1.69, "budget": null },
-    { "key": "attrition_rate", "scope": "company", "basis": "ytd", "actual": 6.30, "budget": null },
-
-    { "key": "production", "scope": "vero", "basis": "month", "actual": 329772.60, "budget": 276991.19 },
-    { "key": "production", "scope": "vero", "basis": "ytd", "actual": 1841073.57, "budget": 1670518.91 },
-    { "key": "production", "scope": "vero", "basis": "cy_forecast", "actual": 3646590.78, "budget": 3367088.14 },
-    { "key": "production", "scope": "stuart", "basis": "month", "actual": 91849.81, "budget": 74385.07 },
-    { "key": "production", "scope": "stuart", "basis": "ytd", "actual": 533920.25, "budget": 500892.73 },
-    { "key": "production", "scope": "stuart", "basis": "cy_forecast", "actual": 1044556.20, "budget": 990970.54 },
-    { "key": "production", "scope": "orlando", "basis": "month", "actual": 94800.44, "budget": 96275.60 },
-    { "key": "production", "scope": "orlando", "basis": "ytd", "actual": 611929.71, "budget": 618441.68 },
-    { "key": "production", "scope": "orlando", "basis": "cy_forecast", "actual": 1271833.43, "budget": 1251204.77 },
-    { "key": "production", "scope": "naples", "basis": "month", "actual": 52356.49, "budget": 52942.99 },
-    { "key": "production", "scope": "naples", "basis": "ytd", "actual": 388768.48, "budget": 298343.48 },
-    { "key": "production", "scope": "naples", "basis": "cy_forecast", "actual": 658454.07, "budget": 560374.57 },
-
-    { "key": "new_sales", "scope": "vero", "basis": "month", "actual": 95571, "budget": 40000 },
-    { "key": "new_sales", "scope": "vero", "basis": "ytd", "actual": 384845, "budget": 240000 },
-    { "key": "new_sales", "scope": "stuart", "basis": "month", "actual": 18292, "budget": 33000 },
-    { "key": "new_sales", "scope": "stuart", "basis": "ytd", "actual": 110393, "budget": 148000 },
-    { "key": "new_sales", "scope": "orlando", "basis": "month", "actual": 14275, "budget": 29000 },
-    { "key": "new_sales", "scope": "orlando", "basis": "ytd", "actual": 106159, "budget": 114000 },
-    { "key": "new_sales", "scope": "naples", "basis": "month", "actual": 9870, "budget": 15000 },
-    { "key": "new_sales", "scope": "naples", "basis": "ytd", "actual": 126342, "budget": 90000 },
-
-    { "key": "attrition", "scope": "vero", "basis": "month", "actual": 76789, "budget": null },
-    { "key": "attrition", "scope": "vero", "basis": "ytd", "actual": 218281, "budget": null },
-    { "key": "attrition", "scope": "stuart", "basis": "month", "actual": 14218, "budget": null },
-    { "key": "attrition", "scope": "stuart", "basis": "ytd", "actual": 93335, "budget": null },
-    { "key": "attrition", "scope": "orlando", "basis": "month", "actual": 9396, "budget": null },
-    { "key": "attrition", "scope": "orlando", "basis": "ytd", "actual": 47728, "budget": null },
-    { "key": "attrition", "scope": "naples", "basis": "month", "actual": 3616, "budget": null },
-    { "key": "attrition", "scope": "naples", "basis": "ytd", "actual": 29572, "budget": null },
-
-    { "key": "attrition_rate", "scope": "vero", "basis": "month", "actual": 2.28, "budget": null },
-    { "key": "attrition_rate", "scope": "vero", "basis": "ytd", "actual": 6.49, "budget": null },
-    { "key": "attrition_rate", "scope": "stuart", "basis": "month", "actual": 1.35, "budget": null },
-    { "key": "attrition_rate", "scope": "stuart", "basis": "ytd", "actual": 8.86, "budget": null },
-    { "key": "attrition_rate", "scope": "orlando", "basis": "month", "actual": 0.80, "budget": null },
-    { "key": "attrition_rate", "scope": "orlando", "basis": "ytd", "actual": 4.08, "budget": null },
-    { "key": "attrition_rate", "scope": "naples", "basis": "month", "actual": 0.62, "budget": null },
-    { "key": "attrition_rate", "scope": "naples", "basis": "ytd", "actual": 5.07, "budget": null }
+    {
+      "key": "production",
+      "scope": "company",
+      "basis": "month",
+      "actual": 568780,
+      "budget": 544081
+    },
+    {
+      "key": "production",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 3375694,
+      "budget": 3285245
+    },
+    {
+      "key": "production",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 6889080,
+      "budget": 6787976
+    },
+    {
+      "key": "net_revenue",
+      "scope": "company",
+      "basis": "month",
+      "actual": 566859,
+      "budget": 542679
+    },
+    {
+      "key": "net_revenue",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 3364898,
+      "budget": 3276831
+    },
+    {
+      "key": "net_revenue",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 6868479,
+      "budget": 6771148
+    },
+    {
+      "key": "route_contrib",
+      "scope": "company",
+      "basis": "month",
+      "actual": 220634,
+      "budget": 225386
+    },
+    {
+      "key": "route_contrib",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 1386745,
+      "budget": 1344473
+    },
+    {
+      "key": "route_contrib",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 2825603,
+      "budget": 2840340
+    },
+    {
+      "key": "route_contrib_pct",
+      "scope": "company",
+      "basis": "month",
+      "actual": 38.79,
+      "budget": 41.43
+    },
+    {
+      "key": "route_contrib_pct",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 41.08,
+      "budget": 40.92
+    },
+    {
+      "key": "route_contrib_pct",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 41.02,
+      "budget": 41.84
+    },
+    {
+      "key": "operating_income",
+      "scope": "company",
+      "basis": "month",
+      "actual": 25823,
+      "budget": 65518
+    },
+    {
+      "key": "operating_income",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 359504,
+      "budget": 406636
+    },
+    {
+      "key": "operating_income",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 755180,
+      "budget": 921974
+    },
+    {
+      "key": "ebitda",
+      "scope": "company",
+      "basis": "month",
+      "actual": 43898,
+      "budget": 73601
+    },
+    {
+      "key": "ebitda",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 404742,
+      "budget": 436809
+    },
+    {
+      "key": "ebitda",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 852991,
+      "budget": 1008084
+    },
+    {
+      "key": "ebitda_pct",
+      "scope": "company",
+      "basis": "month",
+      "actual": 7.7,
+      "budget": 13.5
+    },
+    {
+      "key": "ebitda_pct",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 12.0,
+      "budget": 13.3
+    },
+    {
+      "key": "ebitda_pct",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 12.4,
+      "budget": 14.9
+    },
+    {
+      "key": "net_income",
+      "scope": "company",
+      "basis": "month",
+      "actual": -21847,
+      "budget": 107
+    },
+    {
+      "key": "net_income",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 55648,
+      "budget": -16926
+    },
+    {
+      "key": "net_income",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 74024,
+      "budget": -1908
+    },
+    {
+      "key": "tech_wages",
+      "scope": "company",
+      "basis": "month",
+      "actual": 142369,
+      "budget": 153374
+    },
+    {
+      "key": "tech_wages",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 828523,
+      "budget": 905741
+    },
+    {
+      "key": "tech_wages",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 1788720,
+      "budget": 1869815
+    },
+    {
+      "key": "fuel",
+      "scope": "company",
+      "basis": "month",
+      "actual": 15176,
+      "budget": 12132
+    },
+    {
+      "key": "fuel",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 91836,
+      "budget": 68395
+    },
+    {
+      "key": "fuel",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 182192,
+      "budget": 142274
+    },
+    {
+      "key": "chemical_expense",
+      "scope": "company",
+      "basis": "month",
+      "actual": 82462,
+      "budget": 62735
+    },
+    {
+      "key": "chemical_expense",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 437212,
+      "budget": 368704
+    },
+    {
+      "key": "chemical_expense",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 873647,
+      "budget": 752438
+    },
+    {
+      "key": "vehicle_rm",
+      "scope": "company",
+      "basis": "month",
+      "actual": 20506,
+      "budget": 11433
+    },
+    {
+      "key": "vehicle_rm",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 84834,
+      "budget": 69744
+    },
+    {
+      "key": "vehicle_rm",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 168894,
+      "budget": 138344
+    },
+    {
+      "key": "sga",
+      "scope": "company",
+      "basis": "month",
+      "actual": 194811,
+      "budget": 159868
+    },
+    {
+      "key": "sga",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 1027242,
+      "budget": 937837
+    },
+    {
+      "key": "sga",
+      "scope": "company",
+      "basis": "cy_forecast",
+      "actual": 2070424,
+      "budget": 1918366
+    },
+    {
+      "key": "ending_cash",
+      "scope": "company",
+      "basis": "month",
+      "actual": 344585,
+      "budget": null
+    },
+    {
+      "key": "book_value",
+      "scope": "company",
+      "basis": "month",
+      "actual": 6549886,
+      "budget": null
+    },
+    {
+      "key": "new_sales",
+      "scope": "company",
+      "basis": "month",
+      "actual": 138008,
+      "budget": 117000
+    },
+    {
+      "key": "new_sales",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 727739,
+      "budget": 592000
+    },
+    {
+      "key": "attrition",
+      "scope": "company",
+      "basis": "month",
+      "actual": 104019,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 388916,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "company",
+      "basis": "month",
+      "actual": 1.69,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "company",
+      "basis": "ytd",
+      "actual": 6.3,
+      "budget": null
+    },
+    {
+      "key": "production",
+      "scope": "vero",
+      "basis": "month",
+      "actual": 329772.6,
+      "budget": 276991.19
+    },
+    {
+      "key": "production",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 1841073.57,
+      "budget": 1670518.91
+    },
+    {
+      "key": "production",
+      "scope": "vero",
+      "basis": "cy_forecast",
+      "actual": 3646590.78,
+      "budget": 3367088.14
+    },
+    {
+      "key": "production",
+      "scope": "stuart",
+      "basis": "month",
+      "actual": 91849.81,
+      "budget": 74385.07
+    },
+    {
+      "key": "production",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 533920.25,
+      "budget": 500892.73
+    },
+    {
+      "key": "production",
+      "scope": "stuart",
+      "basis": "cy_forecast",
+      "actual": 1044556.2,
+      "budget": 990970.54
+    },
+    {
+      "key": "production",
+      "scope": "orlando",
+      "basis": "month",
+      "actual": 94800.44,
+      "budget": 96275.6
+    },
+    {
+      "key": "production",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 611929.71,
+      "budget": 618441.68
+    },
+    {
+      "key": "production",
+      "scope": "orlando",
+      "basis": "cy_forecast",
+      "actual": 1271833.43,
+      "budget": 1251204.77
+    },
+    {
+      "key": "production",
+      "scope": "naples",
+      "basis": "month",
+      "actual": 52356.49,
+      "budget": 52942.99
+    },
+    {
+      "key": "production",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 388768.48,
+      "budget": 298343.48
+    },
+    {
+      "key": "production",
+      "scope": "naples",
+      "basis": "cy_forecast",
+      "actual": 658454.07,
+      "budget": 560374.57
+    },
+    {
+      "key": "new_sales",
+      "scope": "vero",
+      "basis": "month",
+      "actual": 95571,
+      "budget": 40000
+    },
+    {
+      "key": "new_sales",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 384845,
+      "budget": 240000
+    },
+    {
+      "key": "new_sales",
+      "scope": "stuart",
+      "basis": "month",
+      "actual": 18292,
+      "budget": 33000
+    },
+    {
+      "key": "new_sales",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 110393,
+      "budget": 148000
+    },
+    {
+      "key": "new_sales",
+      "scope": "orlando",
+      "basis": "month",
+      "actual": 14275,
+      "budget": 29000
+    },
+    {
+      "key": "new_sales",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 106159,
+      "budget": 114000
+    },
+    {
+      "key": "new_sales",
+      "scope": "naples",
+      "basis": "month",
+      "actual": 9870,
+      "budget": 15000
+    },
+    {
+      "key": "new_sales",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 126342,
+      "budget": 90000
+    },
+    {
+      "key": "attrition",
+      "scope": "vero",
+      "basis": "month",
+      "actual": 76789,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 218281,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "stuart",
+      "basis": "month",
+      "actual": 14218,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 93335,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "orlando",
+      "basis": "month",
+      "actual": 9396,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 47728,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "naples",
+      "basis": "month",
+      "actual": 3616,
+      "budget": null
+    },
+    {
+      "key": "attrition",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 29572,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "vero",
+      "basis": "month",
+      "actual": 2.28,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 6.49,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "stuart",
+      "basis": "month",
+      "actual": 1.35,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 8.86,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "orlando",
+      "basis": "month",
+      "actual": 0.8,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 4.08,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "naples",
+      "basis": "month",
+      "actual": 0.62,
+      "budget": null
+    },
+    {
+      "key": "attrition_rate",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 5.07,
+      "budget": null
+    }
   ],
   "lob": [
-    { "scope": "vero", "lob": "Pest", "revenue": 66464 },
-    { "scope": "vero", "lob": "Rat", "revenue": 104599 },
-    { "scope": "vero", "lob": "Termite", "revenue": 125954 },
-    { "scope": "vero", "lob": "Fertilizer", "revenue": 12500 },
-    { "scope": "vero", "lob": "L&O", "revenue": 17154 },
-
-    { "scope": "stuart", "lob": "Pest", "revenue": 4485 },
-    { "scope": "stuart", "lob": "Rat", "revenue": 28083 },
-    { "scope": "stuart", "lob": "Termite", "revenue": 43243 },
-    { "scope": "stuart", "lob": "Fertilizer", "revenue": 5844 },
-    { "scope": "stuart", "lob": "L&O", "revenue": 12333 },
-
-    { "scope": "orlando", "lob": "Pest", "revenue": 79 },
-    { "scope": "orlando", "lob": "Rat", "revenue": 22335 },
-    { "scope": "orlando", "lob": "Termite", "revenue": 50057 },
-    { "scope": "orlando", "lob": "Fertilizer", "revenue": 2598 },
-    { "scope": "orlando", "lob": "L&O", "revenue": 20695 },
-
-    { "scope": "naples", "lob": "Pest", "revenue": 3355 },
-    { "scope": "naples", "lob": "Rat", "revenue": 9069 },
-    { "scope": "naples", "lob": "Termite", "revenue": 23888 },
-    { "scope": "naples", "lob": "Fertilizer", "revenue": 14094 },
-    { "scope": "naples", "lob": "L&O", "revenue": 1950 },
-
-    { "scope": "company", "lob": "Pest", "revenue": 74383 },
-    { "scope": "company", "lob": "Rat", "revenue": 164086 },
-    { "scope": "company", "lob": "Termite", "revenue": 243142 },
-    { "scope": "company", "lob": "Fertilizer", "revenue": 35036 },
-    { "scope": "company", "lob": "L&O", "revenue": 52132 }
+    {
+      "scope": "company",
+      "lob": "Pest",
+      "revenue": 221499
+    },
+    {
+      "scope": "company",
+      "lob": "L&O",
+      "revenue": 164086
+    },
+    {
+      "scope": "company",
+      "lob": "Fertilizer",
+      "revenue": 74383
+    },
+    {
+      "scope": "company",
+      "lob": "Termite",
+      "revenue": 52132
+    },
+    {
+      "scope": "company",
+      "lob": "Rat",
+      "revenue": 35036
+    },
+    {
+      "scope": "company",
+      "lob": "Other",
+      "revenue": 21643
+    },
+    {
+      "scope": "vero",
+      "lob": "Pest",
+      "revenue": 108699
+    },
+    {
+      "scope": "vero",
+      "lob": "L&O",
+      "revenue": 104599
+    },
+    {
+      "scope": "vero",
+      "lob": "Fertilizer",
+      "revenue": 66464
+    },
+    {
+      "scope": "vero",
+      "lob": "Termite",
+      "revenue": 17154
+    },
+    {
+      "scope": "vero",
+      "lob": "Rat",
+      "revenue": 12500
+    },
+    {
+      "scope": "vero",
+      "lob": "Other",
+      "revenue": 17255
+    },
+    {
+      "scope": "stuart",
+      "lob": "Pest",
+      "revenue": 41690
+    },
+    {
+      "scope": "stuart",
+      "lob": "L&O",
+      "revenue": 28083
+    },
+    {
+      "scope": "stuart",
+      "lob": "Termite",
+      "revenue": 12333
+    },
+    {
+      "scope": "stuart",
+      "lob": "Rat",
+      "revenue": 5844
+    },
+    {
+      "scope": "stuart",
+      "lob": "Fertilizer",
+      "revenue": 4485
+    },
+    {
+      "scope": "stuart",
+      "lob": "Other",
+      "revenue": 1553
+    },
+    {
+      "scope": "orlando",
+      "lob": "Pest",
+      "revenue": 49207
+    },
+    {
+      "scope": "orlando",
+      "lob": "L&O",
+      "revenue": 22335
+    },
+    {
+      "scope": "orlando",
+      "lob": "Termite",
+      "revenue": 20695
+    },
+    {
+      "scope": "orlando",
+      "lob": "Rat",
+      "revenue": 2598
+    },
+    {
+      "scope": "orlando",
+      "lob": "Fertilizer",
+      "revenue": 79
+    },
+    {
+      "scope": "orlando",
+      "lob": "Other",
+      "revenue": 850
+    },
+    {
+      "scope": "naples",
+      "lob": "Pest",
+      "revenue": 21903
+    },
+    {
+      "scope": "naples",
+      "lob": "Rat",
+      "revenue": 14094
+    },
+    {
+      "scope": "naples",
+      "lob": "L&O",
+      "revenue": 9069
+    },
+    {
+      "scope": "naples",
+      "lob": "Fertilizer",
+      "revenue": 3355
+    },
+    {
+      "scope": "naples",
+      "lob": "Termite",
+      "revenue": 1950
+    },
+    {
+      "scope": "naples",
+      "lob": "Other",
+      "revenue": 1985
+    }
   ],
   "techProduction": [
-    { "scope": "vero", "name": "20 JASON", "lob": "Manager", "actual": 5901.16, "budget": 3417.16 },
-    { "scope": "vero", "name": "01 JOSH", "lob": "PC", "actual": 21014.05, "budget": 21595.05 },
-    { "scope": "vero", "name": "02 RUSTY", "lob": "PC", "actual": 23000.15, "budget": 19378.40 },
-    { "scope": "vero", "name": "03 CHAD", "lob": "PC", "actual": 20392.79, "budget": 19549.94 },
-    { "scope": "vero", "name": "07 STEVE", "lob": "PC", "actual": 21710.35, "budget": 23738.51 },
-    { "scope": "vero", "name": "10 COTE", "lob": "PC", "actual": 20658.49, "budget": 19048.50 },
-    { "scope": "vero", "name": "14 BEN", "lob": "LO/HOA", "actual": 0.00, "budget": 47259.76 },
-    { "scope": "vero", "name": "19 GUS", "lob": "LO/HOA", "actual": 36023.95, "budget": 0.00 },
-    { "scope": "vero", "name": "16 JACOB", "lob": "LO/HOA", "actual": 8673.00, "budget": 7092.36 },
-    { "scope": "vero", "name": "26 ROB", "lob": "LO", "actual": 53884.50, "budget": 35864.33 },
-    { "scope": "vero", "name": "05 MIKE", "lob": "LO", "actual": 36424.20, "budget": 28850.00 },
-    { "scope": "vero", "name": "25 LOGAN", "lob": "LO", "actual": 36617.46, "budget": 29166.36 },
-    { "scope": "vero", "name": "15 CHRIS T", "lob": "LO", "actual": 18963.50, "budget": 18545.00 },
-    { "scope": "vero", "name": "18 JUSTIN", "lob": "Service", "actual": 0.00, "budget": 279.00 },
-    { "scope": "vero", "name": "12 MATT", "lob": "Service", "actual": 18505.00, "budget": 0.00 },
-    { "scope": "vero", "name": "22 TIM", "lob": "Exec", "actual": 975.00, "budget": 165.00 },
-    { "scope": "vero", "name": "23 GRAHAM", "lob": "Manager", "actual": 7029.00, "budget": 3041.82 },
-
-    { "scope": "stuart", "name": "201 ADAM", "lob": "Manager", "actual": 14999.90, "budget": 772.50 },
-    { "scope": "stuart", "name": "205 JESSE", "lob": "PC", "actual": 21827.04, "budget": 16688.51 },
-    { "scope": "stuart", "name": "208 JAVIER", "lob": "LO", "actual": 0.00, "budget": 25880.44 },
-    { "scope": "stuart", "name": "208MAURICE", "lob": "LO", "actual": 22595.95, "budget": 0.00 },
-    { "scope": "stuart", "name": "210 JASON", "lob": "PC", "actual": 15596.98, "budget": 16297.62 },
-    { "scope": "stuart", "name": "211 MIKE V", "lob": "PC", "actual": 16829.94, "budget": 14746.00 },
-
-    { "scope": "orlando", "name": "302 TED", "lob": "Manager", "actual": 13859.75, "budget": 1568.75 },
-    { "scope": "orlando", "name": "301 STEVE", "lob": "PC", "actual": 10581.75, "budget": 6019.75 },
-    { "scope": "orlando", "name": "303 DAVID", "lob": "PC", "actual": 23598.00, "budget": 17004.67 },
-    { "scope": "orlando", "name": "304 JOSH", "lob": "PC", "actual": 2589.00, "budget": 0.00 },
-    { "scope": "orlando", "name": "309 LUIS", "lob": "PC", "actual": 20039.75, "budget": 21518.50 },
-    { "scope": "orlando", "name": "308 OZ", "lob": "Service", "actual": 0.00, "budget": 5249.00 },
-    { "scope": "orlando", "name": "310 SARAH", "lob": "PC/Sentricon", "actual": 23541.19, "budget": 18979.84 },
-    { "scope": "orlando", "name": "47 SENTR", "lob": "PC/Sentricon", "actual": 0.00, "budget": 6189.75 },
-    { "scope": "orlando", "name": "312 DARIUS", "lob": "LO", "actual": 0.00, "budget": 19745.34 },
-    { "scope": "orlando", "name": "311 SAM", "lob": "LO", "actual": 591.00, "budget": 0.00 },
-
-    { "scope": "naples", "name": "404 COREY", "lob": "Manager", "actual": 8620.00, "budget": 1037.00 },
-    { "scope": "naples", "name": "404 COREY One-Time", "lob": "One-Time", "actual": 0.00, "budget": 10605.00 },
-    { "scope": "naples", "name": "401 CHASE", "lob": "PC", "actual": 14508.00, "budget": 0.00 },
-    { "scope": "naples", "name": "403 JASON", "lob": "PC", "actual": 16864.25, "budget": 7333.25 },
-    { "scope": "naples", "name": "405 TYLER", "lob": "LO", "actual": 12364.24, "budget": 13001.74 },
-    { "scope": "naples", "name": "401 KELLEN", "lob": "PC", "actual": 0.00, "budget": 20966.00 }
+    {
+      "scope": "vero",
+      "name": "20 JASON",
+      "lob": "Manager",
+      "actual": 5901.16,
+      "budget": 3417.16
+    },
+    {
+      "scope": "vero",
+      "name": "01 JOSH",
+      "lob": "PC",
+      "actual": 21014.05,
+      "budget": 21595.05
+    },
+    {
+      "scope": "vero",
+      "name": "02 RUSTY",
+      "lob": "PC",
+      "actual": 23000.15,
+      "budget": 19378.4
+    },
+    {
+      "scope": "vero",
+      "name": "03 CHAD",
+      "lob": "PC",
+      "actual": 20392.79,
+      "budget": 19549.94
+    },
+    {
+      "scope": "vero",
+      "name": "07 STEVE",
+      "lob": "PC",
+      "actual": 21710.35,
+      "budget": 23738.51
+    },
+    {
+      "scope": "vero",
+      "name": "10 COTE",
+      "lob": "PC",
+      "actual": 20658.49,
+      "budget": 19048.5
+    },
+    {
+      "scope": "vero",
+      "name": "14 BEN",
+      "lob": "LO/HOA",
+      "actual": 0.0,
+      "budget": 47259.76
+    },
+    {
+      "scope": "vero",
+      "name": "19 GUS",
+      "lob": "LO/HOA",
+      "actual": 36023.95,
+      "budget": 0.0
+    },
+    {
+      "scope": "vero",
+      "name": "16 JACOB",
+      "lob": "LO/HOA",
+      "actual": 8673.0,
+      "budget": 7092.36
+    },
+    {
+      "scope": "vero",
+      "name": "26 ROB",
+      "lob": "LO",
+      "actual": 53884.5,
+      "budget": 35864.33
+    },
+    {
+      "scope": "vero",
+      "name": "05 MIKE",
+      "lob": "LO",
+      "actual": 36424.2,
+      "budget": 28850.0
+    },
+    {
+      "scope": "vero",
+      "name": "25 LOGAN",
+      "lob": "LO",
+      "actual": 36617.46,
+      "budget": 29166.36
+    },
+    {
+      "scope": "vero",
+      "name": "15 CHRIS T",
+      "lob": "LO",
+      "actual": 18963.5,
+      "budget": 18545.0
+    },
+    {
+      "scope": "vero",
+      "name": "18 JUSTIN",
+      "lob": "Service",
+      "actual": 0.0,
+      "budget": 279.0
+    },
+    {
+      "scope": "vero",
+      "name": "12 MATT",
+      "lob": "Service",
+      "actual": 18505.0,
+      "budget": 0.0
+    },
+    {
+      "scope": "vero",
+      "name": "22 TIM",
+      "lob": "Exec",
+      "actual": 975.0,
+      "budget": 165.0
+    },
+    {
+      "scope": "vero",
+      "name": "23 GRAHAM",
+      "lob": "Manager",
+      "actual": 7029.0,
+      "budget": 3041.82
+    },
+    {
+      "scope": "stuart",
+      "name": "201 ADAM",
+      "lob": "Manager",
+      "actual": 14999.9,
+      "budget": 772.5
+    },
+    {
+      "scope": "stuart",
+      "name": "205 JESSE",
+      "lob": "PC",
+      "actual": 21827.04,
+      "budget": 16688.51
+    },
+    {
+      "scope": "stuart",
+      "name": "208 JAVIER",
+      "lob": "LO",
+      "actual": 0.0,
+      "budget": 25880.44
+    },
+    {
+      "scope": "stuart",
+      "name": "208MAURICE",
+      "lob": "LO",
+      "actual": 22595.95,
+      "budget": 0.0
+    },
+    {
+      "scope": "stuart",
+      "name": "210 JASON",
+      "lob": "PC",
+      "actual": 15596.98,
+      "budget": 16297.62
+    },
+    {
+      "scope": "stuart",
+      "name": "211 MIKE V",
+      "lob": "PC",
+      "actual": 16829.94,
+      "budget": 14746.0
+    },
+    {
+      "scope": "orlando",
+      "name": "302 TED",
+      "lob": "Manager",
+      "actual": 13859.75,
+      "budget": 1568.75
+    },
+    {
+      "scope": "orlando",
+      "name": "301 STEVE",
+      "lob": "PC",
+      "actual": 10581.75,
+      "budget": 6019.75
+    },
+    {
+      "scope": "orlando",
+      "name": "303 DAVID",
+      "lob": "PC",
+      "actual": 23598.0,
+      "budget": 17004.67
+    },
+    {
+      "scope": "orlando",
+      "name": "304 JOSH",
+      "lob": "PC",
+      "actual": 2589.0,
+      "budget": 0.0
+    },
+    {
+      "scope": "orlando",
+      "name": "309 LUIS",
+      "lob": "PC",
+      "actual": 20039.75,
+      "budget": 21518.5
+    },
+    {
+      "scope": "orlando",
+      "name": "308 OZ",
+      "lob": "Service",
+      "actual": 0.0,
+      "budget": 5249.0
+    },
+    {
+      "scope": "orlando",
+      "name": "310 SARAH",
+      "lob": "PC/Sentricon",
+      "actual": 23541.19,
+      "budget": 18979.84
+    },
+    {
+      "scope": "orlando",
+      "name": "47 SENTR",
+      "lob": "PC/Sentricon",
+      "actual": 0.0,
+      "budget": 6189.75
+    },
+    {
+      "scope": "orlando",
+      "name": "312 DARIUS",
+      "lob": "LO",
+      "actual": 0.0,
+      "budget": 19745.34
+    },
+    {
+      "scope": "orlando",
+      "name": "311 SAM",
+      "lob": "LO",
+      "actual": 591.0,
+      "budget": 0.0
+    },
+    {
+      "scope": "naples",
+      "name": "404 COREY",
+      "lob": "Manager",
+      "actual": 8620.0,
+      "budget": 1037.0
+    },
+    {
+      "scope": "naples",
+      "name": "404 COREY One-Time",
+      "lob": "One-Time",
+      "actual": 0.0,
+      "budget": 10605.0
+    },
+    {
+      "scope": "naples",
+      "name": "401 CHASE",
+      "lob": "PC",
+      "actual": 14508.0,
+      "budget": 0.0
+    },
+    {
+      "scope": "naples",
+      "name": "403 JASON",
+      "lob": "PC",
+      "actual": 16864.25,
+      "budget": 7333.25
+    },
+    {
+      "scope": "naples",
+      "name": "405 TYLER",
+      "lob": "LO",
+      "actual": 12364.24,
+      "budget": 13001.74
+    },
+    {
+      "scope": "naples",
+      "name": "401 KELLEN",
+      "lob": "PC",
+      "actual": 0.0,
+      "budget": 20966.0
+    }
   ]
 }
