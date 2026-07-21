@@ -72,8 +72,8 @@ export const PTO_NAV_ITEM: NavItem = {
   icon: "M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4",
 };
 
-// Manager oversight checklists — the recurring weekly + monthly attested
-// sign-offs. Surfaced in the inventory-center nav for managers/admins.
+// Manager oversight checklists — the recurring weekly attested sign-offs.
+// Surfaced in the My Branch (manager) nav for managers/admins.
 export const CHECKLISTS_NAV_ITEM: NavItem = {
   href: "/checklists",
   label: "Checklists",
@@ -107,7 +107,8 @@ export const MANUAL_NAV_ITEM: NavItem = {
   icon: "M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V4H6.5A2.5 2.5 0 004 6.5v13zM9 8h7M9 12h7",
 };
 
-// Company-wide bulletin — reachable from every center's nav.
+// Company-wide bulletin — lives in the Resources section of the shell (and in
+// the board-observer's fixed nav, which has no Resources group).
 export const BULLETIN_NAV_ITEM: NavItem = {
   href: "/bulletin",
   label: "Company Bulletin",
@@ -129,7 +130,6 @@ export const EMPLOYEE_NAV: NavItem[] = [
     shortLabel: "Library",
     icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM8 7h6M8 11h8M8 15h8",
   },
-  BULLETIN_NAV_ITEM,
 ];
 
 // Branch-manager home: their operational dashboard — reminders, this month's
@@ -177,7 +177,7 @@ export const MANAGER_NAV: NavItem[] = [
     shortLabel: "Score",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
-  BULLETIN_NAV_ITEM,
+  CHECKLISTS_NAV_ITEM,
 ];
 
 export const INVENTORY_NAV: NavItem[] = [
@@ -217,8 +217,6 @@ export const INVENTORY_NAV: NavItem[] = [
     shortLabel: "Alerts",
     icon: "M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0",
   },
-  CHECKLISTS_NAV_ITEM,
-  BULLETIN_NAV_ITEM,
 ];
 
 export const MANAGEMENT_NAV: NavItem[] = [
@@ -279,7 +277,6 @@ export const MANAGEMENT_NAV: NavItem[] = [
   },
   COMPLIANCE_NAV_ITEM,
   CHECKLIST_OVERSIGHT_NAV_ITEM,
-  BULLETIN_NAV_ITEM,
 ];
 
 // Board Observer — a distinct, strictly read-only principal (board members who
@@ -328,7 +325,6 @@ export const FLEET_NAV: NavItem[] = [
     shortLabel: "Fuel",
     icon: "M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4",
   },
-  BULLETIN_NAV_ITEM,
 ];
 
 // Back-compat: default export used by older imports.

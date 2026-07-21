@@ -168,11 +168,12 @@ export default function AppShell({
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver;
-  // Resources / document center. Handbook is for everyone; the Manager Manual is
-  // managers/admin only. Board observers keep their fixed nav untouched.
+  // Resources / document center. Handbook + Company Bulletin are for everyone;
+  // the Manager Manual is managers/admin only. Board observers keep their fixed
+  // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).
   const resources: NavItem[] = isBoardObserver
     ? []
-    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : [])];
+    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : []), BULLETIN_NAV_ITEM];
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = [...items, ...resources]
     .map((i) => i.href)
