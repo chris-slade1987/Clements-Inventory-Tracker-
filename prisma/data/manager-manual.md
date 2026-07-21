@@ -1,8 +1,8 @@
 # Clements Manager Operating Manual
 
-**Version 1**  ·  Last updated July 20, 2026
+**Version 2**  ·  Last updated July 21, 2026
 
-*This is a living, manager-only reference. It preserves the original operating manual and has been updated to reflect what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**.
+*This is a living, manager-only reference. It preserves the original operating manual and has been reconciled against what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**. *Version 2 replaces the last remaining paper-form procedures — the routine vehicle/equipment maintenance logs and the monthly vehicle inspection form — with the Fleet "Log Service" and digital inspection workflows they became, and corrects the inventory escalation contacts.*
 
 ## What's new in the portal
 
@@ -76,7 +76,7 @@ Ultimately, being a manager at Clements Pest Control means taking ownership—no
 
 ## 2. Weekly Responsibilities
 
-> **Portal (v1) — these weekly tasks are now tracked in the portal.** Your recurring weekly oversight items are an **attested checklist**: open **Checklists → Weekly**, work the list, and sign off with your typed signature. Leadership sees a **completion rollup** across branches. Weekly inventory disbursements are no longer keyed into a spreadsheet — they are recorded live on the **Check-Out** screen (see *Inventory Process & Procedure*).
+> **Portal (v1) — these weekly tasks are now tracked in the portal.** Your recurring weekly oversight items are an **attested checklist**: open **Checklists → Weekly**, work the list, and sign off with your typed signature. Leadership sees a **completion rollup** across branches, and a week you don't sign off is recorded as a **missed checklist** that only the CEO or HR can clear — so keep them current. Weekly inventory disbursements are no longer keyed into a spreadsheet — they are recorded live on the **Check-Out** screen (see *Inventory Process & Procedure*).
 
 While no two weeks are exactly the same, strong leadership comes from consistency. The weekly responsibilities of a Clements manager are designed to keep operations smooth, teams aligned, and goals on track. These tasks aren’t just checkboxes—they’re opportunities to lead proactively, identify potential issues early, and ensure the team has the support and resources they need to succeed.
 
@@ -483,6 +483,8 @@ Step 5: PestPac Follow-Up
 
 ## New Vehicle Onboarding Checklist
 
+> **Portal (v1).** Add the vehicle in **Fleet** (`/fleet` → Add vehicle) so it has a record from day one, then file its **registration, title, and insurance** in the vehicle's **document center** (with expiry reminders) rather than only in a physical folder. The physical glove-box copies below are still required for the field; the portal is the durable, searchable record.
+
 - Administrative Documents:
   - Registration: Ensure vehicle registration is complete and stored in the designated folder.
   - Bill of Sale: Include a copy of the bill of sale for record-keeping.
@@ -538,31 +540,37 @@ Vehicle Interior Cleaning:
 
 ## Routine Vehicle Maintenance Log
 
-*This form should remain in the glove box of each fleet vehicle. Technicians and managers must log all routine maintenance performed, including the date, mileage, and type of service.*
+> **Portal (v1) — the glove-box paper log is retired. Routine maintenance is now logged in Fleet.**
 
-Vehicle No. ___ Year ___________ Make _________________ Model ___________
+Every service performed on a fleet vehicle is recorded in the portal, not on a paper sheet in the glove box:
 
-Driver ______________________________
+- **Log Service** (Fleet → **Log Service**, `/fleet/service`; admin). Record maintenance either by **typing it in** — vendor, invoice #, date, and one or more charge lines (vehicle, service type: oil change / preventive maintenance / repair / tires / inspection / other, cost, mileage, description) — or by **uploading the shop invoice or statement**, which the AI reader parses into line items for you to confirm before saving. A single statement can bill several trucks; each charge is matched to a vehicle (by plate, VIN, or unit number) and you confirm the match before it posts. Saving a service with a higher odometer reading automatically advances that vehicle's mileage.
+- The vehicle's full **service history** and running **maintenance cost** (total, year-to-date, and cost-per-mile) appear on its record at Fleet → the vehicle (`/fleet/{id}`). The Fleet overview flags any vehicle **due for service** (within 30 days or 1,000 miles).
+- During the **monthly vehicle inspection** (below), Section B — *Routine maintenance log review* — shows the last and next oil change and tire rotation, prefilled from logged services, so the reviewer can confirm maintenance is current.
+
+Managers are still responsible for making sure routine maintenance is performed on schedule; the portal is now where it is recorded and where "due for service" is surfaced.
 
 ## Routine Small Machinery/ Equipment Maintenance Log
 
-*This form should remain hung up in each warehouse. Technicians and managers must log all routine maintenance performed, including the date, and type of service.*
+> **Portal (v1) — the wall-mounted paper log is retired for anything tracked as a fleet asset.**
 
-Vehicle No. ___ Year ___________ Make _________________ Model ___________
+Powered equipment set up as a **fleet asset** (e.g. a truck-mounted rig) is serviced through the same Fleet → **Log Service** flow as vehicles, and its condition is checked on the monthly inspection (toolbox / truck-bed condition and the "equipment working" compliance item).
 
-Driver ______________________________
+**Verify / open item:** small warehouse machinery that is *not* a fleet vehicle (backpack sprayers, B&G units, mist blowers, etc.) does not yet have a dedicated maintenance module in the portal. Until one exists, record routine service for these items in the branch's monthly **Warehouse Safety Inspection** notes (My Branch → Warehouse Inspection) and raise anything needing repair with your Director of Field Operations. Confirm with leadership how small-equipment maintenance should be captured going forward.
 
 ## Vehicle Inspection Form
 
-Technician Name:_______________ Inspection Date: _______________
+> **Portal (v1) — the monthly vehicle inspection is now a digital, graded form.**
 
-Inspectors Name:_______________
+Complete each vehicle's monthly inspection in the portal from **My Branch → Vehicle Inspections**, then **Start inspection** on the vehicle (`/fleet/{id}/inspect`). Branch managers see only their own branch's vehicles, and one inspection is saved per vehicle per month.
 
-Routine Vehicle Maintenance Log Review
+The form scores out of **20 points** and assigns a letter grade (A ≥ 90%, B ≥ 80%, C ≥ 70%, D ≥ 60%, else F):
 
-Required By: FDACS/Insurance/Vehicle Maintenance 1pt Each
+- **Section A — Condition** (12 pts): outside, inside, toolbox, and truck-bed each rated 1–3 (Below / Meets / Exceeds), with room to note issues to address.
+- **Section B — Routine maintenance log review** (not scored): last and next oil change and tire rotation, prefilled from logged services (see *Routine Vehicle Maintenance Log* above).
+- **Section C — Compliance** (8 pts, 1 each): FDACS employee ID card, pesticides locked, containers labeled, PPE present, vehicle signage, equipment working, insurance & registration on board, and oil current. Several of these are flagged **critical**.
 
-Notes:________________________________________________
+A live score bar shows the grade and any critical failures as you fill it out. **A critical compliance failure raises an alert to leadership automatically**, and the graded technician is emailed their score. Inspection completeness feeds the branch's quarterly scorecard — a quarter counts as complete only when every active vehicle has been inspected in every month.
 
 ## Spare Service Vehicle Checklist
 
@@ -591,6 +599,8 @@ Items Needed From Your Vehicle
 NOTE: When you are finished using the spare vehicle, you must notify your supervisor and assist them in restocking the vehicle with the items listed above.
 
 ## Workplace Accidents
+
+> **Portal (v1) — the Workplace Accident Report is now filed in the portal.** The on-scene response steps below (evaluate, get medical help, notify your supervisor, preserve the scene) are unchanged. The **report itself** is filed as an **Accident report** personnel record from **My Branch → My Team → the employee** (`/my-branch/team/{id}`): it captures the accident and injury details and the supervisor checklist, auto-captures the **supervisor's certification signature**, collects the **employee's** (and any **witness's**) signature in-app or by signing link, and notifies HR, the Director of Field Operations, the COO, and the Owner automatically. You no longer submit a hardcopy or save a scan to the Management Drive. The paper template is retained below for reference and for on-scene use when a device isn't handy.
 
 ## Reporting a Workplace Accident
 
@@ -865,7 +875,7 @@ Every stock change is a **movement**. On-hand for a product at a warehouse is th
 
 ### Over-dispense hard stop
 
-If a check-out would drive on-hand **negative**, the portal **blocks it** with a pop-up. **No one can override the block by dispensing into the negative.** The pop-up explains the next steps: recount the shelf, re-log what was actually taken, or reconcile the discrepancy. From the block you can start a **one-click escalation group chat** to senior management — the **Chief of Staff**, the **Director of Field Operations**, and the **CEO** — so a real shortage is surfaced immediately instead of being papered over.
+If a check-out would drive on-hand **negative**, the portal **blocks it** with a pop-up. **No one can override the block by dispensing into the negative.** The pop-up explains the next steps: recount the shelf, re-log what was actually taken, or reconcile the discrepancy. From the block you can start a **one-click escalation group chat** to senior management — the **Chief of Staff** (Julie Glanville), the **Director of Field Operations** (Graham Foster), and the **COO** (Chris Slade) — so a real shortage is surfaced immediately instead of being papered over.
 
 ### Month-end physical reconciliation
 
@@ -873,7 +883,20 @@ Physical counts are reconciled on the **Reconcile** screen. You enter the counte
 
 ### Approved-product catalog, units & divisions
 
-The portal maintains the CEO's **approved-product catalog** with governed units and case **pack sizes**. Every product is classified by **line-of-service division** — **GHP** (General Household Pest), **L&O** (Lawn & Ornamental), **Mosquito**, **Termite**, **Rodent**, or **Other** — so purchasing and usage can be read by division. **Low-stock alerts** flag products running low so managers can spot purchasing patterns and reorder before they run out.
+The portal maintains the CEO's **approved-product catalog** with governed units and case **pack sizes**. Every product is classified by **line-of-service division** — **GHP** (General Household Pest), **L&O** (Lawn & Ornamental), **Mosquito**, **Termite**, **Rodent**, or **Other** — so purchasing and usage can be read by division.
+
+### Alerts
+
+The **Alerts** screen watches your inventory automatically (checks run on each check-in and on demand via "Run checks now"):
+
+- **Low stock / reorder** — learns each product's usage rate and reorder cadence and flags items at or below their reorder point (critical when already out).
+- **Price increase** — flags a distributor's unit price rising above its trailing average by more than the configurable threshold (default 10%).
+- **Duplicate invoice** — catches a repeated distributor invoice number, or a matching date + total.
+- **Negative stock** — flags any product showing below zero on hand.
+- **Quantity spike** — flags a check-out far larger than a product's norm.
+- **Cost-saving opportunity** — surfaces a cheaper equivalent product or the same product cheaper from another distributor.
+
+Acknowledge, dismiss, or **Discuss** (open a thread) any alert. This is how purchasing patterns are spotted and how reordering is driven day to day.
 
 ## Paid Time Off (PTO)
 
@@ -1029,17 +1052,17 @@ It is imperative that all documents above are properly recorded, stored and orga
 
 > **Portal (v1).** The monthly warehouse safety inspection is completed in the portal (**My Branch → Warehouse Inspection**), which scores each branch and feeds the quarterly scorecard. Supporting branch documents and licenses live in the **Branch Hub** document center with expiry reminders.
 
-In accordance with Florida Statute 482 and associated administrative rules, this form must be completed monthly by the warehouse manager or designated safety officer. Inspections should confirm compliance with chemical storage, safety equipment availability, and overall cleanliness and organization. Any deficiencies must be corrected promptly, and documentation maintained for inspection by the Florida Department of Agriculture and Consumer Services (FDACS).
+In accordance with Florida Statute 482 and associated administrative rules, the warehouse manager or designated safety officer completes this inspection **monthly**. It confirms compliance with chemical storage, safety-equipment availability, and overall cleanliness and organization. Any deficiencies must be corrected promptly, and the record is retained in the portal for inspection by the Florida Department of Agriculture and Consumer Services (FDACS).
 
-Inspector Name: ___________________________
+Complete it at **My Branch → Warehouse Inspection** (`/my-branch/warehouse` → **Start inspection**). The digital form covers three sections — chemical storage & handling, safety equipment & PPE, and facility & emergency readiness — each answered Yes/No, with a corrective-action note required on any "No." One inspection is saved per branch per month.
 
-Date of Inspection: ________________________
-
-Signature: ________________________________
+The inspector and date are captured automatically from your sign-in; there is no paper form to sign — your submission is the attested record. The form is scored and letter-graded, a **critical failure raises an alert to leadership automatically**, and the result feeds the branch's quarterly scorecard.
 
 ## Disciplinary / Termination
 
 ## Employee Disciplinary Action Procedure
+
+> **Portal (v1) — write-ups are now filed in the portal, not as an editable PDF on the drive.** File a disciplinary record from **My Branch → My Team**, open the team member, and add a **Write-up** record (`/my-branch/team/{id}`). The form carries the Disciplinary Action Form fields (type: verbal / written / suspension / termination, incident details, policy violated, action plan). Your **supervisor e-signature is captured automatically** when you file it, and the record is routed to HR (and, for write-ups, to the Director of Field Operations, the COO, and the Owner) automatically. Collect the **employee's** and **HR's** signatures in-app or by sending a one-time signing link. The procedure below still governs *when* and *how* discipline is applied; the portal is where the record and signatures live. (Branch managers can file only on their own branch's team.)
 
 To ensure consistency and fairness in addressing employee conduct and performance issues, the following disciplinary action procedure shall be followed across all departments.
 
@@ -1115,6 +1138,8 @@ Signatures:
 Acknowledgment: By signing this form, I acknowledge that I have discussed the contents with my supervisor and understand the details of the incident, the corrective actions required, and the consequences of non-compliance.
 
 ## Termination Policy
+
+> **Portal (v1) — the separation is recorded in the portal.** After the meeting, HR records the departure on the employee's profile in **People / HR** (`/management/people/{id}` → Offboarding): separation type (voluntary / involuntary / layoff / other), reason, last day, and rehire eligibility. Filing it moves the employee to **inactive**, **disables their portal login automatically**, and opens an **exit interview** (which HR completes, or marks as bypassed). Rehire re-activates the profile and login. The in-person meeting and documentation steps below still stand; the portal is the record.
 
 #### Termination Process & Procedure
 

@@ -1,8 +1,8 @@
 # Clements Pest Control — Employee Handbook
 
-**Version 1**  ·  Effective July 20, 2026
+**Version 2**  ·  Effective July 21, 2026
 
-*This is the current employee handbook for Clements Pest Control. It is the same handbook you receive on hire; it is reproduced here so it is always available and so your acknowledgment can be recorded electronically. Policy language is unchanged. Employment with Clements Pest Control is at-will (see the Handbook Disclaimer at the end).*
+*This is the current employee handbook for Clements Pest Control. It is the same handbook you receive on hire; it is reproduced here so it is always available and so your acknowledgment can be recorded electronically. Policy entitlements are unchanged from Version 1; Version 2 updates one factual mechanic — PTO requests are now submitted through the Clements portal rather than Paychex Flex (the advance-notice windows and all other PTO rules are unchanged). Employment with Clements Pest Control is at-will (see the Handbook Disclaimer at the end).*
 
 ## Contents
 
@@ -947,8 +947,8 @@ Paid Time Off “PTO” & Attendance Policy Administrative / Customer Service & 
 
 Annual PTO Accrual Beginning the calendar year after their hire date, eligible employees will accrue 10 PTO days per year.
 
-- Administrative/Customer Service PTO requests must be submitted via Paychex Flex at least 2 weeks in advance.
-- Service Technicians PTO requests must be submitted via Paychex Flex at least 3 weeks in advance.
+- Administrative/Customer Service PTO requests must be submitted through the Clements portal at least 2 weeks in advance.
+- Service Technicians PTO requests must be submitted through the Clements portal at least 3 weeks in advance.
 - PTO days are not redeemable for payout. Unused PTO will not rollover to the following calendar year.
 - At 10 years of service employee will earn additional 5 days
 - PTO allotment is capped at 15 days.

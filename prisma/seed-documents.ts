@@ -4,9 +4,10 @@ import type { PrismaClient } from "@prisma/client";
 
 // Seed the document center from the Markdown sources in prisma/data. Idempotent
 // upsert by slug: refreshes title/summary/body/effective/audience/kind without
-// touching acknowledgments (append-only) and WITHOUT bumping the version — the
-// version is bumped deliberately, not on every content tweak. A brand-new doc is
-// created at version 1.
+// touching acknowledgments (append-only). The version is bumped ONLY when the
+// `version` declared in DOCS below is raised deliberately — the seed moves the
+// stored version forward to match (never downgrades), so an ordinary content
+// tweak keeps the version while a real new edition re-prompts acknowledgers.
 
 type DocSeed = {
   slug: string;
@@ -16,6 +17,11 @@ type DocSeed = {
   file: string;
   summary: string;
   effective: string;
+  // The intended published version. Bumped deliberately when the content
+  // change is a new *published* version (re-prompts acknowledgers). The seed
+  // only ever moves the stored version FORWARD (never downgrades), and never
+  // touches the append-only acknowledgments.
+  version: number;
 };
 
 const DOCS: DocSeed[] = [
@@ -26,7 +32,11 @@ const DOCS: DocSeed[] = [
     audience: "all",
     file: "handbook.md",
     summary: "Clements Pest Control's employee handbook — policies, benefits, and expectations. Requires a typed-signature acknowledgment.",
-    effective: "Version 1 · Effective July 20, 2026",
+    effective: "Version 2 · Effective July 21, 2026",
+    // v2: PTO-request submission mechanic corrected to the Clements portal
+    // (was "via Paychex Flex"); policy entitlements unchanged. Employees who
+    // acknowledged v1 are re-prompted to acknowledge v2.
+    version: 2,
   },
   {
     slug: "manager-manual",
@@ -34,8 +44,12 @@ const DOCS: DocSeed[] = [
     kind: "manual",
     audience: "manager",
     file: "manager-manual.md",
-    summary: "Manager-only operating reference, updated to reflect what the Clements Command & Control portal does today.",
-    effective: "Version 1 · Last updated July 20, 2026",
+    summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
+    effective: "Version 2 · Last updated July 21, 2026",
+    // v2: retired the last paper-form procedures (routine vehicle/equipment
+    // maintenance logs, vehicle inspection form) in favor of the Fleet
+    // "Log Service" + digital inspection workflows; escalation contacts fixed.
+    version: 2,
   },
 ];
 
@@ -55,7 +69,7 @@ export async function seedDocuments(prisma: PrismaClient) {
           title: d.title,
           kind: d.kind,
           audience: d.audience,
-          version: 1,
+          version: d.version,
           summary: d.summary,
           body,
           effective: d.effective,
@@ -64,13 +78,17 @@ export async function seedDocuments(prisma: PrismaClient) {
       });
       results.push({ slug: d.slug, version: created.version, length: body.length, created: true });
     } else {
-      // Refresh content but keep the version + acknowledgments untouched.
+      // Refresh content and move the version FORWARD to the declared version
+      // when it's been deliberately bumped in DOCS. Never downgrades, and never
+      // touches the append-only acknowledgments (a bump simply re-prompts).
+      const nextVersion = Math.max(existing.version, d.version);
       const updated = await prisma.policyDocument.update({
         where: { slug: d.slug },
         data: {
           title: d.title,
           kind: d.kind,
           audience: d.audience,
+          version: nextVersion,
           summary: d.summary,
           body,
           effective: d.effective,

@@ -84,3 +84,34 @@ handbook's section titles.
     (Onboarding section of the Manager Manual, not this handbook), "eight- hour" style
     hyphen-spacing was a PDF artifact and was cleaned during transcription. No wording was
     altered.
+
+## Portal-reconciliation pass — July 21, 2026 (Version 2)
+
+*Added during the workflow-registry / doc-reconciliation audit. See `docs/DOC-RECONCILIATION.md`.*
+
+15. **PTO request channel corrected inline (the ONE inline change in v2).** The two PTO
+    appendices previously said requests "must be submitted **via Paychex Flex**." The portal
+    now owns PTO requests (My PTO → request → branch-supervisor approval → team/company
+    calendar; `lib/pto.ts`, `/api/pto`), and the handbook's own "Using the Clements Portal"
+    section already states this. To remove the internal contradiction, the submission
+    **mechanic** was corrected to "through the Clements portal" in both appendices. **Only the
+    channel changed** — the 2-week / 3-week advance-notice windows and every other PTO rule
+    (allotment, rollover, payout, forfeiture, cap) are verbatim. Because this is a wording
+    change to a signed document, the handbook was bumped to **Version 2** and **every employee
+    who acknowledged v1 will be re-prompted to acknowledge v2**. *HR/legal: confirm you accept
+    the re-acknowledgment and that "the Clements portal" is the correct name to print.*
+
+16. **Paychex is still the system of record for payroll, 401(k), and time/attendance.** The
+    portal took over only PTO *requests*. Paychex Flex references elsewhere (401(k) enrollment;
+    the "web clock" / time-sheet mechanics in General Rules) were **left unchanged** because
+    those functions did not move. HR should confirm this split is described the way it operates
+    (e.g., that sick-time and web-clock entries are still Paychex, not the portal).
+
+17. **Sick-day / absence reporting mechanic — verify.** Both PTO appendices require sick
+    absences to be reported "by phone call" to the Branch Manager/Supervisor. This mechanic was
+    **not** changed; the portal does not capture sick-day call-outs. Confirm whether leadership
+    wants call-outs logged anywhere in the portal or kept as the phone-call procedure.
+
+18. **"Posting Work to Mobile App" (PestPac) unchanged.** The field-service logging policy still
+    references PestPac Mobile, which remains accurate — the Command & Control portal does not
+    track per-stop service. Left as-is (no portal mechanic to reconcile).

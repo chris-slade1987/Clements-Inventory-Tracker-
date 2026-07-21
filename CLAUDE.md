@@ -37,6 +37,13 @@ adjustments so the audit trail stays intact.
   `PageHeader`, `EmptyState` instead of re-styling.
 - Mobile-first: managers use this on phones. Keep tap targets large.
 
+## Docs track the code
+
+Every change that adds or alters a workflow MUST, in the same change, update
+`docs/WORKFLOWS.md` and reconcile `prisma/data/manager-manual.md` (and flag the handbook in
+`prisma/data/handbook-suggestions.md` — never reword policy). The manual/handbook are
+launch-gated on a clean registry. See the **"Docs track the code"** directive in `AGENTS.md`.
+
 ## Next.js 16 note
 
 `cookies()`, `headers()`, and route `params` / `searchParams` are **async** —
