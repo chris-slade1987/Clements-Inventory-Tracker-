@@ -1,17 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 
-// The two manager oversight checklists. Idempotent: upsert by template `key`
-// so a redeploy refreshes the items (stable item ids "w1".., "m1"..) without
-// ever touching signed completions. Item shape:
-//   { id, order, category, label, objective, suggestedTime? }
+// Manager oversight checklists. Idempotent: upsert by template `key` so a
+// redeploy refreshes the items (stable item ids "w1".., "m1"..) without ever
+// touching signed completions. Item shape: { id, order, category, label, objective }.
+// The weekly checklist is the ONLY active oversight checklist — it reads as a
+// quick, scannable run-through (no time stamps). The monthly oversight checklist
+// is deactivated (active:false) but never hard-deleted, so its signed history
+// stays intact and the schema stays cadence-generic for the future.
 
-type SeedItem = { id: string; category: string; label: string; objective: string; suggestedTime?: string };
+type SeedItem = { id: string; category: string; label: string; objective: string };
 
 const WEEKLY_ITEMS: SeedItem[] = [
   {
     id: "w1",
     category: "Operational",
-    suggestedTime: "1:00 PM",
     label: "Weekly follow-up with operations team",
     objective:
       "Clear your inbox and check notes so the ops team isn't waiting on outstanding info from you or your technicians.",
@@ -19,14 +21,12 @@ const WEEKLY_ITEMS: SeedItem[] = [
   {
     id: "w2",
     category: "Operational",
-    suggestedTime: "1:30 PM",
     label: "Weekly production report",
     objective: "Review weekly production to ensure the branch is on track to hit the month's estimated production.",
   },
   {
     id: "w3",
     category: "Operational",
-    suggestedTime: "1:40 PM",
     label: "Missed accounts & rescheduling",
     objective:
       "Review each technician's prior five-day schedule; every missed service (sick/weather/etc.) must be rescheduled within 7 days of the original date.",
@@ -34,7 +34,6 @@ const WEEKLY_ITEMS: SeedItem[] = [
   {
     id: "w4",
     category: "Operational",
-    suggestedTime: "2:00 PM",
     label: "Follow up on sales leads",
     objective:
       "Ensure you and any selling technicians are following up on leads; reach back out to customers as necessary.",
@@ -42,42 +41,36 @@ const WEEKLY_ITEMS: SeedItem[] = [
   {
     id: "w5",
     category: "Operational",
-    suggestedTime: "2:15 PM",
     label: "Review digital & paper agreements",
     objective: "Confirm contracts are filled out correctly so Robin has what she needs to set accounts up in PestPac.",
   },
   {
     id: "w6",
     category: "Operational",
-    suggestedTime: "2:30 PM",
     label: "Cancellations",
     objective: "Review the cancellation report; make sure technicians aren't driving unnecessary cancellations.",
   },
   {
     id: "w7",
     category: "Operational",
-    suggestedTime: "2:40 PM",
     label: "Technician schedules for next week",
     objective: "Every technician is ready for Monday — schedule set, paperwork in hand, no blockers.",
   },
   {
     id: "w8",
     category: "Operational",
-    suggestedTime: "3:00 PM",
     label: "Vehicles are clean",
     objective: "Each technician (you included) has cleaned out and washed their vehicle. Walk outside and help.",
   },
   {
     id: "w9",
     category: "Operational",
-    suggestedTime: "3:30 PM",
     label: "Office & warehouse are clean",
     objective: "Delegate cleaning across the team to keep the office and warehouse to the Clements standard.",
   },
   {
     id: "w10",
     category: "Operational",
-    suggestedTime: "4:00 PM",
     label: "Inventory disbursement & expenses logged",
     objective:
       "Record the week's chemical disbursements — in this portal, check-outs to technicians are logged under Check-Out — and scan all expense receipts to Brandy.",
@@ -85,14 +78,12 @@ const WEEKLY_ITEMS: SeedItem[] = [
   {
     id: "w11",
     category: "Operational",
-    suggestedTime: "4:30 PM",
     label: "Bank deposits",
     objective: "Collect customer payments from techs, write up the deposit, and take it to the bank Friday afternoon.",
   },
   {
     id: "w12",
     category: "Wrap-up",
-    suggestedTime: "END OF DAY",
     label: "Final check / plan the week ahead",
     objective:
       "All vehicles clean, all work completed, unserviced rescheduled for next week, techs ready for Monday morning.",
@@ -124,15 +115,22 @@ const TEMPLATES = [
     key: "weekly",
     title: "Weekly Oversight Checklist",
     cadence: "weekly",
-    intro: "Every Friday afternoon — work top to bottom, then sign off.",
+    intro: "Work top to bottom, then sign off.",
     items: withOrder(WEEKLY_ITEMS),
+    active: true,
   },
   {
+    // Deactivated: the owner removed the monthly OVERSIGHT checklist. We upsert
+    // it as active:false (never hard-delete) so its signed history is retained
+    // and the UI, which only ever enumerates active templates, no longer shows
+    // it. Every OTHER monthly task (vehicle inspections, etc.) is untouched —
+    // those live outside this checklist template.
     key: "monthly",
     title: "Monthly Oversight Checklist",
     cadence: "monthly",
     intro: "Once a month — the strategic checkpoint. Complete and sign before the All-Hands.",
     items: withOrder(MONTHLY_ITEMS),
+    active: false,
   },
 ];
 
@@ -144,7 +142,7 @@ export async function seedChecklists(prisma: PrismaClient) {
       cadence: t.cadence,
       intro: t.intro,
       items: JSON.stringify(t.items),
-      active: true,
+      active: t.active,
     };
     await prisma.checklistTemplate.upsert({
       where: { key: t.key },
@@ -159,7 +157,7 @@ export async function seedChecklists(prisma: PrismaClient) {
 if (process.argv[1] && process.argv[1].includes("seed-checklists")) {
   const prisma = new PrismaClient();
   seedChecklists(prisma)
-    .then((c) => console.log(`Seeded checklists: weekly=${c.weekly} items, monthly=${c.monthly} items.`))
+    .then((c) => console.log(`Seeded checklists: weekly=${c.weekly} items (active), monthly=${c.monthly} items (INACTIVE — retained as history).`))
     .catch((e) => {
       console.error(e);
       process.exit(1);

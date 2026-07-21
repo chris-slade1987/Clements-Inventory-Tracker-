@@ -75,10 +75,8 @@ export default function ChecklistRun({
               <li key={it.id} className="flex items-start gap-3 px-5 py-3">
                 <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded text-[11px] ${ok ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>{ok ? "✓" : "—"}</span>
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-ink">
-                    {it.suggestedTime ? <span className="text-muted font-normal">{it.suggestedTime} — </span> : null}
-                    {it.label}
-                  </div>
+                  <div className="text-[15px] font-semibold text-ink">{it.label}</div>
+                  <div className="text-xs text-muted mt-0.5">{it.objective}</div>
                   {r?.note ? <div className="text-xs text-muted mt-0.5">Note: {r.note}</div> : null}
                 </div>
               </li>
@@ -145,8 +143,7 @@ export default function ChecklistRun({
                         className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 accent-emerald-600"
                       />
                       <span className="flex-1">
-                        <span className={`block text-sm font-medium ${isChecked ? "text-brand-700" : "text-ink"}`}>
-                          {it.suggestedTime ? <span className="text-muted font-normal">{it.suggestedTime} — </span> : null}
+                        <span className={`block text-[15px] font-semibold ${isChecked ? "text-brand-700" : "text-ink"}`}>
                           {it.label}
                         </span>
                         <span className="block text-xs text-muted mt-0.5">{it.objective}</span>

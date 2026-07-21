@@ -14,7 +14,6 @@ export type ChecklistItem = {
   category: string;
   label: string;
   objective: string;
-  suggestedTime?: string;
 };
 
 export type ItemResult = { itemId: string; checked: boolean; note: string };
@@ -103,6 +102,23 @@ export function weekPeriodLabel(date: Date): string {
   return `Week of ${monday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}`;
 }
 
+/** The last day (UTC) of the month containing `date`. */
+export function endOfMonth(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
+}
+
+/** Short "Fri Jul 24" — the Friday due date of the current ISO week. */
+export function fridayLabel(date: Date = new Date()): string {
+  const monday = mondayOf(date);
+  const fri = new Date(monday.getTime() + 4 * 864e5);
+  return `Fri ${fri.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`;
+}
+
+/** Short "Jul 31" — the last day of the current month (monthly due date). */
+export function endOfMonthLabel(date: Date = new Date()): string {
+  return endOfMonth(date).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
 export function monthPeriodLabel(date: Date): string {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)).toLocaleDateString("en-US", {
     month: "long",
@@ -182,29 +198,171 @@ export async function checklistStatusForBranch(branch: string, now: Date = new D
   return out;
 }
 
+export type RollupColumn = { id: string; key: string; title: string; cadence: string; periodLabel: string };
 export type RollupRow = {
   branch: string;
   branchLabel: string;
-  weekly: ChecklistStatus | null;
-  monthly: ChecklistStatus | null;
+  statuses: Record<string, ChecklistStatus | null>; // keyed by template id
 };
 
 /**
- * Leadership rollup — current weekly + monthly status for EVERY branch, with who
- * signed and when. Powers the oversight board ("make sure they're doing it").
+ * Leadership rollup — current status for EVERY active checklist cadence across
+ * EVERY branch, with who signed and when. Cadence-generic: it renders one column
+ * per active template, so deactivating a template (e.g. the old monthly oversight
+ * checklist) simply drops its column, and adding a future cadence adds one.
  */
-export async function rollup(now: Date = new Date()): Promise<{ weeklyLabel: string; monthlyLabel: string; rows: RollupRow[] }> {
+export async function rollup(now: Date = new Date()): Promise<{ columns: RollupColumn[]; rows: RollupRow[] }> {
+  const templates = await getTemplates();
+  const columns: RollupColumn[] = templates.map((t) => ({
+    id: t.id,
+    key: t.key,
+    title: t.title,
+    cadence: t.cadence,
+    periodLabel: periodLabelFor(t.cadence, now),
+  }));
   const rows: RollupRow[] = [];
   for (const b of BRANCHES) {
     const statuses = await checklistStatusForBranch(b.key, now);
-    rows.push({
-      branch: b.key,
-      branchLabel: branchLabel(b.key),
-      weekly: statuses.find((s) => s.template.cadence === "weekly") ?? null,
-      monthly: statuses.find((s) => s.template.cadence === "monthly") ?? null,
-    });
+    const byId: Record<string, ChecklistStatus | null> = {};
+    for (const c of columns) byId[c.id] = statuses.find((s) => s.template.id === c.id) ?? null;
+    rows.push({ branch: b.key, branchLabel: branchLabel(b.key), statuses: byId });
   }
-  return { weeklyLabel: weekPeriodLabel(now), monthlyLabel: monthPeriodLabel(now), rows };
+  return { columns, rows };
+}
+
+// ---- Missed-checklist penalty ----------------------------------------------
+// When a full period elapses with no signed completion, the branch has MISSED a
+// recurring checklist. We detect these lazily (no cron) via an idempotent sweep,
+// report them (oversight / alerts / branch banner), and allow ONLY the CEO or HR
+// director to clear them — never the branch manager. Cleared misses are retained
+// as history (append-only infraction log).
+
+const SWEEP_LOOKBACK_WEEKS = 26; // bound the loop to a sane window
+
+/**
+ * Lazy, idempotent detection of missed WEEKLY checklists. For each active weekly
+ * template and each branch, enumerate every FULLY-ELAPSED ISO week from the
+ * template's go-live week (the ISO week of its createdAt — so we never fabricate
+ * misses for weeks before the feature existed) up to, but excluding, the current
+ * week. A week counts as elapsed only once `now` is past its end (the following
+ * Monday 00:00 UTC), giving the full week incl. weekend before it's "missed".
+ * Creates a ChecklistMiss for any (template, branch, week) with no completion and
+ * no existing miss. Returns the number created. Safe to call on every page load.
+ */
+export async function sweepMissedChecklists(now: Date = new Date()): Promise<number> {
+  const templates = await prisma.checklistTemplate.findMany({ where: { active: true, cadence: "weekly" } });
+  const currentMonday = mondayOf(now).getTime();
+  const week = 7 * 864e5;
+  let created = 0;
+
+  for (const t of templates) {
+    const goLiveMonday = mondayOf(t.createdAt).getTime();
+    const earliest = Math.max(goLiveMonday, currentMonday - SWEEP_LOOKBACK_WEEKS * week);
+
+    // Build the set of fully-elapsed weeks in range.
+    const weeks: { periodKey: string; periodLabel: string }[] = [];
+    for (let m = earliest; m < currentMonday; m += week) {
+      const weekEnd = m + week; // following Monday 00:00 UTC
+      if (now.getTime() < weekEnd) continue; // not fully elapsed yet
+      const midWeek = new Date(m + 3 * 864e5); // Thursday — safe for ISO-week math
+      weeks.push({ periodKey: weekPeriodKey(midWeek), periodLabel: weekPeriodLabel(midWeek) });
+    }
+    if (weeks.length === 0) continue;
+    const periodKeys = weeks.map((w) => w.periodKey);
+
+    // Bulk pre-check so we only ever create genuinely new rows.
+    const [completions, misses] = await Promise.all([
+      prisma.checklistCompletion.findMany({
+        where: { templateId: t.id, periodKey: { in: periodKeys } },
+        select: { branch: true, periodKey: true },
+      }),
+      prisma.checklistMiss.findMany({
+        where: { templateId: t.id, periodKey: { in: periodKeys } },
+        select: { branch: true, periodKey: true },
+      }),
+    ]);
+    const have = new Set<string>();
+    for (const c of completions) have.add(`${c.branch}|${c.periodKey}`);
+    for (const mrow of misses) have.add(`${mrow.branch}|${mrow.periodKey}`);
+
+    for (const w of weeks) {
+      for (const b of BRANCHES) {
+        if (have.has(`${b.key}|${w.periodKey}`)) continue;
+        try {
+          await prisma.checklistMiss.create({
+            data: {
+              templateId: t.id,
+              cadence: t.cadence,
+              branch: b.key,
+              periodKey: w.periodKey,
+              periodLabel: w.periodLabel,
+            },
+          });
+          created++;
+        } catch (e) {
+          // Unique-constraint race (concurrent sweep) → already recorded, ignore.
+          if ((e as { code?: string }).code !== "P2002") throw e;
+        }
+      }
+    }
+  }
+  return created;
+}
+
+export type MissRow = {
+  id: string;
+  branch: string;
+  branchLabel: string;
+  cadence: string;
+  periodKey: string;
+  periodLabel: string;
+  status: string;
+  createdAt: Date;
+  clearedByName: string | null;
+  clearedAt: Date | null;
+  clearNote: string | null;
+};
+
+function toMissRow(m: {
+  id: string; branch: string; cadence: string; periodKey: string; periodLabel: string;
+  status: string; createdAt: Date; clearedByName: string | null; clearedAt: Date | null; clearNote: string | null;
+}): MissRow {
+  return { ...m, branchLabel: branchLabel(m.branch) };
+}
+
+/** Open (uncleared) misses, optionally scoped to one branch, oldest first. */
+export async function openMisses(branch?: string): Promise<MissRow[]> {
+  const rows = await prisma.checklistMiss.findMany({
+    where: { status: "open", ...(branch ? { branch } : {}) },
+    orderBy: [{ branch: "asc" }, { periodKey: "asc" }],
+  });
+  return rows.map(toMissRow);
+}
+
+/** Cleared misses — the retained infraction history, most-recently cleared first. */
+export async function clearedMisses(branch?: string): Promise<MissRow[]> {
+  const rows = await prisma.checklistMiss.findMany({
+    where: { status: "cleared", ...(branch ? { branch } : {}) },
+    orderBy: [{ clearedAt: "desc" }],
+    take: 100,
+  });
+  return rows.map(toMissRow);
+}
+
+/** Per-branch counts (total + still-open) for the infraction record. */
+export async function missCountsByBranch(): Promise<Record<string, { total: number; open: number }>> {
+  const grouped = await prisma.checklistMiss.groupBy({
+    by: ["branch", "status"],
+    _count: { _all: true },
+  });
+  const out: Record<string, { total: number; open: number }> = {};
+  for (const b of BRANCHES) out[b.key] = { total: 0, open: 0 };
+  for (const g of grouped) {
+    const bucket = (out[g.branch] ??= { total: 0, open: 0 });
+    bucket.total += g._count._all;
+    if (g.status === "open") bucket.open += g._count._all;
+  }
+  return out;
 }
 
 /** The attestation statement a manager signs. Stored verbatim on the completion. */

@@ -1497,7 +1497,7 @@ model ChecklistTemplate {
   title     String
   cadence   String // "weekly" | "monthly"
   intro     String? // short blurb shown atop the run
-  items     String // JSON: [{id,order,category,label,objective,suggestedTime?}]
+  items     String // JSON: [{id,order,category,label,objective}]
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -1523,6 +1523,31 @@ model ChecklistCompletion {
   @@unique([templateId, branch, periodKey]) // one completion per branch per period
   @@index([branch, cadence])
   @@map("checklist_completions")
+}
+
+// A missed recurring checklist — a compliance infraction raised when a full
+// period elapsed with NO signed completion for a branch. Created lazily+idempotently
+// by sweepMissedChecklists() (unique on template/branch/period). This is the
+// "penalty": a miss is REPORTED (oversight, alerts, the branch banner) and can be
+// cleared ONLY by the CEO (admin) or the HR director — never the branch manager.
+// A cleared miss is retained as history (the infraction log); never hard-deleted.
+model ChecklistMiss {
+  id            String    @id @default(cuid())
+  templateId    String    @map("template_id")
+  cadence       String
+  branch        String
+  periodKey     String    @map("period_key")
+  periodLabel   String    @map("period_label")
+  status        String    @default("open") // "open" | "cleared"
+  clearedById   String?   @map("cleared_by_id")
+  clearedByName String?   @map("cleared_by_name")
+  clearedAt     DateTime? @map("cleared_at")
+  clearNote     String?   @map("clear_note")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@unique([templateId, branch, periodKey])
+  @@index([branch, status])
+  @@map("checklist_misses")
 }
 
 // ---------------------------------------------------------------------------

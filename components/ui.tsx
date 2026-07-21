@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, HTMLAttributes } from "react";
 import { UNITS_OF_MEASURE } from "@/lib/uom";
 
 export function PageHeader({
@@ -28,13 +28,15 @@ export function PageHeader({
 export function Card({
   children,
   className = "",
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
-}) {
+} & HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={`surface-light rounded-2xl border border-line bg-card-grad shadow-lg shadow-black/10 ${className}`}
+      {...rest}
     >
       {children}
     </div>

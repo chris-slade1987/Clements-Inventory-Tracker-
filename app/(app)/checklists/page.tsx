@@ -2,11 +2,18 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { checklistStatusForBranch } from "@/lib/checklists";
+import { checklistStatusForBranch, fridayLabel, endOfMonthLabel } from "@/lib/checklists";
 
 export const dynamic = "force-dynamic";
 
 const DATE = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+function frequency(cadence: string): string {
+  return cadence === "weekly" ? "Weekly" : "Monthly";
+}
+function dueDate(cadence: string, now: Date): string {
+  return cadence === "weekly" ? `Due ${fridayLabel(now)}` : `Due ${endOfMonthLabel(now)}`;
+}
 
 export default async function ChecklistsPage({
   searchParams,
@@ -28,7 +35,8 @@ export default async function ChecklistsPage({
     );
   }
 
-  const statuses = await checklistStatusForBranch(branch, new Date());
+  const now = new Date();
+  const statuses = await checklistStatusForBranch(branch, now);
 
   return (
     <>
@@ -60,11 +68,14 @@ export default async function ChecklistsPage({
               <div className="px-5 py-4 border-b border-line">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-muted">{s.template.cadence === "weekly" ? "Weekly" : "Monthly"}</div>
-                    <div className="text-lg font-medium text-ink mt-0.5">{s.template.title}</div>
+                    <div className="text-lg font-medium text-ink">{s.template.title}</div>
                     <div className="text-xs text-muted mt-0.5">{s.periodLabel}</div>
                   </div>
-                  <StatusBadge completed={s.completed} overdue={s.overdue} />
+                  <div className="flex flex-col items-end gap-1.5 text-right shrink-0">
+                    <StatusBadge completed={s.completed} overdue={s.overdue} />
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">{frequency(s.template.cadence)}</span>
+                    <span className="text-[11px] text-muted">{dueDate(s.template.cadence, now)}</span>
+                  </div>
                 </div>
                 {s.template.intro ? <p className="text-sm text-muted mt-2">{s.template.intro}</p> : null}
               </div>

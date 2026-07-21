@@ -177,6 +177,16 @@ export function isHrDirector(user: { role: string; email: string }): boolean {
   return user.role === "admin" || user.email.toLowerCase() === hrDirectorEmail();
 }
 
+/**
+ * Who may CLEAR a missed-checklist compliance infraction — ONLY the CEO (admin)
+ * or the HR director (Chris + April today). Role/identity based so it stays
+ * correct if the people change. A branch manager can NEVER clear a miss, not
+ * even their own — the penalty is enforced from above.
+ */
+export function canClearChecklistMiss(user: { role: string; email: string }): boolean {
+  return user.role === "admin" || isHrDirector(user);
+}
+
 /** Resolve the HR notification address: env override → April Williford → fallback. */
 export async function getHrEmail(): Promise<string> {
   if (process.env.HR_EMAIL) return process.env.HR_EMAIL;
