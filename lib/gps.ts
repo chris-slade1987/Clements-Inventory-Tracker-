@@ -101,6 +101,14 @@ export async function syncFleet(): Promise<SyncResult> {
         note: configured ? "live" : "sample",
       },
     });
+    // Refresh GPS alerts off the freshly-synced telemetry. Detection runs ONLY
+    // on real (sample:false) data and never throws, so this can't fail a sync.
+    try {
+      const { detectGpsIssues } = await import("@/lib/gps-detect");
+      await detectGpsIssues();
+    } catch {
+      // Detection is best-effort; a failure must never break the sync.
+    }
     return { ok: true, configured, sample: !configured, ...result };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

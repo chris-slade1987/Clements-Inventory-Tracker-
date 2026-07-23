@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, PageHeader, EmptyState } from "@/components/ui";
+import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { latestPositions, fleetLiveSummary } from "@/lib/gps";
@@ -82,21 +82,27 @@ export default async function FleetMapPage({
         <Stat label="Offline" value={String(summary.offline)} tone="offline" />
       </div>
 
-      {positions.length === 0 ? (
-        <EmptyState
-          title="No vehicle locations yet"
-          hint={
-            user.role === "admin"
-              ? "Press Refresh to sync. Without Verizon credentials, a sample set is generated so you can preview the map."
-              : "Locations appear once an admin syncs the fleet."
-          }
-        />
-      ) : (
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2" data-testid="fleet-map">
-            <FleetMap markers={markers} height={480} />
-          </div>
+      {/* The base map ALWAYS renders (centered on Florida by default), even with
+          zero positions — the empty hint is shown as an overlay rather than
+          replacing the map, so a manager always sees a map. */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2 relative" data-testid="fleet-map">
+          <FleetMap markers={markers} height={480} />
+          {positions.length === 0 ? (
+            <div className="pointer-events-none absolute inset-0 z-[500] flex items-start justify-center p-4">
+              <div className="pointer-events-auto max-w-sm rounded-xl border border-line bg-white/95 p-4 text-center shadow-lg backdrop-blur" data-testid="map-empty-hint">
+                <div className="text-sm font-medium text-ink">No vehicle locations yet</div>
+                <div className="mt-1 text-xs text-muted">
+                  {user.role === "admin"
+                    ? "Press Refresh to sync. Without Verizon credentials, a sample set is generated so you can preview the map."
+                    : "Locations appear once an admin syncs the fleet."}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
 
+        {positions.length > 0 ? (
           <Card className="p-0 overflow-hidden" data-testid="vehicle-list">
             <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">
               Vehicles ({positions.length})
@@ -127,8 +133,8 @@ export default async function FleetMapPage({
               })}
             </ul>
           </Card>
-        </div>
-      )}
+        ) : null}
+      </div>
 
       <p className="mt-4 text-xs text-muted">
         Near-real-time: positions come from each vehicle&apos;s latest status-history entry (Reveal has no live

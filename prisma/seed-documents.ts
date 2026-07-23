@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 4 · Last updated July 23, 2026",
+    effective: "Version 5 · Last updated July 23, 2026",
+    // v5: expanded the GPS / Live Fleet Tracking subsection with the GPS
+    // Analytics dashboard (fleet status, utilization, exception tiles,
+    // per-vehicle rollup, AI insights panel) and the dedicated GPS Alerts
+    // section (auto-detected speeding/idle/after-hours/offline/out-of-area +
+    // optional AI patterns; ack/dismiss; separate from inventory Alerts).
     // v4: added the GPS / Live Fleet Tracking subsection under Company Vehicles
     // (portal Live Map + per-vehicle location/trips from Verizon Connect Reveal;
     // near-real-time, credential-gated with a sample-data fallback).
@@ -55,7 +60,7 @@ const DOCS: DocSeed[] = [
     // v2: retired the last paper-form procedures (routine vehicle/equipment
     // maintenance logs, vehicle inspection form) in favor of the Fleet
     // "Log Service" + digital inspection workflows; escalation contacts fixed.
-    version: 4,
+    version: 5,
   },
 ];
 

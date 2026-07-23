@@ -150,25 +150,108 @@ async function persistPlots(plots: Plot[]): Promise<number> {
   return saved;
 }
 
-async function store(req: Request): Promise<NextResponse> {
-  if (!authOk(req)) return unauthorized();
+// ---- confirmation / handshake detection -----------------------------------
+// Verizon Connect's GPS Push Service confirms a submitted webhook with a
+// SUBSCRIPTION CONFIRMATION message as the FIRST POST to our endpoint, which we
+// must acknowledge (within 3 days). It may arrive WITHOUT our Basic auth, so we
+// handle it BEFORE the auth check — otherwise we'd 401 the confirmation and the
+// subscription would never activate.
 
+const CHALLENGE_KEYS = ["challenge", "verificationToken", "validationToken", "verification"];
+const CONFIRM_URL_KEYS = ["SubscribeURL", "subscribeUrl", "confirmUrl", "confirmationUrl", "callbackUrl"];
+
+function firstKey(o: Record<string, unknown> | null, keys: string[]): string | null {
+  if (!o) return null;
+  for (const k of keys) {
+    const v = o[k] ?? o[k.toLowerCase()] ?? o[k.charAt(0).toUpperCase() + k.slice(1)];
+    if (typeof v === "string" && v.trim() !== "") return v;
+  }
+  return null;
+}
+
+type Confirmation = { isConfirmation: boolean; challenge: string | null; confirmUrl: string | null };
+
+function detectConfirmation(url: URL, json: Record<string, unknown> | null): Confirmation {
+  // Query-string challenge (some providers verify this way even on POST).
+  let challenge: string | null = null;
+  for (const k of CHALLENGE_KEYS) {
+    challenge = url.searchParams.get(k);
+    if (challenge) break;
+  }
+  challenge = challenge || url.searchParams.get("token");
+  // Body challenge / confirmation type / confirmation callback URL.
+  const bodyChallenge = firstKey(json, CHALLENGE_KEYS);
+  if (bodyChallenge) challenge = challenge || bodyChallenge;
+  const t = json ? (json.type ?? json.Type) : undefined;
+  const isSubType = typeof t === "string" && t.toLowerCase() === "subscriptionconfirmation";
+  const confirmUrl = firstKey(json, CONFIRM_URL_KEYS);
+  const isConfirmation = Boolean(challenge || isSubType || confirmUrl);
+  return { isConfirmation, challenge, confirmUrl };
+}
+
+async function store(req: Request): Promise<NextResponse> {
+  const url = new URL(req.url);
   const body = await req.text().catch(() => "");
+  const hasAuthHeader = Boolean(req.headers.get("authorization"));
+  const contentType = req.headers.get("content-type") ?? "?";
+  const snippet = body.slice(0, 500).replace(/\s+/g, " ");
+
+  // (1) Log EVERY incoming POST at entry, BEFORE auth. Never log secrets — only
+  //     whether an Authorization header was present, plus a truncated snippet.
+  console.log(
+    `[gps-webhook] POST auth=${hasAuthHeader} content-type=${contentType} bytes=${body.length} snippet="${snippet}"`,
+  );
+
+  // Parse the body once (best-effort). Used for confirmation detection + plots.
+  let json: Record<string, unknown> | null = null;
+  try {
+    const parsed = JSON.parse(body);
+    if (parsed && typeof parsed === "object") json = parsed as Record<string, unknown>;
+  } catch {
+    // Not JSON — leave null; we still store the raw payload below.
+  }
 
   let type: string | null = null;
   let verizonNumber: string | null = null;
-  let plots: Plot[] = [];
-  try {
-    const json = JSON.parse(body) as Record<string, unknown>;
+  if (json) {
     const t = json.type ?? json.Type ?? json.eventType ?? json.EventType ?? json.alertType ?? json.AlertType;
     if (typeof t === "string") type = t;
     const vn = json.vehicleNumber ?? json.VehicleNumber ?? json.vehicleId ?? json.VehicleId ?? json.number ?? json.Number;
     if (typeof vn === "string") verizonNumber = vn;
     else if (typeof vn === "number") verizonNumber = String(vn);
-    plots = collectPlots(json);
-  } catch {
-    // Not JSON (or empty) — still store the raw payload for later inspection.
   }
+
+  // (2) Subscription-confirmation handling — BEFORE requiring Basic auth.
+  const confirm = detectConfirmation(url, json);
+  if (confirm.isConfirmation) {
+    console.log(`[gps-webhook] subscription confirmation received snippet="${snippet}"`);
+    // Always store the raw payload so we can inspect the confirmation later.
+    await prisma.gpsWebhookEvent
+      .create({ data: { type: type ?? "SubscriptionConfirmation", verizonNumber, payload: body.slice(0, 100000), processed: true } })
+      .catch(() => {});
+    // If a confirmation callback URL is present, GET it to acknowledge (best-effort).
+    if (confirm.confirmUrl) {
+      try {
+        const res = await fetch(confirm.confirmUrl, { method: "GET" });
+        console.log(`[gps-webhook] confirmation callback GET status=${res.status}`);
+      } catch (e) {
+        console.log(`[gps-webhook] confirmation callback GET failed: ${e instanceof Error ? e.message : "error"}`);
+      }
+    }
+    // Echo any challenge/token so a challenge-response verification succeeds.
+    if (confirm.challenge) {
+      return new NextResponse(confirm.challenge, { status: 200, headers: { "content-type": "text/plain" } });
+    }
+    return NextResponse.json({ ok: true, confirmed: true });
+  }
+
+  // (3) Real GPS plot deliveries — require Basic auth; log the 401 first.
+  if (!authOk(req)) {
+    console.log(`[gps-webhook] 401 unauthorized (auth header ${hasAuthHeader ? "present but mismatched" : "missing"})`);
+    return unauthorized();
+  }
+
+  const plots = json ? collectPlots(json) : [];
 
   await prisma.gpsWebhookEvent.create({
     data: { type, verizonNumber, payload: body.slice(0, 100000), processed: plots.length > 0 },
@@ -177,6 +260,16 @@ async function store(req: Request): Promise<NextResponse> {
   const saved = plots.length ? await persistPlots(plots) : 0;
   // Brief, secret-free delivery log so the first real webhook is visible in logs.
   console.log(`[gps-webhook] delivery type=${type ?? "?"} vehicle=${verizonNumber ?? "?"} plots=${plots.length} saved=${saved} bytes=${body.length}`);
+
+  // Refresh GPS alerts off any newly-saved real plots (lightweight, best-effort).
+  if (saved > 0) {
+    try {
+      const { detectGpsIssues } = await import("@/lib/gps-detect");
+      await detectGpsIssues();
+    } catch {
+      // Detection must never fail the delivery.
+    }
+  }
 
   return NextResponse.json({ ok: true, received: plots.length, saved });
 }

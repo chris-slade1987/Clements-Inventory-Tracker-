@@ -87,6 +87,7 @@ export default function AppShell({
   isInterviewer = false,
   isBoardObserver = false,
   unread = 0,
+  gpsAlertCount = 0,
 }: {
   children: React.ReactNode;
   managerName?: string;
@@ -97,6 +98,7 @@ export default function AppShell({
   isInterviewer?: boolean;
   isBoardObserver?: boolean;
   unread?: number;
+  gpsAlertCount?: number;
 }) {
   const pathname = usePathname();
   const mode: Mode = pathname.startsWith("/me")
@@ -207,7 +209,13 @@ export default function AppShell({
               <Link key={item.href} href={item.href} className={navClass(active)}>
                 <Icon path={item.icon} className="h-5 w-5 shrink-0" />
                 {item.label}
-                {active ? <span className="ml-auto text-mint">→</span> : null}
+                {item.href === "/fleet/gps/alerts" && gpsAlertCount > 0 ? (
+                  <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {gpsAlertCount > 99 ? "99+" : gpsAlertCount}
+                  </span>
+                ) : active ? (
+                  <span className="ml-auto text-mint">→</span>
+                ) : null}
               </Link>
             );
           })}
@@ -308,11 +316,18 @@ export default function AppShell({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-light ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-light ${
                 active ? "text-brand-300" : "text-mint"
               }`}
             >
-              <Icon path={item.icon} className="h-5 w-5" />
+              <span className="relative">
+                <Icon path={item.icon} className="h-5 w-5" />
+                {item.href === "/fleet/gps/alerts" && gpsAlertCount > 0 ? (
+                  <span className="absolute -right-2 -top-1.5 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-semibold text-white">
+                    {gpsAlertCount > 9 ? "9+" : gpsAlertCount}
+                  </span>
+                ) : null}
+              </span>
               {item.shortLabel}
             </Link>
           );

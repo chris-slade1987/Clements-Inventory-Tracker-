@@ -320,6 +320,18 @@ export const FLEET_NAV: NavItem[] = [
     icon: "M12 21s-7-6.3-7-11a7 7 0 1114 0c0 4.7-7 11-7 11zm0-8.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z",
   },
   {
+    href: "/fleet/gps",
+    label: "GPS Analytics",
+    shortLabel: "GPS",
+    icon: "M3 3v18h18M7 14l3-3 3 3 5-6",
+  },
+  {
+    href: "/fleet/gps/alerts",
+    label: "GPS Alerts",
+    shortLabel: "Alerts",
+    icon: "M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0",
+  },
+  {
     href: "/fleet/service",
     label: "Log Service",
     shortLabel: "Service",

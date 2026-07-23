@@ -409,6 +409,7 @@ model Vehicle {
   fuel        FuelTransaction[]
   gpsPositions GpsPosition[]
   gpsTrips     GpsTrip[]
+  gpsAlerts    GpsAlert[]
 
   @@index([branch])
   @@index([verizonNumber])
@@ -501,6 +502,37 @@ model GpsWebhookEvent {
 
   @@index([receivedAt])
   @@map("gps_webhook_events")
+}
+
+// A GPS-domain alert raised by the detection engine (lib/gps-detect.ts). This is
+// SEPARATE from the inventory `Alert` model — GPS alerts live in their own
+// section (/fleet/gps/alerts) with their own ack/dismiss lifecycle. Rules
+// (speeding, idle, after-hours, offline, out-of-area) are deterministic and run
+// only on REAL (sample:false) telemetry; `ai_pattern` alerts come from the
+// optional Claude layer. Never hard-deleted — ack/dismiss changes `status`.
+// `dedupeKey` is unique so re-running detection never duplicates a finding, and
+// an ack'd/dismissed alert is not reopened for the same key.
+model GpsAlert {
+  id             String    @id @default(cuid())
+  type           String // "speeding" | "idle" | "after_hours" | "offline" | "out_of_area" | "ai_pattern"
+  severity       String    @default("warning") // "info" | "warning" | "critical"
+  vehicleId      String?   @map("vehicle_id")
+  verizonNumber  String?   @map("verizon_number")
+  branch         String?
+  title          String
+  detail         String?
+  evidence       String? // JSON: supporting data (positions, values, window)
+  status         String    @default("open") // "open" | "ack" | "dismissed"
+  dedupeKey      String    @unique @map("dedupe_key") // stable per (type+vehicle+window) so re-runs don't duplicate
+  aiGenerated    Boolean   @default(false) @map("ai_generated")
+  acknowledgedBy String?   @map("acknowledged_by")
+  resolvedAt     DateTime? @map("resolved_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([status, type])
+  @@map("gps_alerts")
 }
 
 // A single line from a Coast fuel-card statement. Purchases link to a vehicle

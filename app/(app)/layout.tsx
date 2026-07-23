@@ -1,7 +1,8 @@
 import AppShell from "@/components/AppShell";
-import { requireUser, isBoardObserver } from "@/lib/auth";
+import { requireUser, isBoardObserver, scopedBranch } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
+import { openGpsAlertCount } from "@/lib/gps-detect";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -11,9 +12,11 @@ export default async function AppGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireUser();
-  const [unread, isInterviewer] = await Promise.all([
+  // Board observers never see Fleet, so skip the (branch-scoped) GPS badge for them.
+  const [unread, isInterviewer, gpsAlertCount] = await Promise.all([
     unreadCount(user.id).catch(() => 0),
     isActiveInterviewer(user.id).catch(() => false),
+    isBoardObserver(user) ? Promise.resolve(0) : openGpsAlertCount(scopedBranch(user, null) ?? undefined).catch(() => 0),
   ]);
   return (
     <AppShell
@@ -25,6 +28,7 @@ export default async function AppGroupLayout({
       isInterviewer={isInterviewer}
       isBoardObserver={isBoardObserver(user)}
       unread={unread}
+      gpsAlertCount={gpsAlertCount}
     >
       {children}
     </AppShell>
