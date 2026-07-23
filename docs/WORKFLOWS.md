@@ -26,14 +26,14 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 |---|---|---|---|---|---|
 | Inventory | 5 | 0 | 0 | 2 | 7 |
 | Fleet | 6 | 1 | 0 | 2 | 9 |
-| People / HR | 9 | 0 | 0 | 0 | 9 |
+| People / HR | 10 | 0 | 0 | 0 | 10 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
 | Checklists | 3 | 0 | 0 | 0 | 3 |
 | Management | 6 | 2 | 0 | 1 | 9 |
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 2 | 0 | 0 | 0 | 2 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **36** | **3** | **0** | **9** | **48** |
+| **Total** | **37** | **3** | **0** | **9** | **49** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -71,6 +71,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | Workflow | What the system does (route) | Manual § | Handbook § | Status | Action |
 |---|---|---|---|---|---|
 | Employee lifecycle — add | HR/admin add employee; hire date auto-schedules 30/60-day reviews. (`/management/people`, `/api/personnel/lifecycle`) | Hiring / Onboarding | Employment / At-Will | ✅ | Aligned. |
+| Employee profile — contact & start date (edit) | Profile Contact card shows **Start date** (from the Paychex census), **Work phone**, and **Personal phone**; HR/admin Edit saves them via the employee update API. Census hire dates are applied on every deploy (non-destructive). (`/management/people/[id]`, `/api/management/employee`) | Hiring / Onboarding | — | ✅ | Added the `personalPhone` field + census start dates; profile display and edit form relabeled to Start date / Work phone / Personal phone. Phone-number values pending a real phone list. |
 | Offboarding — terminate / exit / reactivate | Record separation (type/reason/last day/rehire) → inactive + **login disabled**; exit interview complete/bypass; reactivate restores. (`/management/people/[id]`, `/api/personnel/lifecycle`) | Termination Policy | Resignation; At-Will | ✅ | Added a portal note to Termination Policy (separation record, login disable, exit interview). |
 | New-hire 30/60-day reviews | Auto-created `due`; assign reviewer; typed form; 3 signatures (reviewer + employee + HR approval, HR gated on the first two); tokenized employee link. (`/management/people/reviews`, `/reviews/[id]`, `/review-sign`) | Hiring / Onboarding | — | ✅ | Aligned. |
 | ATS pipeline + interview scorecards | Jobs → candidates through applied→screening→interviewing→offer→onboarding→hired; assign interview → **required scorecard** (8 competencies + recommendation + summary). (`/management/people/jobs`, `/candidates/[id]`, `/me/interviews/[id]`) | Hiring / Onboarding; Hiring & Onboarding Roadmap | How and Why You Were Selected | ✅ | Aligned (roadmap's Indeed + email templates remain the human-step reference). |

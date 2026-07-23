@@ -611,7 +611,8 @@ model Employee {
   id            String    @id @default(cuid())
   name          String
   email         String? // work email (for emailing inspection scores); filled later
-  phone         String?
+  phone         String? // WORK phone
+  personalPhone String?   @map("personal_phone") // personal/cell number (separate from work phone)
   role          String? // "Technician" | "Manager" | "Sales Advisor" | ...
   division      String? // "Lawn" | "Service" | "General Pest" | ...
   branch        String? // "vero" | "stuart" | "orlando" | "naples"

@@ -141,7 +141,7 @@ async function main() {
     } else {
       const { syncEmployeeContacts } = await import("../prisma/seed-employees");
       const s = await syncEmployeeContacts(prisma);
-      console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.logins} logins.`);
+      console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
     }
 
     // The owner account is a full admin (sees every center + admin tools).

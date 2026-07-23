@@ -6,7 +6,14 @@ import { isHrDirector } from "@/lib/personnel";
 export const runtime = "nodejs";
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
-const date = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; if (!s) return null; const d = new Date(s); return isNaN(d.getTime()) ? null : d; };
+// Parse a date-only "YYYY-MM-DD" value as UTC midnight (timezone-stable); empty -> null.
+const date = (v: unknown) => {
+  const s = typeof v === "string" ? v.trim() : "";
+  if (!s) return null;
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(s) ? s + "T00:00:00.000Z" : s;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
+};
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -22,7 +29,8 @@ export async function POST(req: Request) {
       where: { id },
       data: {
         email: str(body?.email),
-        phone: str(body?.phone),
+        phone: str(body?.phone), // work phone
+        personalPhone: str(body?.personalPhone),
         title: str(body?.title),
         status: str(body?.status) ?? "active",
         hireDate: date(body?.hireDate),
