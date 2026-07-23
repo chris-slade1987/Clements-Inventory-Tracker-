@@ -3,26 +3,29 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-// PUBLIC receiver for Verizon Connect Reveal push events (alerts arrive via
-// webhooks — there is NO Alerts REST API). Verizon Connect calls this URL; the
-// CEO submits it in Reveal → Admin → Integrations.
+// PUBLIC receiver for Verizon Connect Reveal push events (GPS plots + alerts —
+// there is NO Alerts REST API). Verizon Connect calls this URL; it's submitted
+// in Reveal → Admin → Integrations and confirmed on the developer side.
 //
-// Security: NO auth session (Verizon can't log in). Reveal authenticates to us
-// with HTTP Basic auth — a username/password WE choose, entered in the Reveal
-// webhook form and mirrored into our env. Auth precedence:
-//   1. If VERIZON_WEBHOOK_USER + VERIZON_WEBHOOK_PASSWORD are set → require a
-//      matching `Authorization: Basic <base64(user:pass)>` header on POST.
+// Auth: Reveal authenticates to us with HTTP Basic auth — a username/password we
+// choose, entered in the Reveal webhook form and mirrored into our env. Precedence:
+//   1. If VERIZON_WEBHOOK_USERNAME (or _USER) + VERIZON_WEBHOOK_PASSWORD are set →
+//      require a matching `Authorization: Basic <base64(user:pass)>` on POST.
 //   2. Else if VERIZON_WEBHOOK_TOKEN is set → require it as ?token=… (legacy).
 //   3. Else → open (no protection configured).
-// We do minimal work — store the raw body as a GpsWebhookEvent and return 200
-// quickly. Never echo credentials or any secret back.
+// We store the raw body as a GpsWebhookEvent, best-effort parse GPS plots into
+// GpsPosition (so pushed positions reach the live map), return 200 fast, and
+// never echo credentials back.
 
+function webhookUser(): string | undefined {
+  return process.env.VERIZON_WEBHOOK_USERNAME || process.env.VERIZON_WEBHOOK_USER;
+}
 function basicConfigured(): boolean {
-  return !!(process.env.VERIZON_WEBHOOK_USER && process.env.VERIZON_WEBHOOK_PASSWORD);
+  return !!(webhookUser() && process.env.VERIZON_WEBHOOK_PASSWORD);
 }
 
 function authOk(req: Request): boolean {
-  const user = process.env.VERIZON_WEBHOOK_USER;
+  const user = webhookUser();
   const pass = process.env.VERIZON_WEBHOOK_PASSWORD;
   if (user && pass) {
     const header = req.headers.get("authorization") ?? "";
@@ -37,7 +40,6 @@ function authOk(req: Request): boolean {
     if (idx === -1) return false;
     return decoded.slice(0, idx) === user && decoded.slice(idx + 1) === pass;
   }
-  // Legacy fallback: optional query token when Basic auth isn't configured.
   const expected = process.env.VERIZON_WEBHOOK_TOKEN;
   if (!expected) return true;
   return new URL(req.url).searchParams.get("token") === expected;
@@ -49,14 +51,113 @@ function unauthorized(): NextResponse {
   return res;
 }
 
+// ---- lenient plot parsing --------------------------------------------------
+type Plot = {
+  verizonNumber: string;
+  ts: Date;
+  lat: number;
+  lng: number;
+  speed?: number | null;
+  heading?: number | null;
+  ignition?: boolean | null;
+  address?: string | null;
+  odometer?: number | null;
+};
+
+function num(v: unknown): number | null {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
+  return null;
+}
+function pick(o: Record<string, unknown>, keys: string[]): unknown {
+  for (const k of keys) if (o[k] != null) return o[k];
+  return undefined;
+}
+function toBool(v: unknown): boolean | null {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (["true", "on", "1", "yes"].includes(s)) return true;
+    if (["false", "off", "0", "no"].includes(s)) return false;
+  }
+  return null;
+}
+
+function parsePlot(o: Record<string, unknown>): Plot | null {
+  const vnRaw = pick(o, ["vehicleNumber", "VehicleNumber", "vehicleId", "VehicleId", "number", "Number", "vehicle", "Vehicle"]);
+  const vn = typeof vnRaw === "string" ? vnRaw : typeof vnRaw === "number" ? String(vnRaw) : null;
+  const lat = num(pick(o, ["latitude", "Latitude", "lat", "Lat"]));
+  const lng = num(pick(o, ["longitude", "Longitude", "lng", "Lng", "lon", "Lon", "long", "Long"]));
+  if (!vn || lat == null || lng == null) return null;
+  const tsRaw = pick(o, ["timestamp", "Timestamp", "eventTime", "EventTime", "gpsTime", "GpsTime", "utcTimestamp", "updateUtc", "time", "Time", "dateTimeUtc"]);
+  const ts = tsRaw != null ? new Date(String(tsRaw)) : new Date();
+  return {
+    verizonNumber: vn,
+    ts: isNaN(ts.getTime()) ? new Date() : ts,
+    lat,
+    lng,
+    speed: num(pick(o, ["speed", "Speed", "speedMph", "speedKph"])),
+    heading: num(pick(o, ["heading", "Heading", "direction", "Direction", "bearing", "Bearing"])),
+    ignition: toBool(pick(o, ["ignition", "Ignition", "ignitionOn", "IgnitionOn", "engineOn"])),
+    address: (() => { const a = pick(o, ["address", "Address", "location", "Location"]); return typeof a === "string" ? a : null; })(),
+    odometer: num(pick(o, ["odometer", "Odometer", "mileage", "Mileage"])),
+  };
+}
+
+// A payload may be a single plot, an array of plots, or an object wrapping an
+// array under a common key. Collect whatever plots we can find.
+function collectPlots(json: unknown): Plot[] {
+  const out: Plot[] = [];
+  const consider = (v: unknown) => {
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const p = parsePlot(v as Record<string, unknown>);
+      if (p) out.push(p);
+    }
+  };
+  if (Array.isArray(json)) json.forEach(consider);
+  else if (json && typeof json === "object") {
+    const o = json as Record<string, unknown>;
+    const arr = pick(o, ["plots", "Plots", "events", "Events", "data", "Data", "items", "Items", "records", "Records"]);
+    if (Array.isArray(arr)) arr.forEach(consider);
+    else consider(json);
+  }
+  return out;
+}
+
+async function persistPlots(plots: Plot[]): Promise<number> {
+  let saved = 0;
+  // Cache vehicle lookups by verizonNumber within this delivery.
+  const cache = new Map<string, string | null>();
+  for (const p of plots) {
+    let vehicleId = cache.get(p.verizonNumber);
+    if (vehicleId === undefined) {
+      const v = await prisma.vehicle.findFirst({ where: { verizonNumber: p.verizonNumber }, select: { id: true } });
+      vehicleId = v?.id ?? null;
+      cache.set(p.verizonNumber, vehicleId);
+    }
+    try {
+      await prisma.gpsPosition.upsert({
+        where: { verizonNumber_ts: { verizonNumber: p.verizonNumber, ts: p.ts } },
+        update: { lat: p.lat, lng: p.lng, speed: p.speed ?? undefined, heading: p.heading ?? undefined, ignition: p.ignition ?? undefined, address: p.address ?? undefined, odometer: p.odometer ?? undefined, vehicleId: vehicleId ?? undefined, sample: false },
+        create: { vehicleId: vehicleId ?? null, verizonNumber: p.verizonNumber, ts: p.ts, lat: p.lat, lng: p.lng, speed: p.speed ?? null, heading: p.heading ?? null, ignition: p.ignition ?? null, address: p.address ?? null, odometer: p.odometer ?? null, sample: false },
+      });
+      saved++;
+    } catch {
+      // Never let a single bad plot fail the delivery.
+    }
+  }
+  return saved;
+}
+
 async function store(req: Request): Promise<NextResponse> {
   if (!authOk(req)) return unauthorized();
 
   const body = await req.text().catch(() => "");
 
-  // Best-effort parse of an event type + vehicle number from common shapes.
   let type: string | null = null;
   let verizonNumber: string | null = null;
+  let plots: Plot[] = [];
   try {
     const json = JSON.parse(body) as Record<string, unknown>;
     const t = json.type ?? json.Type ?? json.eventType ?? json.EventType ?? json.alertType ?? json.AlertType;
@@ -64,23 +165,41 @@ async function store(req: Request): Promise<NextResponse> {
     const vn = json.vehicleNumber ?? json.VehicleNumber ?? json.vehicleId ?? json.VehicleId ?? json.number ?? json.Number;
     if (typeof vn === "string") verizonNumber = vn;
     else if (typeof vn === "number") verizonNumber = String(vn);
+    plots = collectPlots(json);
   } catch {
     // Not JSON (or empty) — still store the raw payload for later inspection.
   }
 
   await prisma.gpsWebhookEvent.create({
-    data: { type, verizonNumber, payload: body.slice(0, 100000), processed: false },
+    data: { type, verizonNumber, payload: body.slice(0, 100000), processed: plots.length > 0 },
   });
 
-  return NextResponse.json({ ok: true });
+  const saved = plots.length ? await persistPlots(plots) : 0;
+  // Brief, secret-free delivery log so the first real webhook is visible in logs.
+  console.log(`[gps-webhook] delivery type=${type ?? "?"} vehicle=${verizonNumber ?? "?"} plots=${plots.length} saved=${saved} bytes=${body.length}`);
+
+  return NextResponse.json({ ok: true, received: plots.length, saved });
 }
 
 export async function POST(req: Request) {
   return store(req);
 }
 
-// Reveal (and most providers) verify an endpoint with a GET first — always
-// answer 200 so verification succeeds; real event delivery is POST + Basic auth.
-export async function GET() {
+// Reveal (and most providers) verify an endpoint with a GET first. Always answer
+// 200, and echo back any challenge/verification token so a challenge-response
+// verification succeeds. Real event delivery is POST + Basic auth.
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const challenge =
+    url.searchParams.get("challenge") ||
+    url.searchParams.get("verificationToken") ||
+    url.searchParams.get("validationToken") ||
+    url.searchParams.get("verification") ||
+    url.searchParams.get("token");
+  console.log(`[gps-webhook] GET verification${challenge ? " (challenge present)" : ""}`);
+  if (challenge) {
+    // Echo the raw challenge as plain text (common) AND include it in JSON.
+    return new NextResponse(challenge, { status: 200, headers: { "content-type": "text/plain" } });
+  }
   return NextResponse.json({ ok: true });
 }
