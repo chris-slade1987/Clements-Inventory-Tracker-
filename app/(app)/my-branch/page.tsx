@@ -9,7 +9,7 @@ import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
-import { checklistStatusForBranch, sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel } from "@/lib/checklists";
+import { checklistStatusForBranch, sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -166,72 +166,64 @@ export default async function MyBranchPage({
         <Tile label={`Q${quarter} scorecard`} value={`${scScore}%`} sub={`${scScored}/${SCORECARD_METRICS.length} scored`} href={`/my-branch/scorecard?branch=${scBranch}&year=${year}&quarter=${quarter}`} />
       </div>
 
-      {/* Recurring tasks — the compliance cadences grouped in one place, each with
-          its frequency + due date on the right. Consolidates the weekly oversight
-          checklist and the monthly vehicle inspections. */}
-      <Card className="p-0 overflow-hidden mb-5" data-testid="recurring-tasks">
+      {/* Manager Checklist — every recurring compliance cadence in ONE place, each
+          flagged Weekly/Monthly with its due date + a live countdown. Anything
+          outstanding is red; anything due within a day turns the row light-red. */}
+      <Card className="p-0 overflow-hidden mb-5" data-testid="manager-checklist">
         <div className="px-4 py-3 border-b border-line">
-          <div className="text-sm font-medium text-ink">Recurring tasks</div>
-          <p className="text-xs text-muted mt-0.5">Your recurring compliance cadences — stay on top of each due date.</p>
+          <div className="text-sm font-medium text-ink">Manager Checklist</div>
+          <p className="text-xs text-muted mt-0.5">Every recurring duty in one place — stay ahead of each due date. Outstanding items are flagged in red.</p>
         </div>
         <ul className="divide-y divide-line">
-          {/* Weekly Oversight Checklist */}
-          {(() => {
-            const done = !!weekly?.completed;
-            const overdue = !!weekly && !done && weekly.overdue;
-            const status = done && weekly?.completion
-              ? `✓ Signed by ${weekly.completion.signedName}`
-              : overdue ? "Overdue — not yet signed" : "Due — not yet signed";
-            return (
-              <li>
-                <Link href={`/checklists/weekly?branch=${scBranch}`} className="flex items-center gap-3 px-4 py-3.5 hover:bg-black/[0.02]">
-                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : overdue ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-sm font-medium text-ink">Weekly Oversight Checklist</span>
-                    <span className={`block text-xs ${done ? "text-brand-600" : overdue ? "text-red-600" : "text-muted"}`}>{status}</span>
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block"><FreqBadge>Weekly</FreqBadge></span>
-                    <span className="mt-1 block text-[11px] text-muted">Due {fridayLabel(now)}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })()}
-          {/* Vehicle Inspections (monthly) */}
-          <li>
-            <Link href="/my-branch/inspections" className="flex items-center gap-3 px-4 py-3.5 hover:bg-black/[0.02]">
-              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${insp.total > 0 && insp.pending === 0 ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700"}`}>{insp.total > 0 && insp.pending === 0 ? "✓" : "!"}</span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-medium text-ink">Vehicle Inspections</span>
-                <span className="block text-xs text-muted">{insp.total > 0 ? `${insp.completed}/${insp.total} done this month` : "No vehicles assigned"}</span>
-              </span>
-              <span className="shrink-0 text-right">
-                <span className="block"><FreqBadge>Monthly</FreqBadge></span>
-                <span className="mt-1 block text-[11px] text-muted">Due {endOfMonthLabel(now)}</span>
-              </span>
-            </Link>
-          </li>
-        </ul>
-      </Card>
-
-      {/* This month's checklist — the single home for the recurring monthly duties
-          that feed the quarterly scorecard. */}
-      <Card className="p-0 overflow-hidden mb-5">
-        <div className="px-4 py-3 border-b border-line">
-          <div className="text-sm font-medium text-ink">This month&rsquo;s checklist</div>
-          <p className="text-xs text-muted mt-0.5">Your recurring monthly duties. These feed your Q{quarter} scorecard.</p>
-        </div>
-        <ul className="divide-y divide-line">
-          <ChecklistRow
-            done={insp.total > 0 && insp.pending === 0}
-            label="Vehicle inspections"
-            detail={insp.total > 0 ? `${insp.completed} of ${insp.total} completed` : "No vehicles assigned"}
-            href="/my-branch/inspections"
-          />
-          <ChecklistRow done={warehouse.done} label="Warehouse safety inspection" detail={warehouse.done ? "Logged this month" : "Not logged yet"} href="/my-branch/warehouse" />
-          <ChecklistRow done={false} label="Quality control reports" detail="Not logged yet" href="/my-branch/qc" />
-          <ChecklistRow done={trainingDone} label="Onboarding / CEU training" detail={totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`} href="/my-branch/training" />
+          {[
+            {
+              label: "Weekly Oversight Checklist",
+              href: `/checklists/weekly?branch=${scBranch}`,
+              done: !!weekly?.completed,
+              status: weekly?.completed && weekly.completion ? `✓ Signed by ${weekly.completion.signedName}` : "Not yet signed",
+              cadence: "Weekly" as const,
+              due: fridayEndOf(now),
+              dueLabel: fridayLabel(now),
+            },
+            {
+              label: "Vehicle Inspections",
+              href: "/my-branch/inspections",
+              done: insp.pending === 0,
+              status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned",
+              cadence: "Monthly" as const,
+              due: endOfMonth(now),
+              dueLabel: endOfMonthLabel(now),
+            },
+            {
+              label: "Warehouse safety inspection",
+              href: "/my-branch/warehouse",
+              done: warehouse.done,
+              status: warehouse.done ? "Logged this month" : "Not logged yet",
+              cadence: "Monthly" as const,
+              due: endOfMonth(now),
+              dueLabel: endOfMonthLabel(now),
+            },
+            {
+              label: "Quality control reports",
+              href: "/my-branch/qc",
+              done: false,
+              status: "Not logged yet",
+              cadence: "Monthly" as const,
+              due: endOfMonth(now),
+              dueLabel: endOfMonthLabel(now),
+            },
+            {
+              label: "Onboarding / CEU training",
+              href: "/my-branch/training",
+              done: totalTraining === 0 || trainingDone,
+              status: totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`,
+              cadence: "Monthly" as const,
+              due: endOfMonth(now),
+              dueLabel: endOfMonthLabel(now),
+            },
+          ].map((row) => (
+            <ManagerChecklistRow key={row.label} {...row} now={now} />
+          ))}
         </ul>
       </Card>
 
@@ -312,16 +304,42 @@ function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
   );
 }
 
-function ChecklistRow({ done, label, detail, href }: { done: boolean; label: string; detail: string; href: string }) {
+// Whole calendar-day difference (UTC) from `now` to `due`: today=0, tomorrow=1,
+// yesterday=-1. Ignores time-of-day so "due in N days" / "due today" read right.
+function daysUntilCal(due: Date, now: Date): number {
+  const d0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const d1 = Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate());
+  return Math.round((d1 - d0) / 86400000);
+}
+
+function ManagerChecklistRow({
+  label, href, done, status, cadence, due, dueLabel, now,
+}: {
+  label: string; href: string; done: boolean; status: string;
+  cadence: "Weekly" | "Monthly"; due: Date; dueLabel: string; now: Date;
+}) {
+  const n = daysUntilCal(due, now);
+  const overdue = n < 0;
+  // Urgency escalates the whole row once it's within a day of due (or overdue).
+  const urgent = !done && n <= 1;
+  const countdown = done
+    ? null
+    : overdue
+      ? `Overdue by ${-n} day${n === -1 ? "" : "s"}`
+      : n === 0 ? "Due today" : n === 1 ? "Due tomorrow" : `Due in ${n} days`;
   return (
     <li>
-      <Link href={href} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
-        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : "bg-red-100 text-red-700"}`}>{done ? "✓" : "!"}</span>
-        <span className="flex-1">
-          <span className={`block text-sm font-medium ${done ? "text-brand-700" : "text-red-600"}`}>{label}</span>
-          <span className="block text-xs text-muted">{detail}</span>
+      <Link href={href} className={`flex items-center gap-3 px-4 py-3.5 ${urgent ? "bg-red-50 hover:bg-red-100" : "hover:bg-black/[0.02]"}`}>
+        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : urgent ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
+        <span className="flex-1 min-w-0">
+          <span className={`block text-sm font-medium ${done ? "text-ink" : "text-red-600"}`}>{label}</span>
+          <span className={`block text-xs ${done ? "text-brand-600" : "text-red-600"}`}>{status}</span>
         </span>
-        <span className={`text-[11px] font-medium ${done ? "text-brand-600" : "text-red-600"}`}>{done ? "Done" : "Action needed"}</span>
+        <span className="shrink-0 text-right">
+          <span className="block"><FreqBadge>{cadence}</FreqBadge></span>
+          <span className="mt-1 block text-[11px] text-muted">Due by {dueLabel}</span>
+          {countdown ? <span className={`block text-[11px] font-medium ${urgent ? "text-red-600" : "text-muted"}`}>{countdown}</span> : null}
+        </span>
       </Link>
     </li>
   );
