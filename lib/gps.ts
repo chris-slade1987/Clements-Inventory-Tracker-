@@ -127,7 +127,9 @@ async function syncLive(): Promise<{ vehicles: number; positions: number; trips:
 
   const raw = await listVehicles();
   const now = new Date();
-  const since = new Date(now.getTime() - 24 * 3600 * 1000);
+  // Look back 7 days so sparse/after-hours history still surfaces the latest
+  // known position per vehicle (the status/history API allows up to 30 days).
+  const since = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
 
   let vehicleCount = 0;
   let positionCount = 0;
