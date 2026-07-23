@@ -387,6 +387,12 @@ model Vehicle {
   registrationRenewal DateTime? @map("registration_renewal")
   gps                 String? // GPS device / "NO GPS"
 
+  // GPS tracking (Verizon Connect Reveal). `verizonNumber` is the Reveal vehicle
+  // number this record is linked to (set on sync when a match is found by
+  // VIN/plate/unit/name); `verizonLinkedAt` records when the link was made.
+  verizonNumber   String?   @map("verizon_number")
+  verizonLinkedAt DateTime? @map("verizon_linked_at")
+
   // Financing (loan). hasLoan is derived from these being present.
   loanBank       String?   @map("loan_bank")
   loanNumber     String?   @map("loan_number")
@@ -401,9 +407,100 @@ model Vehicle {
   documents   VehicleDocument[]
   reminders   Reminder[]
   fuel        FuelTransaction[]
+  gpsPositions GpsPosition[]
+  gpsTrips     GpsTrip[]
 
   @@index([branch])
+  @@index([verizonNumber])
   @@map("vehicles")
+}
+
+// ---------------------------------------------------------------------------
+// GPS tracking (Verizon Connect Reveal). Phase 1: a near-real-time position
+// store fed by a server-side sync (latest status-history entry per vehicle) and
+// a webhook receiver. On-hand rule doesn't apply here — these are append-mostly
+// telemetry snapshots, deduped by (verizonNumber, ts). No credentials are ever
+// stored; the connector reads them from env server-side only.
+// ---------------------------------------------------------------------------
+
+// A single near-real-time position snapshot for a vehicle (from the latest
+// status/history entry, or synthesized sample data when Verizon isn't
+// configured). `vehicleId` is null when the Reveal vehicle isn't linked yet.
+model GpsPosition {
+  id            String   @id @default(cuid())
+  vehicleId     String?  @map("vehicle_id")
+  verizonNumber String   @map("verizon_number")
+  ts            DateTime
+  lat           Float
+  lng           Float
+  speed         Float?
+  heading       Float?
+  address       String?
+  ignition      Boolean?
+  odometer      Float?
+  sample        Boolean  @default(false) // true = synthesized demo data (Verizon not configured)
+  raw           String?  // raw JSON from Reveal (kept for traceability)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@unique([verizonNumber, ts])
+  @@index([vehicleId, ts])
+  @@map("gps_positions")
+}
+
+// A journey or stop for a vehicle on a given day (from /rad segments).
+model GpsTrip {
+  id            String   @id @default(cuid())
+  vehicleId     String?  @map("vehicle_id")
+  verizonNumber String   @map("verizon_number")
+  day           DateTime
+  startTs       DateTime? @map("start_ts")
+  endTs         DateTime? @map("end_ts")
+  kind          String    @default("other") // "journey" | "stop" | "other"
+  distanceMi    Float?    @map("distance_mi")
+  startAddress  String?   @map("start_address")
+  endAddress    String?   @map("end_address")
+  sample        Boolean   @default(false)
+  raw           String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@unique([verizonNumber, startTs, kind])
+  @@index([vehicleId, day])
+  @@map("gps_trips")
+}
+
+// One sync run (manual "Refresh" or cron). Captures counts + ok/error so the
+// Live Map can show the last sync time and surface failures without throwing.
+model GpsSyncLog {
+  id         String    @id @default(cuid())
+  startedAt  DateTime  @default(now()) @map("started_at")
+  finishedAt DateTime? @map("finished_at")
+  ok         Boolean   @default(false)
+  vehicles   Int       @default(0)
+  positions  Int       @default(0)
+  trips      Int       @default(0)
+  error      String?
+  note       String?
+
+  @@index([startedAt])
+  @@map("gps_sync_logs")
+}
+
+// A raw push event from Verizon Connect Reveal (alerts arrive via webhooks —
+// there is no Alerts REST API). Stored best-effort and processed later.
+model GpsWebhookEvent {
+  id            String   @id @default(cuid())
+  receivedAt    DateTime @default(now()) @map("received_at")
+  type          String?
+  verizonNumber String?  @map("verizon_number")
+  payload       String
+  processed     Boolean  @default(false)
+
+  @@index([receivedAt])
+  @@map("gps_webhook_events")
 }
 
 // A single line from a Coast fuel-card statement. Purchases link to a vehicle

@@ -14,6 +14,7 @@ import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
 import VehicleDocuments from "./VehicleDocuments";
 import RemindersCard from "@/components/RemindersCard";
+import VehicleGpsPanel from "@/components/gps/VehicleGpsPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,9 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           {v.purchasePrice != null ? <div className="mt-2 text-xs text-muted">Purchase price: {money(v.purchasePrice)}</div> : null}
         </Card>
       </div>
+
+      {/* GPS / Location — near-real-time position, trail & today's trips */}
+      <VehicleGpsPanel vehicleId={v.id} />
 
       {/* Fuel — Coast card purchases linked to this vehicle, with range switch */}
       <VehicleFuelPanel

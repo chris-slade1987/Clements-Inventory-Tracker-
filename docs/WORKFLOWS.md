@@ -25,7 +25,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Module | ✅ | ⚠️ | ❌ | 🆕 | Total |
 |---|---|---|---|---|---|
 | Inventory | 5 | 0 | 0 | 2 | 7 |
-| Fleet | 6 | 1 | 0 | 2 | 9 |
+| Fleet | 11 | 1 | 0 | 2 | 14 |
 | People / HR | 11 | 0 | 0 | 0 | 11 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
 | Checklists | 3 | 0 | 0 | 0 | 3 |
@@ -33,7 +33,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 2 | 0 | 0 | 0 | 2 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **38** | **3** | **0** | **9** | **50** |
+| **Total** | **43** | **3** | **0** | **9** | **55** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -65,6 +65,11 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | Vehicle disposition / retirement | Retire / mark sold (sold/retired/totaled/traded/transferred) → inactive, history kept; reactivate. (`/fleet/[id]`, `/fleet/retired`, `/api/fleet/vehicle`) | — | — | 🆕 | Not in the manual. Add a short "Retiring a vehicle" note if managers do this. |
 | Fleet reminders engine | Inspection-due, maintenance-due, registration (60d), loan payoff (45d), insurance renewal (90d), manual reminders; surfaced on `/fleet` + `/my-branch`. (`lib/reminders.ts`) | Company Vehicles (expiry reminders) | — | ✅ | Aligned. |
 | Insurance policies + docs + expiry | AI-parse policy uploads; installment/renewal forecasting; renewals-in-90-days; company-wide `policy_renewal` reminders. (`/management/insurance`, `/api/insurance/*`) | Company Vehicles (insurance logging) — partial | — | ⚠️ | Manual mentions "insurance logging" only under Fleet; the management Insurance center is broader. **Open:** decide whether to describe it in the manual. |
+| GPS connector + auth (Verizon Reveal) | Server-only connector: two-step auth (Basic → 20-min bearer token, cached in-memory, refreshed on expiry / 401 retry-once) + `Atmosphere atmosphere_app_id=…, Bearer …` header on every data call; CMD vehicles + RAD status-history/segments; lenient field normalizers. `isConfigured()` gate flips live↔sample. Credentials from env ONLY. (`lib/verizon.ts`) | Company Vehicles › GPS / Live Fleet Tracking | — | ✅ | **New (Phase 1).** Live gated on `VERIZON_*` env vars in Vercel; sandbox runs sample-data fallback. |
+| GPS fleet sync | Admin/cron runs `syncFleet()`: match Reveal vehicles to ours (VIN → plate → unit# → name), store `verizonNumber`/`verizonLinkedAt`, upsert last-24h positions (dedupe `[verizonNumber, ts]`) + today's trips; write a `GpsSyncLog` (never throws). Not configured → seeds a capped, idempotent **sample** set. (`/api/gps/sync`, `lib/gps.ts`) | Company Vehicles › GPS / Live Fleet Tracking | — | ✅ | **New (Phase 1).** Admin-only (403 otherwise). |
+| GPS webhook receiver | PUBLIC endpoint storing raw Verizon push events (alerts — there is no Alerts REST API) as `GpsWebhookEvent` (best-effort `type`/vehicle parse), returns 200 fast; optional `?token=` guard via `VERIZON_WEBHOOK_TOKEN` (401 otherwise). CEO submits the URL in Reveal → Admin → Integrations. (`/api/gps/webhook`) | Company Vehicles › GPS / Live Fleet Tracking | — | ✅ | **New (Phase 1).** No session (Verizon can't log in); never echoes secrets. |
+| Fleet Live Map | Leaflet + OpenStreetMap map (client-only via `next/dynamic ssr:false`; OSM attribution) with a status-colored marker per tracked vehicle + a side list; branch filter (managers pinned); moving/idle/stopped/offline rollup + last-sync + sample/error banners; admin **Refresh**. (`/fleet/map`) | Company Vehicles › GPS / Live Fleet Tracking | — | ✅ | **New (Phase 1).** Reads the local GPS store. |
+| Per-vehicle GPS panel | Mini-map of latest position + last-24h trail, last-seen/speed/ignition/odometer, and today's trips; link to the Live Map. (`/fleet/[id]`) | Company Vehicles › GPS / Live Fleet Tracking | — | ✅ | **New (Phase 1).** DEFERRED to Phase 2: GPS analytics dashboard + AI GPS alerts. |
 
 ## People / HR
 

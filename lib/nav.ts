@@ -314,6 +314,12 @@ export const FLEET_NAV: NavItem[] = [
     icon: "M3 13l2-5h11l3 5M5 13h14v4H5zM7 17a2 2 0 104 0 2 2 0 00-4 0zm8 0a2 2 0 104 0 2 2 0 00-4 0z",
   },
   {
+    href: "/fleet/map",
+    label: "Live Map",
+    shortLabel: "Map",
+    icon: "M12 21s-7-6.3-7-11a7 7 0 1114 0c0 4.7-7 11-7 11zm0-8.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z",
+  },
+  {
     href: "/fleet/service",
     label: "Log Service",
     shortLabel: "Service",

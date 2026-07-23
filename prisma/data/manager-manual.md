@@ -1,8 +1,8 @@
 # Clements Manager Operating Manual
 
-**Version 3**  ·  Last updated July 23, 2026
+**Version 4**  ·  Last updated July 23, 2026
 
-*This is a living, manager-only reference. It preserves the original operating manual and has been reconciled against what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**. *Version 3 adds the **Attendance / Call-Outs** tracking flow to the Technician Absence Policy (call-outs are now logged on the employee profile, with the >2-day illness medical-note rule and the physical-injury → accident-report link). Version 2 replaced the last remaining paper-form procedures — the routine vehicle/equipment maintenance logs and the monthly vehicle inspection form — with the Fleet "Log Service" and digital inspection workflows they became, and corrected the inventory escalation contacts.*
+*This is a living, manager-only reference. It preserves the original operating manual and has been reconciled against what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**. *Version 4 adds the **GPS / Live Fleet Tracking** subsection under Company Vehicles (the portal Live Map and per-vehicle location/trips, reading near-real-time data from Verizon Connect Reveal). Version 3 added the **Attendance / Call-Outs** tracking flow to the Technician Absence Policy (call-outs are now logged on the employee profile, with the >2-day illness medical-note rule and the physical-injury → accident-report link). Version 2 replaced the last remaining paper-form procedures — the routine vehicle/equipment maintenance logs and the monthly vehicle inspection form — with the Fleet "Log Service" and digital inspection workflows they became, and corrected the inventory escalation contacts.*
 
 ## What's new in the portal
 
@@ -10,6 +10,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 
 - **Inventory** is tracked in the portal, not a spreadsheet: invoice-reader **Check-In** with a **confirm queue** for new products, unit-governed **Check-Out**, an **over-dispense hard stop** with one-click escalation to senior management, and month-end **Reconcile** with a full audit trail. See *Inventory Process & Procedure*.
 - **Fleet** module for vehicle records, monthly inspections, maintenance/fuel/insurance logging, and a document center with expiry reminders. See *Company Vehicles*.
+- **GPS / Live Fleet Tracking** — a live map of the fleet and a per-vehicle location panel, reading near-real-time positions and trips from **Verizon Connect Reveal**. See *GPS / Live Fleet Tracking*.
 - **Hiring / ATS** and **online onboarding** with interview scorecards and 30/60-day new-hire reviews. See *Hiring / Onboarding*.
 - **Management dashboards** (branch drill-down, budget-vs-actual, attrition, revenue by line of business) and the **Insights** assistant for KPI review and All-Hands prep. See *Monthly Responsibilities*.
 - **PTO** request/approval with a team & company time-off calendar. See *Paid Time Off (PTO)*.
@@ -32,6 +33,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - [Callback Policy](#callback-policy)
 - [Technician Absence Policy](#technician-absence-policy)
 - [Company Vehicles](#company-vehicles)
+- [GPS / Live Fleet Tracking](#gps-live-fleet-tracking)
 - [New Vehicle Onboarding Checklist](#new-vehicle-onboarding-checklist)
 - [Company Vehicle Cleaning Procedures](#company-vehicle-cleaning-procedures)
 - [Routine Vehicle Maintenance Log](#routine-vehicle-maintenance-log)
@@ -514,6 +516,16 @@ Step 5: PestPac Follow-Up
 ## Company Vehicles
 
 > **Portal (v1) — vehicle records and logs now live in the Fleet module.** The onboarding checklist, cleaning cadence, maintenance and equipment logs, the inspection form, and the spare-vehicle checklist below are all tracked in **Fleet**: each vehicle has a record, monthly **inspections** are completed and graded in the portal, and **maintenance, fuel, and insurance** are logged against the vehicle. Fleet also has a **document center** (registration, insurance, title) with **expiry reminders**. The procedures below still define the standard; the portal is where the results are recorded.
+
+## GPS / Live Fleet Tracking
+
+> **Portal (v1).** The Fleet module includes GPS tracking that reads from our **Verizon Connect Reveal** telematics account. It shows **near-real-time** vehicle locations — location updates come from each vehicle's most recent Reveal position report, so the map reflects the last reported position rather than a continuous live stream.
+
+- **Live Map** (**Fleet → Live Map**, `/fleet/map`). A map of the fleet with a status-colored pin per tracked vehicle — **moving** (green), **idling** (amber), **stopped** (grey), or **offline** (no report in the last several hours). A summary strip counts each status, and a side list shows every vehicle with its last-seen time, speed, and address; click a vehicle to open its profile. Admins can filter by branch; branch managers see their own branch. The map uses OpenStreetMap.
+- **Refresh (admins).** The Live Map's **Refresh** button pulls the latest positions and today's trips from Reveal on demand. (A scheduled sync can also keep it current; positions are stored so the map still loads instantly between syncs.)
+- **Per-vehicle location** (on a vehicle's profile, `/fleet/[id]`). A **GPS / Location** panel shows a mini-map of the vehicle's latest position and its trail over the last 24 hours, plus last-seen, speed, ignition, odometer, and **today's trips** (journeys and stops). A link jumps to the Live Map.
+- **What it's for.** Dispatch and "where is my crew" questions, confirming a technician is on-site, and reviewing the day's route. It does **not** track what is applied at a stop — chemical usage is never tied to GPS.
+- **Setup / go-live.** Tracking is **gated on the Verizon credentials** being set in the hosting environment (server-side only — they never reach the browser). Until they're configured, the map and panels run on a clearly-labeled **sample data** set so the workflow can be previewed. Reveal **alerts** (e.g. speeding, unauthorized use) are delivered to the portal by webhook rather than pulled on a schedule.
 
 ## New Vehicle Onboarding Checklist
 
