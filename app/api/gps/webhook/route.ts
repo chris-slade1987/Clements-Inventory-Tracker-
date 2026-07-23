@@ -222,9 +222,13 @@ async function store(req: Request): Promise<NextResponse> {
   }
 
   // (2) Subscription-confirmation handling — BEFORE requiring Basic auth.
+  // Fleetmatics' GPS Push Service is AWS SNS-based: the first message is an SNS
+  // SubscriptionConfirmation carrying a top-level SubscribeURL we must GET. Catch
+  // both the SNS message-type header and the body signals.
+  const snsType = (req.headers.get("x-amz-sns-message-type") ?? "").toLowerCase();
   const confirm = detectConfirmation(url, json);
-  if (confirm.isConfirmation) {
-    console.log(`[gps-webhook] subscription confirmation received snippet="${snippet}"`);
+  if (confirm.isConfirmation || snsType === "subscriptionconfirmation") {
+    console.log(`[gps-webhook] subscription confirmation received sns="${snsType || "-"}" snippet="${snippet}"`);
     // Always store the raw payload so we can inspect the confirmation later.
     await prisma.gpsWebhookEvent
       .create({ data: { type: type ?? "SubscriptionConfirmation", verizonNumber, payload: body.slice(0, 100000), processed: true } })
