@@ -115,3 +115,45 @@ handbook's section titles.
 18. **"Posting Work to Mobile App" (PestPac) unchanged.** The field-service logging policy still
     references PestPac Mobile, which remains accurate — the Command & Control portal does not
     track per-stop service. Left as-is (no portal mechanic to reconcile).
+
+## Attendance / Call-Out tracking + doctor's-note policy — July 23, 2026
+
+*Added when the **Attendance / Call-Outs** feature shipped (`lib/absence.ts`, `/api/absence`,
+the "Attendance / Call-Outs" profile card, and **People / HR → Call-out overview**). **No
+handbook policy language was changed** — these are flags for HR/legal to formalize the written
+policy. The handbook body was NOT edited, so there is **no `employee-handbook` version bump and
+no re-acknowledgment** from this change.*
+
+19. **Item 17 is now partially addressed — but the WRITTEN policy should be formalized.** The
+    prior reconciliation note (#17) observed that the portal did not capture sick-day call-outs.
+    It now does: managers/HR log unplanned absences on the employee profile, and HR monitors
+    patterns in the Call-out overview. **The phone-call reporting requirement in both PTO
+    appendices was NOT changed** — a call to the Branch Manager is still the required
+    notification; the portal is where HR *records* the absence afterward. HR/legal should decide
+    whether to add a short written **Attendance / Call-Out policy** to the handbook describing:
+    (a) the phone-call notification chain (unchanged), and (b) that call-outs are logged and
+    monitored for attendance patterns.
+
+20. **Doctor's-note / medical-certification rule — recommend a written policy.** The portal
+    applies a consistent rule: an **illness (employee or family) lasting more than 2 calendar
+    days** auto-flags a **medical-note requirement**. The portal stores only the note **status**
+    (requested / received / **waived**) and **never any diagnosis or medical detail**. HR/legal
+    should formalize the threshold and confirm it is applied uniformly. Points for counsel:
+    - **ADA.** A returning-to-work / fitness-for-duty note should confirm the **absence** (and
+      any work restrictions), **not** request a diagnosis; medical information must be kept
+      confidential and separate from the personnel file. The portal's status-only design supports
+      this — confirm the written policy matches.
+    - **FMLA.** For an FMLA-covered serious health condition, the appropriate instrument is an
+      **FMLA medical certification**, which is distinct from a simple doctor's note. Confirm
+      Clements' FMLA coverage (see #6) and how the note requirement interacts with FMLA
+      certification so the two are not conflated. The portal's **"waived"** status is the intended
+      path for FMLA/ADA situations where a note is not separately required.
+    - **FL workers' compensation.** When an absence is a **workplace physical injury** (the
+      portal links it to the workplace accident report), the **workers'-comp-authorized provider**
+      governs work status and documentation — the ordinary doctor's-note rule should defer to the
+      comp process. Confirm the written policy routes injury absences through workers' comp rather
+      than the standard note requirement.
+
+    *HR/legal: please confirm the >2-day threshold, the ADA/FMLA/workers'-comp handling above, and
+    whether any of this should be added to the handbook (which would trigger a version bump +
+    re-acknowledgment).*

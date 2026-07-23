@@ -1,8 +1,8 @@
 # Clements Manager Operating Manual
 
-**Version 2**  ·  Last updated July 21, 2026
+**Version 3**  ·  Last updated July 23, 2026
 
-*This is a living, manager-only reference. It preserves the original operating manual and has been reconciled against what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**. *Version 2 replaces the last remaining paper-form procedures — the routine vehicle/equipment maintenance logs and the monthly vehicle inspection form — with the Fleet "Log Service" and digital inspection workflows they became, and corrects the inventory escalation contacts.*
+*This is a living, manager-only reference. It preserves the original operating manual and has been reconciled against what the Clements Command & Control portal actually does today. Portal notes are marked* **Portal (v1)**. *Version 3 adds the **Attendance / Call-Outs** tracking flow to the Technician Absence Policy (call-outs are now logged on the employee profile, with the >2-day illness medical-note rule and the physical-injury → accident-report link). Version 2 replaced the last remaining paper-form procedures — the routine vehicle/equipment maintenance logs and the monthly vehicle inspection form — with the Fleet "Log Service" and digital inspection workflows they became, and corrected the inventory escalation contacts.*
 
 ## What's new in the portal
 
@@ -13,6 +13,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Hiring / ATS** and **online onboarding** with interview scorecards and 30/60-day new-hire reviews. See *Hiring / Onboarding*.
 - **Management dashboards** (branch drill-down, budget-vs-actual, attrition, revenue by line of business) and the **Insights** assistant for KPI review and All-Hands prep. See *Monthly Responsibilities*.
 - **PTO** request/approval with a team & company time-off calendar. See *Paid Time Off (PTO)*.
+- **Attendance / Call-Outs** logging for unplanned absences (separate from PTO — monitoring only), with an automatic medical-note rule for illness over 2 days and a physical-injury → accident-report link. See *Technician Absence Policy*.
 - **Attested checklists** for weekly & monthly manager responsibilities, with a leadership completion rollup. See *Weekly* and *Monthly Responsibilities*.
 - **Branch Hub** for on-site licenses/documents with expiry reminders. See *FDACS On-site Document Management* and *Warehouse Safety*.
 
@@ -439,6 +440,39 @@ Starting now, any technician who:
 - Forfeiture of any monthly completion bonus for six months
 
 ## Technician Absence Policy
+
+> **Portal (v1) — call-outs are now logged in Attendance / Call-Outs.** The phone-call
+> notification chain below is unchanged (a **call** to the Branch Manager is still required — no
+> unconfirmed texts). What changed is Step 4: unplanned absences are now recorded in the portal
+> instead of only an HR spreadsheet. On the employee's profile (**People / HR → employee**, or
+> **My Team → member** for a branch manager) open **"Attendance / Call-Outs"** and log the
+> absence with a **calendar date range** and a **reason** (illness, family illness, family
+> emergency, bereavement, physical injury, personal, medical appointment, transportation, no
+> call/no show, other). This is **separate from PTO** — there is **no allowance**; it is a
+> monitoring record so HR can spot patterns.
+>
+> - **Branch managers** may log and view call-outs for **their own branch only**. When a branch
+>   manager logs one, the portal automatically emails and in-app alerts the **CEO and the HR
+>   director** so the office is looped in (this replaces the manual "supervisor calls April" relay,
+>   though the courtesy call is still good practice). Admin/HR logging their own do not trigger
+>   the alert.
+> - **Illness lasting more than 2 days** (employee or family) automatically flags a
+>   **medical-note requirement**. The portal tracks only the note **status** — *requested →
+>   received / waived* — and **never any diagnosis or medical detail**. Only **HR/admin** can mark
+>   a note received or waive it (waive is the FMLA/ADA path). Outstanding notes appear on the
+>   profile banner, in **People / HR → Call-out overview**, and as a count badge on the People/HR
+>   page.
+> - **Physical injury:** choosing that reason requires answering **"Is this related to a
+>   workplace accident?"** If **Yes**, link the employee's existing **accident report**; the
+>   profile and the accident report then both show an **out-of-work** banner tying the injury to
+>   the time off (workers'-comp / OSHA context).
+> - **Corrections:** nothing is ever deleted — edit the call-out to correct it (the record is an
+>   HR audit trail).
+>
+> The **Call-out overview** (People / HR → Call-out overview) is HR's monitoring screen:
+> outstanding medical notes, recent call-outs across the company, and a trailing-90-day pattern
+> table highlighting frequent call-outs. Step 5 (PestPac schedule follow-up on return) is
+> unchanged.
 
 If a technician needs to call out or leave early:
 

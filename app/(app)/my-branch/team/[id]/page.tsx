@@ -8,6 +8,8 @@ import { dateShort } from "@/lib/format";
 import { employeeRecords, recordTypeLabel } from "@/lib/personnel";
 import { parseJson } from "@/lib/inspection";
 import PtoProfileCard from "@/components/PtoProfileCard";
+import AbsenceCard from "@/components/AbsenceCard";
+import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLabel } from "@/lib/absence";
 import RecordForm from "./RecordForm";
 import SignatureBlock from "./SignatureBlock";
 
@@ -29,6 +31,21 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
 
   const records = await employeeRecords(id);
 
+  // Call-outs linked to an accident report — surfaced on the accident record.
+  const empAbsences = await absencesForEmployee(id);
+  const injuryByRecord = new Map<string, typeof empAbsences>();
+  for (const a of empAbsences) {
+    if (a.accidentRecordId) {
+      const arr = injuryByRecord.get(a.accidentRecordId) ?? [];
+      arr.push(a);
+      injuryByRecord.set(a.accidentRecordId, arr);
+    }
+  }
+  const fmtRange = (a: { startDate: Date; endDate: Date; days: number }) => {
+    const f = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    return a.days > 1 ? `${f(a.startDate)} – ${f(a.endDate)}` : f(a.startDate);
+  };
+
   return (
     <>
       <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">← My Team</Link></div>
@@ -37,6 +54,12 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
       <PtoProfileCard
         employeeId={employee.id}
         canManage={user.role === "admin" || user.hrAccess || (user.role === "manager" && !!user.branch && user.branch === employee.branch)}
+      />
+
+      <AbsenceCard
+        employeeId={employee.id}
+        canManage={canManageAbsenceBranch(user, employee.branch)}
+        canResolve={canResolveNotes(user)}
       />
 
       <RecordForm employeeId={employee.id} employeeName={employee.name} />
@@ -66,6 +89,14 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
                   ) : null}
                   {r.actionTaken ? <div className="mt-1 text-xs"><span className="font-medium text-ink">Action:</span> <span className="text-muted">{r.actionTaken}</span></div> : null}
                   {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
+                  {r.type === "accident" && injuryByRecord.has(r.id) ? (
+                    <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                      <span className="font-semibold">Employee out of work due to this injury:</span>{" "}
+                      {injuryByRecord.get(r.id)!.map((a, i) => (
+                        <span key={a.id}>{i > 0 ? "; " : ""}{fmtRange(a)} ({reasonLabel(a.reason).toLowerCase()}, note {a.noteStatus})</span>
+                      ))}
+                    </div>
+                  ) : null}
                   {(r.type === "writeup" || r.type === "accident") ? (
                     <SignatureBlock
                       recordId={r.id}

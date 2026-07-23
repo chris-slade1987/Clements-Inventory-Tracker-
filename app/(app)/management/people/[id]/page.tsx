@@ -11,6 +11,8 @@ import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
 import PtoProfileCard from "@/components/PtoProfileCard";
+import AbsenceCard from "@/components/AbsenceCard";
+import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLabel } from "@/lib/absence";
 import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
@@ -58,6 +60,22 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const hr = isHrDirector(user);
   const canEdit = user.role === "admin" || hr;
 
+  // Call-outs linked to an accident report — surfaced on the accident record so
+  // the injury → time-off connection is visible with the report.
+  const empAbsences = await absencesForEmployee(e.id);
+  const injuryByRecord = new Map<string, typeof empAbsences>();
+  for (const a of empAbsences) {
+    if (a.accidentRecordId) {
+      const arr = injuryByRecord.get(a.accidentRecordId) ?? [];
+      arr.push(a);
+      injuryByRecord.set(a.accidentRecordId, arr);
+    }
+  }
+  const fmtRange = (a: { startDate: Date; endDate: Date; days: number }) => {
+    const f = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    return a.days > 1 ? `${f(a.startDate)} – ${f(a.endDate)}` : f(a.startDate);
+  };
+
   return (
     <>
       <div className="mb-2">
@@ -100,6 +118,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
 
       {/* Paid time off — balance + upcoming/recent approved (HR/admin can set allotment) */}
       <PtoProfileCard employeeId={e.id} canManage={canEdit} />
+
+      {/* Attendance / Call-Outs — monitoring record + medical-note rule */}
+      <AbsenceCard employeeId={e.id} canManage={canManageAbsenceBranch(user, e.branch)} canResolve={canResolveNotes(user)} />
 
       {/* Employment status / offboarding (HR & admin) */}
       <Offboarding
@@ -232,6 +253,14 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
                 {r.title ? <div className="mt-1 text-sm font-medium text-ink">{r.title}</div> : null}
                 {r.body ? <div className="mt-0.5 text-sm text-muted whitespace-pre-line">{r.body}</div> : null}
                 {r.attachmentFile ? <a href={r.attachmentFile} target="_blank" className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">📎 {r.attachmentName ?? "attachment"}</a> : null}
+                {r.type === "accident" && injuryByRecord.has(r.id) ? (
+                  <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                    <span className="font-semibold">Employee out of work due to this injury:</span>{" "}
+                    {injuryByRecord.get(r.id)!.map((a, i) => (
+                      <span key={a.id}>{i > 0 ? "; " : ""}{fmtRange(a)} ({reasonLabel(a.reason).toLowerCase()}, note {a.noteStatus})</span>
+                    ))}
+                  </div>
+                ) : null}
                 {(r.type === "writeup" || r.type === "accident") ? (
                   <SignatureBlock
                     recordId={r.id}

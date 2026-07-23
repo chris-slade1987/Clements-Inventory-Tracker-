@@ -26,14 +26,14 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 |---|---|---|---|---|---|
 | Inventory | 5 | 0 | 0 | 2 | 7 |
 | Fleet | 6 | 1 | 0 | 2 | 9 |
-| People / HR | 10 | 0 | 0 | 0 | 10 |
+| People / HR | 11 | 0 | 0 | 0 | 11 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
 | Checklists | 3 | 0 | 0 | 0 | 3 |
 | Management | 6 | 2 | 0 | 1 | 9 |
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 2 | 0 | 0 | 0 | 2 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **37** | **3** | **0** | **9** | **49** |
+| **Total** | **38** | **3** | **0** | **9** | **50** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -77,6 +77,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | ATS pipeline + interview scorecards | Jobs → candidates through applied→screening→interviewing→offer→onboarding→hired; assign interview → **required scorecard** (8 competencies + recommendation + summary). (`/management/people/jobs`, `/candidates/[id]`, `/me/interviews/[id]`) | Hiring / Onboarding; Hiring & Onboarding Roadmap | How and Why You Were Selected | ✅ | Aligned (roadmap's Indeed + email templates remain the human-step reference). |
 | Pre-hire onboarding (magic link) | Candidate completes personal/emergency info, drug-test & background consent, policy acks, and **handbook acknowledgment** via a personal token link; HR approves → creates employee. (`/management/people/prehires`, `/onboarding/[token]`) | Onboarding Process for New Technicians; Hiring/Onboarding | Using the Clements Portal › Onboarding paperwork | ✅ | Aligned (3-day in-person onboarding still valid). |
 | PTO — request / approve / calendar | Employee requests (business days auto-counted) → branch supervisor + HR approve → team/company calendar + balances. (`/me/pto`, `/my-branch/pto`, `/management/people/pto`, `/api/pto`) | Paid Time Off (PTO) | Using the Clements Portal › Time off; PTO policies | ✅ | Manual aligned. **Handbook:** corrected PTO submission channel ("via Paychex Flex" → "through the Clements portal") in both appendices; timing/entitlements unchanged. |
+| Attendance / Call-Out tracking | Log an unplanned absence on an employee profile (calendar date-range + reason). **Separate from PTO — no allowance; monitoring only.** Illness (employee/family) > 2 calendar days auto-flags a **medical-note requirement** (status only: none/requested/received/waived — never a diagnosis; "waived" = FMLA/ADA). **Physical-injury** reason forces a required workplace-related Y/N; if yes, links an existing accident `PersonnelRecord` and surfaces an injury/out-of-work banner on the profile **and** the accident record. HR **Call-out overview** lists outstanding notes + recent call-outs + 90-day patterns; People/HR badge = outstanding-note count. Nothing hard-deleted (corrections via `update`). (`/management/people/[id]`, `/my-branch/team/[id]`, `/management/people/callouts`, `/api/absence`, `lib/absence.ts`) | Technician Absence Policy | General Rules; PTO appendices (sick-day reporting) | ✅ | **New workflow.** Manual: added a portal note to Technician Absence Policy (HR's Step-4 logging now happens here). Handbook: flagged the written attendance / doctor's-note (>2 illness days) policy + ADA/FMLA/FL workers'-comp notes to `handbook-suggestions.md` (no inline policy change). |
 | Handbook acknowledgment | Typed-signature ack, version-stamped; in-app, tokenized link, or onboarding; HR roster of who's signed the current version. (`/resources/handbook`, `/management/people/handbook`, `/api/documents/ack`) | Hiring / Onboarding | Using the Clements Portal › Handbook and acknowledgments | ✅ | Aligned. Bumping the handbook to v2 re-prompts all prior acknowledgers. |
 | Personnel records + signatures | File Write-up / Note / Recognition / **Accident report** on a team member; supervisor e-signature auto-captured; collect employee/HR/witness signatures in-app or by link; auto-notify HR + leadership. (`/my-branch/team/[id]`, `/api/personnel/*`, `/sign`) | Employee Disciplinary Action Procedure/Form; Workplace Accidents / Report | General Rules; Progressive Discipline | ✅ | **Fixed.** Added portal notes to the Disciplinary and Workplace-Accident sections (records now filed in the portal, not an editable PDF on the drive / hardcopy). Procedures preserved. |
 | Training assignment / submit | Assigned courses; start → submit → graded vs passing score; completion filed to personnel record; reminders. (`/me/training/[id]`, `/management/training`, `/api/training/*`) | Onboarding Process; Monthly Responsibilities (training) | — | ✅ | Aligned. |

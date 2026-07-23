@@ -10,6 +10,7 @@ import { formerEmployees } from "@/lib/separation";
 import { canManagePreHire } from "@/lib/prehire";
 import { canManageAts, listJobs } from "@/lib/ats";
 import { canViewAllPto, pendingRequestsForBranch } from "@/lib/pto";
+import { outstandingMedicalNoteCount } from "@/lib/absence";
 import PeopleControls from "./PeopleControls";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function PeoplePage({
   const canAts = canManageAts(user);
   const canPto = canViewAllPto(user);
   const ptoPending = canPto ? await pendingRequestsForBranch(null) : [];
+  const calloutNotes = canPto ? await outstandingMedicalNoteCount(null) : 0;
   const jobs = canAts ? await listJobs() : [];
   const openJobs = jobs.filter((j) => j.status === "open").length;
   const roster = await employeeRoster(branch ?? undefined);
@@ -72,6 +74,20 @@ export default async function PeoplePage({
             <span className="block text-xs text-muted">Everyone&rsquo;s balances &amp; allotments, the real-time time-off calendar, pending approvals & decision history — company-wide</span>
           </span>
           {ptoPending.length > 0 ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{ptoPending.length} to review</span> : null}
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      ) : null}
+
+      {canPto ? (
+        <Link href="/management/people/callouts" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 13l2 2 4-4" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Call-out overview</span>
+            <span className="block text-xs text-muted">Unplanned absences &mdash; outstanding medical notes, recent call-outs, and attendance patterns for spotting frequent call-outs</span>
+          </span>
+          {calloutNotes > 0 ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{calloutNotes} note{calloutNotes === 1 ? "" : "s"} due</span> : null}
           <span className="text-muted text-sm">→</span>
         </Link>
       ) : null}

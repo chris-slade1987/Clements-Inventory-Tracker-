@@ -45,11 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 2 · Last updated July 21, 2026",
+    effective: "Version 3 · Last updated July 23, 2026",
+    // v3: added the Attendance / Call-Outs tracking flow to the Technician
+    // Absence Policy (call-outs logged on the employee profile; >2-day illness
+    // medical-note rule; physical-injury → accident-report link).
     // v2: retired the last paper-form procedures (routine vehicle/equipment
     // maintenance logs, vehicle inspection form) in favor of the Fleet
     // "Log Service" + digital inspection workflows; escalation contacts fixed.
-    version: 2,
+    version: 3,
   },
 ];
 

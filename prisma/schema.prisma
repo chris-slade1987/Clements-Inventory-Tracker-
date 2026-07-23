@@ -636,6 +636,7 @@ model Employee {
   reminders   Reminder[]
   branchDocuments BranchDocument[]
   ptoRequests PtoRequest[]
+  absences    Absence[]
   user        User?
 
   @@index([branch])
@@ -670,6 +671,45 @@ model PtoRequest {
   @@index([employeeId])
   @@index([status])
   @@map("pto_requests")
+}
+
+// Unplanned employee ABSENCE / call-out. Deliberately SEPARATE from PtoRequest:
+// there is no allowance/balance — this is an HR monitoring record for spotting
+// attendance PATTERNS, plus a compliance-driven medical-note rule. Nothing is
+// ever hard-deleted (HR audit record); corrections are made with `update`.
+//
+// COMPLIANCE: we store the medical-note STATUS only (none/requested/received/
+// waived) — NEVER a diagnosis or any medical detail. "waived" is the FMLA/ADA
+// path. On-hand math philosophy doesn't apply here (no balance) — each row is
+// simply a logged occurrence.
+model Absence {
+  id            String   @id @default(cuid())
+  employeeId    String   @map("employee_id")
+  branch        String?                          // denormalized from the employee for scoping/rollup
+  startDate     DateTime @map("start_date")
+  endDate       DateTime @map("end_date")        // inclusive; equals startDate for a single day
+  days          Int                              // inclusive calendar-day count of the span
+  reason        String                           // canonical code (see REASONS in lib/absence.ts)
+  reasonDetail  String?  @map("reason_detail")   // REQUIRED when reason="other"; optional note otherwise
+  excused       Boolean?                         // HR/manager determination; null = undetermined
+  // Physical-injury linkage
+  workplaceRelated Boolean? @map("workplace_related")  // REQUIRED non-null when reason="physical_injury"
+  accidentRecordId String?  @map("accident_record_id") // -> PersonnelRecord(id) where type="accident"
+  // Medical-note tracking (illness > 2 days). STATUS ONLY — no medical details.
+  noteRequired   Boolean   @default(false) @map("note_required")
+  noteStatus     String    @default("none") @map("note_status") // "none" | "requested" | "received" | "waived"
+  noteResolvedAt DateTime? @map("note_resolved_at")
+  noteResolvedBy String?   @map("note_resolved_by")
+  loggedById     String?   @map("logged_by_id")
+  loggedByName   String?   @map("logged_by_name")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([branch])
+  @@map("absences")
 }
 
 // Manager-submitted personnel records about an employee: write-ups, coaching
