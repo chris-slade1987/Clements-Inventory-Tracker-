@@ -87,7 +87,7 @@ export default async function FleetMapPage({
           replacing the map, so a manager always sees a map. */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 relative" data-testid="fleet-map">
-          <FleetMap markers={markers} height={480} />
+          <FleetMap markers={markers} height={960} />
           {positions.length === 0 ? (
             <div className="pointer-events-none absolute inset-0 z-[500] flex items-start justify-center p-4">
               <div className="pointer-events-auto max-w-sm rounded-xl border border-line bg-white/95 p-4 text-center shadow-lg backdrop-blur" data-testid="map-empty-hint">
@@ -107,7 +107,7 @@ export default async function FleetMapPage({
             <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">
               Vehicles ({positions.length})
             </div>
-            <ul className="divide-y divide-line max-h-[440px] overflow-y-auto">
+            <ul className="divide-y divide-line max-h-[920px] overflow-y-auto">
               {positions.map((p) => {
                 const meta = STATUS_META[p.status];
                 return (

@@ -12,7 +12,7 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
   loading: () => (
     <div
       className="grid place-items-center rounded-2xl border border-line bg-black/[0.03] text-sm text-muted"
-      style={{ height: 420, width: "100%" }}
+      style={{ height: 960, width: "100%" }}
     >
       Loading map…
     </div>
