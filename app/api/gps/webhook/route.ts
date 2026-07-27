@@ -169,6 +169,15 @@ function firstKey(o: Record<string, unknown> | null, keys: string[]): string | n
   return null;
 }
 
+// Deep-scan the raw body for an SNS-style SubscribeURL, so we catch it even when
+// the JSON structure isn't exactly what we expect.
+function subscribeUrlFromRaw(body: string): string | null {
+  const m =
+    body.match(/"SubscribeURL"\s*:\s*"([^"]+)"/i) ||
+    body.match(/(https?:\/\/[^\s"']*(?:subscri|confirm)[^\s"']*)/i);
+  return m ? m[1] : null;
+}
+
 type Confirmation = { isConfirmation: boolean; challenge: string | null; confirmUrl: string | null };
 
 function detectConfirmation(url: URL, json: Record<string, unknown> | null): Confirmation {
@@ -221,28 +230,39 @@ async function store(req: Request): Promise<NextResponse> {
     else if (typeof vn === "number") verizonNumber = String(vn);
   }
 
+  // Store EVERY inbound POST as a webhook event up front — so the confirmation
+  // message (and anything unexpected) is always inspectable on the GPS Setup
+  // page, even if it doesn't match a known shape or fails auth below.
+  const event = await prisma.gpsWebhookEvent
+    .create({ data: { type, verizonNumber, payload: body.slice(0, 100000), processed: false } })
+    .catch(() => null);
+
   // (2) Subscription-confirmation handling — BEFORE requiring Basic auth.
-  // Fleetmatics' GPS Push Service is AWS SNS-based: the first message is an SNS
-  // SubscriptionConfirmation carrying a top-level SubscribeURL we must GET. Catch
-  // both the SNS message-type header and the body signals.
+  // Fleetmatics' GPS Push is AWS SNS-based: the confirmation message carries a
+  // SubscribeURL we must GET to acknowledge. Detect it via body keys, the SNS
+  // message-type header, OR a SubscribeURL found anywhere in the raw body (deep
+  // scan) so an unexpected structure still confirms. Verizon's confirmation may
+  // arrive WITHOUT our Basic auth, so this runs before the auth gate.
   const snsType = (req.headers.get("x-amz-sns-message-type") ?? "").toLowerCase();
   const confirm = detectConfirmation(url, json);
-  if (confirm.isConfirmation || snsType === "subscriptionconfirmation") {
-    console.log(`[gps-webhook] subscription confirmation received sns="${snsType || "-"}" snippet="${snippet}"`);
-    // Always store the raw payload so we can inspect the confirmation later.
-    await prisma.gpsWebhookEvent
-      .create({ data: { type: type ?? "SubscriptionConfirmation", verizonNumber, payload: body.slice(0, 100000), processed: true } })
-      .catch(() => {});
-    // If a confirmation callback URL is present, GET it to acknowledge (best-effort).
-    if (confirm.confirmUrl) {
+  const confirmUrl = confirm.confirmUrl || subscribeUrlFromRaw(body);
+  if (confirm.isConfirmation || snsType === "subscriptionconfirmation" || confirmUrl) {
+    console.log(`[gps-webhook] subscription confirmation received sns="${snsType || "-"}" hasUrl=${Boolean(confirmUrl)} snippet="${snippet}"`);
+    if (event) {
+      await prisma.gpsWebhookEvent.update({ where: { id: event.id }, data: { type: type ?? "SubscriptionConfirmation", processed: true } }).catch(() => {});
+    }
+    // GET the SubscribeURL to complete the handshake (best-effort; log the result
+    // so we can see whether Verizon accepted it).
+    if (confirmUrl) {
       try {
-        const res = await fetch(confirm.confirmUrl, { method: "GET" });
-        console.log(`[gps-webhook] confirmation callback GET status=${res.status}`);
+        const res = await fetch(confirmUrl, { method: "GET", redirect: "follow" });
+        const respText = (await res.text().catch(() => "")).slice(0, 300).replace(/\s+/g, " ");
+        console.log(`[gps-webhook] SubscribeURL GET status=${res.status} body="${respText}"`);
       } catch (e) {
-        console.log(`[gps-webhook] confirmation callback GET failed: ${e instanceof Error ? e.message : "error"}`);
+        console.log(`[gps-webhook] SubscribeURL GET failed: ${e instanceof Error ? e.message : "error"}`);
       }
     }
-    // Echo any challenge/token so a challenge-response verification succeeds.
+    // Echo any challenge/token so a challenge-response verification also succeeds.
     if (confirm.challenge) {
       return new NextResponse(confirm.challenge, { status: 200, headers: { "content-type": "text/plain" } });
     }
@@ -256,12 +276,10 @@ async function store(req: Request): Promise<NextResponse> {
   }
 
   const plots = json ? collectPlots(json) : [];
-
-  await prisma.gpsWebhookEvent.create({
-    data: { type, verizonNumber, payload: body.slice(0, 100000), processed: plots.length > 0 },
-  });
-
   const saved = plots.length ? await persistPlots(plots) : 0;
+  if (event) {
+    await prisma.gpsWebhookEvent.update({ where: { id: event.id }, data: { processed: saved > 0 } }).catch(() => {});
+  }
   // Brief, secret-free delivery log so the first real webhook is visible in logs.
   console.log(`[gps-webhook] delivery type=${type ?? "?"} vehicle=${verizonNumber ?? "?"} plots=${plots.length} saved=${saved} bytes=${body.length}`);
 
