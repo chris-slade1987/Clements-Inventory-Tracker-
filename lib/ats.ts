@@ -12,8 +12,12 @@ import {
   STAGE_ORDER,
   validateScorecard,
   normalizeRecommendation,
+  exclusionReasonsForStage,
+  isExcludedStage,
+  EXCLUDED_STAGES,
   type ScorecardResponses,
 } from "@/lib/ats-config";
+import { getHrEmail } from "@/lib/personnel";
 
 // ---------------------------------------------------------------------------
 // In-house ATS (applicant tracking / hiring pipeline).
@@ -555,7 +559,12 @@ export async function completeInterview(
  * set the stage to "onboarding", and email the candidate their magic link so the
  * EXISTING onboarding portal takes over. Idempotent — reuses an existing link.
  */
-export async function moveToOnboarding(candidateId: string, createdByName: string | null) {
+export async function moveToOnboarding(
+  candidateId: string,
+  createdByName: string | null,
+  opts?: { stage?: string },
+) {
+  const targetStage = opts?.stage ?? "onboarding";
   const candidate = await prisma.candidate.findUnique({
     where: { id: candidateId },
     include: { job: { select: { title: true, branch: true } } },
@@ -578,13 +587,23 @@ export async function moveToOnboarding(candidateId: string, createdByName: strin
       },
       createdByName,
     );
-    await prisma.candidate.update({ where: { id: candidate.id }, data: { preHireId: preHire.id, stage: "onboarding" } });
+    await prisma.candidate.update({ where: { id: candidate.id }, data: { preHireId: preHire.id, stage: targetStage } });
     await sendOnboardingInvite(preHire);
-  } else if (candidate.stage !== "onboarding") {
-    await prisma.candidate.update({ where: { id: candidate.id }, data: { stage: "onboarding" } });
+  } else if (candidate.stage !== targetStage) {
+    await prisma.candidate.update({ where: { id: candidate.id }, data: { stage: targetStage } });
   }
 
   return preHire;
+}
+
+/**
+ * Hand a SELECTED finalist to the pre-hire boundary. Reuses the EXISTING
+ * moveToOnboarding / PreHire path (creates the PreHire, emails the magic link),
+ * but stamps the candidate "pre_hire" — the boundary of this build. The CEO
+ * defines the pre-hire paperwork beyond this point; nothing new is built here.
+ */
+export async function moveToPreHire(candidateId: string, createdByName: string | null) {
+  return moveToOnboarding(candidateId, createdByName, { stage: "pre_hire" });
 }
 
 async function sendOnboardingInvite(pre: { name: string; email: string; token: string; position: string | null }) {
@@ -838,5 +857,547 @@ export async function jobsAwaitingCloseout() {
     },
     select: { id: true, title: true },
     orderBy: [{ createdAt: "desc" }],
+  });
+}
+
+// ===========================================================================
+// Applicant pipeline: shortlist → screening → interview → ranking → selection
+// → pre-hire boundary, plus the stage-specific, RETAINED exclusion archive.
+// Everything here EXTENDS the ATS above; nothing is ever hard-deleted.
+// ===========================================================================
+
+const CEO_EMAIL = (process.env.CEO_EMAIL || "c.slade@clementspestcontrol.com").toLowerCase();
+
+/** Setting key holding the HR-set Google Appointment Schedule booking link. */
+const SCREENING_URL_KEY = "hr_screening_booking_url";
+
+export async function getScreeningBookingUrl(): Promise<string | null> {
+  const s = await prisma.setting.findUnique({ where: { key: SCREENING_URL_KEY } }).catch(() => null);
+  return s?.value?.trim() || null;
+}
+
+export async function setScreeningBookingUrl(url: string | null): Promise<void> {
+  const value = (url ?? "").trim();
+  if (!value) {
+    await prisma.setting.deleteMany({ where: { key: SCREENING_URL_KEY } });
+    return;
+  }
+  await prisma.setting.upsert({
+    where: { key: SCREENING_URL_KEY },
+    update: { value },
+    create: { key: SCREENING_URL_KEY, value },
+  });
+}
+
+// ---- Access: the assigned interviewing supervisor ("operate" the container) --
+
+/**
+ * True when the user may OPERATE within a job container (log interview times,
+ * fill the questionnaire, submit rankings): HR always, otherwise the assigned
+ * interviewer/supervisor on this active job. SELECTION + reactivation stay
+ * HR-only (canManageAts) and are checked separately.
+ */
+export async function canOperateJob(user: SessionUser, jobId: string): Promise<boolean> {
+  if (canManageAts(user)) return true;
+  return (await interviewerJobIds(user.id)).has(jobId);
+}
+
+// ---- Stage-specific exclusion (retained, reason-tagged archive) ------------
+
+/**
+ * Exclude a candidate — the RETAINED archive action (never a delete). Stamps the
+ * reason, the stage they were cut at, when, and by whom. The reason MUST belong
+ * to the current stage's reason set; "Other" requires a note. keepWarm marks a
+ * re-engageable finalist (set by the selection flow for un-selected runner-ups).
+ */
+export async function excludeCandidate(
+  id: string,
+  data: { reason: string; note?: string | null; keepWarm?: boolean; validate?: boolean },
+  byName: string | null,
+) {
+  const candidate = await prisma.candidate.findUnique({ where: { id }, select: { stage: true } });
+  if (!candidate) throw new Error("Candidate not found.");
+  if (isExcludedStage(candidate.stage)) throw new Error("This candidate is already excluded.");
+
+  const reason = str(data.reason);
+  if (!reason) throw new Error("Choose a reason for excluding this candidate.");
+  const note = str(data.note);
+
+  // Only offer/accept reasons that belong to the candidate's current stage.
+  if (data.validate !== false) {
+    const allowed = exclusionReasonsForStage(candidate.stage);
+    if (!allowed.includes(reason)) throw new Error("That reason isn't available at this stage.");
+    if (reason === "Other" && !note) throw new Error("A note is required when excluding for “Other”.");
+  }
+
+  const excludedReason = note ? `${reason} — ${note}` : reason;
+  return prisma.candidate.update({
+    where: { id },
+    data: {
+      stage: "excluded",
+      excludedReason,
+      excludedStage: candidate.stage,
+      excludedAt: new Date(),
+      excludedByName: byName,
+      keepWarm: data.keepWarm ?? false,
+    },
+  });
+}
+
+/**
+ * Reactivate an excluded candidate back into a chosen active stage (HR/admin
+ * only — the "if our pick falls through" path). Clears the excluded stamps and
+ * the keep-warm flag; retains all history (notes, screening, interviews, rank).
+ */
+export async function reactivateCandidate(id: string, toStage: string, byName: string | null) {
+  const candidate = await prisma.candidate.findUnique({ where: { id }, select: { stage: true } });
+  if (!candidate) throw new Error("Candidate not found.");
+  if (!isExcludedStage(candidate.stage)) throw new Error("Only an excluded candidate can be reactivated.");
+  const stage = str(toStage);
+  if (!stage || !(STAGE_ORDER as readonly string[]).includes(stage) || isExcludedStage(stage)) {
+    throw new Error("Choose a valid active stage to reactivate into.");
+  }
+  return prisma.candidate.update({
+    where: { id },
+    data: {
+      stage,
+      excludedReason: null,
+      excludedStage: null,
+      excludedAt: null,
+      excludedByName: null,
+      keepWarm: false,
+      // A reactivated finalist who was auto-excluded on selection deserves a fresh
+      // shot; clear the stale rank so the supervisor re-ranks cleanly if needed.
+      ...(stage === "interviewing" ? { interviewRank: null } : {}),
+      updatedAt: new Date(),
+    },
+  });
+}
+
+/** Excluded candidates on a job (the per-job Excluded archive). */
+export async function excludedForJob(jobId: string) {
+  return prisma.candidate.findMany({
+    where: { jobId, stage: { in: [...EXCLUDED_STAGES] } },
+    orderBy: [{ excludedAt: "desc" }, { updatedAt: "desc" }],
+  });
+}
+
+/** Global Excluded archive (People/HR) — every excluded candidate, newest first. */
+export async function excludedCandidates() {
+  return prisma.candidate.findMany({
+    where: { stage: { in: [...EXCLUDED_STAGES] } },
+    orderBy: [{ excludedAt: "desc" }, { updatedAt: "desc" }],
+    include: { job: { select: { id: true, title: true } } },
+  });
+}
+
+// ---- Stage 2: shortlist + HR screening -------------------------------------
+
+/** Shortlist an applicant: advance applied → screening. */
+export async function shortlistCandidate(id: string) {
+  const c = await prisma.candidate.findUnique({ where: { id }, select: { stage: true } });
+  if (!c) throw new Error("Candidate not found.");
+  return prisma.candidate.update({ where: { id }, data: { stage: "screening" } });
+}
+
+/**
+ * Request a screening call: email the candidate the HR Google Appointment
+ * Schedule booking link, advance to "screening", and stamp screeningRequestedAt.
+ * Best-effort email; if HR hasn't set a booking link yet we still advance and
+ * report emailed:false so the UI can nudge them to paste the link.
+ */
+export async function requestScreeningCall(id: string, byName: string | null) {
+  const candidate = await prisma.candidate.findUnique({
+    where: { id },
+    include: { job: { select: { title: true } } },
+  });
+  if (!candidate) throw new Error("Candidate not found.");
+
+  const bookingUrl = await getScreeningBookingUrl();
+  await prisma.candidate.update({
+    where: { id },
+    data: { stage: candidate.stage === "applied" ? "screening" : candidate.stage, screeningRequestedAt: new Date() },
+  });
+
+  let emailed = false;
+  if (bookingUrl) {
+    const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
+    const role = candidate.job?.title ?? "the role";
+    const subject = `Let's schedule your screening call — ${candidate.job?.title ?? "Clements Pest Control"}`;
+    const text = [
+      `Hi ${first},`,
+      "",
+      `Thanks for applying for ${role} at Clements Pest Control. We'd like to set up a short phone screening call.`,
+      "",
+      `Please pick a time that works for you here:`,
+      bookingUrl,
+      "",
+      `Once you book, you'll get a calendar confirmation. We look forward to speaking with you!`,
+      "",
+      "Warm regards,",
+      "The Clements Pest Control Hiring Team",
+    ].join("\n");
+    const html = [
+      `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+      `<p>Hi ${first},</p>`,
+      `<p>Thanks for applying for <strong>${role}</strong> at Clements Pest Control. We'd like to set up a short phone screening call.</p>`,
+      `<p><a href="${bookingUrl}" style="background:#146A3A;color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600">Pick a time for your call →</a></p>`,
+      `<p style="font-size:12px;color:#667">Or paste this link into your browser: ${bookingUrl}</p>`,
+      `<p style="margin-top:18px">Warm regards,<br/>The Clements Pest Control Hiring Team</p>`,
+      `</div>`,
+    ].join("");
+    const res = await sendEmail({
+      to: candidate.email,
+      subject,
+      kind: "screening_request",
+      relatedType: "candidate",
+      relatedId: candidate.id,
+      text,
+      html,
+    }).catch(() => null);
+    emailed = res?.status === "sent";
+  }
+  void byName;
+  return { emailed, bookingConfigured: !!bookingUrl };
+}
+
+/** Record screening notes and/or mark the screening call complete. */
+export async function saveScreening(
+  id: string,
+  data: { notes?: string | null; completed?: boolean },
+) {
+  const patch: Record<string, unknown> = {};
+  if (data.notes !== undefined) patch.screeningNotes = str(data.notes);
+  if (data.completed) patch.screeningCompletedAt = new Date();
+  return prisma.candidate.update({ where: { id }, data: patch });
+}
+
+// ---- Stage 3: interview handoff --------------------------------------------
+
+/**
+ * Hand off to the interviewing supervisor. Records the supervisor + HR-set
+ * deadline on the Job, creates an Interview (reusing assignInterview's access +
+ * scorecard machinery) for every shortlisted candidate currently in the
+ * interview stage that the supervisor isn't already assigned, and posts ONE
+ * notification (thread + email) listing the candidates to schedule by the
+ * deadline. Returns how many candidates were handed off.
+ */
+export async function assignInterviewSupervisor(
+  data: { jobId: string; supervisorId: string; deadline?: string | null },
+  byName: string | null,
+) {
+  const jobId = str(data.jobId);
+  const supervisorId = str(data.supervisorId);
+  if (!jobId) throw new Error("Missing job.");
+  if (!supervisorId) throw new Error("Choose an interviewing supervisor.");
+
+  const [job, supervisor] = await Promise.all([
+    prisma.job.findUnique({ where: { id: jobId }, include: { candidates: { include: { interviews: true } } } }),
+    prisma.user.findUnique({ where: { id: supervisorId }, select: { id: true, name: true, email: true } }),
+  ]);
+  if (!job) throw new Error("Job not found.");
+  if (!supervisor) throw new Error("Supervisor not found.");
+
+  const deadline = str(data.deadline) ? new Date(data.deadline!) : null;
+  await prisma.job.update({
+    where: { id: jobId },
+    data: {
+      interviewSupervisorId: supervisor.id,
+      interviewSupervisorName: supervisor.name,
+      interviewDeadline: deadline,
+    },
+  });
+
+  // Shortlisted-for-interview candidates: those in the interview stage.
+  const shortlisted = job.candidates.filter((c) => c.stage === "interviewing");
+  const handed: { id: string; name: string }[] = [];
+  for (const c of shortlisted) {
+    const alreadyAssigned = c.interviews.some((iv) => iv.interviewerId === supervisor.id && iv.status !== "cancelled");
+    if (!alreadyAssigned) {
+      await prisma.interview.create({
+        data: {
+          candidateId: c.id,
+          interviewerId: supervisor.id,
+          interviewerName: supervisor.name,
+          interviewerEmail: supervisor.email,
+          durationMins: 45,
+          type: "in_person",
+          assignedByName: byName,
+        },
+      });
+    }
+    handed.push({ id: c.id, name: c.name });
+  }
+
+  // One consolidated notification to the supervisor (thread auto-emails them).
+  await notifySupervisorAssigned(job, supervisor, handed, deadline).catch(() => {});
+  return { handed: handed.length, supervisorName: supervisor.name };
+}
+
+async function notifySupervisorAssigned(
+  job: { id: string; title: string; branch: string | null },
+  supervisor: { id: string; name: string; email: string | null },
+  candidates: { id: string; name: string }[],
+  deadline: Date | null,
+) {
+  const by = deadline ? deadline.toLocaleDateString("en-US", { dateStyle: "full" }) : "as soon as possible";
+  const list = candidates.map((c) => `• ${c.name}`).join("\n");
+  const href = `/management/people/jobs/${job.id}`;
+  const subject = `Interviews to schedule: ${job.title}`;
+  const body =
+    `Here are your shortlisted candidates ready for in-person interviews for ${job.title}` +
+    `${job.branch ? ` (${branchLabel(job.branch)})` : ""} — please schedule by ${by}.\n\n` +
+    `${list || "(no candidates yet — HR will move shortlisted candidates into the Interview stage)"}\n\n` +
+    `Open the job to log each interview time and complete the standardized questionnaire: ${base()}${href}`;
+
+  const now = new Date();
+  const thread = await prisma.thread.create({
+    data: {
+      subject,
+      branch: job.branch,
+      contextType: "general",
+      contextId: job.id,
+      contextLabel: job.title,
+      contextHref: href,
+      createdByName: "Hiring (HR)",
+      updatedAt: now,
+      messages: { create: { authorName: "Hiring (HR)", body } },
+      participants: supervisor.email
+        ? { create: [{ userId: supervisor.id, name: supervisor.name, email: supervisor.email }] }
+        : undefined,
+    },
+  });
+  await notifyThread({
+    threadId: thread.id,
+    subject,
+    contextLabel: job.title,
+    authorName: "Hiring (HR)",
+    authorUserId: null,
+    body,
+    isNew: true,
+  }).catch(() => {});
+}
+
+/** Supervisor (or HR) logs the confirmed interview date/time for a candidate. */
+export async function logInterviewTime(candidateId: string, when: string | null, supervisorId: string | null) {
+  const at = str(when) ? new Date(when!) : null;
+  if (!at || Number.isNaN(at.getTime())) throw new Error("Enter a valid interview date and time.");
+  const candidate = await prisma.candidate.findUnique({ where: { id: candidateId }, select: { id: true } });
+  if (!candidate) throw new Error("Candidate not found.");
+  await prisma.candidate.update({ where: { id: candidateId }, data: { interviewAt: at } });
+  // Also set the assigned supervisor's Interview scheduledAt so the scorecard +
+  // calendar links reflect the confirmed time.
+  const where = supervisorId
+    ? { candidateId, interviewerId: supervisorId, status: { not: "completed" } }
+    : { candidateId, status: { not: "completed" } };
+  await prisma.interview.updateMany({ where, data: { scheduledAt: at } });
+  return { interviewAt: at };
+}
+
+/** Jobs whose interview deadline has passed with interviews still incomplete. */
+export async function overdueInterviewJobs() {
+  const now = new Date();
+  const jobs = await prisma.job.findMany({
+    where: { status: { in: ACTIVE_JOB_STATUSES }, interviewDeadline: { lt: now } },
+    include: { candidates: { where: { stage: "interviewing" }, include: { interviews: true } } },
+  });
+  return jobs
+    .filter((j) => j.candidates.some((c) => c.interviews.every((iv) => iv.status !== "completed")))
+    .map((j) => ({ id: j.id, title: j.title, interviewDeadline: j.interviewDeadline }));
+}
+
+// ---- Stage 4: forced ranking → selection -----------------------------------
+
+/**
+ * Forced ranking (interviewing supervisor). `orderedIds` is the candidate ids in
+ * rank order (1st, 2nd, 3rd, …). Requires at least the top 3 — or ALL of them
+ * when fewer than 3 remain to be ranked. No-shows must be excluded (interview
+ * reason) BEFORE ranking, so only non-excluded interviewed candidates are
+ * eligible. On success: stamps interviewRank, moves ranked candidates to
+ * "ranked", opens a 48h selection window, and emails HR + CEO + the supervisor.
+ */
+export async function submitRankings(jobId: string, orderedIds: string[], byName: string | null) {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: { candidates: true },
+  });
+  if (!job) throw new Error("Job not found.");
+
+  // Eligible = interviewed candidates not excluded (in interviewing/ranked).
+  const eligible = job.candidates.filter((c) => c.stage === "interviewing" || c.stage === "ranked");
+  const eligibleIds = new Set(eligible.map((c) => c.id));
+
+  const ranked = orderedIds.map(str).filter((x): x is string => !!x);
+  const deduped = [...new Set(ranked)];
+  if (deduped.length !== ranked.length) throw new Error("A candidate can't be ranked twice.");
+  for (const id of ranked) if (!eligibleIds.has(id)) throw new Error("Only interviewed candidates can be ranked.");
+
+  const required = Math.min(3, eligible.length);
+  if (ranked.length < required) {
+    throw new Error(
+      `Rank at least the top ${required} candidate${required === 1 ? "" : "s"} before submitting.` +
+        (eligible.length >= 3 ? " No-shows must be excluded first." : ""),
+    );
+  }
+
+  const now = new Date();
+  const selectionDeadline = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  // Reset ranks for this job's eligible set, then stamp the submitted order.
+  await prisma.$transaction([
+    prisma.candidate.updateMany({ where: { id: { in: [...eligibleIds] } }, data: { interviewRank: null } }),
+    ...ranked.map((id, i) =>
+      prisma.candidate.update({ where: { id }, data: { interviewRank: i + 1, stage: "ranked" } }),
+    ),
+    prisma.job.update({ where: { id: jobId }, data: { selectionDeadline } }),
+  ]);
+
+  await notifyRankings(job, ranked, selectionDeadline, byName).catch(() => {});
+  return { ranked: ranked.length, selectionDeadline };
+}
+
+async function notifyRankings(
+  job: { id: string; title: string; branch: string | null; interviewSupervisorName: string | null },
+  rankedIds: string[],
+  selectionDeadline: Date,
+  byName: string | null,
+) {
+  const cands = await prisma.candidate.findMany({ where: { id: { in: rankedIds } }, select: { id: true, name: true, interviewRank: true } });
+  const byId = new Map(cands.map((c) => [c.id, c]));
+  const lines = rankedIds.map((id, i) => `${i + 1}. ${byId.get(id)?.name ?? "—"}`).join("\n");
+  const href = `/management/people/jobs/${job.id}`;
+  const by = selectionDeadline.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" });
+  const subject = `Interview rankings submitted: ${job.title}`;
+  const body =
+    `${byName ?? job.interviewSupervisorName ?? "The interviewing supervisor"} submitted the ranked shortlist for ${job.title}:\n\n` +
+    `${lines}\n\n` +
+    `HR has 48 hours (by ${by}) to select the finalist. Open the job to make the selection:\n${base()}${href}`;
+
+  // Recipients: HR director + CEO + the assigned supervisor.
+  const hrEmail = await getHrEmail();
+  const supervisor = job.interviewSupervisorName
+    ? await prisma.user.findFirst({ where: { name: job.interviewSupervisorName }, select: { id: true, name: true, email: true } })
+    : null;
+
+  const now = new Date();
+  const participants: { userId: string | null; name: string; email: string | null }[] = [];
+  const hrUser = await prisma.user.findFirst({ where: { email: hrEmail }, select: { id: true, name: true } });
+  participants.push({ userId: hrUser?.id ?? null, name: hrUser?.name ?? "HR", email: hrEmail });
+  const ceoUser = await prisma.user.findFirst({ where: { email: CEO_EMAIL }, select: { id: true, name: true } });
+  participants.push({ userId: ceoUser?.id ?? null, name: ceoUser?.name ?? "CEO", email: CEO_EMAIL });
+  if (supervisor?.email) participants.push({ userId: supervisor.id, name: supervisor.name, email: supervisor.email });
+
+  // Dedupe participants by email; only keep those with an email.
+  const seen = new Set<string>();
+  const parts = participants.filter((p) => {
+    const key = (p.email ?? "").toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const thread = await prisma.thread.create({
+    data: {
+      subject,
+      branch: job.branch,
+      contextType: "general",
+      contextId: job.id,
+      contextLabel: job.title,
+      contextHref: href,
+      createdByName: "Hiring (rankings)",
+      updatedAt: now,
+      messages: { create: { authorName: "Hiring (rankings)", body } },
+      participants: parts.length ? { create: parts.map((p) => ({ userId: p.userId, name: p.name, email: p.email })) } : undefined,
+    },
+  });
+  await notifyThread({
+    threadId: thread.id,
+    subject,
+    contextLabel: job.title,
+    authorName: "Hiring (rankings)",
+    authorUserId: null,
+    body,
+    isNew: true,
+  }).catch(() => {});
+}
+
+/**
+ * HR selects the finalist from the ranked shortlist. The chosen candidate moves
+ * to "selected"; every OTHER ranked candidate on the job is auto-excluded
+ * ("Not selected", keepWarm=true) with a warm rejection email. Returns the
+ * chosen candidate + how many runner-ups were warm-rejected.
+ */
+export async function selectFinalist(candidateId: string, byName: string | null) {
+  const candidate = await prisma.candidate.findUnique({
+    where: { id: candidateId },
+    include: { job: { select: { id: true, title: true } } },
+  });
+  if (!candidate) throw new Error("Candidate not found.");
+  if (candidate.stage !== "ranked") throw new Error("Only a ranked candidate can be selected.");
+
+  const now = new Date();
+  await prisma.candidate.update({
+    where: { id: candidateId },
+    data: { stage: "selected", selectedAt: now, selectedByName: byName },
+  });
+
+  // Auto-exclude the other ranked candidates on the same job (warm).
+  const runnerUps = candidate.jobId
+    ? await prisma.candidate.findMany({ where: { jobId: candidate.jobId, stage: "ranked", id: { not: candidateId } } })
+    : [];
+  for (const r of runnerUps) {
+    await prisma.candidate.update({
+      where: { id: r.id },
+      data: {
+        stage: "excluded",
+        excludedReason: "Not selected",
+        excludedStage: "interviewing",
+        excludedAt: now,
+        excludedByName: byName,
+        keepWarm: true,
+      },
+    });
+    await sendWarmRejection(r, candidate.job?.title ?? null).catch(() => {});
+  }
+
+  return { selectedName: candidate.name, warmRejected: runnerUps.length };
+}
+
+async function sendWarmRejection(
+  candidate: { id: string; firstName: string | null; name: string; email: string },
+  jobTitle: string | null,
+) {
+  const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
+  const role = jobTitle ? ` for the ${jobTitle} position` : "";
+  const subject = `An update on your application${jobTitle ? ` — ${jobTitle}` : ""} at Clements Pest Control`;
+  const text = [
+    `Hi ${first},`,
+    "",
+    `Thank you so much for taking the time to speak with us on your screening call and to meet with our team for your interview${role}. We genuinely enjoyed getting to know you.`,
+    "",
+    `After careful consideration, we've decided to move forward with another qualified applicant for this particular role. This was a difficult decision — you have a lot to offer.`,
+    "",
+    `We'd truly welcome the chance to reconnect about future opportunities at Clements, and we hope you'll keep us in mind. Please don't hesitate to reach back out.`,
+    "",
+    "With appreciation and best wishes,",
+    "The Clements Pest Control Hiring Team",
+  ].join("\n");
+  const html = [
+    `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+    `<p>Hi ${first},</p>`,
+    `<p>Thank you so much for taking the time to speak with us on your screening call and to meet with our team for your interview${role}. We genuinely enjoyed getting to know you.</p>`,
+    `<p>After careful consideration, we've decided to move forward with another qualified applicant for this particular role. This was a difficult decision &mdash; you have a lot to offer.</p>`,
+    `<p>We'd truly welcome the chance to reconnect about future opportunities at Clements, and we hope you'll keep us in mind. Please don't hesitate to reach back out.</p>`,
+    `<p style="margin-top:18px">With appreciation and best wishes,<br/>The Clements Pest Control Hiring Team</p>`,
+    `</div>`,
+  ].join("");
+  return sendEmail({
+    to: candidate.email,
+    subject,
+    kind: "warm_rejection",
+    relatedType: "candidate",
+    relatedId: candidate.id,
+    text,
+    html,
   });
 }

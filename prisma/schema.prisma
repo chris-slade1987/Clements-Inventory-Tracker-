@@ -1566,6 +1566,14 @@ model Job {
   // Public application "front door": the unguessable slug for /apply/<token>.
   // Generated on create; backfilled for existing jobs in deploy-db.
   applyToken        String?  @unique @map("apply_token")
+  // Interview handoff: the supervisor HR assigns to run in-person interviews for
+  // this job, and the HR-set date interviews must be scheduled/completed by.
+  interviewSupervisorId   String?   @map("interview_supervisor_id")
+  interviewSupervisorName String?   @map("interview_supervisor_name")
+  interviewDeadline       DateTime? @map("interview_deadline")
+  // Forced-ranking → selection: a 48h window opens when the supervisor submits
+  // the ranked shortlist; HR selects the finalist before it lapses.
+  selectionDeadline       DateTime? @map("selection_deadline")
   // Close-out: the candidate selected when hiring completes (plain scalar id —
   // resolved manually, NOT a Prisma relation, since `candidates` already relates
   // this job to its Candidate rows) + when the job was filled/closed.
@@ -1594,9 +1602,27 @@ model Candidate {
   source        String? // where they came from (Indeed, referral, walk-in, …)
   resumePath    String?  @map("resume_path")
   resumeName    String?  @map("resume_name")
-  stage         String   @default("applied") // applied | screening | interviewing | offer | onboarding | hired | rejected
+  stage         String   @default("applied") // applied | screening | interviewing | ranked | selected | pre_hire | offer | onboarding | hired | excluded | rejected
   notes         String?
   preHireId     String?  @unique @map("prehire_id") // set once onboarding starts (links to PreHire)
+  // Stage-specific exclusion (a RETAINED, reason-tagged archive — never a delete).
+  // excludedStage records the stage the candidate was cut AT; keepWarm marks a
+  // re-engageable finalist (e.g. an un-selected ranked runner-up).
+  excludedReason String?   @map("excluded_reason")
+  excludedStage  String?   @map("excluded_stage")
+  excludedAt     DateTime? @map("excluded_at")
+  excludedByName String?   @map("excluded_by_name")
+  keepWarm       Boolean   @default(false) @map("keep_warm")
+  // Screening (HR): booking-link request + call notes / completion.
+  screeningRequestedAt DateTime? @map("screening_requested_at")
+  screeningNotes       String?   @map("screening_notes")
+  screeningCompletedAt DateTime? @map("screening_completed_at")
+  // Interview handoff: the confirmed date/time the supervisor logs.
+  interviewAt   DateTime? @map("interview_at")
+  // Forced ranking (supervisor) → selection (HR).
+  interviewRank Int?      @map("interview_rank")
+  selectedAt    DateTime? @map("selected_at")
+  selectedByName String?  @map("selected_by_name")
   createdByName String?  @map("created_by_name")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")

@@ -45,7 +45,15 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 6 · Last updated July 27, 2026",
+    effective: "Version 7 · Last updated July 27, 2026",
+    // v7: documented the full applicant pipeline in Hiring / Onboarding — the
+    // stage-grouped job container (Applied → Screening → Interview → Ranked →
+    // Selected → Pre-hire + retained Excluded), HR shortlist + Google-native
+    // screening booking link, interview handoff (assign supervisor + deadline +
+    // standardized questionnaire), stage-specific exclusion (No-show etc.),
+    // forced ranking → 48h selection window → warm-rejection of runner-ups
+    // (keep-warm) → Move to pre-hire boundary, and the Reactivate archive path.
+    version: 7,
     // v6: documented the public job-application "front door" in Hiring /
     // Onboarding — per-job public apply links (Indeed + company website, source
     // tracked by channel), the branded no-login apply page, the public /careers
@@ -65,7 +73,6 @@ const DOCS: DocSeed[] = [
     // v2: retired the last paper-form procedures (routine vehicle/equipment
     // maintenance logs, vehicle inspection form) in favor of the Fleet
     // "Log Service" + digital inspection workflows; escalation contacts fixed.
-    version: 6,
   },
 ];
 

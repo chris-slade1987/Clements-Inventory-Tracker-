@@ -117,9 +117,13 @@ export const STAGE_ORDER = [
   "applied",
   "screening",
   "interviewing",
+  "ranked",
+  "selected",
+  "pre_hire",
   "offer",
   "onboarding",
   "hired",
+  "excluded",
   "rejected",
 ] as const;
 export type Stage = (typeof STAGE_ORDER)[number];
@@ -127,15 +131,86 @@ export type Stage = (typeof STAGE_ORDER)[number];
 export const STAGE_LABELS: Record<string, string> = {
   applied: "Applied",
   screening: "Screening",
-  interviewing: "Interviewing",
+  interviewing: "Interview",
+  ranked: "Ranked",
+  selected: "Selected",
+  pre_hire: "Pre-hire",
   offer: "Offer",
   onboarding: "Onboarding",
   hired: "Hired",
-  rejected: "Rejected",
+  excluded: "Excluded",
+  rejected: "Excluded",
 };
 
-// Active pipeline stages (exclude terminal states) for grouped views.
+// The canonical, ordered pipeline this build surfaces on the job container
+// (grouped, current-stage-always-visible). Terminal states are handled apart.
+export const PIPELINE_STAGE_FLOW: Stage[] = [
+  "applied",
+  "screening",
+  "interviewing",
+  "ranked",
+  "selected",
+  "pre_hire",
+];
+
+// Terminal excluded states — "rejected" is retained as a legacy alias of
+// "excluded" so any pre-existing rows still read as excluded.
+export const EXCLUDED_STAGES = ["excluded", "rejected"] as const;
+export function isExcludedStage(stage: string): boolean {
+  return (EXCLUDED_STAGES as readonly string[]).includes(stage);
+}
+
+// Active pipeline stages (exclude terminal states) for legacy grouped views.
 export const PIPELINE_STAGES: Stage[] = ["applied", "screening", "interviewing", "offer", "onboarding"];
+
+// ---- Stage-specific exclusion reasons --------------------------------------
+// The exclude control offers ONLY the reasons that make sense at the stage the
+// candidate is being cut from. "Other" always requires a note. "Not selected"
+// is the runner-up case at the interview stage (used by the selection flow).
+
+export type ExclusionGroup = "application" | "screening" | "interview";
+
+export const EXCLUSION_REASONS: Record<ExclusionGroup, string[]> = {
+  application: [
+    "Insufficient experience",
+    "Missing/incomplete documentation",
+    "Not a good fit",
+    "Compensation mismatch",
+    "Position filled",
+    "Other",
+  ],
+  screening: [
+    "Did not pass screening",
+    "Availability mismatch",
+    "Compensation mismatch",
+    "Not a good fit (post-call)",
+    "Withdrew",
+    "Unresponsive",
+    "Other",
+  ],
+  interview: [
+    "No-show",
+    "Weak interview",
+    "Not a good fit",
+    "Withdrew",
+    "Accepted another offer",
+    "Not selected",
+    "Other",
+  ],
+};
+
+/** Map a candidate's current pipeline stage to the exclusion reason group. */
+export function exclusionGroupForStage(stage: string): ExclusionGroup {
+  if (stage === "applied") return "application";
+  if (stage === "screening") return "screening";
+  // interviewing / ranked / selected all cut with the interview reason set.
+  return "interview";
+}
+
+/** The reason list to show when excluding a candidate at their current stage. */
+export function exclusionReasonsForStage(stage: string): string[] {
+  return EXCLUSION_REASONS[exclusionGroupForStage(stage)];
+}
 
 export const JOB_STATUS_LABELS: Record<string, string> = {
   open: "Open",

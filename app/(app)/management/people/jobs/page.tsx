@@ -2,10 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
-import { canManageAts, listJobs, JOB_STATUS_LABELS } from "@/lib/ats";
+import { canManageAts, listJobs, getScreeningBookingUrl, excludedCandidates, JOB_STATUS_LABELS } from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import NewJob from "./NewJob";
+import ScreeningLink from "./ScreeningLink";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export default async function JobsPage() {
   const active = jobs.filter((j) => j.status === "open" || j.status === "on_hold");
   const archive = jobs.filter((j) => j.status === "filled" || j.status === "closed");
   const openCount = jobs.filter((j) => j.status === "open").length;
+  const bookingUrl = await getScreeningBookingUrl();
+  const excludedCount = (await excludedCandidates()).length;
 
   return (
     <>
@@ -35,6 +38,21 @@ export default async function JobsPage() {
         subtitle="Post jobs, track candidates through the pipeline, and interview to offer"
         actions={<NewJob />}
       />
+
+      <div className="mb-5 grid gap-4 lg:grid-cols-2">
+        <ScreeningLink initialUrl={bookingUrl} />
+        <Link href="/management/people/excluded" className="flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-red-50 text-red-600">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M5 8h14l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 8zM9 8V5a2 2 0 012-2h2a2 2 0 012 2v3" /></svg>
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-ink">Excluded archive</span>
+            <span className="block text-xs text-muted">Every excluded candidate — reason, stage cut at, keep-warm — retained and reactivatable</span>
+          </span>
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{excludedCount}</span>
+          <span className="text-muted text-sm">→</span>
+        </Link>
+      </div>
 
       {jobs.length === 0 ? (
         <EmptyState title="No jobs yet" hint="Create a job posting to start collecting and tracking candidates." />

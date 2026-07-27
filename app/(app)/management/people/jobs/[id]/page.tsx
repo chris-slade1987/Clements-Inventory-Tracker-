@@ -2,12 +2,24 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
-import { canManageAts, canAccessJob, jobDetail, applyUrl, STAGE_ORDER, STAGE_LABELS, JOB_STATUS_LABELS } from "@/lib/ats";
+import {
+  canManageAts,
+  canAccessJob,
+  canOperateJob,
+  jobDetail,
+  applyUrl,
+  interviewerCandidates,
+  PIPELINE_STAGE_FLOW,
+  STAGE_LABELS,
+  JOB_STATUS_LABELS,
+} from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import NewCandidate from "./NewCandidate";
 import JobLifecycle from "./JobLifecycle";
 import ApplyLinks from "./ApplyLinks";
+import HiringControls from "./HiringControls";
+import ReactivateButton from "./ReactivateButton";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +27,13 @@ const STAGE_STYLE: Record<string, string> = {
   applied: "bg-slate-100 text-slate-600",
   screening: "bg-sky-100 text-sky-700",
   interviewing: "bg-amber-100 text-amber-700",
+  ranked: "bg-indigo-100 text-indigo-700",
+  selected: "bg-emerald-100 text-emerald-700",
+  pre_hire: "bg-brand-100 text-brand-700",
   offer: "bg-violet-100 text-violet-700",
   onboarding: "bg-brand-100 text-brand-700",
   hired: "bg-emerald-100 text-emerald-700",
+  excluded: "bg-red-100 text-red-700",
   rejected: "bg-red-100 text-red-700",
 };
 
@@ -26,19 +42,35 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   if (!(await canAccessJob(user, id))) redirect(homePath(user));
   const canManage = canManageAts(user);
+  const canOperate = await canOperateJob(user, id);
 
   const job = await jobDetail(id);
   if (!job) notFound();
 
   const hiredName = job.hiredCandidateId ? job.candidates.find((c) => c.id === job.hiredCandidateId)?.name ?? null : null;
+  const supervisors = canManage ? await interviewerCandidates() : [];
 
+  // Group candidates by the canonical pipeline flow; everything excluded
+  // (incl. legacy "rejected") lands in the retained Excluded archive section.
   const byStage = new Map<string, typeof job.candidates>();
-  for (const s of STAGE_ORDER) byStage.set(s, []);
+  for (const s of PIPELINE_STAGE_FLOW) byStage.set(s, []);
+  const excluded: typeof job.candidates = [];
+  const legacy: typeof job.candidates = []; // offer/onboarding/hired that predate this flow
   for (const c of job.candidates) {
-    const list = byStage.get(c.stage) ?? [];
-    list.push(c);
-    byStage.set(c.stage, list);
+    if (c.stage === "excluded" || c.stage === "rejected") { excluded.push(c); continue; }
+    if (byStage.has(c.stage)) { byStage.get(c.stage)!.push(c); continue; }
+    legacy.push(c);
   }
+
+  // Eligible-to-rank set (interviewed, not excluded) for the ranking control.
+  const rankable = [...(byStage.get("interviewing") ?? []), ...(byStage.get("ranked") ?? [])]
+    .sort((a, b) => (a.interviewRank ?? 99) - (b.interviewRank ?? 99))
+    .map((c) => ({ id: c.id, name: c.name, rank: c.interviewRank ?? null, interviewAt: c.interviewAt ? c.interviewAt.toISOString() : null }));
+
+  const now = Date.now();
+  const overdue = job.interviewDeadline && job.interviewDeadline.getTime() < now &&
+    (byStage.get("interviewing") ?? []).length > 0;
+  const selectionOpen = (byStage.get("ranked") ?? []).length > 0 && job.selectionDeadline;
 
   return (
     <>
@@ -64,8 +96,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <Card className="p-4 mb-5 flex items-start gap-3 bg-brand-50 border-brand-100">
           <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-brand-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4" /></svg>
           <div>
-            <div className="text-sm font-medium text-brand-800">Interviewer access</div>
-            <p className="text-xs text-brand-700">You have read-only access to this job because you&rsquo;re assigned an interview on it. You can view all candidates and scorecards; only HR can make changes.</p>
+            <div className="text-sm font-medium text-brand-800">Interviewing supervisor</div>
+            <p className="text-xs text-brand-700">You&rsquo;re assigned to interview for this job. Log each interview time, complete the standardized questionnaire on each candidate, then submit your rankings below.</p>
           </div>
         </Card>
       )}
@@ -73,7 +105,22 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       <Card className="p-4 mb-5 flex flex-wrap items-center gap-4">
         <span className="text-xs text-muted">Created {dateShort(job.createdAt)}{job.createdByName ? ` by ${job.createdByName}` : ""}</span>
         <span className="text-xs text-muted">{job.candidates.length} candidate{job.candidates.length === 1 ? "" : "s"} · {JOB_STATUS_LABELS[job.status] ?? job.status}</span>
+        {job.interviewSupervisorName ? <span className="text-xs text-muted">Interviewing supervisor: <span className="font-medium text-ink">{job.interviewSupervisorName}</span></span> : null}
+        {job.interviewDeadline ? <span className={`text-xs ${overdue ? "font-semibold text-red-600" : "text-muted"}`}>Interview by {dateShort(job.interviewDeadline)}{overdue ? " · OVERDUE" : ""}</span> : null}
+        {selectionOpen ? <span className="text-xs font-medium text-indigo-700">Selection window: decide by {job.selectionDeadline!.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</span> : null}
       </Card>
+
+      {/* Interview handoff + forced ranking controls */}
+      <HiringControls
+        jobId={job.id}
+        canManage={canManage}
+        canOperate={canOperate}
+        supervisors={supervisors.map((s) => ({ id: s.id, name: s.name }))}
+        currentSupervisorId={job.interviewSupervisorId}
+        interviewDeadline={job.interviewDeadline ? job.interviewDeadline.toISOString() : null}
+        rankable={rankable}
+        hasRanked={(byStage.get("ranked") ?? []).length > 0}
+      />
 
       {canManage && job.status === "open" && job.applyToken ? (
         <Card className="p-4 mb-5">
@@ -103,9 +150,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <EmptyState title="No candidates yet" hint="Add a candidate to start moving them through the pipeline." />
       ) : (
         <div className="space-y-4">
-          {STAGE_ORDER.map((stage) => {
-            const list = byStage.get(stage) ?? [];
+          {[...PIPELINE_STAGE_FLOW, ...(legacy.length ? ["offer", "onboarding", "hired"] : [])].map((stage) => {
+            const list = stage === "offer" || stage === "onboarding" || stage === "hired"
+              ? legacy.filter((c) => c.stage === stage)
+              : (byStage.get(stage) ?? []);
             if (list.length === 0) return null;
+            const sorted = stage === "ranked" ? [...list].sort((a, b) => (a.interviewRank ?? 99) - (b.interviewRank ?? 99)) : list;
             return (
               <Card key={stage} className="p-0 overflow-hidden">
                 <div className="px-4 py-3 border-b border-line flex items-center gap-2">
@@ -113,13 +163,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <span className="text-xs text-muted">{list.length}</span>
                 </div>
                 <ul className="divide-y divide-line">
-                  {list.map((c) => (
+                  {sorted.map((c) => (
                     <li key={c.id}>
                       <Link href={`/management/people/candidates/${c.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                        {stage === "ranked" && c.interviewRank ? <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">{c.interviewRank}</span> : null}
                         <span className="min-w-0 flex-1">
                           <span className="block text-sm font-medium text-ink truncate">{c.name}</span>
                           <span className="block text-xs text-muted truncate">{c.email}{c.phone ? ` · ${c.phone}` : ""}{c.source ? ` · ${c.source}` : ""}</span>
                         </span>
+                        {c.interviewAt ? <span className="shrink-0 text-xs text-muted">{c.interviewAt.toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}</span> : null}
                         {c._count.interviews > 0 ? <span className="shrink-0 text-xs text-muted">{c._count.interviews} interview{c._count.interviews === 1 ? "" : "s"}</span> : null}
                         <span className="shrink-0 text-xs font-medium text-brand-700">Open →</span>
                       </Link>
@@ -129,6 +181,34 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               </Card>
             );
           })}
+
+          {/* Retained Excluded archive (never deleted) */}
+          {excluded.length > 0 ? (
+            <Card className="p-0 overflow-hidden border-red-100">
+              <div className="px-4 py-3 border-b border-line flex items-center gap-2 bg-red-50/40">
+                <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-700">Excluded</span>
+                <span className="text-xs text-muted">{excluded.length} · retained archive</span>
+              </div>
+              <ul className="divide-y divide-line">
+                {excluded.map((c) => (
+                  <li key={c.id} className="flex items-center gap-3 px-4 py-3">
+                    <Link href={`/management/people/candidates/${c.id}`} className="min-w-0 flex-1 hover:underline">
+                      <span className="block text-sm font-medium text-ink truncate">{c.name}
+                        {c.keepWarm ? <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 align-middle">Keep warm</span> : null}
+                      </span>
+                      <span className="block text-xs text-muted truncate">
+                        {c.excludedReason ?? "Excluded"}
+                        {c.excludedStage ? ` · cut at ${STAGE_LABELS[c.excludedStage] ?? c.excludedStage}` : ""}
+                        {c.excludedAt ? ` · ${dateShort(c.excludedAt)}` : ""}
+                        {c.excludedByName ? ` · ${c.excludedByName}` : ""}
+                      </span>
+                    </Link>
+                    {canManage ? <ReactivateButton candidateId={c.id} /> : null}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
         </div>
       )}
     </>

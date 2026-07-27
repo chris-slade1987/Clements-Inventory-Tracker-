@@ -5,8 +5,13 @@ import { requireUser, homePath } from "@/lib/auth";
 import {
   canManageAts,
   canAccessCandidate,
+  canOperateJob,
   candidateDetail,
   interviewerCandidates,
+  getScreeningBookingUrl,
+  exclusionReasonsForStage,
+  isExcludedStage,
+  PIPELINE_STAGE_FLOW,
   INTERVIEW_TEMPLATE,
   INTERVIEW_STATUS_LABELS,
   INTERVIEW_TYPE_LABELS,
@@ -29,9 +34,13 @@ const STAGE_STYLE: Record<string, string> = {
   applied: "bg-slate-100 text-slate-600",
   screening: "bg-sky-100 text-sky-700",
   interviewing: "bg-amber-100 text-amber-700",
+  ranked: "bg-indigo-100 text-indigo-700",
+  selected: "bg-emerald-100 text-emerald-700",
+  pre_hire: "bg-brand-100 text-brand-700",
   offer: "bg-violet-100 text-violet-700",
   onboarding: "bg-brand-100 text-brand-700",
   hired: "bg-emerald-100 text-emerald-700",
+  excluded: "bg-red-100 text-red-700",
   rejected: "bg-red-100 text-red-700",
 };
 
@@ -49,7 +58,37 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
   const detail = await candidateDetail(id);
   if (!detail) notFound();
   const { candidate, preHire } = detail;
+  const supervisor = !canManage && candidate.jobId ? await canOperateJob(user, candidate.jobId) : false;
   const interviewers = canManage ? await interviewerCandidates() : [];
+  const bookingConfigured = canManage ? !!(await getScreeningBookingUrl()) : false;
+
+  // The interview id this operator would fill a scorecard on: their own assigned
+  // interview if they're the supervisor, else the newest non-cancelled one.
+  const myInterview =
+    (!canManage ? candidate.interviews.find((iv) => iv.interviewerId === user.id && iv.status !== "cancelled") : null) ??
+    candidate.interviews.find((iv) => iv.status !== "cancelled") ??
+    null;
+
+  const excluded = isExcludedStage(candidate.stage);
+  const reactivateStages = PIPELINE_STAGE_FLOW.filter((s) => s !== "pre_hire").map((s) => ({ value: s, label: STAGE_LABELS[s] ?? s }));
+  const actionData = {
+    candidateId: candidate.id,
+    jobId: candidate.jobId,
+    stage: candidate.stage,
+    role: (canManage ? "hr" : "supervisor") as "hr" | "supervisor",
+    interviewers,
+    exclusionReasons: exclusionReasonsForStage(candidate.stage),
+    reactivateStages,
+    screeningNotes: candidate.screeningNotes,
+    screeningRequestedAt: candidate.screeningRequestedAt ? candidate.screeningRequestedAt.toISOString() : null,
+    screeningCompletedAt: candidate.screeningCompletedAt ? candidate.screeningCompletedAt.toISOString() : null,
+    interviewAt: candidate.interviewAt ? candidate.interviewAt.toISOString() : null,
+    bookingConfigured,
+    scorecardInterviewId: myInterview?.id ?? null,
+    excludedReason: candidate.excludedReason,
+    excludedStageLabel: candidate.excludedStage ? STAGE_LABELS[candidate.excludedStage] ?? candidate.excludedStage : null,
+    keepWarm: candidate.keepWarm,
+  };
 
   return (
     <>
@@ -83,9 +122,9 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
           {candidate.notes ? <p className="mt-3 text-sm text-muted whitespace-pre-line">{candidate.notes}</p> : null}
         </Card>
 
-        {canManage ? (
+        {canManage || supervisor ? (
           <div>
-            <CandidateActions candidateId={candidate.id} stage={candidate.stage} interviewers={interviewers} />
+            <CandidateActions {...actionData} />
           </div>
         ) : (
           <Card className="p-4 flex items-start gap-3 bg-brand-50 border-brand-100">
@@ -97,6 +136,25 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
           </Card>
         )}
       </div>
+
+      {/* Pipeline detail — screening, interview time, ranking, exclusion */}
+      {(candidate.screeningNotes || candidate.screeningCompletedAt || candidate.interviewAt || candidate.interviewRank || excluded) ? (
+        <Card className="p-4 mb-5 space-y-2">
+          <div className="text-sm font-medium text-ink">Pipeline detail</div>
+          <dl className="grid grid-cols-3 gap-y-1.5 text-sm">
+            {candidate.screeningCompletedAt ? <Row label="Screening" value={`Completed ${dateShort(candidate.screeningCompletedAt)}`} /> : candidate.screeningRequestedAt ? <Row label="Screening" value={`Call requested ${dateShort(candidate.screeningRequestedAt)}`} /> : null}
+            {candidate.interviewAt ? <Row label="Interview" value={candidate.interviewAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} /> : null}
+            {candidate.interviewRank ? <Row label="Rank" value={`#${candidate.interviewRank}`} /> : null}
+            {excluded ? <Row label="Excluded" value={`${candidate.excludedReason ?? "—"}${candidate.excludedStage ? ` · cut at ${STAGE_LABELS[candidate.excludedStage] ?? candidate.excludedStage}` : ""}${candidate.keepWarm ? " · keep warm" : ""}`} /> : null}
+          </dl>
+          {candidate.screeningNotes ? (
+            <div className="rounded-lg bg-black/[0.02] border border-line px-3 py-2">
+              <div className="text-xs font-medium text-muted mb-0.5">Screening notes</div>
+              <p className="text-sm text-ink whitespace-pre-line">{candidate.screeningNotes}</p>
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
 
       {/* Interviews + scorecards */}
       <div className="mb-2 flex items-center justify-between">
