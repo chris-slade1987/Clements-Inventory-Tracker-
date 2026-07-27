@@ -252,11 +252,18 @@ async function main() {
     // Seed the [DEMO] ATS applicant-pipeline walkthrough (idempotent, clearly
     // labeled, removable). Lets the CEO walk shortlist→screening→interview→
     // ranking→selection→pre-hire live on the deployed site.
-    const { seedAtsDemo } = await import("../prisma/seed-ats-demo");
-    const atsDemo = await seedAtsDemo(prisma);
-    console.log(
-      `deploy-db: ATS demo — job ${atsDemo.jobId} (${atsDemo.created} candidates created, ${atsDemo.updated} updated; supervisor ${atsDemo.supervisor ?? "n/a"}).`,
-    );
+    // NON-FATAL: a demo-seed failure must NEVER fail the build/deploy (the
+    // schema push above is the only hard requirement). Log and continue so
+    // production always ships the latest code even if this seed hiccups.
+    try {
+      const { seedAtsDemo } = await import("../prisma/seed-ats-demo");
+      const atsDemo = await seedAtsDemo(prisma);
+      console.log(
+        `deploy-db: ATS demo — job ${atsDemo.jobId} (${atsDemo.created} candidates created, ${atsDemo.updated} updated; supervisor ${atsDemo.supervisor ?? "n/a"}).`,
+      );
+    } catch (e) {
+      console.error("deploy-db: ATS demo seed FAILED (non-fatal, continuing):", e);
+    }
 
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
