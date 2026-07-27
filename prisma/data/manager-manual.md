@@ -177,15 +177,16 @@ To help guide you, a checklist and set of procedures follow this section. These 
 
 ## Hiring / Onboarding
 
-> **Portal (v1).** Hiring and onboarding now run in the portal. **Hiring / ATS** lets HR post jobs, move candidates through the pipeline (applied → screening → interviewing → offer → onboarding → hired), and assign interviews with required digital **scorecards**. When a candidate reaches the offer/onboarding stage, the **online onboarding** portal takes over — the new hire completes paperwork through a personal link, including a typed-signature **acknowledgment of the Employee Handbook**. New hires also receive **30- and 60-day reviews** in the portal, with assigned reviewers and e-signatures. The roadmap and email templates below remain the reference for the human steps.
+> **Portal (v1).** Hiring and onboarding now run in the portal. **Hiring / ATS** lets HR post jobs, move candidates through the pipeline (applied → screening → interviewing → offer → onboarding → hired), and assign interviews with required digital **scorecards**. Every open job now has a **public application link** (a "front door"): each job detail page shows two copyable links — one for the **Indeed** ad and one for the **company website/careers page** — that lead to a clean, branded, no-login apply page for that role. When someone applies, a candidate is created automatically in that job's pipeline (stage **Applied**), their résumé is stored, their **source** is tracked by channel (Indeed vs. Company Website), the applicant gets an automatic confirmation email, and HR plus the job's branch supervisors are notified. A public **careers page** at `/careers` lists all open roles for the company website to link to. When a candidate reaches the offer/onboarding stage, the **online onboarding** portal takes over — the new hire completes paperwork through a personal link, including a typed-signature **acknowledgment of the Employee Handbook**. New hires also receive **30- and 60-day reviews** in the portal, with assigned reviewers and e-signatures. The roadmap and email templates below remain the reference for the human steps.
 
 ## Hiring and Onboarding Roadmap
 
 Job Listing
 
-- Post ad on Indeed.com
-- Add link to Indeed ad to www.clementspestcontrol.com/careers
-- Monitor applications and set up interviews
+- Create the job in **Hiring / ATS** (portal). Each job's detail page generates the **public apply links**.
+- Post the ad on Indeed.com, using the job's **Indeed apply link** (`?src=indeed`) as the application URL.
+- Point www.clementspestcontrol.com/careers at the portal's public **careers page** (`/careers`), or use a specific role's **website apply link** (`?src=website`).
+- Applicants who use these links appear automatically in the job's pipeline (stage **Applied**) with their source tracked — no manual entry. Monitor applications and set up interviews from there.
 
 Hiring - Once a candidate has been selected, gather the following information from the hiring supervisor:
 

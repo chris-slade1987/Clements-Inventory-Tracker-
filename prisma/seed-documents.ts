@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 5 · Last updated July 23, 2026",
+    effective: "Version 6 · Last updated July 27, 2026",
+    // v6: documented the public job-application "front door" in Hiring /
+    // Onboarding — per-job public apply links (Indeed + company website, source
+    // tracked by channel), the branded no-login apply page, the public /careers
+    // listing, the automatic applicant confirmation email, and the HR/supervisor
+    // new-applicant notification. Candidates now auto-populate the pipeline.
     // v5: expanded the GPS / Live Fleet Tracking subsection with the GPS
     // Analytics dashboard (fleet status, utilization, exception tiles,
     // per-vehicle rollup, AI insights panel) and the dedicated GPS Alerts
@@ -60,7 +65,7 @@ const DOCS: DocSeed[] = [
     // v2: retired the last paper-form procedures (routine vehicle/equipment
     // maintenance logs, vehicle inspection form) in favor of the Fleet
     // "Log Service" + digital inspection workflows; escalation contacts fixed.
-    version: 5,
+    version: 6,
   },
 ];
 

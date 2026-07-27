@@ -1,7 +1,10 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
 import { sendEmail } from "@/lib/email";
+import { notifyThread } from "@/lib/threads";
+import { branchLabel } from "@/lib/management";
 import { createPreHire } from "@/lib/prehire";
 import { buildIcs, googleCalendarUrl, locationLine, interviewTitle } from "@/lib/calendar";
 import type { SessionUser } from "@/lib/auth";
@@ -50,6 +53,41 @@ function normalizeRating(v: unknown): number | null {
   return Number.isFinite(n) && n >= 1 && n <= 5 ? Math.round(n) : null;
 }
 
+// ---- Public application "front door" --------------------------------------
+
+/** A random, URL-safe apply-link slug (~16 chars). Unguessable per job. */
+export function newApplyToken(): string {
+  return randomBytes(12).toString("base64url");
+}
+
+/** Absolute public apply URL for a job token, optionally tagged with a source
+ *  channel (?src=indeed|website|careers|referral) for accurate source tracking. */
+export function applyUrl(token: string, src?: string | null): string {
+  const url = `${base()}/apply/${token}`;
+  return src ? `${url}?src=${encodeURIComponent(src)}` : url;
+}
+
+/** Map an inbound `src` channel to the Candidate.source we record. */
+export function sourceFromChannel(src: string | null | undefined): string {
+  switch ((src ?? "").trim().toLowerCase()) {
+    case "indeed":
+      return "Indeed";
+    case "referral":
+      return "Referral";
+    case "website":
+    case "careers":
+      return "Company Website";
+    default:
+      return "Company Website";
+  }
+}
+
+/** Look up a job by its public apply token (null if none). */
+export async function jobByApplyToken(token: string) {
+  if (!token) return null;
+  return prisma.job.findUnique({ where: { applyToken: token } });
+}
+
 // ---- Jobs ------------------------------------------------------------------
 
 export async function createJob(
@@ -65,8 +103,18 @@ export async function createJob(
       description: str(data.description),
       hiringManagerName: str(data.hiringManagerName),
       status: str(data.status) ?? "open",
+      applyToken: newApplyToken(),
       createdByName,
     },
+  });
+}
+
+/** All OPEN jobs for the public careers listing, newest first. */
+export async function listOpenJobs() {
+  return prisma.job.findMany({
+    where: { status: "open" },
+    orderBy: [{ createdAt: "desc" }],
+    select: { id: true, title: true, branch: true, description: true, openings: true, applyToken: true },
   });
 }
 
@@ -121,13 +169,20 @@ export async function jobDetail(id: string) {
 // ---- Candidates ------------------------------------------------------------
 
 export async function createCandidate(
-  data: { jobId?: string | null; name: string; email: string; phone?: string | null; source?: string | null; notes?: string | null; resumePath?: string | null; resumeName?: string | null },
+  data: { jobId?: string | null; name?: string | null; firstName?: string | null; lastName?: string | null; email: string; phone?: string | null; source?: string | null; notes?: string | null; resumePath?: string | null; resumeName?: string | null },
   createdByName: string | null,
 ) {
+  const firstName = str(data.firstName);
+  const lastName = str(data.lastName);
+  // Keep `name` populated for all existing ATS code — prefer an explicit name,
+  // otherwise compose it from the first/last parts the public form collects.
+  const name = (str(data.name) ?? [firstName, lastName].filter(Boolean).join(" ")).trim();
   return prisma.candidate.create({
     data: {
       jobId: str(data.jobId),
-      name: (data.name ?? "").trim(),
+      name,
+      firstName,
+      lastName,
       email: (data.email ?? "").trim().toLowerCase(),
       phone: str(data.phone),
       source: str(data.source),
@@ -170,6 +225,133 @@ export async function setStage(id: string, stage: string) {
 
 export async function rejectCandidate(id: string) {
   return prisma.candidate.update({ where: { id }, data: { stage: "rejected" } });
+}
+
+// ---- Public-application notifications --------------------------------------
+// A public applicant creates a Candidate with no logged-in author. Two
+// best-effort notifications fire on submit (neither may ever fail the
+// application): an internal alert to HR + the job's supervisors (reusing the
+// internal-discussions thread system, which auto-emails participants), and a
+// warm, branded confirmation email to the applicant.
+
+/**
+ * Recipients for a new public application: HR (admins + granted HR) plus the
+ * job's supervisors — active branch managers on the job's branch and anyone
+ * already assigned an interview on the job. Deduped by user id; only those with
+ * an email are kept.
+ */
+async function applicantNotifyRecipients(job: { id: string; branch: string | null }) {
+  const orFilters: Record<string, unknown>[] = [{ hrAccess: true }, { role: "admin" }];
+  if (job.branch) orFilters.push({ role: "manager", branch: job.branch });
+
+  const [staff, interviews] = await Promise.all([
+    prisma.user.findMany({
+      where: { active: true, OR: orFilters },
+      select: { id: true, name: true, email: true },
+    }),
+    prisma.interview.findMany({
+      where: { candidate: { jobId: job.id }, interviewerId: { not: null } },
+      select: { interviewerId: true, interviewerName: true, interviewerEmail: true },
+    }),
+  ]);
+
+  const byId = new Map<string, { id: string; name: string; email: string | null }>();
+  for (const u of staff) byId.set(u.id, { id: u.id, name: u.name, email: u.email });
+  for (const iv of interviews) {
+    if (iv.interviewerId && !byId.has(iv.interviewerId)) {
+      byId.set(iv.interviewerId, { id: iv.interviewerId, name: iv.interviewerName ?? "Interviewer", email: iv.interviewerEmail });
+    }
+  }
+  return [...byId.values()].filter((u) => u.email);
+}
+
+/** Alert HR + the job's supervisors that a new candidate applied. Best-effort. */
+export async function notifyNewApplicant(
+  candidate: { id: string; name: string; firstName: string | null; lastName: string | null; email: string; phone: string | null; source: string | null },
+  job: { id: string; title: string; branch: string | null },
+) {
+  const recipients = await applicantNotifyRecipients(job);
+  if (recipients.length === 0) return { notified: 0 };
+
+  const who = [candidate.firstName, candidate.lastName].filter(Boolean).join(" ") || candidate.name;
+  const branchName = job.branch ? branchLabel(job.branch) : null;
+  const subject = `New applicant: ${who} — ${job.title}`;
+  const href = `/management/people/candidates/${candidate.id}`;
+  const body =
+    `${who} just applied${branchName ? ` for ${job.title} (${branchName})` : ` for ${job.title}`} via ${candidate.source ?? "the careers page"}.\n\n` +
+    `Email: ${candidate.email}\n` +
+    (candidate.phone ? `Phone: ${candidate.phone}\n` : "") +
+    `\nOpen their profile in the job container: ${base()}${href}`;
+
+  const now = new Date();
+  const thread = await prisma.thread.create({
+    data: {
+      subject,
+      branch: job.branch,
+      contextType: "general",
+      contextId: candidate.id,
+      contextLabel: `${who} — ${job.title}`,
+      contextHref: href,
+      createdByName: "Careers (public application)",
+      updatedAt: now,
+      messages: { create: { authorName: "Careers (public application)", body } },
+      participants: { create: recipients.map((r) => ({ userId: r.id, name: r.name, email: r.email })) },
+    },
+  });
+
+  await notifyThread({
+    threadId: thread.id,
+    subject,
+    contextLabel: `${who} — ${job.title}`,
+    authorName: "Careers (public application)",
+    authorUserId: null,
+    body,
+    isNew: true,
+  }).catch(() => {});
+
+  return { notified: recipients.length };
+}
+
+/** Send the applicant a warm, branded confirmation email. Best-effort. */
+export async function sendApplicantConfirmation(
+  candidate: { id: string; firstName: string | null; name: string; email: string },
+  job: { title: string },
+) {
+  const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
+  const subject = `Thanks for applying — ${job.title} at Clements Pest Control`;
+  const text = [
+    `Hi ${first},`,
+    "",
+    `Thank you for applying to the ${job.title} position at Clements Pest Control. We truly appreciate your interest in joining our team.`,
+    "",
+    `Our hiring team is reviewing applications now. If we decide to move forward to next steps, we'll be in touch at this email address.`,
+    "",
+    "Warm regards,",
+    "The Clements Pest Control Hiring Team",
+  ].join("\n");
+  const html = [
+    `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+    `<div style="background:linear-gradient(150deg,#14503a,#0f3d2c);border-radius:14px;padding:22px 24px;color:#eef5f0">`,
+    `<div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9db5a8">Clements Pest Control</div>`,
+    `<div style="font-size:20px;font-weight:600;margin-top:4px">Application received</div>`,
+    `</div>`,
+    `<div style="padding:20px 4px">`,
+    `<p>Hi ${first},</p>`,
+    `<p>Thank you for applying to the <strong>${job.title}</strong> position at Clements Pest Control. We truly appreciate your interest in joining our team.</p>`,
+    `<p>Our hiring team is reviewing applications now. If we decide to move forward to next steps, we&rsquo;ll be in touch at this email address.</p>`,
+    `<p style="margin-top:22px">Warm regards,<br/>The Clements Pest Control Hiring Team</p>`,
+    `</div></div>`,
+  ].join("");
+
+  return sendEmail({
+    to: candidate.email,
+    subject,
+    kind: "applicant_confirmation",
+    relatedType: "candidate",
+    relatedId: candidate.id,
+    text,
+    html,
+  });
 }
 
 // ---- Interviewer picker ----------------------------------------------------

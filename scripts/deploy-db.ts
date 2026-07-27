@@ -12,6 +12,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { randomBytes } from "node:crypto";
 
 const url = process.env.DATABASE_URL ?? "";
 
@@ -238,6 +239,15 @@ async function main() {
       `deploy-db: reconciled document center (${docs.map((d) => `${d.slug} v${d.version} ${d.length}c`).join(", ")}; ` +
         `acknowledgments ${acksBefore}->${acksAfter} ${acksAfter === acksBefore ? "UNCHANGED" : "CHANGED"}).`,
     );
+
+    // Backfill public apply tokens on any Job that predates the public
+    // application "front door", so every existing job gets a shareable
+    // /apply/<token> link. Idempotent — only fills nulls, one unique token each.
+    const jobsMissingToken = await prisma.job.findMany({ where: { applyToken: null }, select: { id: true } });
+    for (const j of jobsMissingToken) {
+      await prisma.job.update({ where: { id: j.id }, data: { applyToken: randomBytes(12).toString("base64url") } });
+    }
+    console.log(`deploy-db: backfilled apply tokens on ${jobsMissingToken.length} job(s).`);
 
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes

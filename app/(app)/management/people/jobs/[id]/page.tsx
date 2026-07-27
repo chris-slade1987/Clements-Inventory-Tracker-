@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
-import { canManageAts, canAccessJob, jobDetail, STAGE_ORDER, STAGE_LABELS, JOB_STATUS_LABELS } from "@/lib/ats";
+import { canManageAts, canAccessJob, jobDetail, applyUrl, STAGE_ORDER, STAGE_LABELS, JOB_STATUS_LABELS } from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import NewCandidate from "./NewCandidate";
 import JobLifecycle from "./JobLifecycle";
+import ApplyLinks from "./ApplyLinks";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +74,23 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <span className="text-xs text-muted">Created {dateShort(job.createdAt)}{job.createdByName ? ` by ${job.createdByName}` : ""}</span>
         <span className="text-xs text-muted">{job.candidates.length} candidate{job.candidates.length === 1 ? "" : "s"} · {JOB_STATUS_LABELS[job.status] ?? job.status}</span>
       </Card>
+
+      {canManage && job.status === "open" && job.applyToken ? (
+        <Card className="p-4 mb-5">
+          <div className="flex items-center gap-2 mb-1">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 text-brand-300" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
+            <span className="text-sm font-medium text-ink">Public application link</span>
+          </div>
+          <p className="text-xs text-muted mb-3">
+            Applicants who apply through these links are auto-added to this job&rsquo;s pipeline (stage “Applied”), with their source tracked per channel.
+            {" "}<Link href="/careers" className="font-medium text-brand-300 hover:underline">View the public careers page →</Link>
+          </p>
+          <ApplyLinks
+            indeedUrl={applyUrl(job.applyToken, "indeed")}
+            websiteUrl={applyUrl(job.applyToken, "website")}
+          />
+        </Card>
+      ) : null}
 
       {job.description ? (
         <Card className="p-4 mb-5">

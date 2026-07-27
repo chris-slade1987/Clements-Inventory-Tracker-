@@ -1563,6 +1563,9 @@ model Job {
   description       String?
   hiringManagerName String?  @map("hiring_manager_name")
   status            String   @default("open") // open | on_hold | filled | closed
+  // Public application "front door": the unguessable slug for /apply/<token>.
+  // Generated on create; backfilled for existing jobs in deploy-db.
+  applyToken        String?  @unique @map("apply_token")
   // Close-out: the candidate selected when hiring completes (plain scalar id —
   // resolved manually, NOT a Prisma relation, since `candidates` already relates
   // this job to its Candidate rows) + when the job was filled/closed.
@@ -1582,6 +1585,10 @@ model Candidate {
   id            String   @id @default(cuid())
   jobId         String?  @map("job_id")
   name          String
+  // Split name parts captured by the public application form. `name` stays
+  // populated ("First Last") for back-compat with all existing ATS code.
+  firstName     String?  @map("first_name")
+  lastName      String?  @map("last_name")
   email         String
   phone         String?
   source        String? // where they came from (Indeed, referral, walk-in, …)
