@@ -55,23 +55,40 @@ const SCREENING_CORE: Q[] = [
   { section: "Notes", text: "Any red flags or notes to pass to the interviewing supervisor", responseType: "text" },
 ];
 
+// Experience-based structured interview — the arc the CEO wants: dig into what
+// the candidate actually DID, get technical, then explore likes/dislikes,
+// motivation for the change, what they valued, where they grew, where they want
+// to keep growing, and their ideal role. Mirrors how top employers (Google,
+// Delta, PepsiCo, Terminix/Orkin) run structured behavioral interviews. Scored
+// 1–5 so the scorecard + recommendation still work.
+const CAREER_OPENERS: Q[] = [
+  { section: "Work history", text: "Walk me through your work history — the roles you've held, what you actually did in each, and what you were responsible for day to day.", responseType: "rating_1_5", required: true },
+  { section: "A day in the role", text: "Think of the past job most like this one. Describe a typical day start to finish — the real tasks, the tools you used, and the calls you had to make.", responseType: "rating_1_5", required: true },
+];
+
+const CAREER_REFLECTION: Q[] = [
+  { section: "Likes & dislikes", text: "What did you enjoy most in your recent roles, and what did you like least? Be candid — it helps us make sure this is the right fit.", responseType: "rating_1_5", required: true },
+  { section: "What you valued most", text: "What did you value most about your last job (or jobs) — the work itself, the people, how it was run? What made it matter to you?", responseType: "rating_1_5", required: true },
+  { section: "Where you grew", text: "Where did you grow the most in your last few roles — a skill or area where you got noticeably better — and what drove that growth?", responseType: "rating_1_5", required: true },
+  { section: "Where you're still growing", text: "Where do you most want to keep improving, and what are you actively doing to get better at it?", responseType: "rating_1_5", required: true },
+  { section: "Why a change now", text: "Why are you looking to make a move now, and what are you hoping to find here that you don't have today?", responseType: "rating_1_5", required: true },
+  { section: "Your ideal role", text: "If you could design the perfect role for yourself, what would it look like day to day — and how does this role line up with that?", responseType: "rating_1_5", required: true },
+];
+
 const TEMPLATES: TemplateSeed[] = [
   // ---- Interview templates -------------------------------------------------
   {
     seedKey: "interview-technician",
     kind: "interview",
     name: "Pest Technician (field) interview",
-    description: "Behavioral interview for field pest/lawn technicians — safety, thoroughness, at-the-door customer skill, driving, and coachability.",
+    description: "Experience-based interview for field pest/lawn technicians — past roles, technical field depth, motivation, and growth.",
     roleKeys: ["technician"],
     questions: [
-      { section: "Reliability & attendance", text: "Tell me about a time you had to show up and perform under tough conditions — bad weather, a long day, short-staffed. How did you handle it?", responseType: "rating_1_5", required: true },
-      { section: "Safety & pesticide/PPE mindset", text: "Walk me through how you follow safety rules and use protective equipment even when no one is watching. Any experience with regulated or chemical-handling work?", responseType: "rating_1_5", required: true },
-      { section: "Treatment thoroughness & documentation", text: "Give an example of a job where being thorough and documenting your work really mattered. How do you make sure nothing gets missed?", responseType: "rating_1_5", required: true },
-      { section: "At-the-door customer interaction", text: "Describe a time you dealt with an upset or skeptical customer at their home or business. What did you do and how did it end?", responseType: "rating_1_5", required: true },
-      { section: "Physical / outdoor readiness", text: "This role means being on your feet outdoors in Florida heat, crawling in tight spaces, and lifting equipment. Tell me about physically demanding work you've done and how you stayed effective.", responseType: "rating_1_5", required: true },
-      { section: "Driving & route professionalism", text: "You'd represent Clements in a branded truck at customers' properties all day. What does professionalism on the road and on-site mean to you?", responseType: "rating_1_5", required: true },
-      { section: "Problem-solving in the field", text: "Tell me about a problem you solved on your own in the field when things didn't go as planned.", responseType: "rating_1_5", required: true },
-      { section: "Coachability", text: "Describe a time you got tough feedback about your work. How did you respond?", responseType: "rating_1_5", required: true },
+      ...CAREER_OPENERS,
+      { section: "Technical depth (field)", text: "Get technical with me: pick a job type you've done — an ant or roach callback, a rodent job, a termite or lawn/ornamental treatment — and walk me through it end to end. What did you inspect, what products and equipment did you use and why, and how did you know it worked?", responseType: "rating_1_5", required: true },
+      { section: "Safety & chemical handling", text: "Tell me about your hands-on experience handling chemicals or working under safety/PPE rules. How do you keep yourself and the customer safe when you're busy and behind?", responseType: "rating_1_5", required: true },
+      { section: "Thoroughness in the field", text: "Give an example of a job where being thorough — and documenting it — really mattered. How do you make sure nothing gets missed on a property?", responseType: "rating_1_5", required: true },
+      ...CAREER_REFLECTION,
       ...FIELD_BASICS,
     ],
   },
@@ -79,15 +96,14 @@ const TEMPLATES: TemplateSeed[] = [
     seedKey: "interview-sales",
     kind: "interview",
     name: "Sales / Service Advisor interview",
-    description: "Interview for sales / service advisors — consultative selling, objection handling, integrity, and follow-up discipline.",
+    description: "Experience-based interview for sales / service advisors — past sales roles, deal craft, motivation, and growth.",
     roleKeys: ["sales"],
     questions: [
-      { section: "Consultative selling & rapport", text: "Tell me about a time you understood what a customer really needed and matched them to the right solution instead of just making a sale.", responseType: "rating_1_5", required: true },
-      { section: "Handling objections", text: "Describe a tough objection you faced (price, timing, competitor) and how you worked through it.", responseType: "rating_1_5", required: true },
-      { section: "Self-motivation vs. targets", text: "How do you keep yourself motivated against a number? Tell me about a goal you set and how you tracked toward it.", responseType: "rating_1_5", required: true },
-      { section: "Explaining services honestly (integrity)", text: "Tell me about a time you chose to be fully honest with a customer even though it might cost you the sale.", responseType: "rating_1_5", required: true },
-      { section: "Follow-up discipline", text: "Walk me through how you manage follow-ups and pipeline so leads don't fall through the cracks.", responseType: "rating_1_5", required: true },
-      { section: "Driving & professionalism", text: "You'd travel to customers' homes and businesses representing Clements. What does being professional on the road and on-site mean to you?", responseType: "rating_1_5", required: true },
+      ...CAREER_OPENERS,
+      { section: "Technical depth (sales)", text: "Get into your sales craft: walk me through your process on a deal you're proud of, from first contact to close — how you qualified the customer, what you presented, and how you handled the money conversation.", responseType: "rating_1_5", required: true },
+      { section: "Handling objections", text: "Tell me about the toughest objection you faced recently — price, timing, a competitor — and exactly how you worked through it.", responseType: "rating_1_5", required: true },
+      { section: "Numbers & follow-up", text: "How have you performed against a quota, and how do you manage your follow-ups and pipeline so leads don't fall through the cracks?", responseType: "rating_1_5", required: true },
+      ...CAREER_REFLECTION,
       ...CORE_BASICS,
     ],
   },
@@ -95,15 +111,14 @@ const TEMPLATES: TemplateSeed[] = [
     seedKey: "interview-manager",
     kind: "interview",
     name: "Service / Branch Manager interview",
-    description: "Interview for service / branch managers — leadership, accountability, escalation handling, and compliance leadership.",
+    description: "Experience-based interview for service / branch managers — how they've actually run teams, hard decisions, motivation, and growth.",
     roleKeys: ["manager"],
     questions: [
-      { section: "Leadership & team development", text: "Tell me about a time you developed an underperforming team member into a strong contributor. What did you do?", responseType: "rating_1_5", required: true },
-      { section: "Operational accountability & deadlines", text: "Describe how you keep a team hitting daily production and deadlines. Give a specific example of getting things back on track.", responseType: "rating_1_5", required: true },
-      { section: "Conflict & customer-escalation handling", text: "Tell me about a serious customer escalation or team conflict you owned. How did you resolve it?", responseType: "rating_1_5", required: true },
-      { section: "Safety / compliance leadership", text: "How do you build a culture where safety and regulatory compliance are non-negotiable? Share a time you enforced it.", responseType: "rating_1_5", required: true },
-      { section: "Hiring & coaching", text: "Walk me through how you hire and coach. Tell me about a hiring or coaching decision you're proud of.", responseType: "rating_1_5", required: true },
-      { section: "Culture", text: "What kind of team culture do you build, and what have you done to create it?", responseType: "rating_1_5", required: true },
+      ...CAREER_OPENERS,
+      { section: "Technical depth (leadership)", text: "Get into how you actually run a team: walk me through how you manage a day — production targets, accountability, coaching in the moment — using a real example from a team you led.", responseType: "rating_1_5", required: true },
+      { section: "A hard people decision", text: "Tell me about the hardest people decision you've owned — a termination, a serious conflict, or a turnaround — and how you handled it start to finish.", responseType: "rating_1_5", required: true },
+      { section: "Safety / compliance leadership", text: "How have you built a culture where safety and regulatory compliance are non-negotiable? Give me a time you had to enforce it.", responseType: "rating_1_5", required: true },
+      ...CAREER_REFLECTION,
       ...CORE_BASICS,
     ],
   },
@@ -111,15 +126,14 @@ const TEMPLATES: TemplateSeed[] = [
     seedKey: "interview-csr",
     kind: "interview",
     name: "Customer Service Rep (in-office) interview",
-    description: "Interview for in-office CSRs — phone composure, empathy, software aptitude, multitasking, and teamwork with field crews.",
+    description: "Experience-based interview for in-office CSRs — past office/phone roles, systems used, motivation, and growth.",
     roleKeys: ["csr"],
     questions: [
-      { section: "Phone communication & composure under pressure", text: "Tell me about a time you handled a high-volume or high-stress phone situation calmly. How did you keep control?", responseType: "rating_1_5", required: true },
-      { section: "Empathy with upset customers", text: "Describe a time you turned an upset customer around on the phone. What did you say and do?", responseType: "rating_1_5", required: true },
-      { section: "Scheduling / CRM / software aptitude", text: "Walk me through your experience learning scheduling or CRM software. How quickly do you pick up new systems?", responseType: "rating_1_5", required: true },
-      { section: "Multitasking & accuracy", text: "Give an example of juggling calls, scheduling, and data entry at once without letting accuracy slip.", responseType: "rating_1_5", required: true },
-      { section: "Reliability", text: "Tell me about a time your reliability made a real difference to your team.", responseType: "rating_1_5", required: true },
-      { section: "Teamwork with field crews", text: "Describe how you'd coordinate with technicians in the field to keep customers happy and routes on track.", responseType: "rating_1_5", required: true },
+      ...CAREER_OPENERS,
+      { section: "Technical depth (office)", text: "Get into the office craft: walk me through a busy shift juggling a full phone queue, scheduling, and data entry — what systems (CRM, scheduling, phone) you used and how you kept everything accurate.", responseType: "rating_1_5", required: true },
+      { section: "Turning a call around", text: "Tell me about a difficult call you turned around — an upset customer or a scheduling mess — and exactly what you said and did.", responseType: "rating_1_5", required: true },
+      { section: "Learning new systems", text: "How quickly do you pick up new software? Give me an example of a system you learned fast and how you got up to speed.", responseType: "rating_1_5", required: true },
+      ...CAREER_REFLECTION,
       ...CORE_BASICS,
     ],
   },
@@ -127,18 +141,14 @@ const TEMPLATES: TemplateSeed[] = [
     seedKey: "interview-default",
     kind: "interview",
     name: "General interview (default)",
-    description: "Role-agnostic behavioral interview — the fallback used for any job without a role-specific template assigned.",
+    description: "Role-agnostic experience-based interview — the fallback used for any job without a role-specific template assigned.",
     roleKeys: ["any"],
     isDefault: true,
     questions: [
-      { section: "Reliability & work ethic", text: "Tell me about a time you had to show up and perform under tough conditions (bad weather, a long day, short-staffed). How did you handle it?", responseType: "rating_1_5", required: true },
-      { section: "Customer service & communication", text: "Describe a time you dealt with an upset or difficult customer. What did you do and how did it end?", responseType: "rating_1_5", required: true },
-      { section: "Attention to detail & follow-through", text: "Give an example of a job where being thorough really mattered. How do you make sure nothing gets missed?", responseType: "rating_1_5", required: true },
-      { section: "Safety & compliance mindset", text: "How do you approach following rules and procedures even when no one is watching? Any experience with safety protocols or regulated work?", responseType: "rating_1_5", required: true },
-      { section: "Problem-solving & adaptability", text: "Tell me about a problem you solved on your own when things didn't go as planned.", responseType: "rating_1_5", required: true },
-      { section: "Teamwork & coachability", text: "Describe a time you got tough feedback. How did you respond?", responseType: "rating_1_5", required: true },
-      { section: "Professionalism & driving", text: "You'd represent Clements in a branded truck at customers' homes and businesses. What does being professional on the road and on-site mean to you? (Any driving record concerns?)", responseType: "rating_1_5", required: true },
-      { section: "Motivation & role fit", text: "Why this role, and why Clements? Where do you want to grow?", responseType: "rating_1_5", required: true },
+      ...CAREER_OPENERS,
+      { section: "Technical / role depth", text: "Get specific about the work you'd do here: walk me through the part of your past experience most relevant to this role — the actual tasks and exactly how you approached them.", responseType: "rating_1_5", required: true },
+      { section: "Thoroughness & follow-through", text: "Give an example of a job where being thorough really mattered. How do you make sure nothing gets missed?", responseType: "rating_1_5", required: true },
+      ...CAREER_REFLECTION,
       { text: "Valid driver's license", responseType: "basics_yesno_unsure" },
       { text: "Comfortable with outdoor / physical work (lifting ~50 lb), with or without a reasonable accommodation", responseType: "basics_yesno_unsure" },
       { text: "Has reliable transportation", responseType: "basics_yesno_unsure" },
@@ -214,6 +224,16 @@ const BANK: BankSeed[] = [
   { seedKey: "bank-i-sales-2", kind: "interview", category: "Sales", roleHint: "sales", text: "Describe a tough objection you worked through to close.", responseType: "rating_1_5" },
   // Interview — motivation
   { seedKey: "bank-i-motivation-1", kind: "interview", category: "Motivation & fit", roleHint: "any", text: "Why this role, and why Clements? Where do you want to grow?", responseType: "rating_1_5" },
+  // Interview — experience & background (the CEO's preferred deep-dive arc)
+  { seedKey: "bank-i-exp-history", kind: "interview", category: "Experience & background", roleHint: "any", text: "Walk me through your work history — what you actually did in each role and what you were responsible for day to day.", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-day", kind: "interview", category: "Experience & background", roleHint: "any", text: "Think of the past job most like this one — describe a typical day start to finish, with the real tasks and tools.", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-technical", kind: "interview", category: "Experience & background", roleHint: "any", text: "Get technical: walk me through the part of your experience most relevant here, end to end — what you did and why.", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-likes", kind: "interview", category: "Experience & background", roleHint: "any", text: "What did you enjoy most in your recent roles, and what did you like least?", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-valued", kind: "interview", category: "Experience & background", roleHint: "any", text: "What did you value most about your last job — the work, the people, how it was run — and why?", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-grew", kind: "interview", category: "Experience & background", roleHint: "any", text: "Where did you grow the most recently, and what drove that growth?", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-growing", kind: "interview", category: "Experience & background", roleHint: "any", text: "Where do you most want to keep improving, and what are you doing about it?", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-change", kind: "interview", category: "Experience & background", roleHint: "any", text: "Why are you making a move now, and what are you hoping to find that you don't have today?", responseType: "rating_1_5" },
+  { seedKey: "bank-i-exp-ideal", kind: "interview", category: "Experience & background", roleHint: "any", text: "If you could design the perfect role for yourself, what would it look like day to day?", responseType: "rating_1_5" },
   // Interview basics
   { seedKey: "bank-i-basic-license", kind: "interview", category: "Basics", roleHint: "any", text: "Holds a valid driver's license", responseType: "basics_yesno_unsure" },
   { seedKey: "bank-i-basic-lift", kind: "interview", category: "Basics", roleHint: "technician", text: "Able to lift up to ~50 lb and use ladders, with or without a reasonable accommodation", responseType: "basics_yesno_unsure" },
@@ -239,14 +259,47 @@ const BANK: BankSeed[] = [
   { seedKey: "bank-s-setup-1", kind: "screening", category: "Office readiness", roleHint: "csr", text: "Do you have a stable office or (if remote) home setup with reliable internet and a quiet space?", responseType: "yes_no" },
 ];
 
+// Forward-only content version. BUMP this when the seeded INTERVIEW templates'
+// question content is intentionally revised and must overwrite the previously
+// seeded content on live (which is otherwise create-if-missing). A bump re-syncs
+// the seed-owned interview templates ONCE — it will overwrite HR's edits to
+// those specific templates, so bump only for authoritative content changes.
+// v2: CEO-preferred experience-based interview arc (Jul 2026).
+const INTERVIEW_CONTENT_VERSION = 2;
+const INTERVIEW_VERSION_KEY = "hiringInterviewSeedVersion";
+
 export async function seedHiringTemplates(prisma: PrismaClient) {
+  const versionRow = await prisma.setting.findUnique({ where: { key: INTERVIEW_VERSION_KEY } }).catch(() => null);
+  const storedVersion = Number.parseInt(versionRow?.value ?? "0", 10) || 0;
+  const refreshInterviews = INTERVIEW_CONTENT_VERSION > storedVersion;
+
   let templatesCreated = 0;
   let templatesSkipped = 0;
+  let templatesRefreshed = 0;
   for (const t of TEMPLATES) {
     const existing = await prisma.hiringTemplate.findUnique({ where: { seedKey: t.seedKey }, select: { id: true } });
     if (existing) {
-      templatesSkipped++;
-      continue; // never clobber an existing seeded template or HR's edits to it
+      // One-time authoritative refresh of the seed-owned INTERVIEW templates so
+      // a live site picks up revised question content on a version bump.
+      if (refreshInterviews && t.kind === "interview") {
+        await prisma.hiringTemplateQuestion.deleteMany({ where: { templateId: existing.id } });
+        await prisma.hiringTemplate.update({
+          where: { id: existing.id },
+          data: {
+            name: t.name,
+            description: t.description,
+            roleKeys: JSON.stringify(t.roleKeys),
+            isDefault: !!t.isDefault,
+            questions: {
+              create: t.questions.map((q, i) => ({ section: q.section ?? null, text: q.text, responseType: q.responseType, required: !!q.required, order: i })),
+            },
+          },
+        });
+        templatesRefreshed++;
+      } else {
+        templatesSkipped++;
+      }
+      continue; // otherwise never clobber an existing seeded template or HR's edits
     }
     await prisma.hiringTemplate.create({
       data: {
@@ -265,6 +318,14 @@ export async function seedHiringTemplates(prisma: PrismaClient) {
     templatesCreated++;
   }
 
+  if (refreshInterviews) {
+    await prisma.setting.upsert({
+      where: { key: INTERVIEW_VERSION_KEY },
+      update: { value: String(INTERVIEW_CONTENT_VERSION) },
+      create: { key: INTERVIEW_VERSION_KEY, value: String(INTERVIEW_CONTENT_VERSION) },
+    });
+  }
+
   let bankUpserted = 0;
   for (const b of BANK) {
     await prisma.questionBankItem.upsert({
@@ -275,7 +336,7 @@ export async function seedHiringTemplates(prisma: PrismaClient) {
     bankUpserted++;
   }
 
-  return { templatesCreated, templatesSkipped, templatesTotal: TEMPLATES.length, bankUpserted };
+  return { templatesCreated, templatesSkipped, templatesRefreshed, templatesTotal: TEMPLATES.length, bankUpserted };
 }
 
 // Standalone run: `tsx prisma/seed-hiring-templates.ts`
@@ -285,7 +346,7 @@ if (process.argv[1] && process.argv[1].endsWith("seed-hiring-templates.ts")) {
     const prisma = new PrismaClient();
     try {
       const r = await seedHiringTemplates(prisma);
-      console.log(`seed-hiring-templates: ${r.templatesCreated} templates created, ${r.templatesSkipped} already present; ${r.bankUpserted} question-bank items upserted.`);
+      console.log(`seed-hiring-templates: ${r.templatesCreated} created, ${r.templatesRefreshed} interview templates refreshed, ${r.templatesSkipped} unchanged; ${r.bankUpserted} question-bank items upserted.`);
     } finally {
       await prisma.$disconnect();
     }
