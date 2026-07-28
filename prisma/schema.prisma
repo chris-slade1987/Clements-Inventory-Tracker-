@@ -92,6 +92,11 @@ model Product {
   name           String
   manufacturer   String?
   epaRegNumber   String? @map("epa_reg_number")
+  // Official Safety Data Sheet (SDS/MSDS) URL — a link to the manufacturer's own
+  // SDS PDF (verified only; null when not confidently found). We store the URL
+  // only and never host the PDF. Fertilizers/chemicals have SDS; devices usually
+  // do not. See prisma/data/product-sds.json + prisma/seed-epa-numbers.ts.
+  sdsUrl         String? @map("sds_url")
   unitOfMeasure  String  @map("unit_of_measure") // e.g. "jug", "case", "lb", "gal"
   category       String?
   barcode        String? @unique

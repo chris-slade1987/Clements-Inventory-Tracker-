@@ -65,6 +65,21 @@ async function main() {
       `deploy-db: reconciled approved products (${ap.created} created, ${ap.updated} updated, ${ap.demoted} demoted; ${ap.approvedTotal} on catalog).`
     );
 
+    // Backfill VERIFIED EPA registration numbers + official SDS links onto the
+    // catalog (from prisma/data/epa-reg-numbers.json + product-sds.json).
+    // Idempotent; only fills empty/changed values and NEVER writes a blank over
+    // an existing value. Runs after seedApprovedProducts so products exist to
+    // match. NON-FATAL — a failure must never fail the build/deploy.
+    try {
+      const { seedEpaNumbers } = await import("../prisma/seed-epa-numbers");
+      const en = await seedEpaNumbers(prisma);
+      console.log(
+        `deploy-db: EPA/SDS backfill — ${en.epaSet} EPA set (${en.epaUnmatched} unmatched of ${en.epaTotal}), ${en.sdsSet} SDS set (${en.sdsUnmatched} unmatched of ${en.sdsTotal}).`,
+      );
+    } catch (e) {
+      console.error("deploy-db: EPA/SDS backfill FAILED (non-fatal):", e);
+    }
+
     // Load the 4-branch historical purchase data (PestPac transfer histories) as
     // CONFIRMED, analysis-only Invoice + InvoiceLine records. Idempotent (skips
     // invoices whose "HIST-…" number already exists) and — critically — creates

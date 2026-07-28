@@ -9,6 +9,7 @@ import { seedInsurance } from "./seed-insurance";
 import { seedBranchHub } from "./seed-branch";
 import { seedHiringTemplates } from "./seed-hiring-templates";
 import { seedApprovedProducts } from "./seed-products-approved";
+import { seedEpaNumbers } from "./seed-epa-numbers";
 import { seedOnHandCount } from "./seed-onhand-count";
 
 const prisma = new PrismaClient();
@@ -27,6 +28,14 @@ seedDatabase(prisma, { reset: true })
     // Reconcile the approved catalog first (matching needs it), then apply the
     // real physical on-hand counts (idempotent — guarded by a Setting marker).
     await seedApprovedProducts(prisma);
+    // Backfill verified EPA registration numbers + official SDS links (blank
+    // where unconfirmed; never overwrites an existing value with a blank).
+    try {
+      const epa = await seedEpaNumbers(prisma);
+      console.log(`  EPA/SDS backfill: ${epa.epaSet} EPA, ${epa.sdsSet} SDS set (${epa.epaUnmatched}/${epa.sdsUnmatched} unmatched locally).`);
+    } catch (e) {
+      console.error("  EPA/SDS backfill FAILED (non-fatal):", e);
+    }
     const onhand = await seedOnHandCount(prisma);
     console.log("Seed complete.");
     console.log(
