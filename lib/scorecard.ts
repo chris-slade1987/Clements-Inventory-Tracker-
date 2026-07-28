@@ -28,6 +28,9 @@ export type ScorecardMetric = {
   fixedTarget?: number;
   // Explanatory hint rendered under a placeholder metric.
   placeholderHint?: string;
+  // A "verify before you rely on this" flag shown on the row; also suppresses the
+  // auto Met/Not suggestion so a reviewer must consciously confirm it.
+  todo?: string;
 };
 
 export const SCORECARD_METRICS: ScorecardMetric[] = [
@@ -37,7 +40,7 @@ export const SCORECARD_METRICS: ScorecardMetric[] = [
   // Attrition ceiling: the MBR's own attrition RATE (% of book value), summed
   // across the quarter's months — NOT cancellation$ ÷ production. Fixed 2.5%
   // policy target (basis pending CEO confirmation), lower is better.
-  { key: "cancellations_value", label: "Attrition % of Revenue", weight: 15, type: "auto", direction: "lower", kpi: "attrition_rate", unit: "pct", fixedTarget: 2.5 },
+  { key: "cancellations_value", label: "Attrition % of Revenue", weight: 15, type: "auto", direction: "lower", kpi: "attrition_rate", unit: "pct", fixedTarget: 2.5, todo: "⚠ TO-DO: verify against the MBR — confirm the 2.5% basis (monthly / quarterly / annual) and that April's per-branch attrition rate is loaded before finalizing the bonus." },
   // Fuel is company-only in the MBR (no per-branch split yet). Flagged as a
   // placeholder for now — the CEO is fetching per-branch fuel; wire it to
   // { type:"auto", kpi:"fuel", ratioOf:"production" } once that data lands.
@@ -158,6 +161,9 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     const budgetTarget = m.fixedTarget ?? a?.budget ?? null;
     let suggested = m.type === "auto" ? suggestMet(m.direction, a?.actual ?? null, budgetTarget) : null;
     let detail: string | null = m.type === "placeholder" ? (m.placeholderHint ?? "Placeholder — data pending") : null;
+    // A to-do metric shows a verify flag and never auto-suggests Met/Not — the
+    // reviewer must confirm the real numbers first (bonus-critical).
+    if (m.todo) { detail = m.todo; suggested = null; }
     if (m.key === "vehicle_inspections" && inspComp.expected > 0) {
       suggested = inspComp.complete;
       detail = `${inspComp.done}/${inspComp.expected} inspections this quarter (${inspComp.pct}%)`;
