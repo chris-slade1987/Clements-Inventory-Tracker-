@@ -45,12 +45,16 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 8 · Last updated July 28, 2026",
+    effective: "Version 9 · Last updated July 28, 2026",
+    // v9: documented the company-wide physical-count reconciliation under
+    // Inventory › Month-end physical reconciliation — on-hand at every branch is
+    // trued up to a dated physical count via audited adjustment movements (the
+    // first, dated July 27, 2026, was loaded this way).
     // v8: documented the editable Hiring Template Library in Hiring / Onboarding
     // — HR/admin-built interview + HR-screening templates (off-the-shelf bank,
     // custom questions, and AI-assisted drafting), role/worker-type assignment,
     // per-job template assignment, and the supervisor-fills-only access rule.
-    version: 8,
+    version: 9,
     // v7: documented the full applicant pipeline in Hiring / Onboarding — the
     // stage-grouped job container (Applied → Screening → Interview → Ranked →
     // Selected → Pre-hire + retained Excluded), HR shortlist + Google-native

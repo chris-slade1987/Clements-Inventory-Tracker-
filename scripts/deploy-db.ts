@@ -280,6 +280,19 @@ async function main() {
       console.error("deploy-db: ATS demo seed FAILED (non-fatal, continuing):", e);
     }
 
+    // Reconcile REAL physical on-hand counts (7/27/2026) for all four branches.
+    // Idempotent (guarded by the `onhand_count_2026-07-27` Setting — applies
+    // EXACTLY ONCE, ever) and NON-FATAL. Must run AFTER seedApprovedProducts (the
+    // catalog must exist to match names) and after warehouses are seeded. Writes
+    // only `adjustment` movements = (counted − current); never mutates on-hand.
+    try {
+      const { seedOnHandCount } = await import("../prisma/seed-onhand-count");
+      const r = await seedOnHandCount(prisma);
+      console.log("deploy-db: on-hand count 2026-07-27 —", JSON.stringify(r));
+    } catch (e) {
+      console.error("deploy-db: on-hand count seed FAILED (non-fatal):", e);
+    }
+
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.

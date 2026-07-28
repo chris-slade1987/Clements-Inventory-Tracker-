@@ -24,7 +24,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 
 | Module | ✅ | ⚠️ | ❌ | 🆕 | Total |
 |---|---|---|---|---|---|
-| Inventory | 5 | 0 | 0 | 2 | 7 |
+| Inventory | 6 | 0 | 0 | 2 | 8 |
 | Fleet | 14 | 1 | 0 | 2 | 17 |
 | People / HR | 15 | 0 | 0 | 0 | 15 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
@@ -33,7 +33,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 2 | 0 | 0 | 0 | 2 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **50** | **3** | **0** | **9** | **62** |
+| **Total** | **51** | **3** | **0** | **9** | **63** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -51,6 +51,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | Product catalog governance | Approved catalog + **confirm queue** (unconfirmed items blocked at check-out; confirm/merge, never delete); **divisions** GHP/L&O/Mosquito/Termite/Rodent/Other + subdivisions; **pack sizes** (`unitsPerCase`); non-chemical line. (`/manage/products`, `/manage/confirm`) | Inventory Process & Procedure › Approved-product catalog, units & divisions | — | ✅ | Aligned. |
 | Reports & CSV export | Filtered charts + warehouse/product on-hand tables; CSV export of purchased/dispersed/on-hand. (`/reports`, `/api/reports/export`) | — | — | 🆕 | Not in the manual (analysis view). CEO: decide whether managers need it documented. |
 | Stock on-hand import | Admin uploads PestPac On-Hand report or CSV; posts adjustment movements to make on-hand match the count (optional first-load reset). (`/manage/inventory`, `/api/manage/inventory-import`) | — | — | 🆕 | Admin/initial-load utility; document only if managers will run it. |
+| Physical-count reconciliation (dated seed) | Loads the CEO's real dated physical counts (`prisma/data/inventory-counts/2026-07-27.json`, all four branches) and writes ONE `adjustment` movement per product = (counted − current) so on-hand = the count. Product names matched via `normalizeProductName`; unmatched names reported, never auto-created. **Idempotent — applies EXACTLY ONCE**, guarded by the `onhand_count_2026-07-27` `Setting` marker; never mutates on-hand or hard-deletes. Wired NON-FATAL after `seedApprovedProducts` in the deploy. (`prisma/seed-onhand-count.ts`, `scripts/deploy-db.ts`) | Inventory Process & Procedure › Month-end reconciliation | — | ✅ | **New.** Recurring dated counts can be added the same way (or via a future upload UI). |
 
 ## Fleet
 

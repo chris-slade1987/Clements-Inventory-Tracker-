@@ -8,6 +8,8 @@ import { seedTraining } from "./seed-training";
 import { seedInsurance } from "./seed-insurance";
 import { seedBranchHub } from "./seed-branch";
 import { seedHiringTemplates } from "./seed-hiring-templates";
+import { seedApprovedProducts } from "./seed-products-approved";
+import { seedOnHandCount } from "./seed-onhand-count";
 
 const prisma = new PrismaClient();
 
@@ -22,6 +24,10 @@ seedDatabase(prisma, { reset: true })
     await seedInsurance(prisma);
     await seedBranchHub(prisma);
     const hiring = await seedHiringTemplates(prisma);
+    // Reconcile the approved catalog first (matching needs it), then apply the
+    // real physical on-hand counts (idempotent — guarded by a Setting marker).
+    await seedApprovedProducts(prisma);
+    const onhand = await seedOnHandCount(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`
@@ -31,6 +37,7 @@ seedDatabase(prisma, { reset: true })
     console.log(`  Fuel: ${fuel.rows} transactions (${fuel.linked} linked)`);
     console.log(`  People: ${people.total} employees`);
     console.log(`  Hiring templates: ${hiring.templatesCreated} created (${hiring.templatesTotal} off-the-shelf), ${hiring.bankUpserted} bank items`);
+    console.log(`  On-hand count 7/27/2026: applied=${onhand.applied}, ${onhand.adjustmentsCreated} adjustments, ${onhand.productsZeroed} zeroed, ${onhand.unmatched.length} unmatched`);
     console.log(`  Manager login:  ${MANAGER_EMAIL}  /  ${MANAGER_PASSWORD}`);
     await prisma.$disconnect();
   })

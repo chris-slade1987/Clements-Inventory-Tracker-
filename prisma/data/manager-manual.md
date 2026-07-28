@@ -945,6 +945,8 @@ If a check-out would drive on-hand **negative**, the portal **blocks it** with a
 
 Physical counts are reconciled on the **Reconcile** screen. You enter the counted quantity for each product and the portal writes the **adjustment (or reversal)** needed to bring recorded on-hand in line with the physical count. Nothing is overwritten — every reconciliation entry is an attributed movement with a **"logged by"** note showing who made it, so the audit trail is complete. As the weekly/monthly process states: if something looks wrong, investigate before adjusting.
 
+A full **company-wide physical count** is trued up the same way: on-hand for every product at every branch is set to the counted quantity by writing dated **adjustment** movements (counted − recorded), so nothing is edited directly and the audit trail is preserved. The first such count (dated **July 27, 2026**, all four branches) was loaded this way; future dated counts are applied identically.
+
 ### Approved-product catalog, units & divisions
 
 The portal maintains the CEO's **approved-product catalog** with governed units and case **pack sizes**. Every product is classified by **line-of-service division** — **GHP** (General Household Pest), **L&O** (Lawn & Ornamental), **Mosquito**, **Termite**, **Rodent**, or **Other** — so purchasing and usage can be read by division.
