@@ -104,6 +104,18 @@ async function main() {
       console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
     }
 
+    // Backfill April 2026 per-branch production (actual + budget) from the May
+    // MBR and correct the April company production budget to the MBR figure, so
+    // the Q2 branch-manager scorecards reconcile. Upsert (idempotent); always
+    // re-asserts the MBR values. Non-fatal so it can never fail a deploy.
+    try {
+      const { seedScorecardQ2_2026 } = await import("../prisma/seed-scorecard-q2-2026");
+      const q2 = await seedScorecardQ2_2026(prisma);
+      console.log("deploy-db: Q2 2026 scorecard reconcile —", JSON.stringify(q2));
+    } catch (e) {
+      console.error("deploy-db: Q2 2026 scorecard reconcile FAILED (non-fatal):", e);
+    }
+
     // Seed the fleet registry only when empty, so re-imports / edits are never clobbered.
     const vehicles = await prisma.vehicle.count();
     if (vehicles === 0) {
