@@ -24,7 +24,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 
 | Module | ✅ | ⚠️ | ❌ | 🆕 | Total |
 |---|---|---|---|---|---|
-| Inventory | 6 | 0 | 0 | 2 | 8 |
+| Inventory | 7 | 0 | 0 | 2 | 9 |
 | Fleet | 14 | 1 | 0 | 2 | 17 |
 | People / HR | 15 | 0 | 0 | 0 | 15 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
@@ -33,7 +33,7 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 2 | 0 | 0 | 0 | 2 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **51** | **3** | **0** | **9** | **63** |
+| **Total** | **52** | **3** | **0** | **9** | **64** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -49,6 +49,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | Reconcile (physical count) | Ledger of all movements with **"logged by"**; corrective **Adjust / Reverse / Correct** actions, each requiring a reason; nothing hard-deleted. (`/reconcile`, `/api/reconcile`) | Inventory Process & Procedure › Month-end reconciliation | — | ✅ | Aligned. |
 | Alerts (anomaly / low-stock / savings) | Auto checks on each check-in + on demand: low-stock/reorder, price increase, duplicate invoice, negative stock, quantity spike, cost-saving opportunity. Acknowledge / dismiss / Discuss. (`/alerts`, `/api/alerts`, `/run`) | Inventory Process & Procedure › Alerts | — | ✅ | Added an **Alerts** subsection enumerating all alert types (manual previously named only low-stock). |
 | Product catalog governance | Approved catalog + **confirm queue** (unconfirmed items blocked at check-out; confirm/merge, never delete); **divisions** GHP/L&O/Mosquito/Termite/Rodent/Other + subdivisions; **pack sizes** (`unitsPerCase`); non-chemical line. (`/manage/products`, `/manage/confirm`) | Inventory Process & Procedure › Approved-product catalog, units & divisions | — | ✅ | Aligned. |
+| Inventory dashboard (branch scope + consolidated ledger) | Managers' warehouse home: company + per-branch spend-vs-budget tiles, a spend-range toggle, and — scoped to the selected branch — **one consolidated line-of-service → subcategory → product ledger** (per product: Purchased & Dispersed for the range window + current On-hand, rolled up at subcategory/division), Reorder/low-stock, Top spend by category, Top products by spend, **all-technician spend for the branch** (no top-N cap), and open alerts. Purchased = check-in qty in window; dispersed = \|check-out\| in window; on-hand = SUM of all movements (point-in-time). (`/dashboard`, `productLedgerByDivision`/`allTechniciansByUsage` in `lib/reporting.ts`) | Inventory Process & Procedure (analysis view) | — | ✅ | **Consolidated.** The single ledger replaced the former LOS tiles, the on-hand-by-product-&-branch matrix, and the product-movement panel; the top-technicians tile became all-technician spend. No manual passage described those panels, so no manual change. |
 | Reports & CSV export | Filtered charts + warehouse/product on-hand tables; CSV export of purchased/dispersed/on-hand. (`/reports`, `/api/reports/export`) | — | — | 🆕 | Not in the manual (analysis view). CEO: decide whether managers need it documented. |
 | Stock on-hand import | Admin uploads PestPac On-Hand report or CSV; posts adjustment movements to make on-hand match the count (optional first-load reset). (`/manage/inventory`, `/api/manage/inventory-import`) | — | — | 🆕 | Admin/initial-load utility; document only if managers will run it. |
 | Physical-count reconciliation (dated seed) | Loads the CEO's real dated physical counts (`prisma/data/inventory-counts/2026-07-27.json`, all four branches) and writes ONE `adjustment` movement per product = (counted − current) so on-hand = the count. Product names matched via `normalizeProductName`; unmatched names reported, never auto-created. **Idempotent — applies EXACTLY ONCE**, guarded by the `onhand_count_2026-07-27` `Setting` marker; never mutates on-hand or hard-deletes. Wired NON-FATAL after `seedApprovedProducts` in the deploy. (`prisma/seed-onhand-count.ts`, `scripts/deploy-db.ts`) | Inventory Process & Procedure › Month-end reconciliation | — | ✅ | **New.** Recurring dated counts can be added the same way (or via a future upload UI). |

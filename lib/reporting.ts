@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
+import { DIVISIONS, SUBDIVISIONS } from "@/lib/constants";
 
 export type ReportFilters = {
   from?: Date;
@@ -300,6 +301,140 @@ export async function onHandByDivision(warehouseId?: string): Promise<DivisionOn
   }));
 }
 
+// ---- Consolidated ledger: line of service → subcategory → product ------
+// One hierarchy carrying, per product, current on-hand (point-in-time, all
+// movements) plus purchased (check_in) and dispersed (abs check_out) for the
+// selected window. Rolled up at subdivision + division level. This is the
+// single source for the dashboard's "On-hand by line of service" panel and
+// replaces the separate on-hand-matrix and product-movement views.
+export type LedgerProduct = {
+  productId: string;
+  name: string;
+  unit: string | null;
+  onHand: number;
+  purchased: number;
+  dispersed: number;
+};
+export type LedgerSub = {
+  subdivision: string;
+  onHand: number;
+  purchased: number;
+  dispersed: number;
+  products: LedgerProduct[];
+};
+export type DivisionLedger = {
+  division: string; // canonical code, or "UNCLASSIFIED"
+  onHand: number;
+  purchased: number;
+  dispersed: number;
+  productCount: number;
+  subdivisions: LedgerSub[];
+};
+
+const LEDGER_OTHER_SUB = "Other"; // trailing bucket for products with no subdivision
+
+/**
+ * Product ledger grouped by division → subdivision. For each active product:
+ *  - onHand    = SUM of ALL movements (point-in-time; NOT window-bounded)
+ *  - purchased = check_in quantity within [from, to]
+ *  - dispersed = |check_out quantity| within [from, to]
+ * A product row is INCLUDED when it has nonzero on-hand OR moved (purchased or
+ * dispersed) in the window, so "what moved" shows even at zero on-hand. Scoped
+ * to a branch when `warehouseId` is given. Divisions sort by DIVISIONS order
+ * (Unclassified last); subdivisions by SUBDIVISIONS order ("Other" last);
+ * products by name. Aggregated in memory — no N+1.
+ */
+export async function productLedgerByDivision(
+  from: Date,
+  to: Date,
+  warehouseId?: string
+): Promise<DivisionLedger[]> {
+  const [products, onHandRows, purchasedRows, dispersedRows] = await Promise.all([
+    prisma.product.findMany({
+      where: { active: true },
+      select: { id: true, name: true, unitOfMeasure: true, division: true, subdivision: true },
+    }),
+    // ON-HAND — current, all movement types (not date-bounded).
+    prisma.stockMovement.groupBy({
+      by: ["productId"],
+      where: { warehouseId: warehouseId ?? undefined },
+      _sum: { quantity: true },
+    }),
+    // PURCHASED — check_in quantity within the window.
+    prisma.stockMovement.groupBy({
+      by: ["productId"],
+      where: { type: "check_in", warehouseId: warehouseId ?? undefined, createdAt: { gte: from, lte: to } },
+      _sum: { quantity: true },
+    }),
+    // DISPERSED — check_out quantity within the window (stored negative).
+    prisma.stockMovement.groupBy({
+      by: ["productId"],
+      where: { type: "check_out", warehouseId: warehouseId ?? undefined, createdAt: { gte: from, lte: to } },
+      _sum: { quantity: true },
+    }),
+  ]);
+
+  const onHand = new Map<string, number>();
+  for (const r of onHandRows) onHand.set(r.productId, r._sum.quantity ?? 0);
+  const purchased = new Map<string, number>();
+  for (const r of purchasedRows) purchased.set(r.productId, r._sum.quantity ?? 0);
+  const dispersed = new Map<string, number>();
+  for (const r of dispersedRows) dispersed.set(r.productId, Math.abs(r._sum.quantity ?? 0));
+
+  const EPS = 1e-6;
+  type SubAgg = { subdivision: string; onHand: number; purchased: number; dispersed: number; products: LedgerProduct[] };
+  type DivAgg = { division: string; onHand: number; purchased: number; dispersed: number; subs: Map<string, SubAgg> };
+  const byDiv = new Map<string, DivAgg>();
+
+  for (const p of products) {
+    const oh = onHand.get(p.id) ?? 0;
+    const pu = purchased.get(p.id) ?? 0;
+    const di = dispersed.get(p.id) ?? 0;
+    if (Math.abs(oh) < EPS && pu < EPS && di < EPS) continue; // nothing on hand, nothing moved
+
+    const division = p.division ?? "UNCLASSIFIED";
+    const subdivision = p.subdivision ?? LEDGER_OTHER_SUB;
+    if (!byDiv.has(division)) byDiv.set(division, { division, onHand: 0, purchased: 0, dispersed: 0, subs: new Map() });
+    const d = byDiv.get(division)!;
+    d.onHand += oh; d.purchased += pu; d.dispersed += di;
+    if (!d.subs.has(subdivision)) d.subs.set(subdivision, { subdivision, onHand: 0, purchased: 0, dispersed: 0, products: [] });
+    const s = d.subs.get(subdivision)!;
+    s.onHand += oh; s.purchased += pu; s.dispersed += di;
+    s.products.push({ productId: p.id, name: p.name, unit: uomLabel(p.unitOfMeasure) || null, onHand: oh, purchased: pu, dispersed: di });
+  }
+
+  const known = DIVISIONS as readonly string[];
+  const divOrder = (code: string) => {
+    const i = known.indexOf(code);
+    return i === -1 ? known.length + 1 : i; // unknown / UNCLASSIFIED trail the canonical order
+  };
+  const subOrder = (division: string, sub: string) => {
+    if (sub === LEDGER_OTHER_SUB) return 1e6; // trailing "Other" bucket last
+    const list = (SUBDIVISIONS as Record<string, string[]>)[division] ?? [];
+    const i = list.indexOf(sub);
+    return i === -1 ? 1e5 : i;
+  };
+
+  return [...byDiv.values()]
+    .sort((a, b) => divOrder(a.division) - divOrder(b.division) || a.division.localeCompare(b.division))
+    .map((d) => ({
+      division: d.division,
+      onHand: d.onHand,
+      purchased: d.purchased,
+      dispersed: d.dispersed,
+      productCount: [...d.subs.values()].reduce((n, s) => n + s.products.length, 0),
+      subdivisions: [...d.subs.values()]
+        .sort((a, b) => subOrder(d.division, a.subdivision) - subOrder(d.division, b.subdivision) || a.subdivision.localeCompare(b.subdivision))
+        .map((s) => ({
+          subdivision: s.subdivision,
+          onHand: s.onHand,
+          purchased: s.purchased,
+          dispersed: s.dispersed,
+          products: s.products.sort((x, y) => x.name.localeCompare(y.name)),
+        })),
+    }));
+}
+
 /** On-hand totals grouped by product category. */
 export type CategoryRow = { category: string; qty: number };
 export async function onHandByCategory(
@@ -537,12 +672,16 @@ export async function topProductsBySpend(from: Date, to: Date | undefined, limit
 
 export type TechUsage = { name: string; branch: string; units: number; value: number; lines: number };
 
-/** Top technicians by product consumed (check_out) in a range, valued via cost map. */
+/**
+ * Technicians by product consumed (check_out) in a range, valued via cost map,
+ * sorted by value desc. `limit` caps the list; pass `undefined` for every
+ * technician with usage in scope (see `allTechniciansByUsage`).
+ */
 export async function topTechniciansByUsage(
   from: Date,
   to: Date | undefined,
   cost: Map<string, number>,
-  limit = 8,
+  limit?: number,
   warehouseId?: string
 ): Promise<TechUsage[]> {
   const movements = await prisma.stockMovement.findMany({
@@ -572,6 +711,16 @@ export async function topTechniciansByUsage(
     m.set(mv.technicianId, r);
   }
   return [...m.values()].sort((a, b) => b.value - a.value || b.units - a.units).slice(0, limit);
+}
+
+/** Every technician with usage (check_out) in scope, valued via cost map, value desc — no limit. */
+export async function allTechniciansByUsage(
+  from: Date,
+  to: Date | undefined,
+  cost: Map<string, number>,
+  warehouseId?: string
+): Promise<TechUsage[]> {
+  return topTechniciansByUsage(from, to, cost, undefined, warehouseId);
 }
 
 /** Dispersed (check_out) $ value per warehouse within a range, valued at cost. */

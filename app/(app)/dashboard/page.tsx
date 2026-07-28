@@ -1,25 +1,22 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
-  onHandByDivision,
-  onHandByProduct,
+  allTechniciansByUsage,
   onHandValueByCategory,
   productCostMap,
-  productFlow,
+  productLedgerByDivision,
   purchasedDollarsByWarehouse,
   spendByCategory,
   topProductsBySpend,
-  topTechniciansByUsage,
-  type DivisionOnHand,
-  type ProductFlow,
-  type ProductRow,
+  type DivisionLedger,
   type Ranked,
 } from "@/lib/reporting";
 import { computeReorderFindings, type ReorderFinding } from "@/lib/reorder";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
-import { DIVISIONS, DIVISION_LABELS, divisionLabel } from "@/lib/constants";
+import { DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +68,7 @@ export default async function DashboardPage({
     ? await prisma.product.count({ where: { confirmed: false, active: true } })
     : 0;
 
-  const [mtd, ytd, catSpend, topProducts, topTechs, ohByCat, onHandRows, ohByDivision, flow, openAlerts, allLowStock] =
+  const [mtd, ytd, catSpend, topProducts, allTechs, ohByCat, ledger, openAlerts, allLowStock] =
     await Promise.all([
       // Branch budget tiles compare against the MONTHLY budget, so these stay
       // month-/year-to-date regardless of the range toggle.
@@ -80,14 +77,12 @@ export default async function DashboardPage({
       // Date-bounded analytics — scoped to the selected range window.
       spendByCategory(rangeStart, now, scopeId),
       topProductsBySpend(rangeStart, now, 8, scopeId),
-      topTechniciansByUsage(rangeStart, now, cost, 8, scopeId),
+      // Every technician with usage in scope (no top-N cap).
+      allTechniciansByUsage(rangeStart, now, cost, scopeId),
       onHandValueByCategory(cost, scopeId),
-      // On-hand quantity per product × branch (the matrix). When a branch tile is
-      // selected, scopeId narrows it to just that branch's stock.
-      onHandByProduct({ warehouseId: scopeId }),
-      // Current on-hand by line of service — point-in-time, NOT range-scoped.
-      onHandByDivision(scopeId),
-      productFlow(rangeStart, now, scopeId),
+      // Consolidated line-of-service → subcategory → product ledger. On-hand is a
+      // point-in-time snapshot; purchased/dispersed are scoped to the range window.
+      productLedgerByDivision(rangeStart, now, scopeId),
       prisma.alert.findMany({
         where: { status: "open" },
         orderBy: { createdAt: "desc" },
@@ -244,36 +239,18 @@ export default async function DashboardPage({
 
       {/* One detail section, scoped to the selection */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Current on-hand by line of service (division / subdivision). Point-in-
-            time snapshot — NOT affected by the spend-range toggle. */}
+        {/* Consolidated ledger: line of service → subcategory → product, showing
+            purchased & dispersed for the range window and current on-hand. This
+            single table replaces the former LOS tiles, on-hand matrix, and
+            product-movement panels. */}
         <Card className="p-0 overflow-hidden lg:col-span-2">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2 flex-wrap">
             <PanelTitle>On-hand by line of service{selected ? ` · ${scopeName}` : ""}</PanelTitle>
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-muted">Current</span>
+            <span className="text-[11px] text-muted">
+              On hand: current · Purchased/Dispersed: {rangeLabel}
+            </span>
           </div>
-          <LineOfServiceCard rows={ohByDivision} />
-        </Card>
-
-        {/* On-hand by product × branch. Selecting a branch tile narrows it to that
-            branch's stock only. */}
-        <Card className="p-0 overflow-hidden lg:col-span-2">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>Current on hand by product{selected ? ` · ${scopeName}` : " & branch"}</PanelTitle>
-            <span className="text-xs text-muted">{onHandRows.length} product{onHandRows.length === 1 ? "" : "s"}</span>
-          </div>
-          <OnHandMatrix rows={onHandRows} columns={selected ? [selected] : warehouses} showTotal={!selected} />
-        </Card>
-
-        {/* Product movement — what actually moved this month, purchased vs dispersed */}
-        <Card className="p-4 lg:col-span-2">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <PanelTitle>Product movement · on-hand (current) · purchased &amp; dispersed ({rangeLabel})</PanelTitle>
-            <div className="flex items-center gap-3 text-[11px] text-muted">
-              <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#0e7a52" }} /> Purchased (in)</span>
-              <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#39b07f" }} /> Dispersed (out)</span>
-            </div>
-          </div>
-          <FlowBars rows={flow} />
+          <LineOfServiceLedger rows={ledger} />
         </Card>
 
         <Card className="p-4">
@@ -286,16 +263,20 @@ export default async function DashboardPage({
         </Card>
 
         <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>Top technicians · product used · {rangeLabel}</PanelTitle>
-            {topTechs.length === 0 ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">no check-outs yet</span> : null}
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2 flex-wrap">
+            <PanelTitle>Technician spend · {scopeName} · {rangeLabel}</PanelTitle>
+            {allTechs.length === 0 ? (
+              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">no check-outs yet</span>
+            ) : (
+              <span className="text-[11px] text-muted">{allTechs.length} tech{allTechs.length === 1 ? "" : "s"}</span>
+            )}
           </div>
-          {topTechs.length === 0 ? (
+          {allTechs.length === 0 ? (
             <Empty>Dispersal populates as check-outs are recorded.</Empty>
           ) : (
             <div className="overflow-x-auto max-h-80 overflow-y-auto">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="sticky top-0 z-10 bg-surface">
                   <tr className="text-left text-xs text-muted border-b border-line">
                     <th className="px-4 py-2 font-medium">Technician</th>
                     <th className="px-3 py-2 font-medium">Branch</th>
@@ -304,7 +285,7 @@ export default async function DashboardPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {topTechs.map((t) => (
+                  {allTechs.map((t) => (
                     <tr key={t.name + t.branch} className="border-b border-line last:border-0">
                       <td className="px-4 py-2">{t.name}</td>
                       <td className="px-3 py-2 text-muted">{t.branch.replace(" (HQ)", "")}</td>
@@ -351,98 +332,65 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-8 text-center text-sm text-muted">{children}</p>;
 }
 
-// Current on-hand rolled up by line of service. Iterates DIVISIONS dynamically so
-// a newly-added division (e.g. Mosquito) shows automatically; any unclassified
-// stock falls into a trailing bucket. LO always shows its subdivision breakdown;
-// other divisions show theirs when present.
-function LineOfServiceCard({ rows }: { rows: DivisionOnHand[] }) {
-  const byDiv = new Map(rows.map((r) => [r.division, r]));
-  // Canonical divisions in order, then any leftover codes (e.g. UNCLASSIFIED).
-  const known = DIVISIONS as readonly string[];
-  const order = [...known, ...rows.map((r) => r.division).filter((d) => !known.includes(d))];
-  const seen = new Set<string>();
-  const ordered = order.filter((d) => (seen.has(d) ? false : (seen.add(d), true)));
-  const present = ordered.filter((d) => byDiv.has(d));
-
-  if (present.length === 0) return <Empty>No classified stock on hand yet.</Empty>;
+// Consolidated line-of-service ledger. One scrolling table: a bold division
+// header row (LOS label + product count + Purchased/Dispersed/On-hand rollups),
+// muted subcategory subheader rows, then per-product rows. On-hand is current;
+// purchased/dispersed are the range window. Iterates DIVISIONS order (from the
+// helper) so a newly-added division shows automatically; unclassified trails.
+function LineOfServiceLedger({ rows }: { rows: DivisionLedger[] }) {
+  if (rows.length === 0) return <Empty>No stock on hand or movement for this scope yet.</Empty>;
 
   const label = (code: string) =>
     code === "UNCLASSIFIED" ? "Unclassified" : (DIVISION_LABELS as Record<string, string>)[code] ?? divisionLabel(code);
+  const num = (n: number) => (Math.abs(n) < 1e-6 ? <span className="text-muted/40">—</span> : qty(n));
 
   return (
-    <div className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
-      {present.map((code) => {
-        const d = byDiv.get(code)!;
-        // Always break out LO subdivisions; show others' too (they're compact).
-        const showSubs = d.subdivisions.length > 0;
-        return (
-          <div key={code} className="bg-surface p-4">
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-medium text-ink">{label(code)}</span>
-              <span className="text-[11px] text-muted">{d.products} product{d.products === 1 ? "" : "s"}</span>
-            </div>
-            <div className="mt-1 text-2xl font-light tabular-nums text-ink">{qty(d.qty)}</div>
-            <div className="text-[11px] text-muted">units on hand</div>
-            {showSubs ? (
-              <ul className="mt-2 space-y-0.5">
-                {d.subdivisions.map((s) => (
-                  <li key={s.subdivision} className="flex justify-between gap-2 text-xs">
-                    <span className="truncate text-muted">{s.subdivision}</span>
-                    <span className="shrink-0 tabular-nums">{qty(s.qty)}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// On-hand quantity matrix: products down the left, one column per branch across
-// the top (plus a Total). When a single branch is selected the caller passes just
-// that column and hides Total, so it reads as "what's on hand at this branch".
-function OnHandMatrix({
-  rows,
-  columns,
-  showTotal,
-}: {
-  rows: ProductRow[];
-  columns: { id: string; name: string }[];
-  showTotal: boolean;
-}) {
-  if (rows.length === 0) return <Empty>No stock on hand yet.</Empty>;
-  const short = (n: string) => n.replace(" (HQ)", "");
-  return (
-    <div className="overflow-x-auto max-h-[34rem] overflow-y-auto">
+    <div className="overflow-x-auto max-h-[40rem] overflow-y-auto">
       <table className="w-full text-sm">
         <thead className="sticky top-0 z-10 bg-surface">
           <tr className="text-left text-xs text-muted border-b border-line">
             <th className="px-4 py-2 font-medium">Product</th>
-            {columns.map((c) => (
-              <th key={c.id} className="px-3 py-2 font-medium text-right whitespace-nowrap">{short(c.name)}</th>
-            ))}
-            {showTotal ? <th className="px-4 py-2 font-medium text-right">Total</th> : null}
+            <th className="px-3 py-2 font-medium text-right whitespace-nowrap">Purchased</th>
+            <th className="px-3 py-2 font-medium text-right whitespace-nowrap">Dispersed</th>
+            <th className="px-4 py-2 font-medium text-right whitespace-nowrap">On hand</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.productId} className="border-b border-line last:border-0 hover:bg-black/[0.02]">
-              <td className="px-4 py-2">
-                <span className="block text-ink">{r.name}</span>
-                <span className="block text-[11px] text-muted">{r.category}{r.unit ? ` · ${r.unit}` : ""}</span>
-              </td>
-              {columns.map((c) => {
-                const q = r.byWarehouse[c.id] ?? 0;
-                return (
-                  <td key={c.id} className={`px-3 py-2 text-right tabular-nums ${q ? "text-ink" : "text-muted/40"}`}>
-                    {q ? qty(q) : "—"}
-                  </td>
-                );
-              })}
-              {showTotal ? <td className="px-4 py-2 text-right tabular-nums font-medium">{qty(r.total)}</td> : null}
-            </tr>
+          {rows.map((d) => (
+            <Fragment key={d.division}>
+              <tr className="bg-black/[0.02] border-y border-line">
+                <td className="px-4 py-2">
+                  <span className="font-semibold text-ink">{label(d.division)}</span>
+                  <span className="ml-2 text-[11px] font-normal text-muted">
+                    {d.productCount} product{d.productCount === 1 ? "" : "s"}
+                  </span>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums font-semibold text-ink">{num(d.purchased)}</td>
+                <td className="px-3 py-2 text-right tabular-nums font-semibold text-ink">{num(d.dispersed)}</td>
+                <td className="px-4 py-2 text-right tabular-nums font-semibold text-ink">{num(d.onHand)}</td>
+              </tr>
+              {d.subdivisions.map((s) => (
+                <Fragment key={`${d.division}:${s.subdivision}`}>
+                  <tr className="border-b border-line/60">
+                    <td className="pl-6 pr-4 py-1.5 text-xs font-medium uppercase tracking-wide text-muted">{s.subdivision}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.purchased)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.dispersed)}</td>
+                    <td className="px-4 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.onHand)}</td>
+                  </tr>
+                  {s.products.map((prod) => (
+                    <tr key={prod.productId} className="border-b border-line last:border-0 hover:bg-black/[0.02]">
+                      <td className="pl-8 pr-4 py-2">
+                        <span className="block text-ink">{prod.name}</span>
+                        {prod.unit ? <span className="block text-[11px] text-muted">{prod.unit}</span> : null}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">{num(prod.purchased)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{num(prod.dispersed)}</td>
+                      <td className="px-4 py-2 text-right tabular-nums font-medium">{num(prod.onHand)}</td>
+                    </tr>
+                  ))}
+                </Fragment>
+              ))}
+            </Fragment>
           ))}
         </tbody>
       </table>
@@ -465,47 +413,6 @@ function BudgetBar({ spent, budget }: { spent: number; budget: number }) {
           {over ? `${money(-remaining)} over` : `${money(remaining)} left`}
         </span>
       </div>
-    </div>
-  );
-}
-
-function FlowBars({ rows }: { rows: ProductFlow[] }) {
-  if (rows.length === 0)
-    return <p className="py-8 text-center text-sm text-muted">No products with stock or movement for this scope yet.</p>;
-  // Bars for purchased/dispersed share one scale; on-hand is shown as a number.
-  const max = Math.max(1, ...rows.flatMap((r) => [r.purchased, r.dispersed]));
-  const IN = "#0e7a52", OUT = "#39b07f";
-  return (
-    <div className="mt-3 max-h-[30rem] overflow-y-auto pr-1 space-y-3">
-      {rows.map((r) => (
-        <div key={r.name}>
-          <div className="flex justify-between items-baseline text-sm gap-2">
-            <span className="truncate pr-2">{r.name}</span>
-            <span className="shrink-0 tabular-nums text-xs">
-              <span className="font-semibold text-ink">{qty(r.onHand)}</span>
-              <span className="text-muted"> on hand</span>
-              {r.purchased > 0 || r.dispersed > 0 ? (
-                <>
-                  <span className="text-muted"> · </span>
-                  <span className="font-medium" style={{ color: IN }}>{qty(r.purchased)} in</span>
-                  <span className="text-muted"> · </span>
-                  <span className="font-medium" style={{ color: OUT }}>{qty(r.dispersed)} out</span>
-                </>
-              ) : null}
-            </span>
-          </div>
-          {r.purchased > 0 || r.dispersed > 0 ? (
-            <div className="mt-1 space-y-1">
-              <div className="h-2.5 rounded bg-slate-100 overflow-hidden">
-                <div className="h-full rounded" style={{ width: `${(r.purchased / max) * 100}%`, background: IN }} />
-              </div>
-              <div className="h-2.5 rounded bg-slate-100 overflow-hidden">
-                <div className="h-full rounded" style={{ width: `${(r.dispersed / max) * 100}%`, background: OUT }} />
-              </div>
-            </div>
-          ) : null}
-        </div>
-      ))}
     </div>
   );
 }
