@@ -147,6 +147,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           currentScreeningId={job.screeningTemplateId}
           resolvedInterviewName={resolvedInterview?.name ?? "General interview (default)"}
           resolvedScreeningName={resolvedScreening?.name ?? "None"}
+          interviewPreview={(resolvedInterview?.questions ?? []).slice().sort((a, b) => a.order - b.order).map((q) => ({ section: q.section, text: q.text, responseType: q.responseType }))}
+          screeningPreview={(resolvedScreening?.questions ?? []).slice().sort((a, b) => a.order - b.order).map((q) => ({ section: q.section, text: q.text, responseType: q.responseType }))}
         />
       ) : null}
 
@@ -157,6 +159,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         canOperate={canOperate}
         supervisors={supervisors.map((s) => ({ id: s.id, name: s.name }))}
         currentSupervisorId={job.interviewSupervisorId}
+        currentSupervisorName={job.interviewSupervisorName}
         interviewDeadline={job.interviewDeadline ? job.interviewDeadline.toISOString() : null}
         rankable={rankable}
         hasRanked={(byStage.get("ranked") ?? []).length > 0}

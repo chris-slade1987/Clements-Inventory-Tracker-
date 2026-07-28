@@ -110,8 +110,8 @@ export async function POST(req: Request) {
     if (action === "job.reopen") {
       const jobId = str(body?.jobId);
       if (!jobId) return NextResponse.json({ error: "Missing job id." }, { status: 400 });
-      await reopenJob(jobId);
-      return NextResponse.json({ ok: true });
+      const { restored } = await reopenJob(jobId);
+      return NextResponse.json({ ok: true, restored });
     }
 
     if (action === "candidate.create") {

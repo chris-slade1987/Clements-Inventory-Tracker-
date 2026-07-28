@@ -24,6 +24,7 @@ export default function JobLifecycle({
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
 
   const active = status === "open" || status === "on_hold";
@@ -96,14 +97,25 @@ export default function JobLifecycle({
           <span className="text-sm text-muted">Closed without a hire</span>
         )}
         <button
-          onClick={() => post("job.reopen", { jobId: id })}
+          onClick={async () => {
+            const data = await post("job.reopen", { jobId: id });
+            if (data) {
+              const n = Number(data.restored ?? 0);
+              setNotice(
+                n > 0
+                  ? `Reopened. ${n} kept-warm ${n === 1 ? "candidate" : "candidates"} restored to the Ranked shortlist — select an alternate to proceed.`
+                  : "Reopened. Interviewers have access again; all remaining candidates are active in the pipeline.",
+              );
+            }
+          }}
           disabled={busy !== null}
           className={`${btn.secondary} ml-auto`}
         >
           {busy === "job.reopen" ? "Reopening…" : "Reopen"}
         </button>
       </div>
-      <p className="text-xs text-muted">This hiring is archived to HR. Reopening restores the job to Open and gives interviewers access again.</p>
+      <p className="text-xs text-muted">This hiring is archived to HR. Reopening restores the job to Open, gives interviewers access again, and brings any finalists you <strong>kept warm</strong> back into the Ranked shortlist so you can pick an alternate if the first choice falls through.</p>
+      {notice ? <p className="text-sm text-emerald-700">{notice}</p> : null}
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </Card>
   );

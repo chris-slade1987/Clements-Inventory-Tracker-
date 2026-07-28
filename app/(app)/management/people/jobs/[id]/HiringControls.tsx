@@ -12,6 +12,7 @@ export default function HiringControls({
   canOperate,
   supervisors,
   currentSupervisorId,
+  currentSupervisorName,
   interviewDeadline,
   rankable,
   hasRanked,
@@ -21,6 +22,7 @@ export default function HiringControls({
   canOperate: boolean;
   supervisors: { id: string; name: string }[];
   currentSupervisorId: string | null;
+  currentSupervisorName: string | null;
   interviewDeadline: string | null;
   rankable: Rankable[];
   hasRanked: boolean;
@@ -32,7 +34,7 @@ export default function HiringControls({
 
   return (
     <div className="mb-5 grid gap-4 lg:grid-cols-2">
-      {showAssign ? <AssignSupervisor jobId={jobId} supervisors={supervisors} currentSupervisorId={currentSupervisorId} interviewDeadline={interviewDeadline} /> : null}
+      {showAssign ? <AssignSupervisor jobId={jobId} supervisors={supervisors} currentSupervisorId={currentSupervisorId} currentSupervisorName={currentSupervisorName} interviewDeadline={interviewDeadline} /> : null}
       {showRanking ? <SubmitRankings jobId={jobId} rankable={rankable} hasRanked={hasRanked} /> : null}
     </div>
   );
@@ -45,13 +47,16 @@ function toLocalDate(iso: string | null): string {
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 }
 
-function AssignSupervisor({ jobId, supervisors, currentSupervisorId, interviewDeadline }: { jobId: string; supervisors: { id: string; name: string }[]; currentSupervisorId: string | null; interviewDeadline: string | null }) {
+function AssignSupervisor({ jobId, supervisors, currentSupervisorId, currentSupervisorName, interviewDeadline }: { jobId: string; supervisors: { id: string; name: string }[]; currentSupervisorId: string | null; currentSupervisorName: string | null; interviewDeadline: string | null }) {
   const router = useRouter();
   const [supervisorId, setSupervisorId] = useState(currentSupervisorId ?? "");
   const [deadline, setDeadline] = useState(toLocalDate(interviewDeadline));
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const assigned = !!currentSupervisorId;
+  const changing = assigned && supervisorId !== "" && supervisorId !== currentSupervisorId;
 
   async function submit() {
     if (!supervisorId) return setError("Choose a supervisor.");
@@ -64,18 +69,29 @@ function AssignSupervisor({ jobId, supervisors, currentSupervisorId, interviewDe
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Could not assign the supervisor.");
-    setMsg(`Assigned to ${data.supervisorName ?? "supervisor"} — ${data.handed ?? 0} candidate(s) handed off and notified.`);
+    if (data.reassigned) {
+      setMsg(`Reassigned from ${data.previousSupervisorName ?? "the previous supervisor"} to ${data.supervisorName}. ${data.revoked ?? 0} open assignment(s) pulled back; ${data.handed ?? 0} candidate(s) handed to ${data.supervisorName} and notified.`);
+    } else {
+      setMsg(`Assigned to ${data.supervisorName ?? "supervisor"} — ${data.handed ?? 0} candidate(s) handed off and notified.`);
+    }
     router.refresh();
   }
 
   return (
     <Card className="p-4 space-y-3">
-      <div className="text-sm font-semibold text-ink">Interview handoff</div>
-      <p className="text-xs text-muted">Assign the interviewing supervisor and set the deadline interviews must be scheduled by. Every candidate in the <strong>Interview</strong> stage is handed off and the supervisor is notified.</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm font-semibold text-ink">Interview handoff</div>
+        {assigned ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Assigned: {currentSupervisorName ?? "supervisor"}</span> : null}
+      </div>
+      <p className="text-xs text-muted">
+        {assigned
+          ? <>Currently assigned to <strong>{currentSupervisorName ?? "a supervisor"}</strong>. Need someone else? Pick a different manager and reassign — the previous supervisor is pulled off (their open assignments are cancelled and access removed) and the new one is handed every <strong>Interview</strong>-stage candidate and notified. Completed scorecards are kept.</>
+          : <>Assign the interviewing supervisor and set the deadline interviews must be scheduled by. Every candidate in the <strong>Interview</strong> stage is handed off and the supervisor is notified.</>}
+      </p>
       <label className="block text-sm font-medium">Interviewing supervisor
         <select data-testid="supervisor-select" value={supervisorId} onChange={(e) => setSupervisorId(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
           <option value="">Choose a manager…</option>
-          {supervisors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {supervisors.map((s) => <option key={s.id} value={s.id}>{s.name}{s.id === currentSupervisorId ? " (current)" : ""}</option>)}
         </select>
       </label>
       <label className="block text-sm font-medium">Interview deadline
@@ -83,7 +99,7 @@ function AssignSupervisor({ jobId, supervisors, currentSupervisorId, interviewDe
       </label>
       {msg ? <p className="text-sm text-emerald-700">{msg}</p> : null}
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button onClick={submit} disabled={busy} className={btn.primary}>{busy ? "Assigning…" : "Assign & notify supervisor"}</button>
+      <button onClick={submit} disabled={busy} className={btn.primary}>{busy ? "Saving…" : changing ? "Reassign & notify" : assigned ? "Update assignment" : "Assign & notify supervisor"}</button>
     </Card>
   );
 }

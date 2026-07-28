@@ -95,6 +95,36 @@ export async function jobByApplyToken(token: string) {
   return prisma.job.findUnique({ where: { applyToken: token } });
 }
 
+// ---- Demo email routing ----------------------------------------------------
+// The [DEMO] walkthrough job's candidates use fake @example.com inboxes, so
+// their applicant-facing emails would go nowhere. FOR THE DEMO ONLY, route them
+// to the CEO so the screening-request / warm-rejection / confirmation flows can
+// be exercised live. Real jobs are never affected. Remove with the demo seed.
+const DEMO_APPLY_TOKEN = "demo-ats-pipeline";
+const DEMO_REDIRECT_EMAIL = "c.slade@clementspestcontrol.com";
+
+function isDemoJob(applyToken: string | null | undefined): boolean {
+  return applyToken === DEMO_APPLY_TOKEN;
+}
+
+/** Applicant-facing recipient: the demo job routes to the CEO; everyone else
+ *  gets the real address. */
+function applicantMailTo(realEmail: string | null | undefined, applyToken: string | null | undefined): string | null | undefined {
+  return isDemoJob(applyToken) ? DEMO_REDIRECT_EMAIL : realEmail;
+}
+
+/** A subject prefix + inline banner marking a redirected demo email, so the
+ *  recipient sees who it would reach in production. Empty for real jobs. */
+function demoMail(applyToken: string | null | undefined, realEmail: string | null | undefined) {
+  if (!isDemoJob(applyToken)) return { subjectPrefix: "", bannerHtml: "", bannerText: "" };
+  const dest = (realEmail || "the applicant").trim();
+  return {
+    subjectPrefix: "[DEMO] ",
+    bannerHtml: `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#9a3412">Demo walkthrough — in production this email would be sent to <strong>${dest}</strong>.</div>`,
+    bannerText: `[DEMO walkthrough — in production this would be sent to ${dest}]\n\n`,
+  };
+}
+
 // ---- Jobs ------------------------------------------------------------------
 
 export async function createJob(
@@ -322,11 +352,13 @@ export async function notifyNewApplicant(
 /** Send the applicant a warm, branded confirmation email. Best-effort. */
 export async function sendApplicantConfirmation(
   candidate: { id: string; firstName: string | null; name: string; email: string },
-  job: { title: string },
+  job: { title: string; applyToken?: string | null },
 ) {
   const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
-  const subject = `Thanks for applying — ${job.title} at Clements Pest Control`;
+  const dm = demoMail(job.applyToken, candidate.email);
+  const subject = `${dm.subjectPrefix}Thanks for applying — ${job.title} at Clements Pest Control`;
   const text = [
+    dm.bannerText,
     `Hi ${first},`,
     "",
     `Thank you for applying to the ${job.title} position at Clements Pest Control. We truly appreciate your interest in joining our team.`,
@@ -338,6 +370,7 @@ export async function sendApplicantConfirmation(
   ].join("\n");
   const html = [
     `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+    dm.bannerHtml,
     `<div style="background:linear-gradient(150deg,#14503a,#0f3d2c);border-radius:14px;padding:22px 24px;color:#eef5f0">`,
     `<div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9db5a8">Clements Pest Control</div>`,
     `<div style="font-size:20px;font-weight:600;margin-top:4px">Application received</div>`,
@@ -351,7 +384,7 @@ export async function sendApplicantConfirmation(
   ].join("");
 
   return sendEmail({
-    to: candidate.email,
+    to: applicantMailTo(candidate.email, job.applyToken),
     subject,
     kind: "applicant_confirmation",
     relatedType: "candidate",
@@ -671,7 +704,9 @@ const ACTIVE_JOB_STATUSES = ["open", "on_hold"];
  */
 export async function interviewerJobIds(userId: string): Promise<Set<string>> {
   const rows = await prisma.interview.findMany({
-    where: { interviewerId: userId, candidate: { job: { status: { in: ACTIVE_JOB_STATUSES } } } },
+    // A cancelled interview (e.g. the supervisor was reassigned off this job)
+    // no longer grants container access.
+    where: { interviewerId: userId, status: { not: "cancelled" }, candidate: { job: { status: { in: ACTIVE_JOB_STATUSES } } } },
     select: { candidate: { select: { jobId: true } } },
   });
   const ids = new Set<string>();
@@ -818,9 +853,29 @@ async function notifyInterviewerOutcome(
   });
 }
 
-/** Reopen a filled/closed job — restores computed interviewer access. */
+/**
+ * Reopen a filled/closed job — restores computed interviewer access AND brings
+ * back the finalists we deliberately kept warm at selection (excluded "Not
+ * selected", keepWarm). Those runner-ups return to the "ranked" shortlist with
+ * their exclusion cleared, so if the first-choice hire falls through HR can
+ * immediately select an alternate. The previously-hired candidate is left as-is
+ * (HR decides whether to exclude or re-select them). Returns how many were
+ * restored so the UI can confirm it.
+ */
 export async function reopenJob(jobId: string) {
-  return prisma.job.update({ where: { id: jobId }, data: { status: "open", filledAt: null, hiredCandidateId: null } });
+  const restored = await prisma.candidate.updateMany({
+    where: { jobId, stage: "excluded", keepWarm: true, excludedReason: "Not selected" },
+    data: {
+      stage: "ranked",
+      excludedReason: null,
+      excludedStage: null,
+      excludedAt: null,
+      excludedByName: null,
+      keepWarm: false,
+    },
+  });
+  await prisma.job.update({ where: { id: jobId }, data: { status: "open", filledAt: null, hiredCandidateId: null } });
+  return { restored: restored.count };
 }
 
 /**
@@ -1021,7 +1076,7 @@ export async function shortlistCandidate(id: string) {
 export async function requestScreeningCall(id: string, byName: string | null) {
   const candidate = await prisma.candidate.findUnique({
     where: { id },
-    include: { job: { select: { title: true } } },
+    include: { job: { select: { title: true, applyToken: true } } },
   });
   if (!candidate) throw new Error("Candidate not found.");
 
@@ -1035,8 +1090,10 @@ export async function requestScreeningCall(id: string, byName: string | null) {
   if (bookingUrl) {
     const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
     const role = candidate.job?.title ?? "the role";
-    const subject = `Let's schedule your screening call — ${candidate.job?.title ?? "Clements Pest Control"}`;
+    const dm = demoMail(candidate.job?.applyToken, candidate.email);
+    const subject = `${dm.subjectPrefix}Let's schedule your screening call — ${candidate.job?.title ?? "Clements Pest Control"}`;
     const text = [
+      dm.bannerText,
       `Hi ${first},`,
       "",
       `Thanks for applying for ${role} at Clements Pest Control. We'd like to set up a short phone screening call.`,
@@ -1051,6 +1108,7 @@ export async function requestScreeningCall(id: string, byName: string | null) {
     ].join("\n");
     const html = [
       `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+      dm.bannerHtml,
       `<p>Hi ${first},</p>`,
       `<p>Thanks for applying for <strong>${role}</strong> at Clements Pest Control. We'd like to set up a short phone screening call.</p>`,
       `<p><a href="${bookingUrl}" style="background:#146A3A;color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600">Pick a time for your call →</a></p>`,
@@ -1059,7 +1117,7 @@ export async function requestScreeningCall(id: string, byName: string | null) {
       `</div>`,
     ].join("");
     const res = await sendEmail({
-      to: candidate.email,
+      to: applicantMailTo(candidate.email, candidate.job?.applyToken),
       subject,
       kind: "screening_request",
       relatedType: "candidate",
@@ -1113,6 +1171,22 @@ export async function assignInterviewSupervisor(
   if (!job) throw new Error("Job not found.");
   if (!supervisor) throw new Error("Supervisor not found.");
 
+  // Reassignment: if a different supervisor was previously assigned, revoke
+  // their still-open (not-yet-completed) interviews so they lose access and the
+  // candidate isn't double-assigned. Completed scorecards are preserved for the
+  // record. The new supervisor is (re)assigned + notified below.
+  const prevSupervisorId = job.interviewSupervisorId;
+  const prevSupervisorName = job.interviewSupervisorName;
+  const reassigned = !!prevSupervisorId && prevSupervisorId !== supervisor.id;
+  let revoked = 0;
+  if (reassigned) {
+    const res = await prisma.interview.updateMany({
+      where: { candidate: { jobId }, interviewerId: prevSupervisorId, status: { not: "completed" } },
+      data: { status: "cancelled" },
+    });
+    revoked = res.count;
+  }
+
   const deadline = str(data.deadline) ? new Date(data.deadline!) : null;
   await prisma.job.update({
     where: { id: jobId },
@@ -1146,7 +1220,25 @@ export async function assignInterviewSupervisor(
 
   // One consolidated notification to the supervisor (thread auto-emails them).
   await notifySupervisorAssigned(job, supervisor, handed, deadline).catch(() => {});
-  return { handed: handed.length, supervisorName: supervisor.name };
+
+  // Courtesy note to the supervisor who was replaced (best-effort).
+  if (reassigned && prevSupervisorId) {
+    const prev = await prisma.user.findUnique({ where: { id: prevSupervisorId }, select: { email: true, name: true } }).catch(() => null);
+    if (prev?.email) {
+      const first = (prev.name || "there").split(/\s+/)[0];
+      await sendEmail({
+        to: prev.email,
+        subject: `Interview reassigned: ${job.title}`,
+        kind: "interview_reassigned",
+        relatedType: "job",
+        relatedId: job.id,
+        text: `Hi ${first},\n\nYou've been unassigned from interviewing for ${job.title}. ${supervisor.name} is now handling these interviews — no further action is needed on your part. Thank you!\n\n— Clements Command & Control`,
+        html: `<p>Hi ${first},</p><p>You've been unassigned from interviewing for <strong>${job.title}</strong>. <strong>${supervisor.name}</strong> is now handling these interviews — no further action is needed on your part. Thank you!</p><p>— Clements Command &amp; Control</p>`,
+      }).catch(() => {});
+    }
+  }
+
+  return { handed: handed.length, supervisorName: supervisor.name, reassigned, revoked, previousSupervisorName: prevSupervisorName ?? null };
 }
 
 async function notifySupervisorAssigned(
@@ -1345,7 +1437,7 @@ async function notifyRankings(
 export async function selectFinalist(candidateId: string, byName: string | null) {
   const candidate = await prisma.candidate.findUnique({
     where: { id: candidateId },
-    include: { job: { select: { id: true, title: true } } },
+    include: { job: { select: { id: true, title: true, applyToken: true } } },
   });
   if (!candidate) throw new Error("Candidate not found.");
   if (candidate.stage !== "ranked") throw new Error("Only a ranked candidate can be selected.");
@@ -1372,7 +1464,7 @@ export async function selectFinalist(candidateId: string, byName: string | null)
         keepWarm: true,
       },
     });
-    await sendWarmRejection(r, candidate.job?.title ?? null).catch(() => {});
+    await sendWarmRejection(r, candidate.job?.title ?? null, candidate.job?.applyToken).catch(() => {});
   }
 
   return { selectedName: candidate.name, warmRejected: runnerUps.length };
@@ -1381,11 +1473,14 @@ export async function selectFinalist(candidateId: string, byName: string | null)
 async function sendWarmRejection(
   candidate: { id: string; firstName: string | null; name: string; email: string },
   jobTitle: string | null,
+  applyToken?: string | null,
 ) {
   const first = (candidate.firstName || candidate.name || "there").split(/\s+/)[0];
   const role = jobTitle ? ` for the ${jobTitle} position` : "";
-  const subject = `An update on your application${jobTitle ? ` — ${jobTitle}` : ""} at Clements Pest Control`;
+  const dm = demoMail(applyToken, candidate.email);
+  const subject = `${dm.subjectPrefix}An update on your application${jobTitle ? ` — ${jobTitle}` : ""} at Clements Pest Control`;
   const text = [
+    dm.bannerText,
     `Hi ${first},`,
     "",
     `Thank you so much for taking the time to speak with us on your screening call and to meet with our team for your interview${role}. We genuinely enjoyed getting to know you.`,
@@ -1399,6 +1494,7 @@ async function sendWarmRejection(
   ].join("\n");
   const html = [
     `<div style="font-family:system-ui,Arial,sans-serif;max-width:560px;color:#0f3d2c">`,
+    dm.bannerHtml,
     `<p>Hi ${first},</p>`,
     `<p>Thank you so much for taking the time to speak with us on your screening call and to meet with our team for your interview${role}. We genuinely enjoyed getting to know you.</p>`,
     `<p>After careful consideration, we've decided to move forward with another qualified applicant for this particular role. This was a difficult decision &mdash; you have a lot to offer.</p>`,
@@ -1407,7 +1503,7 @@ async function sendWarmRejection(
     `</div>`,
   ].join("");
   return sendEmail({
-    to: candidate.email,
+    to: applicantMailTo(candidate.email, applyToken),
     subject,
     kind: "warm_rejection",
     relatedType: "candidate",
