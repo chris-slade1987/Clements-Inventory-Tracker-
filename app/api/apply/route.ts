@@ -50,6 +50,17 @@ export async function POST(req: Request) {
     const lastName = str(fd.get("lastName"));
     const phone = str(fd.get("phone"));
     const email = str(fd.get("email"));
+    const addressStreet = str(fd.get("addressStreet"));
+    const addressCity = str(fd.get("addressCity"));
+    const addressState = str(fd.get("addressState"));
+    const addressZip = str(fd.get("addressZip"));
+    // "Tell us about yourself" — cap at ~250 words server-side (trust nothing
+    // from the client). Trim to the first 250 whitespace-separated tokens.
+    let about = str(fd.get("about"));
+    if (about) {
+      const words = about.split(/\s+/);
+      if (words.length > 250) about = words.slice(0, 250).join(" ");
+    }
 
     if (!token) return NextResponse.json({ error: "This application link is invalid." }, { status: 400 });
     if (!firstName || !lastName) return NextResponse.json({ error: "Please enter your first and last name." }, { status: 400 });
@@ -88,6 +99,11 @@ export async function POST(req: Request) {
         source: sourceFromChannel(str(fd.get("src"))),
         resumePath,
         resumeName: f.name,
+        addressStreet,
+        addressCity,
+        addressState,
+        addressZip,
+        about,
       },
       "Applicant (self-applied)",
     );

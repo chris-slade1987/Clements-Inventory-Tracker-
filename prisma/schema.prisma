@@ -1608,6 +1608,12 @@ model Candidate {
   source        String? // where they came from (Indeed, referral, walk-in, …)
   resumePath    String?  @map("resume_path")
   resumeName    String?  @map("resume_name")
+  // Mailing address + a short self-intro captured on the public application.
+  addressStreet String?  @map("address_street")
+  addressCity   String?  @map("address_city")
+  addressState  String?  @map("address_state")
+  addressZip    String?  @map("address_zip")
+  about         String?  // "Tell us about yourself" (capped ~250 words)
   stage         String   @default("applied") // applied | screening | interviewing | ranked | selected | pre_hire | offer | onboarding | hired | excluded | rejected
   notes         String?
   preHireId     String?  @unique @map("prehire_id") // set once onboarding starts (links to PreHire)

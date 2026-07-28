@@ -128,10 +128,19 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
           <dl className="grid grid-cols-3 gap-y-1.5 text-sm">
             <Row label="Email" value={candidate.email} />
             <Row label="Phone" value={candidate.phone ?? "—"} />
+            {candidate.addressStreet || candidate.addressCity ? (
+              <Row label="Address" value={[candidate.addressStreet, [candidate.addressCity, candidate.addressState].filter(Boolean).join(", "), candidate.addressZip].filter(Boolean).join(" · ")} />
+            ) : null}
             <Row label="Source" value={candidate.source ?? "—"} />
             <Row label="Job" value={candidate.job?.title ?? "—"} />
             <Row label="Added" value={`${dateShort(candidate.createdAt)}${candidate.createdByName ? ` by ${candidate.createdByName}` : ""}`} />
           </dl>
+          {candidate.about ? (
+            <div className="mt-3 border-t border-line pt-3">
+              <div className="text-xs font-medium text-muted mb-1">About (from application)</div>
+              <p className="text-sm text-ink whitespace-pre-line">{candidate.about}</p>
+            </div>
+          ) : null}
           {candidate.resumePath ? (
             <a href={candidate.resumePath} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand-700 hover:underline">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5" /></svg>

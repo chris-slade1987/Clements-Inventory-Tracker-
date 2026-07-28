@@ -206,7 +206,7 @@ export async function jobDetail(id: string) {
 // ---- Candidates ------------------------------------------------------------
 
 export async function createCandidate(
-  data: { jobId?: string | null; name?: string | null; firstName?: string | null; lastName?: string | null; email: string; phone?: string | null; source?: string | null; notes?: string | null; resumePath?: string | null; resumeName?: string | null },
+  data: { jobId?: string | null; name?: string | null; firstName?: string | null; lastName?: string | null; email: string; phone?: string | null; source?: string | null; notes?: string | null; resumePath?: string | null; resumeName?: string | null; addressStreet?: string | null; addressCity?: string | null; addressState?: string | null; addressZip?: string | null; about?: string | null },
   createdByName: string | null,
 ) {
   const firstName = str(data.firstName);
@@ -226,6 +226,11 @@ export async function createCandidate(
       notes: str(data.notes),
       resumePath: str(data.resumePath),
       resumeName: str(data.resumeName),
+      addressStreet: str(data.addressStreet),
+      addressCity: str(data.addressCity),
+      addressState: str(data.addressState),
+      addressZip: str(data.addressZip),
+      about: str(data.about),
       createdByName,
     },
   });
