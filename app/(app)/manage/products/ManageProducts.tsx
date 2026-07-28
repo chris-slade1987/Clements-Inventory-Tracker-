@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import { UNITS_OF_MEASURE, uomLabel } from "@/lib/uom";
@@ -200,7 +201,7 @@ export default function ManageProducts({ products }: { products: Product[] }) {
               {visible.map((p) => (
                 <tr key={p.id} className={`border-b border-line last:border-0 ${!p.active ? "opacity-50" : ""}`}>
                   <td className="px-3 py-2">
-                    <div className="font-medium">{p.name}</div>
+                    <Link href={`/manage/products/${p.id}`} className="font-medium text-brand-700 hover:underline">{p.name}</Link>
                     <div className="text-xs text-muted">{p.manufacturer ?? "—"}</div>
                   </td>
                   <td className="px-3 py-2">{p.category ?? "—"}</td>
