@@ -332,11 +332,25 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-8 text-center text-sm text-muted">{children}</p>;
 }
 
-// Consolidated line-of-service ledger. One scrolling table: a bold division
-// header row (LOS label + product count + Purchased/Dispersed/On-hand rollups),
-// muted subcategory subheader rows, then per-product rows. On-hand is current;
-// purchased/dispersed are the range window. Iterates DIVISIONS order (from the
-// helper) so a newly-added division shows automatically; unclassified trails.
+// Color accent per line of service — a continuous left rail + tinted band ties
+// every product visually to its category so you never lose your place. Full
+// literal class strings (Tailwind scans source). Unknown codes fall back to slate.
+const DIV_ACCENT: Record<string, { band: string; rail: string; dot: string; text: string }> = {
+  GHP: { band: "bg-sky-50", rail: "border-l-sky-400", dot: "bg-sky-500", text: "text-sky-900" },
+  LO: { band: "bg-emerald-50", rail: "border-l-emerald-400", dot: "bg-emerald-500", text: "text-emerald-900" },
+  TERMITE: { band: "bg-amber-50", rail: "border-l-amber-400", dot: "bg-amber-500", text: "text-amber-900" },
+  RODENT: { band: "bg-violet-50", rail: "border-l-violet-400", dot: "bg-violet-500", text: "text-violet-900" },
+  MOSQUITO: { band: "bg-cyan-50", rail: "border-l-cyan-400", dot: "bg-cyan-500", text: "text-cyan-900" },
+  OTHER: { band: "bg-slate-50", rail: "border-l-slate-400", dot: "bg-slate-400", text: "text-slate-800" },
+  UNCLASSIFIED: { band: "bg-slate-50", rail: "border-l-slate-300", dot: "bg-slate-300", text: "text-slate-700" },
+};
+const accentFor = (code: string) => DIV_ACCENT[code] ?? DIV_ACCENT.UNCLASSIFIED;
+
+// Consolidated line-of-service ledger. One scrolling table with strong visual
+// grouping: each division gets a color-coded, STICKY header band + a continuous
+// colored left rail down all its rows; each subcategory is a bold labeled group
+// header; then per-product rows. On-hand is current; purchased/dispersed are the
+// range window. Iterates the helper's order (DIVISIONS, unclassified trailing).
 function LineOfServiceLedger({ rows }: { rows: DivisionLedger[] }) {
   if (rows.length === 0) return <Empty>No stock on hand or movement for this scope yet.</Empty>;
 
@@ -345,53 +359,63 @@ function LineOfServiceLedger({ rows }: { rows: DivisionLedger[] }) {
   const num = (n: number) => (Math.abs(n) < 1e-6 ? <span className="text-muted/40">—</span> : qty(n));
 
   return (
-    <div className="overflow-x-auto max-h-[40rem] overflow-y-auto">
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 z-10 bg-surface">
-          <tr className="text-left text-xs text-muted border-b border-line">
-            <th className="px-4 py-2 font-medium">Product</th>
-            <th className="px-3 py-2 font-medium text-right whitespace-nowrap">Purchased</th>
-            <th className="px-3 py-2 font-medium text-right whitespace-nowrap">Dispersed</th>
-            <th className="px-4 py-2 font-medium text-right whitespace-nowrap">On hand</th>
+    <div className="overflow-x-auto max-h-[42rem] overflow-y-auto">
+      <table className="w-full border-separate border-spacing-0 text-sm">
+        <thead className="sticky top-0 z-20 bg-surface">
+          <tr className="text-left text-xs text-muted">
+            <th className="border-b border-line px-4 py-2 font-medium">Product</th>
+            <th className="border-b border-line px-3 py-2 font-medium text-right whitespace-nowrap">Purchased</th>
+            <th className="border-b border-line px-3 py-2 font-medium text-right whitespace-nowrap">Dispersed</th>
+            <th className="border-b border-line px-4 py-2 font-medium text-right whitespace-nowrap">On hand</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((d) => (
-            <Fragment key={d.division}>
-              <tr className="bg-black/[0.02] border-y border-line">
-                <td className="px-4 py-2">
-                  <span className="font-semibold text-ink">{label(d.division)}</span>
-                  <span className="ml-2 text-[11px] font-normal text-muted">
-                    {d.productCount} product{d.productCount === 1 ? "" : "s"}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums font-semibold text-ink">{num(d.purchased)}</td>
-                <td className="px-3 py-2 text-right tabular-nums font-semibold text-ink">{num(d.dispersed)}</td>
-                <td className="px-4 py-2 text-right tabular-nums font-semibold text-ink">{num(d.onHand)}</td>
-              </tr>
-              {d.subdivisions.map((s) => (
-                <Fragment key={`${d.division}:${s.subdivision}`}>
-                  <tr className="border-b border-line/60">
-                    <td className="pl-6 pr-4 py-1.5 text-xs font-medium uppercase tracking-wide text-muted">{s.subdivision}</td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.purchased)}</td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.dispersed)}</td>
-                    <td className="px-4 py-1.5 text-right tabular-nums text-xs text-muted">{num(s.onHand)}</td>
-                  </tr>
-                  {s.products.map((prod) => (
-                    <tr key={prod.productId} className="border-b border-line last:border-0 hover:bg-black/[0.02]">
-                      <td className="pl-8 pr-4 py-2">
-                        <span className="block text-ink">{prod.name}</span>
-                        {prod.unit ? <span className="block text-[11px] text-muted">{prod.unit}</span> : null}
+          {rows.map((d) => {
+            const a = accentFor(d.division);
+            return (
+              <Fragment key={d.division}>
+                {/* Division band — sticky under the column header so you always
+                    see which line of service you're scrolling through. No totals:
+                    summing units across different pack sizes/UoMs isn't meaningful. */}
+                <tr className={`sticky top-[37px] z-10 ${a.band}`}>
+                  <td colSpan={4} className={`border-y border-line border-l-4 ${a.rail} px-4 py-2.5`}>
+                    <span className="flex items-center gap-2">
+                      <span className={`inline-block h-2.5 w-2.5 rounded-full ${a.dot}`} />
+                      <span className={`text-[13px] font-bold uppercase tracking-wide ${a.text}`}>{label(d.division)}</span>
+                      <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                        {d.productCount} product{d.productCount === 1 ? "" : "s"}
+                      </span>
+                    </span>
+                  </td>
+                </tr>
+                {d.subdivisions.map((s) => (
+                  <Fragment key={`${d.division}:${s.subdivision}`}>
+                    {/* Subcategory group header — a clear labeled band, not micro-text. No totals. */}
+                    <tr className="bg-black/[0.035]">
+                      <td colSpan={4} className={`border-b border-line border-l-4 ${a.rail} py-1.5 pl-5 pr-4`}>
+                        <span className="flex items-center gap-2">
+                          <span className={`inline-block h-1.5 w-1.5 rounded-sm ${a.dot}`} />
+                          <span className="text-[11px] font-semibold uppercase tracking-wider text-ink">{s.subdivision}</span>
+                          <span className="text-[10px] font-normal text-muted">{s.products.length} product{s.products.length === 1 ? "" : "s"}</span>
+                        </span>
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums">{num(prod.purchased)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{num(prod.dispersed)}</td>
-                      <td className="px-4 py-2 text-right tabular-nums font-medium">{num(prod.onHand)}</td>
                     </tr>
-                  ))}
-                </Fragment>
-              ))}
-            </Fragment>
-          ))}
+                    {s.products.map((prod) => (
+                      <tr key={prod.productId} className="hover:bg-black/[0.02]">
+                        <td className={`border-b border-line border-l-4 ${a.rail} py-2 pl-8 pr-4`}>
+                          <span className="block text-ink">{prod.name}</span>
+                          {prod.unit ? <span className="block text-[11px] text-muted">{prod.unit}</span> : null}
+                        </td>
+                        <td className="border-b border-line px-3 py-2 text-right tabular-nums">{num(prod.purchased)}</td>
+                        <td className="border-b border-line px-3 py-2 text-right tabular-nums">{num(prod.dispersed)}</td>
+                        <td className="border-b border-line px-4 py-2 text-right tabular-nums font-medium">{num(prod.onHand)}</td>
+                      </tr>
+                    ))}
+                  </Fragment>
+                ))}
+              </Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>
