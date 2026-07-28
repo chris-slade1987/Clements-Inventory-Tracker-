@@ -102,6 +102,11 @@ export default function ConfirmQueue({
     post({ action: "merge", id: p.id, targetId }, p.id);
   }
 
+  function discard(p: Pending) {
+    if (!window.confirm(`Discard "${p.name}"? It won't appear in the catalog or at check-out. Its history is kept and it can be reactivated later if needed.`)) return;
+    post({ action: "discard", id: p.id }, p.id);
+  }
+
   return (
     <div className="space-y-3">
       {error ? <p className="text-sm text-red-600" role="alert">{error}</p> : null}
@@ -188,6 +193,9 @@ export default function ConfirmQueue({
             <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
               <button onClick={() => confirm(p)} disabled={busy} className={btn.primary}>
                 {busy ? "Saving…" : "Confirm product"}
+              </button>
+              <button onClick={() => discard(p)} disabled={busy} className={btn.danger} title="Remove from the catalog & check-out (history kept)">
+                Discard
               </button>
               <div className="ml-auto flex items-center gap-2">
                 <select

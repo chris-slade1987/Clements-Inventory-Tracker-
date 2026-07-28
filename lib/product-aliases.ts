@@ -32,6 +32,7 @@ export const PRODUCT_ALIASES: Record<string, string> = {
   "pbi gordon speedzone southern": "Speedzone Southern Herbicide",
   "lesco crosscheck 0.069% 0-0-7": "Crosscheck 0.069% Plus",
   "lesco fertilizer 21-0-6 50 lb": "Fertilizer - 21-0-6",
+  "fertilizer 21-0-6 (turf)": "Fertilizer - 21-0-6", // physical-count sheet variant
   "lesco k-flow liquid fert 0-0-25": "Lesco Liquid 0-0-25",
   "gentrol igr insecticide": "Gentrol IGR Concentrate",
 

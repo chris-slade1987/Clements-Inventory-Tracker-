@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { normalizeProductName } from "../lib/product-aliases";
+import { normalizeProductName, PRODUCT_ALIASES } from "../lib/product-aliases";
 
 /**
  * Load the CEO's REAL physical on-hand counts (as of 2026-07-27) for all four
@@ -105,7 +105,12 @@ export async function seedOnHandCount(prisma: PrismaClient): Promise<OnHandCount
     const whUnmatched: string[] = [];
 
     for (const [name, rawQty] of Object.entries(counts)) {
-      const prod = byNorm.get(normalizeProductName(name));
+      // Match by normalized name, falling back to the PestPac alias map for
+      // punctuation/naming variants (e.g. "Fertilizer 21-0-6 (Turf)" →
+      // "Fertilizer - 21-0-6"), the same way the history loader resolves names.
+      const norm = normalizeProductName(name);
+      const aliased = PRODUCT_ALIASES[norm];
+      const prod = byNorm.get(norm) ?? (aliased ? byNorm.get(normalizeProductName(aliased)) : undefined);
       if (!prod) {
         unmatchedAll.add(name);
         whUnmatched.push(name);

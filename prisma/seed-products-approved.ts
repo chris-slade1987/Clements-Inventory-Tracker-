@@ -239,6 +239,10 @@ const APPROVED: ApprovedRow[] = [
 // approved (units taken from the history) and flagged via `notes` so HR/admin
 // can confirm the naming before the history-load build.
 const ADD_NOTE = "Added from transfer history — confirm naming with HR/admin.";
+// Stable marker written when an admin DISCARDS a product from the confirm queue.
+// The reconcile keys off this to keep it inactive/off-catalog across deploys.
+// Must match the literal used by app/api/products/confirm (discard action).
+const DISCARD_MARK = "Discarded from confirm queue";
 // ADDED products stay confirmed=false (Part C) so the owner reviews the naming +
 // enrichment before they go live. `manufacturer`/`activeIngredient` are FACTUAL
 // label data (Part D); EPA numbers are deliberately left null (never guessed).
@@ -328,13 +332,16 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
       // in-app the note is rewritten, so we keep the stored value.
       const pristine = (found.notes ?? "").includes(ADD_NOTE);
       const confirmed = row.confirmed ? true : (pristine ? false : found.confirmed);
+      // A product an admin DISCARDED from the confirm queue stays off — don't
+      // resurrect it (active/approved) on the next deploy.
+      const discarded = (found.notes ?? "").includes(DISCARD_MARK);
       await prisma.product.update({
         where: { id: found.id },
         data: {
           unitOfMeasure: code,
-          approved: true,
-          active: true,
-          confirmed,
+          approved: discarded ? false : true,
+          active: discarded ? false : true,
+          confirmed: discarded ? true : confirmed,
           category: found.category ?? category,
           division,
           subdivision,

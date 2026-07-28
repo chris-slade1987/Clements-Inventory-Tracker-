@@ -24,6 +24,9 @@ function clean(v: unknown): string | null {
 // history" note is intact; dropping that phrase on confirm stops the reconcile
 // from re-asserting confirmed=false on the next deploy.
 const ADD_NOTE_MARK = "Added from transfer history";
+// Must match DISCARD_MARK in prisma/seed-products-approved.ts so the deploy
+// reconcile keeps a discarded product inactive/off-catalog.
+const DISCARD_MARK = "Discarded from confirm queue";
 
 export async function POST(req: Request) {
   const user = await guard();
@@ -87,6 +90,27 @@ export async function POST(req: Request) {
         }),
       ]);
       return NextResponse.json({ ok: true, mergedInto: target.id });
+    }
+
+    if (action === "discard") {
+      const id = String(body?.id ?? "");
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      const existing = await prisma.product.findUnique({ where: { id } });
+      if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+      // Discard = remove from the catalog + confirm queue WITHOUT hard-deleting
+      // (stock movements / history are preserved). Deactivate + un-approve, mark
+      // confirmed so it leaves the queue, and stamp the discard marker so the
+      // deploy reconcile won't resurrect it. Drop the "added from history" note.
+      const base = clean((existing.notes ?? "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
+      const note = [base, `${DISCARD_MARK} by ${user.name} on ${new Date().toISOString().slice(0, 10)}.`]
+        .filter(Boolean)
+        .join(" ");
+      await prisma.product.update({
+        where: { id },
+        data: { active: false, approved: false, confirmed: true, notes: note },
+      });
+      return NextResponse.json({ ok: true, discarded: id });
     }
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
