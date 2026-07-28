@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 7 · Last updated July 27, 2026",
+    effective: "Version 8 · Last updated July 28, 2026",
+    // v8: documented the editable Hiring Template Library in Hiring / Onboarding
+    // — HR/admin-built interview + HR-screening templates (off-the-shelf bank,
+    // custom questions, and AI-assisted drafting), role/worker-type assignment,
+    // per-job template assignment, and the supervisor-fills-only access rule.
+    version: 8,
     // v7: documented the full applicant pipeline in Hiring / Onboarding — the
     // stage-grouped job container (Applied → Screening → Interview → Ranked →
     // Selected → Pre-hire + retained Excluded), HR shortlist + Google-native
@@ -53,7 +58,6 @@ const DOCS: DocSeed[] = [
     // standardized questionnaire), stage-specific exclusion (No-show etc.),
     // forced ranking → 48h selection window → warm-rejection of runner-ups
     // (keep-warm) → Move to pre-hire boundary, and the Reactivate archive path.
-    version: 7,
     // v6: documented the public job-application "front door" in Hiring /
     // Onboarding — per-job public apply links (Indeed + company website, source
     // tracked by channel), the branded no-login apply page, the public /careers

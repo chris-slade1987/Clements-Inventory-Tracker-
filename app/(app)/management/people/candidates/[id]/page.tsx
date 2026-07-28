@@ -12,7 +12,6 @@ import {
   exclusionReasonsForStage,
   isExcludedStage,
   PIPELINE_STAGE_FLOW,
-  INTERVIEW_TEMPLATE,
   INTERVIEW_STATUS_LABELS,
   INTERVIEW_TYPE_LABELS,
   STAGE_LABELS,
@@ -22,6 +21,12 @@ import {
   parseScorecard,
   type RecommendationKey,
 } from "@/lib/ats";
+import {
+  interviewTemplateForCandidate,
+  renderTemplateForResponses,
+  resolveTemplateForJob,
+} from "@/lib/hiring-templates";
+import { parseJson } from "@/lib/inspection";
 import { statusLabel as preHireStatusLabel } from "@/lib/prehire";
 import { googleCalendarUrl, locationLine } from "@/lib/calendar";
 import { branchLabel } from "@/lib/management";
@@ -71,6 +76,18 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
 
   const excluded = isExcludedStage(candidate.stage);
   const reactivateStages = PIPELINE_STAGE_FLOW.filter((s) => s !== "pre_hire").map((s) => ({ value: s, label: STAGE_LABELS[s] ?? s }));
+
+  // The job's assigned interview template (role/default fall back to the legacy
+  // questionnaire) — used to render completed scorecards with the right labels.
+  const resolvedInterviewTemplate = await interviewTemplateForCandidate(candidate.id);
+  // The assigned HR-screening template (if any) the screening call renders.
+  const screeningTpl = candidate.jobId
+    ? await resolveTemplateForJob({ interviewTemplateId: null, screeningTemplateId: candidate.job?.screeningTemplateId ?? null, title: candidate.job?.title ?? null }, "screening")
+    : null;
+  const screeningTemplate = screeningTpl
+    ? { id: screeningTpl.id, name: screeningTpl.name, questions: [...screeningTpl.questions].sort((a, b) => a.order - b.order).map((q) => ({ id: q.id, section: q.section, text: q.text, responseType: q.responseType })) }
+    : null;
+  const screeningResponses = parseJson<Record<string, string | number | null>>(candidate.screeningResponses, {});
   const actionData = {
     candidateId: candidate.id,
     jobId: candidate.jobId,
@@ -88,6 +105,8 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
     excludedReason: candidate.excludedReason,
     excludedStageLabel: candidate.excludedStage ? STAGE_LABELS[candidate.excludedStage] ?? candidate.excludedStage : null,
     keepWarm: candidate.keepWarm,
+    screeningTemplate,
+    screeningResponses,
   };
 
   return (
@@ -171,6 +190,9 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
             const sc = parseScorecard(iv.responses);
             const comps = sc.competencies ?? {};
             const basics = sc.basics ?? {};
+            // Render with the template whose question ids match the saved
+            // responses (assigned template, else legacy fallback).
+            const t = renderTemplateForResponses(resolvedInterviewTemplate, sc);
             return (
               <Card key={iv.id} className="p-0 overflow-hidden">
                 <div className="px-4 py-3 border-b border-line flex flex-wrap items-center gap-2">
@@ -198,22 +220,22 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
                         {iv.completedAt ? <div><div className="text-xs text-muted">Submitted</div><div className="text-ink">{dateShort(iv.completedAt)}</div></div> : null}
                       </div>
                       <div className="grid gap-1.5 sm:grid-cols-2">
-                        {INTERVIEW_TEMPLATE.competencies.map((c) => (
+                        {t.competencies.map((c) => (
                           <div key={c.key} className="flex items-center justify-between gap-2 rounded-lg bg-black/[0.02] px-3 py-1.5">
                             <span className="text-xs text-ink">{c.label}</span>
                             <span className="text-xs font-medium tabular-nums text-brand-700">{comps[c.key]?.rating ?? "—"}<span className="text-muted">/5</span></span>
                           </div>
                         ))}
                       </div>
-                      {INTERVIEW_TEMPLATE.competencies.some((c) => comps[c.key]?.notes) ? (
+                      {t.competencies.some((c) => comps[c.key]?.notes) ? (
                         <div className="space-y-1.5">
-                          {INTERVIEW_TEMPLATE.competencies.filter((c) => comps[c.key]?.notes).map((c) => (
+                          {t.competencies.filter((c) => comps[c.key]?.notes).map((c) => (
                             <div key={c.key} className="text-xs"><span className="text-muted">{c.label}:</span> <span className="text-ink">{comps[c.key]?.notes}</span></div>
                           ))}
                         </div>
                       ) : null}
                       <div className="flex flex-wrap gap-2">
-                        {INTERVIEW_TEMPLATE.basics.map((b) => (
+                        {t.basics.map((b) => (
                           <span key={b.key} className="rounded-full bg-black/[0.03] px-2 py-0.5 text-[11px] text-muted">{b.label}: <span className="text-ink">{BASICS_LABELS[basics[b.key]] ?? "—"}</span></span>
                         ))}
                       </div>

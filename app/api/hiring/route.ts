@@ -69,7 +69,8 @@ export async function POST(req: Request) {
       if (!hr) return NextResponse.json({ error: "HR only." }, { status: 403 });
       const id = str(body?.id);
       if (!id) return NextResponse.json({ error: "Missing candidate id." }, { status: 400 });
-      await saveScreening(id, { notes: body?.notes, completed: !!body?.completed });
+      const responses = body?.responses && typeof body.responses === "object" ? (body.responses as Record<string, unknown>) : undefined;
+      await saveScreening(id, { notes: body?.notes, responses, completed: !!body?.completed });
       return NextResponse.json({ ok: true });
     }
 

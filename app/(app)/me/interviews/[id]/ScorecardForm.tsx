@@ -37,6 +37,7 @@ export default function ScorecardForm({
     initialResponses.competencies ?? {},
   );
   const [basics, setBasics] = useState<Record<string, string>>(initialResponses.basics ?? {});
+  const [extras, setExtras] = useState<Record<string, string>>(initialResponses.extras ?? {});
   const [overall, setOverall] = useState<number | null>(initialOverall);
   const [recommendation, setRecommendation] = useState<string>(initialRecommendation ?? "");
   const [summary, setSummary] = useState<string>(initialSummary ?? "");
@@ -49,8 +50,9 @@ export default function ScorecardForm({
   const setRating = (key: string, rating: number) => { setComps((s) => ({ ...s, [key]: { ...s[key], rating } })); setSaved(false); };
   const setNotes = (key: string, notes: string) => { setComps((s) => ({ ...s, [key]: { ...s[key], notes } })); setSaved(false); };
   const setBasic = (key: string, v: string) => { setBasics((s) => ({ ...s, [key]: v })); setSaved(false); };
+  const setExtra = (key: string, v: string) => { setExtras((s) => ({ ...s, [key]: v })); setSaved(false); };
 
-  const responses: ScorecardResponses = useMemo(() => ({ competencies: comps, basics, impressions, additional }), [comps, basics, impressions, additional]);
+  const responses: ScorecardResponses = useMemo(() => ({ competencies: comps, basics, extras, impressions, additional }), [comps, basics, extras, impressions, additional]);
   const ratedCount = template.competencies.filter((c) => typeof comps[c.key]?.rating === "number").length;
 
   async function post(action: "save" | "submit") {
@@ -68,7 +70,7 @@ export default function ScorecardForm({
   }
 
   function submit() {
-    const missing = validateScorecard({ responses, overallRating: overall, recommendation, summary });
+    const missing = validateScorecard({ responses, overallRating: overall, recommendation, summary }, template);
     if (missing.length) { setError(`Please complete: ${missing.join("; ")}`); return; }
     post("submit");
   }
@@ -130,6 +132,7 @@ export default function ScorecardForm({
       })}
 
       {/* Basics check */}
+      {template.basics.length > 0 ? (
       <Card className="p-4 space-y-2.5">
         <div className="text-sm font-semibold text-ink">Basics check</div>
         {template.basics.map((b) => (
@@ -149,6 +152,35 @@ export default function ScorecardForm({
           </div>
         ))}
       </Card>
+      ) : null}
+
+      {/* Additional template questions (free-text / yes-no) */}
+      {template.extras && template.extras.length > 0 ? (
+        <Card className="p-4 space-y-3">
+          <div className="text-sm font-semibold text-ink">Additional questions</div>
+          {template.extras.map((q) => (
+            <div key={q.key} className="space-y-1.5">
+              <div className="text-sm text-ink">{q.label}</div>
+              {q.responseType === "yes_no" ? (
+                <div className="flex gap-1 rounded-xl bg-slate-100 p-1 w-fit">
+                  {["yes", "no"].map((opt) => {
+                    const sel = extras[q.key] === opt;
+                    return (
+                      <button key={opt} type="button" disabled={readOnly} onClick={() => setExtra(q.key, opt)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>
+                        {opt === "yes" ? "Yes" : "No"}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <textarea value={extras[q.key] ?? ""} onChange={(e) => setExtra(q.key, e.target.value)} disabled={readOnly} rows={2}
+                  placeholder="Notes (optional)" className="w-full rounded-lg border border-line px-3 py-2 text-sm disabled:opacity-70" />
+              )}
+            </div>
+          ))}
+        </Card>
+      ) : null}
 
       {/* Overall + recommendation + summary */}
       <Card className="p-4 space-y-3">

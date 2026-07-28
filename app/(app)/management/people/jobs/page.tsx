@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Card, PageHeader, EmptyState } from "@/components/ui";
+import { Card, PageHeader, EmptyState, btn } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
 import { canManageAts, listJobs, getScreeningBookingUrl, excludedCandidates, JOB_STATUS_LABELS } from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
@@ -36,7 +36,12 @@ export default async function JobsPage() {
       <PageHeader
         title="Hiring / Jobs"
         subtitle="Post jobs, track candidates through the pipeline, and interview to offer"
-        actions={<NewJob />}
+        actions={
+          <div className="flex gap-2">
+            <Link href="/management/people/hiring-templates" className={btn.secondary}>Template Library</Link>
+            <NewJob />
+          </div>
+        }
       />
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">

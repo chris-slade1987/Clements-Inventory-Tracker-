@@ -1574,6 +1574,12 @@ model Job {
   // Forced-ranking → selection: a 48h window opens when the supervisor submits
   // the ranked shortlist; HR selects the finalist before it lapses.
   selectionDeadline       DateTime? @map("selection_deadline")
+  // Editable hiring template library: the interview + HR-screening templates
+  // assigned to this job. Nullable — when unset, the fill UIs fall back to the
+  // role-matched template, then the default template for that kind, then the
+  // legacy hardcoded questionnaire. Backfilled to null by `prisma db push`.
+  interviewTemplateId String? @map("interview_template_id")
+  screeningTemplateId String? @map("screening_template_id")
   // Close-out: the candidate selected when hiring completes (plain scalar id —
   // resolved manually, NOT a Prisma relation, since `candidates` already relates
   // this job to its Candidate rows) + when the job was filled/closed.
@@ -1617,6 +1623,9 @@ model Candidate {
   screeningRequestedAt DateTime? @map("screening_requested_at")
   screeningNotes       String?   @map("screening_notes")
   screeningCompletedAt DateTime? @map("screening_completed_at")
+  // Structured answers to the assigned HR-screening template, keyed by question
+  // id (JSON). Null for candidates screened before templates / with notes only.
+  screeningResponses   String?   @map("screening_responses")
   // Interview handoff: the confirmed date/time the supervisor logs.
   interviewAt   DateTime? @map("interview_at")
   // Forced ranking (supervisor) → selection (HR).
@@ -1668,6 +1677,64 @@ model Interview {
   @@index([status])
   @@index([interviewerId])
   @@map("interviews")
+}
+
+// ---------------------------------------------------------------------------
+// Editable Hiring Template Library. HR/admin build reusable interview + HR-
+// screening-call templates from (a) a seeded off-the-shelf question bank +
+// role templates, (b) their own custom questions, and (c) an AI-assist that
+// drafts/refines questions. A Job maps to one interview + one screening
+// template; the supervisor interview form and the HR screening call render the
+// assigned template. Nothing is hard-deleted — deactivating flips `active`.
+// ---------------------------------------------------------------------------
+model HiringTemplate {
+  id            String   @id @default(cuid())
+  kind          String // "interview" | "screening"
+  name          String
+  description   String?
+  roleKeys      String   @default("[]") @map("role_keys") // JSON array of role/worker-type keys this template serves
+  isDefault     Boolean  @default(false) @map("is_default") // the fallback template for its kind
+  active        Boolean  @default(true)
+  seedKey       String?  @unique @map("seed_key") // stable marker for idempotent seeding (null for HR-authored)
+  createdByName String?  @map("created_by_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  questions HiringTemplateQuestion[]
+
+  @@index([kind, active])
+  @@map("hiring_templates")
+}
+
+model HiringTemplateQuestion {
+  id           String  @id @default(cuid())
+  templateId   String  @map("template_id")
+  order        Int     @default(0)
+  section      String? // grouping label / competency (e.g. "Safety & compliance")
+  text         String // the question / prompt
+  responseType String  @map("response_type") // "rating_1_5" | "yes_no" | "text" | "basics_yesno_unsure"
+  required     Boolean @default(false)
+
+  template HiringTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@map("hiring_template_questions")
+}
+
+// Off-the-shelf reusable question bank (categorized), separate from any
+// template — HR browses + inserts these à la carte when building a template.
+model QuestionBankItem {
+  id           String  @id @default(cuid())
+  kind         String // "interview" | "screening"
+  category     String // e.g. "Reliability", "Safety", "Customer service", "Screening basics"
+  roleHint     String? @map("role_hint") // optional role this fits best ("technician","sales","manager","csr","any")
+  text         String
+  responseType String  @map("response_type")
+  active       Boolean @default(true)
+  seedKey      String? @unique @map("seed_key") // stable marker for idempotent seeding
+
+  @@index([kind, category])
+  @@map("question_bank_items")
 }
 
 // Cascading company calendar — holidays, office closures / early releases, and

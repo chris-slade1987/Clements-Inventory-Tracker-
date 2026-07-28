@@ -18,6 +18,7 @@ import {
   type ScorecardResponses,
 } from "@/lib/ats-config";
 import { getHrEmail } from "@/lib/personnel";
+import { interviewTemplateForCandidate, renderTemplateForResponses } from "@/lib/hiring-templates";
 
 // ---------------------------------------------------------------------------
 // In-house ATS (applicant tracking / hiring pipeline).
@@ -531,12 +532,21 @@ export async function saveInterviewScorecard(
 /**
  * Complete (submit) an interview — validates the whole scorecard first, then
  * marks it completed. Throws with the list of missing items if incomplete.
+ * Validates against the JOB'S ASSIGNED interview template (or the legacy
+ * hardcoded questionnaire when none is configured), so the required competencies
+ * match what the fill form rendered.
  */
 export async function completeInterview(
   id: string,
   data: { responses: ScorecardResponses; overallRating?: number | null; recommendation?: string | null; summary?: string | null },
 ) {
-  const missing = validateScorecard(data);
+  const iv = await prisma.interview.findUnique({ where: { id }, select: { candidateId: true } });
+  const resolved = iv ? await interviewTemplateForCandidate(iv.candidateId) : undefined;
+  // Validate against the template whose question ids match the submitted
+  // responses — the same render-fallback the fill form used, so a template
+  // reassigned mid-interview can't wedge a legacy-keyed draft.
+  const template = resolved ? renderTemplateForResponses(resolved, data.responses) : undefined;
+  const missing = validateScorecard(data, template);
   if (missing.length) throw new Error(`Please complete: ${missing.join("; ")}`);
   return prisma.interview.update({
     where: { id },
@@ -1061,13 +1071,16 @@ export async function requestScreeningCall(id: string, byName: string | null) {
   return { emailed, bookingConfigured: !!bookingUrl };
 }
 
-/** Record screening notes and/or mark the screening call complete. */
+/** Record screening notes, structured template responses, and/or mark the
+ *  screening call complete. `responses` is the assigned screening template's
+ *  answers keyed by question id (stored as JSON in screeningResponses). */
 export async function saveScreening(
   id: string,
-  data: { notes?: string | null; completed?: boolean },
+  data: { notes?: string | null; responses?: Record<string, unknown>; completed?: boolean },
 ) {
   const patch: Record<string, unknown> = {};
   if (data.notes !== undefined) patch.screeningNotes = str(data.notes);
+  if (data.responses !== undefined) patch.screeningResponses = JSON.stringify(data.responses ?? {});
   if (data.completed) patch.screeningCompletedAt = new Date();
   return prisma.candidate.update({ where: { id }, data: patch });
 }

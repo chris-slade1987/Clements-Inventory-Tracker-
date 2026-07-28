@@ -249,6 +249,21 @@ async function main() {
     }
     console.log(`deploy-db: backfilled apply tokens on ${jobsMissingToken.length} job(s).`);
 
+    // Seed the off-the-shelf Hiring Template Library (interview + screening
+    // templates + the categorized question bank). Idempotent — templates are
+    // created only when missing (HR edits are never clobbered); bank items are
+    // upserted. NON-FATAL: a seed error must NEVER fail the build/deploy — the
+    // schema push above is the only hard requirement.
+    try {
+      const { seedHiringTemplates } = await import("../prisma/seed-hiring-templates");
+      const ht = await seedHiringTemplates(prisma);
+      console.log(
+        `deploy-db: hiring templates — ${ht.templatesCreated} created, ${ht.templatesSkipped} already present (${ht.templatesTotal} off-the-shelf); ${ht.bankUpserted} question-bank items.`,
+      );
+    } catch (e) {
+      console.error("deploy-db: hiring-templates seed FAILED (non-fatal, continuing):", e);
+    }
+
     // Seed the [DEMO] ATS applicant-pipeline walkthrough (idempotent, clearly
     // labeled, removable). Lets the CEO walk shortlist→screening→interview→
     // ranking→selection→pre-hire live on the deployed site.

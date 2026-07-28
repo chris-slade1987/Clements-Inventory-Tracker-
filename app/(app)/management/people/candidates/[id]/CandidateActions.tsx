@@ -25,7 +25,12 @@ export type CandidateActionData = {
   excludedReason: string | null;
   excludedStageLabel: string | null;
   keepWarm: boolean;
+  screeningTemplate: ScreeningTemplate | null;
+  screeningResponses: Record<string, string | number | null>;
 };
+
+export type ScreeningQuestion = { id: string; section: string | null; text: string; responseType: string };
+export type ScreeningTemplate = { id: string; name: string; questions: ScreeningQuestion[] };
 
 // Convert a Date to the value a <input type="datetime-local"> expects.
 function toLocalInput(iso: string | null): string {
@@ -150,12 +155,13 @@ export default function CandidateActions(props: CandidateActionData) {
             </p>
             {props.screeningRequestedAt ? <p className="text-xs text-brand-700 mt-1">Booking link requested {new Date(props.screeningRequestedAt).toLocaleDateString()}.</p> : null}
           </div>
-          <ScreeningNotes
-            candidateId={candidateId}
+          <ScreeningCall
+            template={props.screeningTemplate}
+            initialResponses={props.screeningResponses}
             initialNotes={props.screeningNotes ?? ""}
             completed={!!props.screeningCompletedAt}
             busy={busy}
-            onSave={(notes, completed) => post("hiring", "candidate.saveScreening", { id: candidateId, notes, completed })}
+            onSave={(notes, responses, completed) => post("hiring", "candidate.saveScreening", { id: candidateId, notes, responses, completed })}
           />
           <button onClick={() => post("ats", "candidate.setStage", { id: candidateId, stage: "interviewing" })} disabled={busy !== null} className={btn.primary}>
             {busy === "candidate.setStage" ? "…" : "Advance → Interview"}
@@ -257,16 +263,87 @@ function LogInterviewTime({ candidateId, initial, busy, onPost }: { candidateId:
   );
 }
 
-function ScreeningNotes({ candidateId, initialNotes, completed, busy, onSave }: { candidateId: string; initialNotes: string; completed: boolean; busy: string | null; onSave: (notes: string, completed: boolean) => void }) {
+function ScreeningCall({
+  template,
+  initialResponses,
+  initialNotes,
+  completed,
+  busy,
+  onSave,
+}: {
+  template: ScreeningTemplate | null;
+  initialResponses: Record<string, string | number | null>;
+  initialNotes: string;
+  completed: boolean;
+  busy: string | null;
+  onSave: (notes: string, responses: Record<string, string | number | null>, completed: boolean) => void;
+}) {
   const [notes, setNotes] = useState(initialNotes);
-  void candidateId;
+  const [responses, setResponses] = useState<Record<string, string | number | null>>(initialResponses ?? {});
+  const setResp = (id: string, v: string | number | null) => setResponses((s) => ({ ...s, [id]: v }));
+
+  // Group template questions by section for a tidy call script.
+  const groups: { section: string; qs: ScreeningQuestion[] }[] = [];
+  for (const q of template?.questions ?? []) {
+    const section = q.section || "Questions";
+    let g = groups.find((x) => x.section === section);
+    if (!g) { g = { section, qs: [] }; groups.push(g); }
+    g.qs.push(q);
+  }
+
   return (
-    <div className="space-y-1.5">
-      <div className="text-sm font-medium text-ink">Screening notes {completed ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Completed</span> : null}</div>
-      <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Notes from the screening call…" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+    <div className="space-y-3">
+      <div className="text-sm font-medium text-ink">
+        Screening call {template ? <span className="text-xs font-normal text-muted">· {template.name}</span> : null}
+        {completed ? <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Completed</span> : null}
+      </div>
+
+      {template ? (
+        <div className="space-y-3 rounded-lg border border-line bg-black/[0.015] p-3">
+          {groups.map((g) => (
+            <div key={g.section} className="space-y-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">{g.section}</div>
+              {g.qs.map((q) => (
+                <div key={q.id} className="space-y-1">
+                  <div className="text-sm text-ink">{q.text}</div>
+                  {q.responseType === "rating_1_5" ? (
+                    <div className="flex flex-wrap gap-1">
+                      {[1, 2, 3, 4, 5].map((n) => {
+                        const sel = Number(responses[q.id]) === n;
+                        return (
+                          <button key={n} type="button" onClick={() => setResp(q.id, n)}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>{n}</button>
+                        );
+                      })}
+                    </div>
+                  ) : q.responseType === "yes_no" || q.responseType === "basics_yesno_unsure" ? (
+                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1 w-fit">
+                      {(q.responseType === "basics_yesno_unsure" ? ["yes", "no", "unsure"] : ["yes", "no"]).map((opt) => {
+                        const sel = responses[q.id] === opt;
+                        return (
+                          <button key={opt} type="button" onClick={() => setResp(q.id, opt)}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>{opt}</button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <textarea value={String(responses[q.id] ?? "")} onChange={(e) => setResp(q.id, e.target.value)} rows={2} placeholder="Answer / notes…" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="space-y-1">
+        <div className="text-sm font-medium text-ink">Screening notes</div>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Overall notes from the screening call…" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      </div>
+
       <div className="flex gap-2">
-        <button onClick={() => onSave(notes, false)} disabled={busy !== null} className={btn.secondary}>Save notes</button>
-        {!completed ? <button onClick={() => onSave(notes, true)} disabled={busy !== null} className={btn.primary}>Save & mark call complete</button> : null}
+        <button onClick={() => onSave(notes, responses, false)} disabled={busy !== null} className={btn.secondary}>Save notes</button>
+        {!completed ? <button onClick={() => onSave(notes, responses, true)} disabled={busy !== null} className={btn.primary}>Save & mark call complete</button> : null}
       </div>
     </div>
   );

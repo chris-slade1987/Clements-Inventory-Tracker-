@@ -15,11 +15,13 @@ import {
 } from "@/lib/ats";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
+import { listTemplates, resolveTemplateForJob } from "@/lib/hiring-templates";
 import NewCandidate from "./NewCandidate";
 import JobLifecycle from "./JobLifecycle";
 import ApplyLinks from "./ApplyLinks";
 import HiringControls from "./HiringControls";
 import ReactivateButton from "./ReactivateButton";
+import JobTemplates from "./JobTemplates";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +51,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const hiredName = job.hiredCandidateId ? job.candidates.find((c) => c.id === job.hiredCandidateId)?.name ?? null : null;
   const supervisors = canManage ? await interviewerCandidates() : [];
+
+  // Hiring template assignment (HR only): the pickable templates + what the job
+  // currently resolves to on Auto (role-matched → default → legacy).
+  const allTemplates = canManage ? await listTemplates() : [];
+  const interviewTemplates = allTemplates.filter((t) => t.kind === "interview" && t.active).map((t) => ({ id: t.id, name: t.name, isDefault: t.isDefault }));
+  const screeningTemplates = allTemplates.filter((t) => t.kind === "screening" && t.active).map((t) => ({ id: t.id, name: t.name, isDefault: t.isDefault }));
+  const resolvedInterview = canManage ? await resolveTemplateForJob(job, "interview") : null;
+  const resolvedScreening = canManage ? await resolveTemplateForJob(job, "screening") : null;
 
   // Group candidates by the canonical pipeline flow; everything excluded
   // (incl. legacy "rejected") lands in the retained Excluded archive section.
@@ -109,6 +119,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         {job.interviewDeadline ? <span className={`text-xs ${overdue ? "font-semibold text-red-600" : "text-muted"}`}>Interview by {dateShort(job.interviewDeadline)}{overdue ? " · OVERDUE" : ""}</span> : null}
         {selectionOpen ? <span className="text-xs font-medium text-indigo-700">Selection window: decide by {job.selectionDeadline!.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</span> : null}
       </Card>
+
+      {canManage ? (
+        <JobTemplates
+          jobId={job.id}
+          interviewTemplates={interviewTemplates}
+          screeningTemplates={screeningTemplates}
+          currentInterviewId={job.interviewTemplateId}
+          currentScreeningId={job.screeningTemplateId}
+          resolvedInterviewName={resolvedInterview?.name ?? "General interview (default)"}
+          resolvedScreeningName={resolvedScreening?.name ?? "None"}
+        />
+      ) : null}
 
       {/* Interview handoff + forced ranking controls */}
       <HiringControls

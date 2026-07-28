@@ -7,6 +7,7 @@ import { seedEmployees } from "./seed-employees";
 import { seedTraining } from "./seed-training";
 import { seedInsurance } from "./seed-insurance";
 import { seedBranchHub } from "./seed-branch";
+import { seedHiringTemplates } from "./seed-hiring-templates";
 
 const prisma = new PrismaClient();
 
@@ -20,6 +21,7 @@ seedDatabase(prisma, { reset: true })
     await seedTraining(prisma);
     await seedInsurance(prisma);
     await seedBranchHub(prisma);
+    const hiring = await seedHiringTemplates(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`
@@ -28,6 +30,7 @@ seedDatabase(prisma, { reset: true })
     console.log(`  Fleet: ${fleet.total} vehicles`);
     console.log(`  Fuel: ${fuel.rows} transactions (${fuel.linked} linked)`);
     console.log(`  People: ${people.total} employees`);
+    console.log(`  Hiring templates: ${hiring.templatesCreated} created (${hiring.templatesTotal} off-the-shelf), ${hiring.bankUpserted} bank items`);
     console.log(`  Manager login:  ${MANAGER_EMAIL}  /  ${MANAGER_PASSWORD}`);
     await prisma.$disconnect();
   })

@@ -30,10 +30,37 @@ export const RECOMMENDATION_LABELS: Record<RecommendationKey, string> = {
 
 export const RECOMMENDATION_ORDER: RecommendationKey[] = ["strong_yes", "yes", "lean_yes", "lean_no", "no"];
 
+// The four response types a Hiring Template question can carry. Interview
+// templates render rating_1_5 as a rated competency and basics_yesno_unsure as
+// a basics check; free-text / yes-no questions render in an "Additional
+// questions" section. Screening templates use all four.
+export type ResponseType = "rating_1_5" | "yes_no" | "text" | "basics_yesno_unsure";
+
+export const RESPONSE_TYPE_LABELS: Record<ResponseType, string> = {
+  rating_1_5: "Rating (1–5)",
+  yes_no: "Yes / No",
+  text: "Free text",
+  basics_yesno_unsure: "Basics (Yes / No / Unsure)",
+};
+
+export function isResponseType(v: unknown): v is ResponseType {
+  return v === "rating_1_5" || v === "yes_no" || v === "text" || v === "basics_yesno_unsure";
+}
+
+// An extra (non-competency, non-basics) question rendered on the interview form
+// — a free-text or yes/no prompt that came from a template. Answers are stored
+// in ScorecardResponses.extras keyed by the question id.
+export type ExtraQuestion = { key: string; label: string; responseType: "text" | "yes_no" };
+
 export type InterviewTemplate = {
+  // Present when the template is DB-driven (from the Hiring Template Library);
+  // null for the legacy hardcoded questionnaire.
+  id?: string | null;
+  name?: string | null;
   ratingScale: RatingLevel[];
   competencies: Competency[];
   basics: BasicsCheck[];
+  extras?: ExtraQuestion[];
 };
 
 // General-purpose interview scorecard — works across roles (role-specific sets
@@ -105,11 +132,20 @@ export type CompetencyResponse = { rating?: number | null; notes?: string };
 export type ScorecardResponses = {
   competencies?: Record<string, CompetencyResponse>;
   basics?: Record<string, string>;
+  // Answers to template-driven free-text / yes-no "extra" questions, keyed by
+  // question id. Optional — never part of validateScorecard.
+  extras?: Record<string, string>;
   // Two OPTIONAL subjective free-text sections the interviewer fills in for
   // later reference (not part of validateScorecard — never block submission).
   impressions?: string; // "Overall impressions & culture fit"
   additional?: string; // "Additional comments for the hiring decision"
 };
+
+// ---- Screening-call responses ----------------------------------------------
+// The HR screening call renders its assigned template's questions; answers are
+// stored keyed by question id. rating_1_5 → number; yes_no → "yes"/"no";
+// text → string. Kept alongside the free-text screeningNotes (red-flag notes).
+export type ScreeningResponses = Record<string, string | number | null>;
 
 // ---- Stage / status labels -------------------------------------------------
 
@@ -246,16 +282,22 @@ export function normalizeRecommendation(v: unknown): RecommendationKey | null {
  * Validate the scorecard is complete: EVERY competency has a 1-5 rating, a
  * recommendation is chosen, and the summary is non-empty. Returns the list of
  * missing items (empty = valid). Shared by the client form and the server.
+ *
+ * The `template` defaults to the legacy hardcoded questionnaire; pass the job's
+ * assigned template so the required competencies match what the form rendered.
  */
-export function validateScorecard(data: {
-  responses: ScorecardResponses;
-  overallRating?: number | null;
-  recommendation?: string | null;
-  summary?: string | null;
-}): string[] {
+export function validateScorecard(
+  data: {
+    responses: ScorecardResponses;
+    overallRating?: number | null;
+    recommendation?: string | null;
+    summary?: string | null;
+  },
+  template: InterviewTemplate = INTERVIEW_TEMPLATE,
+): string[] {
   const missing: string[] = [];
   const comps = data.responses.competencies ?? {};
-  for (const c of INTERVIEW_TEMPLATE.competencies) {
+  for (const c of template.competencies) {
     if (normRating(comps[c.key]?.rating) == null) missing.push(`${c.label}: rating`);
   }
   if (!normalizeRecommendation(data.recommendation)) missing.push("Overall recommendation");
