@@ -37,7 +37,10 @@ export const SCORECARD_METRICS: ScorecardMetric[] = [
   // Attrition ceiling: keep cancellations under 2.5% of revenue (production is the
   // branch revenue base). Fixed 2.5% target, not an MBR budget line. Lower is better.
   { key: "cancellations_value", label: "Attrition % of Revenue", weight: 15, type: "auto", direction: "lower", kpi: "attrition", ratioOf: "production", unit: "pct", fixedTarget: 2.5 },
-  { key: "fuel_pct", label: "Fuel Cost % of Production", weight: 10, type: "auto", direction: "lower", kpi: "fuel", ratioOf: "production", unit: "pct" },
+  // Fuel is company-only in the MBR (no per-branch split yet). Flagged as a
+  // placeholder for now — the CEO is fetching per-branch fuel; wire it to
+  // { type:"auto", kpi:"fuel", ratioOf:"production" } once that data lands.
+  { key: "fuel_pct", label: "Fuel Cost % of Revenue", weight: 10, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Placeholder — per-branch fuel data pending" },
   // Chemical cost % is a PLACEHOLDER for now — per-branch chemical spend isn't in
   // the MBR yet; the reviewer marks it manually until that data source is wired.
   { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 10, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Placeholder — per-branch chemical cost data pending" },
