@@ -9,7 +9,9 @@ import { quarterTrainingCompliance } from "@/lib/training";
 // MBR budget data already in the app; the rest are reviewer Y/N (compliance) or
 // a manual figure until a data source is wired up.
 
-export type MetricType = "auto" | "manual" | "compliance";
+// "placeholder" = a metric shown on the scorecard but not yet auto-computed (no
+// per-branch data source wired up); the reviewer marks it manually for now.
+export type MetricType = "auto" | "manual" | "compliance" | "placeholder";
 export type Direction = "higher" | "lower";
 
 export type ScorecardMetric = {
@@ -21,15 +23,24 @@ export type ScorecardMetric = {
   kpi?: string; // KpiValue key for auto metrics
   ratioOf?: string; // if set, metric = kpi / ratioOf (e.g. fuel / production)
   unit?: "usd" | "pct";
+  // A fixed target that overrides the MBR budget (e.g. the attrition ceiling is
+  // a company policy of 2.5% of revenue, not a per-branch budget line).
+  fixedTarget?: number;
+  // Explanatory hint rendered under a placeholder metric.
+  placeholderHint?: string;
 };
 
 export const SCORECARD_METRICS: ScorecardMetric[] = [
   { key: "production", label: "Production", weight: 15, type: "auto", direction: "higher", kpi: "production", unit: "usd" },
   { key: "unserviced_pct", label: "Unserviced %", weight: 15, type: "manual", direction: "lower", unit: "pct" },
   { key: "sales_value", label: "Annual Value of Total Sales", weight: 15, type: "auto", direction: "higher", kpi: "new_sales", unit: "usd" },
-  { key: "cancellations_value", label: "Annual Value of Cancellations", weight: 15, type: "auto", direction: "lower", kpi: "attrition", unit: "usd" },
+  // Attrition ceiling: keep cancellations under 2.5% of revenue (production is the
+  // branch revenue base). Fixed 2.5% target, not an MBR budget line. Lower is better.
+  { key: "cancellations_value", label: "Attrition % of Revenue", weight: 15, type: "auto", direction: "lower", kpi: "attrition", ratioOf: "production", unit: "pct", fixedTarget: 2.5 },
   { key: "fuel_pct", label: "Fuel Cost % of Production", weight: 10, type: "auto", direction: "lower", kpi: "fuel", ratioOf: "production", unit: "pct" },
-  { key: "chemical_pct", label: "Chemical Cost % of Production", weight: 10, type: "auto", direction: "lower", kpi: "chemical_expense", ratioOf: "production", unit: "pct" },
+  // Chemical cost % is a PLACEHOLDER for now — per-branch chemical spend isn't in
+  // the MBR yet; the reviewer marks it manually until that data source is wired.
+  { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 10, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Placeholder — per-branch chemical cost data pending" },
   { key: "vehicle_inspections", label: "Vehicle Inspection Reports", weight: 5, type: "compliance" },
   { key: "warehouse_inspections", label: "Warehouse Inspection Reports", weight: 5, type: "compliance" },
   { key: "qc_reports", label: "Quality Control Reports", weight: 5, type: "compliance" },
@@ -139,9 +150,10 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
   return SCORECARD_METRICS.map((m) => {
     const a = auto[m.key];
     const savedRow = saved[m.key] ?? { target: null, met: null, note: null };
-    const budgetTarget = a?.budget ?? null;
+    // A fixed policy target (e.g. attrition ≤ 2.5% of revenue) overrides the MBR budget.
+    const budgetTarget = m.fixedTarget ?? a?.budget ?? null;
     let suggested = m.type === "auto" ? suggestMet(m.direction, a?.actual ?? null, budgetTarget) : null;
-    let detail: string | null = null;
+    let detail: string | null = m.type === "placeholder" ? (m.placeholderHint ?? "Placeholder — data pending") : null;
     if (m.key === "vehicle_inspections" && inspComp.expected > 0) {
       suggested = inspComp.complete;
       detail = `${inspComp.done}/${inspComp.expected} inspections this quarter (${inspComp.pct}%)`;

@@ -9,7 +9,7 @@ type Row = {
   key: string;
   label: string;
   weight: number;
-  type: "auto" | "manual" | "compliance";
+  type: "auto" | "manual" | "compliance" | "placeholder";
   unit: "usd" | "pct" | null;
   actual: number | null;
   budgetTarget: number | null;
