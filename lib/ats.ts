@@ -66,7 +66,7 @@ export function newApplyToken(): string {
 }
 
 /** Absolute public apply URL for a job token, optionally tagged with a source
- *  channel (?src=indeed|website|careers|referral) for accurate source tracking. */
+ *  channel (?src=indeed|linkedin|website|careers|referral) for source tracking. */
 export function applyUrl(token: string, src?: string | null): string {
   const url = `${base()}/apply/${token}`;
   return src ? `${url}?src=${encodeURIComponent(src)}` : url;
@@ -77,6 +77,8 @@ export function sourceFromChannel(src: string | null | undefined): string {
   switch ((src ?? "").trim().toLowerCase()) {
     case "indeed":
       return "Indeed";
+    case "linkedin":
+      return "LinkedIn";
     case "referral":
       return "Referral";
     case "website":

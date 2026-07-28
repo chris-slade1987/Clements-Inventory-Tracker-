@@ -40,10 +40,11 @@ function Row({ label, hint, url }: { label: string; hint: string; url: string })
   );
 }
 
-export default function ApplyLinks({ indeedUrl, websiteUrl }: { indeedUrl: string; websiteUrl: string }) {
+export default function ApplyLinks({ indeedUrl, linkedinUrl, websiteUrl }: { indeedUrl: string; linkedinUrl: string; websiteUrl: string }) {
   return (
     <div className="space-y-3">
       <Row label="Indeed ad link" hint="Paste this as the apply link in the Indeed ad. Applicants who use it are tagged “Indeed”." url={indeedUrl} />
+      <Row label="LinkedIn post link" hint="Use this in your LinkedIn job post or company page. Applicants who use it are tagged “LinkedIn”." url={linkedinUrl} />
       <Row label="Company website / careers link" hint="Use this on clementspestcontrol.com or elsewhere. Applicants are tagged “Company Website”." url={websiteUrl} />
     </div>
   );

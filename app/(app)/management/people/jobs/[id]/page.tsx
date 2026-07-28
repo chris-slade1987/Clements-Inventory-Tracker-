@@ -22,6 +22,7 @@ import ApplyLinks from "./ApplyLinks";
 import HiringControls from "./HiringControls";
 import ReactivateButton from "./ReactivateButton";
 import JobTemplates from "./JobTemplates";
+import PipelineBar from "./PipelineBar";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,18 @@ const STAGE_STYLE: Record<string, string> = {
   hired: "bg-emerald-100 text-emerald-700",
   excluded: "bg-red-100 text-red-700",
   rejected: "bg-red-100 text-red-700",
+};
+
+// Per-stage colored rail + the one concrete action that moves candidates
+// forward from that stage. Surfaced on each stage card so HR/supervisors never
+// have to guess "what now?". Purely presentational.
+const STAGE_META: Record<string, { rail: string; next: string }> = {
+  applied: { rail: "border-l-slate-300", next: "Review the résumé, then shortlist to Screening — or exclude with a reason." },
+  screening: { rail: "border-l-sky-400", next: "Send the booking link, log the call notes, then advance to Interview." },
+  interviewing: { rail: "border-l-amber-400", next: "The assigned supervisor logs the interview time and fills the questionnaire." },
+  ranked: { rail: "border-l-indigo-400", next: "Pick your finalist before the 48-hour selection window closes." },
+  selected: { rail: "border-l-emerald-400", next: "Reach out personally, then move them to Pre-hire to start paperwork." },
+  pre_hire: { rail: "border-l-brand-400", next: "In pre-hire onboarding — track their documents through to completion." },
 };
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -77,6 +90,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     .sort((a, b) => (a.interviewRank ?? 99) - (b.interviewRank ?? 99))
     .map((c) => ({ id: c.id, name: c.name, rank: c.interviewRank ?? null, interviewAt: c.interviewAt ? c.interviewAt.toISOString() : null }));
 
+  const stageCounts: Record<string, number> = {};
+  for (const s of PIPELINE_STAGE_FLOW) stageCounts[s] = (byStage.get(s) ?? []).length;
+
   const now = Date.now();
   const overdue = job.interviewDeadline && job.interviewDeadline.getTime() < now &&
     (byStage.get("interviewing") ?? []).length > 0;
@@ -92,6 +108,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         subtitle={[job.branch ? branchLabel(job.branch) : null, `${job.openings} opening${job.openings === 1 ? "" : "s"}`, job.hiringManagerName ? `Hiring mgr: ${job.hiringManagerName}` : null].filter(Boolean).join(" · ")}
         actions={canManage ? <NewCandidate jobId={job.id} /> : null}
       />
+
+      {job.candidates.length > 0 ? <PipelineBar counts={stageCounts} excluded={excluded.length} /> : null}
 
       {canManage ? (
         <div className="mb-5">
@@ -156,6 +174,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </p>
           <ApplyLinks
             indeedUrl={applyUrl(job.applyToken, "indeed")}
+            linkedinUrl={applyUrl(job.applyToken, "linkedin")}
             websiteUrl={applyUrl(job.applyToken, "website")}
           />
         </Card>
@@ -179,10 +198,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             if (list.length === 0) return null;
             const sorted = stage === "ranked" ? [...list].sort((a, b) => (a.interviewRank ?? 99) - (b.interviewRank ?? 99)) : list;
             return (
-              <Card key={stage} className="p-0 overflow-hidden">
-                <div className="px-4 py-3 border-b border-line flex items-center gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STAGE_STYLE[stage]}`}>{STAGE_LABELS[stage]}</span>
-                  <span className="text-xs text-muted">{list.length}</span>
+              <Card key={stage} className={`p-0 overflow-hidden border-l-4 ${STAGE_META[stage]?.rail ?? "border-l-line"}`}>
+                <div className="px-4 py-3 border-b border-line">
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STAGE_STYLE[stage]}`}>{STAGE_LABELS[stage]}</span>
+                    <span className="text-xs text-muted">{list.length} candidate{list.length === 1 ? "" : "s"}</span>
+                  </div>
+                  {STAGE_META[stage] ? (
+                    <p className="mt-1.5 text-xs text-muted"><span className="font-medium text-ink">To advance:</span> {STAGE_META[stage].next}</p>
+                  ) : null}
                 </div>
                 <ul className="divide-y divide-line">
                   {sorted.map((c) => (
@@ -206,10 +230,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
           {/* Retained Excluded archive (never deleted) */}
           {excluded.length > 0 ? (
-            <Card className="p-0 overflow-hidden border-red-100">
-              <div className="px-4 py-3 border-b border-line flex items-center gap-2 bg-red-50/40">
-                <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-700">Excluded</span>
-                <span className="text-xs text-muted">{excluded.length} · retained archive</span>
+            <Card className="p-0 overflow-hidden border-red-100 border-l-4 border-l-red-300">
+              <div className="px-4 py-3 border-b border-line bg-red-50/40">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-700">Excluded</span>
+                  <span className="text-xs text-muted">{excluded.length} · retained archive</span>
+                </div>
+                <p className="mt-1.5 text-xs text-muted">Retained for the record — reactivate any candidate if a pick falls through.</p>
               </div>
               <ul className="divide-y divide-line">
                 {excluded.map((c) => (

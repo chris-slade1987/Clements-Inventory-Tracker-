@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
@@ -50,100 +51,42 @@ export default async function PeoplePage({
 
       {hr ? <PeopleControls defaultBranch={branch} /> : null}
 
-      {hr ? (
-        <Link href="/management/people/reviews" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">New-hire reviews</span>
-            <span className="block text-xs text-muted">30 & 60-day reviews — assign reviewers, track signatures, final approval</span>
-          </span>
-          {reviewsNeedAction > 0 ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">{reviewsNeedAction} need action</span> : null}
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {canPto ? (
-        <Link href="/management/people/pto" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">PTO overview</span>
-            <span className="block text-xs text-muted">Everyone&rsquo;s balances &amp; allotments, the real-time time-off calendar, pending approvals & decision history — company-wide</span>
-          </span>
-          {ptoPending.length > 0 ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{ptoPending.length} to review</span> : null}
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {canPto ? (
-        <Link href="/management/people/callouts" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 13l2 2 4-4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Call-out overview</span>
-            <span className="block text-xs text-muted">Unplanned absences &mdash; outstanding medical notes, recent call-outs, and attendance patterns for spotting frequent call-outs</span>
-          </span>
-          {calloutNotes > 0 ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{calloutNotes} note{calloutNotes === 1 ? "" : "s"} due</span> : null}
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {canPto ? (
-        <Link href="/management/people/handbook" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 3v5h5M9 13h6M9 17h6" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Handbook acknowledgments</span>
-            <span className="block text-xs text-muted">Who has signed the current Employee Handbook, who&rsquo;s outstanding, and generate a per-employee signing link</span>
-          </span>
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {canAts ? (
-        <Link href="/management/people/jobs" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4M20 14v5a1 1 0 01-1 1h-4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Hiring / Jobs</span>
-            <span className="block text-xs text-muted">Post jobs, move candidates through the pipeline, assign interviews with scorecards, then onboard</span>
-          </span>
-          {openJobs > 0 ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{openJobs} open</span> : null}
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {canPreHire ? (
-        <Link href="/management/people/prehires" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-700">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Pre-hires / onboarding</span>
-            <span className="block text-xs text-muted">Invite candidates, they complete onboarding online, then approve to convert into an employee</span>
-          </span>
-          <span className="text-muted text-sm">→</span>
-        </Link>
-      ) : null}
-
-      {hr ? (
-        <Link href="/management/people/inactive" className="mb-4 flex items-center gap-3 rounded-xl border border-line bg-surface p-4 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-100 text-slate-500">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21v-2a4 4 0 014-4h4M17 17l4 4m0-4l-4 4" /></svg>
-          </span>
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-ink">Former employees</span>
-            <span className="block text-xs text-muted">Terminated / departed staff — separation records & exit interviews, all data retained</span>
-          </span>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{former.length}</span>
-          <span className="text-muted text-sm">→</span>
-        </Link>
+      {(hr || canPto || canAts || canPreHire) ? (
+        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {hr ? (
+            <HrTile href="/management/people/reviews" title="New-hire reviews" hint="30 & 60-day reviews — signatures, approval"
+              icon={<Icon d="M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4" />}
+              badge={reviewsNeedAction > 0 ? { text: `${reviewsNeedAction} need action`, tone: "red" } : undefined} />
+          ) : null}
+          {canPto ? (
+            <HrTile href="/management/people/pto" title="PTO overview" hint="Balances, calendar & approvals — company-wide"
+              icon={<Icon d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4" />}
+              badge={ptoPending.length > 0 ? { text: `${ptoPending.length} to review`, tone: "amber" } : undefined} />
+          ) : null}
+          {canPto ? (
+            <HrTile href="/management/people/callouts" title="Call-out overview" hint="Unplanned absences, notes & patterns"
+              icon={<Icon d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 13l2 2 4-4" />}
+              badge={calloutNotes > 0 ? { text: `${calloutNotes} note${calloutNotes === 1 ? "" : "s"} due`, tone: "amber" } : undefined} />
+          ) : null}
+          {canAts ? (
+            <HrTile href="/management/people/jobs" title="Hiring / Jobs" hint="Post jobs, move candidates, interview to offer"
+              icon={<Icon d="M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h4M16 11l2 2 4-4M20 14v5a1 1 0 01-1 1h-4" />}
+              badge={openJobs > 0 ? { text: `${openJobs} open`, tone: "emerald" } : undefined} />
+          ) : null}
+          {canPreHire ? (
+            <HrTile href="/management/people/prehires" title="Pre-hires / onboarding" hint="Online onboarding, then convert to employee"
+              icon={<Icon d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6" />} />
+          ) : null}
+          {canPto ? (
+            <HrTile href="/management/people/handbook" title="Handbook acknowledgments" hint="Who's signed, who's outstanding, signing links"
+              icon={<Icon d="M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 3v5h5M9 13h6M9 17h6" />} />
+          ) : null}
+          {hr ? (
+            <HrTile href="/management/people/inactive" title="Former employees" hint="Separations & exit interviews — retained" iconTone="slate"
+              icon={<Icon d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21v-2a4 4 0 014-4h4M17 17l4 4m0-4l-4 4" />}
+              badge={{ text: `${former.length}`, tone: "slate" }} />
+          ) : null}
+        </div>
       ) : null}
 
       {locked ? null : (
@@ -204,6 +147,51 @@ function Pill({ href, label, active }: { href: string; label: string; active: bo
   return (
     <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>
       {label}
+    </Link>
+  );
+}
+
+function Icon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+      <path d={d} />
+    </svg>
+  );
+}
+
+const BADGE_TONE: Record<string, string> = {
+  red: "bg-red-100 text-red-700",
+  amber: "bg-amber-100 text-amber-700",
+  emerald: "bg-emerald-100 text-emerald-700",
+  slate: "bg-slate-100 text-slate-600",
+};
+
+function HrTile({
+  href,
+  title,
+  hint,
+  icon,
+  iconTone = "brand",
+  badge,
+}: {
+  href: string;
+  title: string;
+  hint: string;
+  icon: React.ReactNode;
+  iconTone?: "brand" | "slate";
+  badge?: { text: string; tone: "red" | "amber" | "emerald" | "slate" };
+}) {
+  const iconCls = iconTone === "slate" ? "bg-slate-100 text-slate-500" : "bg-brand-100 text-brand-700";
+  return (
+    <Link href={href} className="group flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 transition-colors hover:border-brand-200 hover:bg-black/[0.02]">
+      <div className="flex items-start justify-between gap-2">
+        <span className={`grid h-9 w-9 place-items-center rounded-lg ${iconCls}`}>{icon}</span>
+        {badge ? <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_TONE[badge.tone]}`}>{badge.text}</span> : null}
+      </div>
+      <div>
+        <div className="text-sm font-medium text-ink group-hover:text-brand-700">{title}</div>
+        <div className="text-xs text-muted line-clamp-1">{hint}</div>
+      </div>
     </Link>
   );
 }
