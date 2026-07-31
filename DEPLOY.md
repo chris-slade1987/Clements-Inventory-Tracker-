@@ -42,6 +42,8 @@ the sample data automatically the first time.
    | `AUTH_SECRET` | any long random string — e.g. run `openssl rand -base64 32` |
    | `ANTHROPIC_API_KEY` | *(optional)* your Anthropic key for live invoice reading; omit to use the mock parser |
    | `ANTHROPIC_MODEL` | *(optional)* `claude-opus-4-8` |
+   | `COAST_API_KEY` | *(optional)* Coast fuel-card API key — enables the live fuel sync (`/fleet/fuel` "Sync from Coast" + the 6-hourly `fuel-sync` cron). Omit to keep manual `.xlsx` statement uploads only. |
+   | `COAST_API_BASE` | *(optional)* override the Coast API host — default `https://public.coastpay.com`; set `https://public.demo.coastpay.com` for the sandbox |
 
 5. **Deploy.** The build runs schema creation + sample-data seed automatically.
    When it finishes, open the `*.vercel.app` URL and sign in:

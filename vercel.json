@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/sales-sync",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/fuel-sync",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

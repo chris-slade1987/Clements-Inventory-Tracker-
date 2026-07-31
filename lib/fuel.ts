@@ -362,6 +362,219 @@ export async function ingestCoastStatement(buf: Uint8Array): Promise<IngestResul
   };
 }
 
+// ---- Coast API ingest -----------------------------------------------------
+//
+// The live Coast API gives us richer per-purchase identity than the statement
+// export: each purchase carries the vehicle's VIN, license plate, Coast name
+// (our unit number) and the card last-4 directly. We therefore match on those
+// fields in priority order — VIN (unique) → unit → plate → card — instead of
+// the statement flow's learned plate→unit corpus. Everything still keys to a
+// fleet Vehicle; account-level fees/subscriptions never appear here (the
+// purchases endpoint is card purchases only).
+
+import type { CoastPurchase } from "@/lib/coast";
+import { fetchPurchasesSince, isConfigured as coastConfigured } from "@/lib/coast";
+
+const COAST_CURSOR_KEY = "coast_fuel_last_sync";
+
+/** Vehicle lookup indexes for field-based matching. */
+type VehicleFieldIndex = {
+  byVin: Map<string, string>;
+  byUnit: Map<string, string>;
+  byPlate: Map<string, string>;
+  byCard: Map<string, string>;
+};
+
+function buildVehicleFieldIndex(
+  vehicles: { id: string; vin: string | null; unitNumber: string | null; plate: string | null; driverCard: string | null }[],
+): VehicleFieldIndex {
+  const byVin = new Map<string, string>();
+  const byUnit = new Map<string, string>();
+  const byPlate = new Map<string, string>();
+  const byCard = new Map<string, string>();
+  for (const v of vehicles) {
+    if (v.vin) byVin.set(normKey(v.vin), v.id);
+    if (v.unitNumber) byUnit.set(normKey(v.unitNumber), v.id);
+    if (v.plate) byPlate.set(normKey(v.plate), v.id);
+    // A driver card may be stored as a full number; index its last 4 too.
+    if (v.driverCard) {
+      const c = normKey(v.driverCard);
+      byCard.set(c, v.id);
+      if (c.length >= 4) byCard.set(c.slice(-4), v.id);
+    }
+  }
+  return { byVin, byUnit, byPlate, byCard };
+}
+
+function matchCoastVehicle(p: CoastPurchase, idx: VehicleFieldIndex): { vehicleId: string | null; method: string } {
+  const v = p.vehicleSnapshot;
+  const vin = v?.vin ? normKey(v.vin) : "";
+  const unit = v?.name ? normKey(v.name) : "";
+  const plate = v?.licensePlate ? normKey(v.licensePlate) : "";
+  const last4 = p.card?.last4 ? normKey(p.card.last4) : "";
+  if (vin && idx.byVin.has(vin)) return { vehicleId: idx.byVin.get(vin)!, method: "coast_vin" };
+  if (unit && idx.byUnit.has(unit)) return { vehicleId: idx.byUnit.get(unit)!, method: "coast_unit" };
+  if (plate && idx.byPlate.has(plate)) return { vehicleId: idx.byPlate.get(plate)!, method: "coast_plate" };
+  if (last4 && idx.byCard.has(last4)) return { vehicleId: idx.byCard.get(last4)!, method: "coast_card" };
+  return { vehicleId: null, method: "none" };
+}
+
+const FUEL_GRADE_LABEL: Record<string, string> = {
+  diesel: "Diesel",
+  unleadedRegular: "Unleaded",
+  unleadedPlus: "Unleaded Plus",
+  unleadedSuper: "Unleaded Super",
+  other: "Other",
+};
+
+export type CoastSyncResult = {
+  fetched: number;
+  linked: number;
+  unlinked: number;
+  created: number;
+  updated: number;
+  skipped: number; // declined/canceled recorded with $0 so they drop out of spend
+  latestUpdatedTime: string | null; // advance the cursor to this
+  unlinkedSamples: string[];
+};
+
+/**
+ * Upsert a batch of Coast API purchases into `fuel_transactions`, deduped on the
+ * Coast purchase id (`coast:{id}`) so re-syncing never double-counts and status
+ * changes (pending → completed, or → canceled) update in place. Declined/canceled
+ * purchases are stored with amount 0 so they never inflate spend but stay on the
+ * audit trail. Returns the newest `updatedTime` seen so the caller can advance
+ * the incremental cursor.
+ */
+export async function ingestCoastPurchases(purchases: CoastPurchase[]): Promise<CoastSyncResult> {
+  const vehicles = await prisma.vehicle.findMany({ select: { id: true, vin: true, unitNumber: true, plate: true, driverCard: true } });
+  const idx = buildVehicleFieldIndex(vehicles);
+
+  let linked = 0, unlinked = 0, created = 0, updated = 0, skipped = 0;
+  let latest: string | null = null;
+  const unlinkedSamples: string[] = [];
+
+  for (const p of purchases) {
+    if (p.updatedTime && (!latest || p.updatedTime > latest)) latest = p.updatedTime;
+
+    const { vehicleId, method } = matchCoastVehicle(p, idx);
+    const spendable = p.status === "completed" || p.status === "pending";
+    if (!spendable) skipped++;
+    if (vehicleId) linked++;
+    else {
+      unlinked++;
+      if (unlinkedSamples.length < 8) {
+        const v = p.vehicleSnapshot;
+        unlinkedSamples.push(`${(p.completedTime || p.createdTime || "").slice(0, 10)} · ${v?.name ?? v?.vin ?? "?"} · ${p.merchantSnapshot?.name ?? "?"} · $${(p.amount / 100).toFixed(2)}`);
+      }
+    }
+
+    const fuel = p.purchaseDetails?.fuel ?? null;
+    const isUsGallon = fuel?.unit === "usGallon";
+    const gallons = fuel?.volume != null && isUsGallon ? fuel.volume / 1000 : null;
+    const costPerGallon = fuel?.costPerUnit != null && isUsGallon ? fuel.costPerUnit / 100 : null;
+    const amount = spendable ? p.amount / 100 : 0;
+    const type = spendable ? "Purchase" : p.status === "declined" ? "Declined" : "Canceled";
+    const when = p.completedTime || p.createdTime || p.updatedTime;
+    const driver = [p.personSnapshot?.firstName, p.personSnapshot?.lastName].filter(Boolean).join(" ") || null;
+
+    const data = {
+      vehicleId,
+      date: when ? new Date(when) : new Date(),
+      postedTime: null as string | null,
+      driverName: driver,
+      merchant: p.merchantSnapshot?.name ?? null,
+      description: p.memo ?? p.merchantSnapshot?.category ?? null,
+      type,
+      category: p.merchantSnapshot?.category ?? null,
+      amount,
+      gallons,
+      costPerGallon,
+      fuelGrade: fuel?.type ? (FUEL_GRADE_LABEL[fuel.type] ?? fuel.type) : null,
+      odometer: p.vehicleSnapshot?.odometer ?? null,
+      calculatedMpg: null as number | null,
+      mileageDriven: null as number | null,
+      cardId: p.card?.id ?? null,
+      cardLast4: p.card?.last4 ?? null,
+      plate: p.vehicleSnapshot?.licensePlate ?? null,
+      branch: p.vehicleSnapshot?.location?.name ?? p.merchantSnapshot?.state ?? null,
+      matchMethod: method,
+      source: "coast",
+      status: p.status,
+      statementNumber: null as string | null,
+      periodStart: null as Date | null,
+      periodEnd: null as Date | null,
+    };
+    const dedupeKey = `coast:${p.id}`;
+    const existing = await prisma.fuelTransaction.findUnique({ where: { dedupeKey }, select: { id: true } });
+    await prisma.fuelTransaction.upsert({ where: { dedupeKey }, create: { dedupeKey, ...data }, update: data });
+    if (existing) updated++; else created++;
+  }
+
+  return { fetched: purchases.length, linked, unlinked, created, updated, skipped, latestUpdatedTime: latest, unlinkedSamples };
+}
+
+export type CoastSyncRun = CoastSyncResult & {
+  ok: boolean;
+  configured: boolean;
+  error?: string;
+  since: string | null;
+  ranAt: string;
+};
+
+/**
+ * Run one incremental Coast fuel sync. Reads the stored cursor (the newest
+ * `updatedTime` we've ingested); on the very first run it starts AFTER the
+ * latest uploaded-statement period so the API feed doesn't double-count months
+ * already loaded by hand (falling back to 90 days). Advances the cursor to the
+ * newest purchase seen. Never throws — errors are captured into the result.
+ */
+export async function syncCoastFuel(): Promise<CoastSyncRun> {
+  const ranAt = new Date().toISOString();
+  const base: CoastSyncResult = { fetched: 0, linked: 0, unlinked: 0, created: 0, updated: 0, skipped: 0, latestUpdatedTime: null, unlinkedSamples: [] };
+  if (!coastConfigured()) {
+    return { ...base, ok: false, configured: false, error: "COAST_API_KEY is not set.", since: null, ranAt };
+  }
+
+  // Resolve the incremental cursor.
+  let since: string;
+  const stored = await prisma.setting.findUnique({ where: { key: COAST_CURSOR_KEY } });
+  if (stored?.value) {
+    since = stored.value;
+  } else {
+    const agg = await prisma.fuelTransaction.aggregate({ _max: { periodEnd: true } });
+    const day = 864e5;
+    since = agg._max.periodEnd
+      ? new Date(agg._max.periodEnd.getTime() + day).toISOString() // day after the last statement
+      : new Date(Date.now() - 90 * day).toISOString();
+  }
+
+  try {
+    const purchases = await fetchPurchasesSince(since);
+    const result = await ingestCoastPurchases(purchases);
+    // Advance the cursor to the newest updatedTime seen (minus a small skew
+    // guard); if nothing came back, nudge to now so we don't re-scan an empty
+    // window forever. `updatedStartingAt` is inclusive, so re-including the
+    // boundary purchase next run is harmless (idempotent upsert).
+    const next = result.latestUpdatedTime
+      ? new Date(new Date(result.latestUpdatedTime).getTime() - 5 * 60_000).toISOString()
+      : ranAt;
+    await prisma.setting.upsert({ where: { key: COAST_CURSOR_KEY }, create: { key: COAST_CURSOR_KEY, value: next }, update: { value: next } });
+    return { ...result, ok: true, configured: true, since, ranAt };
+  } catch (e) {
+    return { ...base, ok: false, configured: true, error: e instanceof Error ? e.message : "Coast sync failed", since, ranAt };
+  }
+}
+
+/** Last successful Coast sync cursor (for display on the fuel page). */
+export async function coastFuelStatus() {
+  const [cursor, count] = await Promise.all([
+    prisma.setting.findUnique({ where: { key: COAST_CURSOR_KEY } }),
+    prisma.fuelTransaction.count({ where: { source: "coast" } }),
+  ]);
+  return { configured: coastConfigured(), cursor: cursor?.value ?? null, apiRowCount: count };
+}
+
 export type FleetFuelRow = {
   id: string;
   date: string; // ISO

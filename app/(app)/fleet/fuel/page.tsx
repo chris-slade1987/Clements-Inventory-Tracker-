@@ -2,9 +2,10 @@ import Link from "next/link";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { fleetFuelRows } from "@/lib/fuel";
+import { fleetFuelRows, coastFuelStatus } from "@/lib/fuel";
 import { prisma } from "@/lib/prisma";
 import FuelStatementUpload from "@/components/FuelStatementUpload";
+import FuelCoastSync from "@/components/FuelCoastSync";
 import FleetFuelDashboard from "@/components/FleetFuelDashboard";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,11 @@ export default async function FleetFuelPage({ searchParams }: { searchParams: Pr
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
 
-  const [data, period] = await Promise.all([
+  const isAdmin = user.role === "admin";
+  const [data, period, coast] = await Promise.all([
     fleetFuelRows(branch),
     prisma.fuelTransaction.aggregate({ _min: { periodStart: true }, _max: { periodEnd: true } }),
+    isAdmin ? coastFuelStatus() : Promise.resolve(null),
   ]);
 
   const periodLabel =
@@ -29,6 +32,10 @@ export default async function FleetFuelPage({ searchParams }: { searchParams: Pr
   return (
     <>
       <PageHeader title="Fuel" subtitle={`Coast fuel-card spend linked to vehicles${periodLabel ? ` · imported ${periodLabel}` : ""}`} />
+
+      {isAdmin && coast ? (
+        <FuelCoastSync configured={coast.configured} cursor={coast.cursor} apiRowCount={coast.apiRowCount} />
+      ) : null}
 
       {canUpload ? <FuelStatementUpload /> : null}
 

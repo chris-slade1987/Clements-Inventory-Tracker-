@@ -557,6 +557,14 @@ model FuelTransaction {
   category   String?
   amount     Float    @default(0)
 
+  // Where the row came from: "upload" (a parsed Coast .xlsx statement) or
+  // "coast" (the live Coast API sync). Null on legacy rows loaded before this
+  // field existed (treated as statement uploads).
+  source String? // "upload" | "coast"
+  // Coast purchase status for API-sourced rows: "completed" | "pending" |
+  // "declined" | "canceled". Null for statement uploads.
+  status String?
+
   gallons       Float?
   costPerGallon Float? @map("cost_per_gallon")
   fuelGrade     String? @map("fuel_grade")
