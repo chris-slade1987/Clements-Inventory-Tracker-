@@ -35,8 +35,9 @@ export default async function FleetMapPage({
       `Ignition: ${p.ignition == null ? "—" : p.ignition ? "On" : "Off"}`,
       `Seen ${lastSeen(p.ts)}`,
       ...(p.address ? [p.address] : []),
+      ...(p.linked ? [] : ["Not matched to a fleet vehicle"]),
     ],
-    href: `/fleet/${p.vehicleId}`,
+    href: p.linked ? `/fleet/${p.vehicleId}` : undefined,
   }));
 
   return (
@@ -110,24 +111,31 @@ export default async function FleetMapPage({
             <ul className="divide-y divide-line max-h-[920px] overflow-y-auto">
               {positions.map((p) => {
                 const meta = STATUS_META[p.status];
+                const inner = (
+                  <>
+                    <span className="mt-0.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
+                    <span className="flex-1 min-w-0">
+                      <span className="block truncate text-sm font-medium text-ink">
+                        {p.unitNumber ? `${p.unitNumber} · ` : ""}{p.name}
+                      </span>
+                      <span className="block text-xs text-muted">
+                        {branchLabel(p.branch ?? "")}{p.branch ? " · " : ""}{p.address ?? "—"}
+                      </span>
+                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.chip}`}>{meta.label}</span>
+                        {p.speed != null ? <span className="text-[11px] text-muted tabular-nums">{Math.round(p.speed)} mph</span> : null}
+                        <span className="text-[11px] text-muted">· {lastSeen(p.ts)}</span>
+                      </span>
+                    </span>
+                  </>
+                );
                 return (
                   <li key={p.vehicleId}>
-                    <Link href={`/fleet/${p.vehicleId}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">
-                      <span className="mt-0.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
-                      <span className="flex-1 min-w-0">
-                        <span className="block truncate text-sm font-medium text-ink">
-                          {p.unitNumber ? `${p.unitNumber} · ` : ""}{p.name}
-                        </span>
-                        <span className="block text-xs text-muted">
-                          {branchLabel(p.branch ?? "")}{p.branch ? " · " : ""}{p.address ?? "—"}
-                        </span>
-                        <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.chip}`}>{meta.label}</span>
-                          {p.speed != null ? <span className="text-[11px] text-muted tabular-nums">{Math.round(p.speed)} mph</span> : null}
-                          <span className="text-[11px] text-muted">· {lastSeen(p.ts)}</span>
-                        </span>
-                      </span>
-                    </Link>
+                    {p.linked ? (
+                      <Link href={`/fleet/${p.vehicleId}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[0.02]">{inner}</Link>
+                    ) : (
+                      <div className="flex items-start gap-3 px-4 py-3" title="Live plot not matched to a fleet vehicle">{inner}</div>
+                    )}
                   </li>
                 );
               })}

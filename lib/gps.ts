@@ -316,6 +316,10 @@ function cap(s: string): string {
 
 export type LivePosition = {
   vehicleId: string;
+  /** True when the position is tied to a fleet vehicle; false for a real Verizon
+   *  plot whose vehicle number matched no registry vehicle (still shown, so live
+   *  data is never invisible — it just has no vehicle page to link to). */
+  linked: boolean;
   verizonNumber: string;
   unitNumber: string | null;
   name: string;
@@ -339,7 +343,14 @@ function classify(ts: Date, speed: number | null, ignition: boolean | null): Liv
   return "stopped";
 }
 
-/** The most recent position per linked vehicle (optionally scoped to a branch). */
+/**
+ * The most recent position per vehicle for the live map. Linked vehicles come
+ * first (scoped to a branch when given). On the all-branches view we ALSO surface
+ * the most recent REAL plot per Verizon number that matched no registry vehicle —
+ * so incoming live data is never invisible just because the Reveal ↔ registry
+ * identifiers don't line up. Those unlinked markers carry `linked:false` and have
+ * no vehicle page to open.
+ */
 export async function latestPositions(branch?: string): Promise<LivePosition[]> {
   const positions = await prisma.gpsPosition.findMany({
     where: {
@@ -356,6 +367,7 @@ export async function latestPositions(branch?: string): Promise<LivePosition[]> 
     if (byVehicle.has(p.vehicle.id)) continue; // first = most recent (desc order)
     byVehicle.set(p.vehicle.id, {
       vehicleId: p.vehicle.id,
+      linked: true,
       verizonNumber: p.verizonNumber,
       unitNumber: p.vehicle.unitNumber,
       name: p.vehicle.name,
@@ -372,7 +384,41 @@ export async function latestPositions(branch?: string): Promise<LivePosition[]> 
       status: classify(p.ts, p.speed, p.ignition),
     });
   }
-  return [...byVehicle.values()].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
+  const out = [...byVehicle.values()];
+
+  // Unlinked real plots (no vehicle match). They have no branch, so only on the
+  // all-branches view. This is the safety net for "data is arriving but the map
+  // is empty" when Reveal's vehicle numbers don't match our registry.
+  if (!branch) {
+    const unmatched = await prisma.gpsPosition.findMany({
+      where: { vehicleId: null, sample: false },
+      orderBy: { ts: "desc" },
+    });
+    const byNum = new Map<string, LivePosition>();
+    for (const p of unmatched) {
+      if (byNum.has(p.verizonNumber)) continue;
+      byNum.set(p.verizonNumber, {
+        vehicleId: `vz:${p.verizonNumber}`,
+        linked: false,
+        verizonNumber: p.verizonNumber,
+        unitNumber: null,
+        name: `Verizon #${p.verizonNumber} (unlinked)`,
+        branch: null,
+        ts: p.ts,
+        lat: p.lat,
+        lng: p.lng,
+        speed: p.speed,
+        heading: p.heading,
+        address: p.address,
+        ignition: p.ignition,
+        odometer: p.odometer,
+        sample: p.sample,
+        status: classify(p.ts, p.speed, p.ignition),
+      });
+    }
+    out.push(...byNum.values());
+  }
+  return out.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
 }
 
 export type TrailPoint = { ts: Date; lat: number; lng: number; speed: number | null; ignition: boolean | null; address: string | null; odometer: number | null; sample: boolean };

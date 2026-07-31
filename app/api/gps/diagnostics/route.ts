@@ -73,15 +73,28 @@ export async function GET() {
     }
   }
 
-  // 4) Stored local state + recent webhook events
-  const [positions, linkedVehicles, events] = await Promise.all([
+  // Build marker — if you can SEE these fields (build tag, linked/unlinked
+  // split, the exact date param), the deployment includes the GPS fixes. If the
+  // date sample below still ends in ".NNNZ", you're on the OLD build and the
+  // status/history 500 fix hasn't deployed.
+  out.build = { tag: "gps-fixes-3", statusHistoryStartParamSample: new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19) };
+
+  // 4) Stored local state + recent webhook events. Split positions by whether
+  //    they linked to a fleet vehicle — the difference tells us if the problem
+  //    is "no data landing" vs. "data landing but not matched to our vehicles".
+  const [realPositions, linkedPositions, linkedVehicles, distinctNums, events] = await Promise.all([
     prisma.gpsPosition.count({ where: { sample: false } }),
+    prisma.gpsPosition.count({ where: { sample: false, vehicleId: { not: null } } }),
     prisma.vehicle.count({ where: { verizonNumber: { not: null } } }),
+    prisma.gpsPosition.findMany({ where: { sample: false }, select: { verizonNumber: true }, distinct: ["verizonNumber"], take: 50 }),
     prisma.gpsWebhookEvent.findMany({ orderBy: { receivedAt: "desc" }, take: 10 }),
   ]);
   out.local = {
-    realPositions: positions,
-    linkedVehicles,
+    realPositions,
+    linkedPositions,
+    unlinkedPositions: realPositions - linkedPositions,
+    verizonNumbersSeenInPositions: distinctNums.map((d) => d.verizonNumber),
+    vehiclesLinkedToVerizon: linkedVehicles,
     recentWebhookEvents: events.map((e) => ({
       id: e.id,
       type: e.type,
