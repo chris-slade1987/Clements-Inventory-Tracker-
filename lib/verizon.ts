@@ -166,13 +166,22 @@ export async function getVehicle(vehicleNumber: string): Promise<unknown> {
   return apiGet<unknown>(`/cmd/v1/vehicles/${encodeURIComponent(vehicleNumber)}`);
 }
 
+// Fleetmatics' RAD endpoints expect datetimes as `yyyy-MM-ddTHH:mm:ss` (ISO 8601
+// to SECONDS, no milliseconds, no timezone suffix). `Date.toISOString()` returns
+// `…:56.789Z` — the trailing `.789Z` makes the RAD API reject the request with a
+// 500. Slice to the first 19 chars to send exactly what their sample code uses
+// (UTC components, matching how we already build the window in UTC).
+function radDateTime(d: Date): string {
+  return d.toISOString().slice(0, 19);
+}
+
 export async function statusHistory(
   vehicleNumber: string,
   opts: { start?: Date; end?: Date } = {},
 ): Promise<unknown[]> {
   const qs = new URLSearchParams();
-  if (opts.start) qs.set("startdatetime", opts.start.toISOString());
-  if (opts.end) qs.set("enddatetime", opts.end.toISOString());
+  if (opts.start) qs.set("startdatetime", radDateTime(opts.start));
+  if (opts.end) qs.set("enddatetime", radDateTime(opts.end));
   const suffix = qs.toString() ? `?${qs.toString()}` : "";
   const data = await apiGet<unknown>(
     `/rad/v1/vehicles/${encodeURIComponent(vehicleNumber)}/status/history${suffix}`,
