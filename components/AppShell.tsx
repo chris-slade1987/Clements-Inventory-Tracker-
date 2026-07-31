@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -73,8 +73,6 @@ function navClass(active: boolean) {
   }`;
 }
 
-const GEAR =
-  "M10.3 3.3a1 1 0 011.4 0l1 1a1 1 0 00.9.3l1.4-.2a1 1 0 011.1.7l.4 1.3a1 1 0 00.7.7l1.3.4a1 1 0 01.7 1.1l-.2 1.4a1 1 0 00.3.9l1 1a1 1 0 010 1.4l-1 1a1 1 0 00-.3.9l.2 1.4a1 1 0 01-.7 1.1l-1.3.4a1 1 0 00-.7.7l-.4 1.3a1 1 0 01-1.1.7l-1.4-.2a1 1 0 00-.9.3l-1 1a1 1 0 01-1.4 0l-1-1a1 1 0 00-.9-.3l-1.4.2a1 1 0 01-1.1-.7l-.4-1.3a1 1 0 00-.7-.7l-1.3-.4a1 1 0 01-.7-1.1l.2-1.4a1 1 0 00-.3-.9l-1-1a1 1 0 010-1.4l1-1a1 1 0 00.3-.9l-.2-1.4a1 1 0 01.7-1.1l1.3-.4a1 1 0 00.7-.7l.4-1.3a1 1 0 011.1-.7l1.4.2a1 1 0 00.9-.3z";
 const HELP = "M9.5 9a2.5 2.5 0 013.9-1.9c1.2.8 1.1 2.3 0 3.1-.7.5-1.4.9-1.4 1.8M12 17h.01";
 
 export default function AppShell({
@@ -167,6 +165,12 @@ export default function AppShell({
     }
     items = list;
   }
+  // Catalog administration (the former standalone "Manage" area) now lives in
+  // the Inventory center. Admins and HR grantees get a single entry into it;
+  // /manage redirects each to their allowed landing. Board observers never do.
+  if (mode === "inventory" && !isBoardObserver && (isAdmin || isHrAccess)) {
+    items = [...items, CATALOG_ADMIN_NAV_ITEM];
+  }
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver;
@@ -238,12 +242,9 @@ export default function AppShell({
         <div className="px-3 pb-2 space-y-1">
           <NotificationBell initialCount={unread} layout="row" />
           {isAdmin ? (
-            <Link href="/manage" className={navClass(isActive(pathname, "/manage"))}>
-              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>
-                <path d={GEAR} />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              Manage
+            <Link href={USERS_ACCESS_NAV_ITEM.href} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
+              <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+              {USERS_ACCESS_NAV_ITEM.label}
             </Link>
           ) : null}
           <Link href="/help" className={navClass(isActive(pathname, "/help"))}>
@@ -279,14 +280,6 @@ export default function AppShell({
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
           <div className="ml-auto flex items-center gap-2">
           <NotificationBell initialCount={unread} />
-          {isAdmin ? (
-            <Link href="/manage" aria-label="Manage" className="p-1 text-mint hover:text-white">
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" />
-              </svg>
-            </Link>
-          ) : null}
           <Link
             href="/help"
             aria-label="Help"

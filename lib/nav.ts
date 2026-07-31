@@ -107,6 +107,28 @@ export const MANUAL_NAV_ITEM: NavItem = {
   icon: "M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V4H6.5A2.5 2.5 0 004 6.5v13zM9 8h7M9 12h7",
 };
 
+// Catalog administration — the former standalone "Manage" area, now owned by
+// the Inventory center. One entry into the sub-area (Products, Stock Import,
+// Confirm Queue, Technicians); href is /manage so it redirects each principal
+// to their allowed landing (admin → Products, HR → Confirm Queue) and lights
+// up on every /manage/* route. Admin + HR only — gated in AppShell.
+export const CATALOG_ADMIN_NAV_ITEM: NavItem = {
+  href: "/manage",
+  label: "Catalog Admin",
+  shortLabel: "Catalog",
+  icon: "M20 7L12 3 4 7m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+};
+
+// User & role administration — the former "Managers" tab. Login accounts,
+// roles, active status, and branch assignment. Admin-only; surfaced as a
+// de-emphasized settings link, never a prominent tab.
+export const USERS_ACCESS_NAV_ITEM: NavItem = {
+  href: "/manage/managers",
+  label: "Users & Access",
+  shortLabel: "Access",
+  icon: "M12 2l7 3v6c0 4-3 7.5-7 9-4-1.5-7-5-7-9V5l7-3zM12 11a2 2 0 100-4 2 2 0 000 4zm-3.2 5a3.2 3.2 0 016.4 0",
+};
+
 // Company-wide bulletin — lives in the Resources section of the shell (and in
 // the board-observer's fixed nav, which has no Resources group).
 export const BULLETIN_NAV_ITEM: NavItem = {

@@ -22,8 +22,8 @@ export default async function ManageLayout({
   return (
     <>
       <PageHeader
-        title="Manage"
-        subtitle="Catalog and people. Removing an item deactivates it — history is kept."
+        title="Inventory Administration"
+        subtitle="Product catalog, stock imports, the new-product confirm queue, and technicians — plus user access. Removing an item deactivates it; history is kept."
       />
       <ManageTabs isAdmin={isAdmin} toConfirm={toConfirm} />
       {children}
