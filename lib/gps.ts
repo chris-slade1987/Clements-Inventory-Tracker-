@@ -74,10 +74,28 @@ export type SyncResult = {
   configured: boolean;
   sample: boolean;
   vehicles: number;
+  /** Trucks currently on the live map = distinct vehicles with a stored (webhook
+   *  or REST) position. This is what the map actually renders — NOT the count of
+   *  rows this run's REST pull produced. The webhook push feed is the primary
+   *  source; the RAD REST pull is a best-effort supplement. */
   positions: number;
+  /** Positions upserted by THIS run's REST (RAD status/history) pull. 0 when RAD
+   *  is unavailable — the map still shows `positions` trucks from the push feed. */
+  pulledThisRun: number;
   trips: number;
   error?: string;
 };
+
+/** Distinct real (non-sample) vehicles that have at least one stored position —
+ *  i.e. how many trucks the live map can render right now. */
+async function liveFleetCount(): Promise<number> {
+  const rows = await prisma.gpsPosition.findMany({
+    where: { sample: false },
+    distinct: ["verizonNumber"],
+    select: { verizonNumber: true },
+  });
+  return rows.length;
+}
 
 /**
  * Sync the fleet's GPS data. Live when Verizon is configured; otherwise seeds a
@@ -90,13 +108,17 @@ export async function syncFleet(): Promise<SyncResult> {
 
   try {
     const result = configured ? await syncLive() : await syncSample();
+    // Headline "positions" = trucks on the live map (stored, push-fed). In live
+    // mode the webhook push feed is the source of truth; the RAD pull above is a
+    // supplement that may return 0 when RAD is down — so report the real map count.
+    const livePositions = configured ? await liveFleetCount() : result.positions;
     await prisma.gpsSyncLog.update({
       where: { id: log.id },
       data: {
         finishedAt: new Date(),
         ok: true,
         vehicles: result.vehicles,
-        positions: result.positions,
+        positions: livePositions,
         trips: result.trips,
         note: configured ? "live" : "sample",
       },
@@ -109,14 +131,14 @@ export async function syncFleet(): Promise<SyncResult> {
     } catch {
       // Detection is best-effort; a failure must never break the sync.
     }
-    return { ok: true, configured, sample: !configured, ...result };
+    return { ok: true, configured, sample: !configured, vehicles: result.vehicles, positions: livePositions, pulledThisRun: result.positions, trips: result.trips };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     await prisma.gpsSyncLog.update({
       where: { id: log.id },
       data: { finishedAt: new Date(), ok: false, error: message.slice(0, 500), note: configured ? "live" : "sample" },
     });
-    return { ok: false, configured, sample: !configured, vehicles: 0, positions: 0, trips: 0, error: message };
+    return { ok: false, configured, sample: !configured, vehicles: 0, positions: 0, pulledThisRun: 0, trips: 0, error: message };
   }
 }
 
