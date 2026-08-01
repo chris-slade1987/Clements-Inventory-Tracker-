@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { isConfigured, workwaveStatus, fetchOpportunities, mapOpportunity, WorkwaveError } from "@/lib/workwave";
+import { isConfigured, workwaveStatus, fetchOpportunitiesDetailed, mapOpportunity, WorkwaveError } from "@/lib/workwave";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,23 +14,23 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-3" } };
+  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-4" } };
 
   if (isConfigured()) {
     try {
-      const opps = await fetchOpportunities();
+      const { opps, strategy, attempts } = await fetchOpportunitiesDetailed();
       const first = opps[0] ?? null;
       out.pull = {
         ok: true,
+        strategy, // which request shape WorkWave accepted
+        attempts, // every probe tried, with status + error body
         count: opps.length,
         firstMapped: first,
-        // Re-map index 0 to expose whether required fields (dates, branch, stage,
-        // value) survived the mapping — a quick "is the field mapping right?" check.
         sample: first ? mapOpportunity(first as unknown, 0) : null,
       };
     } catch (e) {
-      // Surface WorkWave's raw status + response body so a 500 shows the actual
-      // reason (missing required param, bad OData, etc.) instead of just "500".
+      // Every strategy was rejected — surface each attempt's status + raw body so
+      // we see exactly what WorkWave complained about per method/param combo.
       const we = e instanceof WorkwaveError ? e : null;
       out.pull = {
         ok: false,

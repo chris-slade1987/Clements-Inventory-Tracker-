@@ -189,58 +189,109 @@ function extractRecords(json: unknown): unknown[] {
   return [];
 }
 
+// A request "strategy" — one way to shape the searchOpportunity call. The bare
+// GET NRE'd (500) and POST 401'd (token likely can't POST), so we probe several
+// variants and use whichever authenticates AND returns data. Most likely fix:
+// GET needs a stable `$orderby` for `$skip` paging (a classic OData/EF NRE).
+type Strategy = { label: string; method: "GET" | "POST"; skip: boolean; orderby?: string };
+
+const ALL_STRATEGIES: Strategy[] = [
+  { label: "GET $orderby=id +$skip", method: "GET", skip: true, orderby: "id" },
+  { label: "GET $orderby=createdTime desc +$skip", method: "GET", skip: true, orderby: "createdTime desc" },
+  { label: "GET $orderby=id (no $skip)", method: "GET", skip: false, orderby: "id" },
+  { label: "GET +$skip", method: "GET", skip: true },
+  { label: "GET bare", method: "GET", skip: false },
+  { label: "POST filter body", method: "POST", skip: true },
+];
+
+export type WorkwaveAttempt = { label: string; method: string; status: number; ok: boolean; body?: string };
+
+function strategyUrl(s: Strategy, top: number, skip: number): string {
+  const p = new URLSearchParams();
+  p.set("$top", String(top));
+  if (s.skip) p.set("$skip", String(skip));
+  if (s.orderby) p.set("$orderby", s.orderby);
+  const qs = p.toString();
+  return `${API_BASE}${OPPORTUNITIES_PATH}${qs ? `?${qs}` : ""}`;
+}
+
+async function runStrategy(s: Strategy, top: number, skip: number): Promise<{ ok: boolean; status: number; body?: string; json?: unknown }> {
+  const init: RequestInit =
+    s.method === "POST"
+      ? { method: "POST", headers: { "content-type": "application/json" }, body: SEARCH_BODY }
+      : { method: "GET" };
+  const res = await fetchWithTimeout(strategyUrl(s, top, skip), init);
+  if (!res.ok) {
+    const body = (await res.text().catch(() => "")).slice(0, 400);
+    return { ok: false, status: res.status, body };
+  }
+  const text = await res.text();
+  try {
+    return { ok: true, status: res.status, json: text ? JSON.parse(text) : null };
+  } catch {
+    return { ok: false, status: 502, body: "non-JSON response" };
+  }
+}
+
+function ingest(json: unknown, out: Opportunity[], seen: Set<string>): { records: number; added: number } {
+  const records = extractRecords(json);
+  let added = 0;
+  for (const r of records) {
+    const opp = mapOpportunity(r, out.length);
+    if (!opp || seen.has(opp.id)) continue; // dedupe by id (guards a $skip-ignoring endpoint)
+    seen.add(opp.id);
+    out.push(opp);
+    added++;
+  }
+  return { records: records.length, added };
+}
+
 /**
- * Fetch every opportunity via OData paging ($top + $skip). The endpoint exposes
- * no page/cursor params, so we walk offsets until a short (or empty) page tells
- * us we've reached the end. MAX_PAGES is a hard backstop.
+ * Fetch every opportunity, discovering the working request shape on the first
+ * page (probe), then paging with it. Returns the winning strategy + every
+ * attempt so diagnostics can show exactly what WorkWave accepted/rejected.
  */
-export async function fetchOpportunities(): Promise<Opportunity[]> {
+export async function fetchOpportunitiesDetailed(): Promise<{ opps: Opportunity[]; strategy: string | null; attempts: WorkwaveAttempt[] }> {
   if (!isConfigured()) throw new WorkwaveError("WorkWave is not configured", 0);
+  // Honor an explicit method override (env lever); otherwise probe all.
+  const explicit = process.env.WORKWAVE_SEARCH_METHOD?.toUpperCase();
+  const strategies = explicit ? ALL_STRATEGIES.filter((s) => s.method === explicit) : ALL_STRATEGIES;
+  const pool = strategies.length ? strategies : ALL_STRATEGIES;
+
   const out: Opportunity[] = [];
   const seen = new Set<string>();
+  const attempts: WorkwaveAttempt[] = [];
+  let winner: Strategy | null = null;
 
   for (let i = 0; i < MAX_PAGES; i++) {
-    const qs = new URLSearchParams();
-    qs.set("$top", String(PAGE_SIZE));
-    qs.set("$skip", String(i * PAGE_SIZE));
+    const skip = i * PAGE_SIZE;
 
-    const init: RequestInit =
-      SEARCH_METHOD === "POST"
-        ? { method: "POST", headers: { "content-type": "application/json" }, body: SEARCH_BODY }
-        : { method: "GET" };
-    const res = await fetchWithTimeout(`${API_BASE}${OPPORTUNITIES_PATH}?${qs.toString()}`, init);
-    if (!res.ok) {
-      // Capture WorkWave's raw error body so a 500 shows the actual reason.
-      const body = (await res.text().catch(() => "")).slice(0, 600);
-      throw new WorkwaveError(`WorkWave ${SEARCH_METHOD} ${OPPORTUNITIES_PATH} failed (${res.status})`, res.status, body);
+    if (!winner) {
+      let json: unknown = null;
+      for (const s of pool) {
+        const r = await runStrategy(s, PAGE_SIZE, skip);
+        attempts.push({ label: s.label, method: s.method, status: r.status, ok: r.ok, body: r.ok ? undefined : r.body });
+        if (r.ok) { winner = s; json = r.json; break; }
+      }
+      if (!winner) {
+        const last = attempts[attempts.length - 1];
+        throw new WorkwaveError("WorkWave searchOpportunity — every request strategy was rejected", last?.status ?? 502, JSON.stringify(attempts).slice(0, 580));
+      }
+      const { records, added } = ingest(json, out, seen);
+      if (records < PAGE_SIZE || added === 0) break;
+    } else {
+      const r = await runStrategy(winner, PAGE_SIZE, skip);
+      if (!r.ok) break; // stop paging on a mid-run error; we already have earlier pages
+      const { records, added } = ingest(r.json, out, seen);
+      if (records < PAGE_SIZE || added === 0) break;
     }
-    const text = await res.text();
-    let json: unknown = null;
-    try {
-      json = text ? JSON.parse(text) : null;
-    } catch {
-      throw new WorkwaveError(`WorkWave GET ${OPPORTUNITIES_PATH} returned non-JSON`, 502);
-    }
-
-    const records = extractRecords(json);
-    let added = 0;
-    for (const r of records) {
-      const opp = mapOpportunity(r, out.length);
-      if (!opp) continue;
-      // Dedupe by id — guards against a POST search that ignores $skip and keeps
-      // returning the same page (which would otherwise loop to MAX_PAGES and
-      // inflate the rollup with duplicates).
-      if (seen.has(opp.id)) continue;
-      seen.add(opp.id);
-      out.push(opp);
-      added++;
-    }
-
-    // Stop when a page is short OR contributed no new records (paging exhausted,
-    // or the endpoint isn't honoring $skip).
-    if (records.length < PAGE_SIZE || added === 0) break;
   }
-  return out;
+  return { opps: out, strategy: winner?.label ?? null, attempts };
+}
+
+/** Convenience wrapper — just the opportunities. */
+export async function fetchOpportunities(): Promise<Opportunity[]> {
+  return (await fetchOpportunitiesDetailed()).opps;
 }
 
 // ---- Sync ------------------------------------------------------------------
