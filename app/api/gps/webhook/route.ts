@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { collectPlots, persistPlots, isVerizonPositionType } from "@/lib/gps-webhook";
 
 export const runtime = "nodejs";
 
@@ -49,105 +50,6 @@ function unauthorized(): NextResponse {
   const res = NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   if (basicConfigured()) res.headers.set("WWW-Authenticate", 'Basic realm="gps-webhook"');
   return res;
-}
-
-// ---- lenient plot parsing --------------------------------------------------
-type Plot = {
-  verizonNumber: string;
-  ts: Date;
-  lat: number;
-  lng: number;
-  speed?: number | null;
-  heading?: number | null;
-  ignition?: boolean | null;
-  address?: string | null;
-  odometer?: number | null;
-};
-
-function num(v: unknown): number | null {
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
-  return null;
-}
-function pick(o: Record<string, unknown>, keys: string[]): unknown {
-  for (const k of keys) if (o[k] != null) return o[k];
-  return undefined;
-}
-function toBool(v: unknown): boolean | null {
-  if (typeof v === "boolean") return v;
-  if (typeof v === "number") return v !== 0;
-  if (typeof v === "string") {
-    const s = v.trim().toLowerCase();
-    if (["true", "on", "1", "yes"].includes(s)) return true;
-    if (["false", "off", "0", "no"].includes(s)) return false;
-  }
-  return null;
-}
-
-function parsePlot(o: Record<string, unknown>): Plot | null {
-  const vnRaw = pick(o, ["vehicleNumber", "VehicleNumber", "vehicleId", "VehicleId", "number", "Number", "vehicle", "Vehicle"]);
-  const vn = typeof vnRaw === "string" ? vnRaw : typeof vnRaw === "number" ? String(vnRaw) : null;
-  const lat = num(pick(o, ["latitude", "Latitude", "lat", "Lat"]));
-  const lng = num(pick(o, ["longitude", "Longitude", "lng", "Lng", "lon", "Lon", "long", "Long"]));
-  if (!vn || lat == null || lng == null) return null;
-  const tsRaw = pick(o, ["timestamp", "Timestamp", "eventTime", "EventTime", "gpsTime", "GpsTime", "utcTimestamp", "updateUtc", "time", "Time", "dateTimeUtc"]);
-  const ts = tsRaw != null ? new Date(String(tsRaw)) : new Date();
-  return {
-    verizonNumber: vn,
-    ts: isNaN(ts.getTime()) ? new Date() : ts,
-    lat,
-    lng,
-    speed: num(pick(o, ["speed", "Speed", "speedMph", "speedKph"])),
-    heading: num(pick(o, ["heading", "Heading", "direction", "Direction", "bearing", "Bearing"])),
-    ignition: toBool(pick(o, ["ignition", "Ignition", "ignitionOn", "IgnitionOn", "engineOn"])),
-    address: (() => { const a = pick(o, ["address", "Address", "location", "Location"]); return typeof a === "string" ? a : null; })(),
-    odometer: num(pick(o, ["odometer", "Odometer", "mileage", "Mileage"])),
-  };
-}
-
-// A payload may be a single plot, an array of plots, or an object wrapping an
-// array under a common key. Collect whatever plots we can find.
-function collectPlots(json: unknown): Plot[] {
-  const out: Plot[] = [];
-  const consider = (v: unknown) => {
-    if (v && typeof v === "object" && !Array.isArray(v)) {
-      const p = parsePlot(v as Record<string, unknown>);
-      if (p) out.push(p);
-    }
-  };
-  if (Array.isArray(json)) json.forEach(consider);
-  else if (json && typeof json === "object") {
-    const o = json as Record<string, unknown>;
-    const arr = pick(o, ["plots", "Plots", "events", "Events", "data", "Data", "items", "Items", "records", "Records"]);
-    if (Array.isArray(arr)) arr.forEach(consider);
-    else consider(json);
-  }
-  return out;
-}
-
-async function persistPlots(plots: Plot[]): Promise<number> {
-  let saved = 0;
-  // Cache vehicle lookups by verizonNumber within this delivery.
-  const cache = new Map<string, string | null>();
-  for (const p of plots) {
-    let vehicleId = cache.get(p.verizonNumber);
-    if (vehicleId === undefined) {
-      const v = await prisma.vehicle.findFirst({ where: { verizonNumber: p.verizonNumber }, select: { id: true } });
-      vehicleId = v?.id ?? null;
-      cache.set(p.verizonNumber, vehicleId);
-    }
-    try {
-      await prisma.gpsPosition.upsert({
-        where: { verizonNumber_ts: { verizonNumber: p.verizonNumber, ts: p.ts } },
-        update: { lat: p.lat, lng: p.lng, speed: p.speed ?? undefined, heading: p.heading ?? undefined, ignition: p.ignition ?? undefined, address: p.address ?? undefined, odometer: p.odometer ?? undefined, vehicleId: vehicleId ?? undefined, sample: false },
-        create: { vehicleId: vehicleId ?? null, verizonNumber: p.verizonNumber, ts: p.ts, lat: p.lat, lng: p.lng, speed: p.speed ?? null, heading: p.heading ?? null, ignition: p.ignition ?? null, address: p.address ?? null, odometer: p.odometer ?? null, sample: false },
-      });
-      saved++;
-    } catch {
-      // Never let a single bad plot fail the delivery.
-    }
-  }
-  return saved;
 }
 
 // ---- confirmation / handshake detection -----------------------------------
@@ -269,14 +171,24 @@ async function store(req: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: true, confirmed: true });
   }
 
-  // (3) Real GPS plot deliveries — require Basic auth; log the 401 first.
-  if (!authOk(req)) {
-    console.log(`[gps-webhook] 401 unauthorized (auth header ${hasAuthHeader ? "present but mismatched" : "missing"})`);
+  // (3) Real GPS plot deliveries. Normally require Basic auth — BUT Verizon
+  // Connect's Integration Platform pushes CloudEvents (e.g.
+  // com.verizonconnect.integrations.vehicle.position.updated) that may NOT carry
+  // our Basic credentials. Rejecting those would drop live fleet data on the
+  // floor. So: recognized Verizon position events are accepted even without auth
+  // (they're already stored + logged above); everything else still needs auth.
+  const authed = authOk(req);
+  const recognized = isVerizonPositionType(type);
+  if (!authed && !recognized) {
+    console.log(`[gps-webhook] 401 unauthorized (auth header ${hasAuthHeader ? "present but mismatched" : "missing"}, type=${type ?? "?"})`);
     return unauthorized();
+  }
+  if (!authed && recognized) {
+    console.log(`[gps-webhook] accepting recognized Verizon event without Basic auth (type=${type ?? "?"})`);
   }
 
   const plots = json ? collectPlots(json) : [];
-  const saved = plots.length ? await persistPlots(plots) : 0;
+  const saved = plots.length ? await persistPlots(prisma, plots) : 0;
   if (event) {
     await prisma.gpsWebhookEvent.update({ where: { id: event.id }, data: { processed: saved > 0 } }).catch(() => {});
   }

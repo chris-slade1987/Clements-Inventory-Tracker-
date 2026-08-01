@@ -9,6 +9,7 @@ import {
   normalizeVehicle,
   normalizeStatus,
 } from "@/lib/verizon";
+import { collectPlots } from "@/lib/gps-webhook";
 
 export const runtime = "nodejs";
 
@@ -77,7 +78,7 @@ export async function GET() {
   // split, the exact date param), the deployment includes the GPS fixes. If the
   // date sample below still ends in ".NNNZ", you're on the OLD build and the
   // status/history 500 fix hasn't deployed.
-  out.build = { tag: "gps-fixes-4", statusHistoryStartParamSample: new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19) };
+  out.build = { tag: "gps-fixes-5", statusHistoryStartParamSample: new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19) };
 
   // 4) Stored local state + recent webhook events. Split positions by whether
   //    they linked to a fleet vehicle — the difference tells us if the problem
@@ -95,9 +96,32 @@ export async function GET() {
   // their type breakdown. If the ONLY events are SubscriptionConfirmation (or the
   // total is 0), Verizon has never actually pushed a position plot — the problem
   // is the Reveal subscription config, not our receiver.
+  // Grab the most recent position-type event's RAW payload + a parsed preview so
+  // we can confirm the exact CloudEvents field names and that the parser now
+  // resolves lat/lng from them.
+  const lastPositionEvent = await prisma.gpsWebhookEvent.findFirst({
+    where: { NOT: { type: { contains: "SubscriptionConfirmation" } } },
+    orderBy: { receivedAt: "desc" },
+    select: { type: true, receivedAt: true, payload: true },
+  });
+  let lastPayloadSample: unknown = null;
+  let lastParsedPreview: unknown = null;
+  if (lastPositionEvent?.payload) {
+    try {
+      lastPayloadSample = JSON.parse(lastPositionEvent.payload);
+      const plots = collectPlots(lastPayloadSample);
+      lastParsedPreview = { plotsFound: plots.length, first: plots[0] ?? null };
+    } catch {
+      lastPayloadSample = lastPositionEvent.payload.slice(0, 2000);
+    }
+  }
   out.webhook = {
     totalEvents: webhookTotal,
     byType: Object.fromEntries(webhookByType.map((r) => [r.type ?? "(null)", r._count._all])),
+    lastEventType: lastPositionEvent?.type ?? null,
+    lastEventAt: lastPositionEvent?.receivedAt ?? null,
+    lastPayloadSample,
+    lastParsedPreview,
   };
   out.local = {
     realPositions,
