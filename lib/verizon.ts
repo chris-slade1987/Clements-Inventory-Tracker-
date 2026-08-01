@@ -25,6 +25,41 @@ const BASE_HOST = `https://fim.api.${REGION}.fleetmatics.com`;
 const TOKEN_TTL_MS = 20 * 60 * 1000;
 const TOKEN_REFRESH_SKEW_MS = 2 * 60 * 1000;
 
+// Hard ceiling on any single Verizon HTTP call. Reveal's RAD endpoints can hang
+// (or sit in a slow 500) for minutes, which would otherwise block whatever route
+// is calling us — the diagnostics endpoint and the cron sync especially. Abort so
+// a stalled upstream surfaces as a fast, typed error instead of a request hang.
+const FETCH_TIMEOUT_MS = 15 * 1000;
+
+/**
+ * fetch() with a hard timeout. Aborts after `timeoutMs` and rethrows as a typed
+ * VerizonError(504) so callers can treat an upstream stall like any other
+ * non-2xx — never leaving a socket open long enough to hang the whole request.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  path: string,
+  timeoutMs = FETCH_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new VerizonError(`Verizon ${path} timed out after ${timeoutMs}ms`, 504, path);
+    }
+    throw new VerizonError(
+      `Verizon ${path} request failed: ${err instanceof Error ? err.message : "network error"}`,
+      502,
+      path,
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Live mode is only possible when all three credentials are present. */
 export function isConfigured(): boolean {
   return Boolean(APP_ID && USERNAME && PASSWORD);
@@ -61,14 +96,18 @@ export async function getToken(force = false): Promise<string> {
   }
 
   const basic = Buffer.from(`${USERNAME}:${PASSWORD}`).toString("base64");
-  const res = await fetch(`${BASE_HOST}/token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      Accept: "application/json",
+  const res = await fetchWithTimeout(
+    `${BASE_HOST}/token`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${basic}`,
+        Accept: "application/json",
+      },
+      cache: "no-store",
     },
-    cache: "no-store",
-  });
+    "/token",
+  );
 
   if (!res.ok) {
     // Never include credentials in the error.
@@ -121,15 +160,19 @@ export async function apiGet<T = unknown>(path: string): Promise<T> {
   }
 
   const doFetch = async (token: string) =>
-    fetch(`${BASE_HOST}${path}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: atmosphereHeader(token),
+    fetchWithTimeout(
+      `${BASE_HOST}${path}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: atmosphereHeader(token),
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
+      path,
+    );
 
   let token = await getToken();
   let res = await doFetch(token);
