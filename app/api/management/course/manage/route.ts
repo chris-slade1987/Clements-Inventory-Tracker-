@@ -52,8 +52,8 @@ export async function POST(req: Request) {
           kind: "training_assigned",
           relatedType: "training_assignment",
           relatedId: a.id,
-          text: `Hi ${emp.name.split(" ")[0]},\n\nYou've been assigned a training course: "${course.title}".${dueDate ? ` It's due ${dueDate.toLocaleDateString()}.` : ""}\n\nComplete it here: ${base()}/me/training/${a.id}\n\nYou'll get a daily reminder until it's done.\n\n— Clements Command & Control`,
-          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>You've been assigned a training course: <strong>${course.title}</strong>.${dueDate ? ` It's due <strong>${dueDate.toLocaleDateString()}</strong>.` : ""}</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>You'll get a daily reminder until it's done.</p><p>— Clements Command &amp; Control</p>`,
+          text: `Hi ${emp.name.split(" ")[0]},\n\nYou've been assigned a training course: "${course.title}".${dueDate ? ` It's due ${dueDate.toLocaleDateString()}.` : ""}\n\nComplete it here: ${base()}/me/training/${a.id}\n\nYou'll get a daily reminder until it's done.\n\n— Canopy OS`,
+          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>You've been assigned a training course: <strong>${course.title}</strong>.${dueDate ? ` It's due <strong>${dueDate.toLocaleDateString()}</strong>.` : ""}</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>You'll get a daily reminder until it's done.</p><p>— Canopy OS</p>`,
         });
         if (res.status === "sent") emailed++;
       }

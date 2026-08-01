@@ -69,8 +69,8 @@ export async function POST(req: Request) {
         kind: "interview_completed",
         relatedType: "interview",
         relatedId: interview.id,
-        text: `${interview.interviewerName ?? user.name} completed the interview scorecard for ${interview.candidate.name}${interview.candidate.job?.title ? ` (${interview.candidate.job.title})` : ""}.\n\nRecommendation: ${rec}${overallRating ? ` · Overall ${overallRating}/5` : ""}\n\nReview and decide next steps:\n${link}\n\n— Clements Command & Control`,
-        html: `<p><strong>${interview.interviewerName ?? user.name}</strong> completed the interview scorecard for <strong>${interview.candidate.name}</strong>${interview.candidate.job?.title ? ` (${interview.candidate.job.title})` : ""}.</p><p><strong>Recommendation:</strong> ${rec}${overallRating ? ` · Overall ${overallRating}/5` : ""}</p><p><a href="${link}">Review &amp; decide next steps →</a></p><p>— Clements Command &amp; Control</p>`,
+        text: `${interview.interviewerName ?? user.name} completed the interview scorecard for ${interview.candidate.name}${interview.candidate.job?.title ? ` (${interview.candidate.job.title})` : ""}.\n\nRecommendation: ${rec}${overallRating ? ` · Overall ${overallRating}/5` : ""}\n\nReview and decide next steps:\n${link}\n\n— Canopy OS`,
+        html: `<p><strong>${interview.interviewerName ?? user.name}</strong> completed the interview scorecard for <strong>${interview.candidate.name}</strong>${interview.candidate.job?.title ? ` (${interview.candidate.job.title})` : ""}.</p><p><strong>Recommendation:</strong> ${rec}${overallRating ? ` · Overall ${overallRating}/5` : ""}</p><p><a href="${link}">Review &amp; decide next steps →</a></p><p>— Canopy OS</p>`,
       });
 
       return NextResponse.json({ ok: true });

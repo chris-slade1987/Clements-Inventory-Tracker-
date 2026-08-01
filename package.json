@@ -11,6 +11,7 @@
     "db:push": "prisma db push",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:demo": "tsx prisma/seed-demo.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -23,6 +24,7 @@
     "@zxing/library": "^0.23.0",
     "fflate": "^0.8.3",
     "leaflet": "^1.9.4",
+    "mermaid": "^11.16.0",
     "next": "16.2.10",
     "prisma": "^6.19.3",
     "react": "19.2.4",

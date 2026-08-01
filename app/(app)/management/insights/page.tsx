@@ -5,7 +5,7 @@ import { hasInsightsKey } from "@/lib/insights";
 import InsightsChat from "./InsightsChat";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Insights — Clements Command & Control" };
+export const metadata = { title: "Insights — Canopy OS" };
 
 export default async function InsightsPage() {
   const user = await getSessionUser();

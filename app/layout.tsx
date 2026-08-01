@@ -3,15 +3,15 @@ import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "Clements Command & Control",
+  title: "Canopy OS",
   description:
     "Inventory and management reporting portal for Clements Pest Control.",
-  applicationName: "Clements Command & Control",
+  applicationName: "Canopy OS",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Clements C&C",
+    title: "CanopyOS",
   },
   icons: {
     icon: "/icons/icon.svg",

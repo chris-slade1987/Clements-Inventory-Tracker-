@@ -5,7 +5,7 @@ import { listPosts, canPostBulletin, myAckedPostIds, ACTIVE_DAYS } from "@/lib/b
 import BulletinTile from "@/components/BulletinTile";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Past Bulletin — Clements Command & Control" };
+export const metadata = { title: "Past Bulletin — Canopy OS" };
 
 export default async function PastBulletinPage() {
   const user = await requireUser();

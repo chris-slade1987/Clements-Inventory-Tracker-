@@ -9,7 +9,7 @@ import {
 import InsuranceClient, { type Policy } from "./InsuranceClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Insurance — Clements Command & Control" };
+export const metadata = { title: "Insurance — Canopy OS" };
 
 const MONTH_LABEL = (ym: string) => {
   const [y, m] = ym.split("-").map(Number);

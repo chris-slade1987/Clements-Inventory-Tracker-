@@ -73,8 +73,8 @@ export async function POST(req: Request) {
         kind: "review_assigned",
         relatedType: "newhire_review",
         relatedId: review.id,
-        text: `You've been asked to conduct ${review.employee.name}'s ${label}${b}, due ${review.dueDate.toLocaleDateString()}.\n\nOpen the review, complete it with the employee, and both of you sign:\n${link(review.id)}\n\n— Clements Command & Control`,
-        html: `<p>You've been asked to conduct <strong>${review.employee.name}</strong>'s <strong>${label}</strong>${b}, due ${review.dueDate.toLocaleDateString()}.</p><p><a href="${link(review.id)}">Open the review →</a></p><p>Complete it with the employee, then both of you sign. It then returns to HR for final approval.</p><p>— Clements Command &amp; Control</p>`,
+        text: `You've been asked to conduct ${review.employee.name}'s ${label}${b}, due ${review.dueDate.toLocaleDateString()}.\n\nOpen the review, complete it with the employee, and both of you sign:\n${link(review.id)}\n\n— Canopy OS`,
+        html: `<p>You've been asked to conduct <strong>${review.employee.name}</strong>'s <strong>${label}</strong>${b}, due ${review.dueDate.toLocaleDateString()}.</p><p><a href="${link(review.id)}">Open the review →</a></p><p>Complete it with the employee, then both of you sign. It then returns to HR for final approval.</p><p>— Canopy OS</p>`,
       });
       // Notify the employee.
       if (review.employee.email) {
@@ -84,8 +84,8 @@ export async function POST(req: Request) {
           kind: "review_employee_notice",
           relatedType: "newhire_review",
           relatedId: review.id,
-          text: `Hi ${review.employee.name.split(" ")[0]},\n\nYour ${label} with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.\n\n— Clements Command & Control`,
-          html: `<p>Hi ${review.employee.name.split(" ")[0]},</p><p>Your <strong>${label}</strong> with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.</p><p>— Clements Command &amp; Control</p>`,
+          text: `Hi ${review.employee.name.split(" ")[0]},\n\nYour ${label} with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.\n\n— Canopy OS`,
+          html: `<p>Hi ${review.employee.name.split(" ")[0]},</p><p>Your <strong>${label}</strong> with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.</p><p>— Canopy OS</p>`,
         });
       }
       return NextResponse.json({ ok: true, status: updated.status });
@@ -135,8 +135,8 @@ export async function POST(req: Request) {
             kind: "review_completed",
             relatedType: "newhire_review",
             relatedId: review.id,
-            text: `${review.employee.name}'s ${label} has been approved by HR and filed to the personnel record. Thank you.\n\n— Clements Command & Control`,
-            html: `<p><strong>${review.employee.name}</strong>'s ${label} has been approved by HR and filed to the personnel record. Thank you.</p><p>— Clements Command &amp; Control</p>`,
+            text: `${review.employee.name}'s ${label} has been approved by HR and filed to the personnel record. Thank you.\n\n— Canopy OS`,
+            html: `<p><strong>${review.employee.name}</strong>'s ${label} has been approved by HR and filed to the personnel record. Thank you.</p><p>— Canopy OS</p>`,
           });
         return NextResponse.json({ ok: true, status: "completed" });
       } else {
@@ -153,8 +153,8 @@ export async function POST(req: Request) {
           kind: "review_pending_approval",
           relatedType: "newhire_review",
           relatedId: review.id,
-          text: `${review.employee.name}${b} and their reviewer have both signed the ${label}. Please review and give final approval:\n${link(review.id)}\n\n— Clements Command & Control`,
-          html: `<p><strong>${review.employee.name}</strong>${b} and their reviewer have both signed the <strong>${label}</strong>.</p><p><a href="${link(review.id)}">Review &amp; give final approval →</a></p><p>— Clements Command &amp; Control</p>`,
+          text: `${review.employee.name}${b} and their reviewer have both signed the ${label}. Please review and give final approval:\n${link(review.id)}\n\n— Canopy OS`,
+          html: `<p><strong>${review.employee.name}</strong>${b} and their reviewer have both signed the <strong>${label}</strong>.</p><p><a href="${link(review.id)}">Review &amp; give final approval →</a></p><p>— Canopy OS</p>`,
         });
       }
       return NextResponse.json({ ok: true });

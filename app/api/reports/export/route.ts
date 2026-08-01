@@ -29,7 +29,7 @@ export async function GET(req: Request) {
   ]);
 
   const lines: string[] = [];
-  lines.push("Clements Command & Control — Report");
+  lines.push("Canopy OS — Report");
   lines.push(
     row([
       "Range",

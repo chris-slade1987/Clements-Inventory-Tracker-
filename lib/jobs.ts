@@ -27,8 +27,8 @@ export async function remindTraining() {
       kind: "training_reminder",
       relatedType: "training_assignment",
       relatedId: a.id,
-      text: `Hi ${first},\n\nReminder to complete your assigned training "${a.course.title}"${due}.\n\nComplete it here: ${base()}/me/training/${a.id}\n\n— Clements Command & Control`,
-      html: `<p>Hi ${first},</p><p>Reminder to complete your assigned training <strong>${a.course.title}</strong>${due}.</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>— Clements Command &amp; Control</p>`,
+      text: `Hi ${first},\n\nReminder to complete your assigned training "${a.course.title}"${due}.\n\nComplete it here: ${base()}/me/training/${a.id}\n\n— Canopy OS`,
+      html: `<p>Hi ${first},</p><p>Reminder to complete your assigned training <strong>${a.course.title}</strong>${due}.</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>— Canopy OS</p>`,
     });
     await prisma.trainingAssignment.update({ where: { id: a.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;
@@ -106,8 +106,8 @@ export async function remindReviewSignatures() {
           kind: "review_reminder",
           relatedType: "newhire_review",
           relatedId: r.id,
-          text: `Reminder to complete and sign ${r.employee.name}'s ${label}.\n\nOpen it: ${base()}/reviews/${r.id}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Clements Command & Control`,
-          html: `<p>Reminder to complete and sign <strong>${r.employee.name}</strong>'s ${label}.</p><p><a href="${base()}/reviews/${r.id}">Open the review →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Clements Command &amp; Control</p>`,
+          text: `Reminder to complete and sign ${r.employee.name}'s ${label}.\n\nOpen it: ${base()}/reviews/${r.id}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
+          html: `<p>Reminder to complete and sign <strong>${r.employee.name}</strong>'s ${label}.</p><p><a href="${base()}/reviews/${r.id}">Open the review →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
         });
         if (res.status === "sent") sent++;
       }
@@ -120,8 +120,8 @@ export async function remindReviewSignatures() {
         kind: "review_reminder",
         relatedType: "newhire_review",
         relatedId: r.id,
-        text: `Hi ${r.employee.name.split(" ")[0]},\n\nReminder to review and e-sign your ${label}.\n\nSign here: ${base()}/review-sign/${r.employeeToken}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Clements Command & Control`,
-        html: `<p>Hi ${r.employee.name.split(" ")[0]},</p><p>Reminder to review and e-sign your ${label}.</p><p><a href="${base()}/review-sign/${r.employeeToken}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Clements Command &amp; Control</p>`,
+        text: `Hi ${r.employee.name.split(" ")[0]},\n\nReminder to review and e-sign your ${label}.\n\nSign here: ${base()}/review-sign/${r.employeeToken}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
+        html: `<p>Hi ${r.employee.name.split(" ")[0]},</p><p>Reminder to review and e-sign your ${label}.</p><p><a href="${base()}/review-sign/${r.employeeToken}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
       });
       if (res.status === "sent") sent++;
     }
@@ -166,8 +166,8 @@ export async function remindVehicleDocs() {
       kind: "doc_renewal",
       relatedType: "vehicle_document",
       relatedId: d.id,
-      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— Clements Command & Control`,
-      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— Clements Command &amp; Control</p>`,
+      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— Canopy OS`,
+      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— Canopy OS</p>`,
     });
     await prisma.vehicleDocument.update({ where: { id: d.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;
@@ -212,8 +212,8 @@ export async function remindManual() {
         kind: "manual_reminder",
         relatedType: "reminder",
         relatedId: r.id,
-        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— Clements Command & Control`,
-        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— Clements Command &amp; Control</p>`,
+        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— Canopy OS`,
+        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— Canopy OS</p>`,
       });
       if (res.status === "sent") sent++;
     }
@@ -242,8 +242,8 @@ export async function remindSignatures() {
       kind: "signature_reminder",
       relatedType: "personnel_record",
       relatedId: r.recordId,
-      text: `Reminder to review and e-sign the ${label.toLowerCase()} as "${roleDef?.label ?? r.role}".\n\nSign here: ${link}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Clements Command & Control`,
-      html: `<p>Reminder to review and e-sign the <strong>${label.toLowerCase()}</strong> as <strong>${roleDef?.label ?? r.role}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Clements Command &amp; Control</p>`,
+      text: `Reminder to review and e-sign the ${label.toLowerCase()} as "${roleDef?.label ?? r.role}".\n\nSign here: ${link}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
+      html: `<p>Reminder to review and e-sign the <strong>${label.toLowerCase()}</strong> as <strong>${roleDef?.label ?? r.role}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
     });
     await prisma.signatureRequest.update({ where: { id: r.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;

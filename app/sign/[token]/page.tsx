@@ -5,7 +5,7 @@ import { parseJson } from "@/lib/inspection";
 import SignClient from "./SignClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review & sign — Clements Command & Control" };
+export const metadata = { title: "Review & sign — Canopy OS" };
 
 const MONTH = (d: Date) => d.toLocaleDateString();
 
@@ -22,7 +22,7 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
         <div className="flex flex-col items-center mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/clements-mark.svg" alt="Clements" className="h-12 w-12" />
-          <h1 className="mt-3 text-xl font-light tracking-tight text-white">Clements Command &amp; Control</h1>
+          <h1 className="mt-3 text-xl font-light tracking-tight text-white">Canopy OS</h1>
         </div>
 
         {!request ? (

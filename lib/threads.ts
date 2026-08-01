@@ -228,7 +228,7 @@ export async function notifyThread(opts: {
   const ctx = opts.contextLabel ? ` about ${escapeHtml(opts.contextLabel)}` : "";
   const html = `
     <div style="font-family:system-ui,Arial,sans-serif;max-width:520px">
-      <p style="margin:0 0 4px"><strong>${escapeHtml(opts.authorName)}</strong> ${verb}${ctx} on Clements Command &amp; Control.</p>
+      <p style="margin:0 0 4px"><strong>${escapeHtml(opts.authorName)}</strong> ${verb}${ctx} on Canopy OS.</p>
       <p style="margin:12px 0 4px;font-size:15px;font-weight:600">${escapeHtml(opts.subject)}</p>
       <blockquote style="margin:0;padding:10px 14px;border-left:3px solid #146A3A;background:#f4f7f2;color:#334">${escapeHtml(opts.body)}</blockquote>
       ${base() ? `<p style="margin:16px 0"><a href="${link}" style="background:#146A3A;color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600">Open the discussion</a></p>` : ""}

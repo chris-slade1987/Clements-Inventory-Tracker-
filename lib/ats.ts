@@ -512,7 +512,7 @@ async function notifyInterviewer(
     "",
     "You must complete the interview scorecard (rate every competency, pick a recommendation, and write a summary) to finish.",
     "",
-    "— Clements Command & Control",
+    "— Canopy OS",
   ].filter((l) => l !== "");
 
   const htmlParts = [
@@ -522,7 +522,7 @@ async function notifyInterviewer(
     `<p><a href="${openLink}">Open your scorecard →</a>${gcal ? ` &nbsp;·&nbsp; <a href="${gcal}">Add to Google Calendar</a>` : ""}</p>`,
     `<p>You must complete the scorecard (rate every competency, pick a recommendation, and write a summary) to finish.</p>`,
     ics ? `<pre style="font-size:11px;color:#667">${ics.replace(/</g, "&lt;")}</pre>` : "",
-    `<p>— Clements Command &amp; Control</p>`,
+    `<p>— Canopy OS</p>`,
   ].filter(Boolean);
 
   await sendEmail({
@@ -839,13 +839,13 @@ async function notifyInterviewerOutcome(
     "",
     "Thank you for helping us make this decision.",
     "",
-    "— Clements Command & Control",
+    "— Canopy OS",
   ].join("\n");
   const html = [
     `<p>Hi ${first},</p>`,
     `<p>Thanks for interviewing for <strong>${jobTitle}</strong>. ${hiredName ? `We've completed the hiring process and <strong>${hiredName}</strong> was selected.` : `The <strong>${jobTitle}</strong> search has been closed without a hire.`} Your access to this job's hiring workspace has now closed.</p>`,
     `<p>Thank you for helping us make this decision.</p>`,
-    `<p>— Clements Command &amp; Control</p>`,
+    `<p>— Canopy OS</p>`,
   ].join("");
   await sendEmail({
     to: interviewerEmail,
@@ -1237,8 +1237,8 @@ export async function assignInterviewSupervisor(
         kind: "interview_reassigned",
         relatedType: "job",
         relatedId: job.id,
-        text: `Hi ${first},\n\nYou've been unassigned from interviewing for ${job.title}. ${supervisor.name} is now handling these interviews — no further action is needed on your part. Thank you!\n\n— Clements Command & Control`,
-        html: `<p>Hi ${first},</p><p>You've been unassigned from interviewing for <strong>${job.title}</strong>. <strong>${supervisor.name}</strong> is now handling these interviews — no further action is needed on your part. Thank you!</p><p>— Clements Command &amp; Control</p>`,
+        text: `Hi ${first},\n\nYou've been unassigned from interviewing for ${job.title}. ${supervisor.name} is now handling these interviews — no further action is needed on your part. Thank you!\n\n— Canopy OS`,
+        html: `<p>Hi ${first},</p><p>You've been unassigned from interviewing for <strong>${job.title}</strong>. <strong>${supervisor.name}</strong> is now handling these interviews — no further action is needed on your part. Thank you!</p><p>— Canopy OS</p>`,
       }).catch(() => {});
     }
   }

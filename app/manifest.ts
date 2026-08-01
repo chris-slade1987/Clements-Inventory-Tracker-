@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Clements Command & Control",
-    short_name: "Clements C&C",
+    name: "Canopy OS",
+    short_name: "CanopyOS",
     description:
       "Inventory and management reporting portal for Clements Pest Control.",
     start_url: "/dashboard",

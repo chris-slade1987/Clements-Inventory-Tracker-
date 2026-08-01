@@ -63,8 +63,8 @@ export async function POST(req: Request) {
         kind: "training_completed",
         relatedType: "training_assignment",
         relatedId: id,
-        text: `Hi ${emp.name.split(" ")[0]},\n\nYou completed "${assignment.course.title}" with a score of ${pct}% (${correct}/${total}).\n\nAnswer key:\n\n${answerLines}\n\nThis is filed to your personnel record.\n\n— Clements Command & Control`,
-        html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>You completed <strong>${assignment.course.title}</strong> with a score of <strong>${pct}%</strong> (${correct}/${total}).</p><p><strong>Answer key:</strong></p><ol>${answerHtml}</ol><p>This is filed to your personnel record.</p><p>— Clements Command &amp; Control</p>`,
+        text: `Hi ${emp.name.split(" ")[0]},\n\nYou completed "${assignment.course.title}" with a score of ${pct}% (${correct}/${total}).\n\nAnswer key:\n\n${answerLines}\n\nThis is filed to your personnel record.\n\n— Canopy OS`,
+        html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>You completed <strong>${assignment.course.title}</strong> with a score of <strong>${pct}%</strong> (${correct}/${total}).</p><p><strong>Answer key:</strong></p><ol>${answerHtml}</ol><p>This is filed to your personnel record.</p><p>— Canopy OS</p>`,
       });
       emailStatus = res.status;
     }

@@ -147,8 +147,8 @@ export async function POST(req: Request) {
         kind: "audit_report",
         relatedType: "branch_audit",
         relatedId: audit.id,
-        text: `The Q${quarter} ${year} field-operations audit for ${label} has been completed by ${data.auditorName}.\n\nBranch score: ${score}/${maxScore} (${scorePct}%).\n${fuList ? `\nAction items before next visit:\n${fuList}\n` : ""}\nThese action items now appear on your manager dashboard with their deadlines.\n\n— Clements Command & Control`,
-        html: `<p>The <strong>Q${quarter} ${year}</strong> field-operations audit for <strong>${label}</strong> was completed by ${data.auditorName}.</p><p style="font-size:18px"><strong>Branch score: ${score}/${maxScore} (${scorePct}%)</strong></p>${fuList ? `<p><strong>Action items before next visit:</strong></p><ul>${savedFollowUps.map((f) => `<li>${f.description}${f.dueDate ? ` <em>(due ${f.dueDate.toLocaleDateString()})</em>` : ""}</li>`).join("")}</ul>` : ""}<p>These action items now appear on your manager dashboard with their deadlines.</p><p>— Clements Command &amp; Control</p>`,
+        text: `The Q${quarter} ${year} field-operations audit for ${label} has been completed by ${data.auditorName}.\n\nBranch score: ${score}/${maxScore} (${scorePct}%).\n${fuList ? `\nAction items before next visit:\n${fuList}\n` : ""}\nThese action items now appear on your manager dashboard with their deadlines.\n\n— Canopy OS`,
+        html: `<p>The <strong>Q${quarter} ${year}</strong> field-operations audit for <strong>${label}</strong> was completed by ${data.auditorName}.</p><p style="font-size:18px"><strong>Branch score: ${score}/${maxScore} (${scorePct}%)</strong></p>${fuList ? `<p><strong>Action items before next visit:</strong></p><ul>${savedFollowUps.map((f) => `<li>${f.description}${f.dueDate ? ` <em>(due ${f.dueDate.toLocaleDateString()})</em>` : ""}</li>`).join("")}</ul>` : ""}<p>These action items now appear on your manager dashboard with their deadlines.</p><p>— Canopy OS</p>`,
       });
       emailStatus = res.status;
     }

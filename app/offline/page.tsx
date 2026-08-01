@@ -1,4 +1,4 @@
-export const metadata = { title: "Offline — Clements Command & Control" };
+export const metadata = { title: "Offline — Canopy OS" };
 
 export default function OfflinePage() {
   return (
@@ -9,7 +9,7 @@ export default function OfflinePage() {
         </div>
         <h1 className="text-lg font-light text-white">You&rsquo;re offline</h1>
         <p className="mt-1 text-sm text-mint max-w-xs">
-          Clements Command &amp; Control needs a connection to load live data.
+          Canopy OS needs a connection to load live data.
           Reconnect and try again.
         </p>
       </div>

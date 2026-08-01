@@ -5,7 +5,7 @@ import { threadDetail } from "@/lib/threads";
 import ThreadView from "./ThreadView";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Discussion — Clements Command & Control" };
+export const metadata = { title: "Discussion — Canopy OS" };
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

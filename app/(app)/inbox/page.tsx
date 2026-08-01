@@ -5,7 +5,7 @@ import { listThreadsForUser, participantSummary } from "@/lib/threads";
 import ComposeThread from "@/components/ComposeThread";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Messages — Clements Command & Control" };
+export const metadata = { title: "Messages — Canopy OS" };
 
 export default async function InboxPage() {
   const user = await requireUser();

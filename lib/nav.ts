@@ -24,6 +24,16 @@ export const COMPLIANCE_NAV_ITEM: NavItem = {
   icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
 };
 
+// System Map — the auto-generated workflow/interconnection map, senior-leadership
+// only (redirects others). A connected-nodes glyph. Gated in AppShell alongside
+// Compliance so plain managers don't see a link that just bounces them.
+export const SYSTEM_MAP_NAV_ITEM: NavItem = {
+  href: "/management/system-map",
+  label: "System Map",
+  shortLabel: "SysMap",
+  icon: "M5 6.5a2 2 0 114 0 2 2 0 01-4 0zm10 11a2 2 0 114 0 2 2 0 01-4 0zM7 8.5v3a2 2 0 002 2h4a2 2 0 012 2v.5M15 6.5h2a2 2 0 012 2v2",
+};
+
 // Insights assistant — conversational, grounded management Q&A. Exec-sensitive
 // financials, so only admins + senior leadership reach the page (it redirects
 // others). A chat-bubble/spark glyph, distinct from the other management icons.
@@ -297,6 +307,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Insure",
     icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
   },
+  SYSTEM_MAP_NAV_ITEM,
   COMPLIANCE_NAV_ITEM,
   CHECKLIST_OVERSIGHT_NAV_ITEM,
 ];

@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 
 export type SendResult = { status: "sent" | "skipped_no_provider" | "skipped_no_address" | "error"; error?: string };
 
-const FROM = process.env.EMAIL_FROM || "Clements Command & Control <no-reply@clementspestcontrol.com>";
+const FROM = process.env.EMAIL_FROM || "Canopy OS <no-reply@clementspestcontrol.com>";
 
 export async function sendEmail(opts: {
   to: string | string[] | null | undefined;

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser, homePath } from "@/lib/auth";
 import LoginForm from "@/components/LoginForm";
 
-export const metadata = { title: "Sign in — Clements Command & Control" };
+export const metadata = { title: "Sign in — Canopy OS" };
 
 export default async function LoginPage() {
   // Already signed in → go straight to the right home.
@@ -17,7 +17,7 @@ export default async function LoginPage() {
           <img src="/clements-mark.svg" alt="Clements" className="h-16 w-16" />
           <h1 className="mt-4 text-2xl tracking-tight text-white">
             <span className="font-semibold tracking-[0.14em]">CLEMENTS</span>{" "}
-            <span className="font-light">Command &amp; Control</span>
+            <span className="font-light">Canopy OS</span>
           </h1>
           <p className="text-sm text-mint">Manager sign in</p>
         </div>
