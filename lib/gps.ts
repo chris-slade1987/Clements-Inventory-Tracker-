@@ -351,6 +351,8 @@ export type LivePosition = {
   model: string | null;
   /** Assigned technician / driver name (Vehicle.assignedTo; null if unassigned). */
   driver: string | null;
+  /** Linked employee id for the driver (Vehicle.assignedEmployeeId) → profile. */
+  driverEmployeeId: string | null;
   branch: string | null;
   ts: Date;
   lat: number;
@@ -386,7 +388,7 @@ export async function latestPositions(branch?: string): Promise<LivePosition[]> 
       ...(branch ? { vehicle: { branch } } : {}),
     },
     orderBy: { ts: "desc" },
-    include: { vehicle: { select: { id: true, unitNumber: true, name: true, year: true, make: true, model: true, assignedTo: true, branch: true } } },
+    include: { vehicle: { select: { id: true, unitNumber: true, name: true, year: true, make: true, model: true, assignedTo: true, assignedEmployeeId: true, branch: true } } },
   });
 
   const byVehicle = new Map<string, LivePosition>();
@@ -403,6 +405,7 @@ export async function latestPositions(branch?: string): Promise<LivePosition[]> 
       make: p.vehicle.make,
       model: p.vehicle.model,
       driver: p.vehicle.assignedTo,
+      driverEmployeeId: p.vehicle.assignedEmployeeId,
       branch: p.vehicle.branch,
       ts: p.ts,
       lat: p.lat,
@@ -439,6 +442,7 @@ export async function latestPositions(branch?: string): Promise<LivePosition[]> 
         make: null,
         model: null,
         driver: null,
+        driverEmployeeId: null,
         branch: null,
         ts: p.ts,
         lat: p.lat,

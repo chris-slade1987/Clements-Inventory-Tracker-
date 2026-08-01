@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { btn } from "@/components/ui";
 
 // Assign / swap / remove the driver on a vehicle. Picks from the active-employee
@@ -80,6 +81,11 @@ export default function AssignDriver({
           </button>
         ) : null}
       </div>
+      {currentEmployeeId && !staleName ? (
+        <Link href={`/management/people/${currentEmployeeId}`} className="mt-1 inline-block text-[11px] font-medium text-brand-700 hover:underline">
+          View {currentName ?? "driver"}&rsquo;s profile →
+        </Link>
+      ) : null}
       {staleName ? (
         <p className="mt-1 text-[11px] text-amber-700">
           Currently “{staleName}” — no longer on the active roster. Pick a current driver to reassign.

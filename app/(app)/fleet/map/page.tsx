@@ -50,7 +50,14 @@ export default async function FleetMapPage({
       <PageHeader
         title="Live Map"
         subtitle="Near-real-time vehicle locations from Verizon Connect Reveal"
-        actions={user.role === "admin" ? <GpsRefreshButton /> : undefined}
+        actions={
+          <div className="flex items-center gap-3">
+            {(user.role === "admin" || user.role === "manager") ? (
+              <Link href="/fleet/assignments" className="text-xs font-medium text-brand-700 hover:underline">Driver assignments →</Link>
+            ) : null}
+            {user.role === "admin" ? <GpsRefreshButton /> : null}
+          </div>
+        }
       />
 
       {summary.sample ? (
@@ -122,7 +129,13 @@ export default async function FleetMapPage({
                       </span>
                       {p.linked ? (
                         <span className="block truncate text-xs text-ink/70">
-                          {(p.driver?.trim() || "Unassigned")}
+                          {p.driverEmployeeId ? (
+                            <Link href={`/management/people/${p.driverEmployeeId}`} className="text-brand-700 hover:underline">
+                              {p.driver?.trim() || "Unassigned"}
+                            </Link>
+                          ) : (
+                            p.driver?.trim() || "Unassigned"
+                          )}
                         </span>
                       ) : null}
                       <span className="block truncate text-xs text-muted">

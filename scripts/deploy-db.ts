@@ -172,6 +172,21 @@ async function main() {
       console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
     }
 
+    // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
+    // to the matching employee record (assignedEmployeeId). Runs after BOTH the
+    // fleet and people seeds so both sides exist. Idempotent — only fills vehicles
+    // whose FK is still null — so a later manual assign/swap is never clobbered.
+    // Non-fatal: a failure must never fail the deploy.
+    try {
+      const { backfillDriverLinks } = await import("../lib/fleet-driver-link");
+      const dl = await backfillDriverLinks();
+      console.log(
+        `deploy-db: driver links — ${dl.linked} linked, ${dl.alreadyLinked} already linked, ${dl.unmatched} unmatched, ${dl.noName} no name (of ${dl.scanned} active vehicles).`,
+      );
+    } catch (e) {
+      console.error("deploy-db: driver-link backfill FAILED (non-fatal):", e);
+    }
+
     // The owner account is a full admin (sees every center + admin tools).
     const owner = await prisma.user.updateMany({ where: { email: "c.slade@clementspestcontrol.com" }, data: { role: "admin" } });
     console.log(`deploy-db: ensured owner is admin (${owner.count}).`);
