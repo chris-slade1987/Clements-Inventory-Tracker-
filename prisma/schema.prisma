@@ -371,7 +371,11 @@ model Vehicle {
   vin            String?   @unique
   plate          String?
   branch         String? // "vero" | "stuart" | "orlando" | "naples"
-  assignedTo     String?   @map("assigned_to") // technician / driver name
+  assignedTo     String?   @map("assigned_to") // technician / driver name (kept in sync with assignedEmployee)
+  // Structured driver link. assignedTo (the name string) is kept in sync so all
+  // existing name-based matching keeps working; this FK is the durable link.
+  assignedEmployeeId String? @map("assigned_employee_id")
+  assignedEmployee   Employee? @relation("VehicleDriver", fields: [assignedEmployeeId], references: [id])
   status         String    @default("active") // "active" | "inactive" (sold/retired/etc.)
   acquiredDate   DateTime? @map("acquired_date")
   purchasePrice  Float?    @map("purchase_price")
@@ -418,6 +422,7 @@ model Vehicle {
 
   @@index([branch])
   @@index([verizonNumber])
+  @@index([assignedEmployeeId])
   @@map("vehicles")
 }
 
@@ -780,6 +785,7 @@ model Employee {
   ptoRequests PtoRequest[]
   absences    Absence[]
   user        User?
+  assignedVehicles Vehicle[] @relation("VehicleDriver")
 
   @@index([branch])
   @@index([name])

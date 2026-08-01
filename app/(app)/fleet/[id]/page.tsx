@@ -10,8 +10,10 @@ import VehicleFuelPanel from "@/components/VehicleFuelPanel";
 import { docsForVehicle } from "@/lib/documents";
 import { remindersForVehicle } from "@/lib/manual-reminders";
 import { vehicleInspections } from "@/lib/inspection";
+import { listEmployees } from "@/lib/people";
 import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
+import AssignDriver from "./AssignDriver";
 import VehicleDocuments from "./VehicleDocuments";
 import RemindersCard from "@/components/RemindersCard";
 import VehicleGpsPanel from "@/components/gps/VehicleGpsPanel";
@@ -29,6 +31,14 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const reminders = await remindersForVehicle(id);
   const fuel = await vehicleFuel(id, 1000);
   const canManage = user.role === "admin" || user.role === "manager";
+  // Active-employee roster for the driver picker (managers/admins only).
+  const drivers = canManage
+    ? (await listEmployees()).map((e) => ({
+        id: e.id,
+        name: e.name,
+        meta: [e.role, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · "),
+      }))
+    : [];
   const now = new Date();
   const thisMonthDone = inspections.some((i) => i.year === now.getFullYear() && i.month === now.getMonth() + 1);
 
@@ -74,8 +84,20 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
       <div className="grid gap-4 lg:grid-cols-2 mb-5">
         <Card className="p-4">
           <div className="text-sm font-medium text-ink mb-2">Profile</div>
+          <div className="mb-3 rounded-lg border border-line bg-black/[0.015] p-3">
+            <div className="text-xs uppercase tracking-wider text-muted mb-1.5">Assigned driver</div>
+            {canManage ? (
+              <AssignDriver
+                vehicleId={v.id}
+                currentEmployeeId={v.assignedEmployeeId}
+                currentName={v.assignedTo}
+                drivers={drivers}
+              />
+            ) : (
+              <div className="text-sm text-ink">{v.assignedTo ?? "Unassigned"}</div>
+            )}
+          </div>
           <dl className="space-y-1.5 text-sm">
-            <Field label="Assigned driver" value={v.assignedTo} />
             <Field label="Year / Make / Model" value={[v.year, v.make, v.model].filter(Boolean).join(" ") || null} />
             <Field label="VIN" value={v.vin} />
             <Field label="Plate" value={v.plate} />
