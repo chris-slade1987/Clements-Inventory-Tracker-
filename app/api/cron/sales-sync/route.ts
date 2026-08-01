@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { syncSalesFromSheet } from "@/lib/sales-sync";
+import { isConfigured as isWorkwaveConfigured, syncWorkwaveSales } from "@/lib/workwave";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -21,8 +22,11 @@ async function run(req: Request) {
     const user = await getSessionUser();
     if (!user || (user.role !== "admin" && user.role !== "manager")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const result = await syncSalesFromSheet(prisma);
-  return NextResponse.json({ ranAt: new Date().toISOString(), ...result });
+  // Prefer the live WorkWave Sales Center API when it's configured; otherwise
+  // fall back to the hourly Google-Sheet export. Both write the same SalesSnapshot.
+  const source = isWorkwaveConfigured() ? "workwave" : "sheet";
+  const result = source === "workwave" ? await syncWorkwaveSales() : await syncSalesFromSheet(prisma);
+  return NextResponse.json({ ranAt: new Date().toISOString(), source, ...result });
 }
 
 export async function GET(req: Request) { return run(req); }
