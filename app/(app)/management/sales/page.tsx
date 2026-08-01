@@ -122,12 +122,12 @@ export default async function SalesPage({
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-white">
+        <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
           <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
           {isCompany ? "All branches" : branchLabel(scope)}
-          <span className="text-mint font-light">· {basisLabel}</span>
+          <span className="text-muted font-light">· {basisLabel}</span>
         </h2>
-        {!isCompany ? <Link href={branchLink("company")} className="text-xs font-medium text-brand-300 hover:underline">← All branches</Link> : null}
+        {!isCompany ? <Link href={branchLink("company")} className="text-xs font-medium text-brand-700 hover:underline">← All branches</Link> : null}
       </div>
 
       {/* Headline */}

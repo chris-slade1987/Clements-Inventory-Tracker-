@@ -30,7 +30,7 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ i
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people/hiring-templates" className="text-xs font-medium text-brand-300 hover:underline">← Hiring Template Library</Link>
+        <Link href="/management/people/hiring-templates" className="text-xs font-medium text-brand-700 hover:underline">← Hiring Template Library</Link>
       </div>
       <PageHeader title={template.name} subtitle={`${kind === "interview" ? "Interview" : "Screening-call"} template`} />
       <TemplateEditor

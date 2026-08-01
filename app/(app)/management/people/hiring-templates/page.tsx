@@ -19,7 +19,7 @@ export default async function HiringTemplatesPage() {
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people/jobs" className="text-xs font-medium text-brand-300 hover:underline">← Hiring / Jobs</Link>
+        <Link href="/management/people/jobs" className="text-xs font-medium text-brand-700 hover:underline">← Hiring / Jobs</Link>
       </div>
       <PageHeader
         title="Hiring Template Library"

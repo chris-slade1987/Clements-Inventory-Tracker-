@@ -39,7 +39,7 @@ export default function RunAnalysisButton() {
       <button onClick={run} disabled={busy} className={btn.primary} data-testid="gps-run-analysis">
         {busy ? "Analyzing…" : "Run analysis"}
       </button>
-      {msg ? <span className="text-xs text-brand-300">{msg}</span> : null}
+      {msg ? <span className="text-xs text-brand-700">{msg}</span> : null}
       {error ? <span className="text-xs text-red-400">{error}</span> : null}
     </div>
   );

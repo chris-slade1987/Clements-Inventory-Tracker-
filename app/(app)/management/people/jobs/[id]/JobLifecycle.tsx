@@ -57,7 +57,7 @@ export default function JobLifecycle({
                   type="button"
                   disabled={busy !== null}
                   onClick={() => post("job.update", { id, status: s })}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
                 >
                   {JOB_STATUS_LABELS[s]}
                 </button>

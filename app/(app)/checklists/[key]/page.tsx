@@ -46,7 +46,7 @@ export default async function ChecklistRunPage({
   return (
     <>
       <div className="mb-3">
-        <Link href={`/checklists?branch=${branch}`} className="text-sm text-brand-300 hover:underline">← All checklists</Link>
+        <Link href={`/checklists?branch=${branch}`} className="text-sm text-brand-700 hover:underline">← All checklists</Link>
       </div>
       <PageHeader
         title={template.title}

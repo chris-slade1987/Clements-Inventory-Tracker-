@@ -312,7 +312,7 @@ function ScreeningCall({
                         const sel = Number(responses[q.id]) === n;
                         return (
                           <button key={n} type="button" onClick={() => setResp(q.id, n)}
-                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>{n}</button>
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sel ? "bg-emerald-grad text-white shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>{n}</button>
                         );
                       })}
                     </div>
@@ -322,7 +322,7 @@ function ScreeningCall({
                         const sel = responses[q.id] === opt;
                         return (
                           <button key={opt} type="button" onClick={() => setResp(q.id, opt)}
-                            className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>{opt}</button>
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{opt}</button>
                         );
                       })}
                     </div>
@@ -472,7 +472,7 @@ function AssignModal({
           <div className="text-sm font-medium mb-1">Format</div>
           <div className="flex gap-1 rounded-xl bg-slate-100 p-1 w-fit">
             {(["in_person", "video"] as const).map((t) => (
-              <button key={t} type="button" onClick={() => setType(t)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${type === t ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>
+              <button key={t} type="button" onClick={() => setType(t)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${type === t ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>
                 {INTERVIEW_TYPE_LABELS[t]}
               </button>
             ))}

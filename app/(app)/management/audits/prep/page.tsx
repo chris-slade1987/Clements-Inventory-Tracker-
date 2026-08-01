@@ -27,7 +27,7 @@ export default async function PrecheckPage({
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/audits" className="text-xs font-medium text-brand-300 hover:underline">← Branch Audits</Link>
+        <Link href="/management/audits" className="text-xs font-medium text-brand-700 hover:underline">← Branch Audits</Link>
       </div>
       <PageHeader title="Pre-visit Prep Checklist" subtitle={`${branchLabel(branch)} · Q${quarter} ${year} — complete before the branch visit`} />
       <PrecheckClient

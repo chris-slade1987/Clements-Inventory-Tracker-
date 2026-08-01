@@ -101,7 +101,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <>
       <div className="mb-2">
-        <Link href={canManage ? "/management/people/jobs" : "/me/hiring"} className="text-xs font-medium text-brand-300 hover:underline">← {canManage ? "Hiring / Jobs" : "My Hiring"}</Link>
+        <Link href={canManage ? "/management/people/jobs" : "/me/hiring"} className="text-xs font-medium text-brand-700 hover:underline">← {canManage ? "Hiring / Jobs" : "My Hiring"}</Link>
       </div>
       <PageHeader
         title={job.title}
@@ -168,12 +168,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       {canManage && job.status === "open" && job.applyToken ? (
         <Card className="p-4 mb-5">
           <div className="flex items-center gap-2 mb-1">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 text-brand-300" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
+            <svg viewBox="0 0 24 24" className="h-4 w-4 text-brand-700" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
             <span className="text-sm font-medium text-ink">Public application link</span>
           </div>
           <p className="text-xs text-muted mb-3">
             Applicants who apply through these links are auto-added to this job&rsquo;s pipeline (stage “Applied”), with their source tracked per channel.
-            {" "}<Link href="/careers" className="font-medium text-brand-300 hover:underline">View the public careers page →</Link>
+            {" "}<Link href="/careers" className="font-medium text-brand-700 hover:underline">View the public careers page →</Link>
           </p>
           <ApplyLinks
             indeedUrl={applyUrl(job.applyToken, "indeed")}

@@ -128,7 +128,7 @@ export default async function InspectionsPage({
 
 function BranchPill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>
       {label}
     </Link>
   );

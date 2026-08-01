@@ -42,7 +42,7 @@ export default async function TeamPtoPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">← My Team</Link></div>
+      <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-700 hover:underline">← My Team</Link></div>
       <PageHeader title="Team PTO calendar" subtitle={`${branch ? branchLabel(branch) : "All branches"} — approved (solid) + pending (outlined)`} />
 
       {!locked ? (
@@ -59,6 +59,6 @@ export default async function TeamPtoPage({ searchParams }: { searchParams: Prom
 
 function Pill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>{label}</Link>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>{label}</Link>
   );
 }

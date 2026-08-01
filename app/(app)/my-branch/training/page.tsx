@@ -46,8 +46,8 @@ export default async function ManagerTrainingPage({
 
       {!locked ? (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-          <Link href="/my-branch/training" className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === null ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>All branches</Link>
-          {BRANCHES.map((b) => <Link key={b.key} href={`/my-branch/training?branch=${b.key}`} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === b.key ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>{b.label}</Link>)}
+          <Link href="/my-branch/training" className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === null ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>All branches</Link>
+          {BRANCHES.map((b) => <Link key={b.key} href={`/my-branch/training?branch=${b.key}`} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === b.key ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>{b.label}</Link>)}
         </div>
       ) : null}
 

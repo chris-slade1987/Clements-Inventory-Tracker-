@@ -276,7 +276,7 @@ function ExitRow({ it, value, onChange }: { it: ExitItem; value: string; onChang
       {(it.type === "yesno" || it.type === "choice") ? (
         <div className="flex flex-wrap gap-1 rounded-xl bg-slate-100 p-1 w-fit">
           {(it.type === "yesno" ? ["Yes", "No"] : it.options ?? []).map((opt) => (
-            <button key={opt} type="button" onClick={() => onChange(opt)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${value === opt ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>{opt}</button>
+            <button key={opt} type="button" onClick={() => onChange(opt)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${value === opt ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{opt}</button>
           ))}
         </div>
       ) : (

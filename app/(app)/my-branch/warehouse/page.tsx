@@ -40,7 +40,7 @@ export default async function WarehousePage({
       {!locked ? (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
           {BRANCHES.map((b) => (
-            <Link key={b.key} href={`/my-branch/warehouse?branch=${b.key}`} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${effBranch === b.key ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>{b.label}</Link>
+            <Link key={b.key} href={`/my-branch/warehouse?branch=${b.key}`} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${effBranch === b.key ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>{b.label}</Link>
           ))}
         </div>
       ) : null}

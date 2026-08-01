@@ -17,7 +17,7 @@ export default async function ExcludedArchivePage() {
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people/jobs" className="text-xs font-medium text-brand-300 hover:underline">← Hiring / Jobs</Link>
+        <Link href="/management/people/jobs" className="text-xs font-medium text-brand-700 hover:underline">← Hiring / Jobs</Link>
       </div>
       <PageHeader title="Excluded archive" subtitle="Every excluded candidate across all jobs — retained, reason-tagged, reactivatable" />
 

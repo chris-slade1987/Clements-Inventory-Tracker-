@@ -51,7 +51,7 @@ export default async function ChecklistsPage({
             <Link
               key={b.key}
               href={`/checklists?branch=${b.key}`}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === b.key ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${branch === b.key ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}
             >
               {b.label}
             </Link>
@@ -89,7 +89,7 @@ export default async function ChecklistsPage({
                 )}
                 <Link
                   href={`/checklists/${s.template.key}?branch=${branch}`}
-                  className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-[filter] ${s.completed ? "border border-[#cfe0d6] bg-white text-[#0e1b15] hover:bg-[#eef5f0]" : "bg-emerald-grad text-[#05271c] shadow-sm shadow-brand-600/30 hover:brightness-[0.97]"}`}
+                  className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-[filter] ${s.completed ? "border border-[#cfe0d6] bg-white text-[#0e1b15] hover:bg-[#eef5f0]" : "bg-emerald-grad text-white shadow-sm shadow-brand-600/30 hover:brightness-[0.97]"}`}
                 >
                   {s.completed ? "View signed record" : "Start / complete"}
                 </Link>

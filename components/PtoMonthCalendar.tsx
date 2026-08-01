@@ -112,7 +112,7 @@ export default function PtoMonthCalendar({
             <div key={i} className={`min-h-[84px] border-b border-r border-line p-1.5 ${isWeekend ? "bg-black/[0.015]" : ""} ${i % 7 === 6 ? "border-r-0" : ""}`}>
               {day ? (
                 <>
-                  <div className={`text-[11px] tabular-nums ${isToday ? "inline-grid h-5 w-5 place-items-center rounded-full bg-emerald-grad font-semibold text-[#05271c]" : "text-muted"}`}>{day}</div>
+                  <div className={`text-[11px] tabular-nums ${isToday ? "inline-grid h-5 w-5 place-items-center rounded-full bg-emerald-grad font-semibold text-white" : "text-muted"}`}>{day}</div>
                   <div className="mt-1 space-y-0.5">
                     {hits.slice(0, 4).map((e) => (
                       <div key={(e.pending ? "p" : "a") + e.id + day} className={`flex items-center gap-1 truncate rounded px-1 py-0.5 text-[10px] ${e.pending ? "border border-dashed border-black/20 text-muted" : "bg-black/[0.03] text-ink"}`} title={`${e.employeeName} · ${e.type}${e.branch ? ` · ${branchLabel(e.branch)}` : ""}${e.pending ? " · pending" : ""}`}>

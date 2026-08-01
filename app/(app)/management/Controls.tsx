@@ -26,7 +26,7 @@ export default function Controls({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <label className="flex items-center gap-2 text-xs font-medium text-mint">
+      <label className="flex items-center gap-2 text-xs font-medium text-muted">
         Month
         <select
           value={period}
@@ -48,7 +48,7 @@ export default function Controls({
             key={b.key}
             onClick={() => go({ basis: b.key })}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              basis === b.key ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+              basis === b.key ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"
             }`}
           >
             {b.label}

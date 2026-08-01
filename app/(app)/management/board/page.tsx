@@ -438,7 +438,7 @@ export default async function BoardPage({
 
       <p className="mt-4 text-xs text-muted">
         Branch-level operational detail lives in{" "}
-        <Link href={`/management?p=${periodKey}`} className="text-brand-300 hover:underline">Management</Link>.
+        <Link href={`/management?p=${periodKey}`} className="text-brand-700 hover:underline">Management</Link>.
       </p>
     </>
   );

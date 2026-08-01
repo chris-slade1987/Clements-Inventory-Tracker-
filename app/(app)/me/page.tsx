@@ -191,7 +191,7 @@ export default async function MyWorkPage() {
       <Card className={`p-0 overflow-hidden mb-5 ${open.length ? "ring-1 ring-red-300" : ""}`}>
         <div className="px-4 py-3 border-b border-line flex items-center justify-between">
           <div className={`text-sm font-medium ${open.length ? "text-red-600" : "text-ink"}`}>Open items{open.length ? ` · ${open.length}` : ""}</div>
-          <Link href="/me/library" className="text-xs font-medium text-brand-300 hover:underline">Lesson library →</Link>
+          <Link href="/me/library" className="text-xs font-medium text-brand-700 hover:underline">Lesson library →</Link>
         </div>
         {open.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up.</p>

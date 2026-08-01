@@ -59,7 +59,7 @@ export default function EmployeeContact({
       <div className="mb-2 flex items-center justify-between">
         <div className="text-sm font-medium text-ink">Contact</div>
         {canEdit && !editing ? (
-          <button onClick={() => setEditing(true)} className="text-xs font-medium text-brand-300 hover:underline">Edit</button>
+          <button onClick={() => setEditing(true)} className="text-xs font-medium text-brand-700 hover:underline">Edit</button>
         ) : null}
       </div>
 

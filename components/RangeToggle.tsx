@@ -35,7 +35,7 @@ export default function RangeToggle({
             key={m.key}
             onClick={() => onMode(m.key)}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              mode === m.key ? "bg-emerald-grad text-[#05271c] shadow-sm" : "bg-black/[0.04] text-muted hover:text-ink"
+              mode === m.key ? "bg-emerald-grad text-white shadow-sm" : "bg-black/[0.04] text-muted hover:text-ink"
             }`}
           >
             {m.label}

@@ -96,7 +96,7 @@ export default function SystemMapClient({
               onClick={() => setFlowKey(f.key)}
               className={`rounded-xl px-3 py-2 text-left text-xs font-medium transition-colors ${
                 f.key === activeFlow?.key
-                  ? "bg-emerald-grad text-[#05271c] shadow-sm"
+                  ? "bg-emerald-grad text-white shadow-sm"
                   : "border border-line bg-white text-ink hover:bg-black/[0.03]"
               }`}
             >

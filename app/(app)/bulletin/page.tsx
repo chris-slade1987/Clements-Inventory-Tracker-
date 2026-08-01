@@ -37,7 +37,7 @@ export default async function BulletinPage() {
         subtitle="Stories, announcements, shoutouts & what's coming up across Clements"
         actions={
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/bulletin/past" className="text-sm font-medium text-brand-300 hover:underline">Past bulletin{pastN > 0 ? ` (${pastN})` : ""} →</Link>
+            <Link href="/bulletin/past" className="text-sm font-medium text-brand-700 hover:underline">Past bulletin{pastN > 0 ? ` (${pastN})` : ""} →</Link>
             {author ? <div className="flex gap-2"><NewEventButton /><NewPostButton /></div> : null}
           </div>
         }

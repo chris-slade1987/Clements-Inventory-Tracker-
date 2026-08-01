@@ -48,7 +48,7 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
 
   return (
     <>
-      <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">← My Team</Link></div>
+      <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-700 hover:underline">← My Team</Link></div>
       <PageHeader title={employee.name} subtitle={[employee.role, employee.division, employee.branch ? branchLabel(employee.branch) : null].filter(Boolean).join(" · ") || "Team member"} />
 
       <PtoProfileCard

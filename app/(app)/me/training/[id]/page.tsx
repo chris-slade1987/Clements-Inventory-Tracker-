@@ -21,7 +21,7 @@ export default async function TakePage({ params }: { params: Promise<{ id: strin
 
   return (
     <>
-      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-300 hover:underline">← My Work</Link></div>
+      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link></div>
       <PageHeader title={a.course.title} subtitle={`${a.course.category === "onboarding" ? "Onboarding" : "CEU"}${completed ? ` · completed ${a.score}%` : ` · pass ${a.course.passingScore}%`}`} />
       <TakeAssignment
         id={a.id}

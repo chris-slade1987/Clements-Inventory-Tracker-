@@ -47,7 +47,7 @@ export default async function BulletinBanner() {
             </div>
           ) : null}
 
-          <span className="shrink-0 rounded-lg bg-emerald-grad px-3 py-2 text-sm font-medium text-[#05271c] transition group-hover:brightness-95">View →</span>
+          <span className="shrink-0 rounded-lg bg-emerald-grad px-3 py-2 text-sm font-medium text-white transition group-hover:brightness-95">View →</span>
         </div>
       </div>
     </Link>

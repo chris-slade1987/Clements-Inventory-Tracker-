@@ -62,7 +62,7 @@ export default async function AuditEditPage({
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/audits" className="text-xs font-medium text-brand-300 hover:underline">← Branch Audits</Link>
+        <Link href="/management/audits" className="text-xs font-medium text-brand-700 hover:underline">← Branch Audits</Link>
       </div>
       <PageHeader title={`Quarterly Audit — ${branchLabel(branch)}`} subtitle={`Q${quarter} ${year} · Director of Field Ops`} />
       <AuditForm

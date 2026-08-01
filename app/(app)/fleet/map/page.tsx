@@ -43,7 +43,7 @@ export default async function FleetMapPage({
   return (
     <>
       <div className="mb-2">
-        <Link href="/fleet" className="text-xs font-medium text-brand-300 hover:underline">← Fleet</Link>
+        <Link href="/fleet" className="text-xs font-medium text-brand-700 hover:underline">← Fleet</Link>
       </div>
       <PageHeader
         title="Live Map"
@@ -157,7 +157,7 @@ function BranchPill({ href, label, active }: { href: string; label: string; acti
     <Link
       href={href}
       className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-        active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+        active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"
       }`}
     >
       {label}

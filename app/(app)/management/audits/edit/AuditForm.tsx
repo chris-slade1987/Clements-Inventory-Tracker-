@@ -189,7 +189,7 @@ function Scale5({ value, onChange }: { value: number | null; onChange: (v: numbe
   return (
     <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
       {SCALE_5.map((s) => (
-        <button key={s.value} title={s.label} onClick={() => onChange(s.value)} className={`h-8 w-8 rounded-lg text-xs font-medium transition-colors ${value === s.value ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>{s.value}</button>
+        <button key={s.value} title={s.label} onClick={() => onChange(s.value)} className={`h-8 w-8 rounded-lg text-xs font-medium transition-colors ${value === s.value ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{s.value}</button>
       ))}
     </div>
   );
@@ -199,7 +199,7 @@ function Row3({ label, value, onChange }: { label: string; value: number | undef
     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
       <div className="flex-1 text-sm text-ink">{label}</div>
       <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-        {SCALE_3.map((s) => <button key={s.value} title={s.label} onClick={() => onChange(s.value)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${value === s.value ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>{s.value}</button>)}
+        {SCALE_3.map((s) => <button key={s.value} title={s.label} onClick={() => onChange(s.value)} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${value === s.value ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{s.value}</button>)}
       </div>
     </div>
   );
@@ -209,7 +209,7 @@ function RowYesNo({ label, value, onChange }: { label: string; value: boolean | 
     <div className="flex items-center gap-2">
       <div className="flex-1 text-sm text-ink">{label}</div>
       <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-        <button onClick={() => onChange(true)} className={`rounded-lg px-4 py-1.5 text-xs font-medium transition-colors ${value === true ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+        <button onClick={() => onChange(true)} className={`rounded-lg px-4 py-1.5 text-xs font-medium transition-colors ${value === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
         <button onClick={() => onChange(false)} className={`rounded-lg px-4 py-1.5 text-xs font-medium transition-colors ${value === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
       </div>
     </div>

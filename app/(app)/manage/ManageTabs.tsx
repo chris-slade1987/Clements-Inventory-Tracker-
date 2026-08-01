@@ -36,8 +36,8 @@ export default function ManageTabs({
             href={t.href}
             className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
               active
-                ? "border-white text-white"
-                : "border-transparent text-mint hover:text-white"
+                ? "border-ink text-ink"
+                : "border-transparent text-muted hover:text-ink"
             }`}
           >
             {t.label}
@@ -55,8 +55,8 @@ export default function ManageTabs({
           title="Login accounts, roles, and branch access"
           className={`ml-auto flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
             pathname.startsWith(USERS_ACCESS.href)
-              ? "bg-white/10 text-white"
-              : "text-mint/80 hover:bg-white/5 hover:text-white"
+              ? "bg-black/[0.06] text-ink"
+              : "text-muted hover:bg-black/[0.04] hover:text-ink"
           }`}
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">

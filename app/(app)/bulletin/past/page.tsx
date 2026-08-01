@@ -16,7 +16,7 @@ export default async function PastBulletinPage() {
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader title="Past bulletin" subtitle={`Archived posts — older than ${ACTIVE_DAYS} days`} />
-        <Link href="/bulletin" className="text-sm font-medium text-brand-300 hover:underline">← Active bulletin</Link>
+        <Link href="/bulletin" className="text-sm font-medium text-brand-700 hover:underline">← Active bulletin</Link>
       </div>
 
       {posts.length === 0 ? (

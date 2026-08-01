@@ -231,7 +231,7 @@ export default function AbsenceLogger({
               <div className="flex items-center gap-2">
                 <div className="flex-1 text-sm font-medium text-amber-900">Is this related to a workplace accident?</div>
                 <div className="flex gap-1 rounded-xl bg-white p-1">
-                  <button type="button" onClick={() => setWorkplaceRelated("yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${workplaceRelated === "yes" ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+                  <button type="button" onClick={() => setWorkplaceRelated("yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${workplaceRelated === "yes" ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
                   <button type="button" onClick={() => setWorkplaceRelated("no")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${workplaceRelated === "no" ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function AbsenceLogger({
               {/* Note-resolution controls — HR/admin only */}
               {a.noteRequired && a.noteStatus === "requested" && canResolve ? (
                 <div className="mt-1.5 flex gap-2">
-                  <button onClick={() => resolveNote(a.id, "received")} disabled={busy} className="rounded-lg bg-emerald-grad px-3 py-1 text-xs font-medium text-[#05271c] disabled:opacity-50">Mark received</button>
+                  <button onClick={() => resolveNote(a.id, "received")} disabled={busy} className="rounded-lg bg-emerald-grad px-3 py-1 text-xs font-medium text-white disabled:opacity-50">Mark received</button>
                   <button onClick={() => resolveNote(a.id, "waived")} disabled={busy} className="rounded-lg border border-line px-3 py-1 text-xs font-medium text-ink hover:bg-black/5 disabled:opacity-50">Waive (FMLA/ADA)</button>
                 </div>
               ) : null}

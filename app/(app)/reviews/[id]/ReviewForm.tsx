@@ -137,7 +137,7 @@ function ItemRow({ it, value, onChange, readOnly }: { it: ReviewItem; value: str
               const sel = value === opt;
               return (
                 <button key={opt} type="button" disabled={readOnly} onClick={() => onChange(opt)}
-                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-100 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : readOnly ? "text-slate-400" : "text-slate-600 hover:text-slate-900"}`}>
+                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-100 ${sel ? "bg-emerald-grad text-white shadow" : readOnly ? "text-slate-400" : "text-slate-600 hover:text-slate-900"}`}>
                   {opt}
                 </button>
               );

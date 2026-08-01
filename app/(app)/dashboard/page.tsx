@@ -125,7 +125,7 @@ export default async function DashboardPage({
             <span className="text-sm text-ink">
               product{toConfirm === 1 ? "" : "s"} to confirm before they can be checked out
             </span>
-            <span className="ml-auto text-xs font-medium text-brand-300">Review →</span>
+            <span className="ml-auto text-xs font-medium text-brand-700">Review →</span>
           </Card>
         </Link>
       ) : null}
@@ -178,13 +178,13 @@ export default async function DashboardPage({
 
       {/* Scope indicator */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-white">
+        <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
           <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
           {scopeName}
-          <span className="text-mint font-light">· {money(scopeSpend)} spent (mo) · {money(scopeOnHandValue)} on hand</span>
+          <span className="text-muted font-light">· {money(scopeSpend)} spent (mo) · {money(scopeOnHandValue)} on hand</span>
         </h2>
         {selected ? (
-          <Link href={hrefWith({ branch: null })} className="text-xs font-medium text-brand-300 hover:underline">
+          <Link href={hrefWith({ branch: null })} className="text-xs font-medium text-brand-700 hover:underline">
             ← Show all branches
           </Link>
         ) : null}
@@ -202,7 +202,7 @@ export default async function DashboardPage({
                 key={r.key}
                 href={hrefWith({ range: r.key })}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-                  active ? "bg-emerald-grad text-[#05271c] shadow-sm" : "text-mint hover:bg-white/5 hover:text-white"
+                  active ? "bg-emerald-grad text-white shadow-sm" : "text-muted hover:bg-black/[0.04] hover:text-ink"
                 }`}
               >
                 {r.label}

@@ -112,7 +112,7 @@ export default async function CandidateHubPage({ params }: { params: Promise<{ i
   return (
     <>
       <div className="mb-2">
-        <Link href={candidate.job ? `/management/people/jobs/${candidate.job.id}` : "/management/people/jobs"} className="text-xs font-medium text-brand-300 hover:underline">
+        <Link href={candidate.job ? `/management/people/jobs/${candidate.job.id}` : "/management/people/jobs"} className="text-xs font-medium text-brand-700 hover:underline">
           ← {candidate.job ? candidate.job.title : "Hiring / Jobs"}
         </Link>
       </div>

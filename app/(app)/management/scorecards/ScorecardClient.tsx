@@ -72,9 +72,9 @@ export default function ScorecardClient({
         <Selector label="Branch" value={branch} options={branches.map((b) => ({ v: b.key, l: b.label }))} onChange={(v) => nav({ branch: v })} />
         {/* Composite score */}
         <div className="ml-auto text-right">
-          <div className="text-xs uppercase tracking-wider text-mint">Composite score</div>
-          <div className="text-3xl font-light tabular-nums text-white">{earned}%</div>
-          <div className="text-[11px] text-mint">{scored} of {rows.length} metrics scored</div>
+          <div className="text-xs uppercase tracking-wider text-muted">Composite score</div>
+          <div className="text-3xl font-light tabular-nums text-ink">{earned}%</div>
+          <div className="text-[11px] text-muted">{scored} of {rows.length} metrics scored</div>
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function ScorecardClient({
 
 function Selector({ label, value, options, onChange }: { label: string; value: string | number; options: { v: string | number; l: string }[]; onChange: (v: string | number) => void }) {
   return (
-    <label className="text-xs font-medium text-mint">
+    <label className="text-xs font-medium text-muted">
       {label}
       <select
         value={value}

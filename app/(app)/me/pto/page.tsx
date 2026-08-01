@@ -24,7 +24,7 @@ export default async function MyPtoPage() {
 
   return (
     <>
-      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-300 hover:underline">← My Work</Link></div>
+      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link></div>
       <PageHeader title="My PTO" subtitle="Request time off, see your balance, and track approvals" />
       <MyPtoPanel
         balance={balance}

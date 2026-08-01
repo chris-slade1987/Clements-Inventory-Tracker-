@@ -31,7 +31,7 @@ export default async function JobsPage() {
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people" className="text-xs font-medium text-brand-300 hover:underline">← People / HR</Link>
+        <Link href="/management/people" className="text-xs font-medium text-brand-700 hover:underline">← People / HR</Link>
       </div>
       <PageHeader
         title="Hiring / Jobs"

@@ -23,7 +23,7 @@ export default async function FormerEmployeesPage() {
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people" className="text-xs font-medium text-brand-300 hover:underline">← People / HR</Link>
+        <Link href="/management/people" className="text-xs font-medium text-brand-700 hover:underline">← People / HR</Link>
       </div>
       <PageHeader title="Former employees" subtitle="Separation records & exit interviews — profiles and all linked data are retained" />
 

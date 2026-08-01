@@ -41,7 +41,7 @@ export default function PrecheckClient({
             {g.items.map((it) => (
               <li key={it.key}>
                 <button onClick={() => setItems((s) => ({ ...s, [it.key]: !s[it.key] }))} className="flex items-start gap-2 text-left w-full group">
-                  <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border text-xs ${items[it.key] ? "bg-emerald-grad border-transparent text-[#05271c]" : "border-line text-transparent group-hover:border-brand-400"}`}>✓</span>
+                  <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border text-xs ${items[it.key] ? "bg-emerald-grad border-transparent text-white" : "border-line text-transparent group-hover:border-brand-400"}`}>✓</span>
                   <span className={`text-sm ${items[it.key] ? "text-muted line-through" : "text-ink"}`}>{it.label}</span>
                 </button>
               </li>

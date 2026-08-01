@@ -84,6 +84,20 @@ body {
   color: #1d2a23;
 }
 
+/* The main content canvas (right of the dark rail) — the "Signature" light
+   enterprise ground. Re-scopes the neutral tokens to dark-on-light so every
+   token-based element (text-ink / text-muted / border-line / bg-surface)
+   renders correctly on the light ground without per-element changes. */
+.app-canvas {
+  --color-ink: #1d2a23;
+  --color-muted: #5c6b62;
+  --color-line: #d9deda;
+  --color-surface: #ffffff;
+  --color-canvas: #f4f6f5;
+  background-color: #f4f6f5;
+  color: #1d2a23;
+}
+
 /* Native form controls stay neutral/light everywhere (dropdowns + inputs). */
 select,
 textarea,

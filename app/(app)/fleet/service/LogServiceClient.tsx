@@ -195,7 +195,7 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
             key={t.key}
             onClick={() => switchTab(t.key as "manual" | "upload")}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              tab === t.key ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+              tab === t.key ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"
             }`}
           >
             {t.label}
@@ -226,7 +226,7 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
               <button onClick={() => fileRef.current?.click()} className={btn.secondary}>Choose file</button>
             </div>
           </div>
-          <div className="rounded-lg bg-black/20 px-3 py-2 text-xs text-mint">
+          <div className="rounded-lg bg-black/20 px-3 py-2 text-xs text-muted">
             Reader: <span className="font-medium">{mode === "claude" ? "Claude vision (live)" : "Mock parser (no API key set)"}</span>. We read every charge and try to match each to a vehicle — you confirm before anything is saved. A single statement can cover several trucks.
           </div>
           {error ? <p className="text-sm text-red-600">{error}</p> : null}

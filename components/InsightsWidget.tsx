@@ -66,7 +66,7 @@ export default function InsightsWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Ask Insights"
-          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center gap-2 rounded-full bg-emerald-grad px-4 py-3 text-sm font-medium text-[#05271c] shadow-lg shadow-emerald-900/30 hover:brightness-105 transition"
+          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center gap-2 rounded-full bg-emerald-grad px-4 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 hover:brightness-105 transition"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5z" />
@@ -109,7 +109,7 @@ export default function InsightsWidget() {
               messages.map((m, i) =>
                 m.role === "user" ? (
                   <div key={i} className="flex justify-end">
-                    <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-emerald-grad px-3 py-2 text-[13px] text-[#05271c]">{m.content}</div>
+                    <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-emerald-grad px-3 py-2 text-[13px] text-white">{m.content}</div>
                   </div>
                 ) : (
                   <div key={i} className="flex justify-start">
@@ -148,7 +148,7 @@ export default function InsightsWidget() {
               placeholder="Ask about the numbers…"
               className="flex-1 resize-none rounded-xl border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
             />
-            <button type="submit" disabled={loading || !input.trim()} className="rounded-xl bg-emerald-grad px-3 py-2 text-[13px] font-medium text-[#05271c] disabled:opacity-50">Send</button>
+            <button type="submit" disabled={loading || !input.trim()} className="rounded-xl bg-emerald-grad px-3 py-2 text-[13px] font-medium text-white disabled:opacity-50">Send</button>
           </form>
 
           {error ? <div className="border-t border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}

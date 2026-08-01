@@ -31,7 +31,7 @@ export default async function ReviewsPage() {
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people" className="text-xs font-medium text-brand-300 hover:underline">← People / HR</Link>
+        <Link href="/management/people" className="text-xs font-medium text-brand-700 hover:underline">← People / HR</Link>
       </div>
       <PageHeader title="New-hire reviews" subtitle="30 & 60-day reviews — assign a reviewer, track signatures, give final approval" />
 

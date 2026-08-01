@@ -75,7 +75,7 @@ export default async function InspectPage({
   return (
     <>
       <div className="mb-2">
-        <Link href={`/fleet/${id}`} className="text-xs font-medium text-brand-300 hover:underline">← {vlabel}</Link>
+        <Link href={`/fleet/${id}`} className="text-xs font-medium text-brand-700 hover:underline">← {vlabel}</Link>
       </div>
       <PageHeader
         title="Monthly Vehicle Inspection"

@@ -159,7 +159,7 @@ export default function InspectionForm({
                       key={r.value}
                       onClick={() => setRatings((s) => ({ ...s, [it.key]: r.value }))}
                       className={`rounded-lg px-3 py-2 text-xs font-medium min-w-[84px] transition-colors ${
-                        sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"
+                        sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
                       {r.short} · {r.value}
@@ -201,7 +201,7 @@ export default function InspectionForm({
                 <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
                   <button
                     onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))}
-                    className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}
+                    className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
                   >Pass</button>
                   <button
                     onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))}

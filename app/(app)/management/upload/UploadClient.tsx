@@ -90,7 +90,7 @@ export default function UploadClient({ hasKey }: { hasKey: boolean }) {
         </p>
       ) : null}
       {error ? <p className="mb-3 text-sm text-red-400">{error}</p> : null}
-      {note ? <p className="mb-3 text-sm text-brand-200">{note}</p> : null}
+      {note ? <p className="mb-3 text-sm text-brand-800">{note}</p> : null}
 
       {parsed ? (
         <Card className="p-4 space-y-4">

@@ -135,7 +135,7 @@ export default async function MyBranchPage({
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
           <div className="px-4 py-3 border-b border-line flex items-center justify-between">
             <div className="text-sm font-medium text-ink">PTO requests need review · {ptoPending.length}</div>
-            <Link href="/my-branch/team" className="text-xs font-medium text-brand-300 hover:underline">Review →</Link>
+            <Link href="/my-branch/team" className="text-xs font-medium text-brand-700 hover:underline">Review →</Link>
           </div>
           <ul className="divide-y divide-line">
             {ptoPending.slice(0, 5).map((r) => (
@@ -355,7 +355,7 @@ function FreqBadge({ children }: { children: React.ReactNode }) {
 
 function BranchPill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>
       {label}
     </Link>
   );

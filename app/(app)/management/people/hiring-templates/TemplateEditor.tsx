@@ -88,7 +88,7 @@ export default function TemplateEditor({
               const sel = roleKeys.includes(r.key);
               return (
                 <button key={r.key} type="button" onClick={() => toggleRole(r.key)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${sel ? "bg-emerald-grad text-white shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
                   {r.label}
                 </button>
               );

@@ -118,7 +118,7 @@ export default function AlertsClient({
                 key={v}
                 onClick={() => setShow(v)}
                 className={`rounded-full px-3 py-1.5 font-medium capitalize ${
-                  show === v ? "bg-emerald-grad text-[#05271c]" : "bg-slate-100 text-slate-600"
+                  show === v ? "bg-emerald-grad text-white" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {v}

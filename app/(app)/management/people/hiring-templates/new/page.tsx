@@ -19,7 +19,7 @@ export default async function NewTemplatePage({ searchParams }: { searchParams: 
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people/hiring-templates" className="text-xs font-medium text-brand-300 hover:underline">← Hiring Template Library</Link>
+        <Link href="/management/people/hiring-templates" className="text-xs font-medium text-brand-700 hover:underline">← Hiring Template Library</Link>
       </div>
       <PageHeader title={`New ${kind} template`} subtitle="Build from the off-the-shelf bank, custom questions, or AI drafting" />
       <TemplateEditor

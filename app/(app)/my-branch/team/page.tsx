@@ -29,7 +29,7 @@ export default async function TeamPage({
       <PageHeader
         title="My Team"
         subtitle="Review PTO, or select a team member to file a write-up, note, recognition, or accident report"
-        actions={<Link href={`/my-branch/pto${branch ? `?branch=${branch}` : ""}`} className="text-xs font-medium text-brand-300 hover:underline">PTO calendar →</Link>}
+        actions={<Link href={`/my-branch/pto${branch ? `?branch=${branch}` : ""}`} className="text-xs font-medium text-brand-700 hover:underline">PTO calendar →</Link>}
       />
 
       <PtoReviewPanel
@@ -96,6 +96,6 @@ export default async function TeamPage({
 
 function Pill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>{label}</Link>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>{label}</Link>
   );
 }

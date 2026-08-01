@@ -112,7 +112,7 @@ export default function ScorecardForm({
                     disabled={readOnly}
                     onClick={() => setRating(c.key, r.value)}
                     title={r.label}
-                    className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}
+                    className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}
                   >
                     {r.value} · {r.label}
                   </button>
@@ -143,7 +143,7 @@ export default function ScorecardForm({
                 const sel = basics[b.key] === opt;
                 return (
                   <button key={opt} type="button" disabled={readOnly} onClick={() => setBasic(b.key, opt)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>
                     {BASICS_LABELS[opt]}
                   </button>
                 );
@@ -167,7 +167,7 @@ export default function ScorecardForm({
                     const sel = extras[q.key] === opt;
                     return (
                       <button key={opt} type="button" disabled={readOnly} onClick={() => setExtra(q.key, opt)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>
+                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>
                         {opt === "yes" ? "Yes" : "No"}
                       </button>
                     );
@@ -192,7 +192,7 @@ export default function ScorecardForm({
               const sel = overall === r.value;
               return (
                 <button key={r.value} type="button" disabled={readOnly} onClick={() => { setOverall(r.value); setSaved(false); }} title={r.label}
-                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
+                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
                   {r.value} · {r.label}
                 </button>
               );
@@ -206,7 +206,7 @@ export default function ScorecardForm({
               const sel = recommendation === k;
               return (
                 <button key={k} type="button" disabled={readOnly} onClick={() => { setRecommendation(k); setSaved(false); }}
-                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-[#05271c] shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
+                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${sel ? "bg-emerald-grad text-white shadow" : "border border-line bg-white text-ink hover:bg-black/[0.03]"}`}>
                   {RECOMMENDATION_LABELS[k]}
                 </button>
               );

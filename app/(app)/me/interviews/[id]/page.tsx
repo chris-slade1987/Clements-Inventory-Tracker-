@@ -35,7 +35,7 @@ export default async function InterviewScorecardPage({ params }: { params: Promi
   return (
     <>
       <div className="mb-2">
-        <Link href="/me" className="text-xs font-medium text-brand-300 hover:underline">← My Work</Link>
+        <Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link>
       </div>
       <PageHeader
         title={`Interview — ${interview.candidate.name}`}

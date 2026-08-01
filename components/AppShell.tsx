@@ -270,7 +270,7 @@ export default function AppShell({
       </aside>
 
       {/* Main column */}
-      <div className="flex-1 md:pl-60 flex flex-col">
+      <div className="flex-1 md:pl-60 flex flex-col app-canvas">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}

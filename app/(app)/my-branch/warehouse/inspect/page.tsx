@@ -38,7 +38,7 @@ export default async function WarehouseInspectPage({
   return (
     <>
       <div className="mb-2">
-        <Link href="/my-branch/warehouse" className="text-xs font-medium text-brand-300 hover:underline">← Warehouse Safety</Link>
+        <Link href="/my-branch/warehouse" className="text-xs font-medium text-brand-700 hover:underline">← Warehouse Safety</Link>
       </div>
       <PageHeader title="Warehouse Safety Inspection" subtitle={`${branchLabel(branch)} · ${new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" })} ${year}`} />
       <WarehouseForm branch={branch} year={year} month={month} isEdit={!!existing} prefill={prefill} />

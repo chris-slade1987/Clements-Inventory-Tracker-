@@ -35,7 +35,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   return (
     <>
       <div className="mb-2">
-        <Link href="/fleet" className="text-xs font-medium text-brand-300 hover:underline">← Fleet</Link>
+        <Link href="/fleet" className="text-xs font-medium text-brand-700 hover:underline">← Fleet</Link>
       </div>
       <PageHeader
         title={`${v.unitNumber ? `${v.unitNumber} · ` : ""}${v.name}`}

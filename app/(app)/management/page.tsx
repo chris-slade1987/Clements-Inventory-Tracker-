@@ -44,7 +44,7 @@ export default async function ManagementPage({
           hint="Upload a Monthly Board Report (MBR) to populate the dashboard."
         />
         <div className="mt-4">
-          <Link href="/management/upload" className="text-sm font-medium text-brand-300 hover:underline">
+          <Link href="/management/upload" className="text-sm font-medium text-brand-700 hover:underline">
             → Upload your first MBR
           </Link>
         </div>
@@ -153,13 +153,13 @@ export default async function ManagementPage({
 
       {/* Scope indicator */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="flex items-center gap-2 text-sm font-medium text-white">
+        <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
           <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
           {isCompany ? "All branches" : branchLabel(scope)}
-          <span className="text-mint font-light">· {basisLabel}</span>
+          <span className="text-muted font-light">· {basisLabel}</span>
         </h2>
         {!isCompany ? (
-          <Link href={branchLink("company")} className="text-xs font-medium text-brand-300 hover:underline">
+          <Link href={branchLink("company")} className="text-xs font-medium text-brand-700 hover:underline">
             ← All branches
           </Link>
         ) : null}

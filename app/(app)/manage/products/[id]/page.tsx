@@ -49,7 +49,7 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
   return (
     <>
       <div className="mb-2">
-        <Link href="/manage/products" className="text-xs font-medium text-brand-300 hover:underline">← All products</Link>
+        <Link href="/manage/products" className="text-xs font-medium text-brand-700 hover:underline">← All products</Link>
       </div>
       <PageHeader
         title={product.name}
@@ -82,7 +82,7 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
             </div>
           </div>
           {product.sdsUrl ? (
-            <a href={product.sdsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-[#05271c] shadow-sm transition hover:brightness-95">
+            <a href={product.sdsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:brightness-95">
               View SDS
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" /></svg>
             </a>

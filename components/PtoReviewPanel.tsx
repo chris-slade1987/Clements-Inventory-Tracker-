@@ -72,7 +72,7 @@ export default function PtoReviewPanel({ pending, showBranch = false }: { pendin
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <button onClick={() => decide(r.id, true)} disabled={busy === r.id} className="rounded-lg bg-emerald-grad px-3 py-1.5 text-xs font-medium text-[#05271c] disabled:opacity-50">Approve</button>
+                  <button onClick={() => decide(r.id, true)} disabled={busy === r.id} className="rounded-lg bg-emerald-grad px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">Approve</button>
                   <button onClick={() => decide(r.id, false)} disabled={busy === r.id} className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50">Deny</button>
                   <button onClick={() => { setNoteFor(noteFor === r.id ? null : r.id); setNote(""); }} className="text-xs text-muted hover:text-ink">Note</button>
                 </div>

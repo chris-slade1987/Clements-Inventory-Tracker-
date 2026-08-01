@@ -50,7 +50,7 @@ export default async function GpsDashboardPage({
   return (
     <>
       <div className="mb-2">
-        <Link href="/fleet" className="text-xs font-medium text-brand-300 hover:underline">← Fleet</Link>
+        <Link href="/fleet" className="text-xs font-medium text-brand-700 hover:underline">← Fleet</Link>
       </div>
       <PageHeader
         title="GPS Analytics"
@@ -88,7 +88,7 @@ export default async function GpsDashboardPage({
       <p className="mb-5 text-xs text-muted">
         {summary.lastSyncAt ? `Last sync ${lastSeen(summary.lastSyncAt)}` : "No sync yet"}
         {summary.lastSyncOk === false ? " · last sync failed" : ""} ·{" "}
-        <Link href="/fleet/map" className="text-brand-300 hover:underline">Open Live Map →</Link>
+        <Link href="/fleet/map" className="text-brand-700 hover:underline">Open Live Map →</Link>
       </p>
 
       {/* Utilization */}
@@ -106,7 +106,7 @@ export default async function GpsDashboardPage({
         <span className="text-xs font-semibold uppercase tracking-wider text-muted">
           Open exceptions · last {GPS_THRESHOLDS.WINDOW_DAYS} days
         </span>
-        <Link href={alertsHref()} className="text-xs font-medium text-brand-300 hover:underline">All GPS alerts →</Link>
+        <Link href={alertsHref()} className="text-xs font-medium text-brand-700 hover:underline">All GPS alerts →</Link>
       </div>
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 mb-5">
         {EXCEPTION_TYPES.map((t) => (
@@ -129,7 +129,7 @@ export default async function GpsDashboardPage({
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">Rules-based</span>
           )}
           {(exceptions.ai_pattern ?? 0) > 0 ? (
-            <Link href={alertsHref("ai_pattern")} className="ml-auto text-xs font-medium text-brand-300 hover:underline">
+            <Link href={alertsHref("ai_pattern")} className="ml-auto text-xs font-medium text-brand-700 hover:underline">
               {exceptions.ai_pattern} AI pattern alert{exceptions.ai_pattern === 1 ? "" : "s"} →
             </Link>
           ) : null}
@@ -212,7 +212,7 @@ function BranchPill({ href, label, active }: { href: string; label: string; acti
     <Link
       href={href}
       className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-        active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"
+        active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"
       }`}
     >
       {label}

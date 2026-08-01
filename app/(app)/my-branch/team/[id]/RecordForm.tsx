@@ -153,7 +153,7 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
                 <div key={c.key} className="flex items-center gap-2">
                   <div className="flex-1 text-sm text-ink">{c.label}</div>
                   <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                    <button onClick={() => setD(c.key, "Yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "Yes" ? "bg-emerald-grad text-[#05271c] shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+                    <button onClick={() => setD(c.key, "Yes")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "Yes" ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
                     <button onClick={() => setD(c.key, "No")} className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${details[c.key] === "No" ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
                   {g.items.map((c) => (
                     <li key={c.key}>
                       <button onClick={() => setChecklist((s) => ({ ...s, [c.key]: !s[c.key] }))} className="flex items-start gap-2 text-left w-full group">
-                        <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border text-xs ${checklist[c.key] ? "bg-emerald-grad border-transparent text-[#05271c]" : "border-line text-transparent group-hover:border-brand-400"}`}>✓</span>
+                        <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border text-xs ${checklist[c.key] ? "bg-emerald-grad border-transparent text-white" : "border-line text-transparent group-hover:border-brand-400"}`}>✓</span>
                         <span className={`text-sm ${checklist[c.key] ? "text-muted line-through" : "text-ink"}`}>{c.label}</span>
                       </button>
                     </li>

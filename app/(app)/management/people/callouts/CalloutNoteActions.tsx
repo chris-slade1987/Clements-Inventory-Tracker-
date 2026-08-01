@@ -25,7 +25,7 @@ export default function CalloutNoteActions({ id }: { id: string }) {
 
   return (
     <span className="inline-flex items-center gap-2">
-      <button onClick={() => resolve("received")} disabled={busy} className="rounded-lg bg-emerald-grad px-3 py-1 text-xs font-medium text-[#05271c] disabled:opacity-50">Mark received</button>
+      <button onClick={() => resolve("received")} disabled={busy} className="rounded-lg bg-emerald-grad px-3 py-1 text-xs font-medium text-white disabled:opacity-50">Mark received</button>
       <button onClick={() => resolve("waived")} disabled={busy} className="rounded-lg border border-line px-3 py-1 text-xs font-medium text-ink hover:bg-black/5 disabled:opacity-50">Waive (FMLA/ADA)</button>
       {error ? <span className="text-xs text-red-600">{error}</span> : null}
     </span>

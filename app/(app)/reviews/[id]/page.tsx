@@ -31,7 +31,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <div className="mb-2">
-        <Link href={hr ? "/management/people/reviews" : isSubjectEmployee ? "/me" : "/my-branch"} className="text-xs font-medium text-brand-300 hover:underline">← Back</Link>
+        <Link href={hr ? "/management/people/reviews" : isSubjectEmployee ? "/me" : "/my-branch"} className="text-xs font-medium text-brand-700 hover:underline">← Back</Link>
       </div>
       <PageHeader
         title={`${review.employee.name} — ${label}`}

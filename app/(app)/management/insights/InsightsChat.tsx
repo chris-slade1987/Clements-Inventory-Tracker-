@@ -82,7 +82,7 @@ export default function InsightsChat({ configured }: { configured: boolean }) {
             messages.map((m, i) =>
               m.role === "user" ? (
                 <div key={i} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-emerald-grad px-4 py-2.5 text-sm text-[#05271c] shadow-sm">
+                  <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-emerald-grad px-4 py-2.5 text-sm text-white shadow-sm">
                     {m.content}
                   </div>
                 </div>

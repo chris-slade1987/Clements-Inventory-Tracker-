@@ -48,7 +48,7 @@ export default async function CalloutOverviewPage({ searchParams }: { searchPara
   return (
     <>
       <div className="mb-2">
-        <Link href="/management/people" className="text-xs font-medium text-brand-300 hover:underline">← People / HR</Link>
+        <Link href="/management/people" className="text-xs font-medium text-brand-700 hover:underline">← People / HR</Link>
       </div>
       <PageHeader title="Call-out overview" subtitle="Unplanned absences — outstanding medical notes, recent call-outs, and attendance patterns" />
 
@@ -171,7 +171,7 @@ export default async function CalloutOverviewPage({ searchParams }: { searchPara
 
 function Pill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-[#05271c] shadow" : "text-mint hover:text-white"}`}>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>
       {label}
     </Link>
   );

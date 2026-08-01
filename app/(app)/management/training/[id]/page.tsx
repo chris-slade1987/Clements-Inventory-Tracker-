@@ -30,7 +30,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <div className="mb-2"><Link href="/management/training" className="text-xs font-medium text-brand-300 hover:underline">← Training</Link></div>
+      <div className="mb-2"><Link href="/management/training" className="text-xs font-medium text-brand-700 hover:underline">← Training</Link></div>
       <PageHeader title={course.title} subtitle={`${course.category === "onboarding" ? "Onboarding" : "CEU"} · ${questions.length} questions · pass ${course.passingScore}%`} />
 
       <div className="grid gap-4 lg:grid-cols-2 mb-5">
