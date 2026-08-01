@@ -9,7 +9,7 @@ import FuelCoastSync from "@/components/FuelCoastSync";
 import FleetFuelDashboard from "@/components/FleetFuelDashboard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Fuel — Canopy OS" };
+export const metadata = { title: "Fuel — CanopyOS" };
 
 export default async function FleetFuelPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await requireUser();

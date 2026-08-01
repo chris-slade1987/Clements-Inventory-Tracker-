@@ -4,7 +4,7 @@ import { REVIEW_FORMS, REVIEW_LABEL, parseResponses } from "@/lib/review";
 import ReviewSignClient from "./ReviewSignClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review & sign — Canopy OS" };
+export const metadata = { title: "Review & sign — CanopyOS" };
 
 const D = (d: Date | null) => (d ? d.toLocaleDateString() : "");
 
@@ -21,7 +21,7 @@ export default async function ReviewSignPage({ params }: { params: Promise<{ tok
         <div className="flex flex-col items-center mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/clements-mark.svg" alt="Clements" className="h-12 w-12" />
-          <h1 className="mt-3 text-xl font-light tracking-tight text-white">Canopy OS</h1>
+          <h1 className="mt-3 text-xl font-light tracking-tight text-white">CanopyOS</h1>
         </div>
 
         {!review ? (

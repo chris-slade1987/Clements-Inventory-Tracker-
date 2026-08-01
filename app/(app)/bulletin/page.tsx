@@ -8,7 +8,7 @@ import Glyph from "@/components/Glyph";
 import BulletinTile from "@/components/BulletinTile";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Company Bulletin — Canopy OS" };
+export const metadata = { title: "Company Bulletin — CanopyOS" };
 
 const fmtDay = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 const fmtLong = (d: Date) => d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });

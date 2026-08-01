@@ -29,7 +29,7 @@ export async function GET(req: Request) {
   ]);
 
   const lines: string[] = [];
-  lines.push("Canopy OS — Report");
+  lines.push("CanopyOS — Report");
   lines.push(
     row([
       "Range",

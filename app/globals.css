@@ -2,32 +2,33 @@
 
 /* ---- Design tokens ---------------------------------------------------- */
 @theme {
-  /* Emerald accent scale (interactive) */
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #065f46;
-  --color-brand-900: #064e3b;
+  /* CanopyOS green accent scale (interactive) — sophisticated forest tints,
+     never neon. Built around the primary #0B3D20. */
+  --color-brand-50: #eef4f0;
+  --color-brand-100: #dce9df; /* soft sage */
+  --color-brand-200: #c3dac9;
+  --color-brand-300: #a3c6ab;
+  --color-brand-400: #74a96e; /* light green */
+  --color-brand-500: #4f8a5f;
+  --color-brand-600: #2e6f47; /* secondary green */
+  --color-brand-700: #1f5836;
+  --color-brand-800: #144229;
+  --color-brand-900: #0b3d20; /* primary forest */
 
-  /* Forest greens (the app ground) */
-  --color-forest-light: #14503a;
-  --color-forest: #0f3d2c;
-  --color-forest-deep: #0a2e20;
-  --color-forest-ink: #08251a;
-  --color-mint: #9db5a8; /* muted text on forest */
+  /* Forest greens (the app chrome / nav rail) */
+  --color-forest-light: #12492b;
+  --color-forest: #0b3d20;
+  --color-forest-deep: #082e18;
+  --color-forest-ink: #061f11;
+  --color-mint: #a7bdb0; /* calm text on forest */
 
-  /* Neutral tokens — DARK by default (the whole app rides on forest).
-     Popovers (dropdowns, dialogs) opt back into light via .surface-light. */
-  --color-ink: #eef5f0; /* primary text on forest */
-  --color-muted: #9db5a8; /* secondary text on forest */
-  --color-line: rgba(255, 255, 255, 0.12);
-  --color-surface: rgba(255, 255, 255, 0.05); /* card / panel on forest */
-  --color-canvas: #0f3d2c;
+  /* Neutral tokens — DARK chrome by default (the rail rides on forest).
+     Content cards opt into the light enterprise scheme via .surface-light. */
+  --color-ink: #eef4f0; /* primary text on forest */
+  --color-muted: #a7bdb0; /* secondary text on forest */
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-surface: rgba(255, 255, 255, 0.04); /* card / panel on forest */
+  --color-canvas: #0b3d20;
 }
 
 :root {
@@ -40,11 +41,12 @@ body {
 }
 
 body {
-  /* The forest ground shows everywhere the chrome and cards don't cover. */
+  /* The forest ground shows everywhere the chrome and cards don't cover.
+     Calm and flat — a whisper of sage depth, no neon glow. */
   background:
-    radial-gradient(1100px 620px at 88% -12%, rgba(52, 211, 153, 0.14), transparent 60%),
-    linear-gradient(165deg, #14503a 0%, #0f3d2c 42%, #08251a 100%) fixed;
-  background-color: #0f3d2c;
+    radial-gradient(1100px 640px at 90% -15%, rgba(116, 169, 110, 0.1), transparent 62%),
+    linear-gradient(168deg, #12492b 0%, #0b3d20 45%, #061f11 100%) fixed;
+  background-color: #0b3d20;
   color: var(--color-ink);
   font-family: "Helvetica Neue", Arial, Helvetica, system-ui, sans-serif;
   font-weight: 300;
@@ -57,28 +59,29 @@ body {
 /* Reusable brand gradients */
 .bg-forest-grad {
   background:
-    radial-gradient(900px 460px at 85% -15%, rgba(52, 211, 153, 0.16), transparent 60%),
-    linear-gradient(160deg, var(--color-forest-light) 0%, var(--color-forest) 45%, var(--color-forest-ink) 100%);
+    radial-gradient(900px 480px at 88% -18%, rgba(116, 169, 110, 0.09), transparent 60%),
+    linear-gradient(162deg, var(--color-forest-light) 0%, var(--color-forest) 46%, var(--color-forest-ink) 100%);
 }
+/* Primary action fill — a restrained secondary→primary green, not bright. */
 .bg-emerald-grad {
-  background-image: linear-gradient(150deg, #34d399 0%, #10b981 55%, #059669 100%);
+  background-image: linear-gradient(150deg, #2e6f47 0%, #1f5836 55%, #0b3d20 100%);
 }
-/* Data cards/panels: a soft off-white → pale-mint gradient island on the
-   forest ground, for maximum readability. Pairs with .surface-light. */
+/* Data cards/panels: a clean white → light-gray island on the forest ground,
+   for maximum readability. Pairs with .surface-light. */
 .bg-card-grad {
-  background-image: linear-gradient(160deg, #f6fbf9 0%, #dcedec 100%);
+  background-image: linear-gradient(160deg, #ffffff 0%, #f4f6f5 100%);
 }
 
 /* Popover surfaces (dropdown lists, dialogs) opt back into a light,
    neutral scheme by re-scoping the tokens locally. */
 .surface-light {
-  --color-ink: #0e1b15;
+  --color-ink: #1d2a23; /* dark text */
   --color-muted: #5c6b62;
-  --color-line: #e3eae5;
+  --color-line: #d9deda; /* border gray */
   --color-surface: #ffffff;
-  --color-canvas: #f4f7f4;
+  --color-canvas: #f4f6f5; /* light gray background */
   background-color: #ffffff;
-  color: #0e1b15;
+  color: #1d2a23;
 }
 
 /* Native form controls stay neutral/light everywhere (dropdowns + inputs). */

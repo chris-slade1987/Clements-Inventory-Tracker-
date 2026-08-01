@@ -42,8 +42,8 @@ export async function POST(req: Request) {
         kind: "review_pending_approval",
         relatedType: "newhire_review",
         relatedId: review.id,
-        text: `${review.employee.name}${b} and their reviewer have both signed the ${label}. Please review and give final approval:\n${base()}/reviews/${review.id}\n\n— Canopy OS`,
-        html: `<p><strong>${review.employee.name}</strong>${b} and their reviewer have both signed the <strong>${label}</strong>.</p><p><a href="${base()}/reviews/${review.id}">Review &amp; give final approval →</a></p><p>— Canopy OS</p>`,
+        text: `${review.employee.name}${b} and their reviewer have both signed the ${label}. Please review and give final approval:\n${base()}/reviews/${review.id}\n\n— CanopyOS`,
+        html: `<p><strong>${review.employee.name}</strong>${b} and their reviewer have both signed the <strong>${label}</strong>.</p><p><a href="${base()}/reviews/${review.id}">Review &amp; give final approval →</a></p><p>— CanopyOS</p>`,
       });
     }
     return NextResponse.json({ ok: true });

@@ -5,7 +5,7 @@ import { getSystemMap, interconnectionMermaid, processFlows } from "@/lib/system
 import SystemMapClient from "./SystemMapClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "System Map — Canopy OS" };
+export const metadata = { title: "System Map — CanopyOS" };
 
 export default async function SystemMapPage() {
   const user = await getSessionUser();

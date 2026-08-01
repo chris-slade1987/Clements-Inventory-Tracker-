@@ -10,7 +10,7 @@ import {
 import { AddDocButton, AddContactButton, DeleteX, RepairButton } from "./BranchHubClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Branch Hub — Canopy OS" };
+export const metadata = { title: "Branch Hub — CanopyOS" };
 
 const money = (n: number | null) => (n == null ? "—" : n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }));
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "—");

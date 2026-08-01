@@ -9,7 +9,7 @@ import { handbookAckRoster } from "@/lib/policy-docs";
 import RowActions from "./RowActions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Handbook acknowledgments — Canopy OS" };
+export const metadata = { title: "Handbook acknowledgments — CanopyOS" };
 
 const D = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
 const SOURCE: Record<string, string> = { in_app: "in-app", onboarding: "onboarding", link: "signed link" };

@@ -42,8 +42,8 @@ export async function POST(req: Request) {
     kind: "signature_request",
     relatedType: "personnel_record",
     relatedId: recordId,
-    text: `You have a ${label.toLowerCase()} to review and sign as "${roleDef.label}".\n\nReview and e-sign here: ${link}\n\nPlease sign within 24 hours. You'll receive daily reminders until it's signed.\n\n— Canopy OS`,
-    html: `<p>You have a <strong>${label.toLowerCase()}</strong> to review and sign as <strong>${roleDef.label}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>Please sign within 24 hours. You'll receive daily reminders until it's signed.</p><p>— Canopy OS</p>`,
+    text: `You have a ${label.toLowerCase()} to review and sign as "${roleDef.label}".\n\nReview and e-sign here: ${link}\n\nPlease sign within 24 hours. You'll receive daily reminders until it's signed.\n\n— CanopyOS`,
+    html: `<p>You have a <strong>${label.toLowerCase()}</strong> to review and sign as <strong>${roleDef.label}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>Please sign within 24 hours. You'll receive daily reminders until it's signed.</p><p>— CanopyOS</p>`,
   });
 
   return NextResponse.json({ ok: true, emailStatus: res.status, link });

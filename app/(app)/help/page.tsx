@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 
-export const metadata = { title: "Help — Canopy OS" };
+export const metadata = { title: "Help — CanopyOS" };
 
 export default async function HelpPage() {
   await requireUser();

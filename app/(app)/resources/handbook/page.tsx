@@ -5,7 +5,7 @@ import Markdown from "@/components/Markdown";
 import HandbookAck from "./HandbookAck";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Employee Handbook — Canopy OS" };
+export const metadata = { title: "Employee Handbook — CanopyOS" };
 
 export default async function HandbookPage() {
   const user = await requireUser();

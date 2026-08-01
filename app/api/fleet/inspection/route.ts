@@ -125,8 +125,8 @@ export async function POST(req: Request) {
           kind: "inspection_score",
           relatedType: "vehicle_inspection",
           relatedId: saved.id,
-          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— Canopy OS`,
-          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— Canopy OS</p>`,
+          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— CanopyOS`,
+          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— CanopyOS</p>`,
         });
         emailStatus = res.status;
       }

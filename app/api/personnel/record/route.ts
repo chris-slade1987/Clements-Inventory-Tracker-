@@ -78,8 +78,8 @@ export async function POST(req: Request) {
       kind: "personnel_record",
       relatedType: "personnel_record",
       relatedId: record.id,
-      text: `A ${label.toLowerCase()} was filed by ${user.name} for ${employee.name}${b}.\n\n${summary}\n\nView the employee's personnel profile: ${base()}/management/people/${employeeId}\n\n— Canopy OS`,
-      html: `<p>A <strong>${label.toLowerCase()}</strong> was filed by ${user.name} for <strong>${employee.name}</strong>${b}.</p><p>${summary}</p><p><a href="${base()}/management/people/${employeeId}">View personnel profile →</a></p><p>— Canopy OS</p>`,
+      text: `A ${label.toLowerCase()} was filed by ${user.name} for ${employee.name}${b}.\n\n${summary}\n\nView the employee's personnel profile: ${base()}/management/people/${employeeId}\n\n— CanopyOS`,
+      html: `<p>A <strong>${label.toLowerCase()}</strong> was filed by ${user.name} for <strong>${employee.name}</strong>${b}.</p><p>${summary}</p><p><a href="${base()}/management/people/${employeeId}">View personnel profile →</a></p><p>— CanopyOS</p>`,
     });
     if (res.status === "sent") await prisma.personnelRecord.update({ where: { id: record.id }, data: { hrNotified: true } });
 

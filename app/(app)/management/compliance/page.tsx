@@ -11,7 +11,7 @@ import {
 } from "@/lib/compliance";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Compliance Command Center — Canopy OS" };
+export const metadata = { title: "Compliance Command Center — CanopyOS" };
 
 const fmt = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "—");
 const MONTH = (ym: string) => { const [y, m] = ym.split("-").map(Number); return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" }); };

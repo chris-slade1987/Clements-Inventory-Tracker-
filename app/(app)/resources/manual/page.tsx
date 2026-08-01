@@ -5,7 +5,7 @@ import { getDocument, MANUAL_SLUG } from "@/lib/policy-docs";
 import Markdown, { extractHeadings } from "@/components/Markdown";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Manager Operating Manual — Canopy OS" };
+export const metadata = { title: "Manager Operating Manual — CanopyOS" };
 
 export default async function ManualPage() {
   const user = await requireUser();

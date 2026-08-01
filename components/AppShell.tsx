@@ -40,7 +40,7 @@ function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }
   const cell = (active: boolean) =>
     `rounded-lg font-medium text-center transition-colors ${
       compact ? "px-2.5 py-1 text-[11px]" : "px-2.5 py-2 text-xs"
-    } ${active ? "bg-emerald-grad text-[#05271c] shadow-sm" : "text-mint hover:bg-white/5 hover:text-white"}`;
+    } ${active ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:bg-white/5 hover:text-white"}`;
 
   if (compact) {
     return (
@@ -192,13 +192,9 @@ export default function AppShell({
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
-        <div className="flex items-center gap-3 px-5 h-16 border-b border-white/10">
+        <div className="flex items-center px-5 h-16 border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clements-mark.svg" alt="Clements" className="h-9 w-9 shrink-0" />
-          <div className="leading-tight">
-            <div className="font-semibold text-white tracking-[0.14em]">CLEMENTS</div>
-            <div className="text-xs text-mint">Canopy OS</div>
-          </div>
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-7 w-auto" />
         </div>
         {showCenters ? (
           <div className="px-3 pt-3">
@@ -266,6 +262,9 @@ export default function AppShell({
                 Sign out
               </button>
             </form>
+            <div className="mt-3 border-t border-white/5 pt-2.5 text-[10px] uppercase tracking-[0.14em] text-mint/55">
+              Clements Internal Platform
+            </div>
           </div>
         ) : null}
       </aside>
@@ -275,8 +274,7 @@ export default function AppShell({
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clements-mark.svg" alt="Clements" className="h-7 w-7 shrink-0" />
-          <span className="font-semibold text-white tracking-[0.12em]">CLEMENTS</span>
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-6 w-auto" />
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
           <div className="ml-auto flex items-center gap-2">
           <NotificationBell initialCount={unread} />

@@ -3,10 +3,10 @@ import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "Canopy OS",
+  title: { default: "CanopyOS | Clements", template: "%s · CanopyOS" },
   description:
-    "Inventory and management reporting portal for Clements Pest Control.",
-  applicationName: "Canopy OS",
+    "The operating platform for Clements Pest Control — inventory, fleet, people, and management in one place.",
+  applicationName: "CanopyOS",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     title: "CanopyOS",
   },
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/apple-touch-icon.png",
+    icon: "/icons/canopyos-favicon.png",
+    apple: "/icons/canopyos-apple.png",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f3d2c",
+  themeColor: "#0B3D20",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
