@@ -17,6 +17,7 @@ import {
 import Controls from "../Controls";
 import { LineChart, Donut } from "@/components/charts";
 import { latestSalesSnapshot } from "@/lib/sales-sync";
+import { isConfigured as isWorkwaveConfigured } from "@/lib/workwave";
 import SalesCenterLive from "./SalesCenterLive";
 
 export const dynamic = "force-dynamic";
@@ -30,12 +31,14 @@ export default async function SalesPage({
   const sp = await searchParams;
   const snap = await latestSalesSnapshot();
   const canSync = user.role === "admin" || user.role === "manager";
+  const workwaveConfigured = isWorkwaveConfigured();
   const live = (
     <SalesCenterLive
       metrics={snap.metrics}
       syncedAt={snap.syncedAt ? snap.syncedAt.toISOString() : null}
       lastError={snap.lastError ?? null}
       canSync={canSync}
+      workwaveConfigured={workwaveConfigured}
     />
   );
 

@@ -14,23 +14,31 @@ type Metrics = {
   months: { month: string; leads: number; won: number; soldAnnual: number }[];
   recentWon: { date: string; name: string; branch: string; owner: string; annualValue: number }[];
   openPipeline: number; totalRows: number;
+  /** Which source produced this snapshot ("workwave" | "sheet"; absent on legacy snapshots). */
+  source?: string;
 };
 
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const pct = (n: number | null) => (n == null ? "—" : `${n.toFixed(0)}%`);
 const MONTH = (ym: string) => { const [y, m] = ym.split("-").map(Number); return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }); };
 
-export default function SalesCenterLive({ metrics, syncedAt, lastError, canSync }: { metrics: Metrics | null; syncedAt: string | null; lastError: string | null; canSync: boolean }) {
+export default function SalesCenterLive({ metrics, syncedAt, lastError, canSync, workwaveConfigured = false }: { metrics: Metrics | null; syncedAt: string | null; lastError: string | null; canSync: boolean; workwaveConfigured?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  // The live connection is WorkWave when its key is configured; otherwise the
+  // hourly Google-Sheet export. `metrics.source` records which one produced the
+  // snapshot on screen (may differ from the connection right after a switchover).
+  const onWorkwave = workwaveConfigured;
+  const snapshotSource = metrics?.source;
 
   async function sync() {
     setBusy(true); setMsg(null);
     const res = await fetch("/api/sales/sync", { method: "POST" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    setMsg(res.ok ? `Synced ${data.rows} opportunities.` : (data.error ?? "Sync failed."));
+    setMsg(res.ok ? `Synced ${data.rows ?? 0} opportunities${data.source ? ` from ${data.source === "workwave" ? "WorkWave" : "the sheet"}` : ""}.` : (data.error ?? "Sync failed."));
     router.refresh();
   }
 
@@ -40,19 +48,34 @@ export default function SalesCenterLive({ metrics, syncedAt, lastError, canSync 
     <Card className="p-4 mb-6">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div>
-          <div className="text-sm font-semibold text-ink">Sales Center — live</div>
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-semibold text-ink">Sales Center — live</div>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${onWorkwave ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-black/[0.04] text-muted border border-line"}`}
+              title={onWorkwave ? "Pulling live from the WorkWave Sales Center API" : "Reading the shared Google-Sheet export (WorkWave API not configured)"}
+            >
+              <span className={`inline-block h-1.5 w-1.5 rounded-full ${onWorkwave ? "bg-emerald-500" : "bg-black/25"}`} aria-hidden />
+              {onWorkwave ? "WorkWave API" : "Google Sheet"}
+            </span>
+          </div>
           <div className="text-[11px] text-muted">
             {syncedAt ? `Synced ${new Date(syncedAt).toLocaleString()} · ${metrics?.totalRows.toLocaleString()} opportunities` : "Not synced yet"}
+            {snapshotSource && snapshotSource !== (onWorkwave ? "workwave" : "sheet") ? ` · via ${snapshotSource === "workwave" ? "WorkWave" : "sheet"}` : ""}
             {lastError ? " · last sync failed" : ""}
           </div>
         </div>
         {canSync ? <button onClick={sync} disabled={busy} className={btn.secondary}>{busy ? "Syncing…" : "Sync now"}</button> : null}
       </div>
 
-      {lastError ? <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">Sheet sync error: {lastError}</div> : null}
+      {lastError ? <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{onWorkwave ? "WorkWave" : "Sheet"} sync error: {lastError}</div> : null}
 
       {!metrics ? (
-        <p className="py-6 text-center text-sm text-muted">No sales data yet. Click <span className="font-medium">Sync now</span> once the Google Sheet is shared &ldquo;Anyone with the link&rdquo;.</p>
+        <p className="py-6 text-center text-sm text-muted">
+          No sales data yet.{" "}
+          {onWorkwave
+            ? <>Click <span className="font-medium">Sync now</span> to pull from the WorkWave Sales Center API.</>
+            : <>Click <span className="font-medium">Sync now</span> once the Google Sheet is shared &ldquo;Anyone with the link&rdquo;.</>}
+        </p>
       ) : (
         <>
           {/* Period tiles */}
