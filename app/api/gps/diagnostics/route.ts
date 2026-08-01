@@ -77,18 +77,28 @@ export async function GET() {
   // split, the exact date param), the deployment includes the GPS fixes. If the
   // date sample below still ends in ".NNNZ", you're on the OLD build and the
   // status/history 500 fix hasn't deployed.
-  out.build = { tag: "gps-fixes-3", statusHistoryStartParamSample: new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19) };
+  out.build = { tag: "gps-fixes-4", statusHistoryStartParamSample: new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19) };
 
   // 4) Stored local state + recent webhook events. Split positions by whether
   //    they linked to a fleet vehicle — the difference tells us if the problem
   //    is "no data landing" vs. "data landing but not matched to our vehicles".
-  const [realPositions, linkedPositions, linkedVehicles, distinctNums, events] = await Promise.all([
+  const [realPositions, linkedPositions, linkedVehicles, distinctNums, events, webhookTotal, webhookByType] = await Promise.all([
     prisma.gpsPosition.count({ where: { sample: false } }),
     prisma.gpsPosition.count({ where: { sample: false, vehicleId: { not: null } } }),
     prisma.vehicle.count({ where: { verizonNumber: { not: null } } }),
     prisma.gpsPosition.findMany({ where: { sample: false }, select: { verizonNumber: true }, distinct: ["verizonNumber"], take: 50 }),
     prisma.gpsWebhookEvent.findMany({ orderBy: { receivedAt: "desc" }, take: 10 }),
+    prisma.gpsWebhookEvent.count(),
+    prisma.gpsWebhookEvent.groupBy({ by: ["type"], _count: { _all: true } }),
   ]);
+  // The single most diagnostic push-path signal: total inbound webhook POSTs and
+  // their type breakdown. If the ONLY events are SubscriptionConfirmation (or the
+  // total is 0), Verizon has never actually pushed a position plot — the problem
+  // is the Reveal subscription config, not our receiver.
+  out.webhook = {
+    totalEvents: webhookTotal,
+    byType: Object.fromEntries(webhookByType.map((r) => [r.type ?? "(null)", r._count._all])),
+  };
   out.local = {
     realPositions,
     linkedPositions,
