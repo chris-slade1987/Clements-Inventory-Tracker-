@@ -194,7 +194,7 @@ export default function AppShell({
       <aside className="hidden md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
         <div className="flex items-center px-4 h-20 border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="w-full h-auto" />
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="w-3/4 h-auto" />
         </div>
         {showCenters ? (
           <div className="px-3 pt-3">
