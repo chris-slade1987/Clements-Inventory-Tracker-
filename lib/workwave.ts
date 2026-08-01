@@ -20,33 +20,34 @@ import {
  * sent to the browser). This module imports "server-only" so it can't be bundled
  * client-side.
  *
+ * Confirmed against the OpenAPI 3.0.1 spec at api.marketing.workwave.com/swagger:
+ *   - Endpoint: GET /public/searchOpportunity (OData — $top/$skip/$orderby/$filter;
+ *     NO page/pageSize/cursor params). Returns OpportunityCardDTO rows.
+ *   - Auth: a single "Bearer" scheme (apiKey in header `Authorization`, value
+ *     "Bearer <JWT>") applied to every operation.
+ *   - Tenant: NOT a request input — it is embedded in the per-tenant JWT. There is
+ *     no tenantId/accountId param or header, so we send none.
+ *
  * Config (Vercel → Environment Variables → Production):
- *   WORKWAVE_API_KEY        required — key WorkWave issued (format AAAA-AAAA-AAAA-AAAA)
- *   WORKWAVE_TENANT_ID      required for multi-tenant accounts — your Sales Center tenant/account id
+ *   WORKWAVE_API_KEY        required — the per-tenant Bearer token (JWT) WorkWave issued
  *   WORKWAVE_API_BASE       optional — defaults to https://api.marketing.workwave.com
- *   WORKWAVE_OPPORTUNITIES_PATH  optional — endpoint path (default below); override once confirmed from swagger
- *   WORKWAVE_AUTH_HEADER    optional — header the key rides in (default "Authorization")
- *   WORKWAVE_AUTH_SCHEME    optional — prefix before the key (default "Bearer "; set "" for a bare key / X-API-Key style)
- *   WORKWAVE_TENANT_HEADER  optional — header the tenant id rides in (default "X-Tenant-Id")
+ *   WORKWAVE_OPPORTUNITIES_PATH  optional — defaults to /public/searchOpportunity
+ *   WORKWAVE_AUTH_HEADER    optional — header the token rides in (default "Authorization")
+ *   WORKWAVE_AUTH_SCHEME    optional — prefix before the token (default "Bearer ")
  */
 
 const API_KEY = process.env.WORKWAVE_API_KEY ?? "";
-const TENANT_ID = process.env.WORKWAVE_TENANT_ID ?? "";
 const API_BASE = (process.env.WORKWAVE_API_BASE || "https://api.marketing.workwave.com").replace(/\/+$/, "");
-// Best-guess default; overridable via env once the exact path is confirmed from
-// the swagger (api.marketing.workwave.com/swagger).
-const OPPORTUNITIES_PATH = process.env.WORKWAVE_OPPORTUNITIES_PATH || "/api/v1/opportunities";
+const OPPORTUNITIES_PATH = process.env.WORKWAVE_OPPORTUNITIES_PATH || "/public/searchOpportunity";
 const AUTH_HEADER = process.env.WORKWAVE_AUTH_HEADER || "Authorization";
 const AUTH_SCHEME = process.env.WORKWAVE_AUTH_SCHEME ?? "Bearer ";
-const TENANT_HEADER = process.env.WORKWAVE_TENANT_HEADER || "X-Tenant-Id";
 
 const FETCH_TIMEOUT_MS = 20 * 1000;
-const MAX_PAGES = 200; // hard backstop so a bad pagination cursor can't loop forever
-const PAGE_SIZE = 200;
+const MAX_PAGES = 200; // hard backstop so a bad response can't loop forever
+const PAGE_SIZE = 200; // OData $top per request
 
-/** Live only when the API key is present. Tenant id is required by most accounts
- *  but some single-tenant keys don't need it — so we gate on the key alone and
- *  send the tenant header only when configured. */
+/** Live only when the Bearer token is present. The tenant is carried inside the
+ *  token itself, so no separate tenant config is required. */
 export function isConfigured(): boolean {
   return Boolean(API_KEY);
 }
@@ -61,12 +62,10 @@ export class WorkwaveError extends Error {
 }
 
 function authHeaders(): Record<string, string> {
-  const h: Record<string, string> = {
+  return {
     Accept: "application/json",
     [AUTH_HEADER]: `${AUTH_SCHEME}${API_KEY}`,
   };
-  if (TENANT_ID) h[TENANT_HEADER] = TENANT_ID;
-  return h;
 }
 
 async function fetchWithTimeout(url: string, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
@@ -123,25 +122,34 @@ function normalizeStage(raw: string | undefined): string {
   return "open";
 }
 
-/** Map one WorkWave opportunity record into our canonical Opportunity shape. */
+/**
+ * Map one WorkWave OpportunityCardDTO / Opportunity record into our canonical
+ * Opportunity shape. Field names follow the swagger's Opportunity entity, with
+ * lenient fallbacks. NOTE: deal value is NOT a top-level field in WorkWave — it
+ * derives from the related OpportunityProduct list; the search card may expose a
+ * rolled-up value under one of the value keys below, otherwise value reads 0 and
+ * we confirm/adjust from the diagnostics live-pull.
+ */
 export function mapOpportunity(raw: unknown, i: number): Opportunity | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
   const id = pickStr(o, ["id", "opportunityId", "opportunityID", "OpportunityId", "guid"]) ?? `ww-${i}`;
-  const branchRaw = pickStr(o, ["branch", "branchName", "location", "locationName", "office", "territory"]) ?? "";
-  const stageRaw = pickStr(o, ["stage", "status", "opportunityStatus", "pipelineStage", "state"]);
+  // WorkWave "division" is the branch/office; may arrive as a name or just an id.
+  const branchRaw = pickStr(o, ["division", "divisionName", "branch", "branchName", "location", "locationName", "office", "territory"]) ?? "";
+  // Stage lives on the sales-funnel stage (custom-named) or an opportunity status.
+  const stageRaw = pickStr(o, ["salesFunnelStage", "salesFunnelStageName", "stage", "stageName", "status", "opportunityStatus", "state"]);
   return {
     id,
-    created: pickDate(o, ["createdDate", "created", "createdAt", "dateCreated", "opportunityCreatedDate", "createdOn"]),
+    created: pickDate(o, ["createdTime", "createdDate", "created", "createdAt", "dateCreated", "createdOn"]),
     closed: pickDate(o, ["closedDate", "closed", "closedAt", "dateClosed", "wonDate", "closedOn"]),
     branch: normalizeBranch(branchRaw),
-    owner: pickStr(o, ["owner", "ownerName", "assignedTo", "salesRep", "rep", "assignedUser"]) ?? "Unassigned",
+    owner: pickStr(o, ["assignee", "assigneeName", "owner", "ownerName", "assignedTo", "salesRep", "rep"]) ?? "Unassigned",
     stage: normalizeStage(stageRaw),
-    source: pickStr(o, ["leadSource", "source", "sourceName", "marketingSource", "channel"]) ?? "Unknown",
-    annualValue: pickNum(o, ["annualValue", "annualRevenue", "annualRecurringValue", "arr", "annual"]),
-    totalValue: pickNum(o, ["totalValue", "value", "amount", "contractValue", "total", "totalRevenue"]),
+    source: pickStr(o, ["leadSource", "leadSourceName", "source", "sourceName", "marketingSource", "channel"]) ?? "Unknown",
+    annualValue: pickNum(o, ["annualValue", "annualRecurringValue", "annualRevenue", "arr", "recurringValue", "annual"]),
+    totalValue: pickNum(o, ["totalValue", "value", "amount", "opportunityValue", "estimatedValue", "contractValue", "total", "totalRevenue"]),
     name: pickStr(o, ["name", "opportunityName", "title", "customerName", "accountName"]) ?? "",
-    type: pickStr(o, ["type", "opportunityType", "serviceType", "category"]) ?? "",
+    type: pickStr(o, ["type", "opportunityType", "serviceType", "category", "salesFunnel", "salesFunnelName"]) ?? "",
   };
 }
 
@@ -157,34 +165,19 @@ function extractRecords(json: unknown): unknown[] {
   return [];
 }
 
-/** Detect a "there are more pages" signal + optional next cursor, defensively. */
-function nextPageInfo(json: unknown, pageRecords: number): { hasMore: boolean; cursor?: string } {
-  if (!json || typeof json !== "object") return { hasMore: pageRecords >= PAGE_SIZE };
-  const o = json as Record<string, unknown>;
-  const cursor = pickStr(o, ["nextCursor", "next", "continuationToken", "nextPageToken"]);
-  if (cursor) return { hasMore: true, cursor };
-  const hasMoreFlag = o.hasMore ?? o.hasNextPage ?? o.hasNext;
-  if (typeof hasMoreFlag === "boolean") return { hasMore: hasMoreFlag };
-  const page = pickNum(o, ["page", "pageNumber", "currentPage"]);
-  const totalPages = pickNum(o, ["totalPages", "pageCount"]);
-  if (totalPages > 0) return { hasMore: page > 0 && page < totalPages };
-  // Fall back to "a full page means probably more".
-  return { hasMore: pageRecords >= PAGE_SIZE };
-}
-
-/** Fetch every opportunity, following pagination (page-number or cursor based). */
+/**
+ * Fetch every opportunity via OData paging ($top + $skip). The endpoint exposes
+ * no page/cursor params, so we walk offsets until a short (or empty) page tells
+ * us we've reached the end. MAX_PAGES is a hard backstop.
+ */
 export async function fetchOpportunities(): Promise<Opportunity[]> {
   if (!isConfigured()) throw new WorkwaveError("WorkWave is not configured", 0);
   const out: Opportunity[] = [];
-  let page = 1;
-  let cursor: string | undefined;
 
   for (let i = 0; i < MAX_PAGES; i++) {
     const qs = new URLSearchParams();
-    qs.set("pageSize", String(PAGE_SIZE));
-    if (cursor) qs.set("cursor", cursor);
-    else qs.set("page", String(page));
-    if (TENANT_ID) qs.set("tenantId", TENANT_ID); // harmless when the API ignores it; some accounts want it as a query param
+    qs.set("$top", String(PAGE_SIZE));
+    qs.set("$skip", String(i * PAGE_SIZE));
 
     const res = await fetchWithTimeout(`${API_BASE}${OPPORTUNITIES_PATH}?${qs.toString()}`);
     if (!res.ok) {
@@ -204,10 +197,8 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
       if (opp) out.push(opp);
     }
 
-    const info = nextPageInfo(json, records.length);
-    if (!info.hasMore || records.length === 0) break;
-    if (info.cursor) cursor = info.cursor;
-    else page += 1;
+    // A page shorter than the requested $top means we've hit the end.
+    if (records.length < PAGE_SIZE) break;
   }
   return out;
 }
@@ -241,17 +232,17 @@ export async function syncWorkwaveSales(): Promise<{ ok: boolean; rows?: number;
 
 export type WorkwaveStatus = {
   configured: boolean;
-  tenantConfigured: boolean;
   base: string;
   opportunitiesPath: string;
+  authScheme: string;
 };
 
 export function workwaveStatus(): WorkwaveStatus {
   return {
     configured: isConfigured(),
-    tenantConfigured: Boolean(TENANT_ID),
     base: API_BASE,
     opportunitiesPath: OPPORTUNITIES_PATH,
+    authScheme: `${AUTH_HEADER}: ${AUTH_SCHEME}<token>`,
   };
 }
 
