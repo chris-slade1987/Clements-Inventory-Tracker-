@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { isConfigured, workwaveStatus, fetchOpportunitiesDetailed, mapOpportunity, WorkwaveError } from "@/lib/workwave";
+import { isConfigured, workwaveStatus, fetchOpportunitiesDetailed, probeEndpoints, mapOpportunity, WorkwaveError } from "@/lib/workwave";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,9 +14,11 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-4" } };
+  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-5" } };
 
   if (isConfigured()) {
+    // Token-sanity: hit other endpoints to isolate token-scope vs. request-shape.
+    out.connectivity = await probeEndpoints().catch((e) => ({ error: errMsg(e) }));
     try {
       const { opps, strategy, attempts } = await fetchOpportunitiesDetailed();
       const first = opps[0] ?? null;

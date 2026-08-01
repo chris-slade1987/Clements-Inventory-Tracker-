@@ -294,6 +294,50 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
   return (await fetchOpportunitiesDetailed()).opps;
 }
 
+// ---- Connectivity probe ----------------------------------------------------
+
+export type EndpointProbe = { path: string; method: string; status: number; body?: string };
+
+/**
+ * Hit several WorkWave endpoints with the same token to isolate the failure:
+ *  - A single-record GET (/public/opportunity/{dummy}) → 404 means the TOKEN
+ *    AUTHENTICATES fine and the endpoint exists (dummy id just isn't found);
+ *    401 means the token lacks scope; 500 means a server-side issue.
+ *  - searchLead parallels searchOpportunity, so divergent behavior is telling.
+ *  - Candidate list endpoints (sales funnels / divisions) — best-effort; a 404
+ *    just means that path doesn't exist, which is still useful signal.
+ * Read-only; each probe is independent and never throws.
+ */
+export async function probeEndpoints(): Promise<EndpointProbe[]> {
+  if (!isConfigured()) return [];
+  const DUMMY = "00000000-0000-0000-0000-000000000000";
+  const probes: { path: string; method: "GET" | "POST"; body?: string }[] = [
+    { path: `/public/opportunity/${DUMMY}`, method: "GET" },
+    { path: `/public/lead/${DUMMY}`, method: "GET" },
+    { path: `/public/searchLead?$top=1`, method: "GET" },
+    { path: `/public/searchOpportunity?$top=1`, method: "GET" },
+    { path: `/public/searchOpportunity`, method: "POST", body: SEARCH_BODY },
+    { path: `/public/searchOpportunity`, method: "POST", body: "{}" },
+    { path: `/public/salesFunnel`, method: "GET" },
+    { path: `/public/division`, method: "GET" },
+  ];
+  const out: EndpointProbe[] = [];
+  for (const p of probes) {
+    try {
+      const init: RequestInit =
+        p.method === "POST"
+          ? { method: "POST", headers: { "content-type": "application/json" }, body: p.body ?? "{}" }
+          : { method: "GET" };
+      const res = await fetchWithTimeout(`${API_BASE}${p.path}`, init);
+      const body = (await res.text().catch(() => "")).slice(0, 200).replace(/\s+/g, " ");
+      out.push({ path: p.body != null ? `${p.path} (body ${p.body.length}b)` : p.path, method: p.method, status: res.status, body });
+    } catch (e) {
+      out.push({ path: p.path, method: p.method, status: e instanceof WorkwaveError ? e.status : 0, body: e instanceof Error ? e.message.slice(0, 120) : "error" });
+    }
+  }
+  return out;
+}
+
 // ---- Sync ------------------------------------------------------------------
 
 /**
