@@ -45,10 +45,22 @@ const OPPORTUNITIES_PATH = process.env.WORKWAVE_OPPORTUNITIES_PATH || "/public/s
 const AUTH_HEADER = process.env.WORKWAVE_AUTH_HEADER || "Authorization";
 const AUTH_SCHEME = process.env.WORKWAVE_AUTH_SCHEME ?? "Bearer ";
 // searchOpportunity is exposed as BOTH GET (OData) and POST (JSON filter body).
-// A bare GET can 500; POST with a filter body is the documented search path.
-// Configurable so we can pivot without a code change once we see the raw error.
-const SEARCH_METHOD = (process.env.WORKWAVE_SEARCH_METHOD || "GET").toUpperCase();
-const SEARCH_BODY = process.env.WORKWAVE_SEARCH_BODY || "{}"; // JSON body for POST
+// The bare GET throws a .NET NullReferenceException (500) — it dereferences a
+// filter object that only exists on the POST path. So POST with a filter body is
+// the working path and is the DEFAULT. The default body sets the known filter
+// fields (sales funnel + opportunity status) to empty arrays — "no restriction /
+// all" — so nothing is null server-side. A superset of likely field names is
+// sent; unknown JSON properties are ignored by .NET model binding, so extra keys
+// are harmless while whichever real field exists gets a non-null value.
+const SEARCH_METHOD = (process.env.WORKWAVE_SEARCH_METHOD || "POST").toUpperCase();
+const DEFAULT_SEARCH_BODY = JSON.stringify({
+  salesFunnelIds: [],
+  salesFunnels: [],
+  opportunityStatusIds: [],
+  opportunityStatuses: [],
+  statuses: [],
+});
+const SEARCH_BODY = process.env.WORKWAVE_SEARCH_BODY || DEFAULT_SEARCH_BODY;
 
 const FETCH_TIMEOUT_MS = 20 * 1000;
 const MAX_PAGES = 200; // hard backstop so a bad response can't loop forever
@@ -185,6 +197,7 @@ function extractRecords(json: unknown): unknown[] {
 export async function fetchOpportunities(): Promise<Opportunity[]> {
   if (!isConfigured()) throw new WorkwaveError("WorkWave is not configured", 0);
   const out: Opportunity[] = [];
+  const seen = new Set<string>();
 
   for (let i = 0; i < MAX_PAGES; i++) {
     const qs = new URLSearchParams();
@@ -210,13 +223,22 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
     }
 
     const records = extractRecords(json);
+    let added = 0;
     for (const r of records) {
       const opp = mapOpportunity(r, out.length);
-      if (opp) out.push(opp);
+      if (!opp) continue;
+      // Dedupe by id — guards against a POST search that ignores $skip and keeps
+      // returning the same page (which would otherwise loop to MAX_PAGES and
+      // inflate the rollup with duplicates).
+      if (seen.has(opp.id)) continue;
+      seen.add(opp.id);
+      out.push(opp);
+      added++;
     }
 
-    // A page shorter than the requested $top means we've hit the end.
-    if (records.length < PAGE_SIZE) break;
+    // Stop when a page is short OR contributed no new records (paging exhausted,
+    // or the endpoint isn't honoring $skip).
+    if (records.length < PAGE_SIZE || added === 0) break;
   }
   return out;
 }
