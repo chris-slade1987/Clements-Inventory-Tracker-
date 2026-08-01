@@ -4,6 +4,7 @@ import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
 import {
+  bookForecast,
   cell,
   kpiCatalog,
   listPeriods,
@@ -16,7 +17,7 @@ import {
   type Cell,
 } from "@/lib/management";
 import Controls from "../Controls";
-import { AreaTrend, Donut, Waterfall } from "@/components/charts";
+import { AreaTrend, Donut, ForecastTrend, Waterfall } from "@/components/charts";
 
 export const dynamic = "force-dynamic";
 
@@ -58,11 +59,12 @@ export default async function BoardPage({
   const basis: Basis = sp.basis === "ytd" ? "ytd" : "month";
   const prior = await priorPeriod(period);
 
-  const [cat, values, priorValues, bookTrend, activeTechCount] = await Promise.all([
+  const [cat, values, priorValues, bookTrend, forecast, activeTechCount] = await Promise.all([
     kpiCatalog(),
     periodValues(period.id),
     prior ? periodValues(prior.id) : Promise.resolve(new Map<string, Cell>()),
     trend("book_value", "company", "month"),
+    bookForecast(),
     prisma.technician.count({ where: { active: true } }),
   ]);
   const get = (kpi: string, b: Basis = basis) => cell(values, kpi, "company", b);
@@ -230,6 +232,44 @@ export default async function BoardPage({
           </div>
           <p className="mt-2 text-[11px] text-muted">
             &ldquo;Other / reclass&rdquo; captures route reassignments and price changes not booked as new sales or cancellations.
+          </p>
+        </Card>
+      ) : null}
+
+      {/* Forward book & growth */}
+      {forecast.current != null ? (
+        <Card className="p-4 mb-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <PanelTitle>Forward book &amp; growth</PanelTitle>
+            <span className="text-[11px] text-muted">12-mo projection at recent run-rate</span>
+          </div>
+
+          <div className="mt-3 grid gap-3 grid-cols-2 lg:grid-cols-5">
+            <StatTile label="Current book" value={money(forecast.current)} />
+            <StatTile label="MoM growth (latest)" value={growthPct(forecast.momLatest)} tone={growthTone(forecast.momLatest)} />
+            <StatTile label="Trailing 3-mo avg MoM" value={growthPct(forecast.momAvg3)} tone={growthTone(forecast.momAvg3)}
+              sub={forecast.netAvg3 == null ? undefined : `${forecast.netAvg3 >= 0 ? "+" : "−"}${money(Math.abs(forecast.netAvg3))}/mo`} />
+            <StatTile label="Projected book (+12 mo)" value={money(forecast.projected12mo)} />
+            <StatTile label="Implied annual growth" value={growthPct(forecast.impliedAnnualGrowthPct)} tone={growthTone(forecast.impliedAnnualGrowthPct)} />
+          </div>
+
+          {forecast.historical.length >= 2 ? (
+            <div className="mt-4 grid gap-4 lg:grid-cols-[3fr_1fr]">
+              <div>
+                <ForecastTrend historical={forecast.historical} forecast={forecast.forecast} />
+              </div>
+              {forecast.mom.length > 0 ? (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-muted">MoM growth · last {Math.min(6, forecast.mom.length)}</div>
+                  <MomMini series={forecast.mom.slice(-6)} />
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          <p className="mt-3 text-[11px] text-muted">
+            Projection compounds the current book at the trailing 3-month average month-over-month growth rate. Forward figures are an
+            estimate at recent run-rate, not a budget or commitment.
           </p>
         </Card>
       ) : null}
@@ -446,6 +486,45 @@ export default async function BoardPage({
 
 function PanelTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="text-sm font-medium text-ink">{children}</h3>;
+}
+// Signed growth-% display; "—" when null.
+function growthPct(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
+}
+function growthTone(n: number | null | undefined): string {
+  if (n == null) return "text-ink";
+  return n >= 0 ? "text-emerald-700" : "text-red-600";
+}
+function StatTile({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: string }) {
+  return (
+    <div className="rounded-xl border border-line bg-white p-3">
+      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+      <div className={`mt-1 text-xl font-light tabular-nums ${tone ?? "text-ink"}`}>{value}</div>
+      {sub ? <div className="text-[11px] text-muted tabular-nums">{sub}</div> : null}
+    </div>
+  );
+}
+// Tiny MoM-growth bar series (green up / red down), no dependencies.
+function MomMini({ series }: { series: { label: string; pct: number }[] }) {
+  const peak = Math.max(...series.map((s) => Math.abs(s.pct)), 0.01);
+  return (
+    <div className="mt-2 flex items-end gap-2" style={{ height: 88 }}>
+      {series.map((s) => {
+        const up = s.pct >= 0;
+        const barH = Math.max(3, (Math.abs(s.pct) / peak) * 44);
+        return (
+          <div key={s.label} className="flex flex-1 flex-col items-center justify-end gap-1" style={{ height: "100%" }}>
+            <div className={`text-[10px] tabular-nums ${up ? "text-emerald-700" : "text-red-600"}`}>{growthPct(s.pct)}</div>
+            <div className="flex w-full flex-col items-center justify-end" style={{ height: 48 }}>
+              <div className={`w-full max-w-[22px] rounded-sm ${up ? "bg-emerald-600" : "bg-red-500"}`} style={{ height: barH }} />
+            </div>
+            <div className="text-[10px] text-muted">{s.label.replace(/ 20\d\d$/, "").slice(0, 3)}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 function PanelHead({ children }: { children: React.ReactNode }) {
   return <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">{children}</div>;

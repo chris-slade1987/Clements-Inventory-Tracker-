@@ -86,6 +86,98 @@ export async function trend(kpi: string, scope: Scope = "company", basis: Basis 
     .sort((a, b) => a.year - b.year || a.month - b.month);
 }
 
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+export type BookForecast = {
+  current: number | null; // latest actual book value
+  momLatest: number | null; // most recent month-over-month growth %
+  momAvg3: number | null; // trailing-average MoM growth % (last min(3,n) months)
+  netAvg3: number | null; // trailing-average net $ change (last min(3,n) months)
+  projected12mo: number | null; // book value 12 months forward
+  impliedAnnualGrowthPct: number | null; // projected12mo vs current, %
+  historical: { label: string; value: number }[];
+  forecast: { label: string; value: number }[];
+  mom: { label: string; pct: number }[]; // per-month MoM growth %, ascending
+};
+
+/**
+ * Forward 12-month recurring-book forecast, built entirely from real
+ * `book_value` history (company scope, month basis) — no invented figures.
+ *
+ * Method: compound the current book forward 12 months at the trailing-average
+ * MoM growth RATE (last min(3,n) months). A percentage run-rate keeps a growing
+ * book compounding rather than adding a fixed dollar step, which best matches a
+ * recurring book that grows proportionally. If a percentage rate can't be
+ * computed (e.g. a zero prior-month book), it falls back to adding the
+ * trailing-average net $ change each month. Null-safe: returns nulls / empty
+ * arrays when there are fewer than 2 book data points.
+ */
+export async function bookForecast(): Promise<BookForecast> {
+  const rows = await trend("book_value", "company", "month");
+  const points = rows
+    .filter((r) => r.actual != null)
+    .map((r) => ({ label: r.label, year: r.year, month: r.month, value: r.actual as number }));
+
+  const empty: BookForecast = {
+    current: null, momLatest: null, momAvg3: null, netAvg3: null,
+    projected12mo: null, impliedAnnualGrowthPct: null,
+    historical: [], forecast: [], mom: [],
+  };
+  if (points.length === 0) return empty;
+  if (points.length < 2) {
+    // A single point can't produce a trend — surface the current book only.
+    return { ...empty, current: points[0].value, historical: [{ label: points[0].label, value: points[0].value }] };
+  }
+
+  const historical = points.map((p) => ({ label: p.label, value: p.value }));
+
+  // Per-month MoM growth % and net $ change, aligned to the later month.
+  const mom: { label: string; pct: number }[] = [];
+  const nets: number[] = [];
+  const growths: number[] = [];
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1].value;
+    const cur = points[i].value;
+    nets.push(cur - prev);
+    if (prev !== 0) {
+      const g = ((cur - prev) / prev) * 100;
+      growths.push(g);
+      mom.push({ label: points[i].label, pct: g });
+    }
+  }
+
+  const current = points[points.length - 1].value;
+  const momLatest = mom.length ? mom[mom.length - 1].pct : null;
+
+  const gk = Math.min(3, growths.length);
+  const momAvg3 = gk > 0 ? growths.slice(-gk).reduce((s, g) => s + g, 0) / gk : null;
+  const nk = Math.min(3, nets.length);
+  const netAvg3 = nk > 0 ? nets.slice(-nk).reduce((s, n) => s + n, 0) / nk : null;
+
+  // Roll year/month forward without Date math; compound (or add) each step.
+  const rate = momAvg3 != null ? momAvg3 / 100 : null;
+  const forecast: { label: string; value: number }[] = [];
+  let running = current;
+  let y = points[points.length - 1].year;
+  let m = points[points.length - 1].month; // 1-12
+  for (let i = 0; i < 12; i++) {
+    m += 1;
+    if (m > 12) { m = 1; y += 1; }
+    if (rate != null) running = running * (1 + rate);
+    else if (netAvg3 != null) running = running + netAvg3;
+    forecast.push({ label: `${MONTH_NAMES[m - 1]} ${String(y).slice(-2)}`, value: running });
+  }
+
+  const projected12mo = forecast.length ? forecast[forecast.length - 1].value : null;
+  const impliedAnnualGrowthPct =
+    projected12mo != null && current !== 0 ? ((projected12mo - current) / current) * 100 : null;
+
+  return { current, momLatest, momAvg3, netAvg3, projected12mo, impliedAnnualGrowthPct, historical, forecast, mom };
+}
+
 export async function lobRevenue(periodId: string, scope: Scope = "company") {
   const rows = await prisma.lobRevenue.findMany({ where: { periodId, scope } });
   return rows

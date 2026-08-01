@@ -1,6 +1,7 @@
 export function money(n: number | null | undefined): string {
   if (n == null) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  // Whole dollars only — no cents anywhere $ figures are displayed.
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0, minimumFractionDigits: 0 });
 }
 
 export function qty(n: number | null | undefined): string {

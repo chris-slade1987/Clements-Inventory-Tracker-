@@ -35,6 +35,23 @@ export default function DemoModeBanner({ isAdmin = false }: { isAdmin?: boolean 
     }
   }
 
+  async function turnOff() {
+    if (busy) return;
+    if (!confirm("Turn OFF demo mode? This clears the demo sample data (real data is untouched).")) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/demo/toggle", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ on: false }) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.ok) router.refresh();
+      else setMsg(data?.error ?? "Could not turn off demo mode.");
+    } catch {
+      setMsg("Could not turn off demo mode.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-400/25 bg-emerald-950/80 px-4 py-2 text-sm text-emerald-100">
       <div className="flex items-center gap-2">
@@ -51,7 +68,15 @@ export default function DemoModeBanner({ isAdmin = false }: { isAdmin?: boolean 
             disabled={busy}
             className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-900/60 px-3 py-1.5 text-xs font-medium text-emerald-50 hover:bg-emerald-800/60 disabled:opacity-50 transition-colors"
           >
-            {busy ? "Resetting…" : "Reset demo data"}
+            {busy ? "Working…" : "Reset demo data"}
+          </button>
+          <button
+            type="button"
+            onClick={turnOff}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/20 px-3 py-1.5 text-xs font-medium text-emerald-100/80 hover:bg-emerald-900/50 disabled:opacity-50 transition-colors"
+          >
+            Turn off
           </button>
         </div>
       ) : null}

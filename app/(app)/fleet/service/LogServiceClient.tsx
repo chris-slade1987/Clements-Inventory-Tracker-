@@ -310,7 +310,7 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
               {summary.count} charge{summary.count === 1 ? "" : "s"} · {summary.vehicleCount} vehicle{summary.vehicleCount === 1 ? "" : "s"}
               {summary.unassigned > 0 ? <span className="ml-2 text-amber-600 font-medium">· {summary.unassigned} unassigned</span> : null}
             </span>
-            <span className="font-semibold tabular-nums">${summary.total.toFixed(2)}</span>
+            <span className="font-semibold tabular-nums">${Math.round(summary.total).toLocaleString("en-US")}</span>
           </Card>
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}

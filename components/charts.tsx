@@ -248,6 +248,80 @@ export function AreaTrend({
   );
 }
 
+// ---- Forecast trend (solid history + dashed projection) --------------------
+// Draws the historical book as a solid emerald area/line and the forward
+// projection as a dashed emerald continuation, on one shared axis. Same green
+// family as the other book panels; a faint divider marks "now".
+export function ForecastTrend({
+  historical,
+  forecast,
+  height = 220,
+}: {
+  historical: { label: string; value: number }[];
+  forecast: { label: string; value: number }[];
+  height?: number;
+}) {
+  const [hover, setHover] = useState<Hover>(null);
+  const W = 640, H = height, padL = 48, padR = 16, padT = 18, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  // One continuous index space: history 0..h-1, forecast h..h+f-1.
+  const h = historical.length, f = forecast.length;
+  const combined = [
+    ...historical.map((p) => ({ ...p, kind: "hist" as const })),
+    ...forecast.map((p) => ({ ...p, kind: "fc" as const })),
+  ];
+  const total = combined.length;
+  const vals = combined.map((p) => p.value);
+  const max = Math.max(...vals, 1);
+  const min = Math.min(...vals, max) * 0.985; // tighten so change reads
+  const span = max - min || 1;
+  const x = (i: number) => padL + (total <= 1 ? plotW / 2 : (i / (total - 1)) * plotW);
+  const y = (v: number) => padT + plotH - ((v - min) / span) * plotH;
+
+  const histLine = historical.map((p, i) => `${x(i)},${y(p.value)}`).join(" ");
+  const histArea = h > 0 ? `${padL},${padT + plotH} ${histLine} ${x(h - 1)},${padT + plotH}` : "";
+  // Forecast line starts at the last historical point so the dash continues.
+  const fcLine = [
+    ...(h > 0 ? [`${x(h - 1)},${y(historical[h - 1].value)}`] : []),
+    ...forecast.map((p, i) => `${x(h + i)},${y(p.value)}`),
+  ].join(" ");
+
+  // Thin x-labels so ~18 points don't collide.
+  const step = Math.max(1, Math.ceil(total / 9));
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="mb-1 flex items-center gap-4 text-[11px]" style={{ color: MUTED }}>
+        <span className="flex items-center gap-1.5"><span style={{ background: EMERALD }} className="inline-block h-2.5 w-2.5 rounded-sm" /> Actual book</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-0 w-3.5 border-t-2 border-dashed" style={{ borderColor: EMERALD }} /> Projected (+12 mo)</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 460 }} role="img" aria-label="Book value: history and 12-month projection">
+        {[0, 1].map((t) => { const gy = padT + plotH - t * plotH; return <g key={t}><line x1={padL} y1={gy} x2={padL + plotW} y2={gy} stroke={GRID} strokeWidth={1} /><text x={padL - 6} y={gy + 3} textAnchor="end" fontSize={10} fill={MUTED}>{moneyK(min + t * span)}</text></g>; })}
+        {histArea && <polygon points={histArea} fill={EMERALD} opacity={0.12} />}
+        {h > 0 && f > 0 && <line x1={x(h - 1)} y1={padT} x2={x(h - 1)} y2={padT + plotH} stroke={GRID} strokeWidth={1} strokeDasharray="2 3" />}
+        <polyline points={histLine} fill="none" stroke={EMERALD} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={fcLine} fill="none" stroke={EMERALD} strokeWidth={2.5} strokeDasharray="5 4" strokeLinejoin="round" strokeLinecap="round" opacity={0.85} />
+        {combined.map((p, i) => {
+          const isFc = p.kind === "fc";
+          const rows = [p.label, moneyK(p.value), ...(isFc ? ["projected"] : [])];
+          const set = () => setHover({ x: x(i), y: y(p.value), rows });
+          return (
+            <g key={i}>
+              <circle cx={x(i)} cy={y(p.value)} r={isFc ? 3 : 4} fill={isFc ? "#f6fbf9" : EMERALD} stroke={EMERALD} strokeWidth={isFc ? 1.5 : 0}
+                onMouseEnter={set} onMouseLeave={() => setHover(null)} onTouchStart={set} />
+              {i % step === 0 || i === total - 1 ? (
+                <text x={x(i)} y={H - padB + 15} textAnchor="middle" fontSize={10} fill={MUTED}>{p.label.replace(/ 20(\d\d)$/, " $1")}</text>
+              ) : null}
+            </g>
+          );
+        })}
+        <Tip hover={hover} W={W} />
+      </svg>
+    </div>
+  );
+}
+
 // ---- Donut -----------------------------------------------------------------
 export function Donut({
   slices,
