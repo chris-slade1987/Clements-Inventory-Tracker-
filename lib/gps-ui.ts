@@ -10,6 +10,16 @@ export const STATUS_META: Record<GpsStatus, { label: string; color: string; chip
   offline: { label: "Offline", color: "#9ca3af", chip: "bg-slate-100 text-slate-500" },
 };
 
+/**
+ * Truck display title: "2019 Ford Transit 250" from year/make/model, falling
+ * back to the vehicle's stored name when the structured fields are missing.
+ */
+export function vehicleTitle(v: { year?: number | null; make?: string | null; model?: string | null; name?: string | null }): string {
+  const parts = [v.year != null ? String(v.year) : null, v.make, v.model].filter((s): s is string => Boolean(s && s.trim()));
+  const built = parts.join(" ").trim();
+  return built || (v.name ?? "").trim() || "Vehicle";
+}
+
 /** "3 min ago", "2 hr ago", "yesterday" — compact last-seen phrasing. */
 export function lastSeen(ts: Date | string): string {
   const d = typeof ts === "string" ? new Date(ts) : ts;

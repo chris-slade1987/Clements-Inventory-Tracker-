@@ -3,7 +3,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { latestPositions, fleetLiveSummary } from "@/lib/gps";
-import { STATUS_META, lastSeen, type GpsStatus } from "@/lib/gps-ui";
+import { STATUS_META, lastSeen, vehicleTitle, type GpsStatus } from "@/lib/gps-ui";
 import FleetMap from "@/components/gps/FleetMap";
 import GpsRefreshButton from "./GpsRefreshButton";
 
@@ -28,9 +28,11 @@ export default async function FleetMapPage({
     id: p.vehicleId,
     lat: p.lat,
     lng: p.lng,
-    label: `${p.unitNumber ? `${p.unitNumber} · ` : ""}${p.name}`,
+    // Truck labeled by year/make/model, with the unit number as a prefix.
+    label: p.linked ? `${p.unitNumber ? `#${p.unitNumber} · ` : ""}${vehicleTitle(p)}` : p.name,
     color: STATUS_META[p.status].color,
     lines: [
+      ...(p.linked ? [`Driver: ${p.driver?.trim() || "Unassigned"}`] : []),
       `${STATUS_META[p.status].label}${p.speed != null ? ` · ${Math.round(p.speed)} mph` : ""}`,
       `Ignition: ${p.ignition == null ? "—" : p.ignition ? "On" : "Off"}`,
       `Seen ${lastSeen(p.ts)}`,
@@ -116,9 +118,14 @@ export default async function FleetMapPage({
                     <span className="mt-0.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
                     <span className="flex-1 min-w-0">
                       <span className="block truncate text-sm font-medium text-ink">
-                        {p.unitNumber ? `${p.unitNumber} · ` : ""}{p.name}
+                        {p.unitNumber ? `#${p.unitNumber} · ` : ""}{p.linked ? vehicleTitle(p) : p.name}
                       </span>
-                      <span className="block text-xs text-muted">
+                      {p.linked ? (
+                        <span className="block truncate text-xs text-ink/70">
+                          {(p.driver?.trim() || "Unassigned")}
+                        </span>
+                      ) : null}
+                      <span className="block truncate text-xs text-muted">
                         {branchLabel(p.branch ?? "")}{p.branch ? " · " : ""}{p.address ?? "—"}
                       </span>
                       <span className="mt-1 flex flex-wrap items-center gap-1.5">
