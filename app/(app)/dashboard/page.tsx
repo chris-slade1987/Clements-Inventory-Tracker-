@@ -68,11 +68,11 @@ export default async function DashboardPage({
     ? await prisma.product.count({ where: { confirmed: false, active: true } })
     : 0;
 
-  const [mtd, ytd, catSpend, topProducts, allTechs, ohByCat, ledger, openAlerts, allLowStock] =
+  const [rangeSpend, ytd, catSpend, topProducts, allTechs, ohByCat, ledger, openAlerts, allLowStock] =
     await Promise.all([
-      // Branch budget tiles compare against the MONTHLY budget, so these stay
-      // month-/year-to-date regardless of the range toggle.
-      purchasedDollarsByWarehouse(p.monthStart),
+      // Branch tiles' PRIMARY spend figure follows the selected spend range.
+      purchasedDollarsByWarehouse(rangeStart),
+      // YTD spend per branch — the bottom "YTD / budget" line is ALWAYS year-to-date.
       purchasedDollarsByWarehouse(p.yearStart),
       // Date-bounded analytics — scoped to the selected range window.
       spendByCategory(rangeStart, now, scopeId),
@@ -96,10 +96,21 @@ export default async function DashboardPage({
   // Scope the low-stock list to the selected branch's warehouse (if any).
   const lowStock = scopeId ? allLowStock.filter((f) => f.warehouseId === scopeId) : allLowStock;
 
-  const companyMtd = [...mtd.values()].reduce((s, v) => s + v, 0);
-  const companyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
+  // The tile budget scales with the range so "spent vs budget" stays apples-to-
+  // apples: 1 month for month/30d, months-elapsed-in-quarter for quarter, and
+  // months-elapsed-this-year for YTD (the last matches the always-on YTD line).
+  const monthsInRange =
+    range === "quarter" ? (now.getMonth() % 3) + 1 : range === "ytd" ? p.monthIndex : 1;
+  const rangePhrase =
+    range === "quarter" ? "this quarter" : range === "ytd" ? "year to date" : range === "30d" ? "last 30 days" : "this month";
+  const rangeBudgetLabel =
+    range === "quarter" ? "Quarter-to-date budget" : range === "ytd" ? "YTD budget" : range === "30d" ? "30-day budget" : "Monthly budget";
+
+  const companyRangeSpend = [...rangeSpend.values()].reduce((s, v) => s + v, 0);
+  const companyMonthlyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
+  const companyRangeBudget = companyMonthlyBudget * monthsInRange;
   const scopeOnHandValue = ohByCat.reduce((s, r) => s + r.value, 0);
-  const scopeSpend = scopeId ? mtd.get(scopeId) ?? 0 : companyMtd;
+  const scopeSpend = scopeId ? rangeSpend.get(scopeId) ?? 0 : companyRangeSpend;
   const scopeName = selected ? selected.name.replace(" (HQ)", "") : "All branches";
 
   // Build a /dashboard href preserving branch + range unless overridden. `branch`
@@ -136,26 +147,27 @@ export default async function DashboardPage({
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="text-xs uppercase tracking-wider text-muted">
-                All branches · spent this month
+                All branches · spent {rangePhrase}
               </div>
-              <div className="mt-1 text-3xl font-light tabular-nums">{money(companyMtd)}</div>
+              <div className="mt-1 text-3xl font-light tabular-nums">{money(companyRangeSpend)}</div>
             </div>
             <div className="text-right">
               <div className="text-xs uppercase tracking-wider text-muted">
-                Monthly budget{" "}
+                {rangeBudgetLabel}{" "}
                 <span className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">placeholder</span>
               </div>
-              <div className="mt-1 text-xl font-light tabular-nums text-muted">{money(companyBudget)}</div>
+              <div className="mt-1 text-xl font-light tabular-nums text-muted">{money(companyRangeBudget)}</div>
             </div>
           </div>
-          <BudgetBar spent={companyMtd} budget={companyBudget} />
+          <BudgetBar spent={companyRangeSpend} budget={companyRangeBudget} />
         </Card>
       </Link>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-5">
         {warehouses.map((w) => {
           const budget = monthlyBudgetFor(w.name);
-          const spent = mtd.get(w.id) ?? 0;
+          const spent = rangeSpend.get(w.id) ?? 0;
+          const rangeBudget = budget * monthsInRange;
           const isSel = selected?.id === w.id;
           return (
             <Link key={w.id} href={isSel ? hrefWith({ branch: null }) : hrefWith({ branch: w.id })} className="block">
@@ -163,7 +175,7 @@ export default async function DashboardPage({
                 <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
                 <div className="text-xs font-medium uppercase tracking-wider text-muted">{w.name}</div>
                 <div className="mt-2 text-2xl font-light tabular-nums">{money(spent)}</div>
-                <BudgetBar spent={spent} budget={budget} />
+                <BudgetBar spent={spent} budget={rangeBudget} />
                 <div className="mt-3 flex justify-between text-xs">
                   <span className="text-muted">YTD</span>
                   <span className="tabular-nums">
@@ -181,7 +193,7 @@ export default async function DashboardPage({
         <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
           <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
           {scopeName}
-          <span className="text-muted font-light">· {money(scopeSpend)} spent (mo) · {money(scopeOnHandValue)} on hand</span>
+          <span className="text-muted font-light">· {money(scopeSpend)} spent ({rangePhrase}) · {money(scopeOnHandValue)} on hand</span>
         </h2>
         {selected ? (
           <Link href={hrefWith({ branch: null })} className="text-xs font-medium text-brand-700 hover:underline">
