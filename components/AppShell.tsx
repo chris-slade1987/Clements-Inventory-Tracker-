@@ -191,10 +191,10 @@ export default function AppShell({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
-        <div className="flex items-center px-5 h-16 border-b border-white/10">
+      <aside className="hidden md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
+        <div className="flex items-center px-4 h-20 border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-9 w-auto" />
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="w-full h-auto" />
         </div>
         {showCenters ? (
           <div className="px-3 pt-3">
@@ -270,7 +270,7 @@ export default function AppShell({
       </aside>
 
       {/* Main column */}
-      <div className="flex-1 md:pl-60 flex flex-col app-canvas">
+      <div className="flex-1 md:pl-72 flex flex-col app-canvas">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
