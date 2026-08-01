@@ -34,6 +34,9 @@ import {
  *   WORKWAVE_OPPORTUNITIES_PATH  optional — defaults to /public/searchOpportunity
  *   WORKWAVE_AUTH_HEADER    optional — header the token rides in (default "Authorization")
  *   WORKWAVE_AUTH_SCHEME    optional — prefix before the token (default "Bearer ")
+ *   WORKWAVE_SEARCH_METHOD  optional — "GET" (default) or "POST" for searchOpportunity
+ *   WORKWAVE_SEARCH_BODY    optional — JSON filter body when method is POST (default "{}")
+ *   WORKWAVE_PAGE_SIZE      optional — OData $top per request (default 50)
  */
 
 const API_KEY = process.env.WORKWAVE_API_KEY ?? "";
@@ -41,10 +44,15 @@ const API_BASE = (process.env.WORKWAVE_API_BASE || "https://api.marketing.workwa
 const OPPORTUNITIES_PATH = process.env.WORKWAVE_OPPORTUNITIES_PATH || "/public/searchOpportunity";
 const AUTH_HEADER = process.env.WORKWAVE_AUTH_HEADER || "Authorization";
 const AUTH_SCHEME = process.env.WORKWAVE_AUTH_SCHEME ?? "Bearer ";
+// searchOpportunity is exposed as BOTH GET (OData) and POST (JSON filter body).
+// A bare GET can 500; POST with a filter body is the documented search path.
+// Configurable so we can pivot without a code change once we see the raw error.
+const SEARCH_METHOD = (process.env.WORKWAVE_SEARCH_METHOD || "GET").toUpperCase();
+const SEARCH_BODY = process.env.WORKWAVE_SEARCH_BODY || "{}"; // JSON body for POST
 
 const FETCH_TIMEOUT_MS = 20 * 1000;
 const MAX_PAGES = 200; // hard backstop so a bad response can't loop forever
-const PAGE_SIZE = 200; // OData $top per request
+const PAGE_SIZE = Number(process.env.WORKWAVE_PAGE_SIZE || 50); // OData $top per request
 
 /** Live only when the Bearer token is present. The tenant is carried inside the
  *  token itself, so no separate tenant config is required. */
@@ -54,10 +62,13 @@ export function isConfigured(): boolean {
 
 export class WorkwaveError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  /** Raw response body from WorkWave (truncated) — surfaced so a 500 shows WHY. */
+  body?: string;
+  constructor(message: string, status: number, body?: string) {
     super(message);
     this.name = "WorkwaveError";
     this.status = status;
+    this.body = body;
   }
 }
 
@@ -68,11 +79,12 @@ function authHeaders(): Record<string, string> {
   };
 }
 
-async function fetchWithTimeout(url: string, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
+async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const headers = { ...authHeaders(), ...(init.headers as Record<string, string> | undefined) };
   try {
-    return await fetch(url, { method: "GET", headers: authHeaders(), cache: "no-store", signal: controller.signal });
+    return await fetch(url, { cache: "no-store", ...init, headers, signal: controller.signal });
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
       throw new WorkwaveError(`WorkWave request timed out after ${timeoutMs}ms`, 504);
@@ -179,9 +191,15 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
     qs.set("$top", String(PAGE_SIZE));
     qs.set("$skip", String(i * PAGE_SIZE));
 
-    const res = await fetchWithTimeout(`${API_BASE}${OPPORTUNITIES_PATH}?${qs.toString()}`);
+    const init: RequestInit =
+      SEARCH_METHOD === "POST"
+        ? { method: "POST", headers: { "content-type": "application/json" }, body: SEARCH_BODY }
+        : { method: "GET" };
+    const res = await fetchWithTimeout(`${API_BASE}${OPPORTUNITIES_PATH}?${qs.toString()}`, init);
     if (!res.ok) {
-      throw new WorkwaveError(`WorkWave GET ${OPPORTUNITIES_PATH} failed (${res.status})`, res.status);
+      // Capture WorkWave's raw error body so a 500 shows the actual reason.
+      const body = (await res.text().catch(() => "")).slice(0, 600);
+      throw new WorkwaveError(`WorkWave ${SEARCH_METHOD} ${OPPORTUNITIES_PATH} failed (${res.status})`, res.status, body);
     }
     const text = await res.text();
     let json: unknown = null;

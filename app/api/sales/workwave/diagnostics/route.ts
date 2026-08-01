@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { isConfigured, workwaveStatus, fetchOpportunities, mapOpportunity } from "@/lib/workwave";
+import { isConfigured, workwaveStatus, fetchOpportunities, mapOpportunity, WorkwaveError } from "@/lib/workwave";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,7 +14,7 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-1" } };
+  const out: Record<string, unknown> = { status: workwaveStatus(), build: { tag: "workwave-2" } };
 
   if (isConfigured()) {
     try {
@@ -29,7 +29,15 @@ export async function GET() {
         sample: first ? mapOpportunity(first as unknown, 0) : null,
       };
     } catch (e) {
-      out.pull = { ok: false, error: errMsg(e) };
+      // Surface WorkWave's raw status + response body so a 500 shows the actual
+      // reason (missing required param, bad OData, etc.) instead of just "500".
+      const we = e instanceof WorkwaveError ? e : null;
+      out.pull = {
+        ok: false,
+        error: errMsg(e),
+        rawStatus: we?.status ?? null,
+        rawBody: we?.body ?? null,
+      };
     }
   }
 
