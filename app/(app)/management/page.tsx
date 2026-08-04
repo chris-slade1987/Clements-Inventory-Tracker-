@@ -156,6 +156,23 @@ export default async function ManagementPage({
         })}
       </div>
 
+      {/* Budget vs actual tiles — companywide, honoring the Month/YTD toggle,
+          with an FY-forecast line per category from the model's CY forecast. */}
+      {isCompany ? (
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
+              <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
+              Budget vs actual · company · {basisLabel}
+            </h2>
+            <Link href="/management/branch-pnl" className="text-xs font-medium text-brand-700 hover:underline">
+              By branch →
+            </Link>
+          </div>
+          <CompanyBudgetTiles values={values} basis={basis} />
+        </section>
+      ) : null}
+
       {/* Scope indicator */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
@@ -295,6 +312,77 @@ export default async function ManagementPage({
 
 function PanelTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="text-sm font-medium text-ink">{children}</h3>;
+}
+
+// Companywide budget-vs-actual tiles. Revenue lines are higher-is-better; cost
+// lines are lower-is-better and show their % of net revenue. Each tile carries
+// the current-basis actual, a favorable/unfavorable variance chip, an
+// actual-vs-budget fill bar (budget tick), and the model's full-year forecast.
+const BVA_TILES: { key: string; label: string; kind: "rev" | "cost" }[] = [
+  { key: "net_revenue", label: "Net Revenue", kind: "rev" },
+  { key: "production", label: "Production", kind: "rev" },
+  { key: "route_contrib", label: "Route Contribution", kind: "rev" },
+  { key: "ebitda", label: "EBITDA", kind: "rev" },
+  { key: "new_sales", label: "New Sales", kind: "rev" },
+  { key: "tech_wages", label: "Technician Wages", kind: "cost" },
+  { key: "chemical_expense", label: "Chemical Expense", kind: "cost" },
+  { key: "fuel", label: "Fuel", kind: "cost" },
+  { key: "sga", label: "SG&A", kind: "cost" },
+];
+
+function CompanyBudgetTiles({ values, basis }: { values: Map<string, Cell>; basis: Basis }) {
+  const revActual = cell(values, "net_revenue", "company", basis).actual;
+  const tiles = BVA_TILES.map((t) => ({
+    ...t,
+    cur: cell(values, t.key, "company", basis),
+    fc: cell(values, t.key, "company", "cy_forecast"),
+  })).filter((t) => t.cur.actual != null || t.cur.budget != null);
+  return (
+    <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {tiles.map((t) => (
+        <Card key={t.key} className="p-4">
+          <div className="flex items-start justify-between gap-2">
+            <div className="text-xs uppercase tracking-wider text-muted">{t.label}</div>
+            {t.kind === "cost" && t.cur.actual != null && revActual ? (
+              <div className="shrink-0 text-[11px] text-muted tabular-nums">{((t.cur.actual / revActual) * 100).toFixed(1)}% of rev</div>
+            ) : null}
+          </div>
+          <div className="mt-1 text-2xl font-light tabular-nums">{money(t.cur.actual)}</div>
+          <VarianceChip c={t.cur} unit="usd" />
+          <BudgetBar c={t.cur} />
+          {t.fc.actual != null ? (
+            <div className="mt-2 border-t border-line pt-2 text-[11px] text-muted">
+              FY forecast <span className="tabular-nums text-ink">{money(t.fc.actual)}</span>
+              {t.fc.budget != null ? (
+                <>
+                  {" "}vs {money(t.fc.budget)} bdgt{" "}
+                  <span className={`tabular-nums ${t.fc.favorable ? "text-emerald-700" : "text-red-600"}`}>
+                    {t.fc.variance != null ? `(${t.fc.variance >= 0 ? "+" : ""}${money(t.fc.variance)})` : ""}
+                  </span>
+                </>
+              ) : null}
+            </div>
+          ) : null}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// Actual-vs-budget fill bar: the filled portion is the actual (green when
+// favorable, red when not); the vertical tick marks the budget.
+function BudgetBar({ c }: { c: Cell }) {
+  if (c.actual == null || c.budget == null || c.budget === 0) return null;
+  const denom = Math.max(c.actual, c.budget) || 1;
+  const aPct = Math.max(2, Math.min(100, (c.actual / denom) * 100));
+  const bPct = Math.max(0, Math.min(100, (c.budget / denom) * 100));
+  const good = c.favorable === true;
+  return (
+    <div className="relative mt-2 h-1.5 rounded-full bg-black/10">
+      <div className={`absolute inset-y-0 left-0 rounded-full ${good ? "bg-emerald-500" : "bg-red-400"}`} style={{ width: `${aPct}%` }} />
+      <div className="absolute -inset-y-[2px] w-px bg-black/50" style={{ left: `${bPct}%` }} title="budget" />
+    </div>
+  );
 }
 function PanelHead({ children }: { children: React.ReactNode }) {
   return <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">{children}</div>;

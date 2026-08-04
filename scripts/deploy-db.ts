@@ -130,6 +130,18 @@ async function main() {
       console.error("deploy-db: branch KPI load FAILED (non-fatal):", e);
     }
 
+    // Re-assert per-branch New Sales (actual + budget) + Attrition (actual) from
+    // the June MBR on every deploy, so the branch scorecards keep their
+    // branch-specific New Sales targets and book-based cancellation scoring even
+    // on a DB seeded before those rows existed. Idempotent upsert; non-fatal.
+    try {
+      const { seedBranchSalesAttrition } = await import("../prisma/seed-branch-sales-attrition");
+      const bsa = await seedBranchSalesAttrition(prisma);
+      console.log("deploy-db: branch sales/attrition re-assert —", JSON.stringify(bsa));
+    } catch (e) {
+      console.error("deploy-db: branch sales/attrition re-assert FAILED (non-fatal):", e);
+    }
+
     // Backfill April 2026 per-branch production (actual + budget) from the May
     // MBR and correct the April company production budget to the MBR figure, so
     // the Q2 branch-manager scorecards reconcile. Upsert (idempotent); always
