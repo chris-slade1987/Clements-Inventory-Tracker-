@@ -1,14 +1,16 @@
 import { prisma } from "@/lib/prisma";
-import { cell, periodValues, type Cell } from "@/lib/management";
+import { cell, periodValues, BRANCHES, type Cell } from "@/lib/management";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
 import { matchEmployeeByName } from "@/lib/people";
 
 // The quarterly branch-manager bonus scorecard. Binary Met/Not-Met, weighted to
-// 100%, per the company template. Five metrics can be auto-computed from the
-// MBR budget data already in the app; the rest are reviewer Y/N (compliance) or
-// a manual figure until a data source is wired up.
+// 100%, per the company template. Most metrics auto-compute from the canonical
+// budget model already in the app — production/margin/tech-wages/stops/new-sales
+// from the branch model, and cancellations ($) + attrition rate (%) from a book
+// value allocated per branch (see `allocatedBranchBook`). The rest are reviewer
+// Y/N (compliance) or a manual figure until a data source is wired up.
 
 // "placeholder" = a metric shown on the scorecard but not yet auto-computed (no
 // per-branch data source wired up); the reviewer marks it manually for now.
@@ -24,13 +26,21 @@ export type ScorecardMetric = {
   kpi?: string; // KpiValue key for auto metrics
   ratioOf?: string; // if set, metric = kpi / ratioOf (e.g. tech wages / production)
   unit?: "usd" | "pct" | "count";
-  // A fixed target that overrides the MBR budget (e.g. the attrition ceiling is
-  // a company policy of 2.5% of revenue, not a per-branch budget line).
+  // A fixed target that overrides the MBR budget (a company policy figure rather
+  // than a per-branch budget line).
   fixedTarget?: number;
   // A per-quarter target that pro-rates against the YTD actual: the effective
   // target is `perQuarterTarget × quarter` (e.g. attrition 2.5%/qtr → Q1 2.5%,
   // Q2 YTD 5.0%, Q3 7.5%, full year 10%). Overrides fixedTarget when set.
   perQuarterTarget?: number;
+  // Cancellations ($) ceiling: budget = allocated branch book × pct/100 × quarter
+  // (a 2.5%/quarter of book ceiling, pro-rated to the YTD quarter). The model
+  // carries book value company-wide only, so the branch book is ALLOCATED by the
+  // branch's share of YTD production — see `allocatedBranchBook`.
+  bookCeilingPct?: number;
+  // Attrition rate (%): actual = kpi(YTD $) ÷ allocated branch book × 100, i.e.
+  // cancellations as a percentage of forward book. Pairs with perQuarterTarget.
+  bookRate?: boolean;
   // Explanatory hint rendered under a placeholder metric.
   placeholderHint?: string;
   // A "verify before you rely on this" flag shown on the row; also suppresses the
@@ -49,12 +59,12 @@ export const SCORECARD_METRICS: ScorecardMetric[] = [
   { key: "tech_wages_pct", label: "Technician Wages % of Revenue", weight: 10, type: "auto", direction: "lower", kpi: "tech_wages", ratioOf: "production", unit: "pct" },
   { key: "stops", label: "Stops Completed", weight: 10, type: "auto", direction: "higher", kpi: "stops", unit: "count" },
   { key: "new_sales", label: "New Sales (Annual Value)", weight: 15, type: "auto", direction: "higher", kpi: "new_sales", unit: "usd" },
-  { key: "cancellations", label: "Cancellations (Annual Value)", weight: 15, type: "auto", direction: "lower", kpi: "attrition", unit: "usd" },
+  { key: "cancellations", label: "Cancellations (Annual Value)", weight: 15, type: "auto", direction: "lower", kpi: "attrition", unit: "usd", bookCeilingPct: 2.5 },
   // Chemical is purchase-based per branch (MMR) but only company-wide in the
   // model — a known gap the Q1 card itself flagged. Placeholder until branch
   // chemical is wired; reviewer marks it manually.
   { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 5, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Per-branch chemical is purchase-based (MMR); the model carries chemical company-wide only — mark manually until branch chemical is wired." },
-  { key: "attrition_rate", label: "Attrition Rate (YTD)", weight: 10, type: "auto", direction: "lower", kpi: "attrition_rate", unit: "pct", perQuarterTarget: 2.5 },
+  { key: "attrition_rate", label: "Attrition Rate (YTD)", weight: 10, type: "auto", direction: "lower", kpi: "attrition", unit: "pct", perQuarterTarget: 2.5, bookRate: true },
 ];
 
 export const QUARTER_MONTHS: Record<number, number[]> = {
@@ -65,6 +75,33 @@ export const QUARTER_MONTHS: Record<number, number[]> = {
 };
 
 export type AutoActual = { actual: number | null; budget: number | null; unit: "usd" | "pct" | "count" };
+
+/**
+ * Per-branch forward book value. The canonical model carries "Forward 12-Mo Book
+ * Value" **company-wide only**, so we ALLOCATE it to a branch by that branch's
+ * share of YTD production:
+ *
+ *   allocated book = company book × (branch production YTD ÷ Σ branch production YTD)
+ *
+ * This is a derived figure (labeled as such on the scorecard). Swap in a real
+ * per-branch book value the moment the model provides one — nothing else changes.
+ * Returns null when book or the production shares aren't loaded for the period.
+ */
+export function allocatedBranchBook(vm: Map<string, Cell>, branch: string): number | null {
+  const book = cell(vm, "book_value", "company", "month").actual;
+  if (book == null) return null;
+  let companyProd = 0;
+  let branchProd: number | null = null;
+  for (const b of BRANCHES) {
+    const p = cell(vm, "production", b.key, "ytd").actual;
+    if (p != null) {
+      companyProd += p;
+      if (b.key === branch) branchProd = p;
+    }
+  }
+  if (!companyProd || branchProd == null) return null;
+  return book * (branchProd / companyProd);
+}
 
 /**
  * Actual + budget for the auto metrics at a branch scope, read as the **YTD**
@@ -92,9 +129,28 @@ export async function autoActuals(
     return { actual: c.actual, budget: c.budget };
   };
 
+  // Forward book value allocated to this branch (production-share) — powers the
+  // book-based cancellation ceiling and the attrition-rate %.
+  const book = vm ? allocatedBranchBook(vm, branch) : null;
+
   const out: Record<string, AutoActual> = {};
   for (const m of SCORECARD_METRICS) {
     if (m.type !== "auto" || !m.kpi) continue;
+    if (m.bookRate) {
+      // Attrition rate = branch cancellations (YTD $) ÷ allocated book × 100.
+      const s = read(m.kpi);
+      const actual = s.actual != null && book ? (s.actual / book) * 100 : null;
+      out[m.key] = { actual, budget: null, unit: "pct" };
+      continue;
+    }
+    if (m.bookCeilingPct != null) {
+      // Cancellations ($): actual = YTD cancellations; budget = 2.5%/qtr of book,
+      // pro-rated to the YTD quarter (Q2 → 5.0% of allocated book).
+      const s = read(m.kpi);
+      const budget = book != null ? book * (m.bookCeilingPct / 100) * quarter : null;
+      out[m.key] = { actual: s.actual, budget, unit: m.unit ?? "usd" };
+      continue;
+    }
     if (m.ratioOf) {
       const num = read(m.kpi);
       const den = read(m.ratioOf);
@@ -268,7 +324,13 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     const budgetTarget = m.perQuarterTarget != null ? m.perQuarterTarget * quarter : (m.fixedTarget ?? a?.budget ?? null);
     let suggested = m.type === "auto" ? suggestMet(m.direction, a?.actual ?? null, budgetTarget) : null;
     let detail: string | null = m.type === "placeholder" ? (m.placeholderHint ?? "Placeholder — data pending") : null;
-    if (m.perQuarterTarget != null) detail = `Pro-rated YTD ceiling: ${m.perQuarterTarget}%/quarter × Q${quarter} = ${(m.perQuarterTarget * quarter).toFixed(1)}% (lower is better)`;
+    if (m.perQuarterTarget != null) {
+      detail = `Pro-rated YTD ceiling: ${m.perQuarterTarget}%/quarter × Q${quarter} = ${(m.perQuarterTarget * quarter).toFixed(1)}% (lower is better)`;
+      if (m.bookRate) detail += " · rate = branch cancellations ÷ forward book (book allocated to branch by production share)";
+    }
+    if (m.bookCeilingPct != null) {
+      detail = `Ceiling: ${m.bookCeilingPct}%/quarter × Q${quarter} = ${(m.bookCeilingPct * quarter).toFixed(1)}% of forward book (allocated to branch by production share). Lower is better.`;
+    }
     // A to-do metric shows a verify flag and never auto-suggests Met/Not — the
     // reviewer must confirm the real numbers first (bonus-critical).
     if (m.todo) { detail = m.todo; suggested = null; }
