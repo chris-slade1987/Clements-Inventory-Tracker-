@@ -10,7 +10,7 @@ type Row = {
   label: string;
   weight: number;
   type: "auto" | "manual" | "compliance" | "placeholder";
-  unit: "usd" | "pct" | null;
+  unit: "usd" | "pct" | "count" | null;
   actual: number | null;
   budgetTarget: number | null;
   target: string | null;
@@ -62,7 +62,7 @@ export default function ScorecardClient({
   }
 
   const fmt = (v: number | null, unit: string | null) =>
-    v == null ? "—" : unit === "pct" ? `${v.toFixed(1)}%` : money(v);
+    v == null ? "—" : unit === "pct" ? `${v.toFixed(1)}%` : unit === "count" ? Math.round(v).toLocaleString() : money(v);
 
   return (
     <>

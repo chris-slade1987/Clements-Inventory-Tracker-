@@ -1,0 +1,41 @@
+{
+  "_source": "Clements_Model_UPDATED_FORECAST__7926.xlsx (7/9/2026) — sheet 'Branch Frcst'. Canonical budget model; the MMR/MBR pull from it. Columns: Month Actual/Budget, YTD Actual/Budget, ROY Budget, Forecast CY. Full-year budget = YTD budget + ROY budget. Verified: branch Production sums to the company MBR ($568,780 month / $3,375,694 YTD).",
+  "period": { "year": 2026, "month": 6 },
+  "kpis": {
+    "stops":            { "label": "Stops Completed", "unit": "count", "higherIsBetter": true },
+    "production":       { "label": "Total Production Revenue", "unit": "usd", "higherIsBetter": true },
+    "tech_wages":       { "label": "Technician Wages", "unit": "usd", "higherIsBetter": false },
+    "net_after_labor":  { "label": "Net after Labor", "unit": "usd", "higherIsBetter": true },
+    "margin_pct":       { "label": "Net after Labor (Margin %)", "unit": "pct", "higherIsBetter": true }
+  },
+  "branches": {
+    "vero": {
+      "stops":           { "m": [3389, 2897.53], "ytd": [19144, 17080.8],  "fy_fc": 37479.31,  "roy_bud": 17721.68 },
+      "production":      { "m": [329773.6, 298787.55], "ytd": [1841075.57, 1783364.75], "fy_fc": 3752900.39, "roy_bud": 1856876.84 },
+      "tech_wages":      { "m": [84746.24, 90378.3],   "ytd": [473793.33, 537579.01],   "fy_fc": 1041834.19, "roy_bud": 553048.46 },
+      "net_after_labor": { "m": [223106.13, 188220.63],"ytd": [1239138.02, 1118724.58], "fy_fc": 2453524.31, "roy_bud": 1176922.8 },
+      "margin_pct":      { "m": [67.65, 62.99], "ytd": [67.31, 62.73], "fy_fc": 65.38 }
+    },
+    "stuart": {
+      "stops":           { "m": [979, 916.63], "ytd": [6005, 5400.19], "fy_fc": 11738.66, "roy_bud": 5946.37 },
+      "production":      { "m": [91849.81, 80743.5],  "ytd": [533920.25, 527320.46], "fy_fc": 1090704.96, "roy_bud": 569789.07 },
+      "tech_wages":      { "m": [20301.99, 22911.46], "ytd": [127287.68, 144577.65], "fy_fc": 270382.7,   "roy_bud": 158195.52 },
+      "net_after_labor": { "m": [59831.2, 46495.55],  "ytd": [331652.11, 303924.38], "fy_fc": 673438.42,  "roy_bud": 334094.58 },
+      "margin_pct":      { "m": [65.14, 57.58], "ytd": [62.12, 57.64], "fy_fc": 61.74 }
+    },
+    "orlando": {
+      "stops":           { "m": [1035, 1069.42], "ytd": [6142, 6145.31], "fy_fc": 12439.53, "roy_bud": 6994.84 },
+      "production":      { "m": [94800.44, 102365.32], "ytd": [611929.71, 637051.83], "fy_fc": 1329350.3, "roy_bud": 723113.3 },
+      "tech_wages":      { "m": [23037.5, 26020.93],   "ytd": [141102.62, 147065.83], "fy_fc": 308165.91, "roy_bud": 168665.56 },
+      "net_after_labor": { "m": [55791.04, 65393.2],   "ytd": [366573.87, 397259.68], "fy_fc": 845491.46, "roy_bud": 477795.06 },
+      "margin_pct":      { "m": [58.85, 63.88], "ytd": [59.9, 62.36], "fy_fc": 63.6 }
+    },
+    "naples": {
+      "stops":           { "m": [457, 434.17], "ytd": [2598, 2089.08], "fy_fc": 4991.29, "roy_bud": 2479.85 },
+      "production":      { "m": [52356.49, 62184.59], "ytd": [388768.48, 337508.06], "fy_fc": 716124.4, "roy_bud": 352951.42 },
+      "tech_wages":      { "m": [14283.4, 14063.31],  "ytd": [86339.67, 76518.18],   "fy_fc": 168337.12, "roy_bud": 84164.95 },
+      "net_after_labor": { "m": [29140.43, 38385.32], "ytd": [237937.38, 199261.88], "fy_fc": 423160.82, "roy_bud": 207030.33 },
+      "margin_pct":      { "m": [55.66, 61.73], "ytd": [61.2, 59.04], "fy_fc": 59.09 }
+    }
+  }
+}

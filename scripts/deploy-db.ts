@@ -119,6 +119,17 @@ async function main() {
       console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
     }
 
+    // Branch-level KPIs from the canonical budget model (Branch Frcst) — feeds the
+    // manager dashboard branch drill-down + the branch scorecards. Idempotent
+    // upsert; re-asserts the model-verified figures on every deploy. Non-fatal.
+    try {
+      const { seedBranchFrcst } = await import("../prisma/seed-branch-frcst");
+      const bf = await seedBranchFrcst(prisma);
+      console.log(`deploy-db: branch KPIs (Branch Frcst model) — ${bf.written} values; production YTD roll-up $${bf.branchProductionYtdSum.toLocaleString()} ${bf.reconciles ? "RECONCILES ✓" : "MISMATCH ✗"}.`);
+    } catch (e) {
+      console.error("deploy-db: branch KPI load FAILED (non-fatal):", e);
+    }
+
     // Backfill April 2026 per-branch production (actual + budget) from the May
     // MBR and correct the April company production budget to the MBR figure, so
     // the Q2 branch-manager scorecards reconcile. Upsert (idempotent); always

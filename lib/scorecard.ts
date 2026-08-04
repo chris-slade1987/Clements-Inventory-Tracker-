@@ -21,8 +21,8 @@ export type ScorecardMetric = {
   type: MetricType;
   direction?: Direction; // for auto/manual numeric metrics
   kpi?: string; // KpiValue key for auto metrics
-  ratioOf?: string; // if set, metric = kpi / ratioOf (e.g. fuel / production)
-  unit?: "usd" | "pct";
+  ratioOf?: string; // if set, metric = kpi / ratioOf (e.g. tech wages / production)
+  unit?: "usd" | "pct" | "count";
   // A fixed target that overrides the MBR budget (e.g. the attrition ceiling is
   // a company policy of 2.5% of revenue, not a per-branch budget line).
   fixedTarget?: number;
@@ -33,25 +33,23 @@ export type ScorecardMetric = {
   todo?: string;
 };
 
+// The quarterly manager scorecard — 8 weighted KPIs mirroring the Q1 2026
+// template (e.g. Adam Goetz / Stuart). Auto metrics read the branch's YTD
+// figure (actual + budget) from the canonical budget model (Branch Frcst),
+// which reconciles to the MBR. "Net after Labor (Margin %)" uses the model's
+// definition. Scoring = binary Met/Not, weighted to 100.
 export const SCORECARD_METRICS: ScorecardMetric[] = [
-  { key: "production", label: "Production", weight: 15, type: "auto", direction: "higher", kpi: "production", unit: "usd" },
-  { key: "unserviced_pct", label: "Unserviced %", weight: 15, type: "manual", direction: "lower", unit: "pct" },
-  { key: "sales_value", label: "Annual Value of Total Sales", weight: 15, type: "auto", direction: "higher", kpi: "new_sales", unit: "usd" },
-  // Attrition ceiling: the MBR's own attrition RATE (% of book value), summed
-  // across the quarter's months — NOT cancellation$ ÷ production. Fixed 2.5%
-  // policy target (basis pending CEO confirmation), lower is better.
-  { key: "cancellations_value", label: "Attrition % of Revenue", weight: 15, type: "auto", direction: "lower", kpi: "attrition_rate", unit: "pct", fixedTarget: 2.5, todo: "⚠ TO-DO: verify against the MBR — confirm the 2.5% basis (monthly / quarterly / annual) and that April's per-branch attrition rate is loaded before finalizing the bonus." },
-  // Fuel is company-only in the MBR (no per-branch split yet). Flagged as a
-  // placeholder for now — the CEO is fetching per-branch fuel; wire it to
-  // { type:"auto", kpi:"fuel", ratioOf:"production" } once that data lands.
-  { key: "fuel_pct", label: "Fuel Cost % of Revenue", weight: 10, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Placeholder — per-branch fuel data pending" },
-  // Chemical cost % is a PLACEHOLDER for now — per-branch chemical spend isn't in
-  // the MBR yet; the reviewer marks it manually until that data source is wired.
-  { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 10, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Placeholder — per-branch chemical cost data pending" },
-  { key: "vehicle_inspections", label: "Vehicle Inspection Reports", weight: 5, type: "compliance" },
-  { key: "warehouse_inspections", label: "Warehouse Inspection Reports", weight: 5, type: "compliance" },
-  { key: "qc_reports", label: "Quality Control Reports", weight: 5, type: "compliance" },
-  { key: "training_ceu", label: "Onboarding / CEU Training", weight: 5, type: "compliance" },
+  { key: "production", label: "Total Production Revenue", weight: 20, type: "auto", direction: "higher", kpi: "production", unit: "usd" },
+  { key: "net_after_labor_margin", label: "Net after Labor (Margin %)", weight: 15, type: "auto", direction: "higher", kpi: "margin_pct", unit: "pct" },
+  { key: "tech_wages_pct", label: "Technician Wages % of Revenue", weight: 10, type: "auto", direction: "lower", kpi: "tech_wages", ratioOf: "production", unit: "pct" },
+  { key: "stops", label: "Stops Completed", weight: 10, type: "auto", direction: "higher", kpi: "stops", unit: "count" },
+  { key: "new_sales", label: "New Sales (Annual Value)", weight: 15, type: "auto", direction: "higher", kpi: "new_sales", unit: "usd" },
+  { key: "cancellations", label: "Cancellations (Annual Value)", weight: 15, type: "auto", direction: "lower", kpi: "attrition", unit: "usd" },
+  // Chemical is purchase-based per branch (MMR) but only company-wide in the
+  // model — a known gap the Q1 card itself flagged. Placeholder until branch
+  // chemical is wired; reviewer marks it manually.
+  { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 5, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Per-branch chemical is purchase-based (MMR); the model carries chemical company-wide only — mark manually until branch chemical is wired." },
+  { key: "attrition_rate", label: "Attrition Rate (YTD)", weight: 10, type: "auto", direction: "lower", kpi: "attrition_rate", unit: "pct", fixedTarget: 2.5, todo: "Target 2.5% carried from the Q1 template — confirm the basis (YTD vs annualized) before finalizing a bonus." },
 ];
 
 export const QUARTER_MONTHS: Record<number, number[]> = {
@@ -61,12 +59,16 @@ export const QUARTER_MONTHS: Record<number, number[]> = {
   4: [10, 11, 12],
 };
 
-export type AutoActual = { actual: number | null; budget: number | null; unit: "usd" | "pct" };
+export type AutoActual = { actual: number | null; budget: number | null; unit: "usd" | "pct" | "count" };
 
 /**
- * Quarterly actual + budget for the auto metrics, at a branch scope, summed
- * across the quarter's months that exist. Ratio metrics (fuel/chemical %) are
- * computed as sum(numerator)/sum(production) so they aggregate correctly.
+ * Actual + budget for the auto metrics at a branch scope, read as the **YTD**
+ * figure from the quarter-end month's period (e.g. Q2 → the June 2026 period's
+ * `ytd` basis). This uses the canonical budget model's verified YTD numbers
+ * (Branch Frcst), which reconcile to the MBR — rather than summing individual
+ * months, which aren't loaded per branch. Ratio metrics (tech wages %, etc.)
+ * are computed as YTD-numerator ÷ YTD-denominator so they aggregate correctly.
+ * Percent KPIs already stored as a percentage (e.g. margin_pct) are read directly.
  */
 export async function autoActuals(
   year: number,
@@ -74,30 +76,27 @@ export async function autoActuals(
   branch: string
 ): Promise<Record<string, AutoActual>> {
   const months = QUARTER_MONTHS[quarter] ?? [];
-  const periods = await prisma.reportPeriod.findMany({ where: { year, month: { in: months } } });
-  const valueMaps = await Promise.all(periods.map((p) => periodValues(p.id)));
+  const endMonth = months.length ? months[months.length - 1] : 12;
+  const period = await prisma.reportPeriod.findFirst({ where: { year, month: endMonth } });
+  const vm = period ? await periodValues(period.id) : null;
 
-  // Sum a KPI's actual/budget across the quarter's periods for the branch.
-  const sum = (kpi: string): { actual: number | null; budget: number | null } => {
-    let a: number | null = null, b: number | null = null;
-    for (const vm of valueMaps) {
-      const c: Cell = cell(vm, kpi, branch as never, "month");
-      if (c.actual != null) a = (a ?? 0) + c.actual;
-      if (c.budget != null) b = (b ?? 0) + c.budget;
-    }
-    return { actual: a, budget: b };
+  // Read a KPI's YTD actual/budget for the branch.
+  const read = (kpi: string): { actual: number | null; budget: number | null } => {
+    if (!vm) return { actual: null, budget: null };
+    const c: Cell = cell(vm, kpi, branch as never, "ytd");
+    return { actual: c.actual, budget: c.budget };
   };
 
   const out: Record<string, AutoActual> = {};
   for (const m of SCORECARD_METRICS) {
     if (m.type !== "auto" || !m.kpi) continue;
     if (m.ratioOf) {
-      const num = sum(m.kpi);
-      const den = sum(m.ratioOf);
+      const num = read(m.kpi);
+      const den = read(m.ratioOf);
       const pct = (n: number | null, d: number | null) => (n != null && d && d !== 0 ? (n / d) * 100 : null);
       out[m.key] = { actual: pct(num.actual, den.actual), budget: pct(num.budget, den.budget), unit: "pct" };
     } else {
-      const s = sum(m.kpi);
+      const s = read(m.kpi);
       out[m.key] = { actual: s.actual, budget: s.budget, unit: m.unit ?? "usd" };
     }
   }
@@ -131,7 +130,7 @@ export type ScorecardRow = {
   label: string;
   weight: number;
   type: MetricType;
-  unit: "usd" | "pct" | null;
+  unit: "usd" | "pct" | "count" | null;
   actual: number | null;
   budgetTarget: number | null;
   target: string | null;
