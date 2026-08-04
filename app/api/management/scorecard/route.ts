@@ -18,6 +18,11 @@ export async function POST(req: Request) {
   if (!year || !quarter || !branch || !metricKey)
     return NextResponse.json({ error: "Missing key fields." }, { status: 400 });
 
+  // Once the review for this period is archived, the scorecard is locked.
+  const review = await prisma.scorecardReview.findUnique({ where: { year_quarter_branch: { year, quarter, branch } }, select: { status: true } });
+  if (review?.status === "archived")
+    return NextResponse.json({ error: "This scorecard is archived and locked. An admin must reopen the review to change scores." }, { status: 409 });
+
   const data: { target?: string | null; met?: boolean | null; note?: string | null } = {};
   if ("target" in body) data.target = body.target === "" ? null : String(body.target);
   if ("met" in body) data.met = body.met === null ? null : Boolean(body.met);

@@ -117,6 +117,11 @@ export default async function ManagementPage({
         <PageHeader
           title="Management"
           subtitle={`Budget vs actual · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
+          actions={
+            <Link href="/management/branch-pnl" className="text-sm font-medium text-brand-700 hover:underline">
+              Branch P&L →
+            </Link>
+          }
         />
         <Controls
           periods={periods.map((p) => ({ key: `${p.year}-${String(p.month).padStart(2, "0")}`, label: p.label }))}

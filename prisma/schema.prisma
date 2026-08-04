@@ -355,6 +355,76 @@ model ScorecardResult {
   @@map("scorecard_results")
 }
 
+// The quarterly manager-scorecard REVIEW document — the completion lifecycle
+// wrapper around the per-metric ScorecardResult rows. One review per
+// (year, quarter, branch). Mirrors the company's Q1 2026 manager-review format:
+// a header, the 8-KPI performance table (from ScorecardResult), four narrative
+// reviewer-comment fields, and a three-signer sign-off block. Lifecycle:
+// draft → (three signatures) signed → (admin finalize) archived. Once archived
+// it is immutable — a weighted score is computed, a PersonnelRecord is filed on
+// the manager's employee profile, and further edits/signs are rejected unless an
+// admin explicitly reopens it (logged).
+model ScorecardReview {
+  id      String @id @default(cuid())
+  year    Int
+  quarter Int // 1-4
+  branch  String // "vero" | "stuart" | "orlando" | "naples"
+  status  String @default("draft") // "draft" | "signed" | "archived"
+
+  // Header block (the company template's part 1).
+  managerName  String?   @map("manager_name")
+  reviewerName String?   @map("reviewer_name") // reviewer name(s), free text
+  reviewDate   DateTime? @map("review_date")
+
+  // Reviewer comments (the company template's part 3) — four free-text fields.
+  overallNotes String? @map("overall_notes")
+  strengths    String?
+  areas        String?
+  goals        String?
+
+  // Computed on finalize: the weighted Met/Not score (0-100).
+  score Int?
+
+  // Filed personnel-record link (set on archive): the manager's Employee and the
+  // PersonnelRecord that was written onto their file.
+  employeeId        String? @map("employee_id")
+  personnelRecordId String? @map("personnel_record_id")
+
+  finalizedAt DateTime? @map("finalized_at")
+  archivedAt  DateTime? @map("archived_at")
+  // Admin reopen audit (nullable — set only if an archived review is reopened).
+  reopenedAt  DateTime? @map("reopened_at")
+  reopenedBy  String?   @map("reopened_by")
+  reopenNote  String?   @map("reopen_note")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  signatures ScorecardSignature[]
+
+  @@unique([year, quarter, branch])
+  @@index([branch, status])
+  @@map("scorecard_reviews")
+}
+
+// One typed-signature attestation on a ScorecardReview. Three signers finalize a
+// review: two reviewers (role "reviewer") + the manager (role "manager"). Typed
+// full name + optional title + timestamp — a valid e-signature for in-person
+// capture, matching the PersonnelSignature pattern.
+model ScorecardSignature {
+  id        String   @id @default(cuid())
+  reviewId  String   @map("review_id")
+  role      String // "reviewer" | "manager"
+  typedName String   @map("typed_name")
+  title     String?
+  signedAt  DateTime @default(now()) @map("signed_at")
+
+  review ScorecardReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("scorecard_signatures")
+}
+
 // ---------------------------------------------------------------------------
 // Fleet management. Vehicle registry + maintenance/repair/cost history, so
 // operating cost, cost-per-mile, and replacement timing can be tracked. GPS
