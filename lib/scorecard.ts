@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { cell, periodValues, BRANCHES, type Cell } from "@/lib/management";
+import { branchQuarterAll, type BranchKpiKey } from "@/lib/branch-kpis";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
@@ -33,14 +34,14 @@ export type ScorecardMetric = {
   // target is `perQuarterTarget × quarter` (e.g. attrition 2.5%/qtr → Q1 2.5%,
   // Q2 YTD 5.0%, Q3 7.5%, full year 10%). Overrides fixedTarget when set.
   perQuarterTarget?: number;
-  // Cancellations ($) ceiling: budget = allocated branch book × pct/100 × quarter
-  // (a 2.5%/quarter of book ceiling, pro-rated to the YTD quarter). The model
-  // carries book value company-wide only, so the branch book is ALLOCATED by the
-  // branch's share of YTD production — see `allocatedBranchBook`.
-  bookCeilingPct?: number;
   // Attrition rate (%): actual = kpi(YTD $) ÷ allocated branch book × 100, i.e.
   // cancellations as a percentage of forward book. Pairs with perQuarterTarget.
   bookRate?: boolean;
+  // Quarterly branch KPI (production / new_sales / cancellations): actual + budget
+  // are the SUM of the quarter's three monthly figures from the 2026 Branch KPIs
+  // workbook (target = budget; actual = live MBR monthly, else workbook). See
+  // lib/branch-kpis.ts. Overrides the model YTD read for this metric.
+  quarterlyBranchKpi?: BranchKpiKey;
   // Explanatory hint rendered under a placeholder metric.
   placeholderHint?: string;
   // A "verify before you rely on this" flag shown on the row; also suppresses the
@@ -49,17 +50,20 @@ export type ScorecardMetric = {
 };
 
 // The quarterly manager scorecard — 8 weighted KPIs mirroring the Q1 2026
-// template (e.g. Adam Goetz / Stuart). Auto metrics read the branch's YTD
-// figure (actual + budget) from the canonical budget model (Branch Frcst),
-// which reconciles to the MBR. "Net after Labor (Margin %)" uses the model's
+// template (e.g. Adam Goetz / Stuart). The three headline dollar categories —
+// Total Production, New Sales, Cancellations — are QUARTERLY: actual + budget are
+// the sum of that quarter's three monthly figures from the 2026 Branch KPIs
+// workbook (see lib/branch-kpis.ts). Margin %, Technician Wages %, and Stops read
+// the branch's YTD figure from the budget model (Branch Frcst); Attrition Rate is
+// a book-based % ceiling. "Net after Labor (Margin %)" uses the model's
 // definition. Scoring = binary Met/Not, weighted to 100.
 export const SCORECARD_METRICS: ScorecardMetric[] = [
-  { key: "production", label: "Total Production Revenue", weight: 20, type: "auto", direction: "higher", kpi: "production", unit: "usd" },
+  { key: "production", label: "Total Production Revenue", weight: 20, type: "auto", direction: "higher", unit: "usd", quarterlyBranchKpi: "production" },
   { key: "net_after_labor_margin", label: "Net after Labor (Margin %)", weight: 15, type: "auto", direction: "higher", kpi: "margin_pct", unit: "pct" },
   { key: "tech_wages_pct", label: "Technician Wages % of Revenue", weight: 10, type: "auto", direction: "lower", kpi: "tech_wages", ratioOf: "production", unit: "pct" },
   { key: "stops", label: "Stops Completed", weight: 10, type: "auto", direction: "higher", kpi: "stops", unit: "count" },
-  { key: "new_sales", label: "New Sales (Annual Value)", weight: 15, type: "auto", direction: "higher", kpi: "new_sales", unit: "usd" },
-  { key: "cancellations", label: "Cancellations (Annual Value)", weight: 15, type: "auto", direction: "lower", kpi: "attrition", unit: "usd", bookCeilingPct: 2.5 },
+  { key: "new_sales", label: "New Sales", weight: 15, type: "auto", direction: "higher", unit: "usd", quarterlyBranchKpi: "new_sales" },
+  { key: "cancellations", label: "Cancellations", weight: 15, type: "auto", direction: "lower", unit: "usd", quarterlyBranchKpi: "cancellations" },
   // Chemical is purchase-based per branch (MMR) but only company-wide in the
   // model — a known gap the Q1 card itself flagged. Placeholder until branch
   // chemical is wired; reviewer marks it manually.
@@ -130,25 +134,28 @@ export async function autoActuals(
   };
 
   // Forward book value allocated to this branch (production-share) — powers the
-  // book-based cancellation ceiling and the attrition-rate %.
+  // book-based attrition-rate %.
   const book = vm ? allocatedBranchBook(vm, branch) : null;
+
+  // Quarterly branch KPIs (production / new_sales / cancellations) — actual +
+  // budget summed across the quarter's three months from the 2026 Branch KPIs
+  // workbook. One pair of loads for all three.
+  const bq = await branchQuarterAll(branch, year, quarter);
 
   const out: Record<string, AutoActual> = {};
   for (const m of SCORECARD_METRICS) {
-    if (m.type !== "auto" || !m.kpi) continue;
+    if (m.type !== "auto") continue;
+    if (m.quarterlyBranchKpi) {
+      const c = bq[m.quarterlyBranchKpi];
+      out[m.key] = { actual: c.actual, budget: c.target, unit: m.unit ?? "usd" };
+      continue;
+    }
+    if (!m.kpi) continue;
     if (m.bookRate) {
       // Attrition rate = branch cancellations (YTD $) ÷ allocated book × 100.
       const s = read(m.kpi);
       const actual = s.actual != null && book ? (s.actual / book) * 100 : null;
       out[m.key] = { actual, budget: null, unit: "pct" };
-      continue;
-    }
-    if (m.bookCeilingPct != null) {
-      // Cancellations ($): actual = YTD cancellations; budget = 2.5%/qtr of book,
-      // pro-rated to the YTD quarter (Q2 → 5.0% of allocated book).
-      const s = read(m.kpi);
-      const budget = book != null ? book * (m.bookCeilingPct / 100) * quarter : null;
-      out[m.key] = { actual: s.actual, budget, unit: m.unit ?? "usd" };
       continue;
     }
     if (m.ratioOf) {
@@ -324,12 +331,13 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     const budgetTarget = m.perQuarterTarget != null ? m.perQuarterTarget * quarter : (m.fixedTarget ?? a?.budget ?? null);
     let suggested = m.type === "auto" ? suggestMet(m.direction, a?.actual ?? null, budgetTarget) : null;
     let detail: string | null = m.type === "placeholder" ? (m.placeholderHint ?? "Placeholder — data pending") : null;
+    if (m.quarterlyBranchKpi) {
+      const qm = QUARTER_MONTHS[quarter] ?? [];
+      detail = `Q${quarter} target = sum of the quarter's ${qm.length} monthly budgets (2026 Branch KPIs). Actual = Σ monthly actuals (live MBR where posted).`;
+    }
     if (m.perQuarterTarget != null) {
       detail = `Pro-rated YTD ceiling: ${m.perQuarterTarget}%/quarter × Q${quarter} = ${(m.perQuarterTarget * quarter).toFixed(1)}% (lower is better)`;
       if (m.bookRate) detail += " · rate = branch cancellations ÷ forward book (book allocated to branch by production share)";
-    }
-    if (m.bookCeilingPct != null) {
-      detail = `Ceiling: ${m.bookCeilingPct}%/quarter × Q${quarter} = ${(m.bookCeilingPct * quarter).toFixed(1)}% of forward book (allocated to branch by production share). Lower is better.`;
     }
     // A to-do metric shows a verify flag and never auto-suggests Met/Not — the
     // reviewer must confirm the real numbers first (bonus-critical).

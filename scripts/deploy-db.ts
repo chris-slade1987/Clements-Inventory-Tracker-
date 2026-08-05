@@ -142,6 +142,18 @@ async function main() {
       console.error("deploy-db: branch sales/attrition re-assert FAILED (non-fatal):", e);
     }
 
+    // Load the CEO's 2026 Branch KPIs workbook (per-branch MONTHLY production /
+    // new-sales / cancellation targets + Q1 actuals) into BranchKpiTarget. Powers
+    // the quarterly scorecard targets (Q1–Q4) and the dashboard forecast lines.
+    // Idempotent upsert; non-fatal.
+    try {
+      const { seedBranchKpis } = await import("../prisma/seed-branch-kpis");
+      const bk = await seedBranchKpis(prisma);
+      console.log("deploy-db: branch KPI targets (2026 workbook) —", JSON.stringify(bk));
+    } catch (e) {
+      console.error("deploy-db: branch KPI targets load FAILED (non-fatal):", e);
+    }
+
     // Backfill April 2026 per-branch production (actual + budget) from the May
     // MBR and correct the April company production budget to the MBR figure, so
     // the Q2 branch-manager scorecards reconcile. Upsert (idempotent); always

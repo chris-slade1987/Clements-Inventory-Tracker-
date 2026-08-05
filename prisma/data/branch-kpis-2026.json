@@ -1,0 +1,754 @@
+{
+  "vero": {
+    "production": [
+      {
+        "m": 1,
+        "target": 244886.0,
+        "actual": 242573.15
+      },
+      {
+        "m": 2,
+        "target": 239034.0,
+        "actual": 268501.62
+      },
+      {
+        "m": 3,
+        "target": 365710.0,
+        "actual": 331188.0
+      },
+      {
+        "m": 4,
+        "target": 234053.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 326338.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 298788.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 302229.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 279046.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 320573.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 338488.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 363456.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 253086.0,
+        "actual": null
+      }
+    ],
+    "new_sales": [
+      {
+        "m": 1,
+        "target": 40000.0,
+        "actual": 50135.0
+      },
+      {
+        "m": 2,
+        "target": 40000.0,
+        "actual": 39286.0
+      },
+      {
+        "m": 3,
+        "target": 40000.0,
+        "actual": 55626.0
+      },
+      {
+        "m": 4,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 40000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 35000.0,
+        "actual": null
+      }
+    ],
+    "cancellations": [
+      {
+        "m": 1,
+        "target": 22000.0,
+        "actual": 23949.0
+      },
+      {
+        "m": 2,
+        "target": 22000.0,
+        "actual": 29948.0
+      },
+      {
+        "m": 3,
+        "target": 22000.0,
+        "actual": 32108.0
+      },
+      {
+        "m": 4,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 22000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 24000.0,
+        "actual": null
+      }
+    ]
+  },
+  "stuart": {
+    "production": [
+      {
+        "m": 1,
+        "target": 81969.0,
+        "actual": 84112.0
+      },
+      {
+        "m": 2,
+        "target": 74064.0,
+        "actual": 87308.76
+      },
+      {
+        "m": 3,
+        "target": 103675.0,
+        "actual": 94081.0
+      },
+      {
+        "m": 4,
+        "target": 96598.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 86000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 80744.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 95541.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 85537.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 103935.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 105613.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 96421.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 82741.0,
+        "actual": null
+      }
+    ],
+    "new_sales": [
+      {
+        "m": 1,
+        "target": 13000.0,
+        "actual": 21137.0
+      },
+      {
+        "m": 2,
+        "target": 18000.0,
+        "actual": 16499.0
+      },
+      {
+        "m": 3,
+        "target": 23000.0,
+        "actual": 15173.0
+      },
+      {
+        "m": 4,
+        "target": 28000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 33000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 33000.0,
+        "actual": null
+      }
+    ],
+    "cancellations": [
+      {
+        "m": 1,
+        "target": 13000.0,
+        "actual": 14696.0
+      },
+      {
+        "m": 2,
+        "target": 13150.0,
+        "actual": 14794.0
+      },
+      {
+        "m": 3,
+        "target": 13300.0,
+        "actual": 8627.0
+      },
+      {
+        "m": 4,
+        "target": 13500.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 13750.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 14000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 14250.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 14500.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 14750.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 15250.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 15500.0,
+        "actual": null
+      }
+    ]
+  },
+  "orlando": {
+    "production": [
+      {
+        "m": 1,
+        "target": 95437.0,
+        "actual": 95687.0
+      },
+      {
+        "m": 2,
+        "target": 120439.0,
+        "actual": 121975.0
+      },
+      {
+        "m": 3,
+        "target": 102781.0,
+        "actual": 92729.0
+      },
+      {
+        "m": 4,
+        "target": 103295.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 107946.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 102365.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 110778.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 129494.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 121651.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 117623.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 122037.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 121530.0,
+        "actual": null
+      }
+    ],
+    "new_sales": [
+      {
+        "m": 1,
+        "target": 14000.0,
+        "actual": 14216.0
+      },
+      {
+        "m": 2,
+        "target": 14000.0,
+        "actual": 23384.0
+      },
+      {
+        "m": 3,
+        "target": 14000.0,
+        "actual": 16166.0
+      },
+      {
+        "m": 4,
+        "target": 19000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 24000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 29000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 39000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 39000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 39000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 39000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 39000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 39000.0,
+        "actual": null
+      }
+    ],
+    "cancellations": [
+      {
+        "m": 1,
+        "target": 8000.0,
+        "actual": 4373.0
+      },
+      {
+        "m": 2,
+        "target": 8000.0,
+        "actual": 7059.0
+      },
+      {
+        "m": 3,
+        "target": 8000.0,
+        "actual": 11367.0
+      },
+      {
+        "m": 4,
+        "target": 8033.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 8100.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 8200.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 8367.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 8533.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 8700.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 8867.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 9033.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 9200.0,
+        "actual": null
+      }
+    ]
+  },
+  "naples": {
+    "production": [
+      {
+        "m": 1,
+        "target": 79859.0,
+        "actual": 76721.0
+      },
+      {
+        "m": 2,
+        "target": 60819.0,
+        "actual": 60985.0
+      },
+      {
+        "m": 3,
+        "target": 63455.0,
+        "actual": 64402.0
+      },
+      {
+        "m": 4,
+        "target": 60204.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 48632.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 62185.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 47464.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 54923.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 54160.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 69936.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 63292.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 63176.0,
+        "actual": null
+      }
+    ],
+    "new_sales": [
+      {
+        "m": 1,
+        "target": 15000.0,
+        "actual": 20450.0
+      },
+      {
+        "m": 2,
+        "target": 15000.0,
+        "actual": 16156.0
+      },
+      {
+        "m": 3,
+        "target": 15000.0,
+        "actual": 30869.0
+      },
+      {
+        "m": 4,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 15000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 15000.0,
+        "actual": null
+      }
+    ],
+    "cancellations": [
+      {
+        "m": 1,
+        "target": 3500.0,
+        "actual": 3936.0
+      },
+      {
+        "m": 2,
+        "target": 4000.0,
+        "actual": 4604.0
+      },
+      {
+        "m": 3,
+        "target": 4000.0,
+        "actual": 3558.0
+      },
+      {
+        "m": 4,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 5,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 6,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 7,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 8,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 9,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 10,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 11,
+        "target": 4000.0,
+        "actual": null
+      },
+      {
+        "m": 12,
+        "target": 4000.0,
+        "actual": null
+      }
+    ]
+  }
+}

@@ -285,6 +285,28 @@ model KpiValue {
   @@map("kpi_values")
 }
 
+// Per-branch MONTHLY budget targets (+ known actuals) for the three headline
+// manager-scorecard categories: production, new_sales, cancellations. Source is
+// the CEO's 2026 Branch KPIs workbook, which reconciles to the budget model.
+// Kept separate from KpiValue because it spans the full year INCLUDING future
+// months (so the quarterly scorecard targets and the dashboard forecast lines
+// have forward figures) without creating empty future ReportPeriods. Actuals
+// here are the workbook's own (Q1); current-quarter actuals still come from the
+// live MBR/KpiValue data — see lib/branch-kpis.ts.
+model BranchKpiTarget {
+  id     String @id @default(cuid())
+  branch String // "vero" | "stuart" | "orlando" | "naples"
+  year   Int
+  month  Int // 1-12
+  kpiKey String @map("kpi_key") // "production" | "new_sales" | "cancellations"
+  target Float?
+  actual Float?
+
+  @@unique([branch, year, month, kpiKey])
+  @@index([branch, year, kpiKey])
+  @@map("branch_kpi_targets")
+}
+
 // Revenue by line of business (service category) per branch per period.
 model LobRevenue {
   id         String  @id @default(cuid())
