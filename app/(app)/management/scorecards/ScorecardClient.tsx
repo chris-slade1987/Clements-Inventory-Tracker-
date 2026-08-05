@@ -247,15 +247,20 @@ export default function ScorecardClient({
                       {r.type === "auto" ? fmt(r.actual, r.unit) : "—"}
                     </td>
                     <td className="px-3 py-2">
-                      {editable ? (
+                      {r.type === "auto" ? (
+                        // Auto targets are the budget itself — pulled straight from the
+                        // 2026 Branch KPIs workbook / budget model. Read-only, never typed.
+                        <span className="text-ink tabular-nums">{r.budgetTarget != null ? fmt(r.budgetTarget, r.unit) : "—"}</span>
+                      ) : editable ? (
+                        // Only manual / placeholder lines (e.g. Chemical) are fillable.
                         <input
-                          defaultValue={st.target || (r.budgetTarget != null ? fmt(r.budgetTarget, r.unit) : "")}
-                          placeholder={r.type === "auto" && r.budgetTarget != null ? `budget ${fmt(r.budgetTarget, r.unit)}` : "TBD"}
+                          defaultValue={st.target || ""}
+                          placeholder="TBD"
                           onBlur={(e) => e.target.value !== (st.target || "") && save(r.key, { target: e.target.value })}
                           className="w-28 rounded-lg border border-line px-2 py-1 text-sm text-ink"
                         />
                       ) : (
-                        <span className="text-ink">{st.target || (r.budgetTarget != null ? fmt(r.budgetTarget, r.unit) : "—")}</span>
+                        <span className="text-ink">{st.target || "—"}</span>
                       )}
                     </td>
                     <td className="px-4 py-2">
