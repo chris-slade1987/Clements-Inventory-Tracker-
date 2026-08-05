@@ -63,6 +63,7 @@ export default async function MyScorecardPage({
     <>
       <PageHeader title="My Scorecard" subtitle={`${branchLabel(branch)} · Q${quarter} ${year} — binary Met / Not-Met, weighted to 100%`} />
       <ScorecardClient
+        key={`${year}-${quarter}-${branch}`}
         year={year}
         quarter={quarter}
         branch={branch}

@@ -76,6 +76,7 @@ export default async function ScorecardsPage({
         subtitle="Quarterly branch-manager review · fill-out → triple sign-off → file to personnel record → archive"
       />
       <ScorecardClient
+        key={`${year}-${quarter}-${branch}`}
         year={year}
         quarter={quarter}
         branch={branch}
