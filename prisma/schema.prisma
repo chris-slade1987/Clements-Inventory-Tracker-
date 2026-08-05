@@ -391,7 +391,19 @@ model ScorecardReview {
   year    Int
   quarter Int // 1-4
   branch  String // "vero" | "stuart" | "orlando" | "naples"
-  status  String @default("draft") // "draft" | "signed" | "archived"
+  // "draft"    — supervisor/admin still filling toggles + comments (editable)
+  // "final"    — published & locked; supervisor has signed; awaiting the
+  //              manager's signature (via emailed token or in-app)
+  // "archived" — both signed; filed to the profile + branch hub; immutable
+  status  String @default("draft") // "draft" | "final" | "archived"
+
+  // Publish → manager e-sign flow.
+  publishedAt   DateTime? @map("published_at")
+  signToken     String?   @unique @map("sign_token") // manager's emailed sign link
+  bonusNotifiedAt DateTime? @map("bonus_notified_at") // HR bonus-payout email idempotency
+  // Set true when an already-archived review is reopened & edited, so the next
+  // archive notifies every stakeholder that the published version CHANGED.
+  editedAfterArchive Boolean @default(false) @map("edited_after_archive")
 
   // Header block (the company template's part 1).
   managerName  String?   @map("manager_name")

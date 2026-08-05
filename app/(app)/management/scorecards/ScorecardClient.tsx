@@ -68,8 +68,12 @@ export default function ScorecardClient({
   basePath?: string;
 }) {
   const router = useRouter();
-  const isArchived = review?.status === "archived";
-  const editable = canEdit && !isArchived;
+  const status = review?.status ?? "draft";
+  const isArchived = status === "archived";
+  const isFinal = status === "final";
+  const isDraft = !isArchived && !isFinal;
+  // Editing (toggles + comments) is allowed only while a draft. Publishing locks it.
+  const editable = canEdit && isDraft;
 
   const [state, setState] = useState<Record<string, { met: boolean | null; target: string }>>(
     Object.fromEntries(rows.map((r) => [r.key, { met: r.met, target: r.target ?? "" }]))
@@ -89,9 +93,15 @@ export default function ScorecardClient({
   const earned = rows.reduce((s, r) => s + (state[r.key]?.met === true ? r.weight : 0), 0);
   const scored = rows.filter((r) => state[r.key]?.met != null).length;
   const sigs = review?.signatures ?? [];
-  const reviewerCount = sigs.filter((s) => s.role === "reviewer").length;
-  const managerCount = sigs.filter((s) => s.role === "manager").length;
-  const readyToFinalize = reviewerCount >= 2 && managerCount >= 1;
+  const supervisorSig = sigs.find((s) => s.role === "reviewer");
+  const managerSig = sigs.find((s) => s.role === "manager");
+
+  // Publish-as-final capture (supervisor's typed signature).
+  const [showPublish, setShowPublish] = useState(false);
+  const [pubName, setPubName] = useState(suggestedManagerName ? "" : "");
+  const [pubTitle, setPubTitle] = useState("Supervisor");
+  const [pubAck, setPubAck] = useState(false);
+  const [pubResult, setPubResult] = useState<{ emailed: boolean; managerEmail: string | null; signUrl: string } | null>(null);
 
   function nav(next: Record<string, string | number>) {
     const p = new URLSearchParams({ year: String(year), quarter: String(quarter), branch, ...Object.fromEntries(Object.entries(next).map(([k, v]) => [k, String(v)])) });
@@ -127,22 +137,34 @@ export default function ScorecardClient({
     }
   }
 
-  async function finalize() {
-    if (!canFinalize || !readyToFinalize) return;
-    setSaving("finalize"); setBanner(null);
+  // Publish as final: locks the scorecard, records the supervisor's signature,
+  // and emails the manager a secure link to add theirs.
+  async function publish() {
+    if (!canFinalize) return;
+    if (!pubName.trim()) return setBanner("Type the supervisor's full name to sign & publish.");
+    if (!pubAck) return setBanner("Confirm the acknowledgment to publish.");
+    setSaving("publish"); setBanner(null);
     const res = await fetch("/api/management/scorecard/review", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "finalize", year, quarter, branch }),
+      body: JSON.stringify({ action: "publish", year, quarter, branch, supervisorName: pubName, supervisorTitle: pubTitle }),
     });
     setSaving(null);
     const d = await res.json().catch(() => ({}));
-    if (!res.ok) return setBanner(d.error ?? "Could not finalize.");
+    if (!res.ok) return setBanner(d.error ?? "Could not publish.");
+    setShowPublish(false);
+    setPubResult({ emailed: !!d.emailed, managerEmail: d.managerEmail ?? null, signUrl: d.signUrl ?? "" });
     router.refresh();
   }
 
+  // Edit an archived scorecard (admin) — behind an explicit confirmation. Clears
+  // signatures and returns it to draft; re-publishing notifies all stakeholders.
   async function reopen() {
     if (!canFinalize) return;
-    const note = window.prompt("Reason for reopening this archived review? (logged)") ?? "";
+    const ok = window.confirm(
+      "Are you sure you want to EDIT this archived scorecard?\n\nThis unlocks it for changes and clears both signatures. When you re-publish, every admin and the branch manager will be notified that the published version changed, and the updated copy will overwrite the one on the manager's profile and in the branch hub.",
+    );
+    if (!ok) return;
+    const note = window.prompt("Briefly, what needs to change? (logged on the audit trail)") ?? "";
     setSaving("reopen"); setBanner(null);
     const res = await fetch("/api/management/scorecard/review", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -314,18 +336,57 @@ export default function ScorecardClient({
         </div>
       </Card>
 
-      {/* Part 4 — Signatures */}
-      <ScorecardSignatures year={year} quarter={quarter} branch={branch} signatures={sigs} canSign={canSign} locked={isArchived} />
+      {/* Part 4 — Signatures (supervisor at publish, manager via email or in-app) */}
+      <ScorecardSignatures year={year} quarter={quarter} branch={branch} signatures={sigs} canSign={canSign && !isDraft} locked={isArchived} />
 
       {banner ? <p className="mt-3 text-xs text-red-600">{banner}</p> : null}
 
-      {canFinalize && !isArchived ? (
-        <div className="mt-4 flex items-center gap-3 print:hidden">
-          <button onClick={finalize} disabled={!readyToFinalize || saving === "finalize"} className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm disabled:opacity-50">
-            {saving === "finalize" ? "Finalizing…" : "Finalize & archive"}
-          </button>
-          <span className="text-xs text-muted">{readyToFinalize ? "Locks the review, computes the score, and files it to the manager's personnel record." : `Needs all three signatures (${reviewerCount}/2 reviewers, ${managerCount}/1 manager).`}</span>
+      {/* Lifecycle controls */}
+      {canFinalize ? (
+        <div className="mt-4 print:hidden">
+          {isDraft ? (
+            !showPublish ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <button onClick={() => { setShowPublish(true); setBanner(null); }} className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm">Publish as final version</button>
+                <span className="text-xs text-muted">Changes save automatically as a draft. Publishing locks the scorecard, records your supervisor signature, and emails the manager to sign.</span>
+              </div>
+            ) : (
+              <div className="max-w-md space-y-2 rounded-xl border border-line p-4">
+                <div className="text-sm font-medium text-ink">Publish &amp; sign as supervisor</div>
+                <p className="text-[11px] italic text-muted">&ldquo;I certify that I reviewed this manager&rsquo;s quarterly performance, that the scorecard and comments accurately reflect that review, and that I discussed it with the manager.&rdquo;</p>
+                <input value={pubName} onChange={(e) => setPubName(e.target.value)} placeholder="Type your full name to sign" className="w-full rounded-lg border border-line px-2 py-1.5 text-sm" />
+                <input value={pubTitle} onChange={(e) => setPubTitle(e.target.value)} placeholder="Title" className="w-full rounded-lg border border-line px-2 py-1.5 text-sm" />
+                <label className="flex items-start gap-2 text-[11px] text-ink"><input type="checkbox" checked={pubAck} onChange={(e) => setPubAck(e.target.checked)} className="mt-0.5" />I have read and agree to the statement above.</label>
+                <div className="flex gap-2">
+                  <button onClick={publish} disabled={saving === "publish"} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">{saving === "publish" ? "Publishing…" : "Publish & email manager"}</button>
+                  <button onClick={() => { setShowPublish(false); setBanner(null); }} className="rounded-lg px-2 py-1 text-xs text-muted hover:underline">Cancel</button>
+                </div>
+              </div>
+            )
+          ) : isFinal ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <div className="text-sm font-medium text-amber-900">Published — awaiting the manager&rsquo;s signature</div>
+              <p className="mt-1 text-xs text-amber-800">
+                The supervisor{supervisorSig ? ` (${supervisorSig.typedName})` : ""} has signed.{" "}
+                {managerSig ? "The manager has signed — completing." : "The manager has been emailed a secure link to review and sign; it completes automatically once they sign. A signed-in manager can also sign above."}
+              </p>
+              {pubResult ? (
+                <p className="mt-1 text-[11px] text-amber-700">
+                  {pubResult.emailed
+                    ? `Sign link emailed to ${pubResult.managerEmail}.`
+                    : <>No manager email on file — share this secure link directly: {pubResult.signUrl ? <a className="underline" href={pubResult.signUrl}>{pubResult.signUrl}</a> : null}</>}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs text-muted">Completed &amp; archived{review?.score != null ? ` · score ${review.score}%` : ""}. Filed to the manager&rsquo;s profile and the branch hub.</span>
+              <button onClick={reopen} disabled={saving === "reopen"} className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:border-red-300">{saving === "reopen" ? "Reopening…" : "Edit archived form"}</button>
+            </div>
+          )}
         </div>
+      ) : isArchived ? (
+        <p className="mt-4 text-xs text-muted print:hidden">Completed &amp; archived{review?.score != null ? ` · score ${review.score}%` : ""}. Read-only.</p>
       ) : null}
 
       {/* Archived scorecards list */}

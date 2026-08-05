@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { cell, periodValues, BRANCHES, type Cell } from "@/lib/management";
+import { cell, periodValues, BRANCHES, branchLabel, type Cell } from "@/lib/management";
 import { branchQuarterAll, type BranchKpiKey } from "@/lib/branch-kpis";
+import { notifyList, hrDirectorEmail } from "@/lib/personnel";
+import { sendEmail } from "@/lib/email";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
@@ -261,11 +263,11 @@ export async function getScorecardReview(year: number, quarter: number, branch: 
   };
 }
 
-/** Whether a review has the three required signatures: ≥2 reviewer + ≥1 manager. */
+/** Whether a review has the two required signatures: the supervisor + the manager. */
 export function hasRequiredSignatures(signatures: { role: string }[]): boolean {
-  const reviewers = signatures.filter((s) => s.role === "reviewer").length;
+  const reviewers = signatures.filter((s) => s.role === "reviewer").length; // supervisor
   const managers = signatures.filter((s) => s.role === "manager").length;
-  return reviewers >= 2 && managers >= 1;
+  return reviewers >= 1 && managers >= 1;
 }
 
 /**
@@ -293,6 +295,108 @@ export async function listArchivedReviews(branches: string[]) {
     orderBy: [{ year: "desc" }, { quarter: "desc" }, { branch: "asc" }],
     include: { signatures: { orderBy: { signedAt: "asc" } } },
   });
+}
+
+const APP_BASE = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+
+/** Active-admin login emails (recipients for change notices). */
+async function adminEmails(): Promise<string[]> {
+  const admins = await prisma.user.findMany({ where: { role: "admin", active: true }, select: { email: true } });
+  return admins.map((a) => a.email).filter(Boolean);
+}
+
+/**
+ * Complete a review that now has both signatures: compute the weighted score,
+ * file (or, on a post-archive edit, OVERWRITE) the manager's PersonnelRecord,
+ * set status=archived, and notify stakeholders:
+ *   - HR director → pay the bonus on the next payroll cycle,
+ *   - leadership/HR list → the scorecard was filed,
+ *   - on an edited-after-archive republish → every admin + the manager that the
+ *     published version CHANGED (the profile + branch-hub copies are overwritten).
+ * Idempotent-ish: safe to call once both signatures are present. Returns summary.
+ */
+export async function finalizeScorecard(reviewId: string, actorName: string) {
+  const review = await prisma.scorecardReview.findUnique({ where: { id: reviewId }, include: { signatures: true } });
+  if (!review) throw new Error("Review not found.");
+  if (!hasRequiredSignatures(review.signatures)) throw new Error("Both the supervisor and manager must sign first.");
+
+  const { year, quarter, branch } = review;
+  const score = await scoreFromSaved(year, quarter, branch);
+  const wasEdit = review.editedAfterArchive;
+
+  const emp = await matchBranchManagerEmployee(branch, review.managerName);
+  const title = `Q${quarter} ${year} manager scorecard — score ${score}%`;
+  const bodyText = [
+    review.overallNotes ? `Overall performance: ${review.overallNotes}` : null,
+    review.strengths ? `Strengths: ${review.strengths}` : null,
+    review.areas ? `Areas for improvement: ${review.areas}` : null,
+    review.goals ? `Goals for next quarter: ${review.goals}` : null,
+  ].filter(Boolean).join("\n\n") || null;
+  const details = JSON.stringify({ kind: "manager_scorecard", year, quarter, branch, score, reviewId: review.id });
+
+  let personnelRecordId = review.personnelRecordId;
+  if (emp) {
+    if (personnelRecordId) {
+      // Overwrite the existing filed record (an edited-after-archive republish).
+      await prisma.personnelRecord.update({ where: { id: personnelRecordId }, data: { title, body: bodyText, details, branch } }).catch(async () => {
+        const rec = await prisma.personnelRecord.create({ data: { employeeId: emp.id, branch, type: "note", category: "scorecard", title, body: bodyText, details, authorName: actorName } });
+        personnelRecordId = rec.id;
+      });
+    } else {
+      const rec = await prisma.personnelRecord.create({ data: { employeeId: emp.id, branch, type: "note", category: "scorecard", title, body: bodyText, details, authorName: actorName } });
+      personnelRecordId = rec.id;
+    }
+  }
+
+  await prisma.scorecardReview.update({
+    where: { id: review.id },
+    data: {
+      status: "archived",
+      score,
+      employeeId: emp?.id ?? null,
+      personnelRecordId,
+      finalizedAt: review.finalizedAt ?? new Date(),
+      archivedAt: new Date(),
+      editedAfterArchive: false,
+    },
+  });
+
+  const b = branchLabel(branch);
+  const link = `${APP_BASE()}/management/scorecards?year=${year}&quarter=${quarter}&branch=${branch}`;
+  const empEmail = emp ? (await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } })) : null;
+  const managerEmail = empEmail?.email || empEmail?.user?.email || null;
+
+  // 1) HR director → pay the bonus next cycle (once per archive).
+  await sendEmail({
+    to: hrDirectorEmail(),
+    subject: `Bonus payout due: ${b} Q${quarter} ${year} manager scorecard (${score}%)`,
+    kind: "scorecard_bonus", relatedType: "scorecard_review", relatedId: review.id,
+    text: `The Q${quarter} ${year} manager scorecard for ${b} is complete and signed (score ${score}%). Please pay ${emp?.name ?? "the branch manager"}'s quarterly bonus on the next payroll cycle.\n\n${link}\n\n— CanopyOS`,
+    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> is complete and signed (score <strong>${score}%</strong>).</p><p>Please pay ${emp?.name ?? "the branch manager"}'s quarterly bonus on the next payroll cycle.</p><p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
+  }).catch(() => null);
+
+  // 2) Leadership/HR list → filed.
+  await sendEmail({
+    to: await notifyList("note"),
+    subject: `Manager scorecard ${wasEdit ? "UPDATED" : "completed"}: ${b} Q${quarter} ${year} — ${score}%`,
+    kind: "scorecard_archived", relatedType: "scorecard_review", relatedId: review.id,
+    text: `The Q${quarter} ${year} manager scorecard for ${b} was ${wasEdit ? "edited and re-published" : "completed and archived"} by ${actorName}. Score: ${score}%.${emp ? `\n\nFiled to ${emp.name}'s personnel record + the branch hub.` : ""}\n\n${link}\n\n— CanopyOS`,
+    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> was ${wasEdit ? "<strong>edited and re-published</strong>" : "completed and archived"} by ${actorName}. Score: <strong>${score}%</strong>.</p>${emp ? `<p>Filed to <strong>${emp.name}</strong>'s personnel record + the branch hub.</p>` : ""}<p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
+  }).catch(() => null);
+
+  // 3) Edited-after-archive → notify every admin + the manager that it CHANGED.
+  if (wasEdit) {
+    const recips = [...new Set([...(await adminEmails()), managerEmail].filter(Boolean) as string[])];
+    await sendEmail({
+      to: recips,
+      subject: `Scorecard CHANGED: ${b} Q${quarter} ${year} — now ${score}%`,
+      kind: "scorecard_changed", relatedType: "scorecard_review", relatedId: review.id,
+      text: `Heads up: the previously-archived Q${quarter} ${year} manager scorecard for ${b} was edited by an admin (${actorName}) and re-published. The updated version (score ${score}%) has replaced the prior copy on ${emp?.name ?? "the manager"}'s profile and in the branch hub.\n\n${link}\n\n— CanopyOS`,
+      html: `<p>Heads up: the previously-archived <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> was edited by an admin (${actorName}) and re-published.</p><p>The updated version (score <strong>${score}%</strong>) has replaced the prior copy on ${emp?.name ?? "the manager"}'s profile and in the branch hub.</p><p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
+    }).catch(() => null);
+  }
+
+  return { score, filed: !!emp, personnelRecordId, changed: wasEdit };
 }
 
 export type ScorecardRow = {

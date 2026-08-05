@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import {
   hasRequiredSignatures,
   matchBranchManagerEmployee,
-  scoreFromSaved,
+  finalizeScorecard,
 } from "@/lib/scorecard";
-import { notifyList } from "@/lib/personnel";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -16,12 +16,15 @@ const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; r
 const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
 
 // Completion-lifecycle actions for a quarterly manager-scorecard review:
-//  - save     : upsert the header + four narrative fields (draft only)
-//  - sign     : append a typed-signature attestation (reviewer | manager)
-//  - finalize : requires ≥2 reviewer + 1 manager signatures → compute the
-//               weighted score, archive, and file a PersonnelRecord on the
-//               manager's employee. Immutable thereafter.
-//  - reopen   : admin-only un-archive (logged) so a mistake can be corrected.
+//  - save     : upsert header + four narrative fields (DRAFT only, admin)
+//  - publish  : draft → "final". The supervisor signs, editing locks, a manager
+//               sign-token is minted and emailed. (admin)
+//  - sign     : append a typed signature (reviewer=supervisor | manager). When
+//               BOTH are present the review auto-archives (score, file to the
+//               manager's profile + branch hub, notify HR to pay the bonus).
+//  - reopen   : admin-only un-archive of a completed review, behind an explicit
+//               confirm on the client; flags it so the next archive notifies all
+//               stakeholders that the published version changed.
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user || (user.role !== "admin" && user.role !== "manager"))
@@ -45,17 +48,23 @@ export async function POST(req: Request) {
   });
   const isArchived = existing?.status === "archived";
 
-  // ---- reopen (admin only) ------------------------------------------------
+  // ---- reopen (admin only) — un-archive a completed review to edit it --------
   if (action === "reopen") {
     if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
     if (!existing || existing.status !== "archived")
       return NextResponse.json({ error: "Only an archived review can be reopened." }, { status: 400 });
+    // Clear signatures + token: an edit invalidates the prior sign-off, so both
+    // parties must re-sign. Flag editedAfterArchive so re-archiving notifies all.
+    await prisma.scorecardSignature.deleteMany({ where: { reviewId: existing.id } });
     await prisma.scorecardReview.update({
       where: { id: existing.id },
       data: {
-        status: hasRequiredSignatures(existing.signatures) ? "signed" : "draft",
+        status: "draft",
+        signToken: null,
+        publishedAt: null,
         archivedAt: null,
         finalizedAt: null,
+        editedAfterArchive: true,
         reopenedAt: new Date(),
         reopenedBy: user.name,
         reopenNote: str(body?.note),
@@ -64,15 +73,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // Every other action is blocked once archived (immutable).
+  // Every other action is blocked once archived (immutable until reopened).
   if (isArchived)
     return NextResponse.json({ error: "This review is archived and locked. An admin must reopen it to make changes." }, { status: 409 });
 
-  // ---- save (header + narrative) ------------------------------------------
+  // ---- save (header + narrative) — DRAFT only --------------------------------
   if (action === "save") {
-    // Only admins edit narrative/header (managers view read-only, per the
-    // existing scorecard-scoring gate).
     if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
+    if (existing && existing.status !== "draft")
+      return NextResponse.json({ error: "Published — reopen to a draft before editing." }, { status: 409 });
     const data: Record<string, unknown> = {};
     if ("managerName" in body) data.managerName = str(body.managerName);
     if ("reviewerName" in body) data.reviewerName = str(body.reviewerName);
@@ -89,7 +98,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // ---- sign (append a typed-signature attestation) ------------------------
+  // ---- publish (draft → final) — supervisor signs, manager is emailed --------
+  if (action === "publish") {
+    if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
+    const supervisorName = str(body?.supervisorName) ?? user.name;
+    const supervisorTitle = str(body?.supervisorTitle) ?? "Supervisor";
+    if (existing && existing.status === "final")
+      return NextResponse.json({ error: "Already published — awaiting the manager's signature." }, { status: 409 });
+
+    const review = existing ?? await prisma.scorecardReview.create({ data: { year, quarter, branch } });
+    const token = randomBytes(24).toString("base64url");
+
+    // Record the supervisor's signature and lock the review.
+    await prisma.scorecardSignature.create({ data: { reviewId: review.id, role: "reviewer", typedName: supervisorName, title: supervisorTitle } });
+    await prisma.scorecardReview.update({
+      where: { id: review.id },
+      data: { status: "final", signToken: token, publishedAt: new Date(), reviewerName: review.reviewerName ?? supervisorName },
+    });
+
+    // Email the manager a secure link to add their signature.
+    const emp = await matchBranchManagerEmployee(branch, existing?.managerName ?? null);
+    const empRow = emp ? await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } }) : null;
+    const managerEmail = empRow?.email || empRow?.user?.email || null;
+    const signUrl = `${base()}/scorecard-sign/${token}`;
+    const b = branchLabel(branch);
+    let emailed = false;
+    if (managerEmail) {
+      const r = await sendEmail({
+        to: managerEmail,
+        subject: `Signature needed: your Q${quarter} ${year} ${b} scorecard`,
+        kind: "scorecard_sign_request", relatedType: "scorecard_review", relatedId: review.id,
+        text: `Your Q${quarter} ${year} branch scorecard has been reviewed and is ready for your signature. Open the secure link below to review the final scorecard and comments and add your signature:\n\n${signUrl}\n\nYour signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.\n\n— CanopyOS`,
+        html: `<p>Your <strong>Q${quarter} ${year}</strong> ${b} branch scorecard has been reviewed and is ready for your signature.</p><p><a href="${signUrl}">Review &amp; sign your scorecard →</a></p><p style="color:#5b7a70;font-size:13px">Your signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.</p><p>— CanopyOS</p>`,
+      }).catch(() => null);
+      emailed = !!r;
+    }
+    return NextResponse.json({ ok: true, emailed, managerEmail, signUrl });
+  }
+
+  // ---- sign (in-app) — supervisor(reviewer) or manager -----------------------
   if (action === "sign") {
     const role = str(body?.role);
     const typedName = str(body?.typedName);
@@ -98,88 +145,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Signature role must be reviewer or manager." }, { status: 400 });
     if (!typedName) return NextResponse.json({ error: "Type the signer's full name." }, { status: 400 });
 
-    // Ensure the review row exists.
     const review = existing ?? await prisma.scorecardReview.create({ data: { year, quarter, branch } });
-
-    // Slot limits: at most two reviewers and one manager.
     const sigs = existing?.signatures ?? [];
-    if (role === "reviewer" && sigs.filter((s) => s.role === "reviewer").length >= 2)
-      return NextResponse.json({ error: "Both reviewer signatures are already captured." }, { status: 400 });
+    if (role === "reviewer" && sigs.filter((s) => s.role === "reviewer").length >= 1)
+      return NextResponse.json({ error: "The supervisor signature is already captured." }, { status: 400 });
     if (role === "manager" && sigs.filter((s) => s.role === "manager").length >= 1)
       return NextResponse.json({ error: "The manager signature is already captured." }, { status: 400 });
 
     await prisma.scorecardSignature.create({ data: { reviewId: review.id, role, typedName, title } });
 
-    // Promote to "signed" once all three attestations are present.
+    // Both signatures present → auto-complete (score, file, notify HR).
     const after = await prisma.scorecardSignature.findMany({ where: { reviewId: review.id } });
-    if (hasRequiredSignatures(after) && review.status === "draft")
-      await prisma.scorecardReview.update({ where: { id: review.id }, data: { status: "signed" } });
-
-    return NextResponse.json({ ok: true });
-  }
-
-  // ---- finalize & archive (admin) -----------------------------------------
-  if (action === "finalize") {
-    if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
-    if (!existing) return NextResponse.json({ error: "Nothing to finalize yet." }, { status: 400 });
-    if (!hasRequiredSignatures(existing.signatures))
-      return NextResponse.json({ error: "Finalizing needs all three signatures: two reviewers and the manager." }, { status: 400 });
-
-    const score = await scoreFromSaved(year, quarter, branch);
-
-    // File onto the manager's personnel record, if we can match one.
-    const emp = await matchBranchManagerEmployee(branch, existing.managerName);
-    let personnelRecordId: string | null = null;
-    if (emp) {
-      const title = `Q${quarter} ${year} manager scorecard — score ${score}%`;
-      const bodyText = [
-        existing.overallNotes ? `Overall performance: ${existing.overallNotes}` : null,
-        existing.strengths ? `Strengths: ${existing.strengths}` : null,
-        existing.areas ? `Areas for improvement: ${existing.areas}` : null,
-        existing.goals ? `Goals for next quarter: ${existing.goals}` : null,
-      ].filter(Boolean).join("\n\n") || null;
-      const rec = await prisma.personnelRecord.create({
-        data: {
-          employeeId: emp.id,
-          branch,
-          type: "note",
-          category: "scorecard",
-          title,
-          body: bodyText,
-          details: JSON.stringify({ kind: "manager_scorecard", year, quarter, branch, score, reviewId: existing.id }),
-          authorId: user.id,
-          authorName: user.name,
-        },
-      });
-      personnelRecordId = rec.id;
+    if (hasRequiredSignatures(after)) {
+      const r = await finalizeScorecard(review.id, user.name).catch((e) => ({ error: String(e) }));
+      return NextResponse.json({ ok: true, completed: true, ...r });
     }
-
-    await prisma.scorecardReview.update({
-      where: { id: existing.id },
-      data: {
-        status: "archived",
-        score,
-        employeeId: emp?.id ?? null,
-        personnelRecordId,
-        finalizedAt: new Date(),
-        archivedAt: new Date(),
-      },
-    });
-
-    // Notify HR + leadership that a manager review was filed (best-effort).
-    const b = branchLabel(branch);
-    const recipients = await notifyList("note");
-    await sendEmail({
-      to: recipients,
-      subject: `Manager scorecard archived: ${b} Q${quarter} ${year} — ${score}%`,
-      kind: "scorecard_archived",
-      relatedType: "scorecard_review",
-      relatedId: existing.id,
-      text: `The Q${quarter} ${year} manager scorecard for ${b} was finalized and archived by ${user.name}. Weighted score: ${score}%.${emp ? `\n\nFiled to ${emp.name}'s personnel record.` : ""}\n\n${base()}/management/scorecards?year=${year}&quarter=${quarter}&branch=${branch}\n\n— CanopyOS`,
-      html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> was finalized and archived by ${user.name}. Weighted score: <strong>${score}%</strong>.</p>${emp ? `<p>Filed to <strong>${emp.name}</strong>'s personnel record.</p>` : ""}<p><a href="${base()}/management/scorecards?year=${year}&quarter=${quarter}&branch=${branch}">View scorecard →</a></p><p>— CanopyOS</p>`,
-    }).catch(() => null);
-
-    return NextResponse.json({ ok: true, score, filed: !!emp, personnelRecordId });
+    return NextResponse.json({ ok: true, completed: false });
   }
 
   return NextResponse.json({ error: "Unknown action." }, { status: 400 });

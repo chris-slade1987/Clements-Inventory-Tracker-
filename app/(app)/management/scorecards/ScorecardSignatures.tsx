@@ -10,13 +10,12 @@ const STATEMENT: Record<string, string> = {
   reviewer:
     "I certify that I reviewed this manager's quarterly performance, that the scorecard and comments accurately reflect that review, and that I discussed it with the manager.",
   manager:
-    "I acknowledge that I have received and reviewed this quarterly scorecard with my reviewer(s). My signature indicates receipt and discussion — not necessarily agreement — of the ratings and comments above.",
+    "I acknowledge that I have received and reviewed this quarterly scorecard with my supervisor. My signature indicates receipt and discussion — not necessarily agreement — of the ratings and comments above.",
 };
 
-// Three signers finalize a review: two reviewers + the manager.
+// Two signers complete a review: the supervisor and the manager.
 const SLOTS: { key: string; role: string; label: string }[] = [
-  { key: "reviewer-1", role: "reviewer", label: "Reviewer 1" },
-  { key: "reviewer-2", role: "reviewer", label: "Reviewer 2" },
+  { key: "reviewer", role: "reviewer", label: "Supervisor" },
   { key: "manager", role: "manager", label: "Manager" },
 ];
 
@@ -34,10 +33,10 @@ export default function ScorecardSignatures({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const reviewers = signatures.filter((s) => s.role === "reviewer");
+  const supervisor = signatures.find((s) => s.role === "reviewer");
   const manager = signatures.find((s) => s.role === "manager");
   const filled = (slotKey: string): SigLite | undefined =>
-    slotKey === "reviewer-1" ? reviewers[0] : slotKey === "reviewer-2" ? reviewers[1] : manager;
+    slotKey === "reviewer" ? supervisor : manager;
 
   async function sign(role: string) {
     if (!name.trim()) return setError("Type the signer's full name.");
@@ -55,8 +54,8 @@ export default function ScorecardSignatures({
 
   return (
     <div className="mt-4 rounded-xl border border-line p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-3">Signatures — two reviewers &amp; the manager</div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-3">Signatures — supervisor &amp; manager</div>
+      <div className="grid gap-3 sm:grid-cols-2">
         {SLOTS.map((slot) => {
           const s = filled(slot.key);
           const isOpen = open === slot.key;
