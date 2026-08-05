@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { signatureRoles, recordTypeLabel, getHrEmail } from "@/lib/personnel";
 import { dueFromStart, REVIEW_LABEL } from "@/lib/review";
-import { branchLabel } from "@/lib/management";
+import { branchLabel, BRANCHES } from "@/lib/management";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
 // Called by the daily cron (/api/cron/daily) and the manual admin endpoints.
@@ -249,4 +249,68 @@ export async function remindSignatures() {
     if (res.status === "sent") sent++;
   }
   return { candidates: pending.length, emailed: sent };
+}
+
+// Quarterly branch scorecards are due 30–60 days after each quarter-end. Once we
+// pass day 30, alert every manager, HR, and admin that any branch whose scorecard
+// isn't finalized yet needs to be completed — repeating weekly through day 60.
+export async function remindScorecardsDue() {
+  const now = new Date();
+  const results: { period: string; outstanding: string[]; emailed: boolean }[] = [];
+
+  // Quarter-end (last day of the quarter's final month), UTC.
+  const quarterEnd = (year: number, q: number) => new Date(Date.UTC(year, q * 3, 0, 23, 59, 59));
+  const DAY = 86_400_000;
+
+  // Check the current year's quarters plus last year's Q4 (covers a January run).
+  const y = now.getUTCFullYear();
+  const candidates: { year: number; q: number }[] = [
+    { year: y - 1, q: 4 }, { year: y, q: 1 }, { year: y, q: 2 }, { year: y, q: 3 }, { year: y, q: 4 },
+  ];
+
+  for (const { year, q } of candidates) {
+    const end = quarterEnd(year, q);
+    const open = new Date(end.getTime() + 30 * DAY); // due window opens day 30
+    const close = new Date(end.getTime() + 60 * DAY); // …closes day 60
+    if (now < open || now > close) continue;
+
+    // Which branches don't yet have a finalized (archived) scorecard?
+    const reviews = await prisma.scorecardReview.findMany({ where: { year, quarter: q }, select: { branch: true, status: true } });
+    const doneBranches = new Set(reviews.filter((r) => r.status === "archived").map((r) => r.branch));
+    const outstanding = BRANCHES.filter((b) => !doneBranches.has(b.key)).map((b) => b.key);
+    if (outstanding.length === 0) { results.push({ period: `${year}Q${q}`, outstanding: [], emailed: false }); continue; }
+
+    const daysLeft = Math.max(0, Math.ceil((close.getTime() - now.getTime()) / DAY));
+    const names = outstanding.map(branchLabel).join(", ");
+
+    // Standing in-app alert (idempotent by quarter).
+    await prisma.alert.upsert({
+      where: { dedupeKey: `scorecard_due:${year}Q${q}` },
+      create: { type: "scorecard_due", severity: daysLeft <= 14 ? "critical" : "warning", status: "open", dedupeKey: `scorecard_due:${year}Q${q}`, message: `Q${q} ${year} branch scorecards are due (${daysLeft}d left): ${names}.` },
+      update: { message: `Q${q} ${year} branch scorecards are due (${daysLeft}d left): ${names}.`, status: "open", severity: daysLeft <= 14 ? "critical" : "warning" },
+    }).catch(() => null);
+
+    // Weekly email to managers + HR + admins (guarded by a Setting).
+    const key = `scorecard_due_email:${year}Q${q}`;
+    const setting = await prisma.setting.findUnique({ where: { key } }).catch(() => null);
+    const last = setting?.value ? new Date(setting.value) : null;
+    const dueForEmail = !last || now.getTime() - last.getTime() >= 7 * DAY;
+    let emailed = false;
+    if (dueForEmail) {
+      const users = await prisma.user.findMany({ where: { active: true, OR: [{ role: { in: ["admin", "manager"] } }, { hrAccess: true }] }, select: { email: true } });
+      const recipients = [...new Set([...users.map((u) => u.email), await getHrEmail()].filter(Boolean))];
+      const link = `${base()}/management/scorecards?year=${year}&quarter=${q}`;
+      const r = await sendEmail({
+        to: recipients,
+        subject: `Quarterly branch scorecards due: Q${q} ${year} (${daysLeft}d left)`,
+        kind: "scorecard_due", relatedType: "scorecard_period", relatedId: `${year}Q${q}`,
+        text: `Reminder: Q${q} ${year} branch manager scorecards are due 30–60 days after quarter-end — ${daysLeft} day(s) remain.\n\nStill outstanding: ${names}.\n\nStart or finish them here: ${link}\n\n— CanopyOS`,
+        html: `<p>Reminder: <strong>Q${q} ${year}</strong> branch manager scorecards are due 30–60 days after quarter-end — <strong>${daysLeft} day(s)</strong> remain.</p><p>Still outstanding: <strong>${names}</strong>.</p><p><a href="${link}">Open the scorecards →</a></p><p>— CanopyOS</p>`,
+      }).catch(() => null);
+      emailed = !!r;
+      await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
+    }
+    results.push({ period: `${year}Q${q}`, outstanding, emailed });
+  }
+  return results;
 }

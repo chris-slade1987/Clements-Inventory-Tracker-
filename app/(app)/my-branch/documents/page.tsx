@@ -8,6 +8,7 @@ import {
   branchDocuments, branchContacts, certifiedOperators, contactCategoryLabel, rentIncreasePct,
 } from "@/lib/branch-hub";
 import { AddDocButton, AddContactButton, DeleteX, RepairButton } from "./BranchHubClient";
+import { listArchivedReviews } from "@/lib/scorecard";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Branch Hub — CanopyOS" };
@@ -22,8 +23,9 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
   const branch = scopedBranch(user, requested) ?? BRANCHES[0].key;
   const locked = branchLocked(user);
 
-  const [docGroups, contactGroups, operators, employees] = await Promise.all([
+  const [docGroups, contactGroups, operators, employees, archivedScorecards] = await Promise.all([
     branchDocuments(branch), branchContacts(branch), certifiedOperators(branch), listEmployees(),
+    listArchivedReviews([branch]),
   ]);
 
   const docCats = BRANCH_DOC_CATEGORIES.map((c) => ({ key: c.key as string, label: c.label }));
@@ -45,6 +47,30 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
           ))}
         </div>
       ) : null}
+
+      {/* Archived quarterly scorecards — branch-scoped, so a new manager still
+          sees prior cards. Read-only; opens the completed scorecard. */}
+      <Card className="p-4 mb-5">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-ink">Archived quarterly scorecards</div>
+          <span className="text-[11px] text-muted">Completed &amp; signed — read-only</span>
+        </div>
+        {archivedScorecards.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">No completed scorecards on file for {branchLabel(branch)} yet.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-line">
+            {archivedScorecards.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 py-2 text-sm">
+                <span className="font-medium text-ink">Q{r.quarter} {r.year}</span>
+                {r.score != null ? <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">{r.score}%</span> : null}
+                {r.managerName ? <span className="text-xs text-muted">{r.managerName}</span> : null}
+                {r.archivedAt ? <span className="text-[11px] text-muted">archived {fmt(r.archivedAt.toISOString())}</span> : null}
+                <Link href={`/my-branch/scorecard?branch=${branch}&year=${r.year}&quarter=${r.quarter}`} className="ml-auto text-xs font-medium text-brand-700 hover:underline">View →</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* Certified operator compliance banner */}
       <Card className={`p-4 mb-5 ${operators.length === 0 ? "ring-1 ring-red-300" : ""}`}>
