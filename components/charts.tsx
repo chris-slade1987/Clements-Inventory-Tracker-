@@ -322,6 +322,80 @@ export function ForecastTrend({
   );
 }
 
+// ---- Budget vs actual + forward forecast -----------------------------------
+// One category across the year: the ACTUAL as a solid emerald line + shaded
+// area up to the latest posted month, and the BUDGET/target as a companion line
+// — solid through the posted months, then DASHED for the forward months (the
+// "forecasted targets going forward"). A faint divider marks "now". `actual` is
+// null for months not yet posted. Mirrors the exec book-forecast look.
+export function BudgetVsForecast({
+  points,
+  height = 200,
+}: {
+  points: { label: string; target: number | null; actual: number | null }[];
+  height?: number;
+}) {
+  const [hover, setHover] = useState<Hover>(null);
+  const W = 640, H = height, padL = 48, padR = 16, padT = 18, padB = 28;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const total = points.length;
+
+  const vals = points.flatMap((p) => [p.target, p.actual]).filter((v): v is number => v != null);
+  const max = Math.max(...vals, 1);
+  const min = Math.min(...vals, max) * 0.9;
+  const span = max - min || 1;
+  const x = (i: number) => padL + (total <= 1 ? plotW / 2 : (i / (total - 1)) * plotW);
+  const y = (v: number) => padT + plotH - ((v - min) / span) * plotH;
+
+  // Latest month with a posted actual = the "now" boundary.
+  let lastA = -1;
+  for (let i = 0; i < total; i++) if (points[i].actual != null) lastA = i;
+
+  const actualPts = points.map((p, i) => ({ i, v: p.actual })).filter((p) => p.v != null) as { i: number; v: number }[];
+  const actualLine = actualPts.map((p) => `${x(p.i)},${y(p.v)}`).join(" ");
+  const actualArea = actualPts.length
+    ? `${x(actualPts[0].i)},${padT + plotH} ${actualLine} ${x(actualPts[actualPts.length - 1].i)},${padT + plotH}`
+    : "";
+
+  // Budget: solid through the posted range, dashed for the forward range.
+  const tgt = points.map((p, i) => ({ i, v: p.target })).filter((p) => p.v != null) as { i: number; v: number }[];
+  const splitAt = lastA < 0 ? 0 : lastA;
+  const budgetSolid = tgt.filter((p) => p.i <= splitAt).map((p) => `${x(p.i)},${y(p.v)}`).join(" ");
+  const budgetDashed = tgt.filter((p) => p.i >= splitAt).map((p) => `${x(p.i)},${y(p.v)}`).join(" ");
+  const step = Math.max(1, Math.ceil(total / 12));
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="mb-1 flex flex-wrap items-center gap-4 text-[11px]" style={{ color: MUTED }}>
+        <span className="flex items-center gap-1.5"><span style={{ background: EMERALD }} className="inline-block h-2.5 w-2.5 rounded-sm" /> Actual</span>
+        <span className="flex items-center gap-1.5"><span style={{ background: BUDGET }} className="inline-block h-0.5 w-3.5" /> Budget</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-0 w-3.5 border-t-2 border-dashed" style={{ borderColor: BUDGET }} /> Budget (forecast ahead)</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 460 }} role="img" aria-label="Budget vs actual with forward forecast">
+        {[0, 1].map((t) => { const gy = padT + plotH - t * plotH; return <g key={t}><line x1={padL} y1={gy} x2={padL + plotW} y2={gy} stroke={GRID} strokeWidth={1} /><text x={padL - 6} y={gy + 3} textAnchor="end" fontSize={10} fill={MUTED}>{moneyK(min + t * span)}</text></g>; })}
+        {actualArea && <polygon points={actualArea} fill={EMERALD} opacity={0.12} />}
+        {lastA >= 0 && lastA < total - 1 && <line x1={x(lastA)} y1={padT} x2={x(lastA)} y2={padT + plotH} stroke={GRID} strokeWidth={1} strokeDasharray="2 3" />}
+        {budgetSolid && <polyline points={budgetSolid} fill="none" stroke={BUDGET} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+        {budgetDashed && <polyline points={budgetDashed} fill="none" stroke={BUDGET} strokeWidth={2} strokeDasharray="5 4" strokeLinejoin="round" strokeLinecap="round" />}
+        {actualLine && <polyline points={actualLine} fill="none" stroke={EMERALD} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />}
+        {points.map((p, i) => {
+          const rows = [p.label, ...(p.actual != null ? [`Actual ${money0(p.actual)}`] : [`Budget ${p.target != null ? money0(p.target) : "—"} (forecast)`]), ...(p.actual != null && p.target != null ? [`Budget ${money0(p.target)}`] : [])];
+          const cy = p.actual != null ? y(p.actual) : (p.target != null ? y(p.target) : padT + plotH);
+          const set = () => setHover({ x: x(i), y: cy, rows });
+          return (
+            <g key={i}>
+              {p.actual != null ? <circle cx={x(i)} cy={y(p.actual)} r={3.5} fill={EMERALD} onMouseEnter={set} onMouseLeave={() => setHover(null)} onTouchStart={set} /> : null}
+              {p.actual == null && p.target != null ? <circle cx={x(i)} cy={y(p.target)} r={3} fill="#f6fbf9" stroke={BUDGET} strokeWidth={1.5} onMouseEnter={set} onMouseLeave={() => setHover(null)} onTouchStart={set} /> : null}
+              {i % step === 0 || i === total - 1 ? <text x={x(i)} y={H - padB + 15} textAnchor="middle" fontSize={10} fill={MUTED}>{p.label}</text> : null}
+            </g>
+          );
+        })}
+        <Tip hover={hover} W={W} />
+      </svg>
+    </div>
+  );
+}
+
 // ---- Donut -----------------------------------------------------------------
 export function Donut({
   slices,

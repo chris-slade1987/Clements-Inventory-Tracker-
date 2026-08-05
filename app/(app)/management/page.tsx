@@ -18,7 +18,8 @@ import {
   type Scope,
 } from "@/lib/management";
 import Controls from "./Controls";
-import { Waterfall, GroupedBars, Donut, AreaTrend } from "@/components/charts";
+import { Waterfall, GroupedBars, Donut, AreaTrend, BudgetVsForecast } from "@/components/charts";
+import { branchKpiMonthly, BRANCH_KPI_LABEL, BRANCH_KPI_KEYS } from "@/lib/branch-kpis";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +66,12 @@ export default async function ManagementPage({
     isCompany ? Promise.resolve([]) : techProduction(period.id, scope),
   ]);
   const bookTrend = await trend("book_value", "company", "month");
+
+  // Monthly budget-vs-actual + forward-forecast series for the three headline
+  // branch categories (company = Σ branches), from the 2026 Branch KPIs workbook.
+  const kpiForecasts = isCompany
+    ? await Promise.all(BRANCH_KPI_KEYS.map((k) => branchKpiMonthly("company", period.year, k)))
+    : [];
 
   const get = (kpi: string) => cell(values, kpi, scope, basis);
   const basisLabel = basis === "ytd" ? "YTD" : period.label;
@@ -170,6 +177,32 @@ export default async function ManagementPage({
             </Link>
           </div>
           <CompanyBudgetTiles values={values} basis={basis} />
+        </section>
+      ) : null}
+
+      {/* Monthly budget vs actual with forward forecast — the three headline
+          branch categories, styled like the exec book-forecast chart. */}
+      {isCompany && kpiForecasts.length > 0 ? (
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
+              <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
+              Monthly budget vs actual · forecast to year-end
+            </h2>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {BRANCH_KPI_KEYS.map((k, i) => (
+              <Card key={k} className="p-4">
+                <PanelTitle>{BRANCH_KPI_LABEL[k]}</PanelTitle>
+                <div className="mt-2">
+                  <BudgetVsForecast points={kpiForecasts[i].map((p) => ({ label: p.label, target: p.target, actual: p.actual }))} />
+                </div>
+              </Card>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-muted">
+            Solid line = posted actuals; dashed = budgeted targets for the remaining months (2026 Branch KPIs). Company = sum of the four branches.
+          </p>
         </section>
       ) : null}
 
