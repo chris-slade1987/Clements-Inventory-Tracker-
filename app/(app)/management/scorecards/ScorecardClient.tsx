@@ -90,6 +90,27 @@ export default function ScorecardClient({
   const [saving, setSaving] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
 
+  // Reset ALL local edits when the scorecard identity (branch/quarter/year)
+  // changes — belt-and-suspenders on top of the per-identity remount key, so one
+  // branch's Met/Not toggles and comments can NEVER bleed onto another branch,
+  // even if the parent doesn't remount. React's documented "reset state on a
+  // prop change" pattern (a set-state during render re-renders immediately).
+  const identity = `${year}-${quarter}-${branch}`;
+  const [syncedTo, setSyncedTo] = useState(identity);
+  if (syncedTo !== identity) {
+    setSyncedTo(identity);
+    setState(Object.fromEntries(rows.map((r) => [r.key, { met: r.met, target: r.target ?? "" }])));
+    setNarrative({
+      managerName: review?.managerName ?? "",
+      reviewerName: review?.reviewerName ?? "",
+      reviewDate: review?.reviewDate ? review.reviewDate.slice(0, 10) : "",
+      overallNotes: review?.overallNotes ?? "",
+      strengths: review?.strengths ?? "",
+      areas: review?.areas ?? "",
+      goals: review?.goals ?? "",
+    });
+  }
+
   const earned = rows.reduce((s, r) => s + (state[r.key]?.met === true ? r.weight : 0), 0);
   const scored = rows.filter((r) => state[r.key]?.met != null).length;
   const sigs = review?.signatures ?? [];
@@ -214,7 +235,7 @@ export default function ScorecardClient({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
           <Field label="Manager name">
             {editable ? (
-              <input defaultValue={narrative.managerName} placeholder={suggestedManagerName || "Manager name"}
+              <input key={`${identity}-managerName`} defaultValue={narrative.managerName} placeholder={suggestedManagerName || "Manager name"}
                 onBlur={(e) => { if (e.target.value !== narrative.managerName) { setNarrative((n) => ({ ...n, managerName: e.target.value })); saveReview({ managerName: e.target.value }); } }}
                 className="w-full rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
             ) : <div className="text-ink">{narrative.managerName || suggestedManagerName || "—"}</div>}
@@ -223,14 +244,14 @@ export default function ScorecardClient({
           <Field label="Branch / region"><div className="text-ink">{branchLabel ?? branch}</div></Field>
           <Field label="Reviewer name(s)">
             {editable ? (
-              <input defaultValue={narrative.reviewerName} placeholder="Reviewer name(s)"
+              <input key={`${identity}-reviewerName`} defaultValue={narrative.reviewerName} placeholder="Reviewer name(s)"
                 onBlur={(e) => { if (e.target.value !== narrative.reviewerName) { setNarrative((n) => ({ ...n, reviewerName: e.target.value })); saveReview({ reviewerName: e.target.value }); } }}
                 className="w-full rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
             ) : <div className="text-ink">{narrative.reviewerName || "—"}</div>}
           </Field>
           <Field label="Review date">
             {editable ? (
-              <input type="date" defaultValue={narrative.reviewDate}
+              <input key={`${identity}-reviewDate`} type="date" defaultValue={narrative.reviewDate}
                 onBlur={(e) => { if (e.target.value !== narrative.reviewDate) { setNarrative((n) => ({ ...n, reviewDate: e.target.value })); saveReview({ reviewDate: e.target.value }); } }}
                 className="w-full rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
             ) : <div className="text-ink">{narrative.reviewDate ? new Date(narrative.reviewDate).toLocaleDateString() : "—"}</div>}
@@ -276,6 +297,7 @@ export default function ScorecardClient({
                       ) : editable ? (
                         // Only manual / placeholder lines (e.g. Chemical) are fillable.
                         <input
+                          key={`${identity}-${r.key}-target`}
                           defaultValue={st.target || ""}
                           placeholder="TBD"
                           onBlur={(e) => e.target.value !== (st.target || "") && save(r.key, { target: e.target.value })}
@@ -323,6 +345,7 @@ export default function ScorecardClient({
               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1">{f.label}</div>
               {editable ? (
                 <textarea
+                  key={`${identity}-${f.key}`}
                   defaultValue={narrative[f.key]}
                   rows={4}
                   onBlur={(e) => { if (e.target.value !== narrative[f.key]) { setNarrative((n) => ({ ...n, [f.key]: e.target.value })); saveReview({ [f.key]: e.target.value }); } }}
