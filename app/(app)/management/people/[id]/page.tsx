@@ -10,6 +10,8 @@ import RemindersCard from "@/components/RemindersCard";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
+import { prisma } from "@/lib/prisma";
+import { accessLevelLabel } from "@/lib/access-levels";
 import PtoProfileCard from "@/components/PtoProfileCard";
 import AbsenceCard from "@/components/AbsenceCard";
 import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLabel } from "@/lib/absence";
@@ -34,6 +36,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const detail = await employeeDetail(id);
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
+  const login = await prisma.user.findFirst({ where: { employeeId: e.id }, select: { accessLevel: true } });
   const reviews = await reviewsForEmployee(e.id);
   const empReminders = await remindersForEmployee(e.id);
   const licenses = await documentsForEmployee(e.id);
@@ -83,7 +86,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
       </div>
       <PageHeader
         title={e.name}
-        subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · ") || "Employee"}
+        subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null, login ? `Access: ${accessLevelLabel(login.accessLevel)}` : null].filter(Boolean).join(" · ") || "Employee"}
       />
 
       <div className="grid gap-4 lg:grid-cols-2 mb-5">

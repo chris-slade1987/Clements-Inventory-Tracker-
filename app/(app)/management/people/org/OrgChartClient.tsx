@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ACCESS_LEVELS, accessLevelLabel } from "@/lib/access-levels";
 
-export type OrgEmployee = { id: string; name: string; role: string | null; title: string | null; branch: string | null; reportsToId: string | null };
+export type OrgEmployee = { id: string; name: string; role: string | null; title: string | null; branch: string | null; reportsToId: string | null; userId: string | null; accessLevel: string | null };
 
 const BRANCH: Record<string, string> = { vero: "Vero Beach", stuart: "Stuart", orlando: "Orlando", naples: "Naples" };
 
@@ -16,10 +17,22 @@ function descendants(rootId: string, emps: OrgEmployee[]): Set<string> {
   return out;
 }
 
-export default function OrgChartClient({ employees }: { employees: OrgEmployee[] }) {
+export default function OrgChartClient({ employees, canEditLevels = false }: { employees: OrgEmployee[]; canEditLevels?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  async function setLevel(userId: string, accessLevel: string) {
+    setBusy(userId); setError(null);
+    const res = await fetch("/api/management/access-level", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, accessLevel }),
+    });
+    setBusy(null);
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) return setError(d.error ?? "Could not update the access level.");
+    router.refresh();
+  }
 
   const byId = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
   const childrenOf = useMemo(() => {
@@ -54,11 +67,31 @@ export default function OrgChartClient({ employees }: { employees: OrgEmployee[]
       <li className="relative">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-surface px-3 py-2">
           <div className="min-w-0">
-            <div className="font-medium text-ink">{e.name}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-ink">{e.name}</span>
+              {/* Access rights */}
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${e.accessLevel ? "bg-emerald-100 text-emerald-800" : "bg-black/5 text-muted"}`}>
+                {e.userId ? accessLevelLabel(e.accessLevel) : "No login"}
+              </span>
+            </div>
             <div className="text-[11px] text-muted">
               {[e.title || e.role, e.branch ? BRANCH[e.branch] ?? e.branch : null].filter(Boolean).join(" · ") || "—"}
               {kids.length ? <span className="ml-2 rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">{kids.length} report{kids.length > 1 ? "s" : ""}</span> : null}
             </div>
+            {canEditLevels && e.userId ? (
+              <label className="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                Access
+                <select
+                  value={e.accessLevel ?? ""}
+                  disabled={busy === e.userId}
+                  onChange={(ev) => setLevel(e.userId as string, ev.target.value)}
+                  className="rounded-lg border border-line bg-surface px-2 py-0.5 text-xs text-ink disabled:opacity-50"
+                >
+                  <option value="" disabled>— set level —</option>
+                  {ACCESS_LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
+                </select>
+              </label>
+            ) : null}
           </div>
           <label className="ml-auto flex items-center gap-1 text-[11px] text-muted">
             Reports to

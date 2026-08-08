@@ -51,11 +51,28 @@ export type SessionUser = {
   warehouseName: string | null;
   branch: string | null;
   employeeId: string | null;
+  accessLevel: string | null;
   canPostBulletin: boolean;
   seniorLeadership: boolean;
   hrAccess: boolean;
   boardObserver: boolean;
 };
+
+/** Admin Lite = admin reach, but personnel profiles limited to their own team. */
+export function isAdminLite(user: Pick<SessionUser, "accessLevel">): boolean {
+  return user.accessLevel === "admin_lite";
+}
+
+/** A FULL admin (role admin and NOT admin-lite). Existing admins with no level
+ *  set are treated as full admins. Full admins see all personnel + set levels. */
+export function isFullAdmin(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
+  return user.role === "admin" && user.accessLevel !== "admin_lite";
+}
+
+/** Only full admins may view/change access levels (the access-rights editor). */
+export function canEditAccessLevels(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
+  return isFullAdmin(user);
+}
 
 /**
  * A board member with strictly read-only access to the executive views. Board
@@ -122,6 +139,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     warehouseName: u.warehouse?.name ?? null,
     branch: u.branch,
     employeeId: u.employeeId,
+    accessLevel: u.accessLevel,
     canPostBulletin: u.canPostBulletin,
     seniorLeadership: u.seniorLeadership,
     hrAccess: u.hrAccess,

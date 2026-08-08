@@ -12,15 +12,24 @@ export type OrgEmployee = {
   title: string | null;
   branch: string | null;
   reportsToId: string | null;
+  userId: string | null; // linked login (null = no account → no access level)
+  accessLevel: string | null; // from the linked login
 };
 
-/** Active employees with their reporting line (for the chart + team math). */
+/** Active employees with their reporting line + linked login's access level. */
 export async function listOrgEmployees(): Promise<OrgEmployee[]> {
-  return prisma.employee.findMany({
+  const rows = await prisma.employee.findMany({
     where: { status: "active" },
-    select: { id: true, name: true, role: true, title: true, branch: true, reportsToId: true },
+    select: {
+      id: true, name: true, role: true, title: true, branch: true, reportsToId: true,
+      user: { select: { id: true, accessLevel: true } },
+    },
     orderBy: [{ name: "asc" }],
   });
+  return rows.map((e) => ({
+    id: e.id, name: e.name, role: e.role, title: e.title, branch: e.branch, reportsToId: e.reportsToId,
+    userId: e.user?.id ?? null, accessLevel: e.user?.accessLevel ?? null,
+  }));
 }
 
 /** All descendant ids beneath a root (the team, excluding the lead). Pure. */

@@ -217,6 +217,16 @@ async function main() {
       console.error("deploy-db: org chart bootstrap FAILED (non-fatal):", e);
     }
 
+    // Backfill access levels from role (only where null), so nobody loses access
+    // when the assignable levels ship. Idempotent; non-fatal.
+    try {
+      const { backfillAccessLevels } = await import("../prisma/seed-access-levels");
+      const al = await backfillAccessLevels(prisma);
+      console.log("deploy-db: access levels backfilled —", JSON.stringify(al));
+    } catch (e) {
+      console.error("deploy-db: access-level backfill FAILED (non-fatal):", e);
+    }
+
     // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
     // to the matching employee record (assignedEmployeeId). Runs after BOTH the
     // fleet and people seeds so both sides exist. Idempotent — only fills vehicles

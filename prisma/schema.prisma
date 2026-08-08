@@ -54,6 +54,11 @@ model User {
   email        String   @unique
   passwordHash String   @map("password_hash")
   role         String   @default("manager") // "employee" | "manager" | "admin"
+  // Access level (the assignable "user level"): "admin" | "admin_lite" | "manager"
+  // | "technician" | "csr" | "sales". Drives access rights on top of `role`
+  // (admin & admin_lite both carry role "admin"; admin_lite is walled to its team
+  // for personnel profiles). Only full admins may change it. See lib/access-levels.ts.
+  accessLevel  String?  @map("access_level")
   warehouseId  String?  @map("warehouse_id") // null = access to all warehouses
   branch       String? // "vero" | "stuart" | "orlando" | "naples" — home branch (null = all-branch / exec)
   employeeId   String?  @unique @map("employee_id") // personnel profile (for employee logins)

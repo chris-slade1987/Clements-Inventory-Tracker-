@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, canEditAccessLevels } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { listOrgEmployees } from "@/lib/org";
 import OrgChartClient from "./OrgChartClient";
@@ -22,7 +22,7 @@ export default async function OrgChartPage() {
         <PageHeader title="Org chart" subtitle="Reporting structure — who reports to whom. A lead's team is everyone beneath them." />
         <Link href="/management/people" className="text-sm font-medium text-brand-700 hover:underline">← People / HR</Link>
       </div>
-      <OrgChartClient employees={employees} />
+      <OrgChartClient employees={employees} canEditLevels={canEditAccessLevels(user)} />
     </>
   );
 }
