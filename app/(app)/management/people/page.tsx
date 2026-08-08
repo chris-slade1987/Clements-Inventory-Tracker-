@@ -47,7 +47,11 @@ export default async function PeoplePage({
 
   return (
     <>
-      <PageHeader title="People / HR" subtitle="Personnel profiles — inspection & review history by branch" />
+      <PageHeader
+        title="People / HR"
+        subtitle="Personnel profiles — inspection & review history by branch"
+        actions={<Link href="/management/people/org" className="text-sm font-medium text-brand-700 hover:underline">Org chart →</Link>}
+      />
 
       {hr ? <PeopleControls defaultBranch={branch} /> : null}
 

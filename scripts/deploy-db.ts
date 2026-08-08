@@ -207,6 +207,16 @@ async function main() {
       console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
     }
 
+    // Bootstrap the org-chart reporting lines (non-destructive; only fills a blank
+    // reportsToId). Runs after people are seeded so employees exist to link. Non-fatal.
+    try {
+      const { seedOrgChart } = await import("../prisma/seed-org-chart");
+      const oc = await seedOrgChart(prisma);
+      console.log(`deploy-db: org chart — linked ${oc.linked} reporting line(s).`);
+    } catch (e) {
+      console.error("deploy-db: org chart bootstrap FAILED (non-fatal):", e);
+    }
+
     // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
     // to the matching employee record (assignedEmployeeId). Runs after BOTH the
     // fleet and people seeds so both sides exist. Idempotent — only fills vehicles

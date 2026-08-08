@@ -874,6 +874,12 @@ model Employee {
   birthDay      Int?      @map("birth_day") // 1-31
   terminatedAt  DateTime? @map("terminated_at")
   licenseNumber String?   @map("license_number")
+  // Org chart: who this employee reports to (their team lead / manager). Forms a
+  // self-referencing tree — a person's "team" is everyone in the subtree beneath
+  // them. Powers the visual org chart and team-scoped Admin-Lite access.
+  reportsToId   String?   @map("reports_to_id")
+  reportsTo     Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
+  reports       Employee[] @relation("OrgChart")
   ptoAllowanceDays Int?   @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
   notes         String?
   createdAt     DateTime  @default(now()) @map("created_at")
