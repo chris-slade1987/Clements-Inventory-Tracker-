@@ -12,6 +12,7 @@ import { branchLabel } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
 import { prisma } from "@/lib/prisma";
 import { accessLevelLabel } from "@/lib/access-levels";
+import { visibleEmployeeIds } from "@/lib/org";
 import PtoProfileCard from "@/components/PtoProfileCard";
 import AbsenceCard from "@/components/AbsenceCard";
 import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLabel } from "@/lib/absence";
@@ -33,6 +34,10 @@ function gradeChip(grade: string) {
 export default async function EmployeePage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { id } = await params;
+  // Admin Lite may only open profiles of people on their own team (org-chart
+  // subtree); full admin / HR are unrestricted.
+  const scope = await visibleEmployeeIds(user);
+  if (scope && !scope.has(id)) notFound();
   const detail = await employeeDetail(id);
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;

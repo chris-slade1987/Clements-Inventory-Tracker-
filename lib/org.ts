@@ -61,6 +61,22 @@ export async function teamEmployeeIds(leadEmployeeId: string): Promise<Set<strin
 }
 
 /**
+ * Which employee profiles a user may see. Returns `null` for unrestricted (full
+ * admin / HR — the only other roles that reach the People section). For an
+ * **Admin Lite** user it returns their team = self + org-chart subtree; an
+ * admin-lite with no linked employee gets an empty set (sees no one). Use it to
+ * gate the People directory + individual profiles.
+ */
+export async function visibleEmployeeIds(
+  user: { role: string; accessLevel: string | null; hrAccess: boolean; employeeId: string | null },
+): Promise<Set<string> | null> {
+  if (user.accessLevel === "admin_lite") {
+    return user.employeeId ? teamEmployeeIds(user.employeeId) : new Set<string>();
+  }
+  return null; // full admin / HR — unrestricted
+}
+
+/**
  * Set (or clear, with null) an employee's reports-to, guarding against reporting
  * to yourself or to anyone already on your team (which would make a cycle).
  */

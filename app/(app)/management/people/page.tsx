@@ -7,6 +7,7 @@ import { isHrDirector } from "@/lib/personnel";
 import { allReviews } from "@/lib/review";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { employeeRoster } from "@/lib/people";
+import { visibleEmployeeIds } from "@/lib/org";
 import { formerEmployees } from "@/lib/separation";
 import { canManagePreHire } from "@/lib/prehire";
 import { canManageAts, listJobs } from "@/lib/ats";
@@ -40,7 +41,9 @@ export default async function PeoplePage({
   const calloutNotes = canPto ? await outstandingMedicalNoteCount(null) : 0;
   const jobs = canAts ? await listJobs() : [];
   const openJobs = jobs.filter((j) => j.status === "open").length;
-  const roster = await employeeRoster(branch ?? undefined);
+  // Admin Lite sees only its own team (org-chart subtree); full admin / HR see all.
+  const scope = await visibleEmployeeIds(user);
+  const roster = (await employeeRoster(branch ?? undefined)).filter((e) => !scope || scope.has(e.id));
   const reviews = hr ? await allReviews() : [];
   const reviewsNeedAction = reviews.filter((r) => r.status === "due" || r.status === "pending_approval").length;
   const former = hr ? await formerEmployees(branch ?? undefined) : [];
