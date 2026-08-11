@@ -1,5 +1,5 @@
 import { PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, scopedBranch } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, matchBranchManagerEmployee } from "@/lib/scorecard";
 import ScorecardClient, { type ReviewSerialized } from "@/app/(app)/management/scorecards/ScorecardClient";
@@ -43,6 +43,11 @@ export default async function MyScorecardPage({
   const year = Number(sp.year) || years[0] || now.getFullYear();
   const quarter = [1, 2, 3, 4].includes(Number(sp.quarter)) ? Number(sp.quarter) : Math.floor(now.getMonth() / 3) + 1;
   const branch = scopedBranch(user, BRANCHES.find((b) => b.key === sp.branch)?.key ?? null) ?? BRANCHES[0].key;
+  // Branch managers are pinned to their own branch; admins/exec may browse every
+  // branch's scorecard from here too (not just their default).
+  const branchOptions = branchLocked(user)
+    ? [{ key: branch, label: branchLabel(branch) }]
+    : BRANCHES.map((b) => ({ key: b.key, label: b.label }));
 
   if (years.length === 0) {
     return (
@@ -69,7 +74,7 @@ export default async function MyScorecardPage({
         branch={branch}
         branchLabel={branchLabel(branch)}
         years={years.length ? years : [year]}
-        branches={[{ key: branch, label: branchLabel(branch) }]}
+        branches={branchOptions}
         rows={rows}
         canEdit={user.role === "admin"}
         canSign={user.role === "admin" || user.role === "manager"}
