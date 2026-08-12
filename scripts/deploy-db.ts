@@ -227,6 +227,17 @@ async function main() {
       console.error("deploy-db: access-level backfill FAILED (non-fatal):", e);
     }
 
+    // Seed the org roster (CEO's Org Chart sheet): create missing employee
+    // profiles + logins, set reporting lines + access levels (fill-if-null, so
+    // later org-chart edits are never clobbered). Idempotent; non-fatal.
+    try {
+      const { seedOrgRoster } = await import("../prisma/seed-org-roster");
+      const or = await seedOrgRoster(prisma);
+      console.log("deploy-db: org roster —", JSON.stringify(or));
+    } catch (e) {
+      console.error("deploy-db: org roster seed FAILED (non-fatal):", e);
+    }
+
     // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
     // to the matching employee record (assignedEmployeeId). Runs after BOTH the
     // fleet and people seeds so both sides exist. Idempotent — only fills vehicles

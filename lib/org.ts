@@ -61,19 +61,19 @@ export async function teamEmployeeIds(leadEmployeeId: string): Promise<Set<strin
 }
 
 /**
- * Which employee profiles a user may see. Returns `null` for unrestricted (full
+ * Which employee profiles a user may see. Returns `null` for unrestricted (super
  * admin / HR — the only other roles that reach the People section). For an
- * **Admin Lite** user it returns their team = self + org-chart subtree; an
- * admin-lite with no linked employee gets an empty set (sees no one). Use it to
+ * **Admin** (team-scoped) user it returns their team = self + org-chart subtree;
+ * an admin with no linked employee gets an empty set (sees no one). Use it to
  * gate the People directory + individual profiles.
  */
 export async function visibleEmployeeIds(
   user: { role: string; accessLevel: string | null; hrAccess: boolean; employeeId: string | null },
 ): Promise<Set<string> | null> {
-  if (user.accessLevel === "admin_lite") {
+  if (user.accessLevel === "admin") {
     return user.employeeId ? teamEmployeeIds(user.employeeId) : new Set<string>();
   }
-  return null; // full admin / HR — unrestricted
+  return null; // super admin / HR — unrestricted
 }
 
 /**

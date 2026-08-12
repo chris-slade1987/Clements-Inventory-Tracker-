@@ -1,0 +1,346 @@
+[
+  {
+    "name": "Tim Slade",
+    "title": "President",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": null,
+    "level": "super_admin"
+  },
+  {
+    "name": "Chris Slade",
+    "title": "Chief Operating Officer",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Tim Slade",
+    "level": "super_admin"
+  },
+  {
+    "name": "Julie Glanville",
+    "title": "Chief of Staff",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Chris Slade",
+    "level": "super_admin"
+  },
+  {
+    "name": "Larry Ignazio",
+    "title": "Marketing Coordinator",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "admin"
+  },
+  {
+    "name": "April Williford",
+    "title": "Dir. of HR/Admin Affairs",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Chris Slade",
+    "level": "super_admin"
+  },
+  {
+    "name": "Graham Foster",
+    "title": "Dir. of Field Operations",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Chris Slade",
+    "level": "admin"
+  },
+  {
+    "name": "Howard Cohn",
+    "title": "Dir. of Sales",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Chris Slade",
+    "level": "admin"
+  },
+  {
+    "name": "Jessica Sanderson",
+    "title": "Routing & Logistics Coordinator",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "admin"
+  },
+  {
+    "name": "Robin Berning",
+    "title": "Finance & Accounting Coordinator",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "admin"
+  },
+  {
+    "name": "Chayse Harrell",
+    "title": "Customer Service Representative",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "csr"
+  },
+  {
+    "name": "Heather McCormack",
+    "title": "Customer Service Representative",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "csr"
+  },
+  {
+    "name": "Kourtney Rannow",
+    "title": "Customer Service Representative",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "Julie Glanville",
+    "level": "csr"
+  },
+  {
+    "name": "Mike Mace",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Logan Coffey",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Rob Segroves",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Gus Ludriecus",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Jacob Johns",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Brian Krause",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Jason Colontrelle",
+    "title": "Branch Manager - Vero Beach",
+    "department": "Corporate",
+    "branch": "vero",
+    "reportsTo": "Graham Foster",
+    "level": "manager"
+  },
+  {
+    "name": "Matt Potter",
+    "title": "Service Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Cote Lawrence",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Josh Main",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Rusty Stevens",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Chad Koehler",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Christian Tejeda",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Steve Farless",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Ronnie Slade",
+    "title": "Bees",
+    "department": "Pest Control",
+    "branch": "vero",
+    "reportsTo": "Jason Colontrelle",
+    "level": "technician"
+  },
+  {
+    "name": "Adam Goetz",
+    "title": "Branch Manager - Stuart",
+    "department": "Corporate",
+    "branch": "stuart",
+    "reportsTo": "Graham Foster",
+    "level": "manager"
+  },
+  {
+    "name": "Maurice Campbell",
+    "title": "L&O Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "stuart",
+    "reportsTo": "Adam Goetz",
+    "level": "technician"
+  },
+  {
+    "name": "Jesse Gonzalez",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "stuart",
+    "reportsTo": "Adam Goetz",
+    "level": "technician"
+  },
+  {
+    "name": "Jason Renteria",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "stuart",
+    "reportsTo": "Adam Goetz",
+    "level": "technician"
+  },
+  {
+    "name": "Mike Verderame",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "stuart",
+    "reportsTo": "Adam Goetz",
+    "level": "technician"
+  },
+  {
+    "name": "Ted Travelute",
+    "title": "Branch Manager - Orlando",
+    "department": "Corporate",
+    "branch": "orlando",
+    "reportsTo": "Graham Foster",
+    "level": "manager"
+  },
+  {
+    "name": "Steve Liberti",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "David Butler",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Josh Flagg",
+    "title": "Service Advisor",
+    "department": "Sales",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Samuel Dixon",
+    "title": "Lawn Technician",
+    "department": "Lawn & Ornamental",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Sarah Hoyt",
+    "title": "Sentricon Specialist",
+    "department": "Pest Control",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Luis Ramos",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Ellie Ullian",
+    "title": "Pest Control Technician",
+    "department": "Pest Control",
+    "branch": "orlando",
+    "reportsTo": "Ted Travelute",
+    "level": "technician"
+  },
+  {
+    "name": "Corey Carter",
+    "title": "Branch Manager - Naples",
+    "department": "Corporate",
+    "branch": "naples",
+    "reportsTo": "Graham Foster",
+    "level": "manager"
+  },
+  {
+    "name": "Tyler Etter",
+    "title": "L&O Technician",
+    "department": "lawn & Ornamental",
+    "branch": "naples",
+    "reportsTo": "Corey Carter",
+    "level": "technician"
+  },
+  {
+    "name": "Jason Borden",
+    "title": "Wildlife Technician",
+    "department": "Pest Control",
+    "branch": "naples",
+    "reportsTo": "Corey Carter",
+    "level": "technician"
+  }
+]

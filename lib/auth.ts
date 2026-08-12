@@ -58,20 +58,21 @@ export type SessionUser = {
   boardObserver: boolean;
 };
 
-/** Admin Lite = admin reach, but personnel profiles limited to their own team. */
-export function isAdminLite(user: Pick<SessionUser, "accessLevel">): boolean {
-  return user.accessLevel === "admin_lite";
+/** "Admin" level = admin reach, but personnel profiles limited to their own team. */
+export function isTeamScopedAdmin(user: Pick<SessionUser, "accessLevel">): boolean {
+  return user.accessLevel === "admin";
 }
 
-/** A FULL admin (role admin and NOT admin-lite). Existing admins with no level
- *  set are treated as full admins. Full admins see all personnel + set levels. */
-export function isFullAdmin(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
-  return user.role === "admin" && user.accessLevel !== "admin_lite";
+/** A SUPER admin (role admin and NOT the team-scoped "admin" level). Existing
+ *  admins with no level set are treated as super admins. Super admins see all
+ *  personnel and are the only ones who may change access levels. */
+export function isSuperAdmin(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
+  return user.role === "admin" && user.accessLevel !== "admin";
 }
 
-/** Only full admins may view/change access levels (the access-rights editor). */
+/** Only super admins may view/change access levels (the access-rights editor). */
 export function canEditAccessLevels(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
-  return isFullAdmin(user);
+  return isSuperAdmin(user);
 }
 
 /**
