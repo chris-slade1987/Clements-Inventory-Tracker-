@@ -3,7 +3,7 @@
 // when online), falling back to a cached app shell when offline. Static assets
 // are cached on first use (stale-while-revalidate).
 
-const CACHE = "clements-cc-v4";
+const CACHE = "clements-cc-v5";
 const APP_SHELL = ["/dashboard", "/offline"];
 
 self.addEventListener("install", (event) => {

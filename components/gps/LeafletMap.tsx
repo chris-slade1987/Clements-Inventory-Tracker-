@@ -54,17 +54,35 @@ function pinIcon(color: string): L.DivIcon {
 
 function FitBounds({ markers, trail }: { markers: MapMarker[]; trail?: [number, number][] }) {
   const map = useMap();
+
+  // Leaflet frequently initializes before its container has its final size
+  // (dynamic import + CSS + flex/grid layout), which shows a gray/blank map that
+  // never "loads". Force a recompute several times after mount and on resize so
+  // the tiles always paint. Runs once per map instance.
+  useEffect(() => {
+    const fix = () => map.invalidateSize();
+    const timers = [0, 150, 400, 1000].map((ms) => setTimeout(fix, ms));
+    window.addEventListener("resize", fix);
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener("resize", fix);
+    };
+  }, [map]);
+
   useEffect(() => {
     const pts: [number, number][] = [
       ...markers.map((m) => [m.lat, m.lng] as [number, number]),
       ...(trail ?? []),
     ];
-    if (pts.length === 1) {
-      map.setView(pts[0], 14);
-    } else if (pts.length > 1) {
-      map.fitBounds(L.latLngBounds(pts).pad(0.2));
+    try {
+      if (pts.length === 1) {
+        map.setView(pts[0], 14);
+      } else if (pts.length > 1) {
+        map.fitBounds(L.latLngBounds(pts).pad(0.2));
+      }
+    } catch {
+      // Never let a bounds calculation blank the map.
     }
-    // Recompute size after the container is laid out.
     setTimeout(() => map.invalidateSize(), 0);
   }, [map, markers, trail]);
   return null;
