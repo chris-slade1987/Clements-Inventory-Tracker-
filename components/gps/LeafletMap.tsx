@@ -32,15 +32,11 @@ const DEFAULT_CENTER: [number, number] = [27.9, -81.3];
 const DEFAULT_ZOOM = 7;
 
 // Fix the well-known Leaflet + bundler broken-marker-icon issue defensively.
-// (We render colored pins via divIcon below, but this keeps any default Marker
-// from requesting a missing image.)
+// We render every pin via divIcon (below), so no default marker image is ever
+// requested — just stop Leaflet from reaching out to a (possibly blocked)
+// external CDN for the default icon it would otherwise try to load.
 const iconProto = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown };
 delete iconProto._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
 
 function pinIcon(color: string): L.DivIcon {
   const svg =
@@ -75,6 +71,10 @@ function FitBounds({ markers, trail }: { markers: MapMarker[]; trail?: [number, 
 }
 
 export default function LeafletMap({ markers, trail, center, zoom, height = 420 }: LeafletMapProps) {
+  // Guard against non-finite coordinates — a single NaN/undefined lat or lng
+  // makes Leaflet throw and blanks the whole map.
+  const safeMarkers = markers.filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng));
+  const safeTrail = (trail ?? []).filter(([la, ln]) => Number.isFinite(la) && Number.isFinite(ln));
   return (
     <MapContainer
       center={center ?? DEFAULT_CENTER}
@@ -88,10 +88,10 @@ export default function LeafletMap({ markers, trail, center, zoom, height = 420 
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         maxZoom={19}
       />
-      {trail && trail.length > 1 ? (
-        <Polyline positions={trail} pathOptions={{ color: "#0ea5e9", weight: 3, opacity: 0.8 }} />
+      {safeTrail.length > 1 ? (
+        <Polyline positions={safeTrail} pathOptions={{ color: "#0ea5e9", weight: 3, opacity: 0.8 }} />
       ) : null}
-      {markers.map((m) => (
+      {safeMarkers.map((m) => (
         <Marker key={m.id} position={[m.lat, m.lng]} icon={pinIcon(m.color)}>
           <Popup>
             <div style={{ minWidth: 160 }}>
@@ -110,7 +110,7 @@ export default function LeafletMap({ markers, trail, center, zoom, height = 420 
           </Popup>
         </Marker>
       ))}
-      <FitBounds markers={markers} trail={trail} />
+      <FitBounds markers={safeMarkers} trail={safeTrail} />
     </MapContainer>
   );
 }

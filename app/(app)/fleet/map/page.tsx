@@ -24,7 +24,9 @@ export default async function FleetMapPage({
     fleetLiveSummary(branch ?? undefined),
   ]);
 
-  const markers = positions.map((p) => ({
+  const markers = positions
+    .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
+    .map((p) => ({
     id: p.vehicleId,
     lat: p.lat,
     lng: p.lng,
