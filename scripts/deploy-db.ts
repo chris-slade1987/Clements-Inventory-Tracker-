@@ -16,6 +16,12 @@ import { randomBytes } from "node:crypto";
 
 const url = process.env.DATABASE_URL ?? "";
 
+// The schema push is the ONLY hard requirement for a deploy. Once it succeeds
+// the app can ship; every seed after it is best-effort. This flag lets the
+// top-level handler tell a fatal schema failure (abort) apart from a non-fatal
+// post-push seed hiccup (log & continue) instead of ever red-failing on a seed.
+let schemaReady = false;
+
 async function main() {
   if (!/^postgres(ql)?:\/\//i.test(url)) {
     console.log("deploy-db: non-Postgres DATABASE_URL — skipping (local/dev).");
@@ -34,8 +40,12 @@ async function main() {
   }
 
   // Create/align the schema (also regenerates the client for Postgres).
+  // Pin the CLI to the installed 6.x: a bare `npx prisma` can resolve to a
+  // freshly-published Prisma 7, which rejects this v6 schema (and the
+  // `package.json#prisma` config) and hard-fails the build.
   console.log("deploy-db: running prisma db push…");
-  execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
+  execSync("npx --no-install prisma db push --accept-data-loss", { stdio: "inherit" });
+  schemaReady = true;
 
   // Seed sample data only when the database is empty; otherwise just backfill
   // any missing standard branches (e.g. Naples) without touching existing data.
@@ -419,5 +429,12 @@ async function main() {
 
 main().catch((e) => {
   console.error("deploy-db failed:", e);
-  process.exit(1);
+  // Only the schema push is allowed to fail the build. If the schema is already
+  // in place, a later seed error must NOT block the deploy — the app ships with
+  // the latest code and the (idempotent) seed retries on the next deploy.
+  if (!schemaReady) process.exit(1);
+  console.error(
+    "deploy-db: schema is in place but a post-push seed threw — continuing so the app still deploys. The seed will retry next deploy.",
+  );
+  process.exit(0);
 });
