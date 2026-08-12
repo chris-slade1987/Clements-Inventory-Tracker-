@@ -19,6 +19,8 @@ const LEVEL_STYLE: Record<string, { border: string; bg: string; chip: string }> 
 };
 const styleFor = (lvl: string | null) => LEVEL_STYLE[lvl ?? ""] ?? { border: "#cbd5e1", bg: "#ffffff", chip: "bg-black/5 text-muted" };
 
+type View = "tree" | "list";
+
 function descendants(rootId: string, emps: OrgEmployee[]): Set<string> {
   const kids = new Map<string, string[]>();
   for (const e of emps) if (e.reportsToId) (kids.get(e.reportsToId) ?? kids.set(e.reportsToId, []).get(e.reportsToId)!).push(e.id);
@@ -33,6 +35,7 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [view, setView] = useState<View>("tree");
 
   const byId = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
   const childrenOf = useMemo(() => {
@@ -73,12 +76,35 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
 
   const levelsPresent = ACCESS_LEVELS.filter((l) => employees.some((e) => e.accessLevel === l.key));
 
-  function Node({ e }: { e: OrgEmployee }) {
+  // Shared edit controls (Reports-to + Access) — rendered in both views.
+  function EditControls({ e }: { e: OrgEmployee }) {
+    const blocked = descendants(e.id, employees);
+    const options = employees.filter((o) => o.id !== e.id && !blocked.has(o.id)).sort((a, b) => a.name.localeCompare(b.name));
+    return (
+      <div className="oc-edit">
+        <label>Reports to
+          <select value={e.reportsToId ?? ""} disabled={busy === e.id} onChange={(ev) => reassign(e.id, ev.target.value)}>
+            <option value="">— Top level —</option>
+            {options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+          </select>
+        </label>
+        {e.userId ? (
+          <label>Access
+            <select value={e.accessLevel ?? ""} disabled={busy === e.userId} onChange={(ev) => setLevel(e.userId as string, ev.target.value)}>
+              <option value="" disabled>— set —</option>
+              {ACCESS_LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
+            </select>
+          </label>
+        ) : null}
+      </div>
+    );
+  }
+
+  // --- Tree view (top-down boxed cards with connector lines) ---
+  function TreeNode({ e }: { e: OrgEmployee }) {
     const kids = childrenOf.get(e.id) ?? [];
     const isCollapsed = collapsed.has(e.id);
     const st = styleFor(e.accessLevel);
-    const blocked = descendants(e.id, employees);
-    const options = employees.filter((o) => o.id !== e.id && !blocked.has(o.id)).sort((a, b) => a.name.localeCompare(b.name));
     return (
       <li>
         <div className="oc-card" style={{ borderColor: st.border, background: st.bg }}>
@@ -92,26 +118,43 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
               </button>
             ) : null}
           </div>
-          {editMode && canEditLevels ? (
-            <div className="oc-edit">
-              <label>Reports to
-                <select value={e.reportsToId ?? ""} disabled={busy === e.id} onChange={(ev) => reassign(e.id, ev.target.value)}>
-                  <option value="">— Top level —</option>
-                  {options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-                </select>
-              </label>
-              {e.userId ? (
-                <label>Access
-                  <select value={e.accessLevel ?? ""} disabled={busy === e.userId} onChange={(ev) => setLevel(e.userId as string, ev.target.value)}>
-                    <option value="" disabled>— set —</option>
-                    {ACCESS_LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
-                  </select>
-                </label>
-              ) : null}
-            </div>
-          ) : null}
+          {editMode && canEditLevels ? <EditControls e={e} /> : null}
         </div>
-        {kids.length && !isCollapsed ? <ul>{kids.map((k) => <Node key={k.id} e={k} />)}</ul> : null}
+        {kids.length && !isCollapsed ? <ul>{kids.map((k) => <TreeNode key={k.id} e={k} />)}</ul> : null}
+      </li>
+    );
+  }
+
+  // --- List view (previous downward indented outline, level-colored) ---
+  function ListNode({ e }: { e: OrgEmployee }) {
+    const kids = childrenOf.get(e.id) ?? [];
+    const isCollapsed = collapsed.has(e.id);
+    const st = styleFor(e.accessLevel);
+    return (
+      <li>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-2" style={{ borderLeftColor: st.border, borderLeftWidth: 4, background: st.bg }}>
+          <div className="min-w-0">
+            <div className="font-medium text-ink">{e.name}</div>
+            <div className="text-[11px] text-muted">
+              {[e.title || e.role, e.branch ? BRANCH[e.branch] ?? e.branch : null].filter(Boolean).join(" · ") || "—"}
+              {kids.length ? <span className="ml-2 rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] font-medium text-ink/70">{kids.length} report{kids.length > 1 ? "s" : ""}</span> : null}
+            </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.chip}`}>{e.userId ? accessLevelLabel(e.accessLevel) : "No login"}</span>
+            {kids.length ? (
+              <button onClick={() => toggle(e.id)} className="rounded-md border border-line bg-white px-1.5 text-[11px] font-bold leading-5 text-brand-700" title={isCollapsed ? "Expand team" : "Collapse team"}>
+                {isCollapsed ? `+${kids.length}` : "−"}
+              </button>
+            ) : null}
+          </div>
+          {editMode && canEditLevels ? <div className="w-full">{<EditControls e={e} />}</div> : null}
+        </div>
+        {kids.length && !isCollapsed ? (
+          <ul className="ml-4 mt-1.5 space-y-1.5 border-l border-line pl-3">
+            {kids.map((k) => <ListNode key={k.id} e={k} />)}
+          </ul>
+        ) : null}
       </li>
     );
   }
@@ -129,25 +172,44 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
             </span>
           ))}
         </div>
-        {canEditLevels ? (
-          <button onClick={() => setEditMode((v) => !v)} className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${editMode ? "border-brand-400 bg-brand-50 text-brand-700" : "border-line text-ink hover:border-brand-300"}`}>
-            {editMode ? "Done editing" : "Edit structure & access"}
-          </button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {/* View switch — the big tree or the previous downward outline. */}
+          <div className="inline-flex rounded-lg border border-line p-0.5 text-xs">
+            <button
+              onClick={() => setView("tree")}
+              className={`rounded-md px-2.5 py-1 font-medium ${view === "tree" ? "bg-brand-50 text-brand-700" : "text-muted hover:text-ink"}`}
+            >
+              Tree
+            </button>
+            <button
+              onClick={() => setView("list")}
+              className={`rounded-md px-2.5 py-1 font-medium ${view === "list" ? "bg-brand-50 text-brand-700" : "text-muted hover:text-ink"}`}
+            >
+              List
+            </button>
+          </div>
+          {canEditLevels ? (
+            <button onClick={() => setEditMode((v) => !v)} className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${editMode ? "border-brand-400 bg-brand-50 text-brand-700" : "border-line text-ink hover:border-brand-300"}`}>
+              {editMode ? "Done editing" : "Edit structure & access"}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {error ? <p className="mb-2 text-xs text-red-600">{error}</p> : null}
 
       {roots.length === 0 ? (
         <p className="text-sm text-muted">No employees to chart yet.</p>
-      ) : (
+      ) : view === "tree" ? (
         <div className="oc-scroll overflow-x-auto pb-3">
-          <div className="orgtree"><ul>{roots.map((r) => <Node key={r.id} e={r} />)}</ul></div>
+          <div className="orgtree"><ul>{roots.map((r) => <TreeNode key={r.id} e={r} />)}</ul></div>
         </div>
+      ) : (
+        <ul className="space-y-1.5">{roots.map((r) => <ListNode key={r.id} e={r} />)}</ul>
       )}
 
       <p className="mt-2 text-[11px] text-muted">
-        Cards are colored by access level (legend above). Click <span className="font-medium">+N</span> to expand a team, <span className="font-medium">−</span> to collapse.
+        Cards are colored by access level (legend above). Switch between the <span className="font-medium">Tree</span> and the downward <span className="font-medium">List</span> outline. Click <span className="font-medium">+N</span> to expand a team, <span className="font-medium">−</span> to collapse.
         {canEditLevels ? " Use “Edit structure & access” to change a person’s manager or level — the chart redraws instantly and their profile updates." : ""}
       </p>
     </div>
