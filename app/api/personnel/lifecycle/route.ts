@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { saveUpload } from "@/lib/storage";
 import { isHrDirector } from "@/lib/personnel";
-import { type SeparationDoc } from "@/lib/separation";
+import { type SeparationDoc, syncTechnicianActiveForEmployee } from "@/lib/separation";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -93,6 +93,8 @@ export async function POST(req: Request) {
       await prisma.employee.update({ where: { id: employeeId }, data: { status: "inactive", terminatedAt: lastDay } });
       // Disable the linked login so a former employee can't sign in.
       if (employee.user) await prisma.user.update({ where: { id: employee.user.id }, data: { active: false } });
+      // Remove them from the check-out (chemical dispersement) roster.
+      await syncTechnicianActiveForEmployee(employee.name, false);
       return NextResponse.json({ ok: true });
     }
 
@@ -118,6 +120,8 @@ export async function POST(req: Request) {
       await prisma.employeeSeparation.deleteMany({ where: { employeeId } });
       await prisma.employee.update({ where: { id: employeeId }, data: { status: "active", terminatedAt: null } });
       if (employee.user) await prisma.user.update({ where: { id: employee.user.id }, data: { active: true } });
+      // Restore them to the check-out (chemical dispersement) roster.
+      await syncTechnicianActiveForEmployee(employee.name, true);
       return NextResponse.json({ ok: true });
     }
 

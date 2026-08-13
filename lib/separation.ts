@@ -98,3 +98,46 @@ export async function formerEmployees(branch?: string) {
 export async function separationForEmployee(employeeId: string) {
   return prisma.employeeSeparation.findUnique({ where: { employeeId } });
 }
+
+// ---- Check-out roster sync ------------------------------------------------
+// The check-out (chemical dispersement) screen lists ACTIVE `Technician` rows,
+// which are a separate table from `Employee` linked only by name. So a
+// termination must also flip the matching technician's `active` flag, or a
+// former employee keeps showing up as a dispersement recipient.
+
+/** Normalize a person's name for cross-table (Employee ↔ Technician) matching. */
+function normName(n: string): string {
+  return n.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Flip the `active` flag on the technician pick-list row(s) matching an
+ * employee (by normalized name) — false on termination, true on reactivation —
+ * so the check-out dispersement list follows employment status. Name-based
+ * because there is no FK between employees and technicians. Returns count changed.
+ */
+export async function syncTechnicianActiveForEmployee(employeeName: string, active: boolean): Promise<number> {
+  const target = normName(employeeName);
+  const techs = await prisma.technician.findMany({ select: { id: true, name: true, active: true } });
+  const ids = techs.filter((t) => normName(t.name) === target && t.active !== active).map((t) => t.id);
+  if (ids.length === 0) return 0;
+  const r = await prisma.technician.updateMany({ where: { id: { in: ids } }, data: { active } });
+  return r.count;
+}
+
+/**
+ * Deploy-time reconcile: deactivate any still-active technician whose name
+ * matches a terminated (inactive) employee. Catches people terminated before the
+ * termination→technician sync existed (e.g. an already-offboarded employee still
+ * on the dispersement list). Idempotent; returns count changed.
+ */
+export async function reconcileTerminatedTechnicians(): Promise<number> {
+  const inactive = await prisma.employee.findMany({ where: { status: "inactive" }, select: { name: true } });
+  if (inactive.length === 0) return 0;
+  const names = new Set(inactive.map((e) => normName(e.name)));
+  const techs = await prisma.technician.findMany({ where: { active: true }, select: { id: true, name: true } });
+  const ids = techs.filter((t) => names.has(normName(t.name))).map((t) => t.id);
+  if (ids.length === 0) return 0;
+  const r = await prisma.technician.updateMany({ where: { id: { in: ids } }, data: { active: false } });
+  return r.count;
+}

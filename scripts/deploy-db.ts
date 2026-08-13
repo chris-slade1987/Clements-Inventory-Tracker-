@@ -115,6 +115,18 @@ async function main() {
       console.error("deploy-db: EPA/SDS backfill FAILED (non-fatal):", e);
     }
 
+    // Reconcile the check-out (chemical dispersement) roster with employment
+    // status: deactivate any technician whose name matches a terminated employee,
+    // catching people offboarded before the termination→technician sync existed.
+    // NON-FATAL.
+    try {
+      const { reconcileTerminatedTechnicians } = await import("../lib/separation");
+      const deactivated = await reconcileTerminatedTechnicians();
+      console.log(`deploy-db: dispersement roster reconcile — ${deactivated} technician(s) of terminated employees deactivated.`);
+    } catch (e) {
+      console.error("deploy-db: dispersement roster reconcile FAILED (non-fatal):", e);
+    }
+
     // Load the 4-branch historical purchase data (PestPac transfer histories) as
     // CONFIRMED, analysis-only Invoice + InvoiceLine records. Idempotent (skips
     // invoices whose "HIST-…" number already exists) and — critically — creates
