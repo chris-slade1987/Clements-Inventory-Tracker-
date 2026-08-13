@@ -45,8 +45,9 @@ export default async function MyBranchPage({
     openFollowUps(branch ?? undefined),
     reviewsForReviewer(user.id),
     // Pending PTO awaiting review — the same signal shown on the team page.
-    // Branch-locked managers see their branch; admins see everyone.
-    pendingRequestsForBranch(branch),
+    // Branch-locked managers see their branch; admins see everyone. Manager-level
+    // requests are hidden here because they're routed to HR for approval.
+    pendingRequestsForBranch(branch, { excludeManagerPlus: true }),
   ]);
   const nowMs = now.getTime();
 

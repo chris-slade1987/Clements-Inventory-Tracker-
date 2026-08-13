@@ -157,3 +157,20 @@ no re-acknowledgment** from this change.*
     *HR/legal: please confirm the >2-day threshold, the ADA/FMLA/workers'-comp handling above, and
     whether any of this should be added to the handbook (which would trigger a version bump +
     re-acknowledgment).*
+
+---
+
+### PTO approval routing for managers (portal mechanic)
+
+The portal now routes **manager-and-above PTO requests** (anyone with manager, admin, or
+super-admin access) to the **Director of HR** for approval, rather than to a branch
+supervisor. Branch supervisors approve their team's requests as before; a manager's own (and
+any peer manager-level) request is HR/admin-only and does not appear in the branch queue.
+
+The current handbook note (Using the Clements Portal › Time off) states only that "your request
+goes to your branch supervisor for approval." That remains accurate for the large majority of
+employees, so it was left unchanged (editing the handbook triggers a version bump +
+re-acknowledgment by everyone).
+
+*HR/legal: please confirm whether the handbook should state that management-level PTO is
+approved by the Director of HR, and if so, we'll make the inline edit + version bump.*

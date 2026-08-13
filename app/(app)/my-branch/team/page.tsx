@@ -19,7 +19,7 @@ export default async function TeamPage({
   const locked = branchLocked(user);
   const [roster, pending] = await Promise.all([
     teamRoster(branch ?? undefined),
-    pendingRequestsForBranch(branch),
+    pendingRequestsForBranch(branch, { excludeManagerPlus: true }),
   ]);
   const overlap = await overlapForRequests(pending);
   const monthOf = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;

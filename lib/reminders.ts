@@ -279,7 +279,9 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
   // request so the manager can see (and act on) each; branch-scoped like the
   // rest. Deciding the request clears it (computed, so it drops off all three
   // surfaces at once). Links to the Team page where the review panel lives.
-  const ptoPending = await pendingRequestsForBranch(branch ?? null);
+  // Branch-scoped reminders exclude manager-and-above PTO (routed to HR); the
+  // company-wide (null branch) pass still surfaces them for HR/admin.
+  const ptoPending = await pendingRequestsForBranch(branch ?? null, { excludeManagerPlus: !!branch });
   for (const r of ptoPending) {
     reminders.push({
       kind: "pto_request",

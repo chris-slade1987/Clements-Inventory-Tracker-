@@ -32,6 +32,26 @@ export function canViewAllPto(user: Pick<SessionUser, "role" | "hrAccess">): boo
   return user.role === "admin" || user.hrAccess;
 }
 
+/**
+ * "Branch manager and above" — a login carrying manager / admin / super_admin
+ * access rights. (`role` "admin" covers admin + super_admin; "manager" covers
+ * branch managers; `accessLevel` is also checked so elevated logins are caught
+ * even if their `role` lags.) Company policy routes these people's PTO requests
+ * to the Director of HR for approval instead of a branch supervisor.
+ */
+export function isManagerOrAbove(u: { role?: string | null; accessLevel?: string | null }): boolean {
+  const role = u.role ?? "";
+  const lvl = u.accessLevel ?? "";
+  return role === "admin" || role === "manager" || lvl === "super_admin" || lvl === "admin" || lvl === "manager";
+}
+
+/** Whether an employee's linked login is manager-and-above (drives HR routing at decision time). */
+export async function employeeIsManagerOrAbove(employeeId: string | null | undefined): Promise<boolean> {
+  if (!employeeId) return false;
+  const u = await prisma.user.findUnique({ where: { employeeId }, select: { role: true, accessLevel: true } });
+  return u ? isManagerOrAbove(u) : false;
+}
+
 // ---- Date helpers ---------------------------------------------------------
 // PTO dates are day-granular. We normalize to UTC midnight so business-day
 // counting and range comparisons are stable regardless of server timezone.
@@ -84,10 +104,25 @@ export function requestsForEmployee(employeeId: string) {
 }
 
 /** Pending requests for a branch (null/undefined = every branch) — the
- *  supervisor review queue and the reminder count both read this. */
-export function pendingRequestsForBranch(branch?: string | null) {
+ *  supervisor review queue and the reminder count both read this. Pass
+ *  `excludeManagerPlus` from branch-supervisor surfaces to hide requests from
+ *  manager-and-above staff (those are routed to HR); HR's company-wide view
+ *  leaves it off so it still sees every request. */
+export function pendingRequestsForBranch(branch?: string | null, opts?: { excludeManagerPlus?: boolean }) {
+  const excludeMgr = opts?.excludeManagerPlus === true;
   return prisma.ptoRequest.findMany({
-    where: { status: "pending", employee: branch ? { branch } : undefined },
+    where: {
+      status: "pending",
+      employee:
+        branch || excludeMgr
+          ? {
+              ...(branch ? { branch } : {}),
+              // Employees with no login, or a login below manager, stay visible;
+              // manager/admin/super_admin logins are hidden from the branch queue.
+              ...(excludeMgr ? { OR: [{ user: null }, { user: { role: { notIn: ["admin", "manager"] } } }] } : {}),
+            }
+          : undefined,
+    },
     include: { employee: { select: { id: true, name: true, branch: true, role: true } } },
     orderBy: { startDate: "asc" },
   });

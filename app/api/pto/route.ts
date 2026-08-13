@@ -7,8 +7,11 @@ import {
   cancelPtoRequest,
   branchSupervisorEmails,
   ptoTypeLabel,
+  isManagerOrAbove,
+  employeeIsManagerOrAbove,
 } from "@/lib/pto";
 import { sendEmail } from "@/lib/email";
+import { hrDirectorEmail } from "@/lib/personnel";
 import { branchLabel } from "@/lib/management";
 
 export const runtime = "nodejs";
@@ -49,18 +52,24 @@ export async function POST(req: Request) {
         note: s(body?.note),
       });
 
-      // Alert the branch supervisor (falls back to HR when the branch has no
-      // manager). The request also surfaces in their reminders automatically.
-      const to = await branchSupervisorEmails(request.employee.branch);
-      const link = `${APP()}/my-branch/team`;
+      // Route the request. Branch manager and above (manager/admin/super_admin
+      // rights) go straight to the Director of HR for approval; everyone else
+      // goes to their branch supervisor (falling back to HR when a branch has no
+      // manager). The request also surfaces in the right reminders automatically.
+      const managerPlus = isManagerOrAbove(user);
+      const to = managerPlus ? [hrDirectorEmail()] : await branchSupervisorEmails(request.employee.branch);
+      const link = `${APP()}/${managerPlus ? "management/people/pto" : "my-branch/team"}`;
       const range = request.days > 1 ? `${fmt(request.startDate)} – ${fmt(request.endDate)}` : fmt(request.startDate);
+      const hrRouteNote = managerPlus
+        ? `<p style="color:#5b7a70;font-size:13px">This is a manager-level PTO request and has been routed to the Director of HR for approval.</p>`
+        : "";
       await sendEmail({
         to,
-        subject: `PTO request — ${request.employee.name} (${request.days} day${request.days === 1 ? "" : "s"})`,
+        subject: `PTO request${managerPlus ? " (HR approval)" : ""} — ${request.employee.name} (${request.days} day${request.days === 1 ? "" : "s"})`,
         html: `<p><strong>${request.employee.name}</strong>${request.employee.branch ? ` (${branchLabel(request.employee.branch)})` : ""} requested paid time off.</p>
 <p><strong>${ptoTypeLabel(request.type)}</strong> · ${request.days} day${request.days === 1 ? "" : "s"}<br/>${range}${request.note ? `<br/>Note: ${request.note}` : ""}</p>
-<p>Review it on your team page${link ? `: <a href="${link}">${link}</a>` : "."}. It also appears in your reminders on your branch dashboard.</p>`,
-        text: `${request.employee.name} requested ${request.days} PTO day(s) (${ptoTypeLabel(request.type)}): ${range}. Review it on your team page.`,
+${hrRouteNote}<p>Review it${link ? `: <a href="${link}">${link}</a>` : "."}.${managerPlus ? "" : " It also appears in your reminders on your branch dashboard."}</p>`,
+        text: `${request.employee.name} requested ${request.days} PTO day(s) (${ptoTypeLabel(request.type)}): ${range}.${managerPlus ? " Routed to the Director of HR for approval." : " Review it on your team page."}`,
         kind: "pto_request",
         relatedType: "pto_request",
         relatedId: request.id,
@@ -77,8 +86,15 @@ export async function POST(req: Request) {
       const existing = await prisma.ptoRequest.findUnique({ where: { id }, include: { employee: { select: { branch: true } } } });
       if (!existing) return NextResponse.json({ error: "Request not found." }, { status: 404 });
       if (existing.status !== "pending") return NextResponse.json({ error: "This request has already been decided." }, { status: 409 });
-      if (!canManageBranch(user, existing.employee.branch))
+      // Manager-and-above PTO is the Director of HR's (or an admin's) call — a
+      // branch supervisor can't approve a peer/their own manager-level request.
+      const requesterMgrPlus = await employeeIsManagerOrAbove(existing.employeeId);
+      if (requesterMgrPlus) {
+        if (!(user.role === "admin" || user.hrAccess))
+          return NextResponse.json({ error: "Manager-level PTO is routed to the Director of HR for approval." }, { status: 403 });
+      } else if (!canManageBranch(user, existing.employee.branch)) {
         return NextResponse.json({ error: "You can only review requests for your own branch." }, { status: 403 });
+      }
 
       const request = await decidePtoRequest(id, approve, user, s(body?.note));
 

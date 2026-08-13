@@ -970,8 +970,9 @@ Acknowledge, dismiss, or **Discuss** (open a thread) any alert. This is how purc
 
 Time off is handled through the portal rather than by email or spreadsheet:
 
-- **Requesting.** An employee submits a date range and type from their **Time Off** screen. The request goes to their branch supervisor.
-- **Approval.** The branch supervisor (and HR/admin) approve or deny from the **PTO** queue. Approved days count against the employee's annual PTO allotment; business days (Mon–Fri) in the range are counted automatically.
+- **Requesting.** An employee submits a date range and type from their **Time Off** screen. The request goes to their branch supervisor for approval.
+- **Manager PTO routes to HR.** If the person requesting is a **branch manager or above** (anyone with manager, admin, or super-admin access), the request is **automatically directed to the Director of HR** for approval — not to a branch supervisor. So when *you* (a manager) request time off, it goes to HR; and a manager-level request never lands in your branch queue or reminders. HR approves these from the company-wide **PTO** queue.
+- **Approval.** The branch supervisor approves or denies their team's requests from the **PTO** queue (HR/admin can approve any). Manager-level requests are HR/admin-only. Approved days count against the employee's annual PTO allotment; business days (Mon–Fri) in the range are counted automatically.
 - **Calendar & balances.** Approved time off appears on the **team and company time-off calendar** so the branch can see who is out, and each employee's balance and history are shown on their time-off screen.
 
 The eligibility, allotment, timing, rollover, and payout **rules** are set by the Employee Handbook's Paid Time Off policies; the portal applies those rules — it does not change them.
