@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -238,10 +238,16 @@ export default function AppShell({
         <div className="px-3 pb-2 space-y-1">
           <NotificationBell initialCount={unread} layout="row" />
           {isAdmin ? (
-            <Link href={USERS_ACCESS_NAV_ITEM.href} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
-              <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
-              {USERS_ACCESS_NAV_ITEM.label}
-            </Link>
+            <>
+              <Link href={USERS_ACCESS_NAV_ITEM.href} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
+                <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                {USERS_ACCESS_NAV_ITEM.label}
+              </Link>
+              <Link href={EMAIL_LOG_NAV_ITEM.href} className={navClass(isActive(pathname, EMAIL_LOG_NAV_ITEM.href))}>
+                <Icon path={EMAIL_LOG_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                {EMAIL_LOG_NAV_ITEM.label}
+              </Link>
+            </>
           ) : null}
           <Link href="/help" className={navClass(isActive(pathname, "/help"))}>
             <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>

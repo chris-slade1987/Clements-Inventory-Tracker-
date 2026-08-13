@@ -2,7 +2,7 @@ import { PageHeader, EmptyState } from "@/components/ui";
 import { redirect } from "next/navigation";
 import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee } from "@/lib/scorecard";
+import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail } from "@/lib/scorecard";
 import { listPeriods } from "@/lib/management";
 import ScorecardClient, { type ReviewSerialized, type ArchivedLite } from "./ScorecardClient";
 
@@ -69,6 +69,27 @@ export default async function ScorecardsPage({
     score: a.score, archivedAt: a.archivedAt ? a.archivedAt.toISOString() : null,
   }));
 
+  // For admins, resolve the delivery state of a PUBLISHED (awaiting-signature)
+  // review: the manager's resolved email, the last sign-email outcome, and the
+  // copyable secure link — so a silent email failure is always visible/recoverable.
+  let signInfo: {
+    signUrl: string | null;
+    managerEmail: string | null;
+    lastEmail: { status: string; at: string; error: string | null } | null;
+  } | null = null;
+  if (user.role === "admin" && review && review.status === "final") {
+    const appBase = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+    const [mgrEmail, last] = await Promise.all([
+      branchManagerEmail(branch, review.managerName),
+      lastSignEmail(review.id),
+    ]);
+    signInfo = {
+      signUrl: review.signToken ? `${appBase}/scorecard-sign/${review.signToken}` : null,
+      managerEmail: mgrEmail.email,
+      lastEmail: last ? { status: last.status, at: last.at.toISOString(), error: last.error } : null,
+    };
+  }
+
   return (
     <>
       <PageHeader
@@ -90,6 +111,7 @@ export default async function ScorecardsPage({
         review={serializeReview(review)}
         archived={archived}
         suggestedManagerName={mgr?.name ?? ""}
+        signInfo={signInfo}
       />
     </>
   );

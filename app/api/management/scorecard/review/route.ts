@@ -2,23 +2,25 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
-import { branchLabel } from "@/lib/management";
 import {
   hasRequiredSignatures,
-  matchBranchManagerEmployee,
   finalizeScorecard,
+  sendManagerSignEmail,
 } from "@/lib/scorecard";
-import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
 
 // Completion-lifecycle actions for a quarterly manager-scorecard review:
 //  - save     : upsert header + four narrative fields (DRAFT only, admin)
 //  - publish  : draft → "final". The supervisor signs, editing locks, a manager
 //               sign-token is minted and emailed. (admin)
+//  - resend   : re-email the manager the sign link for a FINAL (awaiting-signature)
+//               review — reuses the live token, mints one if cleared. (admin)
+//  - unpublish: FINAL → draft so an unsigned, mistaken, or un-received scorecard
+//               can be corrected and re-published; clears the supervisor
+//               signature + token (nothing was filed yet). (admin)
 //  - sign     : append a typed signature (reviewer=supervisor | manager). When
 //               BOTH are present the review auto-archives (score, file to the
 //               manager's profile + branch hub, notify HR to pay the bonus).
@@ -116,24 +118,41 @@ export async function POST(req: Request) {
       data: { status: "final", signToken: token, publishedAt: new Date(), reviewerName: review.reviewerName ?? supervisorName },
     });
 
-    // Email the manager a secure link to add their signature.
-    const emp = await matchBranchManagerEmployee(branch, existing?.managerName ?? null);
-    const empRow = emp ? await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } }) : null;
-    const managerEmail = empRow?.email || empRow?.user?.email || null;
-    const signUrl = `${base()}/scorecard-sign/${token}`;
-    const b = branchLabel(branch);
-    let emailed = false;
-    if (managerEmail) {
-      const r = await sendEmail({
-        to: managerEmail,
-        subject: `Signature needed: your Q${quarter} ${year} ${b} scorecard`,
-        kind: "scorecard_sign_request", relatedType: "scorecard_review", relatedId: review.id,
-        text: `Your Q${quarter} ${year} branch scorecard has been reviewed and is ready for your signature. Open the secure link below to review the final scorecard and comments and add your signature:\n\n${signUrl}\n\nYour signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.\n\n— CanopyOS`,
-        html: `<p>Your <strong>Q${quarter} ${year}</strong> ${b} branch scorecard has been reviewed and is ready for your signature.</p><p><a href="${signUrl}">Review &amp; sign your scorecard →</a></p><p style="color:#5b7a70;font-size:13px">Your signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.</p><p>— CanopyOS</p>`,
-      }).catch(() => null);
-      emailed = !!r;
+    // Email the manager a secure link to add their signature. Surface the real
+    // send outcome (sent / no-provider / no-address / error) + a copyable link so
+    // a silent email failure can never strand the review again.
+    const sent = await sendManagerSignEmail({ reviewId: review.id, year, quarter, branch, token, managerName: existing?.managerName ?? null });
+    return NextResponse.json({ ok: true, emailed: sent.status === "sent", emailStatus: sent.status, managerEmail: sent.managerEmail, signUrl: sent.signUrl });
+  }
+
+  // ---- resend (admin) — re-email the manager the sign link for a FINAL review -
+  if (action === "resend") {
+    if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
+    if (!existing || existing.status !== "final")
+      return NextResponse.json({ error: "Only a published scorecard that is awaiting the manager's signature can be resent." }, { status: 400 });
+    // Reuse the live token; mint a fresh one only if it was consumed/cleared.
+    let token = existing.signToken;
+    if (!token) {
+      token = randomBytes(24).toString("base64url");
+      await prisma.scorecardReview.update({ where: { id: existing.id }, data: { signToken: token } });
     }
-    return NextResponse.json({ ok: true, emailed, managerEmail, signUrl });
+    const sent = await sendManagerSignEmail({ reviewId: existing.id, year, quarter, branch, token, managerName: existing.managerName });
+    return NextResponse.json({ ok: true, emailed: sent.status === "sent", emailStatus: sent.status, managerEmail: sent.managerEmail, signUrl: sent.signUrl });
+  }
+
+  // ---- unpublish (admin) — FINAL → draft to correct an unsigned scorecard -----
+  if (action === "unpublish") {
+    if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
+    if (!existing || existing.status !== "final")
+      return NextResponse.json({ error: "Only a published scorecard that is awaiting the manager's signature can be un-published." }, { status: 400 });
+    // The manager hasn't signed (a signed pair auto-archives), so nothing was
+    // filed. Clear the supervisor signature + token and return to an editable draft.
+    await prisma.scorecardSignature.deleteMany({ where: { reviewId: existing.id } });
+    await prisma.scorecardReview.update({
+      where: { id: existing.id },
+      data: { status: "draft", signToken: null, publishedAt: null },
+    });
+    return NextResponse.json({ ok: true });
   }
 
   // ---- sign (in-app) — supervisor(reviewer) or manager -----------------------

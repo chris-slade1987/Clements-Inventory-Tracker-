@@ -139,6 +139,16 @@ export const USERS_ACCESS_NAV_ITEM: NavItem = {
   icon: "M12 2l7 3v6c0 4-3 7.5-7 9-4-1.5-7-5-7-9V5l7-3zM12 11a2 2 0 100-4 2 2 0 000 4zm-3.2 5a3.2 3.2 0 016.4 0",
 };
 
+// Email delivery log — admin-only audit of every outbound notification (sent /
+// skipped / errored). Surfaced as a de-emphasized settings link in the shell
+// footer, alongside Users & Access. An envelope-with-check glyph.
+export const EMAIL_LOG_NAV_ITEM: NavItem = {
+  href: "/management/email-log",
+  label: "Email Log",
+  shortLabel: "Email",
+  icon: "M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1zm0 1.5l8 5.5 8-5.5",
+};
+
 // Company-wide bulletin — lives in the Resources section of the shell (and in
 // the board-observer's fixed nav, which has no Resources group).
 export const BULLETIN_NAV_ITEM: NavItem = {

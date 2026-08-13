@@ -41,6 +41,23 @@ export type ReviewSerialized = {
 
 export type ArchivedLite = { year: number; quarter: number; branch: string; branchLabel: string; score: number | null; archivedAt: string | null };
 
+export type SignInfo = {
+  signUrl: string | null;
+  managerEmail: string | null;
+  lastEmail: { status: string; at: string; error: string | null } | null;
+};
+
+/** Plain-English label for an EmailLog delivery status. */
+function statusLabel(s: string | null | undefined): string {
+  switch (s) {
+    case "sent": return "sent";
+    case "skipped_no_provider": return "no email provider configured";
+    case "skipped_no_address": return "no manager email on file";
+    case "error": return "provider error";
+    default: return s ?? "unknown";
+  }
+}
+
 const NARRATIVE: { key: "overallNotes" | "strengths" | "areas" | "goals"; label: string }[] = [
   { key: "overallNotes", label: "Overall performance" },
   { key: "strengths", label: "Strengths" },
@@ -50,7 +67,7 @@ const NARRATIVE: { key: "overallNotes" | "strengths" | "areas" | "goals"; label:
 
 export default function ScorecardClient({
   year, quarter, branch, branchLabel, years, branches, rows, canEdit, canSign = false, canFinalize = false,
-  review, archived: archivedList = [], suggestedManagerName = "", basePath = "/management/scorecards",
+  review, archived: archivedList = [], suggestedManagerName = "", basePath = "/management/scorecards", signInfo = null,
 }: {
   year: number;
   quarter: number;
@@ -66,6 +83,7 @@ export default function ScorecardClient({
   archived?: ArchivedLite[];
   suggestedManagerName?: string;
   basePath?: string;
+  signInfo?: SignInfo | null;
 }) {
   const router = useRouter();
   const status = review?.status ?? "draft";
@@ -123,6 +141,43 @@ export default function ScorecardClient({
   const [pubTitle, setPubTitle] = useState("Supervisor");
   const [pubAck, setPubAck] = useState(false);
   const [pubResult, setPubResult] = useState<{ emailed: boolean; managerEmail: string | null; signUrl: string } | null>(null);
+  // Live result of a Resend (overrides the server-rendered signInfo once used).
+  const [resendResult, setResendResult] = useState<{ emailStatus: string; managerEmail: string | null; signUrl: string } | null>(null);
+
+  // The effective published-state delivery info, newest signal first:
+  // an in-session resend/publish result, else the server-rendered signInfo.
+  const effSignUrl = resendResult?.signUrl || signInfo?.signUrl || pubResult?.signUrl || "";
+  const effEmail = resendResult?.managerEmail ?? signInfo?.managerEmail ?? pubResult?.managerEmail ?? null;
+  const effStatus: string | null = resendResult?.emailStatus ?? signInfo?.lastEmail?.status ?? (pubResult ? (pubResult.emailed ? "sent" : "error") : null);
+
+  // Re-email the manager the secure sign link (admin; FINAL review).
+  async function resend() {
+    setSaving("resend"); setBanner(null);
+    const res = await fetch("/api/management/scorecard/review", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "resend", year, quarter, branch }),
+    });
+    const d = await res.json().catch(() => ({}));
+    setSaving(null);
+    if (!res.ok) return setBanner(d.error ?? "Could not resend.");
+    setResendResult({ emailStatus: d.emailStatus ?? "error", managerEmail: d.managerEmail ?? null, signUrl: d.signUrl ?? "" });
+    setBanner(d.emailStatus === "sent"
+      ? `Signature email re-sent to ${d.managerEmail}.`
+      : `Email not delivered (${statusLabel(d.emailStatus)}). Copy the secure link below and send it to the manager directly.`);
+  }
+
+  // Un-publish a FINAL (awaiting-signature) review back to an editable draft.
+  async function unpublish() {
+    if (!window.confirm("Un-publish this scorecard back to an editable draft?\n\nThis clears the supervisor signature and the manager's signing link so you can correct it and publish again. Nothing has been filed yet — the manager hasn't signed.")) return;
+    setSaving("unpublish"); setBanner(null);
+    const res = await fetch("/api/management/scorecard/review", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "unpublish", year, quarter, branch }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { setSaving(null); return setBanner(d.error ?? "Could not un-publish."); }
+    router.refresh();
+  }
 
   function nav(next: Record<string, string | number>) {
     const p = new URLSearchParams({ year: String(year), quarter: String(quarter), branch, ...Object.fromEntries(Object.entries(next).map(([k, v]) => [k, String(v)])) });
@@ -391,14 +446,43 @@ export default function ScorecardClient({
               <div className="text-sm font-medium text-amber-900">Published — awaiting the manager&rsquo;s signature</div>
               <p className="mt-1 text-xs text-amber-800">
                 The supervisor{supervisorSig ? ` (${supervisorSig.typedName})` : ""} has signed.{" "}
-                {managerSig ? "The manager has signed — completing." : "The manager has been emailed a secure link to review and sign; it completes automatically once they sign. A signed-in manager can also sign above."}
+                {managerSig ? "The manager has signed — completing." : "The manager gets a secure link to review and sign; it completes automatically once they sign. A signed-in manager can also sign above."}
               </p>
-              {pubResult ? (
-                <p className="mt-1 text-[11px] text-amber-700">
-                  {pubResult.emailed
-                    ? `Sign link emailed to ${pubResult.managerEmail}.`
-                    : <>No manager email on file — share this secure link directly: {pubResult.signUrl ? <a className="underline" href={pubResult.signUrl}>{pubResult.signUrl}</a> : null}</>}
-                </p>
+
+              {canFinalize && !managerSig ? (
+                <div className="mt-3 rounded-lg border border-amber-200 bg-white/70 p-3 space-y-2 print:hidden">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    <span className="text-amber-900">Manager email:</span>
+                    <span className="font-medium text-ink">{effEmail || "— none on file —"}</span>
+                    {effStatus ? (
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${effStatus === "sent" ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+                        Last email: {statusLabel(effStatus)}
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">No send recorded</span>
+                    )}
+                  </div>
+                  {effStatus && effStatus !== "sent" ? (
+                    <p className="text-[11px] text-red-700">
+                      {effStatus === "skipped_no_provider"
+                        ? "No email provider is configured (RESEND_API_KEY), so nothing was sent. Configure it, or copy the secure link below and send it to the manager directly."
+                        : effStatus === "skipped_no_address"
+                        ? "No email address is on file for this branch manager. Add one to their profile, or copy the secure link below and send it directly."
+                        : "The email provider returned an error. Copy the secure link below and send it directly, then check the Email delivery log."}
+                    </p>
+                  ) : null}
+                  {effSignUrl ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input readOnly value={effSignUrl} onFocus={(e) => e.currentTarget.select()} className="min-w-0 flex-1 rounded border border-line bg-white px-2 py-1 text-[11px] text-ink" />
+                      <button type="button" onClick={() => { navigator.clipboard?.writeText(effSignUrl); setBanner("Secure sign link copied to clipboard."); }} className="rounded-lg border border-line px-2.5 py-1 text-[11px] font-medium text-ink hover:border-brand-300">Copy link</button>
+                    </div>
+                  ) : null}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button type="button" onClick={resend} disabled={saving === "resend"} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">{saving === "resend" ? "Sending…" : "Resend signature email"}</button>
+                    <button type="button" onClick={unpublish} disabled={saving === "unpublish"} className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:border-red-300 disabled:opacity-50">{saving === "unpublish" ? "Un-publishing…" : "Un-publish to edit"}</button>
+                    <a href="/management/email-log" className="text-[11px] text-brand-700 hover:underline">Email delivery log →</a>
+                  </div>
+                </div>
               ) : null}
             </div>
           ) : (

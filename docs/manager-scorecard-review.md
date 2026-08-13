@@ -70,3 +70,28 @@ target bonus amount and does it vary by branch size?
 **Inspections/QC/CEU:** cadence, threshold, source (or manual for now); QC = completion vs results; CEU scope; licensing as a gate?
 **Financials:** Production vs Total Sales distinct or consolidate? Cancellations ceiling + definition + add retention rate? Fuel/Chemical denominator + fuel-price normalization + chemical consumption-based? Branch attribution rule?
 **Additions:** add retention, callback rate, reviews, AR, tech turnover? safety as a gate? (rebalance weights to 100%).
+
+## Sign-off delivery & recovery (as built)
+
+When a supervisor **publishes** a scorecard, the branch manager is emailed a
+secure, no-login link (`/scorecard-sign/[token]`) to review and sign; the manager
+can also sign in-app from **My Branch › Scorecard**. Email is sent through
+`sendManagerSignEmail` (`lib/scorecard.ts`) and **every attempt is logged to
+`EmailLog`** — sent, `skipped_no_provider` (no `RESEND_API_KEY`),
+`skipped_no_address` (no manager email on file), or `error` (provider rejected,
+e.g. an unverified sending domain).
+
+To ensure a silent email failure can never strand a review, the admin's published
+panel always shows the manager's resolved email, the **last delivery status**, and
+a **copyable secure sign link**, plus two recovery actions:
+
+- **Resend signature email** (`resend`) — reuses the live `signToken` (mints a new
+  one only if it was cleared) and re-emails the manager, reporting the send status.
+- **Un-publish to edit** (`unpublish`) — returns a still-unsigned review from
+  `final` to `draft`, clearing the supervisor signature + token so it can be
+  corrected and re-published. (The archived case is still handled by `reopen`.)
+
+Prerequisites for live delivery are environment config, not code: `RESEND_API_KEY`
+with a **verified sending domain**, `APP_URL`/`NEXT_PUBLIC_APP_URL` (so the emailed
+link is absolute), and a correct `HR_EMAIL`. Delivery is auditable at
+**`/management/email-log`** (admin only).

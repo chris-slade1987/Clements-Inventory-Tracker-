@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cell, periodValues, BRANCHES, branchLabel, type Cell } from "@/lib/management";
 import { branchQuarterAll, type BranchKpiKey } from "@/lib/branch-kpis";
 import { notifyList, hrDirectorEmail } from "@/lib/personnel";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, type SendResult } from "@/lib/email";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
@@ -215,6 +215,7 @@ export type ReviewLite = {
   quarter: number;
   branch: string;
   status: string; // "draft" | "signed" | "archived"
+  signToken: string | null;
   managerName: string | null;
   reviewerName: string | null;
   reviewDate: Date | null;
@@ -245,6 +246,7 @@ export async function getScorecardReview(year: number, quarter: number, branch: 
     quarter: r.quarter,
     branch: r.branch,
     status: r.status,
+    signToken: r.signToken,
     managerName: r.managerName,
     reviewerName: r.reviewerName,
     reviewDate: r.reviewDate,
@@ -286,6 +288,52 @@ export async function matchBranchManagerEmployee(branch: string, managerName?: s
     if (m) { const hit = managers.find((e) => e.id === m); if (hit) return hit; }
   }
   return managers[0];
+}
+
+/**
+ * Resolve the branch manager's email — the Employee's own address, else the
+ * linked login's. Returns nulls (never throws) when no manager/email is on file,
+ * so callers can surface "no address" instead of silently dropping the notice.
+ */
+export async function branchManagerEmail(branch: string, managerName?: string | null): Promise<{ email: string | null; name: string | null; employeeId: string | null }> {
+  const emp = await matchBranchManagerEmployee(branch, managerName ?? null);
+  if (!emp) return { email: null, name: null, employeeId: null };
+  const row = await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } });
+  return { email: row?.email || row?.user?.email || null, name: emp.name, employeeId: emp.id };
+}
+
+/**
+ * Email the branch manager the tokenized link to review + sign their scorecard.
+ * Shared by publish and resend so the message is identical, and ALWAYS routed
+ * through sendEmail (a null recipient is logged as `skipped_no_address`) so every
+ * attempt lands in EmailLog and the caller learns the real outcome. Returns the
+ * send status + resolved recipient + the absolute sign URL for the admin to copy.
+ */
+export async function sendManagerSignEmail(opts: {
+  reviewId: string; year: number; quarter: number; branch: string; token: string; managerName?: string | null;
+}): Promise<{ status: SendResult["status"]; managerEmail: string | null; signUrl: string }> {
+  const { year, quarter, branch, token, reviewId } = opts;
+  const { email } = await branchManagerEmail(branch, opts.managerName);
+  const signUrl = `${APP_BASE()}/scorecard-sign/${token}`;
+  const b = branchLabel(branch);
+  const r = await sendEmail({
+    to: email,
+    subject: `Signature needed: your Q${quarter} ${year} ${b} scorecard`,
+    kind: "scorecard_sign_request", relatedType: "scorecard_review", relatedId: reviewId,
+    text: `Your Q${quarter} ${year} branch scorecard has been reviewed and is ready for your signature. Open the secure link below to review the final scorecard and comments and add your signature:\n\n${signUrl}\n\nYour signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.\n\n— CanopyOS`,
+    html: `<p>Your <strong>Q${quarter} ${year}</strong> ${b} branch scorecard has been reviewed and is ready for your signature.</p><p><a href="${signUrl}">Review &amp; sign your scorecard →</a></p><p style="color:#5b7a70;font-size:13px">Your signature confirms receipt and discussion of the ratings — not necessarily agreement. Once you sign, the scorecard is finalized.</p><p>— CanopyOS</p>`,
+  }).catch(() => null);
+  return { status: r?.status ?? "error", managerEmail: email, signUrl };
+}
+
+/** The latest sign-request email attempt logged for a review (for admin visibility). */
+export async function lastSignEmail(reviewId: string): Promise<{ status: string; at: Date; error: string | null } | null> {
+  const row = await prisma.emailLog.findFirst({
+    where: { kind: "scorecard_sign_request", relatedId: reviewId },
+    orderBy: { createdAt: "desc" },
+    select: { status: true, createdAt: true, error: true },
+  });
+  return row ? { status: row.status, at: row.createdAt, error: row.error } : null;
 }
 
 /** Archived reviews across the given branches, newest first (for the archive list). */
