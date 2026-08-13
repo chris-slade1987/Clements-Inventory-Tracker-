@@ -3,9 +3,15 @@ import { getSessionUser } from "@/lib/auth";
 import { syncFleet } from "@/lib/gps";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Capped low on purpose: a failing Verizon integration loops per-vehicle (15s
+// timeout each), so a generous budget lets one run burn minutes of compute.
+// 30s is plenty for a healthy sync and bounds the cost of a broken one.
+export const maxDuration = 30;
 
-// Scheduled GPS fleet sync (Vercel Cron). The webhook is a push feed that can go
+// GPS fleet sync. NOTE: the every-15-minute Vercel Cron for this route is
+// intentionally PAUSED (removed from vercel.json) to stop recurring spend while
+// the Verizon integration is unverified. The route still works for manual
+// admin-triggered syncs; re-add the cron entry to resume scheduled updates. The webhook is a push feed that can go
 // silent if a subscription lapses; this scheduled REST pull is the safety net so
 // positions + trips stay fresh unattended. Vercel Cron hits this with GET +
 // (when CRON_SECRET is set) `Authorization: Bearer <secret>`; also admin-runnable.
