@@ -91,6 +91,14 @@ a **copyable secure sign link**, plus two recovery actions:
   `final` to `draft`, clearing the supervisor signature + token so it can be
   corrected and re-published. (The archived case is still handled by `reopen`.)
 
+**Sandbox testing without a verified domain:** set `EMAIL_FROM` to
+`onboarding@resend.dev` and `EMAIL_TEST_REDIRECT` to your own address — every
+outbound email is then rerouted to that one inbox (original recipient preserved in
+the subject, e.g. `[test → jcolontrelle@…] Signature needed…`), so the full
+publish → sign → finalize → HR-bonus flow can be exercised end-to-end without
+touching personnel data. Remove `EMAIL_TEST_REDIRECT` (and verify a real domain)
+to send to actual recipients.
+
 Prerequisites for live delivery are environment config, not code: `RESEND_API_KEY`
 with a **verified sending domain** and a correct `HR_EMAIL`. `APP_URL` is
 preferred for the link origin, but is **no longer required** — the sign link now

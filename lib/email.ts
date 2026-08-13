@@ -22,7 +22,16 @@ export async function sendEmail(opts: {
     .map((t) => (t ?? "").trim().toLowerCase())
     .filter(Boolean);
   const unique = [...new Set(recipients)];
-  const to = unique.join(", ");
+  const intended = unique.join(", ");
+
+  // Sandbox/staging catch-all: when EMAIL_TEST_REDIRECT is set, every message that
+  // HAS a real recipient is rerouted to that single address, with the original
+  // recipient(s) preserved in the subject (and logged below). Lets the whole flow
+  // be exercised from one inbox without a verified domain or editing real
+  // personnel data. Leave UNSET in production so mail goes to real recipients.
+  const redirect = process.env.EMAIL_TEST_REDIRECT?.trim().toLowerCase() || null;
+  const to = redirect && intended ? redirect : intended;
+  const subject = redirect && intended ? `[test → ${intended}] ${opts.subject}` : opts.subject;
   let result: SendResult;
 
   if (!to) {
@@ -34,7 +43,7 @@ export async function sendEmail(opts: {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${process.env.RESEND_API_KEY}` },
-        body: JSON.stringify({ from: FROM, to, subject: opts.subject, html: opts.html, text: opts.text }),
+        body: JSON.stringify({ from: FROM, to, subject, html: opts.html, text: opts.text }),
       });
       result = res.ok ? { status: "sent" } : { status: "error", error: `Resend ${res.status}: ${await res.text()}` };
     } catch (e) {
@@ -46,7 +55,7 @@ export async function sendEmail(opts: {
     .create({
       data: {
         to: to || "(none)",
-        subject: opts.subject,
+        subject,
         kind: opts.kind,
         status: result.status,
         error: result.error ?? null,
