@@ -92,6 +92,18 @@ a **copyable secure sign link**, plus two recovery actions:
   corrected and re-published. (The archived case is still handled by `reopen`.)
 
 Prerequisites for live delivery are environment config, not code: `RESEND_API_KEY`
-with a **verified sending domain**, `APP_URL`/`NEXT_PUBLIC_APP_URL` (so the emailed
-link is absolute), and a correct `HR_EMAIL`. Delivery is auditable at
+with a **verified sending domain** and a correct `HR_EMAIL`. `APP_URL` is
+preferred for the link origin, but is **no longer required** — the sign link now
+falls back to the live request host, so both the emailed link and the admin's
+copyable link are always absolute. Delivery is auditable at
 **`/management/email-log`** (admin only).
+
+## Bonus payout (as built)
+
+The quarterly manager bonus is a fixed **$1,500** pool (`MANAGER_BONUS_TARGET`)
+paid **linearly by weighted score** (`bonusEarned` = `round(score/100 × 1500)`):
+a 75% card earns **$1,125**, a 100% card earns the full $1,500. The dollar figure
+is shown on the manager's sign page header (next to the score %) and spelled out
+in the HR bonus email's subject and body, so payroll can act on it directly. This
+resolves the "target bonus amount" open decision below; the payout mapping is the
+smooth pool-% approach (not a discrete table), with no gates wired yet.

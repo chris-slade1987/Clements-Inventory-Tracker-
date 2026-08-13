@@ -1,5 +1,6 @@
 import { PageHeader, EmptyState } from "@/components/ui";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail } from "@/lib/scorecard";
@@ -78,7 +79,11 @@ export default async function ScorecardsPage({
     lastEmail: { status: string; at: string; error: string | null } | null;
   } | null = null;
   if (user.role === "admin" && review && review.status === "final") {
-    const appBase = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+    const envBase = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+    const h = await headers();
+    const host = h.get("host");
+    const proto = h.get("x-forwarded-proto") || "https";
+    const appBase = (envBase || (host ? `${proto}://${host}` : "")).replace(/\/$/, "");
     const [mgrEmail, last] = await Promise.all([
       branchManagerEmail(branch, review.managerName),
       lastSignEmail(review.id),

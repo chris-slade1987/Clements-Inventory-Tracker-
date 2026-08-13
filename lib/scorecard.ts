@@ -195,6 +195,18 @@ export function weightedScore(metState: Record<string, boolean | null>): number 
   return earned;
 }
 
+/**
+ * The full quarterly manager bonus a 100% scorecard pays out. The payout scales
+ * linearly with the weighted score (a 75% card earns 75% of the pool), so HR can
+ * read the exact dollar figure straight off the scorecard and the completion email.
+ */
+export const MANAGER_BONUS_TARGET = 1500;
+
+/** Dollar bonus earned at a given weighted score, rounded to the dollar. */
+export function bonusEarned(score: number, target = MANAGER_BONUS_TARGET): number {
+  return Math.round((score / 100) * target);
+}
+
 /** Weighted score straight from the saved ScorecardResult rows for a period. */
 export async function scoreFromSaved(year: number, quarter: number, branch: string): Promise<number> {
   const saved = await savedResults(year, quarter, branch);
@@ -311,10 +323,14 @@ export async function branchManagerEmail(branch: string, managerName?: string | 
  */
 export async function sendManagerSignEmail(opts: {
   reviewId: string; year: number; quarter: number; branch: string; token: string; managerName?: string | null;
+  // Absolute origin (e.g. https://portal.example.com) to build the sign link from
+  // when APP_URL isn't configured — callers pass the live request host so the
+  // emailed link is never a broken relative path.
+  baseUrl?: string;
 }): Promise<{ status: SendResult["status"]; managerEmail: string | null; signUrl: string }> {
   const { year, quarter, branch, token, reviewId } = opts;
   const { email } = await branchManagerEmail(branch, opts.managerName);
-  const signUrl = `${APP_BASE()}/scorecard-sign/${token}`;
+  const signUrl = `${(opts.baseUrl || APP_BASE()).replace(/\/$/, "")}/scorecard-sign/${token}`;
   const b = branchLabel(branch);
   const r = await sendEmail({
     to: email,
@@ -370,6 +386,7 @@ export async function finalizeScorecard(reviewId: string, actorName: string) {
 
   const { year, quarter, branch } = review;
   const score = await scoreFromSaved(year, quarter, branch);
+  const bonus = bonusEarned(score);
   const wasEdit = review.editedAfterArchive;
 
   const emp = await matchBranchManagerEmployee(branch, review.managerName);
@@ -414,13 +431,16 @@ export async function finalizeScorecard(reviewId: string, actorName: string) {
   const empEmail = emp ? (await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } })) : null;
   const managerEmail = empEmail?.email || empEmail?.user?.email || null;
 
-  // 1) HR director → pay the bonus next cycle (once per archive).
+  // 1) HR director → pay the bonus next cycle (once per archive). The dollar
+  // figure is spelled out so payroll can act without re-deriving it.
+  const bonusStr = `$${bonus.toLocaleString()}`;
+  const poolStr = `$${MANAGER_BONUS_TARGET.toLocaleString()}`;
   await sendEmail({
     to: hrDirectorEmail(),
-    subject: `Bonus payout due: ${b} Q${quarter} ${year} manager scorecard (${score}%)`,
+    subject: `Bonus payout due: ${b} Q${quarter} ${year} manager scorecard — ${score}% = ${bonusStr}`,
     kind: "scorecard_bonus", relatedType: "scorecard_review", relatedId: review.id,
-    text: `The Q${quarter} ${year} manager scorecard for ${b} is complete and signed (score ${score}%). Please pay ${emp?.name ?? "the branch manager"}'s quarterly bonus on the next payroll cycle.\n\n${link}\n\n— CanopyOS`,
-    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> is complete and signed (score <strong>${score}%</strong>).</p><p>Please pay ${emp?.name ?? "the branch manager"}'s quarterly bonus on the next payroll cycle.</p><p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
+    text: `The Q${quarter} ${year} manager scorecard for ${b} is complete and signed.\n\nScore: ${score}%\nQuarterly bonus earned: ${bonusStr} of ${poolStr} (${score}% of the pool)\n\nPlease pay ${emp?.name ?? "the branch manager"} ${bonusStr} on the next payroll cycle.\n\n${link}\n\n— CanopyOS`,
+    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> is complete and signed.</p><p>Score: <strong>${score}%</strong><br/>Quarterly bonus earned: <strong>${bonusStr}</strong> of ${poolStr} (${score}% of the pool)</p><p>Please pay ${emp?.name ?? "the branch manager"} <strong>${bonusStr}</strong> on the next payroll cycle.</p><p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
   }).catch(() => null);
 
   // 2) Leadership/HR list → filed.

@@ -12,6 +12,17 @@ export const runtime = "nodejs";
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 
+// Absolute origin for building the sign link. Prefers APP_URL; otherwise falls
+// back to the live request host so the emailed link is never a broken relative
+// path when the env var hasn't been set yet.
+function reqBase(req: Request): string {
+  const env = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (env) return env.replace(/\/$/, "");
+  const host = req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  return host ? `${proto}://${host}` : "";
+}
+
 // Completion-lifecycle actions for a quarterly manager-scorecard review:
 //  - save     : upsert header + four narrative fields (DRAFT only, admin)
 //  - publish  : draft → "final". The supervisor signs, editing locks, a manager
@@ -121,7 +132,7 @@ export async function POST(req: Request) {
     // Email the manager a secure link to add their signature. Surface the real
     // send outcome (sent / no-provider / no-address / error) + a copyable link so
     // a silent email failure can never strand the review again.
-    const sent = await sendManagerSignEmail({ reviewId: review.id, year, quarter, branch, token, managerName: existing?.managerName ?? null });
+    const sent = await sendManagerSignEmail({ reviewId: review.id, year, quarter, branch, token, managerName: existing?.managerName ?? null, baseUrl: reqBase(req) });
     return NextResponse.json({ ok: true, emailed: sent.status === "sent", emailStatus: sent.status, managerEmail: sent.managerEmail, signUrl: sent.signUrl });
   }
 
@@ -136,7 +147,7 @@ export async function POST(req: Request) {
       token = randomBytes(24).toString("base64url");
       await prisma.scorecardReview.update({ where: { id: existing.id }, data: { signToken: token } });
     }
-    const sent = await sendManagerSignEmail({ reviewId: existing.id, year, quarter, branch, token, managerName: existing.managerName });
+    const sent = await sendManagerSignEmail({ reviewId: existing.id, year, quarter, branch, token, managerName: existing.managerName, baseUrl: reqBase(req) });
     return NextResponse.json({ ok: true, emailed: sent.status === "sent", emailStatus: sent.status, managerEmail: sent.managerEmail, signUrl: sent.signUrl });
   }
 

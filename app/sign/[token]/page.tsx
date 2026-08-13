@@ -21,8 +21,7 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
       <div className="w-full max-w-xl">
         <div className="flex flex-col items-center mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clements-mark.svg" alt="Clements" className="h-12 w-12" />
-          <h1 className="mt-3 text-xl font-light tracking-tight text-white">CanopyOS</h1>
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-12 w-auto" />
         </div>
 
         {!request ? (

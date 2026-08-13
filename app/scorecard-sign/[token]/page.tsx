@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
-import { buildScorecardRows } from "@/lib/scorecard";
+import { buildScorecardRows, scoreFromSaved, bonusEarned, MANAGER_BONUS_TARGET } from "@/lib/scorecard";
 import { money } from "@/lib/format";
 import ScorecardSignClient from "./ScorecardSignClient";
 
@@ -26,6 +26,10 @@ export default async function ScorecardSignPage({ params }: { params: Promise<{ 
   } else {
     const b = branchLabel(review.branch);
     const rows = await buildScorecardRows(review.year, review.quarter, review.branch);
+    // The weighted score exactly as it will be filed/paid (saved Met rows only),
+    // and the dollar bonus it earns from the fixed quarterly pool.
+    const score = await scoreFromSaved(review.year, review.quarter, review.branch);
+    const bonus = bonusEarned(score);
     const narrative: { label: string; v: string | null }[] = [
       { label: "Overall performance", v: review.overallNotes },
       { label: "Strengths", v: review.strengths },
@@ -34,9 +38,18 @@ export default async function ScorecardSignPage({ params }: { params: Promise<{ 
     ];
     body = (
       <Panel>
-        <div className="text-xs uppercase tracking-wider text-slate-500">Quarterly Branch Scorecard</div>
-        <h2 className="mt-1 text-lg font-semibold text-slate-900">{b} · Q{review.quarter} {review.year}</h2>
-        {review.managerName ? <p className="text-sm text-slate-500">{review.managerName}</p> : null}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-slate-500">Quarterly Branch Scorecard</div>
+            <h2 className="mt-1 text-lg font-semibold text-slate-900">{b} · Q{review.quarter} {review.year}</h2>
+            {review.managerName ? <p className="text-sm text-slate-500">{review.managerName}</p> : null}
+          </div>
+          <div className="shrink-0 rounded-xl bg-emerald-50 px-4 py-2.5 text-right ring-1 ring-emerald-100">
+            <div className="text-2xl font-bold leading-none tabular-nums text-emerald-700">{score}%</div>
+            <div className="mt-1 text-[12px] font-medium text-emerald-800">earned {money(bonus)}</div>
+            <div className="text-[10px] uppercase tracking-wide text-emerald-600/80">of {money(MANAGER_BONUS_TARGET)} bonus</div>
+          </div>
+        </div>
 
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
@@ -85,8 +98,7 @@ export default async function ScorecardSignPage({ params }: { params: Promise<{ 
       <div className="w-full max-w-2xl">
         <div className="mb-6 flex flex-col items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clements-mark.svg" alt="Clements" className="h-12 w-12" />
-          <h1 className="mt-3 text-xl font-light tracking-tight text-white">CanopyOS</h1>
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-12 w-auto" />
         </div>
         {body}
       </div>
