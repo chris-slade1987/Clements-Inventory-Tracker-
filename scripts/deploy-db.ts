@@ -65,6 +65,31 @@ async function main() {
         `deploy-db: database already populated (${users} users) — ensured ${map.size} branches exist.`
       );
     }
+
+    // One-time admin password reset / ensure — gated by an env var the operator
+    // sets in Vercel and REMOVES afterward. Recovers a forgotten owner password
+    // AND a missing owner account (e.g. a re-seeded DB). Sets super_admin + active.
+    // Never logs the password. NON-FATAL. While the env var stays set it re-applies
+    // on every deploy, so remove it once you can log in.
+    const forcePw = process.env.FORCE_ADMIN_PASSWORD?.trim();
+    if (forcePw) {
+      try {
+        const { hashPassword, MANAGER_EMAIL } = await import("../prisma/seed-core");
+        const email = (process.env.FORCE_ADMIN_EMAIL?.trim() || MANAGER_EMAIL).toLowerCase();
+        const passwordHash = hashPassword(forcePw);
+        const existing = await prisma.user.findFirst({ where: { email } });
+        if (existing) {
+          await prisma.user.update({ where: { id: existing.id }, data: { passwordHash, role: "admin", accessLevel: "super_admin", active: true } });
+          console.log(`deploy-db: FORCE_ADMIN_PASSWORD set — reset password + ensured super_admin for ${email}. REMOVE this env var now and redeploy.`);
+        } else {
+          const wh = await prisma.warehouse.findFirst({ select: { id: true } });
+          await prisma.user.create({ data: { name: "Chris Slade", email, passwordHash, role: "admin", accessLevel: "super_admin", active: true, warehouseId: wh?.id } });
+          console.log(`deploy-db: FORCE_ADMIN_PASSWORD set — created super_admin ${email}. REMOVE this env var now and redeploy.`);
+        }
+      } catch (e) {
+        console.error("deploy-db: FORCE_ADMIN_PASSWORD reset FAILED (non-fatal):", e);
+      }
+    }
     // Reconcile the CEO's approved product catalog + unit-of-measure governance
     // on every deploy. Idempotent: upserts the approved products (canonical UoM
     // codes, approved=true) and demotes off-list items to approved=false. Runs
