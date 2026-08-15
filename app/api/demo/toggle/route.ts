@@ -5,7 +5,7 @@ import { DEMO_SETTING_KEY, isDemoModeEnv } from "@/lib/demo";
 import { seedDemo, clearDemoRows } from "@/prisma/seed-demo";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 30;
 
 // Admin switch to flip Demo Mode on/off from inside the app.
 //   POST { on: true }  -> set the demo_mode Setting on, then seed demo data

@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { claudeExtractMbr, commitMbr, normalize, type ParsedMbr } from "@/lib/mbr/extract";
 
 export const runtime = "nodejs";
-export const maxDuration = 120; // Claude document extraction can take a while.
+export const maxDuration = 60; // Claude document extraction; capped to bound cost.
 
 export async function POST(req: Request) {
   const user = await getSessionUser();

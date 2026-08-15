@@ -28,11 +28,18 @@ the sample data automatically the first time.
    "Pooled connection". The build's schema creation + data repair is most
    reliable on the direct URL.
 
-   > ⚠️ **Pooling gotcha:** a plain **pooled / pgbouncer** Neon URL (without the
-   > flag) can make Prisma **hang** on runtime queries — the app loads but pages
-   > that hit the database spin forever. Fix: keep `DATABASE_URL` on the **direct**
-   > connection, **or** if you use the pooled endpoint, append `?pgbouncer=true`
-   > to the URL so Prisma disables prepared statements.
+   > ⚠️ **Pooling gotcha (this is the #1 cause of runaway "Function Duration"
+   > bills):** a plain **pooled / pgbouncer** Neon URL (host contains `-pooler`,
+   > no flag) makes Prisma **hang** on runtime queries — functions run to their max
+   > duration and Vercel bills for every second. The app now **auto-appends
+   > `pgbouncer=true` + `connect_timeout=10`** to any Postgres `DATABASE_URL` at
+   > runtime (`lib/prisma.ts`), so a bare pooled URL no longer hangs. Even so, the
+   > recommended setup is:
+   > - **`DATABASE_URL`** = the **pooled** endpoint (best for serverless connection
+   >   count); the code adds `pgbouncer=true` for you.
+   > - **`DIRECT_URL`** (or `DATABASE_URL_UNPOOLED`) = the **direct** (non-pooled)
+   >   endpoint. Deploy-time `prisma db push` uses this (it derives it by dropping
+   >   `-pooler` if unset) so schema migrations never hang on the pooler.
 
 4. **Add the remaining env vars** (Project → Settings → Environment Variables):
 

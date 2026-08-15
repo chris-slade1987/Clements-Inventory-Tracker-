@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { syncCoastFuel } from "@/lib/fuel";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 30;
 
 // Pull new/updated Coast fuel-card purchases and link them to vehicles. Admin
 // (the fuel dashboard "Sync from Coast" button) or the cron with CRON_SECRET.

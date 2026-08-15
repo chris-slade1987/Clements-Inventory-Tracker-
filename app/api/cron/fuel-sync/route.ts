@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { syncCoastFuel } from "@/lib/fuel";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 30;
 
 // Scheduled Coast fuel sync (Vercel Cron). Coast purchases settle 24–72h after
 // the swipe and there are no webhooks, so we poll a few times a day. Vercel Cron

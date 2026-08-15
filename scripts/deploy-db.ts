@@ -43,8 +43,16 @@ async function main() {
   // Pin the CLI to the installed 6.x: a bare `npx prisma` can resolve to a
   // freshly-published Prisma 7, which rejects this v6 schema (and the
   // `package.json#prisma` config) and hard-fails the build.
-  console.log("deploy-db: running prisma db push…");
-  execSync("npx --no-install prisma db push --accept-data-loss", { stdio: "inherit" });
+  // Schema migrations (DDL) must run over a DIRECT connection — a Neon/pgBouncer
+  // POOLED endpoint can hang or reject DDL. Prefer an explicit direct URL, else
+  // derive one by dropping the `-pooler` host segment; runtime queries keep using
+  // the (hardened) pooled DATABASE_URL. Only the db-push subprocess is affected.
+  const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL_UNPOOLED || url.replace("-pooler.", ".");
+  console.log("deploy-db: running prisma db push (direct connection)…");
+  execSync("npx --no-install prisma db push --accept-data-loss", {
+    stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: directUrl },
+  });
   schemaReady = true;
 
   // Seed sample data only when the database is empty; otherwise just backfill

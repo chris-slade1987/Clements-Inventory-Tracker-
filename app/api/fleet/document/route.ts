@@ -5,7 +5,7 @@ import { saveUpload, deleteUpload } from "@/lib/storage";
 import { analyzeDocument, matchDocVehicle, documentReaderMode, DOC_CATEGORIES } from "@/lib/documents";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 const ACCEPTED = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
