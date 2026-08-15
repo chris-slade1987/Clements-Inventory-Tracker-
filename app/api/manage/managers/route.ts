@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, hashPassword } from "@/lib/auth";
 
+export const maxDuration = 20;
+
 async function guard() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return null;

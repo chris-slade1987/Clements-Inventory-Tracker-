@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { saveStep, submitPreHire } from "@/lib/prehire";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // PUBLIC — no login. The random token IS the credential. Editing is only
 // allowed while the packet is still invited / in_progress; once submitted or

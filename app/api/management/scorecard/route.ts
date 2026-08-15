@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Upsert one metric's target / Met-Not-Met / note for a (quarter, branch).
 export async function POST(req: Request) {

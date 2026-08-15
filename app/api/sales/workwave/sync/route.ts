@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isConfigured, syncWorkwaveSales } from "@/lib/workwave";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Admin-triggered live WorkWave Sales Center sync. Pulls opportunities, rolls
 // them up, and writes a SalesSnapshot the Sales dashboard reads. No-op with a

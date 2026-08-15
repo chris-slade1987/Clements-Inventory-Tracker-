@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { signatureRoles } from "@/lib/personnel";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Public token-based signing — no login. The unguessable token is the capability.
 export async function POST(req: Request) {

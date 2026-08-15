@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { detectGpsIssues, aiGpsInsights } from "@/lib/gps-detect";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // Run GPS detection on demand ("Run analysis" on the GPS dashboard). Admin only,
 // mirroring /api/gps/sync. Runs the deterministic rules (real telemetry only)

@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { backfillDriverLinks } from "@/lib/fleet-driver-link";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 // Admin-triggered backfill: link each vehicle's existing driver NAME
 // (assignedTo, from the fleet import) to the matching employee record, so the

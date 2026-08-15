@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 // Capped low on purpose: a failing Verizon integration loops per-vehicle (15s
 // timeout each), so a generous budget lets one run burn minutes of compute.
 // 30s is plenty for a healthy sync and bounds the cost of a broken one.
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 // GPS fleet sync. NOTE: the every-15-minute Vercel Cron for this route is
 // intentionally PAUSED (removed from vercel.json) to stop recurring spend while

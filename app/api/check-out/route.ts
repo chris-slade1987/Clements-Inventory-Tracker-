@@ -4,6 +4,8 @@ import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHandByWarehouse } from "@/lib/inventory";
 import { uomCode } from "@/lib/uom";
 
+export const maxDuration = 20;
+
 type LineIn = { productId: string; quantity: number; unit?: string | null };
 
 export async function POST(req: Request) {

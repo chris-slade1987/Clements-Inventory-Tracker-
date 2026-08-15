@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 20;
 
 // Diagnostic endpoint: open /api/health in a browser to check that the app can
 // reach its database and that sample data is loaded. Safe to leave in — it

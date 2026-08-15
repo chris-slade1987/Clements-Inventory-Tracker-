@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Assign / swap / remove the technician (driver) on a vehicle. Writes the
 // structured FK (assignedEmployeeId) AND keeps the assignedTo name string in

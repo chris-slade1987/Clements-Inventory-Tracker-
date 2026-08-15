@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { recordInAppAck, recordTokenAck } from "@/lib/policy-docs";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Acknowledge a policy document with a typed signature. Two modes:
 //   1. Token-based (no login): { token, signedName } — used by the signed-link

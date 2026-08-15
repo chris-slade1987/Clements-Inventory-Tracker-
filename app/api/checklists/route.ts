@@ -5,6 +5,7 @@ import { BRANCHES } from "@/lib/management";
 import { attestationText, parseItems, periodLabelFor, type ItemResult } from "@/lib/checklists";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Submit a signed checklist completion. This is an APPEND-ONLY audit record:
 // there is no edit or delete, and exactly one signed completion is allowed per

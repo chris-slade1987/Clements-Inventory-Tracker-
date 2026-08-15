@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 
+export const maxDuration = 20;
+
 // Reconciliation never hard-deletes. All corrections are new movements:
 //  - reverse:  post an offsetting adjustment linked to the original
 //  - correct:  reverse the original, then post a corrected replacement

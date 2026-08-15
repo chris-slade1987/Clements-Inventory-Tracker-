@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { ingestCoastStatement } from "@/lib/fuel";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // Upload a Coast fuel-card statement (.xlsx). Parses, links every purchase to a
 // vehicle, and stores it (idempotent). Admins & managers only.

@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isConfigured, workwaveStatus, fetchOpportunitiesDetailed, probeEndpoints, mapOpportunity, WorkwaveError } from "@/lib/workwave";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Admin-only WorkWave Sales Center diagnostics: shows the connector config and,
 // when configured, does a LIVE pull so we can see the real response shape and

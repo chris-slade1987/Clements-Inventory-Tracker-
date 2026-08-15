@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { recipientOptions } from "@/lib/threads";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // People the current user can start a discussion with (for the compose modal).
 export async function GET() {

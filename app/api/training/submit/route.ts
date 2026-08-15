@@ -5,6 +5,7 @@ import { parseQuestions, gradeQuiz } from "@/lib/training";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 export async function POST(req: Request) {
   const user = await getSessionUser();

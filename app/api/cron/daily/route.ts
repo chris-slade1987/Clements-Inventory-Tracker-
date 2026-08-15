@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { remindTraining, remindSignatures, remindReviewSignatures, remindVehicleDocs, remindManual, scheduleNewHireReviews, remindScorecardsDue } from "@/lib/jobs";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 // Daily job runner. Vercel Cron hits this with GET and (when CRON_SECRET is set)
 // an `Authorization: Bearer <CRON_SECRET>` header. Also runnable by an admin.

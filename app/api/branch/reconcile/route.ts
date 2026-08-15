@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { seedBranchHub } from "@/prisma/seed-branch";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Repair / reconcile the branch-hub documents on the live database. Runs the
 // same idempotent seed the deploy uses: assigns each certified operator to the

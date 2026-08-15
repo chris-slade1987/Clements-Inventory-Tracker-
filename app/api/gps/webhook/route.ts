@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { collectPlots, persistPlots, isVerizonPositionType } from "@/lib/gps-webhook";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // PUBLIC receiver for Verizon Connect Reveal push events (GPS plots + alerts —
 // there is NO Alerts REST API). Verizon Connect calls this URL; it's submitted

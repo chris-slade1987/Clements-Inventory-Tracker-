@@ -5,6 +5,7 @@ import { sendEmail } from "@/lib/email";
 import { createPreHire, approveAndConvert, rejectPreHire, canManagePreHire } from "@/lib/prehire";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";

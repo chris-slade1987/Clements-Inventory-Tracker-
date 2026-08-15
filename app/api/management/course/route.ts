@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { saveUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 const str = (v: FormDataEntryValue | null) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const int = (v: FormDataEntryValue | null) => { const n = parseInt(String(v ?? "").replace(/[^0-9]/g, ""), 10); return Number.isFinite(n) ? n : null; };

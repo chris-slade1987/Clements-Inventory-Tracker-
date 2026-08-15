@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Record that the signed-in user has read/acknowledged a post. Any logged-in
 // user may acknowledge; idempotent (one row per user per post).

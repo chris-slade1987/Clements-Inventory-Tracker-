@@ -18,7 +18,7 @@ import {
 } from "@/lib/ats";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 const str = (v: unknown) => {
   const s = typeof v === "string" ? v.trim() : "";

@@ -4,6 +4,8 @@ import { getSessionUser } from "@/lib/auth";
 import { isUomCode } from "@/lib/uom";
 import { normalizeClassification } from "@/lib/constants";
 
+export const maxDuration = 20;
+
 // The new-product formal-approval (confirm) queue actions. Confirming a product
 // marks it human-reviewed (confirmed=true) and saves any edits; merging repoints
 // a naming variant into a canonical product and deactivates the variant (never a

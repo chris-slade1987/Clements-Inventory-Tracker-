@@ -7,6 +7,7 @@ import {
 } from "@/lib/reporting";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 20;
 
 function csvCell(v: string | number): string {
   const s = String(v);

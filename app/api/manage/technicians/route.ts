@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { normalizeRole, normalizeDivision } from "@/lib/constants";
 
+export const maxDuration = 20;
+
 async function guard() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return null;

@@ -4,6 +4,7 @@ import { getSessionUser, branchLocked } from "@/lib/auth";
 import { saveUpload, deleteUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const numOf = (v: unknown) => { if (v == null || v === "") return null; const n = Number(String(v).replace(/[$,]/g, "")); return Number.isFinite(n) ? n : null; };

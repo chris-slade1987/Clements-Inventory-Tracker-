@@ -6,6 +6,7 @@ import { branchLabel } from "@/lib/management";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
 

@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { syncSalesFromSheet } from "@/lib/sales-sync";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Pull the Sales Center Google Sheet and refresh the metrics snapshot.
 // Admin/manager triggered; also called by the cron.

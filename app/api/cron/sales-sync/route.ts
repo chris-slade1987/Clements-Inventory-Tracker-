@@ -5,7 +5,7 @@ import { syncSalesFromSheet } from "@/lib/sales-sync";
 import { isConfigured as isWorkwaveConfigured, syncWorkwaveSales } from "@/lib/workwave";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 // Hourly Sales Center sync. Vercel Cron hits this with a CRON_SECRET bearer; an
 // admin can also trigger it. Matches the sheet's hourly refresh from Sales Center.

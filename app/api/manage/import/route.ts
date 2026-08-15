@@ -6,6 +6,7 @@ import { readXlsxObjects } from "@/lib/xlsx";
 import { normalizeRole, normalizeDivision, categorizeProduct, unitLabel } from "@/lib/constants";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 function pick(row: Record<string, string>, aliases: string[]): string {
   for (const a of aliases) if (row[a]) return row[a].trim();

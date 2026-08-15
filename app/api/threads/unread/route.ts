@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Lightweight poll target for the notification bell.
 export async function GET() {

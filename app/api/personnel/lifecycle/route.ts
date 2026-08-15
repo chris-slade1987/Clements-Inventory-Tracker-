@@ -6,7 +6,7 @@ import { isHrDirector } from "@/lib/personnel";
 import { type SeparationDoc, syncTechnicianActiveForEmployee } from "@/lib/separation";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const bool = (v: unknown) => v === true || v === "true" || v === "on" || v === "yes";

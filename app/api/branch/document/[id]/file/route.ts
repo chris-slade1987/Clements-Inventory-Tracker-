@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Auth-gated download for branch documents (licenses, leases). Streams the file
 // only to a signed-in manager/admin; the storage URL stays server-side.

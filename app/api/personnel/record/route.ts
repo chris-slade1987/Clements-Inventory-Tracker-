@@ -7,7 +7,7 @@ import { recordTypeLabel, notifyList } from "@/lib/personnel";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 const str = (v: FormDataEntryValue | null) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const date = (v: FormDataEntryValue | null) => { const s = typeof v === "string" ? v : ""; if (!s) return null; const d = new Date(s); return isNaN(d.getTime()) ? null : d; };

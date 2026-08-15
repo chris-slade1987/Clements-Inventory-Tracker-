@@ -12,6 +12,7 @@ import {
 import { collectPlots } from "@/lib/gps-webhook";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Admin-only GPS diagnostics: exercises the LIVE Verizon REST path and surfaces
 // raw responses so we can see exactly why positions aren't landing (empty

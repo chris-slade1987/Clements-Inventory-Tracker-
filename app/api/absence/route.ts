@@ -16,6 +16,7 @@ import {
 } from "@/lib/absence";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const dateOf = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; if (!t) return null; const d = new Date(t); return isNaN(d.getTime()) ? null : d; };

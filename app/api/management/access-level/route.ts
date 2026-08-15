@@ -4,6 +4,7 @@ import { getSessionUser, canEditAccessLevels } from "@/lib/auth";
 import { LEVEL_ROLE, type AccessLevelKey } from "@/lib/access-levels";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Set a user's access level. ONLY full admins may change access rights. Setting a
 // level also aligns the underlying `role` so the existing role-based gates keep

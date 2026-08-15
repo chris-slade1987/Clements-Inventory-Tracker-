@@ -5,6 +5,7 @@ import { saveUpload } from "@/lib/storage";
 import { analyzeInsurance, insuranceReaderMode } from "@/lib/insurance";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // Upload an insurance document (policy dec page, ACORD app, or payment schedule).
 // Stores the file, has the AI read it, and returns the extracted fields for the

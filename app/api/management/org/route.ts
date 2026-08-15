@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { setReportsTo } from "@/lib/org";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Set (or clear) an employee's reporting line on the org chart. Admin-only for
 // now; team-scoped editing arrives with the access-level phase.

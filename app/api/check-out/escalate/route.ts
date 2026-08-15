@@ -9,6 +9,7 @@ import {
 } from "@/lib/threads";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 type OffendingIn = {
   name?: unknown;

@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { reprocessStoredPositionEvents } from "@/lib/gps-webhook";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Admin backfill: re-parse already-stored Verizon webhook events into GpsPosition
 // rows. This lights up the map from the position events that arrived BEFORE the

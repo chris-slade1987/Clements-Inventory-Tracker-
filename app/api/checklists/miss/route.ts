@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { canClearChecklistMiss } from "@/lib/personnel";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Clear a missed-checklist compliance infraction. The "penalty" can be cleared
 // ONLY by the CEO (admin) or the HR director — never the branch manager. This is

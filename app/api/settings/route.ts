@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
+export const maxDuration = 20;
+
 const ALLOWED_KEYS = new Set(["price_increase_threshold_pct"]);
 
 export async function POST(req: Request) {

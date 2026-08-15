@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 
+export const maxDuration = 20;
+
 const ALLOWED = new Set(["open", "acknowledged", "dismissed"]);
 
 // Update an alert's status (acknowledge / dismiss / reopen).

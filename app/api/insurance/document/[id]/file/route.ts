@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Auth-gated download for insurance documents. These contain sensitive data
 // (EINs, premiums), so the file is streamed only to a signed-in manager/admin —

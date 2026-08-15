@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Admin tool to complete the Verizon Connect Reveal GPS Push subscription.
 // Fleetmatics' GPS Push is AWS SNS-based: the first message is a

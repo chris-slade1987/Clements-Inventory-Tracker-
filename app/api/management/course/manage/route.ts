@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const date = (v: unknown) => { if (!v) return null; const d = new Date(String(v)); return isNaN(d.getTime()) ? null : d; };

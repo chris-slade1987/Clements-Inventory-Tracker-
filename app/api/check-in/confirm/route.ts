@@ -5,6 +5,8 @@ import { runAnomalyChecks } from "@/lib/anomaly";
 import { runReorderChecks } from "@/lib/reorder";
 import { uomCode } from "@/lib/uom";
 
+export const maxDuration = 20;
+
 type NewProduct = {
   name: string;
   unitOfMeasure?: string;

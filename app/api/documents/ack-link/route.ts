@@ -6,6 +6,7 @@ import { isHrDirector } from "@/lib/personnel";
 import { generateAckToken, HANDBOOK_SLUG } from "@/lib/policy-docs";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // HR/admin only: generate a login-free, per-employee handbook acknowledgment
 // link. Returns the absolute URL the manager can copy and send to the employee.

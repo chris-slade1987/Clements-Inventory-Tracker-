@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 // Parse a date-only "YYYY-MM-DD" value as UTC midnight (timezone-stable); empty -> null.

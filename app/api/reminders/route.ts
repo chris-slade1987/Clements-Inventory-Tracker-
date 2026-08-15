@@ -4,6 +4,7 @@ import { getSessionUser, branchLocked } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const int = (v: unknown, d: number) => { const n = parseInt(String(v ?? ""), 10); return Number.isFinite(n) && n >= 0 ? n : d; };

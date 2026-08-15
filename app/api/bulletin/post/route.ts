@@ -5,6 +5,7 @@ import { canPostBulletin } from "@/lib/bulletin";
 import { saveUpload, deleteUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const dateOf = (v: unknown) => { const t = s(v); if (!t) return null; const d = new Date(t.length <= 10 ? `${t}T00:00:00Z` : t); return isNaN(d.getTime()) ? null : d; };

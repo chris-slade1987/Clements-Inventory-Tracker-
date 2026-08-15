@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { remindSignatures } from "@/lib/jobs";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // Manual trigger (admin) for signature reminders. The daily cron uses /api/cron/daily.
 export async function POST(req: Request) {

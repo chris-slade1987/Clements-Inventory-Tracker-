@@ -4,6 +4,7 @@ import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { resolveRecipients, notifyThread, markRead } from "@/lib/threads";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => {
   const t = typeof v === "string" ? v.trim() : "";

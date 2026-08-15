@@ -6,6 +6,7 @@ import { parseInvoice, invoiceReaderMode } from "@/lib/invoice/parse";
 import { matchProduct } from "@/lib/invoice/match";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const ACCEPTED = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { finalizeScorecard } from "@/lib/scorecard";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // PUBLIC manager-signature endpoint. The manager reaches this via the tokenized
 // link emailed at publish time — no login required. Validates the token, records

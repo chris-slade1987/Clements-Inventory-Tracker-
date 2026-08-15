@@ -4,6 +4,7 @@ import { isDemoMode } from "@/lib/demo";
 import { resetDemo } from "@/prisma/seed-demo";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Reset the demo dataset (clear demo-marked rows, then reseed). Admin only, and
 // only when demo mode is on. Never throws — any failure is captured into the

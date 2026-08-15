@@ -9,7 +9,7 @@ import {
 } from "@/lib/ats";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 20;
 
 // PUBLIC — no login. The public job-application "front door": an applicant on a
 // per-job apply link (linked from Indeed / the company careers page) submits

@@ -4,6 +4,7 @@ import { getSessionUser, branchLocked } from "@/lib/auth";
 import { CONTACT_CATEGORIES } from "@/lib/branch-hub";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const CATS = new Set<string>(CONTACT_CATEGORIES.map((c) => c.key));

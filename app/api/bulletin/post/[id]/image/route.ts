@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Bulletin tile photo. Culture imagery isn't sensitive, but we still gate it to
 // signed-in users so the storage URL stays server-side (same pattern as other

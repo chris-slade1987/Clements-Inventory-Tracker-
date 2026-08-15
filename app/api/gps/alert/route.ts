@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { setGpsAlertStatus } from "@/lib/gps-detect";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // Acknowledge or dismiss a GPS alert. Admin + manager only (board observers and
 // employees are blocked). Never hard-deletes — flips status and records who/when

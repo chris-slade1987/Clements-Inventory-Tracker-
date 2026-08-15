@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { syncFleet } from "@/lib/gps";
 
 export const runtime = "nodejs";
+export const maxDuration = 20;
 
 // Run a GPS fleet sync. Admin only — this is what the Live Map "Refresh" button
 // and a scheduled cron call. syncFleet() never throws; it captures errors into a
