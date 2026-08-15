@@ -32,14 +32,25 @@ the sample data automatically the first time.
    > bills):** a plain **pooled / pgbouncer** Neon URL (host contains `-pooler`,
    > no flag) makes Prisma **hang** on runtime queries — functions run to their max
    > duration and Vercel bills for every second. The app now **auto-appends
-   > `pgbouncer=true` + `connect_timeout=10`** to any Postgres `DATABASE_URL` at
-   > runtime (`lib/prisma.ts`), so a bare pooled URL no longer hangs. Even so, the
-   > recommended setup is:
+   > `pgbouncer=true` + `connect_timeout=10` + `pool_timeout=10` + `options=-c
+   > statement_timeout=10000`** to any Postgres `DATABASE_URL` at runtime
+   > (`lib/prisma.ts`), so a bare pooled URL no longer hangs. The appends only ever
+   > ADD parameters — the host is never rewritten, so the runtime keeps whichever
+   > endpoint you configure. Even so, the recommended setup is:
    > - **`DATABASE_URL`** = the **pooled** endpoint (best for serverless connection
    >   count); the code adds `pgbouncer=true` for you.
    > - **`DIRECT_URL`** (or `DATABASE_URL_UNPOOLED`) = the **direct** (non-pooled)
    >   endpoint. Deploy-time `prisma db push` uses this (it derives it by dropping
    >   `-pooler` if unset) so schema migrations never hang on the pooler.
+   >
+   > **Second guardrail — function duration.** Every handler under `app/api/**`
+   > declares an explicit `export const maxDuration`: **20s** by default, **60s**
+   > for the routes that call the Anthropic API or parse an uploaded spreadsheet.
+   > That is the ceiling Vercel bills against, and it takes precedence over
+   > `vercel.json`. If a route legitimately needs longer, raise that one route's
+   > export rather than the default. Build-time work is unaffected — the schema
+   > push and seeds in `scripts/deploy-db.ts` use their own client and keep full
+   > time.
 
 4. **Add the remaining env vars** (Project → Settings → Environment Variables):
 
