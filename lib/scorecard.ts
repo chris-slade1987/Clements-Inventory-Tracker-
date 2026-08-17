@@ -6,6 +6,7 @@ import { sendEmail, type SendResult } from "@/lib/email";
 import { quarterInspectionCompliance } from "@/lib/inspection";
 import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
+import { quarterQcCompliance } from "@/lib/qc";
 import { matchEmployeeByName } from "@/lib/people";
 
 // The quarterly branch-manager bonus scorecard. Binary Met/Not-Met, weighted to
@@ -71,6 +72,11 @@ export const SCORECARD_METRICS: ScorecardMetric[] = [
   // chemical is wired; reviewer marks it manually.
   { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 5, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Per-branch chemical is purchase-based (MMR); the model carries chemical company-wide only — mark manually until branch chemical is wired." },
   { key: "attrition_rate", label: "Attrition Rate (YTD)", weight: 10, type: "auto", direction: "lower", kpi: "attrition", unit: "pct", perQuarterTarget: 2.5, bookRate: true },
+  // Field QC ride-behinds — auto-suggested Met/Not from real completion (goal
+  // 20/month → 60/quarter; see lib/qc.ts). Weight 0 for now: it appears on the
+  // card and auto-computes, but does not change the bonus total until the owner
+  // assigns it a weight and rebalances the other lines to 100%.
+  { key: "quality_control", label: "Quality Control (field ride-behinds)", weight: 0, type: "compliance", direction: "higher", unit: "count" },
 ];
 
 export const QUARTER_MONTHS: Record<number, number[]> = {
@@ -488,12 +494,13 @@ export type ScorecardRow = {
  * completion. Shared by the admin scorecard and a manager's own scorecard view.
  */
 export async function buildScorecardRows(year: number, quarter: number, branch: string): Promise<ScorecardRow[]> {
-  const [auto, saved, inspComp, whComp, trComp] = await Promise.all([
+  const [auto, saved, inspComp, whComp, trComp, qcComp] = await Promise.all([
     autoActuals(year, quarter, branch),
     savedResults(year, quarter, branch),
     quarterInspectionCompliance(year, quarter, branch),
     quarterWarehouseCompliance(year, quarter, branch),
     quarterTrainingCompliance(year, quarter, branch),
+    quarterQcCompliance(year, quarter, branch),
   ]);
   return SCORECARD_METRICS.map((m) => {
     const a = auto[m.key];
@@ -525,6 +532,10 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     if (m.key === "training_ceu" && trComp.total > 0) {
       suggested = trComp.complete;
       detail = `${trComp.completed}/${trComp.total} training assignments completed this quarter (${trComp.pct}%)`;
+    }
+    if (m.key === "quality_control") {
+      suggested = qcComp.complete;
+      detail = `${qcComp.done}/${qcComp.expected} QC inspections this quarter (${qcComp.ghp} GHP + ${qcComp.lo} L&O · ${qcComp.pct}%)`;
     }
     return {
       key: m.key,

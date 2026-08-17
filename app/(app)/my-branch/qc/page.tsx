@@ -1,6 +1,8 @@
-import { Card, PageHeader } from "@/components/ui";
-import { requireUser, scopedBranch } from "@/lib/auth";
+import { PageHeader, EmptyState } from "@/components/ui";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
+import { monthlyQcProgress, listQcInspections, branchTechnicians, monthKey, QC_ITEMS, QC_TYPES } from "@/lib/qc";
+import QcClient from "./QcClient";
 
 export const dynamic = "force-dynamic";
 
@@ -11,22 +13,54 @@ export default async function QcPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
-  const branch = scopedBranch(user, BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
+  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const branch = scopedBranch(user, requested) ?? BRANCHES[0].key;
+  const locked = branchLocked(user);
+  const canComplete = user.role === "manager" || user.role === "admin";
+
+  const [progress, technicians, recent] = await Promise.all([
+    monthlyQcProgress(branch),
+    branchTechnicians(branch),
+    listQcInspections(branch, 100),
+  ]);
+
+  const monthLabel = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 
   return (
     <>
-      <PageHeader title="Quality Control Reports" subtitle={`${branch ? branchLabel(branch) : "All branches"} · service quality checks`} />
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="text-sm font-medium text-ink">Quality control reports</div>
-          <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] text-muted">Coming soon</span>
-        </div>
-        <p className="text-sm text-muted">
-          This will capture the branch&rsquo;s monthly quality-control checks — service redo/callback review,
-          documentation spot-checks, and customer-quality follow-ups — recorded per month. Completing it will
-          satisfy the <strong className="text-ink">Quality Control Reports</strong> item on your quarterly scorecard.
-        </p>
-      </Card>
+      <PageHeader
+        title="Quality Control"
+        subtitle={`${branchLabel(branch)} · field ride-behinds · goal 10 GHP + 10 L&O per month`}
+      />
+      {technicians.length === 0 && canComplete ? (
+        <EmptyState title="No technicians on this branch's roster" hint="Add active technicians to this branch in People / HR before completing a QC inspection." />
+      ) : (
+        <QcClient
+          branch={branch}
+          branchLabel={branchLabel(branch)}
+          branches={locked ? [] : BRANCHES.map((b) => ({ key: b.key, label: b.label }))}
+          canComplete={canComplete}
+          technicians={technicians.map((t) => ({ id: t.id, name: t.name }))}
+          progress={progress}
+          monthLabel={monthLabel}
+          reviewerName={user.name}
+          types={QC_TYPES}
+          forms={QC_ITEMS}
+          recent={recent.map((r) => ({
+            id: r.id,
+            type: r.type,
+            acctNumber: r.acctNumber,
+            customer: `${r.customerFirst} ${r.customerLast}`,
+            technicianName: r.technicianName,
+            technicianEmployeeId: r.technicianEmployeeId,
+            inspectionDate: r.inspectionDate.toISOString(),
+            passCount: r.passCount,
+            failCount: r.failCount,
+            periodKey: r.periodKey,
+          }))}
+          thisMonthKey={monthKey()}
+        />
+      )}
     </>
   );
 }

@@ -1960,6 +1960,38 @@ model ChecklistMiss {
   @@map("checklist_misses")
 }
 
+// Field Quality-Control inspection: a manager rides behind a technician and
+// grades the completed treatment. Two forms (ghp | lo). Goal = 10 of each per
+// month per branch. Each completed inspection is filed to the evaluated
+// technician's personnel profile and archived in the Branch Hub; monthly
+// completion feeds the quarterly manager scorecard.
+model QcInspection {
+  id                   String    @id @default(cuid())
+  branch               String
+  type                 String // "ghp" | "lo"
+  periodKey            String    @map("period_key") // month of the inspection, "2026-08"
+  acctNumber           String    @map("acct_number")
+  customerFirst        String    @map("customer_first")
+  customerLast         String    @map("customer_last")
+  lastTreatment        DateTime? @map("last_treatment")
+  inspectionDate       DateTime  @map("inspection_date")
+  technicianEmployeeId String?   @map("technician_employee_id")
+  technicianName       String    @map("technician_name")
+  results              String // JSON: [{ itemId, result: "pass"|"fail"|"na" }]
+  notes                String?
+  passCount            Int       @default(0) @map("pass_count")
+  failCount            Int       @default(0) @map("fail_count")
+  naCount              Int       @default(0) @map("na_count")
+  createdByUserId      String?   @map("created_by_user_id")
+  createdByName        String    @map("created_by_name")
+  personnelRecordId    String?   @map("personnel_record_id")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  @@index([branch, periodKey, type])
+  @@index([technicianEmployeeId])
+  @@map("qc_inspections")
+}
+
 // ---------------------------------------------------------------------------
 // Document center. Living company documents (the Employee Handbook, readable by
 // everyone; the Manager Operating Manual, manager-only) rendered from Markdown.

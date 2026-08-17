@@ -9,6 +9,7 @@ import {
 } from "@/lib/branch-hub";
 import { AddDocButton, AddContactButton, DeleteX, RepairButton } from "./BranchHubClient";
 import { listArchivedReviews } from "@/lib/scorecard";
+import { listQcInspections, qcTypeShort } from "@/lib/qc";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Branch Hub — CanopyOS" };
@@ -23,9 +24,10 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
   const branch = scopedBranch(user, requested) ?? BRANCHES[0].key;
   const locked = branchLocked(user);
 
-  const [docGroups, contactGroups, operators, employees, archivedScorecards] = await Promise.all([
+  const [docGroups, contactGroups, operators, employees, archivedScorecards, qcInspections] = await Promise.all([
     branchDocuments(branch), branchContacts(branch), certifiedOperators(branch), listEmployees(),
     listArchivedReviews([branch]),
+    listQcInspections(branch, 12),
   ]);
 
   const docCats = BRANCH_DOC_CATEGORIES.map((c) => ({ key: c.key as string, label: c.label }));
@@ -66,6 +68,30 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
                 {r.managerName ? <span className="text-xs text-muted">{r.managerName}</span> : null}
                 {r.archivedAt ? <span className="text-[11px] text-muted">archived {fmt(r.archivedAt.toISOString())}</span> : null}
                 <Link href={`/my-branch/scorecard?branch=${branch}&year=${r.year}&quarter=${r.quarter}`} className="ml-auto text-xs font-medium text-brand-700 hover:underline">View →</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      {/* Quality Control Form archive — branch-scoped completed field ride-behinds. */}
+      <Card className="p-4 mb-5">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-ink">Quality Control Form archive</div>
+          <Link href={`/my-branch/qc?branch=${branch}`} className="text-xs font-medium text-brand-700 hover:underline">Open Quality Control →</Link>
+        </div>
+        {qcInspections.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">No QC inspections on file for {branchLabel(branch)} yet.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-line">
+            {qcInspections.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 py-2 text-sm">
+                <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px]">{qcTypeShort(r.type)}</span>
+                <span className="font-medium text-ink">{r.customerFirst} {r.customerLast}</span>
+                <span className="text-xs text-muted">Acct {r.acctNumber}</span>
+                {r.technicianEmployeeId ? <Link href={`/my-branch/team/${r.technicianEmployeeId}`} className="text-xs text-brand-700 hover:underline">{r.technicianName}</Link> : <span className="text-xs text-muted">{r.technicianName}</span>}
+                <span className="text-[11px] text-muted">{fmt(r.inspectionDate.toISOString())}</span>
+                <span className="ml-auto text-xs tabular-nums"><span className="text-emerald-700">{r.passCount}✓</span>{r.failCount > 0 ? <span className="ml-1 text-red-600">{r.failCount}✗</span> : null}</span>
               </li>
             ))}
           </ul>
