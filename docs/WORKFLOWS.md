@@ -119,7 +119,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 
 | Workflow | What the system does (route) | Manual § | Handbook § | Status | Action |
 |---|---|---|---|---|---|
-| Weekly attested oversight checklist | Work the list + typed-signature attestation; one completion per branch/week; append-only. (`/checklists`, `/checklists/[key]`, `/api/checklists`) | Weekly Responsibilities | — | ✅ | Aligned. |
+| Weekly attested oversight checklist | A **short** weekly list (6 core oversight items, no per-item notes) + typed-signature attestation; **due every Friday** (`fridayEndOf`; overdue once Friday passes); one completion per branch/week; append-only. On sign-off the completion is **archived to the branch manager's personnel profile** (a `checklist`-category `PersonnelRecord`, non-fatal). Lives under **My Branch** in the shell (not Inventory). (`/checklists`, `/checklists/[key]`, `/api/checklists`, `lib/checklists.ts`, `prisma/seed-checklists.ts`) | Weekly Responsibilities | — | ✅ | **Updated:** trimmed to a short list, removed the optional note field, confirmed Friday due date, filed each completion to the manager's profile, and moved the page into the My Branch nav. |
 | Missed-checklist penalty + clearing | Unsigned elapsed weeks recorded as `ChecklistMiss`; **only CEO/HR can clear** (with a note); never reopened/deleted. (`/api/checklists/miss`) | Weekly Responsibilities | — | ✅ | Added a sentence to the Weekly note about the missed-checklist penalty. |
 | Checklist oversight rollup | Senior-leadership grid of who signed per branch + open misses. (`/checklists/oversight`) | Weekly / Monthly (leadership rollup) | — | ✅ | Aligned. |
 

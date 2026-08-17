@@ -105,6 +105,12 @@ export default function AppShell({
       // The company bulletin is shared by everyone; show it inside whichever
       // home nav fits the viewer (employees keep their self-service shell).
       ? (isEmployee ? "employee" : "manager")
+      // Oversight checklists are a My Branch (manager) responsibility; the
+      // leadership rollup lives under Management.
+      : pathname.startsWith("/checklists/oversight")
+        ? "management"
+        : pathname.startsWith("/checklists")
+          ? "manager"
       : pathname.startsWith("/my-branch")
         ? "manager"
         : pathname.startsWith("/management")

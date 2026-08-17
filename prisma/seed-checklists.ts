@@ -10,14 +10,13 @@ import { PrismaClient } from "@prisma/client";
 
 type SeedItem = { id: string; category: string; label: string; objective: string };
 
+// Short, scannable weekly oversight list. Item ids are preserved from the
+// original longer list so previously-signed completions still map to their
+// items. (The removed items — inbox follow-up, sales-lead follow-up, agreements,
+// vehicles/office cleanliness, final wrap-up — remain in the Manager Manual's
+// Weekly Responsibilities; they were trimmed from the sign-off checklist to keep
+// it quick.)
 const WEEKLY_ITEMS: SeedItem[] = [
-  {
-    id: "w1",
-    category: "Operational",
-    label: "Weekly follow-up with operations team",
-    objective:
-      "Clear your inbox and check notes so the ops team isn't waiting on outstanding info from you or your technicians.",
-  },
   {
     id: "w2",
     category: "Operational",
@@ -32,19 +31,6 @@ const WEEKLY_ITEMS: SeedItem[] = [
       "Review each technician's prior five-day schedule; every missed service (sick/weather/etc.) must be rescheduled within 7 days of the original date.",
   },
   {
-    id: "w4",
-    category: "Operational",
-    label: "Follow up on sales leads",
-    objective:
-      "Ensure you and any selling technicians are following up on leads; reach back out to customers as necessary.",
-  },
-  {
-    id: "w5",
-    category: "Operational",
-    label: "Review digital & paper agreements",
-    objective: "Confirm contracts are filled out correctly so Robin has what she needs to set accounts up in PestPac.",
-  },
-  {
     id: "w6",
     category: "Operational",
     label: "Cancellations",
@@ -57,36 +43,17 @@ const WEEKLY_ITEMS: SeedItem[] = [
     objective: "Every technician is ready for Monday — schedule set, paperwork in hand, no blockers.",
   },
   {
-    id: "w8",
-    category: "Operational",
-    label: "Vehicles are clean",
-    objective: "Each technician (you included) has cleaned out and washed their vehicle. Walk outside and help.",
-  },
-  {
-    id: "w9",
-    category: "Operational",
-    label: "Office & warehouse are clean",
-    objective: "Delegate cleaning across the team to keep the office and warehouse to the Clements standard.",
-  },
-  {
     id: "w10",
     category: "Operational",
     label: "Inventory disbursement & expenses logged",
     objective:
-      "Record the week's chemical disbursements — in this portal, check-outs to technicians are logged under Check-Out — and scan all expense receipts to Brandy.",
+      "Record the week's chemical disbursements — check-outs to technicians are logged under Check-Out — and scan all expense receipts.",
   },
   {
     id: "w11",
     category: "Operational",
     label: "Bank deposits",
     objective: "Collect customer payments from techs, write up the deposit, and take it to the bank Friday afternoon.",
-  },
-  {
-    id: "w12",
-    category: "Wrap-up",
-    label: "Final check / plan the week ahead",
-    objective:
-      "All vehicles clean, all work completed, unserviced rescheduled for next week, techs ready for Monday morning.",
   },
 ];
 

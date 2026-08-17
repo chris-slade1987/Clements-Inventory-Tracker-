@@ -60,11 +60,8 @@ export async function POST(req: Request) {
   const byId = new Map(rawResults.map((r: ItemResult) => [r?.itemId, r]));
   const itemResults: ItemResult[] = items.map((it) => {
     const r = byId.get(it.id) as ItemResult | undefined;
-    return {
-      itemId: it.id,
-      checked: r?.checked === true,
-      note: typeof r?.note === "string" ? r.note.slice(0, 2000) : "",
-    };
+    // The weekly checklist no longer collects per-item notes.
+    return { itemId: it.id, checked: r?.checked === true, note: "" };
   });
 
   const periodLabel = periodLabelFor(template.cadence, new Date());
@@ -94,6 +91,34 @@ export async function POST(req: Request) {
         itemResults: JSON.stringify(itemResults),
       },
     });
+
+    // Archive the signed completion onto the branch manager's personnel profile
+    // so it lives on their record alongside write-ups/reviews. Non-fatal — a
+    // filing hiccup must never fail the (already-saved) attestation.
+    try {
+      const mgr = await prisma.employee.findFirst({
+        where: { status: "active", branch, role: { contains: "Manager" } },
+        select: { id: true, name: true },
+      });
+      if (mgr) {
+        const done = itemResults.filter((r) => r.checked).length;
+        await prisma.personnelRecord.create({
+          data: {
+            employeeId: mgr.id,
+            branch,
+            type: "note",
+            category: "checklist",
+            title: `${template.title} — ${periodLabel} (${done}/${itemResults.length} complete)`,
+            body: `Signed by ${signedName}.`,
+            details: JSON.stringify({ kind: "checklist_completion", cadence: template.cadence, periodKey, branch, completionId: completion.id, done, total: itemResults.length }),
+            authorName: signedName,
+          },
+        });
+      }
+    } catch {
+      /* non-fatal: the completion is the system of record; the profile copy is a convenience */
+    }
+
     return NextResponse.json({ ok: true, id: completion.id });
   } catch (e) {
     // Unique-constraint race → treat as a duplicate.

@@ -41,7 +41,6 @@ export default function ChecklistRun({
   const groups = useMemo(() => groupByCategory(items), [items]);
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [notes, setNotes] = useState<Record<string, string>>({});
   const [name, setName] = useState(defaultName ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +76,6 @@ export default function ChecklistRun({
                 <div className="flex-1">
                   <div className="text-[15px] font-semibold text-ink">{it.label}</div>
                   <div className="text-xs text-muted mt-0.5">{it.objective}</div>
-                  {r?.note ? <div className="text-xs text-muted mt-0.5">Note: {r.note}</div> : null}
                 </div>
               </li>
             );
@@ -95,7 +93,7 @@ export default function ChecklistRun({
     const itemResults: ItemResult[] = items.map((it) => ({
       itemId: it.id,
       checked: !!checked[it.id],
-      note: notes[it.id] ?? "",
+      note: "",
     }));
     const res = await fetch("/api/checklists", {
       method: "POST",
@@ -149,12 +147,6 @@ export default function ChecklistRun({
                         <span className="block text-xs text-muted mt-0.5">{it.objective}</span>
                       </span>
                     </label>
-                    <input
-                      value={notes[it.id] ?? ""}
-                      onChange={(e) => setNotes((n) => ({ ...n, [it.id]: e.target.value }))}
-                      placeholder="Add a note (optional)"
-                      className="mt-2 ml-8 w-[calc(100%-2rem)] rounded-lg border border-line px-3 py-2 text-sm bg-surface"
-                    />
                   </li>
                 );
               })}
