@@ -3,8 +3,10 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canClearChecklistMiss } from "@/lib/personnel";
 import { sweepMissedChecklists, openMisses, clearedMisses } from "@/lib/checklists";
+import { pastDueClearableCounts } from "@/lib/manual-reminders";
 import ChecklistMisses, { type MissDTO } from "../checklists/ChecklistMisses";
 import AlertsClient from "./AlertsClient";
+import ClearPastDueButton from "./ClearPastDueButton";
 
 export const dynamic = "force-dynamic";
 
@@ -50,12 +52,16 @@ export default async function AlertsPage({
     prisma.setting.findUnique({ where: { key: "price_increase_threshold_pct" } }),
   ]);
 
+  // Admin-only: how many past-due reminders + audit follow-ups can be cleared.
+  const pastDue = user.role === "admin" ? await pastDueClearableCounts() : { reminders: 0, auditFollowUps: 0, total: 0 };
+
   return (
     <>
       <PageHeader
         title="Alerts"
         subtitle="Anomalies and cost-saving opportunities flagged by the automated checks."
       />
+      {user.role === "admin" ? <ClearPastDueButton counts={pastDue} /> : null}
       {openM.length > 0 || clearedM.length > 0 ? (
         <div className="mb-5">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-600">Compliance · missed checklists</div>
