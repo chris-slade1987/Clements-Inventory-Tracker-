@@ -48,7 +48,6 @@ export default async function FleetPage({
           user.role === "admin" || user.role === "manager" ? (
             <div className="flex items-center gap-3 text-xs font-medium">
               <Link href="/fleet/assignments" className="text-brand-700 hover:underline">Driver assignments →</Link>
-              <Link href="/fleet/map" className="text-brand-700 hover:underline">Live map →</Link>
             </div>
           ) : undefined
         }

@@ -1,8 +1,7 @@
 import AppShell from "@/components/AppShell";
-import { requireUser, isBoardObserver, scopedBranch } from "@/lib/auth";
+import { requireUser, isBoardObserver } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
-import { openGpsAlertCount } from "@/lib/gps-detect";
 import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
 
@@ -15,10 +14,9 @@ export default async function AppGroupLayout({
 }) {
   const user = await requireUser();
   // Board observers never see Fleet, so skip the (branch-scoped) GPS badge for them.
-  const [unread, isInterviewer, gpsAlertCount, demoMode] = await Promise.all([
+  const [unread, isInterviewer, demoMode] = await Promise.all([
     unreadCount(user.id).catch(() => 0),
     isActiveInterviewer(user.id).catch(() => false),
-    isBoardObserver(user) ? Promise.resolve(0) : openGpsAlertCount(scopedBranch(user, null) ?? undefined).catch(() => 0),
     isDemoMode().catch(() => false),
   ]);
   return (
@@ -31,7 +29,6 @@ export default async function AppGroupLayout({
       isInterviewer={isInterviewer}
       isBoardObserver={isBoardObserver(user)}
       unread={unread}
-      gpsAlertCount={gpsAlertCount}
     >
       {demoMode ? <DemoModeBanner isAdmin={user.role === "admin"} /> : null}
       {children}

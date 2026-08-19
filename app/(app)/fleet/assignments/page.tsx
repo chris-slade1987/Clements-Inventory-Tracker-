@@ -55,7 +55,6 @@ export default async function DriverAssignmentsPage() {
       <PageHeader
         title="Driver assignments"
         subtitle="Link each truck to its technician — pick a driver to assign or swap, choose Unassigned to remove"
-        actions={<Link href="/fleet/map" className="text-xs font-medium text-brand-700 hover:underline">Live map →</Link>}
       />
 
       <div className="grid gap-3 grid-cols-3 mb-5">
@@ -113,7 +112,7 @@ export default async function DriverAssignmentsPage() {
 
       <p className="mt-4 text-xs text-muted">
         Drivers come from the active employee roster. New hires appear here automatically; a driver removed from the
-        roster stays visible on their truck until reassigned. Assignments show on the Live Map and each vehicle page.
+        roster stays visible on their truck until reassigned. Assignments show on each vehicle page.
       </p>
     </>
   );
