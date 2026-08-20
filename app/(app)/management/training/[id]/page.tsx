@@ -7,6 +7,7 @@ import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import { parseQuestions, STATUS_LABEL } from "@/lib/training";
 import { listEmployees } from "@/lib/people";
+import Markdown from "@/components/Markdown";
 import AssignClient from "./AssignClient";
 
 export const dynamic = "force-dynamic";
@@ -33,14 +34,19 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
       <div className="mb-2"><Link href="/management/training" className="text-xs font-medium text-brand-700 hover:underline">← Training</Link></div>
       <PageHeader title={course.title} subtitle={`${course.category === "onboarding" ? "Onboarding" : "CEU"} · ${questions.length} questions · pass ${course.passingScore}%`} />
 
-      <div className="grid gap-4 lg:grid-cols-2 mb-5">
-        <Card className="p-4">
-          <div className="text-sm font-medium text-ink mb-1">Lesson</div>
-          {course.description ? <p className="text-sm text-muted whitespace-pre-line">{course.description}</p> : <p className="text-sm text-muted">No summary.</p>}
-          {course.materialFile ? <a href={course.materialFile} target="_blank" className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">📎 {course.materialName ?? "Lesson material"}</a> : null}
-        </Card>
+      <div className="mb-5">
         <AssignClient courseId={course.id} employees={employees} assignedIds={[...assignedIds]} />
       </div>
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <div className="text-xs font-medium uppercase tracking-wide text-muted mb-3">Lesson preview — this is what the technician sees</div>
+        {course.description ? (
+          <Markdown className="max-w-none">{course.description}</Markdown>
+        ) : (
+          <p className="text-sm text-muted">No lesson body.</p>
+        )}
+        {course.materialFile ? <a href={course.materialFile} target="_blank" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">📎 {course.materialName ?? "Lesson material"}</a> : null}
+      </Card>
 
       <Card className="p-0 overflow-hidden">
         <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Assigned ({course.assignments.length})</div>
