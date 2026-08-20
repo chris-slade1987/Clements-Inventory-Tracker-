@@ -4,7 +4,7 @@
 
 # Roach Identification — *The Clements Way*
 
-General Household Pest Control · cockroach species identification, behavior & habits, and home detection.
+General Household Pest Control · cockroach species identification, behavior &amp; habits, and home detection.
 
 | Module | Duration | Format | Assessment |
 | :-- | :-- | :-- | :-- |
@@ -46,9 +46,9 @@ A cockroach is a flat, oval, fast-moving insect that has lived alongside people 
 - The ability to eat almost anything organic — food, grease, glue, soap, even paper
 - Fast reproduction, which is why a small problem can become a big one quickly
 
-![Cockroach anatomy — antennae, head, pronotum, wing covers, six legs, and cerci](/training/ghp-august/anatomy.svg)
-
 ### Parts to know
+
+![The parts used to identify a cockroach — antennae, head, pronotum, wings, six legs, and cerci](/training/ghp-august/photos/anatomy.jpg)
 
 | Body part | What it is | Why it matters for ID |
 | :-- | :-- | :-- |
@@ -62,15 +62,17 @@ A cockroach is a flat, oval, fast-moving insect that has lived alongside people 
 
 Cockroaches grow through three stages: **egg, nymph, and adult.** This is called *incomplete metamorphosis.* Unlike a caterpillar that transforms into a butterfly, a baby cockroach already looks like a small adult and simply grows larger with each molt.
 
-![The cockroach life cycle — egg case (ootheca) to nymph to adult](/training/ghp-august/life-cycle.svg)
+![Incomplete metamorphosis: egg case (ootheca) → nymph → winged adult](/training/ghp-august/photos/life-cycle-1.jpg)
 
 - **Egg** — a female produces an egg case called an *ootheca,* a small purse-like capsule that holds many eggs. Depending on the species she either carries it or glues it in a hidden spot.
 - **Nymph** — newly hatched roaches are wingless, smaller, and often darker than adults. As they grow they *molt* (shed their outer skin) several times. Each stage between molts is called an *instar.*
 - **Adult** — the fully grown roach, usually with wings, able to reproduce and start the cycle again.
 
+![A nymph (left) looks like a small, wingless version of the adult (right) and simply grows with each molt](/training/ghp-august/photos/life-cycle-2.jpg)
+
 > **Why it matters.** Eggs are protected inside the ootheca and survive many sprays. That is why one treatment is rarely enough — as the eggs hatch, a second wave appears. Lasting control uses **bait plus follow-up visits** to catch the newly hatched nymphs.
 
-## Cockroach biology & behavior — the basics
+## Cockroach biology &amp; behavior — the basics
 
 All cockroaches share a set of survival traits. Understanding these traits is what lets a technician predict where roaches are, *even before finding one.*
 
@@ -87,23 +89,35 @@ All cockroaches share a set of survival traits. Understanding these traits is wh
 
 These are the cockroaches Clements technicians encounter in homes. Learn to tell them apart on sight — size, color, and markings are usually enough.
 
-![The four species compared by relative size, color, and markings](/training/ghp-august/four-species.svg)
-
 ### German cockroach — the one you'll see most
+
+![German cockroach — small and tan with two dark parallel stripes behind the head](/training/ghp-august/photos/german.jpg)
+
 Small (about 1/2 to 5/8 inch), light tan to brown, with **two dark parallel stripes** running lengthwise behind the head. The most common indoor cockroach and the primary target of most residential work. Lives almost exclusively indoors, concentrated in kitchens and bathrooms near food, water, and warmth. Breeds rapidly and responds well to gel bait.
 
 ### American cockroach — the big one
+
+![American cockroach — large and reddish-brown with a pale yellowish figure-eight behind the head](/training/ghp-august/photos/american.jpg)
+
 Large (1-1/2 to 2 inches), reddish-brown, with a pale yellowish **figure-eight** marking behind the head. Often called a palmetto bug or water bug. Prefers warm, damp areas — basements, crawl spaces, sewers, drains, and utility areas — and often enters from outside or through drain lines.
 
 ### Oriental cockroach — the dark, damp-loving one
+
+![Oriental cockroach — shiny dark brown to black, with no stripes or markings](/training/ghp-august/photos/oriental.jpg)
+
 Medium (about 1 to 1-1/4 inches), shiny dark brown to black, with **no stripes or markings.** Prefers cool, damp, soggy places — drains, sewers, basements, crawl spaces, and mulch beds. Slow-moving and strongly tied to moisture; associated with a strong musty odor. Baits work poorly, so control targets moisture, drains, and harborage.
 
 ### Brown-banded cockroach — the one that hides high
+
+![Brown-banded cockroach — light brown with two lighter pale bands across the body](/training/ghp-august/photos/brown-banded.jpg)
+
 Small (about 1/2 inch), light brown with **two lighter pale bands** across the wings and abdomen. Unlike the others, it prefers dry, warm areas and spreads throughout the home — living rooms, bedrooms, closets, and up high in cabinets, behind picture frames, and near ceilings. Floor-level treatment misses them; you must treat high.
+
+![The four home cockroaches shown to scale, with a one-inch reference](/training/ghp-august/photos/species-compare.jpg)
 
 | Species | Size | Color / markings | Where it lives |
 | :-- | :-- | :-- | :-- |
-| **German** | 1/2–5/8 in | Tan; two dark stripes behind the head | Kitchens & bathrooms, indoors |
+| **German** | 1/2–5/8 in | Tan; two dark stripes behind the head | Kitchens &amp; bathrooms, indoors |
 | **American** | 1.5–2 in | Reddish-brown; yellowish figure-8 | Warm, damp; basements, drains |
 | **Oriental** | 1–1.25 in | Shiny dark brown/black; no stripes | Cool, damp; drains, crawl spaces |
 | **Brown-banded** | ~1/2 in | Light brown; two pale bands | Dry, warm; high and spread out |
@@ -117,6 +131,8 @@ Use this simple flow on site to narrow down the species quickly.
 3. **Look at color and markings.** Stripes, bands, a figure-8, or nothing? This is the deciding clue.
 4. **Confirm with location.** Does where you found it match the species? A matching location raises your confidence.
 
+![Quick field ID decision guide: confirm it's a roach, check the size, then read the markings to name the species](/training/ghp-august/photos/field-id.jpg)
+
 | If you see… | With… | It's most likely… |
 | :-- | :-- | :-- |
 | A small roach (~1/2 in) | Tan body, two dark stripes behind the head | **German** |
@@ -127,6 +143,8 @@ Use this simple flow on site to narrow down the species quickly.
 ## Is it even a roach? Common lookalikes
 
 Beginners — and customers — often mistake other insects for cockroaches. Before you build a treatment plan, make sure you are actually dealing with a roach.
+
+![Not every brown bug is a roach — an American cockroach (left), a beetle (center), and a cricket (right)](/training/ghp-august/photos/lookalikes.jpg)
 
 | Insect | Why it's confused with a roach | How to tell it apart |
 | :-- | :-- | :-- |
@@ -141,12 +159,14 @@ Beginners — and customers — often mistake other insects for cockroaches. Bef
 
 The German cockroach is the species you will treat most often, and the hardest to eliminate. It is worth knowing in detail.
 
-![German cockroach field mark — two dark stripes on the pronotum, behind the head](/training/ghp-august/german-id.svg)
-
 - **Reproduction:** a female carries her egg case (ootheca) attached to her body until about two days before it hatches. Each ootheca holds roughly 30–40 eggs, and a female produces 4–8 in her lifetime.
 - **Speed:** egg to breeding adult in about 6–10 weeks. This is why a small problem becomes a large one so quickly.
 - **Harborage:** tight, warm cracks near food and water — hinges and corners of cabinets, behind and under the refrigerator, dishwasher, and stove, under the sink, and inside the motor compartments of appliances.
 - **Why they persist:** because the female shelters the egg case, spraying surfaces often kills adults while eggs survive to repopulate. Consistent **baiting and sanitation** — not just contact spray — is what breaks the cycle.
+
+![Why speed matters — one female German cockroach and her offspring can grow into the tens of thousands within a year](/training/ghp-august/photos/german-harborage-1.jpg)
+
+![A German cockroach beside its egg case (ootheca) — she shelters it until just before it hatches, which is why contact spray alone leaves the eggs to repopulate](/training/ghp-august/photos/german-harborage-2.jpg)
 
 ## How to tell if roaches are in a home
 
@@ -160,18 +180,22 @@ You will rarely be handed a live roach. The professional standard is confirming 
 - **Shed skins** — roaches molt several times as they grow, leaving pale, translucent cast skins near harborage.
 - **Smear marks** — in very damp, heavy infestations, dark irregular smears appear along travel routes on walls and surfaces.
 - **Odor** — established populations give off a distinctive musty, oily smell; a strong odor signals a large or long-standing infestation.
-- **Damage & residue** — chewed food packaging and grease or feeding residue in cabinets and around appliances.
+- **Damage &amp; residue** — chewed food packaging and grease or feeding residue in cabinets and around appliances.
 
-![Where to inspect first — appliance backs, under sinks, drains & crawl spaces, and high cabinets](/training/ghp-august/inspection-zones.svg)
+![Signs of activity — pepper-like droppings and shed egg cases collected in a cabinet corner](/training/ghp-august/photos/signs-1.jpg)
+
+![Shed skins (pale cast skins) left behind near harborage as nymphs molt and grow](/training/ghp-august/photos/signs-2.jpg)
 
 ### Where to inspect first
 
+![Where they hide: high &amp; dry (brown-banded), main living / kitchens &amp; baths (German), and low &amp; damp (American &amp; Oriental)](/training/ghp-august/photos/inspect.jpg)
+
 | Inspection zone | What to look for | Why |
 | :-- | :-- | :-- |
-| Under & behind kitchen appliances | Droppings, egg cases, live roaches, warmth | Warmth + food + tight space = prime German harborage |
-| Under sinks & around plumbing | Moisture, droppings, smears | Water source and pipe penetrations for entry |
-| Cabinet corners, hinges & drawer tracks | Pepper-like specks, shed skins, capsules | Tight cracks where German roaches aggregate |
-| Drains, floor drains & crawl spaces | Large dark roaches, musty odor | American & Oriental breeding and entry |
+| Under &amp; behind kitchen appliances | Droppings, egg cases, live roaches, warmth | Warmth + food + tight space = prime German harborage |
+| Under sinks &amp; around plumbing | Moisture, droppings, smears | Water source and pipe penetrations for entry |
+| Cabinet corners, hinges &amp; drawer tracks | Pepper-like specks, shed skins, capsules | Tight cracks where German roaches aggregate |
+| Drains, floor drains &amp; crawl spaces | Large dark roaches, musty odor | American &amp; Oriental breeding and entry |
 | High cabinets, ceilings, behind frames | Pale bands, capsules glued high up | Brown-banded roaches live and breed up high |
 
 > **Field note.** Bring a flashlight and check corners, not just open surfaces. The heaviest activity is almost always in the tightest, darkest, warmest crack you didn't want to reach into.
