@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked, scopedBranch } from "@/lib/auth";
 import { money } from "@/lib/format";
 import {
   BRANCHES,
@@ -20,6 +20,8 @@ import {
 import Controls from "./Controls";
 import { Waterfall, GroupedBars, Donut, AreaTrend, BudgetVsForecast } from "@/components/charts";
 import { branchKpiMonthly, BRANCH_KPI_LABEL, BRANCH_KPI_KEYS } from "@/lib/branch-kpis";
+import { buildBranchPnlPayload } from "@/lib/branch-pnl";
+import BranchPnlClient from "./branch-pnl/BranchPnlClient";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +34,7 @@ export default async function ManagementPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
 
   const periods = await listPeriods();
@@ -56,7 +58,10 @@ export default async function ManagementPage({
   const period = (await resolvePeriod(sp.p))!;
   const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
   const basis: Basis = sp.basis === "ytd" ? "ytd" : "month";
-  const scope: Scope = (BRANCHES.find((b) => b.key === sp.scope)?.key ?? "company") as Scope;
+  const locked = branchLocked(user);
+  const requestedScope = BRANCHES.find((b) => b.key === sp.scope)?.key ?? null;
+  // Branch-locked managers land on and are pinned to their own branch; admins/exec default to company.
+  const scope: Scope = (locked ? (scopedBranch(user, requestedScope) ?? "company") : (requestedScope ?? "company")) as Scope;
   const isCompany = scope === "company";
 
   const [cat, values, lob, techs] = await Promise.all([
@@ -66,6 +71,11 @@ export default async function ManagementPage({
     isCompany ? Promise.resolve([]) : techProduction(period.id, scope),
   ]);
   const bookTrend = await trend("book_value", "company", "month");
+
+  // Branch scope: the full Branch P&L (budget-vs-actual tiles / charts / table +
+  // book growth) is now rendered inline here, consolidating the former separate
+  // /management/branch-pnl page into one branch view.
+  const branchPnl = !isCompany ? await buildBranchPnlPayload(values, scope, locked) : null;
 
   // Monthly budget-vs-actual + forward-forecast series for the three headline
   // branch categories (company = Σ branches), from the 2026 Branch KPIs workbook.
@@ -125,8 +135,8 @@ export default async function ManagementPage({
           title="Management"
           subtitle={`Budget vs actual · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
           actions={
-            <Link href="/management/branch-pnl" className="text-sm font-medium text-brand-700 hover:underline">
-              Branch P&L →
+            <Link href={branchLink(BRANCHES[0].key)} className="text-sm font-medium text-brand-700 hover:underline">
+              Branch detail →
             </Link>
           }
         />
@@ -172,7 +182,7 @@ export default async function ManagementPage({
               <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
               Budget vs actual · company · {basisLabel}
             </h2>
-            <Link href="/management/branch-pnl" className="text-xs font-medium text-brand-700 hover:underline">
+            <Link href={branchLink(BRANCHES[0].key)} className="text-xs font-medium text-brand-700 hover:underline">
               By branch →
             </Link>
           </div>
@@ -219,6 +229,13 @@ export default async function ManagementPage({
           </Link>
         ) : null}
       </div>
+
+      {/* Branch P&L — budget vs actual (consolidated from the former Branch P&L page) */}
+      {branchPnl ? (
+        <div className="mb-6">
+          <BranchPnlClient payload={branchPnl} />
+        </div>
+      ) : null}
 
       {/* Headline KPI strip */}
       {headline.length > 0 ? (

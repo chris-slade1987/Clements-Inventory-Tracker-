@@ -288,12 +288,6 @@ export const MANAGEMENT_NAV: NavItem[] = [
     icon: "M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11",
   },
   {
-    href: "/management/branch-pnl",
-    label: "Branch P&L",
-    shortLabel: "P&L",
-    icon: "M4 20V4m0 16h16M8 16v-5m4 5V8m4 8v-3M4 8l4-3 4 4 5-5",
-  },
-  {
     href: "/management/audits",
     label: "Branch Audits",
     shortLabel: "Audits",
