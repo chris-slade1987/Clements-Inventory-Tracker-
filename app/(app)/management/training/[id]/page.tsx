@@ -34,7 +34,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
       <div className="mb-2"><Link href="/management/training" className="text-xs font-medium text-brand-700 hover:underline">← Training</Link></div>
       <div className="flex items-start justify-between gap-3">
         <PageHeader title={course.title} subtitle={`${course.category === "onboarding" ? "Onboarding" : "CEU"} · ${questions.length} questions · pass ${course.passingScore}%`} />
-        <Link href={`/management/training/${course.id}/edit`} className={`${btn.secondary} shrink-0`}>Edit course</Link>
+        <div className="flex shrink-0 gap-2">
+          <Link href={`/management/training/${course.id}/preview`} className={btn.primary}>Preview course</Link>
+          <Link href={`/management/training/${course.id}/edit`} className={btn.secondary}>Edit</Link>
+        </div>
       </div>
 
       <div className="mb-5">

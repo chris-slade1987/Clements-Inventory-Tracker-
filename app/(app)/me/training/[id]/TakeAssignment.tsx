@@ -8,10 +8,12 @@ import type { Question } from "@/lib/training";
 
 export default function TakeAssignment({
   id, completed, passingScore, description, materialFile, materialName, questions, savedAnswers, savedScore,
+  preview = false, backHref = "/me",
 }: {
   id: string; completed: boolean; passingScore: number;
   description: string | null; materialFile: string | null; materialName: string | null;
   questions: Question[]; savedAnswers: Record<string, number>; savedScore: number | null;
+  preview?: boolean; backHref?: string;
 }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, number>>(savedAnswers);
@@ -19,17 +21,27 @@ export default function TakeAssignment({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ score: number; passed: boolean; correct: number; total: number } | null>(null);
 
-  // Mark started on first open (if not already completed).
+  // Mark started on first open (if not already completed). Skipped in preview.
   useEffect(() => {
-    if (!completed) fetch("/api/training/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action: "start" }) }).catch(() => {});
-  }, [id, completed]);
+    if (!completed && !preview) fetch("/api/training/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action: "start" }) }).catch(() => {});
+  }, [id, completed, preview]);
 
   const reviewing = completed || !!result;
   const allAnswered = questions.every((_, i) => answers[String(i)] != null);
 
   async function submit() {
     if (!allAnswered) return setError("Answer every question first.");
-    setBusy(true); setError(null);
+    setError(null);
+    // Preview mode: grade locally, never touch the API or persist anything.
+    if (preview) {
+      const total = questions.length;
+      let correct = 0;
+      questions.forEach((q, i) => { if (answers[String(i)] === q.correctIndex) correct++; });
+      const score = total ? Math.round((correct / total) * 100) : 100;
+      setResult({ score, passed: score >= passingScore, correct, total });
+      return;
+    }
+    setBusy(true);
     const res = await fetch("/api/training/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action: "submit", answers }) });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -59,7 +71,7 @@ export default function TakeAssignment({
             {completed && !result ? `Completed — ${savedScore}%` : result?.passed ? `Passed — ${result.score}%` : `Not passed — ${result?.score}% (need ${passingScore}%)`}
           </div>
           <p className="text-xs text-muted mt-0.5">
-            {reviewing ? "Correct answers are marked below. A copy was emailed to you." : ""}
+            {reviewing ? (preview ? "Correct answers are marked below. Preview mode — nothing is saved or emailed." : "Correct answers are marked below. A copy was emailed to you.") : ""}
             {result && !result.passed ? " You can review the lesson and try again." : ""}
           </p>
         </Card>
@@ -90,11 +102,11 @@ export default function TakeAssignment({
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       {!reviewing ? (
-        <button onClick={submit} disabled={busy} className={`${btn.primary} w-full`}>{busy ? "Submitting…" : "Submit quiz"}</button>
+        <button onClick={submit} disabled={busy} className={`${btn.primary} w-full`}>{busy ? "Submitting…" : preview ? "Submit quiz (preview)" : "Submit quiz"}</button>
       ) : result && !result.passed ? (
         <button onClick={() => { setResult(null); setAnswers({}); }} className={`${btn.primary} w-full`}>Try again</button>
       ) : (
-        <button onClick={() => router.push("/me")} className={`${btn.secondary} w-full`}>Back to My Work</button>
+        <button onClick={() => router.push(backHref)} className={`${btn.secondary} w-full`}>{preview ? "Back to course" : "Back to My Work"}</button>
       )}
     </div>
   );
