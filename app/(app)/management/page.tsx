@@ -270,42 +270,50 @@ export default async function ManagementPage({
           </Card>
         ) : null}
 
-        {/* Route contribution detail */}
-        <Card className="p-0 overflow-hidden">
-          <PanelHead>Route contribution · {basisLabel}</PanelHead>
-          <KpiTable
-            values={values} cat={cat} scope={scope} basis={basis}
-            keys={["tech_wages", "fuel", "chemical_expense", "vehicle_rm", "route_contrib", "route_contrib_pct"]}
-          />
-          {get("chemical_expense").actual != null ? (
-            <div className="px-4 py-2 border-t border-line text-[11px] text-muted">
-              Chemical expense ties to inventory purchases —{" "}
-              <Link href="/dashboard" className="text-brand-700 hover:underline">see inventory spend</Link>.
+        {/* Route contribution detail — company view only (the branch P&L above
+            already covers tech wages / fuel / chemical for a branch). */}
+        {isCompany ? (
+          <Card className="p-0 overflow-hidden">
+            <PanelHead>Route contribution · {basisLabel}</PanelHead>
+            <KpiTable
+              values={values} cat={cat} scope={scope} basis={basis}
+              keys={["tech_wages", "fuel", "chemical_expense", "vehicle_rm", "route_contrib", "route_contrib_pct"]}
+            />
+            {get("chemical_expense").actual != null ? (
+              <div className="px-4 py-2 border-t border-line text-[11px] text-muted">
+                Chemical expense ties to inventory purchases —{" "}
+                <Link href="/dashboard" className="text-brand-700 hover:underline">see inventory spend</Link>.
+              </div>
+            ) : null}
+          </Card>
+        ) : null}
+
+        {/* New sales & attrition — company view only (branch new-sales + attrition
+            are already on the branch P&L / headline above). */}
+        {isCompany ? (
+          <Card className="p-0 overflow-hidden">
+            <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+              <span className="text-sm font-medium text-ink">New sales & attrition · {basisLabel}</span>
+              <Link href={`/management/sales?p=${periodKey}&basis=${basis}`} className="text-xs font-medium text-brand-700 hover:underline">
+                Full detail →
+              </Link>
             </div>
-          ) : null}
-        </Card>
+            <KpiTable
+              values={values} cat={cat} scope={scope} basis={basis}
+              keys={["new_sales", "attrition", "attrition_rate"]}
+            />
+          </Card>
+        ) : null}
 
-        {/* New sales & attrition — summary; full detail on its own dashboard */}
-        <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <span className="text-sm font-medium text-ink">New sales & attrition · {basisLabel}</span>
-            <Link href={`/management/sales?p=${periodKey}&basis=${basis}`} className="text-xs font-medium text-brand-700 hover:underline">
-              Full detail →
-            </Link>
-          </div>
-          <KpiTable
-            values={values} cat={cat} scope={scope} basis={basis}
-            keys={["new_sales", "attrition", "attrition_rate"]}
-          />
-        </Card>
-
-        {/* Forward book value trend */}
-        <Card className="p-4">
-          <PanelTitle>Forward 12-mo book value</PanelTitle>
-          <div className="mt-2">
-            <AreaTrend points={bookTrend.map((r) => ({ label: r.label.replace(" 2026", ""), value: r.actual, budget: r.budget }))} />
-          </div>
-        </Card>
+        {/* Forward book value trend — company-level metric; company view only. */}
+        {isCompany ? (
+          <Card className="p-4">
+            <PanelTitle>Forward 12-mo book value</PanelTitle>
+            <div className="mt-2">
+              <AreaTrend points={bookTrend.map((r) => ({ label: r.label.replace(" 2026", ""), value: r.actual, budget: r.budget }))} />
+            </div>
+          </Card>
+        ) : null}
 
         {/* Revenue by line of business */}
         <Card className="p-4 lg:col-span-2">
