@@ -3,6 +3,7 @@ import { Card, PageHeader, EmptyState, btn } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { listCourses, branchTrainingStatus } from "@/lib/training";
+import SeedGhpButton from "./SeedGhpButton";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,10 @@ export default async function TrainingAdminPage() {
         <Tile label="Outstanding" value={String(status.counts.notStarted + status.counts.inProgress)} tone={status.counts.notStarted + status.counts.inProgress ? "warn" : "good"} />
       </div>
 
-      <div className="mb-4"><Link href="/management/training/new" className={btn.primary}>+ New course</Link></div>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Link href="/management/training/new" className={btn.primary}>+ New course</Link>
+        <SeedGhpButton />
+      </div>
 
       {courses.length === 0 ? (
         <EmptyState title="No courses yet" hint="Create a course, then assign it to employees." />

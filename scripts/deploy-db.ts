@@ -74,6 +74,32 @@ async function main() {
       );
     }
 
+    // GHP CEU — "Roach Identification — The Clements Way" — seeded FIRST, right
+    // after the core seed, so NOTHING downstream can preempt it: deploy-db runs
+    // many seeds in sequence and an un-wrapped throw exits the script (green
+    // deploy, but every later step skipped). Only the schema push + core seed
+    // precede this. Idempotent by title: creates the course if missing,
+    // self-heals a stale/placeholder body to the photo version (even if it was
+    // content-locked by testing Edit), assigns to active technicians, and
+    // retires the old sample placeholder course. NON-FATAL.
+    try {
+      const { seedTrainingGhp } = await import("../prisma/seed-training-ghp");
+      const g = await seedTrainingGhp(prisma);
+      const state = g.created ? "CREATED" : g.locked ? "content-locked (left as-is)" : "refreshed";
+      console.log(
+        `deploy-db: GHP roach-ID CEU — ${state} (${g.bodyChars}c body, ${g.questions} questions); ` +
+          `assigned to ${g.assigned} new of ${g.technicians} technician(s).`,
+      );
+      const sample = await prisma.course.findFirst({ where: { title: "Monthly Safety Refresher — Pesticide Handling" } });
+      if (sample) {
+        await prisma.trainingAssignment.deleteMany({ where: { courseId: sample.id } });
+        await prisma.course.delete({ where: { id: sample.id } });
+        console.log("deploy-db: retired the demo sample training course (Monthly Safety Refresher).");
+      }
+    } catch (e) {
+      console.error("deploy-db: GHP CEU seed FAILED (non-fatal):", e);
+    }
+
     // One-time admin password reset / ensure — gated by an env var the operator
     // sets in Vercel and REMOVES afterward. Recovers a forgotten owner password
     // AND a missing owner account (e.g. a re-seeded DB). Sets super_admin + active.
@@ -260,33 +286,6 @@ async function main() {
       const { syncEmployeeContacts } = await import("../prisma/seed-employees");
       const s = await syncEmployeeContacts(prisma);
       console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
-    }
-
-    // Reconcile the August 2026 GHP CEU — "Roach Identification — The Clements
-    // Way" — RIGHT AFTER employees exist and BEFORE the later seeds, so a
-    // failure in any of those can never skip this (a later un-wrapped seed that
-    // throws exits the script early). Idempotent by title: creates the course if
-    // missing, self-heals a stale/placeholder body to the photo version, and
-    // assigns to active technicians. Then retires the old sample placeholder
-    // course so it can't be mistaken for this one. NON-FATAL.
-    try {
-      const { seedTrainingGhp } = await import("../prisma/seed-training-ghp");
-      const g = await seedTrainingGhp(prisma);
-      const state = g.created ? "CREATED" : g.locked ? "content-locked (portal-edited, left as-is)" : "refreshed";
-      console.log(
-        `deploy-db: GHP roach-ID CEU — ${state} (${g.bodyChars}c body, ${g.questions} questions); ` +
-          `assigned to ${g.assigned} new of ${g.technicians} technician(s).`,
-      );
-      // Retire the old demo sample course ("Monthly Safety Refresher") so the
-      // Training list shows the real course, not a quiz-only placeholder.
-      const sample = await prisma.course.findFirst({ where: { title: "Monthly Safety Refresher — Pesticide Handling" } });
-      if (sample) {
-        await prisma.trainingAssignment.deleteMany({ where: { courseId: sample.id } });
-        await prisma.course.delete({ where: { id: sample.id } });
-        console.log("deploy-db: retired the demo sample training course (Monthly Safety Refresher).");
-      }
-    } catch (e) {
-      console.error("deploy-db: GHP CEU seed FAILED (non-fatal):", e);
     }
 
     // Bootstrap the org-chart reporting lines (non-destructive; only fills a blank
