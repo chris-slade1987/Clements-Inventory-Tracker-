@@ -33,13 +33,20 @@ export default function NotificationBell({
   }
 
   useEffect(() => {
-    refresh();
-    const id = setInterval(refresh, 45000);
-    const onFocus = () => refresh();
-    window.addEventListener("focus", onFocus);
+    // Poll only while the tab is actually visible — a backgrounded tab must not
+    // keep hitting the server (that multiplies serverless invocations across
+    // every open tab all day). Poll every 2 min, and refresh once when the tab
+    // becomes visible again or on navigation.
+    let id: ReturnType<typeof setInterval> | undefined;
+    const stop = () => { if (id) { clearInterval(id); id = undefined; } };
+    const start = () => { stop(); if (!document.hidden) id = setInterval(refresh, 120000); };
+    const onVis = () => { if (document.hidden) stop(); else { refresh(); start(); } };
+    if (!document.hidden) refresh();
+    start();
+    document.addEventListener("visibilitychange", onVis);
     return () => {
-      clearInterval(id);
-      window.removeEventListener("focus", onFocus);
+      stop();
+      document.removeEventListener("visibilitychange", onVis);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
