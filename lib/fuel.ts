@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { readXlsxGrids, gridRows } from "@/lib/xlsx";
+import { BRANCHES } from "@/lib/management";
 
 // Coast fuel-card statements. Each .xlsx is one monthly statement: a small
 // header block, then a transaction table (header row contains "Vehicle" and
@@ -607,19 +608,35 @@ export async function fuelByBranch(year: number, month: number): Promise<Record<
   const ytdStart = new Date(Date.UTC(year, 0, 1));
   const monthStart = new Date(Date.UTC(year, month - 1, 1));
   const end = new Date(Date.UTC(year, month, 1)); // exclusive — first day of the next month
+  // Attribute by the LINKED vehicle's branch key first; fall back to the row's
+  // own location string (Coast writes "Vero Beach" — mapped to "vero") so
+  // unlinked or location-tagged purchases still count. Includes ALL positive
+  // rows in the window, not just vehicle-linked ones.
   const rows = await prisma.fuelTransaction.findMany({
-    where: { vehicleId: { not: null }, amount: { gt: 0 }, date: { gte: ytdStart, lt: end } },
-    select: { amount: true, date: true, vehicle: { select: { branch: true } } },
+    where: { amount: { gt: 0 }, date: { gte: ytdStart, lt: end } },
+    select: { amount: true, date: true, branch: true, vehicle: { select: { branch: true } } },
   });
   const out: Record<string, { month: number; ytd: number }> = {};
   for (const r of rows) {
-    const b = r.vehicle?.branch;
-    if (!b) continue;
-    const bucket = (out[b] ??= { month: 0, ytd: 0 });
+    const key = fuelBranchKey(r.vehicle?.branch, r.branch);
+    if (!key) continue;
+    const bucket = (out[key] ??= { month: 0, ytd: 0 });
     bucket.ytd += r.amount;
     if (r.date.getTime() >= monthStart.getTime()) bucket.month += r.amount;
   }
   return out;
+}
+
+/** Resolve a fuel row to a canonical branch key from the linked vehicle's branch
+ *  (already a key) or the row's free-text location ("Vero Beach" → "vero"). */
+function fuelBranchKey(vehicleBranch: string | null | undefined, txnBranch: string | null | undefined): string | null {
+  if (vehicleBranch && BRANCHES.some((b) => b.key === vehicleBranch)) return vehicleBranch;
+  const s = (txnBranch ?? "").trim().toLowerCase();
+  if (!s) return null;
+  for (const b of BRANCHES) {
+    if (s === b.key || s === b.label.toLowerCase() || s.includes(b.key) || s.includes(b.label.toLowerCase())) return b.key;
+  }
+  return null;
 }
 
 export async function fleetFuelRows(branch?: string | null) {
