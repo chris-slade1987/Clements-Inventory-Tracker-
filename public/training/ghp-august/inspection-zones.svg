@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 440" role="img" aria-label="Where to inspect: appliance backs, under sinks, drains and crawl spaces, and high cabinets">
+  <rect width="780" height="440" fill="#ffffff"/>
+  <text x="390" y="36" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" fill="#0f172a">Where to Inspect First</text>
+  <text x="390" y="58" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#64748b">Warmth + moisture + food + a tight crack = harborage. Bring a flashlight.</text>
+
+  <!-- house shell -->
+  <g stroke="#cbd5e1" stroke-width="2" fill="#f8fafc">
+    <rect x="90" y="120" width="600" height="250"/>
+    <line x1="90" y1="250" x2="690" y2="250"/>
+  </g>
+  <polygon points="90,120 390,70 690,120" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+
+  <!-- high cabinets zone (upper) -->
+  <g>
+    <rect x="470" y="140" width="190" height="46" rx="6" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5"/>
+    <circle cx="493" cy="163" r="9" fill="#f59e0b"/><text x="493" y="167" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#fff">4</text>
+    <text x="512" y="160" font-family="Arial" font-size="12" font-weight="bold" fill="#7c2d12">High cabinets &amp;</text>
+    <text x="512" y="176" font-family="Arial" font-size="12" font-weight="bold" fill="#7c2d12">behind frames</text>
+  </g>
+
+  <!-- appliance (fridge/stove) zone -->
+  <g>
+    <rect x="120" y="150" width="60" height="100" fill="#e2e8f0" stroke="#94a3b8"/>
+    <rect x="126" y="180" width="48" height="66" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <circle cx="150" cy="140" r="9" fill="#059669"/><text x="150" y="144" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#fff">1</text>
+  </g>
+
+  <!-- under sink zone -->
+  <g>
+    <rect x="250" y="215" width="90" height="35" fill="#e2e8f0" stroke="#94a3b8"/>
+    <rect x="285" y="200" width="20" height="16" fill="#94a3b8"/>
+    <circle cx="295" cy="272" r="9" fill="#0ea5e9"/><text x="295" y="276" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#fff">2</text>
+    <path d="M295,250 l0,14" stroke="#0ea5e9" stroke-width="2"/>
+  </g>
+
+  <!-- drains / crawl space (lower) -->
+  <g>
+    <rect x="90" y="300" width="600" height="70" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <circle cx="150" cy="335" r="9" fill="#334155"/><text x="150" y="339" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#fff">3</text>
+    <text x="170" y="332" font-family="Arial" font-size="12" font-weight="bold" fill="#334155">Drains, floor drains &amp; crawl space</text>
+    <text x="170" y="349" font-family="Arial" font-size="11" fill="#64748b">large dark roaches, musty odor — American &amp; Oriental</text>
+  </g>
+
+  <!-- legend -->
+  <g font-family="Arial, Helvetica, sans-serif" font-size="12.5">
+    <g><circle cx="110" cy="398" r="8" fill="#059669"/><text x="126" y="402" fill="#0f172a"><tspan font-weight="bold">1</tspan> Under &amp; behind kitchen appliances — prime German harborage</text></g>
+    <g><circle cx="110" cy="420" r="8" fill="#0ea5e9"/><text x="126" y="424" fill="#0f172a"><tspan font-weight="bold">2</tspan> Under sinks &amp; around plumbing — water + pipe entry points</text></g>
+    <g><circle cx="470" cy="398" r="8" fill="#334155"/><text x="486" y="402" fill="#0f172a"><tspan font-weight="bold">3</tspan> Drains &amp; crawl spaces</text></g>
+    <g><circle cx="470" cy="420" r="8" fill="#f59e0b"/><text x="486" y="424" fill="#0f172a"><tspan font-weight="bold">4</tspan> High cabinets &amp; ceilings — brown-banded</text></g>
+  </g>
+</svg>

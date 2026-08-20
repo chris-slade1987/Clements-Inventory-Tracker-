@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" role="img" aria-label="German cockroach field mark: two dark parallel stripes behind the head">
+  <rect width="720" height="380" fill="#ffffff"/>
+  <text x="360" y="36" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" fill="#0f172a">The German Cockroach — Field Mark</text>
+  <text x="360" y="58" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#64748b">Small · tan · TWO dark parallel stripes running lengthwise behind the head</text>
+
+  <!-- enlarged German cockroach -->
+  <g transform="translate(300 220)">
+    <g stroke="#a87236" stroke-width="6" stroke-linecap="round" fill="none">
+      <path d="M-48,-70 C -100,-104 -140,-112 -170,-108"/>
+      <path d="M-54,-8 C -110,-18 -150,-12 -182,-2"/>
+      <path d="M-48,54 C -100,80 -138,108 -160,136"/>
+      <path d="M48,-70 C 100,-104 140,-112 170,-108"/>
+      <path d="M54,-8 C 110,-18 150,-12 182,-2"/>
+      <path d="M48,54 C 100,80 138,108 160,136"/>
+    </g>
+    <ellipse cx="0" cy="34" rx="64" ry="108" fill="#c79a5b"/>
+    <path d="M0,-46 C 52,-34 66,54 26,130 L0,104 Z" fill="#b98a45"/>
+    <path d="M0,-46 C -52,-34 -66,54 -26,130 L0,104 Z" fill="#c2914e"/>
+    <!-- pronotum with the two dark stripes -->
+    <ellipse cx="0" cy="-78" rx="50" ry="40" fill="#b98a45"/>
+    <rect x="-20" y="-108" width="13" height="58" rx="4" fill="#4b3016"/>
+    <rect x="7" y="-108" width="13" height="58" rx="4" fill="#4b3016"/>
+    <!-- head -->
+    <ellipse cx="0" cy="-124" rx="22" ry="18" fill="#8a5a2b"/>
+    <g stroke="#8a5a2b" stroke-width="5" fill="none" stroke-linecap="round">
+      <path d="M-12,-138 C -60,-180 -104,-190 -132,-178"/>
+      <path d="M12,-138 C 60,-180 104,-190 132,-178"/>
+    </g>
+  </g>
+
+  <!-- callout to the stripes -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <line x1="470" y1="120" x2="315" y2="128" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="300" cy="130" r="46" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <rect x="470" y="98" width="230" height="70" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="485" y="124" font-size="15" font-weight="bold" fill="#b91c1c">Two dark stripes</text>
+    <text x="485" y="145" font-size="12" fill="#7f1d1d">on the pronotum, behind</text>
+    <text x="485" y="160" font-size="12" fill="#7f1d1d">the head — the key clue</text>
+  </g>
+</svg>

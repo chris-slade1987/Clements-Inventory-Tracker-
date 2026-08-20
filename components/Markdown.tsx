@@ -52,8 +52,9 @@ function safeHref(href: string): string | null {
 }
 
 function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
-  // Tokenize on: **bold**, *italic*, `code`, [label](href)
-  const pattern = /(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
+  // Tokenize on: ![alt](src) image, **bold**, *italic*, `code`, [label](href).
+  // The image alternative comes first so `![…](…)` isn't mis-read as a link.
+  const pattern = /(!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
   const nodes: React.ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
@@ -62,7 +63,12 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     if (m.index > last) nodes.push(text.slice(last, m.index));
     const tok = m[0];
     const key = `${keyPrefix}-${i++}`;
-    if (tok.startsWith("**")) {
+    if (tok.startsWith("![")) {
+      const im = /^!\[([^\]]*)\]\(([^)]+)\)$/.exec(tok)!;
+      const src = safeHref(im[2]);
+      if (src) nodes.push(<img key={key} src={src} alt={im[1]} className="inline-block max-w-full rounded" />);
+      else nodes.push(im[1]);
+    } else if (tok.startsWith("**")) {
       nodes.push(<strong key={key} className="font-semibold text-ink">{tok.slice(2, -2)}</strong>);
     } else if (tok.startsWith("*")) {
       nodes.push(<em key={key}>{tok.slice(1, -1)}</em>);
@@ -131,6 +137,55 @@ function renderList(node: ListNode, key: string): React.ReactNode {
   );
 }
 
+// ---- tables ---------------------------------------------------------------
+
+// A GitHub-style pipe table is a header row, a separator row of dashes
+// (`| --- | :-: |`), then body rows. Cells are split on unescaped pipes.
+const tableSep = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$/;
+
+function splitRow(line: string): string[] {
+  let s = line.trim();
+  if (s.startsWith("|")) s = s.slice(1);
+  if (s.endsWith("|")) s = s.slice(0, -1);
+  return s.split("|").map((c) => c.trim());
+}
+
+function parseTable(lines: string[], start: number): [React.ReactNode, number] | null {
+  const header = lines[start];
+  const sep = lines[start + 1];
+  if (!header || !sep || !header.includes("|") || !tableSep.test(sep)) return null;
+  const heads = splitRow(header);
+  const rows: string[][] = [];
+  let i = start + 2;
+  while (i < lines.length && lines[i].includes("|") && lines[i].trim() !== "") {
+    rows.push(splitRow(lines[i]));
+    i++;
+  }
+  const node = (
+    <div className="my-4 overflow-x-auto rounded-lg border border-line">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-slate-50">
+            {heads.map((h, hi) => (
+              <th key={hi} className="border-b border-line px-3 py-2 text-left font-semibold text-ink align-top">{renderInline(h, `th-${start}-${hi}`)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, ri) => (
+            <tr key={ri} className={ri % 2 ? "bg-slate-50/40" : ""}>
+              {heads.map((_, ci) => (
+                <td key={ci} className="border-b border-line px-3 py-2 text-slate-700 align-top">{renderInline(r[ci] ?? "", `td-${start}-${ri}-${ci}`)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+  return [node, i];
+}
+
 export default function Markdown({ children, className = "" }: { children: string; className?: string }) {
   const slugger = new Slugger();
   const lines = children.replace(/\r\n/g, "\n").split("\n");
@@ -166,6 +221,32 @@ export default function Markdown({ children, className = "" }: { children: strin
       continue;
     }
 
+    // table (header row + dash separator + body rows)
+    if (line.includes("|") && i + 1 < lines.length && tableSep.test(lines[i + 1])) {
+      const t = parseTable(lines, i);
+      if (t) {
+        blocks.push(<React.Fragment key={key++}>{t[0]}</React.Fragment>);
+        i = t[1];
+        continue;
+      }
+    }
+
+    // standalone image → figure with caption (from alt text)
+    const imgOnly = /^!\[([^\]]*)\]\(([^)]+)\)$/.exec(line.trim());
+    if (imgOnly) {
+      const src = safeHref(imgOnly[2]);
+      if (src) {
+        blocks.push(
+          <figure key={key++} className="my-5">
+            <img src={src} alt={imgOnly[1]} className="w-full rounded-xl border border-line bg-white" />
+            {imgOnly[1] ? <figcaption className="mt-2 text-center text-xs text-muted">{imgOnly[1]}</figcaption> : null}
+          </figure>,
+        );
+      }
+      i++;
+      continue;
+    }
+
     // blockquote (portal callouts)
     if (/^\s*>/.test(line)) {
       const quote: string[] = [];
@@ -197,6 +278,8 @@ export default function Markdown({ children, className = "" }: { children: strin
     while (i < lines.length) {
       const l = lines[i];
       if (l.trim() === "" || /^(#{1,6})\s+/.test(l) || /^\s*>/.test(l) || itemRe.test(l) || /^---+$/.test(l.trim())) break;
+      if (/^!\[[^\]]*\]\([^)]+\)$/.test(l.trim())) break; // standalone image
+      if (l.includes("|") && i + 1 < lines.length && tableSep.test(lines[i + 1])) break; // table start
       para.push(l.trim());
       i++;
     }

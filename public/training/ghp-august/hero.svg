@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="Roach Identification — The Clements Way">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b3d2e"/>
+      <stop offset="0.55" stop-color="#0f5132"/>
+      <stop offset="1" stop-color="#065f46"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#10b981" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect width="1200" height="420" fill="url(#glow)"/>
+  <!-- faint grid -->
+  <g stroke="#ffffff" stroke-opacity="0.05">
+    <line x1="0" y1="105" x2="1200" y2="105"/><line x1="0" y1="210" x2="1200" y2="210"/><line x1="0" y1="315" x2="1200" y2="315"/>
+  </g>
+  <!-- large roach silhouette on the right -->
+  <g transform="translate(960 210) rotate(24)" fill="#ffffff" fill-opacity="0.10" stroke="#ffffff" stroke-opacity="0.12">
+    <ellipse cx="0" cy="30" rx="95" ry="150"/>
+    <ellipse cx="0" cy="-95" rx="70" ry="55"/>
+    <ellipse cx="0" cy="-150" rx="34" ry="28"/>
+    <g stroke="#ffffff" stroke-opacity="0.18" stroke-width="7" fill="none" stroke-linecap="round">
+      <path d="M-20,-168 C -80,-235 -150,-250 -205,-235"/>
+      <path d="M20,-168 C 80,-235 150,-250 205,-235"/>
+      <line x1="-60" y1="-40" x2="-160" y2="-95"/>
+      <line x1="-70" y1="30" x2="-175" y2="20"/>
+      <line x1="-60" y1="95" x2="-155" y2="140"/>
+      <line x1="60" y1="-40" x2="160" y2="-95"/>
+      <line x1="70" y1="30" x2="175" y2="20"/>
+      <line x1="60" y1="95" x2="155" y2="140"/>
+    </g>
+  </g>
+  <!-- text -->
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#ffffff">
+    <text x="80" y="120" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="6" fill="#a7f3d0">CLEMENTS · GHP TECHNICIAN TRAINING</text>
+    <text x="78" y="215" font-size="76" font-weight="bold">Roach Identification</text>
+    <text x="80" y="262" font-family="Arial, Helvetica, sans-serif" font-size="26" font-style="italic" fill="#d1fae5">The Clements Way</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#ecfdf5">
+    <rect x="80" y="300" width="150" height="40" rx="20" fill="#ffffff" fill-opacity="0.12"/>
+    <text x="100" y="326">Module 8</text>
+    <rect x="244" y="300" width="196" height="40" rx="20" fill="#ffffff" fill-opacity="0.12"/>
+    <text x="264" y="326">30–40 minutes</text>
+    <rect x="454" y="300" width="220" height="40" rx="20" fill="#ffffff" fill-opacity="0.12"/>
+    <text x="474" y="326">20-question assessment</text>
+  </g>
+</svg>

@@ -322,6 +322,21 @@ async function main() {
       console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
     }
 
+    // Reconcile the August 2026 GHP CEU — "Roach Identification — The Clements
+    // Way" — on every deploy. Idempotent by title: refreshes the lesson body +
+    // 20-question quiz and assigns to any active technician who doesn't yet have
+    // it, without touching completed attempts. NON-FATAL.
+    try {
+      const { seedTrainingGhp } = await import("../prisma/seed-training-ghp");
+      const g = await seedTrainingGhp(prisma);
+      console.log(
+        `deploy-db: GHP roach-ID CEU — ${g.created ? "created" : "refreshed"} (${g.bodyChars}c body, ${g.questions} questions); ` +
+          `assigned to ${g.assigned} new of ${g.technicians} technician(s).`,
+      );
+    } catch (e) {
+      console.error("deploy-db: GHP CEU seed FAILED (non-fatal):", e);
+    }
+
     // Seed insurance policies only when empty, so edits/uploads aren't clobbered.
     const insurance = await prisma.insurancePolicy.count();
     if (insurance === 0) {

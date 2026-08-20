@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import Markdown from "@/components/Markdown";
 import type { Question } from "@/lib/training";
 
 export default function TakeAssignment({
@@ -40,11 +41,16 @@ export default function TakeAssignment({
   return (
     <div className="space-y-4 max-w-3xl pb-8">
       {/* Lesson */}
-      <Card className="p-4">
-        <div className="text-sm font-medium text-ink mb-1">Lesson</div>
-        {description ? <p className="text-sm text-muted whitespace-pre-line">{description}</p> : null}
-        {materialFile ? <a href={materialFile} target="_blank" className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">📎 Open lesson material{materialName ? ` — ${materialName}` : ""}</a> : null}
-        {!description && !materialFile ? <p className="text-sm text-muted">Review the quiz below.</p> : null}
+      <Card className="p-5 sm:p-6">
+        {description ? (
+          <Markdown className="max-w-none">{description}</Markdown>
+        ) : (
+          <>
+            <div className="text-sm font-medium text-ink mb-1">Lesson</div>
+            {!materialFile ? <p className="text-sm text-muted">Review the quiz below.</p> : null}
+          </>
+        )}
+        {materialFile ? <a href={materialFile} target="_blank" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">📎 Open lesson material{materialName ? ` — ${materialName}` : ""}</a> : null}
       </Card>
 
       {(result || completed) ? (
