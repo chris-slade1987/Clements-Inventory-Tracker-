@@ -75,7 +75,7 @@ export default async function ManagementPage({
   // Branch scope: the full Branch P&L (budget-vs-actual tiles / charts / table +
   // book growth) is now rendered inline here, consolidating the former separate
   // /management/branch-pnl page into one branch view.
-  const branchPnl = !isCompany ? await buildBranchPnlPayload(values, scope, locked) : null;
+  const branchPnl = !isCompany ? await buildBranchPnlPayload(values, scope, locked, { year: period.year, month: period.month }) : null;
 
   // Monthly budget-vs-actual + forward-forecast series for the three headline
   // branch categories (company = Σ branches), from the 2026 Branch KPIs workbook.

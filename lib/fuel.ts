@@ -595,6 +595,33 @@ export type FleetFuelRow = {
  * client can filter by date range) plus the full-history month trend and
  * account-level fee/rebate totals (which stay period-agnostic as context).
  */
+/**
+ * Real fuel SPEND per branch for a loaded report period, from actual
+ * FuelTransaction rows (Coast card) — matched to the same window as the MBR:
+ * YTD = Jan 1 → end of `month`, plus that single month. Branch is the LINKED
+ * vehicle's normalized key (Coast writes "Vero Beach", the app uses "vero"), so
+ * this ties out with the Fuel page. Lets the Branch P&L show real branch-level
+ * fuel instead of the company-only model line. Returns { branchKey: {month, ytd} }.
+ */
+export async function fuelByBranch(year: number, month: number): Promise<Record<string, { month: number; ytd: number }>> {
+  const ytdStart = new Date(Date.UTC(year, 0, 1));
+  const monthStart = new Date(Date.UTC(year, month - 1, 1));
+  const end = new Date(Date.UTC(year, month, 1)); // exclusive — first day of the next month
+  const rows = await prisma.fuelTransaction.findMany({
+    where: { vehicleId: { not: null }, amount: { gt: 0 }, date: { gte: ytdStart, lt: end } },
+    select: { amount: true, date: true, vehicle: { select: { branch: true } } },
+  });
+  const out: Record<string, { month: number; ytd: number }> = {};
+  for (const r of rows) {
+    const b = r.vehicle?.branch;
+    if (!b) continue;
+    const bucket = (out[b] ??= { month: 0, ytd: 0 });
+    bucket.ytd += r.amount;
+    if (r.date.getTime() >= monthStart.getTime()) bucket.month += r.amount;
+  }
+  return out;
+}
+
 export async function fleetFuelRows(branch?: string | null) {
   // Filter by the LINKED VEHICLE's branch (our normalized key), not the row's
   // own branch text — Coast writes "Vero Beach", the app uses "vero".
