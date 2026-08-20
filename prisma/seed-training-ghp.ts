@@ -118,16 +118,22 @@ export async function seedTrainingGhp(prisma: PrismaClient) {
   const questions = JSON.stringify(QUESTIONS);
 
   const existing = await prisma.course.findFirst({ where: { title: COURSE_TITLE } });
-  // Respect in-portal edits: once an admin edits the course (contentLocked),
-  // the seed stops refreshing its body/quiz so their version wins. Assignments
-  // are still ensured below regardless.
+  // Self-healing: the canonical body embeds the real photo paths. Refresh the
+  // course UNLESS it is BOTH content-locked (edited in the portal) AND already
+  // carries the photo version — that combination means a deliberate edit we
+  // must not clobber. Any other state (missing, stale placeholder/SVG version,
+  // or locked-but-still-missing-photos) is force-healed to the photo version
+  // and re-marked seed-managed (contentLocked=false). Assignments are ensured
+  // below regardless.
+  const PHOTO_MARKER = "/training/ghp-august/photos/";
+  const storedHasPhotos = existing?.description?.includes(PHOTO_MARKER) ?? false;
   let contentRefreshed = true;
   const course = existing
-    ? existing.contentLocked
+    ? existing.contentLocked && storedHasPhotos
       ? ((contentRefreshed = false), existing)
       : await prisma.course.update({
           where: { id: existing.id },
-          data: { category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true },
+          data: { category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true, contentLocked: false },
         })
     : await prisma.course.create({
         data: { title: COURSE_TITLE, category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true },
