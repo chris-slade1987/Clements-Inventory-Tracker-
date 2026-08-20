@@ -329,8 +329,9 @@ async function main() {
     try {
       const { seedTrainingGhp } = await import("../prisma/seed-training-ghp");
       const g = await seedTrainingGhp(prisma);
+      const state = g.created ? "created" : g.locked ? "content-locked (portal-edited, left as-is)" : "refreshed";
       console.log(
-        `deploy-db: GHP roach-ID CEU — ${g.created ? "created" : "refreshed"} (${g.bodyChars}c body, ${g.questions} questions); ` +
+        `deploy-db: GHP roach-ID CEU — ${state} (${g.bodyChars}c body, ${g.questions} questions); ` +
           `assigned to ${g.assigned} new of ${g.technicians} technician(s).`,
       );
     } catch (e) {

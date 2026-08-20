@@ -7,14 +7,25 @@ import { Card, btn } from "@/components/ui";
 type Q = { prompt: string; options: string[]; correctIndex: number };
 const blankQ = (): Q => ({ prompt: "", options: ["", ""], correctIndex: 0 });
 
-export default function CourseForm() {
+export type CourseInitial = {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  passingScore: number;
+  questions: Q[];
+  materialName: string | null;
+};
+
+export default function CourseForm({ initial }: { initial?: CourseInitial }) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("ceu");
-  const [description, setDescription] = useState("");
-  const [passingScore, setPassingScore] = useState("80");
+  const editing = !!initial;
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [category, setCategory] = useState(initial?.category ?? "ceu");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [passingScore, setPassingScore] = useState(String(initial?.passingScore ?? 80));
   const [file, setFile] = useState<File | null>(null);
-  const [questions, setQuestions] = useState<Q[]>([blankQ()]);
+  const [questions, setQuestions] = useState<Q[]>(initial?.questions?.length ? initial.questions : [blankQ()]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +43,7 @@ export default function CourseForm() {
 
     setBusy(true); setError(null);
     const fd = new FormData();
+    if (initial) fd.set("id", initial.id);
     fd.set("title", title); fd.set("category", category); fd.set("description", description);
     fd.set("passingScore", passingScore); fd.set("questions", JSON.stringify(clean));
     if (file) fd.set("file", file);
@@ -58,11 +70,13 @@ export default function CourseForm() {
         <label className="block text-sm font-medium">Passing score (%)
           <input inputMode="numeric" value={passingScore} onChange={(e) => setPassingScore(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
         </label>
-        <label className="block text-sm font-medium sm:col-span-2">Lesson summary / instructions
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+        <label className="block text-sm font-medium sm:col-span-2">Lesson body
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={editing ? 16 : 5} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm font-mono leading-relaxed" />
+          <span className="mt-1 block text-[11px] font-normal text-muted">Markdown supported — <code>## Heading</code>, <code>**bold**</code>, tables, bullet lists, <code>&gt; callout</code>, and images with <code>![caption](/training/…/photo.png)</code>. It renders as a formatted lesson, not plain text.</span>
         </label>
         <label className="block text-sm font-medium sm:col-span-2">Lesson material (PDF / slides)
           <input type="file" accept="application/pdf,image/*,.ppt,.pptx,.doc,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-brand-700" />
+          {editing && initial?.materialName ? <span className="mt-1 block text-[11px] font-normal text-muted">Current: {initial.materialName} — upload a new file only to replace it.</span> : null}
         </label>
       </Card>
 
@@ -91,8 +105,8 @@ export default function CourseForm() {
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex gap-2">
-        <button onClick={() => router.push("/management/training")} className={btn.secondary}>Cancel</button>
-        <button onClick={save} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : "Create course"}</button>
+        <button onClick={() => router.push(editing ? `/management/training/${initial!.id}` : "/management/training")} className={btn.secondary}>Cancel</button>
+        <button onClick={save} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : editing ? "Save changes" : "Create course"}</button>
       </div>
     </div>
   );

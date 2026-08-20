@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader, btn } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
@@ -32,7 +32,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   return (
     <>
       <div className="mb-2"><Link href="/management/training" className="text-xs font-medium text-brand-700 hover:underline">← Training</Link></div>
-      <PageHeader title={course.title} subtitle={`${course.category === "onboarding" ? "Onboarding" : "CEU"} · ${questions.length} questions · pass ${course.passingScore}%`} />
+      <div className="flex items-start justify-between gap-3">
+        <PageHeader title={course.title} subtitle={`${course.category === "onboarding" ? "Onboarding" : "CEU"} · ${questions.length} questions · pass ${course.passingScore}%`} />
+        <Link href={`/management/training/${course.id}/edit`} className={`${btn.secondary} shrink-0`}>Edit course</Link>
+      </div>
 
       <div className="mb-5">
         <AssignClient courseId={course.id} employees={employees} assignedIds={[...assignedIds]} />

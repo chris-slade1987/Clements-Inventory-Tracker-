@@ -49,7 +49,9 @@ export async function POST(req: Request) {
 
   try {
     const course = id
-      ? await prisma.course.update({ where: { id }, data })
+      ? // Editing an existing course in the portal: lock its content so the
+        // deploy seed no longer overwrites these edits on redeploy.
+        await prisma.course.update({ where: { id }, data: { ...data, contentLocked: true } })
       : await prisma.course.create({ data: { ...data, createdById: user.id } });
     return NextResponse.json({ ok: true, id: course.id });
   } catch (e) {

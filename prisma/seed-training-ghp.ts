@@ -118,11 +118,17 @@ export async function seedTrainingGhp(prisma: PrismaClient) {
   const questions = JSON.stringify(QUESTIONS);
 
   const existing = await prisma.course.findFirst({ where: { title: COURSE_TITLE } });
+  // Respect in-portal edits: once an admin edits the course (contentLocked),
+  // the seed stops refreshing its body/quiz so their version wins. Assignments
+  // are still ensured below regardless.
+  let contentRefreshed = true;
   const course = existing
-    ? await prisma.course.update({
-        where: { id: existing.id },
-        data: { category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true },
-      })
+    ? existing.contentLocked
+      ? ((contentRefreshed = false), existing)
+      : await prisma.course.update({
+          where: { id: existing.id },
+          data: { category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true },
+        })
     : await prisma.course.create({
         data: { title: COURSE_TITLE, category: "ceu", description: body, questions, passingScore: PASSING_SCORE, active: true },
       });
@@ -142,7 +148,7 @@ export async function seedTrainingGhp(prisma: PrismaClient) {
     assigned++;
   }
 
-  return { created: existing ? 0 : 1, refreshed: existing ? 1 : 0, questions: QUESTIONS.length, bodyChars: body.length, technicians: techs.length, assigned };
+  return { created: existing ? 0 : 1, refreshed: existing && contentRefreshed ? 1 : 0, locked: existing ? !contentRefreshed : false, questions: QUESTIONS.length, bodyChars: body.length, technicians: techs.length, assigned };
 }
 
 // Standalone sanity run: `tsx prisma/seed-training-ghp.ts`

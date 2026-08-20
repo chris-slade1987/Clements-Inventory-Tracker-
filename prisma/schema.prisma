@@ -1140,6 +1140,10 @@ model Course {
   questions     String   @default("[]") // JSON: [{prompt, options:[...], correctIndex}]
   passingScore  Int      @default(80) @map("passing_score") // percent
   active        Boolean  @default(true)
+  // Set true once a course's content is edited in the portal, so the deploy
+  // seed stops overwriting it on redeploy (in-portal edits win). Seed-managed
+  // courses stay false and keep re-syncing from code.
+  contentLocked Boolean  @default(false) @map("content_locked")
   createdById   String?  @map("created_by_id")
   createdAt     DateTime @default(now()) @map("created_at")
 
