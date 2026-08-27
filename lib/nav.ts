@@ -44,6 +44,24 @@ export const INSIGHTS_NAV_ITEM: NavItem = {
   icon: "M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5zM12 7.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1L9 10.5l2.1-.9z",
 };
 
+// Sales Team hub — cross-branch service-advisor oversight + monthly goals.
+// Surfaced for admins/super-admins (in the management nav) and the Sales
+// Director (their fixed nav). A target/aim glyph.
+export const SALES_TEAM_NAV_ITEM: NavItem = {
+  href: "/sales",
+  label: "Sales Team",
+  shortLabel: "Sales Team",
+  icon: "M12 8a4 4 0 100 8 4 4 0 000-8zm0-6v3m0 14v3m10-10h-3M5 12H2m15.5-6.5l-2 2m-9 9l-2 2m13 0l-2-2m-9-9l-2-2",
+};
+
+// Service-advisor self view — their monthly sales goal planner + dashboard.
+export const MY_SALES_NAV_ITEM: NavItem = {
+  href: "/me/sales",
+  label: "My Sales Goals",
+  shortLabel: "Sales",
+  icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
+};
+
 // Pre-hire onboarding — surfaced for HR (admins + granted HR only), not in the
 // general management nav.
 export const PREHIRE_NAV_ITEM: NavItem = {
@@ -281,6 +299,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Sales",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
+  SALES_TEAM_NAV_ITEM,
   {
     href: "/management/scorecards",
     label: "Scorecards",
@@ -320,6 +339,19 @@ export const MANAGEMENT_NAV: NavItem[] = [
   SYSTEM_MAP_NAV_ITEM,
   COMPLIANCE_NAV_ITEM,
   CHECKLIST_OVERSIGHT_NAV_ITEM,
+];
+
+// Sales Director — a focused principal who oversees service advisors and their
+// monthly goals across all branches. Fixed nav (no center switcher): the Sales
+// Team hub plus the read-only Sales & Attrition analytics.
+export const SALES_DIRECTOR_NAV: NavItem[] = [
+  SALES_TEAM_NAV_ITEM,
+  {
+    href: "/management/sales",
+    label: "Sales & Attrition",
+    shortLabel: "Analytics",
+    icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
+  },
 ];
 
 // Board Observer — a distinct, strictly read-only principal (board members who

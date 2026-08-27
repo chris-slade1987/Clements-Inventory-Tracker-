@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -84,6 +84,8 @@ export default function AppShell({
   isHrAccess = false,
   isInterviewer = false,
   isBoardObserver = false,
+  isSalesDirector = false,
+  isServiceAdvisor = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -94,6 +96,8 @@ export default function AppShell({
   isHrAccess?: boolean;
   isInterviewer?: boolean;
   isBoardObserver?: boolean;
+  isSalesDirector?: boolean;
+  isServiceAdvisor?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -113,6 +117,9 @@ export default function AppShell({
         ? "manager"
         : pathname.startsWith("/management")
           ? "management"
+          // The Sales Team hub is a management-style cross-branch view.
+          : pathname.startsWith("/sales")
+            ? "management"
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";
@@ -147,6 +154,10 @@ export default function AppShell({
     // A board observer is a distinct read-only principal: they get their own
     // minimal exec nav on EVERY route, never the full management/inventory nav.
     items = BOARD_OBSERVER_NAV;
+  } else if (isSalesDirector) {
+    // The Sales Director is a focused principal: a fixed Sales nav on every
+    // route (admins/super-admins instead get Sales Team inside their full nav).
+    items = SALES_DIRECTOR_NAV;
   } else if (mode === "management" && privilegedEmployee) {
     // Never expose the full management nav to an employee-shell grantee (incl. a
     // tech interviewer on a job-container page) — only their allowed links.
@@ -167,6 +178,12 @@ export default function AppShell({
       const at = idx === -1 ? list.length : idx;
       list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
     }
+    // Service advisors get a "My Sales Goals" link right after their home.
+    if (isServiceAdvisor && mode === "employee" && !list.some((i) => i.href === MY_SALES_NAV_ITEM.href)) {
+      const homeIdx = list.findIndex((i) => i.href === "/me");
+      const at = homeIdx === -1 ? 0 : homeIdx + 1;
+      list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
+    }
     items = list;
   }
   // Catalog administration (the former standalone "Manage" area) now lives in
@@ -177,7 +194,7 @@ export default function AppShell({
   }
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
-  const showCenters = !isEmployee && !isBoardObserver;
+  const showCenters = !isEmployee && !isBoardObserver && !isSalesDirector;
   // Resources / document center. Handbook + Company Bulletin are for everyone;
   // the Manager Manual is managers/admin only. Board observers keep their fixed
   // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).

@@ -92,6 +92,17 @@ export function canObserveBoard(user: SessionUser): boolean {
   return user.role === "admin" || user.seniorLeadership || user.boardObserver;
 }
 
+/** Who may manage the Sales Team area (cross-branch advisor oversight & goals):
+ *  admins / super admins and the Sales Director. */
+export function canManageSales(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
+  return user.role === "admin" || user.accessLevel === "sales_director";
+}
+
+/** A service advisor — their own sales dashboard + monthly goal planner. */
+export function isServiceAdvisor(user: Pick<SessionUser, "accessLevel">): boolean {
+  return user.accessLevel === "sales";
+}
+
 /** A branch manager (non-admin with a home branch) only sees their own branch. */
 export function branchLocked(user: SessionUser): boolean {
   return user.role !== "admin" && !!user.branch;
@@ -111,6 +122,8 @@ export function scopedBranch(user: SessionUser, requested: string | null): strin
 export function homePath(user: SessionUser): string {
   // Board observers live entirely in the executive views — send them home there.
   if (isBoardObserver(user)) return "/management/board";
+  // The Sales Director lands on the cross-branch Sales Team hub.
+  if (user.accessLevel === "sales_director") return "/sales";
   if (user.role === "employee") return "/me";
   // Managers land on their branch dashboard; admins on the inventory dashboard.
   if (user.role === "manager") return "/my-branch";

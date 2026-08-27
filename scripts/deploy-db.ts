@@ -100,6 +100,17 @@ async function main() {
       console.error("deploy-db: GHP CEU seed FAILED (non-fatal):", e);
     }
 
+    // Sales Team: give every Service Advisor login the `sales` access level, so
+    // they get the sales dashboard + goal planner. Runs early (before the seeds
+    // that can abort). Idempotent + non-fatal; never downgrades a leader.
+    try {
+      const { seedSalesTeamAccess } = await import("../prisma/seed-sales");
+      const st = await seedSalesTeamAccess(prisma);
+      console.log(`deploy-db: sales team — ${st.updated} of ${st.advisors} service advisor login(s) set to Service Advisor access.`);
+    } catch (e) {
+      console.error("deploy-db: sales team access seed FAILED (non-fatal):", e);
+    }
+
     // One-time admin password reset / ensure — gated by an env var the operator
     // sets in Vercel and REMOVES afterward. Recovers a forgotten owner password
     // AND a missing owner account (e.g. a re-seeded DB). Sets super_admin + active.

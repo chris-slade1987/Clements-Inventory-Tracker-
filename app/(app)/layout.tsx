@@ -1,5 +1,5 @@
 import AppShell from "@/components/AppShell";
-import { requireUser, isBoardObserver } from "@/lib/auth";
+import { requireUser, isBoardObserver, isServiceAdvisor } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
 import { isDemoMode } from "@/lib/demo";
@@ -28,6 +28,8 @@ export default async function AppGroupLayout({
       isHrAccess={user.hrAccess}
       isInterviewer={isInterviewer}
       isBoardObserver={isBoardObserver(user)}
+      isSalesDirector={user.accessLevel === "sales_director" && user.role !== "admin"}
+      isServiceAdvisor={isServiceAdvisor(user)}
       unread={unread}
     >
       {demoMode ? <DemoModeBanner isAdmin={user.role === "admin"} /> : null}

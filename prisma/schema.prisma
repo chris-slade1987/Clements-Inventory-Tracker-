@@ -1153,6 +1153,36 @@ model Course {
   @@map("courses")
 }
 
+// A service advisor's monthly sales goal sheet — a simplified port of the Sales
+// Director's Excel planner. Stores the prior-month recap + this month's goal;
+// all rates and daily activity targets are computed (lib/sales-goal.ts), never
+// stored. One row per advisor per month.
+model SalesGoalSheet {
+  id                String   @id @default(cuid())
+  advisorEmployeeId String   @map("advisor_employee_id") // Employee.id of the service advisor
+  branch            String? // snapshot of the advisor's branch for director rollups
+  periodKey         String   @map("period_key") // "YYYY-MM"
+  // Prior-month recap (the light-green inputs)
+  reis          Int   @default(0) // real-estate re-inspections
+  appts         Int   @default(0) // appointments
+  proposals     Int   @default(0)
+  pcExposed     Float @default(0) @map("pc_exposed")     // $ pest-control exposed
+  pcSold        Float @default(0) @map("pc_sold")        // $ pest-control sold
+  tcSold        Float @default(0) @map("tc_sold")        // $ termite sold
+  totalExposure Float @default(0) @map("total_exposure") // $ total exposure
+  tcUnits       Int   @default(0) @map("tc_units")       // termite units sold
+  // This month's goal
+  salesGoal Float @default(0) @map("sales_goal") // $ target for the month
+  workdays  Int   @default(0)                    // # workdays in the month
+  createdByUserId String?  @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([advisorEmployeeId, periodKey])
+  @@index([branch, periodKey])
+  @@map("sales_goal_sheets")
+}
+
 model TrainingAssignment {
   id           String    @id @default(cuid())
   courseId     String    @map("course_id")

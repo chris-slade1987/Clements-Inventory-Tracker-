@@ -17,6 +17,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Attendance / Call-Outs** logging for unplanned absences (separate from PTO — monitoring only), with an automatic medical-note rule for illness over 2 days and a physical-injury → accident-report link. See *Technician Absence Policy*.
 - **Attested checklists** for weekly & monthly manager responsibilities, with a leadership completion rollup. See *Weekly* and *Monthly Responsibilities*.
 - **Branch Hub** for on-site licenses/documents with expiry reminders. See *FDACS On-site Document Management* and *Warehouse Safety*.
+- **Sales Team** — service advisors plan their month with a built-in **Monthly Goal Sheet**, and the **Sales Director** oversees advisors and goals across all four branches. See *Sales Team*.
 
 ## Table of Contents
 
@@ -174,6 +175,16 @@ To help guide you, a checklist and set of procedures follow this section. These 
 - Ordering chemicals, equipment and supplies (in process)
 
 ## 5. Policies, Procedures & Forms
+
+## Sales Team
+
+The portal has a dedicated Sales Team area for service advisors and the Sales Director, extending the existing Sales & Attrition reporting.
+
+**Service advisors — My Sales Goals (`My Work → My Sales Goals`).** Each advisor plans the month with a simplified, plain-language version of the Sales Director's Monthly Goal Sheet. They enter two things: (1) **last month's results** — re-inspections, appointments, proposals, pest-control and termite dollars proposed and sold, and termite jobs sold; and (2) **this month's sales goal and number of workdays**. The portal instantly works out the advisor's own numbers (average termite job price, close rates, proposals per lead, exposure per proposal) and the daily game plan needed to hit the goal — sales per day, proposals per day and per month, and leads per day and per month. When the plan isn't realistic, the page flags it so the advisor can adjust the goal or raise their average job value by cross-selling. Live sales results will appear next to these targets once the sales system is connected; until then the goal sheet is the advisor's roadmap.
+
+**Sales Director — Sales Team hub (`Sales Team`).** The Sales Director oversees every service advisor across all four branches, much as a branch manager oversees their team: a roster showing each advisor's monthly goal, required sales-per-day and leads-per-day, and whether their goal sheet is set, with a branch filter and a link into Sales & Attrition. The director can open any advisor to review or set their goal sheet. Admins and super admins see the same hub.
+
+**Access.** A service advisor is anyone with the **Service Advisor** access level (assigned in People). The **Sales Director** access level grants the cross-branch hub; a full admin already has it. Assign these on the org chart / employee profile like any other access level.
 
 ## Hiring / Onboarding
 
