@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { computeGoalSheet, EMPTY_RECAP, type RecapInputs, type GoalInputs, type GoalSheetInput } from "@/lib/sales-goal";
+import { latestSalesSnapshot } from "@/lib/sales-sync";
+import { BRANCHES, branchLabel } from "@/lib/management";
 
 export type { GoalSheetInput };
 
@@ -83,16 +85,82 @@ export async function advisorGoal(advisorEmployeeId: string, periodKey: string) 
   return { sheet, recap, goal, rates, plan, hasGoal: !!sheet && sheet.salesGoal > 0 };
 }
 
-/** Director roster: every advisor (optionally one branch) with their month's plan. */
-export async function salesTeamRoster(periodKey: string, branch?: string | null) {
-  const advisors = await listServiceAdvisors(branch);
-  const rows = await Promise.all(
+/**
+ * Actual sales results (closed & pipeline) from the connected sales feed
+ * (WorkWave API or the shared Google Sheet, via SalesSnapshot). Until a feed is
+ * connected this returns `connected: false` and the dashboard shows targets
+ * only. Closed is YTD won $ (per branch & per rep); pipeline is the company
+ * open-opportunity total (per-branch/advisor pipeline arrives with the fuller
+ * API). Rep→advisor is matched by name.
+ */
+export type SalesActuals = {
+  connected: boolean;
+  syncedAt: string | null;
+  company: { closedYtd: number | null; pipeline: number | null };
+  branchClosed: Record<string, number>;  // branch key -> YTD won $
+  advisorClosed: Record<string, number>; // lowercased advisor name -> YTD won $
+};
+
+export async function getSalesActuals(): Promise<SalesActuals> {
+  const snap = await latestSalesSnapshot().catch(() => null);
+  const m = snap?.metrics ?? null;
+  if (!m) return { connected: false, syncedAt: null, company: { closedYtd: null, pipeline: null }, branchClosed: {}, advisorClosed: {} };
+  const branchClosed: Record<string, number> = {};
+  for (const b of m.byBranch) branchClosed[b.branch] = b.soldAnnual;
+  const advisorClosed: Record<string, number> = {};
+  for (const r of m.byRep) advisorClosed[r.owner.trim().toLowerCase()] = r.soldAnnual;
+  return {
+    connected: true,
+    syncedAt: snap?.syncedAt ? snap.syncedAt.toISOString() : null,
+    company: { closedYtd: m.ytd.soldAnnual, pipeline: m.openPipeline },
+    branchClosed,
+    advisorClosed,
+  };
+}
+
+/**
+ * The Sales Director dashboard: this month's targets by branch and by advisor,
+ * plus closed/pipeline from the sales feed (when connected).
+ */
+export async function salesDirectorDashboard(periodKey: string, branch?: string | null) {
+  const [advisors, actuals] = await Promise.all([listServiceAdvisors(branch), getSalesActuals()]);
+  const advisorRows = await Promise.all(
     advisors.map(async (a) => {
       const g = await advisorGoal(a.id, periodKey);
-      return { advisor: a, salesGoal: g.goal.salesGoal, workdays: g.goal.workdays, salesPerDay: g.plan.salesPerDay, prospectsPerDay: g.plan.prospectsPerDay, hasGoal: g.hasGoal };
+      return {
+        advisor: a,
+        target: g.goal.salesGoal,
+        workdays: g.goal.workdays,
+        salesPerDay: g.plan.salesPerDay,
+        prospectsPerDay: g.plan.prospectsPerDay,
+        hasGoal: g.hasGoal,
+        closed: actuals.advisorClosed[a.name.trim().toLowerCase()] ?? null,
+      };
     }),
   );
-  const totalGoal = rows.reduce((s, r) => s + r.salesGoal, 0);
-  const withGoal = rows.filter((r) => r.hasGoal).length;
-  return { rows, totals: { advisors: rows.length, withGoal, totalGoal } };
+
+  const branchKeys = branch ? [branch] : BRANCHES.map((b) => b.key);
+  const byBranch = branchKeys
+    .map((bk) => {
+      const rows = advisorRows.filter((r) => r.advisor.branch === bk);
+      return {
+        branch: bk,
+        label: branchLabel(bk),
+        advisors: rows.length,
+        withGoal: rows.filter((r) => r.hasGoal).length,
+        target: rows.reduce((s, r) => s + r.target, 0),
+        closed: actuals.branchClosed[bk] ?? null,
+      };
+    })
+    .filter((b) => b.advisors > 0);
+
+  const totals = {
+    advisors: advisorRows.length,
+    withGoal: advisorRows.filter((r) => r.hasGoal).length,
+    target: advisorRows.reduce((s, r) => s + r.target, 0),
+    closed: actuals.company.closedYtd,
+    pipeline: actuals.company.pipeline,
+  };
+
+  return { advisorRows, byBranch, totals, actuals };
 }
