@@ -106,7 +106,11 @@ async function main() {
     try {
       const { seedSalesTeamAccess } = await import("../prisma/seed-sales");
       const st = await seedSalesTeamAccess(prisma);
-      console.log(`deploy-db: sales team — ${st.updated} of ${st.advisors} service advisor login(s) set to Service Advisor access.`);
+      console.log(
+        `deploy-db: sales team — ${st.updated} of ${st.advisors} advisor login(s) → Service Advisor` +
+          `${st.directorSet ? `; ${st.directorSet} → Sales Director` : ""}` +
+          `${st.exampleCreated ? `; example goal sheet created (${st.periodKey})` : ""}.`,
+      );
     } catch (e) {
       console.error("deploy-db: sales team access seed FAILED (non-fatal):", e);
     }
