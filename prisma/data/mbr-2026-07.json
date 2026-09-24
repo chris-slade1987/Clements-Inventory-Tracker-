@@ -376,6 +376,13 @@
    "budget": null
   },
   {
+   "key": "ending_cash",
+   "scope": "company",
+   "basis": "month",
+   "actual": 174601,
+   "budget": null
+  },
+  {
    "key": "net_revenue",
    "scope": "company",
    "basis": "month",
