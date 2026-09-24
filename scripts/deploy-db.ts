@@ -215,6 +215,25 @@ async function main() {
       console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
     }
 
+    // Load the July + August 2026 MBRs (from the Sept 2026 MBR / August financials).
+    // Same guarded, idempotent loader — only writes a period that's missing, so a
+    // later in-app upload/correction is never clobbered. July is derived where the
+    // source is YTD-only (production + P&L via YTD deltas); new-sales, attrition and
+    // book value are real monthly columns from the report. NON-FATAL each.
+    try {
+      const { seedMbrFromFile } = await import("../prisma/seed-mbr");
+      for (const base of ["mbr-2026-07", "mbr-2026-08"]) {
+        const r = await seedMbrFromFile(prisma, base);
+        console.log(
+          r.skipped
+            ? `deploy-db: ${base} already present — left as-is.`
+            : `deploy-db: loaded ${base} (${r.kpis} KPI values, ${r.lob} LOB rows, ${r.techs} tech rows).`,
+        );
+      }
+    } catch (e) {
+      console.error("deploy-db: July/August MBR load FAILED (non-fatal):", e);
+    }
+
     // Branch-level KPIs from the canonical budget model (Branch Frcst) — feeds the
     // manager dashboard branch drill-down + the branch scorecards. Idempotent
     // upsert; re-asserts the model-verified figures on every deploy. Non-fatal.

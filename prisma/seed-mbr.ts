@@ -42,8 +42,8 @@ const PNL_DETAIL_KEYS = new Set<string>([
   "misc_sga", "travel", "uniforms", "other_cell_phones",
 ]);
 
-export async function seedMbrJune(prisma: PrismaClient) {
-  const file = join(__dirname, "data", "mbr-2026-06.json");
+export async function seedMbrFromFile(prisma: PrismaClient, base: string) {
+  const file = join(__dirname, "data", `${base}.json`);
   const p = JSON.parse(readFileSync(file, "utf8")) as ParsedMbr;
 
   // Guard: don't clobber an existing period's KPIs/tech (a later manual
@@ -110,6 +110,11 @@ export async function seedMbrJune(prisma: PrismaClient) {
   }
 
   return { skipped: false as const, periodId: period.id, kpis, lob, techs };
+}
+
+// Back-compat: June loader used by deploy-db.
+export async function seedMbrJune(prisma: PrismaClient) {
+  return seedMbrFromFile(prisma, "mbr-2026-06");
 }
 
 // Allow running directly (npx tsx prisma/seed-mbr.ts).
