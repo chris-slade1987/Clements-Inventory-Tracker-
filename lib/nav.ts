@@ -71,6 +71,15 @@ export const PREHIRE_NAV_ITEM: NavItem = {
   icon: "M9 7a4 4 0 108 0 4 4 0 00-8 0zM3 20v-1a5 5 0 015-5h3M16 19l2 2 4-4",
 };
 
+// HR Command Center — the HR user's home: actionable queues + all HR areas.
+// Surfaced first for HR grantees (and admins) on their shell nav.
+export const HR_HOME_NAV_ITEM: NavItem = {
+  href: "/hr",
+  label: "HR Home",
+  shortLabel: "HR",
+  icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+};
+
 // Hiring / ATS — surfaced for HR (admins + granted HR), like PREHIRE. Jobs,
 // candidates, interviews, and the pipeline through to onboarding.
 export const HIRING_NAV_ITEM: NavItem = {
