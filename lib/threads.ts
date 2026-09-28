@@ -89,6 +89,26 @@ export const INVENTORY_ESCALATION_EMAILS = [
   "c.slade@clementspestcontrol.com",
 ] as const;
 
+/** Setting key holding an admin-editable, comma-separated escalation list. */
+export const INVENTORY_ESCALATION_SETTING = "inventory_escalation_emails";
+
+/**
+ * The escalation stakeholder emails — from the `inventory_escalation_emails`
+ * Setting when an admin has set one, otherwise the built-in default. Reading it
+ * from a Setting means a director change (someone leaving) no longer requires a
+ * code deploy. Falls back safely on any DB error.
+ */
+export async function inventoryEscalationEmails(): Promise<string[]> {
+  try {
+    const s = await prisma.setting.findUnique({ where: { key: INVENTORY_ESCALATION_SETTING } });
+    const list = (s?.value ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+    if (list.length) return list;
+  } catch {
+    /* fall through to the default */
+  }
+  return [...INVENTORY_ESCALATION_EMAILS];
+}
+
 /**
  * Resolve the inventory-escalation stakeholders (by email) to `user:<id>`
  * recipient keys, keeping only ACTIVE users that actually exist. Missing people
@@ -96,10 +116,11 @@ export const INVENTORY_ESCALATION_EMAILS = [
  * reporting manager is filtered out (they're added to the thread as owner).
  */
 export async function inventoryEscalationRecipientKeys(excludeUserId?: string): Promise<string[]> {
+  const emails = await inventoryEscalationEmails();
   const users = await prisma.user.findMany({
     where: {
       active: true,
-      email: { in: [...INVENTORY_ESCALATION_EMAILS] },
+      email: { in: emails },
     },
     select: { id: true },
   });

@@ -1,0 +1,41 @@
+name: CI
+
+# Typecheck + lint on every push and PR. This is the first automated quality gate
+# for the repo (there was none). It deliberately does NOT need a database: Prisma
+# only needs `generate` for types, and we run `tsc --noEmit` + `eslint`, not the
+# full build/seed. Keep it fast so it can gate merges.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client (types only)
+        run: npx --no-install prisma generate
+
+      # Typecheck is the hard gate — it is green today and catches the largest
+      # class of regressions.
+      - name: Typecheck
+        run: npx --no-install tsc --noEmit
+
+      # Lint is informational for now: the repo has pre-existing lint errors
+      # (mostly react-hooks rule false-positives). It runs so new issues are
+      # visible, but doesn't block merges until that backlog is cleared. Flip
+      # continue-on-error to false once `npm run lint` is clean.
+      - name: Lint (informational)
+        run: npm run lint
+        continue-on-error: true

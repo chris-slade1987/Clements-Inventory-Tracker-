@@ -464,6 +464,21 @@ async function main() {
       console.log(`deploy-db: board observers — ${bo.granted} user(s) granted.`);
     });
 
+    // Seed the admin-editable inventory-escalation email list (if not already
+    // set), so who gets pulled into a stock-out escalation can be changed from
+    // the settings API without a code deploy. Only creates it when missing —
+    // never overwrites an admin's edit. NON-FATAL.
+    await runStep("inventory escalation setting", async () => {
+      const { INVENTORY_ESCALATION_EMAILS, INVENTORY_ESCALATION_SETTING } = await import("../lib/threads");
+      const existing = await prisma.setting.findUnique({ where: { key: INVENTORY_ESCALATION_SETTING } });
+      if (!existing) {
+        await prisma.setting.create({ data: { key: INVENTORY_ESCALATION_SETTING, value: [...INVENTORY_ESCALATION_EMAILS].join(",") } });
+        console.log("deploy-db: seeded inventory escalation email setting (default list).");
+      } else {
+        console.log("deploy-db: inventory escalation email setting present — left as-is.");
+      }
+    });
+
     // Reconcile the branch hub on every deploy. seedBranchHub is idempotent and
     // self-healing: it keys CPO/business licenses by license number globally, so
     // it repairs an older deploy (a holder assigned to the wrong branch, a
