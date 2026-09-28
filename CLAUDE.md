@@ -12,7 +12,7 @@ Standalone, managers-only warehouse portal for Clements Pest Control. It tracks
 Out of scope (do not build): per-stop or per-account chemical usage. We never
 track what gets applied at a customer site.
 
-Three warehouses: **Vero Beach (HQ)**, **Stuart**, **Orlando**.
+Four warehouses/branches: **Vero Beach (HQ)**, **Stuart**, **Orlando**, **Naples**.
 
 ## Architecture
 

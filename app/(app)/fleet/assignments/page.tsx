@@ -11,7 +11,7 @@ import DriverSelect from "./DriverSelect";
 export const dynamic = "force-dynamic";
 
 // Bulk driver-assignment grid: every active truck with its fleet identity
-// (unit, year/make/model, VIN, plate, GPS link) and an inline driver picker, so
+// (unit, year/make/model, VIN, plate) and an inline driver picker, so
 // the whole fleet can be linked to drivers in one screen. Admin/manager only;
 // branch managers see their own branch.
 export default async function DriverAssignmentsPage() {
@@ -78,7 +78,6 @@ export default async function DriverAssignmentsPage() {
                     <th className="px-3 py-2 font-medium">Year / Make / Model</th>
                     <th className="px-3 py-2 font-medium">VIN</th>
                     <th className="px-3 py-2 font-medium">Plate</th>
-                    <th className="px-3 py-2 font-medium">GPS</th>
                     <th className="px-4 py-2 font-medium w-72">Driver</th>
                   </tr>
                 </thead>
@@ -91,13 +90,6 @@ export default async function DriverAssignmentsPage() {
                       <td className="px-3 py-2">{vehicleTitle(v)}</td>
                       <td className="px-3 py-2 text-muted tabular-nums text-xs">{v.vin ?? "—"}</td>
                       <td className="px-3 py-2 text-muted tabular-nums">{v.plate ?? "—"}</td>
-                      <td className="px-3 py-2">
-                        {v.verizonNumber ? (
-                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Linked</span>
-                        ) : (
-                          <span className="text-[11px] text-muted">—</span>
-                        )}
-                      </td>
                       <td className="px-4 py-2">
                         <DriverSelect vehicleId={v.id} currentEmployeeId={v.assignedEmployeeId} drivers={drivers} />
                       </td>
