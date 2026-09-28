@@ -112,6 +112,14 @@ export function isServiceAdvisor(user: Pick<SessionUser, "accessLevel">): boolea
   return user.accessLevel === "sales";
 }
 
+/** The Director of Field Operations (Graham Foster) — identified by email so the
+ *  role can move without a schema change. Overridable via FIELD_OPS_EMAIL. Lands
+ *  on the Field Ops command center and gets cross-branch operational oversight. */
+export function isFieldOpsDirector(user: Pick<SessionUser, "email">): boolean {
+  const fo = (process.env.FIELD_OPS_EMAIL || "gfoster@clementspestcontrol.com").toLowerCase();
+  return (user.email ?? "").toLowerCase() === fo;
+}
+
 /** A branch manager (non-admin with a home branch) only sees their own branch. */
 export function branchLocked(user: SessionUser): boolean {
   return user.role !== "admin" && !!user.branch;
@@ -135,6 +143,9 @@ export function homePath(user: SessionUser): string {
   if (user.accessLevel === "sales_director") return "/sales";
   // HR (flag holders who aren't full admins) land on the HR Command Center.
   if (user.hrAccess && user.role !== "admin") return "/hr";
+  // The Director of Field Operations lands on the Field Ops command center
+  // (even though he's a full admin — his day-to-day home is field oversight).
+  if (isFieldOpsDirector(user)) return "/field-ops";
   if (user.role === "employee") return "/me";
   // Managers land on their branch dashboard; admins on the inventory dashboard.
   if (user.role === "manager") return "/my-branch";

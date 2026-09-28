@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -86,6 +86,7 @@ export default function AppShell({
   isBoardObserver = false,
   isSalesDirector = false,
   isServiceAdvisor = false,
+  isFieldOpsDirector = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -98,6 +99,7 @@ export default function AppShell({
   isBoardObserver?: boolean;
   isSalesDirector?: boolean;
   isServiceAdvisor?: boolean;
+  isFieldOpsDirector?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -187,6 +189,12 @@ export default function AppShell({
       list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
     }
     items = list;
+  }
+  // The Director of Field Ops gets a "Field Ops" home link at the top of every
+  // center's nav (he's a full admin, so he keeps the full nav but can always get
+  // back to his command center).
+  if (isFieldOpsDirector && !isBoardObserver && mode !== "employee" && !items.some((i) => i.href === FIELD_OPS_HOME_NAV_ITEM.href)) {
+    items = [FIELD_OPS_HOME_NAV_ITEM, ...items];
   }
   // Catalog administration (the former standalone "Manage" area) now lives in
   // the Inventory center. Admins and HR grantees get a single entry into it;
