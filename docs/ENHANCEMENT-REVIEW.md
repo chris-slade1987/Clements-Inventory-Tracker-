@@ -296,3 +296,24 @@ Given a small team and a 4-day runway:
 - [ ] R7 — shared signing helper
 - [ ] R9 — `assertCanView` consolidation + auth unit tests
 - [ ] R11 — JSON→Json columns + status unions
+
+---
+
+## Update — implemented (2026-09-28, overnight)
+
+The entire **Before launch** checklist plus most **fast-follow** items shipped to `main`:
+
+**Done**
+- **R1 — error leakage.** `lib/http.ts` (`fail()` + `HttpError`) logs every error server-side and returns safe messages (Prisma/internal → generic 500; intentional validation messages preserved). Swept all **42** raw-`e.message` route returns + the unauthenticated login route.
+- **R3 — GPS reconcile.** Deleted the 8 stale GPS rows + fixed the summary counts and the driver-assignment mentions in `WORKFLOWS.md`; dropped `leaflet`/`react-leaflet`/`@types/leaflet`, the global leaflet CSS import, the dead "GPS" column, the dead `STATUS_META`/`lastSeen`, and the two GPS e2e specs.
+- **R4 — escalation config.** Inventory-escalation recipients now read from the `inventory_escalation_emails` Setting (default seeded, admin-editable via the settings API, which is now **admin-gated**).
+- **R6 (part) / R8 (part).** Warehouse status checked with `Promise.all`; the daily cron runs its 7 jobs with `Promise.allSettled` (`maxDuration` 20→60).
+- **R9 — coarse backstop.** `proxy.ts` (Next 16's renamed middleware) redirects signed-out visitors off app pages.
+- **R10 — CI.** `.github/workflows/ci.yml` runs `tsc --noEmit` (hard gate) + `eslint` (informational until the pre-existing lint backlog clears).
+- **R12 (minimal).** `fail()` logs all API errors to the server (visible in Vercel logs) — the "one sink." Sentry remains a drop-in upgrade inside `fail()`.
+- **Quick wins.** Lead-window predicate deduped (`lib/reminders-shared.ts`); base-URL helper deduped to `appUrl()` (13 sites); branding normalized to "CanopyOS"; `CLAUDE.md` warehouse count fixed (three→four).
+
+**Deliberately deferred (post-launch, per the "what NOT to do" guidance above)**
+- **R2 (full wrapper adoption)** — `fail()` already delivers the security win; the `withRoute` migration of ~90 routes is post-launch churn.
+- **R5 — unified attention badge** — high-value but the count would ride the 2-min notification poll; wants the cheap-count path (R6 full) and testing against the running app first.
+- **R7 — signing consolidation**, **R11 — JSON→Json columns / status enums**, and **unit tests** — scheduled work, not launch-week changes.
