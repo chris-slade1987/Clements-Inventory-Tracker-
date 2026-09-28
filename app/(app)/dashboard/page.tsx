@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   allTechniciansByUsage,
@@ -54,12 +54,16 @@ export default async function DashboardPage({
   const rangeStart = rangeStartFor(range, now);
   const rangeLabel = RANGES.find((r) => r.key === range)!.label;
 
-  const warehouses = await prisma.warehouse.findMany({
+  // Branch-locked managers are pinned to their own warehouse — they never see
+  // other branches' inventory/spend. Admins/exec see all and can pick.
+  const locked = branchLocked(user);
+  const allWarehouses = await prisma.warehouse.findMany({
     where: { active: true },
     orderBy: { name: "asc" },
   });
-  const selected = warehouses.find((w) => w.id === sp.branch) ?? null;
-  const scopeId = selected?.id; // undefined = all branches
+  const warehouses = locked && user.warehouseId ? allWarehouses.filter((w) => w.id === user.warehouseId) : allWarehouses;
+  const selected = locked ? warehouses[0] ?? null : warehouses.find((w) => w.id === sp.branch) ?? null;
+  const scopeId = selected?.id; // undefined = all branches (admins only)
   const cost = await productCostMap();
 
   // Confirm-queue nudge (admins + HR only — they can act on it).
@@ -106,7 +110,7 @@ export default async function DashboardPage({
   const rangeBudgetLabel =
     range === "quarter" ? "Quarter-to-date budget" : range === "ytd" ? "YTD budget" : range === "30d" ? "30-day budget" : "Monthly budget";
 
-  const companyRangeSpend = [...rangeSpend.values()].reduce((s, v) => s + v, 0);
+  const companyRangeSpend = warehouses.reduce((s, w) => s + (rangeSpend.get(w.id) ?? 0), 0);
   const companyMonthlyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
   const companyRangeBudget = companyMonthlyBudget * monthsInRange;
   const scopeOnHandValue = ohByCat.reduce((s, r) => s + r.value, 0);
@@ -141,7 +145,9 @@ export default async function DashboardPage({
         </Link>
       ) : null}
 
-      {/* Selector: company banner + branch cards. Click to scope the detail below. */}
+      {/* Selector: company banner + branch cards. Click to scope the detail below.
+          Hidden for branch-locked managers (single branch, no cross-branch view). */}
+      {!locked && (
       <Link href={hrefWith({ branch: null })} className="block mb-4">
         <Card className={`p-4 transition ${!selected ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -162,6 +168,7 @@ export default async function DashboardPage({
           <BudgetBar spent={companyRangeSpend} budget={companyRangeBudget} />
         </Card>
       </Link>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-5">
         {warehouses.map((w) => {

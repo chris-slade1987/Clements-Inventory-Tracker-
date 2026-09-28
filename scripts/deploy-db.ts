@@ -13,6 +13,7 @@ import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { randomBytes } from "node:crypto";
+import { isDemoModeEnv } from "../lib/demo";
 
 const url = process.env.DATABASE_URL ?? "";
 
@@ -21,6 +22,21 @@ const url = process.env.DATABASE_URL ?? "";
 // top-level handler tell a fatal schema failure (abort) apart from a non-fatal
 // post-push seed hiccup (log & continue) instead of ever red-failing on a seed.
 let schemaReady = false;
+
+/**
+ * Run one post-push seed step in isolation. Every step after the schema push is
+ * best-effort: if one throws, we log it and CONTINUE to the next step instead of
+ * letting the throw unwind `main()` and silently skip every later seed (the old
+ * failure mode — one bad seed would leave the rest of the DB un-seeded on a
+ * green deploy). Never rethrows.
+ */
+async function runStep(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+  } catch (e) {
+    console.error(`deploy-db: ${label} FAILED (non-fatal, continuing):`, e);
+  }
+}
 
 async function main() {
   if (!/^postgres(ql)?:\/\//i.test(url)) {
@@ -143,11 +159,13 @@ async function main() {
     // on every deploy. Idempotent: upserts the approved products (canonical UoM
     // codes, approved=true) and demotes off-list items to approved=false. Runs
     // after the core seed so products exist to reconcile.
-    const { seedApprovedProducts } = await import("../prisma/seed-products-approved");
-    const ap = await seedApprovedProducts(prisma);
-    console.log(
-      `deploy-db: reconciled approved products (${ap.created} created, ${ap.updated} updated, ${ap.demoted} demoted; ${ap.approvedTotal} on catalog).`
-    );
+    await runStep("approved-products reconcile", async () => {
+      const { seedApprovedProducts } = await import("../prisma/seed-products-approved");
+      const ap = await seedApprovedProducts(prisma);
+      console.log(
+        `deploy-db: reconciled approved products (${ap.created} created, ${ap.updated} updated, ${ap.demoted} demoted; ${ap.approvedTotal} on catalog).`
+      );
+    });
 
     // Backfill VERIFIED EPA registration numbers + official SDS links onto the
     // catalog (from prisma/data/epa-reg-numbers.json + product-sds.json).
@@ -181,39 +199,45 @@ async function main() {
     // invoices whose "HIST-…" number already exists) and — critically — creates
     // NO StockMovement, so current on-hand is never touched. Runs after the
     // approved-product reconcile so every material resolves to a product.
-    const { loadPurchaseHistory } = await import("../prisma/seed-purchase-history");
-    const beforeMv = await prisma.stockMovement.count();
-    const ph = await loadPurchaseHistory(prisma);
-    const afterMv = await prisma.stockMovement.count();
-    const phInv = ph.reduce((s, r) => s + r.invoicesCreated, 0);
-    const phSkip = ph.reduce((s, r) => s + r.invoicesSkipped, 0);
-    const phSpend = ph.reduce((s, r) => s + r.totalSpend, 0);
-    console.log(
-      `deploy-db: loaded purchase history (${phInv} invoices created, ${phSkip} skipped; $${phSpend.toFixed(2)} across ${ph.length} branches; ` +
-        `stock movements ${beforeMv}->${afterMv} ${afterMv === beforeMv ? "UNCHANGED" : "CHANGED!"}).`
-    );
+    await runStep("purchase-history load", async () => {
+      const { loadPurchaseHistory } = await import("../prisma/seed-purchase-history");
+      const beforeMv = await prisma.stockMovement.count();
+      const ph = await loadPurchaseHistory(prisma);
+      const afterMv = await prisma.stockMovement.count();
+      const phInv = ph.reduce((s, r) => s + r.invoicesCreated, 0);
+      const phSkip = ph.reduce((s, r) => s + r.invoicesSkipped, 0);
+      const phSpend = ph.reduce((s, r) => s + r.totalSpend, 0);
+      console.log(
+        `deploy-db: loaded purchase history (${phInv} invoices created, ${phSkip} skipped; $${phSpend.toFixed(2)} across ${ph.length} branches; ` +
+          `stock movements ${beforeMv}->${afterMv} ${afterMv === beforeMv ? "UNCHANGED" : "CHANGED!"}).`
+      );
+    });
 
     // Seed management KPIs only when empty, so uploaded months are never clobbered.
-    const kpiValues = await prisma.kpiValue.count();
-    if (kpiValues === 0) {
-      const { seedManagement } = await import("../prisma/seed-management");
-      const m = await seedManagement(prisma);
-      console.log(`deploy-db: seeded management KPIs (${m.periods} periods, ${m.values} values).`);
-    } else {
-      console.log(`deploy-db: management KPIs present (${kpiValues} values) — left as-is.`);
-    }
+    await runStep("management KPI seed", async () => {
+      const kpiValues = await prisma.kpiValue.count();
+      if (kpiValues === 0) {
+        const { seedManagement } = await import("../prisma/seed-management");
+        const m = await seedManagement(prisma);
+        console.log(`deploy-db: seeded management KPIs (${m.periods} periods, ${m.values} values).`);
+      } else {
+        console.log(`deploy-db: management KPIs present (${kpiValues} values) — left as-is.`);
+      }
+    });
 
     // Load the June 2026 MBR as a new period. Idempotent + guarded: seedMbrJune
     // only writes when the 2026-06 ReportPeriod is missing, so a later in-app
     // upload or manual correction is never clobbered on redeploy. Runs after the
     // KPI catalog above so the kpiValue→kpi relation is satisfied.
-    const { seedMbrJune } = await import("../prisma/seed-mbr");
-    const mbr = await seedMbrJune(prisma);
-    if (mbr.skipped) {
-      console.log("deploy-db: June 2026 MBR already present — left as-is.");
-    } else {
-      console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
-    }
+    await runStep("June 2026 MBR load", async () => {
+      const { seedMbrJune } = await import("../prisma/seed-mbr");
+      const mbr = await seedMbrJune(prisma);
+      if (mbr.skipped) {
+        console.log("deploy-db: June 2026 MBR already present — left as-is.");
+      } else {
+        console.log(`deploy-db: loaded June 2026 MBR (${mbr.kpis} KPI values, ${mbr.lob} LOB rows, ${mbr.techs} tech-production rows).`);
+      }
+    });
 
     // Load the July + August 2026 MBRs (from the Sept 2026 MBR / August financials).
     // Same guarded, idempotent loader — only writes a period that's missing, so a
@@ -282,45 +306,53 @@ async function main() {
     }
 
     // Seed the fleet registry only when empty, so re-imports / edits are never clobbered.
-    const vehicles = await prisma.vehicle.count();
-    if (vehicles === 0) {
-      const { seedFleet } = await import("../prisma/seed-fleet");
-      const f = await seedFleet(prisma);
-      console.log(`deploy-db: seeded fleet (${f.total} vehicles).`);
-    } else {
-      console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
-    }
+    await runStep("fleet seed", async () => {
+      const vehicles = await prisma.vehicle.count();
+      if (vehicles === 0) {
+        const { seedFleet } = await import("../prisma/seed-fleet");
+        const f = await seedFleet(prisma);
+        console.log(`deploy-db: seeded fleet (${f.total} vehicles).`);
+      } else {
+        console.log(`deploy-db: fleet present (${vehicles} vehicles) — left as-is.`);
+      }
+    });
 
     // Keep vehicle specs (plate, fuel card, registration) in sync with the fleet
     // sheet on every deploy — non-destructive, so it repairs an older deploy
     // (e.g. plates reconciled from Coast) without touching mileage or disposition.
-    const { syncFleetSpecs } = await import("../prisma/seed-fleet");
-    const fs = await syncFleetSpecs(prisma);
-    console.log(`deploy-db: synced fleet specs — ${fs.updated} vehicle(s) updated.`);
+    await runStep("fleet specs sync", async () => {
+      const { syncFleetSpecs } = await import("../prisma/seed-fleet");
+      const fs = await syncFleetSpecs(prisma);
+      console.log(`deploy-db: synced fleet specs — ${fs.updated} vehicle(s) updated.`);
+    });
 
     // Import Coast fuel statements only when empty, so re-imports/edits stay put.
-    const fuel = await prisma.fuelTransaction.count();
-    if (fuel === 0) {
-      const { seedFuel } = await import("../prisma/seed-fuel");
-      const fl = await seedFuel(prisma);
-      console.log(`deploy-db: imported fuel (${fl.rows} rows, ${fl.linked} linked to vehicles).`);
-    } else {
-      console.log(`deploy-db: fuel present (${fuel} transactions) — left as-is.`);
-    }
+    await runStep("fuel import", async () => {
+      const fuel = await prisma.fuelTransaction.count();
+      if (fuel === 0) {
+        const { seedFuel } = await import("../prisma/seed-fuel");
+        const fl = await seedFuel(prisma);
+        console.log(`deploy-db: imported fuel (${fl.rows} rows, ${fl.linked} linked to vehicles).`);
+      } else {
+        console.log(`deploy-db: fuel present (${fuel} transactions) — left as-is.`);
+      }
+    });
 
     // Seed personnel profiles when empty; otherwise backfill any missing emails
     // and logins from the roster (non-destructive — never overwrites edits). The
     // backfill is what repairs an older deploy that predates the roster emails.
-    const employees = await prisma.employee.count();
-    if (employees === 0) {
-      const { seedEmployees } = await import("../prisma/seed-employees");
-      const e = await seedEmployees(prisma);
-      console.log(`deploy-db: seeded people (${e.total} employees, ${e.logins} logins).`);
-    } else {
-      const { syncEmployeeContacts } = await import("../prisma/seed-employees");
-      const s = await syncEmployeeContacts(prisma);
-      console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
-    }
+    await runStep("people seed/backfill", async () => {
+      const employees = await prisma.employee.count();
+      if (employees === 0) {
+        const { seedEmployees } = await import("../prisma/seed-employees");
+        const e = await seedEmployees(prisma);
+        console.log(`deploy-db: seeded people (${e.total} employees, ${e.logins} logins).`);
+      } else {
+        const { syncEmployeeContacts } = await import("../prisma/seed-employees");
+        const s = await syncEmployeeContacts(prisma);
+        console.log(`deploy-db: people present (${employees}) — backfilled ${s.filled} emails, ${s.hireDates} hire dates, ${s.logins} logins.`);
+      }
+    });
 
     // Bootstrap the org-chart reporting lines (non-destructive; only fills a blank
     // reportsToId). Runs after people are seeded so employees exist to link. Non-fatal.
@@ -332,8 +364,20 @@ async function main() {
       console.error("deploy-db: org chart bootstrap FAILED (non-fatal):", e);
     }
 
-    // Backfill access levels from role (only where null), so nobody loses access
-    // when the assignable levels ship. Idempotent; non-fatal.
+    // Seed the org roster (CEO's Org Chart sheet) FIRST — it sets authoritative
+    // per-person access levels + roles (fill-if-null) from the sheet, so real
+    // branch managers get level "manager" (role manager) before the generic
+    // backfill can default them to "technician". Idempotent; non-fatal.
+    try {
+      const { seedOrgRoster } = await import("../prisma/seed-org-roster");
+      const or = await seedOrgRoster(prisma);
+      console.log("deploy-db: org roster —", JSON.stringify(or));
+    } catch (e) {
+      console.error("deploy-db: org roster seed FAILED (non-fatal):", e);
+    }
+
+    // Backfill access levels from role for anyone STILL null (runs AFTER the
+    // roster so it only touches people the roster didn't cover). Idempotent; non-fatal.
     try {
       const { backfillAccessLevels } = await import("../prisma/seed-access-levels");
       const al = await backfillAccessLevels(prisma);
@@ -342,15 +386,17 @@ async function main() {
       console.error("deploy-db: access-level backfill FAILED (non-fatal):", e);
     }
 
-    // Seed the org roster (CEO's Org Chart sheet): create missing employee
-    // profiles + logins, set reporting lines + access levels (fill-if-null, so
-    // later org-chart edits are never clobbered). Idempotent; non-fatal.
+    // Corrective (upgrade-only): promote any roster leader (manager /
+    // sales_director / admin / super_admin) whose login is stuck at the default
+    // "technician" from an earlier deploy where the backfill ran before the
+    // roster. Fixes the "real managers deploy as technicians" bug on an existing
+    // DB without downgrading anyone. Idempotent; non-fatal.
     try {
-      const { seedOrgRoster } = await import("../prisma/seed-org-roster");
-      const or = await seedOrgRoster(prisma);
-      console.log("deploy-db: org roster —", JSON.stringify(or));
+      const { reconcileRosterLeaders } = await import("../prisma/seed-org-roster");
+      const rl = await reconcileRosterLeaders(prisma);
+      console.log("deploy-db: roster leader reconcile —", JSON.stringify(rl));
     } catch (e) {
-      console.error("deploy-db: org roster seed FAILED (non-fatal):", e);
+      console.error("deploy-db: roster leader reconcile FAILED (non-fatal):", e);
     }
 
     // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
@@ -369,108 +415,135 @@ async function main() {
     }
 
     // The owner account is a full admin (sees every center + admin tools).
-    const owner = await prisma.user.updateMany({ where: { email: "c.slade@clementspestcontrol.com" }, data: { role: "admin" } });
-    console.log(`deploy-db: ensured owner is admin (${owner.count}).`);
+    await runStep("owner admin ensure", async () => {
+      const owner = await prisma.user.updateMany({ where: { email: "c.slade@clementspestcontrol.com" }, data: { role: "admin" } });
+      console.log(`deploy-db: ensured owner is admin (${owner.count}).`);
+    });
 
     // Seed a sample training course only when none exist.
-    const courses = await prisma.course.count();
-    if (courses === 0) {
-      const { seedTraining } = await import("../prisma/seed-training");
-      const t = await seedTraining(prisma);
-      console.log(`deploy-db: seeded training (${t.created} course, ${t.assigned} assignments).`);
-    } else {
-      console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
-    }
+    await runStep("training seed", async () => {
+      const courses = await prisma.course.count();
+      if (courses === 0) {
+        const { seedTraining } = await import("../prisma/seed-training");
+        const t = await seedTraining(prisma);
+        console.log(`deploy-db: seeded training (${t.created} course, ${t.assigned} assignments).`);
+      } else {
+        console.log(`deploy-db: training present (${courses} courses) — left as-is.`);
+      }
+    });
 
     // Seed insurance policies only when empty, so edits/uploads aren't clobbered.
-    const insurance = await prisma.insurancePolicy.count();
-    if (insurance === 0) {
-      const { seedInsurance } = await import("../prisma/seed-insurance");
-      const ins = await seedInsurance(prisma);
-      console.log(`deploy-db: seeded insurance (${ins.total} policies).`);
-    } else {
-      console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
-    }
+    await runStep("insurance seed", async () => {
+      const insurance = await prisma.insurancePolicy.count();
+      if (insurance === 0) {
+        const { seedInsurance } = await import("../prisma/seed-insurance");
+        const ins = await seedInsurance(prisma);
+        console.log(`deploy-db: seeded insurance (${ins.total} policies).`);
+      } else {
+        console.log(`deploy-db: insurance present (${insurance} policies) — left as-is.`);
+      }
+    });
 
     // Company bulletin: grant posting rights every deploy (non-destructive) and
     // seed demo posts / calendar / placeholder celebrations when empty.
-    const { seedBulletin } = await import("../prisma/seed-bulletin");
-    const bl = await seedBulletin(prisma);
-    console.log(`deploy-db: bulletin — ${bl.granted} authors, ${bl.posts} posts, ${bl.events} events, ${bl.birthdays} birthdays.`);
+    await runStep("bulletin seed", async () => {
+      const { seedBulletin } = await import("../prisma/seed-bulletin");
+      const bl = await seedBulletin(prisma);
+      console.log(`deploy-db: bulletin — ${bl.granted} authors, ${bl.posts} posts, ${bl.events} events, ${bl.birthdays} birthdays.`);
+    });
 
     // Senior-leadership access to the Compliance Command Center: grant every
     // deploy (non-destructive, idempotent).
-    const { grantSeniorLeadership, grantHrAccess, grantBoardObserver } = await import("../prisma/seed-access");
-    const sl = await grantSeniorLeadership(prisma);
-    console.log(`deploy-db: senior leadership — ${sl.granted} user(s) granted.`);
-    const hr = await grantHrAccess(prisma);
-    console.log(`deploy-db: HR access — ${hr.granted} user(s) granted.`);
-    const bo = await grantBoardObserver(prisma);
-    console.log(`deploy-db: board observers — ${bo.granted} user(s) granted.`);
+    await runStep("access grants", async () => {
+      const { grantSeniorLeadership, grantHrAccess, grantBoardObserver } = await import("../prisma/seed-access");
+      const sl = await grantSeniorLeadership(prisma);
+      console.log(`deploy-db: senior leadership — ${sl.granted} user(s) granted.`);
+      const hr = await grantHrAccess(prisma);
+      console.log(`deploy-db: HR access — ${hr.granted} user(s) granted.`);
+      const bo = await grantBoardObserver(prisma);
+      console.log(`deploy-db: board observers — ${bo.granted} user(s) granted.`);
+    });
 
     // Reconcile the branch hub on every deploy. seedBranchHub is idempotent and
     // self-healing: it keys CPO/business licenses by license number globally, so
     // it repairs an older deploy (a holder assigned to the wrong branch, a
     // missing operator, or leases added after the first seed) without touching
     // manager-uploaded docs or re-storing PDFs that are already on file.
-    const { seedBranchHub } = await import("../prisma/seed-branch");
-    const bh = await seedBranchHub(prisma);
-    console.log(`deploy-db: reconciled branch hub (${bh.created} created, ${bh.updated} updated).`);
+    await runStep("branch hub reconcile", async () => {
+      const { seedBranchHub } = await import("../prisma/seed-branch");
+      const bh = await seedBranchHub(prisma);
+      console.log(`deploy-db: reconciled branch hub (${bh.created} created, ${bh.updated} updated).`);
+    });
 
     // PTO: give active employees a default annual allotment where HR hasn't set
-    // one (non-destructive — only fills nulls), and seed a single demo pending
-    // request so the approval flow + calendar have data to show. Both idempotent.
-    const allowance = await prisma.employee.updateMany({
-      where: { status: "active", ptoAllowanceDays: null },
-      data: { ptoAllowanceDays: 10 },
-    });
-    console.log(`deploy-db: set default PTO allotment on ${allowance.count} employee(s).`);
-    const ptoCount = await prisma.ptoRequest.count();
-    if (ptoCount === 0) {
-      const demoEmp = await prisma.employee.findFirst({
-        where: { status: "active", branch: { not: null }, user: { isNot: null } },
-        orderBy: { name: "asc" },
+    // one (non-destructive — only fills nulls). Idempotent.
+    await runStep("PTO allotment backfill", async () => {
+      const allowance = await prisma.employee.updateMany({
+        where: { status: "active", ptoAllowanceDays: null },
+        data: { ptoAllowanceDays: 10 },
       });
-      if (demoEmp) {
-        const start = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 10));
-        const end = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 12));
-        await prisma.ptoRequest.create({
-          data: { employeeId: demoEmp.id, startDate: start, endDate: end, days: 3, type: "vacation", note: "Demo request", status: "pending" },
-        });
-        console.log(`deploy-db: created demo pending PTO request for ${demoEmp.name}.`);
-      }
-    } else {
-      console.log(`deploy-db: PTO requests present (${ptoCount}) — left as-is.`);
+      console.log(`deploy-db: set default PTO allotment on ${allowance.count} employee(s).`);
+    });
+
+    // Demo PTO request — DEMO MODE ONLY. Seeds a single pending request so the
+    // approval flow + calendar have data during a live walkthrough. Never seeded
+    // in production (real PTO is entered in-app); gated by DEMO_MODE=1.
+    if (isDemoModeEnv()) {
+      await runStep("demo PTO request", async () => {
+        const ptoCount = await prisma.ptoRequest.count();
+        if (ptoCount === 0) {
+          const demoEmp = await prisma.employee.findFirst({
+            where: { status: "active", branch: { not: null }, user: { isNot: null } },
+            orderBy: { name: "asc" },
+          });
+          if (demoEmp) {
+            const start = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 10));
+            const end = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 12));
+            await prisma.ptoRequest.create({
+              data: { employeeId: demoEmp.id, startDate: start, endDate: end, days: 3, type: "vacation", note: "[DEMO] request", status: "pending" },
+            });
+            console.log(`deploy-db: [demo] created demo pending PTO request for ${demoEmp.name}.`);
+          }
+        } else {
+          console.log(`deploy-db: PTO requests present (${ptoCount}) — left as-is.`);
+        }
+      });
     }
 
     // Manager oversight checklists: upsert the weekly + monthly templates every
     // deploy (idempotent by key — refreshes item text without touching signed
     // completions, which are append-only).
-    const { seedChecklists } = await import("../prisma/seed-checklists");
-    const cl = await seedChecklists(prisma);
-    console.log(`deploy-db: reconciled oversight checklists (weekly=${cl.weekly} items, monthly=${cl.monthly} items).`);
+    await runStep("oversight checklists reconcile", async () => {
+      const { seedChecklists } = await import("../prisma/seed-checklists");
+      const cl = await seedChecklists(prisma);
+      console.log(`deploy-db: reconciled oversight checklists (weekly=${cl.weekly} items, monthly=${cl.monthly} items).`);
+    });
 
     // Document center: upsert the employee handbook + manager manual from the
     // Markdown sources every deploy (idempotent by slug — refreshes body/title
     // without touching acknowledgments, which are append-only, or bumping the
     // version).
-    const acksBefore = await prisma.documentAcknowledgment.count();
-    const { seedDocuments } = await import("../prisma/seed-documents");
-    const docs = await seedDocuments(prisma);
-    const acksAfter = await prisma.documentAcknowledgment.count();
-    console.log(
-      `deploy-db: reconciled document center (${docs.map((d) => `${d.slug} v${d.version} ${d.length}c`).join(", ")}; ` +
-        `acknowledgments ${acksBefore}->${acksAfter} ${acksAfter === acksBefore ? "UNCHANGED" : "CHANGED"}).`,
-    );
+    await runStep("document center reconcile", async () => {
+      const acksBefore = await prisma.documentAcknowledgment.count();
+      const { seedDocuments } = await import("../prisma/seed-documents");
+      const docs = await seedDocuments(prisma);
+      const acksAfter = await prisma.documentAcknowledgment.count();
+      console.log(
+        `deploy-db: reconciled document center (${docs.map((d) => `${d.slug} v${d.version} ${d.length}c`).join(", ")}; ` +
+          `acknowledgments ${acksBefore}->${acksAfter} ${acksAfter === acksBefore ? "UNCHANGED" : "CHANGED"}).`,
+      );
+    });
 
     // Backfill public apply tokens on any Job that predates the public
     // application "front door", so every existing job gets a shareable
     // /apply/<token> link. Idempotent — only fills nulls, one unique token each.
-    const jobsMissingToken = await prisma.job.findMany({ where: { applyToken: null }, select: { id: true } });
-    for (const j of jobsMissingToken) {
-      await prisma.job.update({ where: { id: j.id }, data: { applyToken: randomBytes(12).toString("base64url") } });
-    }
-    console.log(`deploy-db: backfilled apply tokens on ${jobsMissingToken.length} job(s).`);
+    await runStep("apply-token backfill", async () => {
+      const jobsMissingToken = await prisma.job.findMany({ where: { applyToken: null }, select: { id: true } });
+      for (const j of jobsMissingToken) {
+        await prisma.job.update({ where: { id: j.id }, data: { applyToken: randomBytes(12).toString("base64url") } });
+      }
+      console.log(`deploy-db: backfilled apply tokens on ${jobsMissingToken.length} job(s).`);
+    });
 
     // Seed the off-the-shelf Hiring Template Library (interview + screening
     // templates + the categorized question bank). Idempotent — templates are
@@ -487,20 +560,18 @@ async function main() {
       console.error("deploy-db: hiring-templates seed FAILED (non-fatal, continuing):", e);
     }
 
-    // Seed the [DEMO] ATS applicant-pipeline walkthrough (idempotent, clearly
-    // labeled, removable). Lets the CEO walk shortlist→screening→interview→
-    // ranking→selection→pre-hire live on the deployed site.
-    // NON-FATAL: a demo-seed failure must NEVER fail the build/deploy (the
-    // schema push above is the only hard requirement). Log and continue so
-    // production always ships the latest code even if this seed hiccups.
-    try {
-      const { seedAtsDemo } = await import("../prisma/seed-ats-demo");
-      const atsDemo = await seedAtsDemo(prisma);
-      console.log(
-        `deploy-db: ATS demo — job ${atsDemo.jobId} (${atsDemo.created} candidates created, ${atsDemo.updated} updated; supervisor ${atsDemo.supervisor ?? "n/a"}).`,
-      );
-    } catch (e) {
-      console.error("deploy-db: ATS demo seed FAILED (non-fatal, continuing):", e);
+    // Seed the [DEMO] ATS applicant-pipeline walkthrough — DEMO MODE ONLY.
+    // Lets the CEO walk shortlist→screening→interview→ranking→selection→pre-hire
+    // live during a demo. Never seeded in production (real candidates come in via
+    // the public apply flow); gated by DEMO_MODE=1. Idempotent + non-fatal.
+    if (isDemoModeEnv()) {
+      await runStep("ATS demo seed", async () => {
+        const { seedAtsDemo } = await import("../prisma/seed-ats-demo");
+        const atsDemo = await seedAtsDemo(prisma);
+        console.log(
+          `deploy-db: [demo] ATS demo — job ${atsDemo.jobId} (${atsDemo.created} candidates created, ${atsDemo.updated} updated; supervisor ${atsDemo.supervisor ?? "n/a"}).`,
+        );
+      });
     }
 
     // Reconcile REAL physical on-hand counts (7/27/2026) for all four branches.
@@ -519,14 +590,16 @@ async function main() {
     // Remove the "Jordan Rivera" demo new-hire (a placeholder used while building
     // the review flow). Deleting the profile cascades its reviews; the login goes
     // first. Idempotent — a no-op once it's gone. Real reviews are created in-app.
-    const demo = await prisma.employee.findFirst({ where: { email: "jordan.rivera@clementspestcontrol.com" } });
-    if (demo) {
-      await prisma.user.deleteMany({ where: { employeeId: demo.id } });
-      await prisma.employee.delete({ where: { id: demo.id } });
-      console.log("deploy-db: removed Jordan Rivera demo new-hire.");
-    } else {
-      console.log("deploy-db: no demo new-hire to remove.");
-    }
+    await runStep("Jordan Rivera demo removal", async () => {
+      const demo = await prisma.employee.findFirst({ where: { email: "jordan.rivera@clementspestcontrol.com" } });
+      if (demo) {
+        await prisma.user.deleteMany({ where: { employeeId: demo.id } });
+        await prisma.employee.delete({ where: { id: demo.id } });
+        console.log("deploy-db: removed Jordan Rivera demo new-hire.");
+      } else {
+        console.log("deploy-db: no demo new-hire to remove.");
+      }
+    });
   } finally {
     await prisma.$disconnect();
   }

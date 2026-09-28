@@ -1,13 +1,15 @@
 import type { PrismaClient } from "@prisma/client";
+import { isDemoModeEnv } from "../lib/demo";
 
-// Sales Team access + demo data, applied on deploy. Idempotent and safe:
+// Sales Team access, applied on deploy. Idempotent and safe:
 //  1. Every "Service Advisor" login gets the `sales` access level (self-service
 //     sales dashboard + goal planner) — never downgrades a manager/admin.
 //  2. The Sales Director (Howard Cohn / "Dir. of Sales") gets the focused
 //     `sales_director` access level (cross-branch sales oversight).
-//  3. A filled example goal sheet is created for Josh Flagg for the current
-//     month IF he has none yet — so the director dashboard shows real numbers.
-//     Never overwrites a sheet the advisor already entered.
+//  3. DEMO MODE ONLY: a filled example goal sheet is created for Josh Flagg for
+//     the current month IF he has none yet — so the director dashboard has
+//     numbers during a walkthrough. Never seeded in production; never overwrites
+//     a sheet the advisor already entered.
 
 function currentPeriodKey(d = new Date()): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -40,10 +42,12 @@ export async function seedSalesTeamAccess(prisma: PrismaClient) {
     directorSet = director.name;
   }
 
-  // 3) Example goal sheet for Josh Flagg (current month), only if none exists.
+  // 3) DEMO ONLY: example goal sheet for Josh Flagg (current month), if none exists.
   const periodKey = currentPeriodKey();
   let exampleCreated = false;
-  const josh = await prisma.employee.findFirst({ where: { name: { contains: "Josh Flagg" } }, select: { id: true, branch: true } });
+  const josh = isDemoModeEnv()
+    ? await prisma.employee.findFirst({ where: { name: { contains: "Josh Flagg" } }, select: { id: true, branch: true } })
+    : null;
   if (josh) {
     const existing = await prisma.salesGoalSheet.findUnique({ where: { advisorEmployeeId_periodKey: { advisorEmployeeId: josh.id, periodKey } } });
     if (!existing) {

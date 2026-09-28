@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { separationForEmployee, SEPARATION_TYPES, REASON_CATEGORIES, EXIT_INTERVIEW, parseJson, type SeparationDoc } from "@/lib/separation";
@@ -34,6 +34,9 @@ function gradeChip(grade: string) {
 export default async function EmployeePage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { id } = await params;
+  // A branch-locked manager may not open the company HR profile — route them to
+  // their own branch-scoped Team profile (which hard-redirects cross-branch).
+  if (branchLocked(user)) redirect(`/my-branch/team/${id}`);
   // Admin Lite may only open profiles of people on their own team (org-chart
   // subtree); full admin / HR are unrestricted.
   const scope = await visibleEmployeeIds(user);

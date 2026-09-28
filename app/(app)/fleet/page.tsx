@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, scopedBranch } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
@@ -17,7 +17,9 @@ export default async function FleetPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  // Branch-locked managers only see their own branch's fleet.
+  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const branch = scopedBranch(user, requested);
   const [vehicles, inactive, reminders] = await Promise.all([
     listVehicles(branch ?? undefined, "active"),
     listVehicles(branch ?? undefined, "inactive"),

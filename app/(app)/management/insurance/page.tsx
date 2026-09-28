@@ -20,14 +20,8 @@ const iso = (d: Date | null) => (d ? d.toISOString() : null);
 export default async function InsurancePage() {
   const user = await requireUser();
   if (isBoardObserver(user)) redirect("/management/board");
-  if (user.role !== "admin" && user.role !== "manager") {
-    return (
-      <>
-        <PageHeader title="Insurance" subtitle="Policies, renewals & payment forecasting" />
-        <EmptyState title="Managers only" hint="Ask an admin or manager for access to the insurance module." />
-      </>
-    );
-  }
+  // Company insurance is exec / HR only — plain branch managers are sent to their branch.
+  if (user.role !== "admin" && !user.seniorLeadership && !user.hrAccess) redirect("/my-branch");
 
   const [groups, costs, renewals, forecast, summary] = await Promise.all([
     listPoliciesByLine(), annualCostByLine(), upcomingRenewals(90), monthlyForecast(12), insuranceSummary(),

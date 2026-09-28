@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, canViewExec, canManageSales } from "@/lib/auth";
 import { money } from "@/lib/format";
 import {
   BRANCHES,
@@ -28,6 +29,8 @@ export default async function SalesPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  // Company-wide Sales & Attrition is exec / sales-leadership only.
+  if (!canViewExec(user) && !canManageSales(user)) redirect("/my-branch");
   const sp = await searchParams;
   const snap = await latestSalesSnapshot();
   const canSync = user.role === "admin" || user.role === "manager";

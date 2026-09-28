@@ -23,14 +23,9 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   const user = await requireUser();
   if (isBoardObserver(user)) redirect("/management/board");
   const sp = await searchParams;
-  if (user.role !== "admin" && user.role !== "manager") {
-    return (
-      <>
-        <PageHeader title="Document Center" subtitle="Vehicle documents" />
-        <EmptyState title="Managers only" hint="Ask an admin or manager to file vehicle documents." />
-      </>
-    );
-  }
+  // The company vehicle Document Center is exec / HR only; branch managers use
+  // their Branch Hub for on-site documents.
+  if (user.role !== "admin" && !user.seniorLeadership && !user.hrAccess) redirect("/my-branch/documents");
 
   const [vehicles, pending, filed, expiring] = await Promise.all([
     listVehicles(undefined, "all"),

@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, isBoardObserver } from "@/lib/auth";
+import { requireUser, isBoardObserver, canViewExec } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
 import {
@@ -42,6 +43,9 @@ export default async function BoardPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  // Company financials are exec-only — a branch manager who reaches this URL is
+  // sent back to their branch (nav-hiding is not sufficient authorization).
+  if (!canViewExec(user)) redirect("/my-branch");
   const isObserver = isBoardObserver(user);
   const sp = await searchParams;
   const periods = await listPeriods();

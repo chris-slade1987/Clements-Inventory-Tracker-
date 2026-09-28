@@ -78,3 +78,44 @@ export async function seedOrgRoster(prisma: PrismaClient) {
 
   return { people: roster.length, employeesCreated: created, loginsCreated, reportingLinesSet: lines };
 }
+
+// Corrective, UPGRADE-ONLY reconcile for the access-level backfill bug: a real
+// leader (roster level manager / sales_director / admin / super_admin) whose
+// login is currently sitting at the default "technician" (or null) — e.g.
+// because `backfillAccessLevels` ran before the roster on an earlier deploy — is
+// promoted to the roster's level + matching role, and their branch is filled if
+// blank. Never DOWNGRADES (leaves anyone already at a higher/equal level or an
+// intentionally-different level alone), so it's safe to run every deploy.
+export async function reconcileRosterLeaders(prisma: PrismaClient) {
+  const roster = JSON.parse(readFileSync(join(process.cwd(), "prisma", "data", "org-roster.json"), "utf8")) as Person[];
+  const ELEVATED = new Set(["manager", "sales_director", "admin", "super_admin"]);
+  const users = await prisma.user.findMany({ select: { id: true, name: true, email: true, employeeId: true, accessLevel: true, branch: true } });
+  const emps = await prisma.employee.findMany({ select: { id: true, name: true } });
+  const empIdByName = new Map(emps.map((e) => [norm(e.name), e.id]));
+
+  let promoted = 0;
+  const changed: string[] = [];
+  for (const p of roster) {
+    if (!ELEVATED.has(p.level)) continue;
+    const empId = empIdByName.get(norm(p.name));
+    const user =
+      (empId && users.find((u) => u.employeeId === empId)) ||
+      users.find((u) => norm(u.name) === norm(p.name)) ||
+      users.find((u) => u.email.toLowerCase() === emailFor(p.name));
+    if (!user) continue;
+    // Only correct the wrong default — never downgrade a deliberate assignment.
+    if (user.accessLevel && user.accessLevel !== "technician") {
+      // still fill a blank branch for a leader if the roster has one
+      if (!user.branch && p.branch) await prisma.user.update({ where: { id: user.id }, data: { branch: p.branch } });
+      continue;
+    }
+    const role = LEVEL_ROLE[p.level as AccessLevelKey] ?? "employee";
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { accessLevel: p.level, role, ...(!user.branch && p.branch ? { branch: p.branch } : {}) },
+    });
+    promoted++;
+    changed.push(`${p.name}→${p.level}`);
+  }
+  return { promoted, changed };
+}

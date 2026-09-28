@@ -92,6 +92,15 @@ export function canObserveBoard(user: SessionUser): boolean {
   return user.role === "admin" || user.seniorLeadership || user.boardObserver;
 }
 
+/** May view company-wide executive surfaces (company financials, company Sales
+ *  & Attrition, insurance, the company document center). Admins, senior
+ *  leadership, and read-only board observers — NOT plain branch managers, who
+ *  must stay inside their own branch. Use this to guard `/management/*` pages
+ *  that show cross-branch/company data so nav-hiding isn't the only defense. */
+export function canViewExec(user: SessionUser): boolean {
+  return user.role === "admin" || user.seniorLeadership || user.boardObserver;
+}
+
 /** Who may manage the Sales Team area (cross-branch advisor oversight & goals):
  *  admins / super admins and the Sales Director. */
 export function canManageSales(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
