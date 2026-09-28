@@ -600,6 +600,21 @@ async function main() {
         console.log("deploy-db: no demo new-hire to remove.");
       }
     });
+
+    // Oct 1, 2026 "full fresh start" — one-time, operator-gated production
+    // cleanup for the manager/director launch. INERT unless FRESH_START_2026_10=1
+    // is set in the environment, and applies EXACTLY ONCE (Setting-marker
+    // guarded). Runs LAST so it clears operational/test data after every seed.
+    // Clears inspections, checklist runs, audits, alerts/reminders, test PTO/
+    // sales/threads/candidates/personnel records, etc.; KEEPS inventory, people,
+    // logins, financials, fleet/insurance/branch-hub reference, templates,
+    // courses, bulletin, holidays, and policy documents. Provisions the real
+    // branch managers + deactivates placeholders. NON-FATAL.
+    await runStep("fresh-start 2026-10 (gated)", async () => {
+      const { freshStart2026 } = await import("./fresh-start-2026-10");
+      const fresh = await freshStart2026(prisma);
+      console.log("deploy-db: fresh-start 2026-10 —", JSON.stringify(fresh));
+    });
   } finally {
     await prisma.$disconnect();
   }
