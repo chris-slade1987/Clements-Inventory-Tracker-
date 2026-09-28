@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signatureRoles } from "@/lib/personnel";
@@ -29,6 +30,6 @@ export async function POST(req: Request) {
     await prisma.signatureRequest.update({ where: { id: request.id }, data: { signedAt: new Date(), signerName } });
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

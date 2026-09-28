@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
@@ -11,7 +13,7 @@ export const maxDuration = 20;
 
 const str = (v: FormDataEntryValue | null) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const date = (v: FormDataEntryValue | null) => { const s = typeof v === "string" ? v : ""; if (!s) return null; const d = new Date(s); return isNaN(d.getTime()) ? null : d; };
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const base = () => appUrl();
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -85,6 +87,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, id: record.id, notified: recipients, emailStatus: res.status });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

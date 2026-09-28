@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +16,7 @@ const str = (v: unknown) => {
   const s = typeof v === "string" ? v.trim() : "";
   return s === "" ? null : s;
 };
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const base = () => appUrl();
 
 // New-hire 30/60-day review workflow.
 //   send  — HR assigns a reviewer, notifies reviewer + employee (HR only)
@@ -201,6 +203,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

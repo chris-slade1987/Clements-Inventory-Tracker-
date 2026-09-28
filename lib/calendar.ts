@@ -30,7 +30,7 @@ export type CandidateLike = {
   jobTitle?: string | null;
 };
 
-const APP_NAME = "Canopy OS";
+const APP_NAME = "CanopyOS";
 
 /** UTC timestamp in the iCalendar basic format: 20260719T143000Z. */
 function toIcsUtc(d: Date): string {

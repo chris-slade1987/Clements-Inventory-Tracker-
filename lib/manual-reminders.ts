@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { leadWindowOpen } from "@/lib/reminders-shared";
 
 // Manual reminders managers / HR create and tag to an employee or vehicle.
 // Stored (unlike the computed managerReminders), they surface on dashboards
@@ -60,7 +61,7 @@ export async function activeManualReminders(branch?: string | null) {
     orderBy: { dueDate: "asc" },
     include: { employee: { select: { name: true } }, vehicle: { select: { unitNumber: true, name: true } } },
   });
-  return rows.filter((r) => r.dueDate.getTime() - r.leadDays * 864e5 <= now);
+  return rows.filter((r) => leadWindowOpen(r.dueDate, r.leadDays, now));
 }
 
 export async function remindersForEmployee(employeeId: string) {

@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { ingestCoastStatement } from "@/lib/fuel";
@@ -32,6 +33,6 @@ export async function POST(req: Request) {
     if (!result.ok) return NextResponse.json({ error: result.error ?? "Could not read that statement." }, { status: 400 });
     return NextResponse.json(result);
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

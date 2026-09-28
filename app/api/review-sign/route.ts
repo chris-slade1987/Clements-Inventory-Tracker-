@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getHrEmail } from "@/lib/personnel";
@@ -8,7 +10,7 @@ import { sendEmail } from "@/lib/email";
 export const runtime = "nodejs";
 export const maxDuration = 20;
 
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const base = () => appUrl();
 
 // Public, token-based employee signing for a new-hire review — no login. The
 // unguessable token is the capability. Only the employee signature is captured
@@ -49,6 +51,6 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

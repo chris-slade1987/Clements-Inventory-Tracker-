@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { leadWindowOpen } from "@/lib/reminders-shared";
 import { isDueSoon, listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
@@ -123,11 +124,12 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
     }
   }
 
-  // Monthly warehouse safety inspection outstanding (per branch).
+  // Monthly warehouse safety inspection outstanding (per branch). Check every
+  // branch in parallel rather than serially (avoids an N+1 across branches).
   const whBranches = branch ? [branch] : BRANCHES.map((b) => b.key);
-  for (const bk of whBranches) {
-    const wh = await warehouseStatus(year, month, bk);
-    if (!wh.done) {
+  const whStatuses = await Promise.all(whBranches.map((bk) => warehouseStatus(year, month, bk)));
+  whBranches.forEach((bk, i) => {
+    if (!whStatuses[i].done) {
       reminders.push({
         kind: "warehouse_due",
         severity: "warning",
@@ -138,7 +140,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         dueDate: null,
       });
     }
-  }
+  });
 
   // Open audit action items assigned to the branch manager (deadline-driven).
   const followUps = await openFollowUps(branch);
@@ -317,7 +319,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
     include: { employee: { select: { name: true } }, vehicle: { select: { id: true, unitNumber: true, name: true } } },
   });
   for (const r of manual) {
-    if (r.dueDate.getTime() - r.leadDays * DAY > now.getTime()) continue; // lead window not open yet
+    if (!leadWindowOpen(r.dueDate, r.leadDays, now.getTime())) continue; // lead window not open yet
     const days = Math.round((r.dueDate.getTime() - now.getTime()) / DAY);
     const overdue = days < 0;
     const tag = r.employee ? ` · ${r.employee.name}` : r.vehicle ? ` · ${r.vehicle.unitNumber ? `#${r.vehicle.unitNumber} ` : ""}${r.vehicle.name}` : "";

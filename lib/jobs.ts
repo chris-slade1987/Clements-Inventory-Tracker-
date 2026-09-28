@@ -1,4 +1,6 @@
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/prisma";
+import { leadWindowOpen } from "@/lib/reminders-shared";
 import { sendEmail } from "@/lib/email";
 import { signatureRoles, recordTypeLabel, getHrEmail } from "@/lib/personnel";
 import { dueFromStart, REVIEW_LABEL } from "@/lib/review";
@@ -7,7 +9,7 @@ import { branchLabel, BRANCHES } from "@/lib/management";
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
 // Called by the daily cron (/api/cron/daily) and the manual admin endpoints.
 
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const base = () => appUrl();
 
 /** Email every employee with an incomplete training assignment, once per day. */
 export async function remindTraining() {
@@ -27,8 +29,8 @@ export async function remindTraining() {
       kind: "training_reminder",
       relatedType: "training_assignment",
       relatedId: a.id,
-      text: `Hi ${first},\n\nReminder to complete your assigned training "${a.course.title}"${due}.\n\nComplete it here: ${base()}/me/training/${a.id}\n\n— Canopy OS`,
-      html: `<p>Hi ${first},</p><p>Reminder to complete your assigned training <strong>${a.course.title}</strong>${due}.</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>— Canopy OS</p>`,
+      text: `Hi ${first},\n\nReminder to complete your assigned training "${a.course.title}"${due}.\n\nComplete it here: ${base()}/me/training/${a.id}\n\n— CanopyOS`,
+      html: `<p>Hi ${first},</p><p>Reminder to complete your assigned training <strong>${a.course.title}</strong>${due}.</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>— CanopyOS</p>`,
     });
     await prisma.trainingAssignment.update({ where: { id: a.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;
@@ -106,8 +108,8 @@ export async function remindReviewSignatures() {
           kind: "review_reminder",
           relatedType: "newhire_review",
           relatedId: r.id,
-          text: `Reminder to complete and sign ${r.employee.name}'s ${label}.\n\nOpen it: ${base()}/reviews/${r.id}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
-          html: `<p>Reminder to complete and sign <strong>${r.employee.name}</strong>'s ${label}.</p><p><a href="${base()}/reviews/${r.id}">Open the review →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
+          text: `Reminder to complete and sign ${r.employee.name}'s ${label}.\n\nOpen it: ${base()}/reviews/${r.id}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
+          html: `<p>Reminder to complete and sign <strong>${r.employee.name}</strong>'s ${label}.</p><p><a href="${base()}/reviews/${r.id}">Open the review →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
         });
         if (res.status === "sent") sent++;
       }
@@ -120,8 +122,8 @@ export async function remindReviewSignatures() {
         kind: "review_reminder",
         relatedType: "newhire_review",
         relatedId: r.id,
-        text: `Hi ${r.employee.name.split(" ")[0]},\n\nReminder to review and e-sign your ${label}.\n\nSign here: ${base()}/review-sign/${r.employeeToken}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
-        html: `<p>Hi ${r.employee.name.split(" ")[0]},</p><p>Reminder to review and e-sign your ${label}.</p><p><a href="${base()}/review-sign/${r.employeeToken}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
+        text: `Hi ${r.employee.name.split(" ")[0]},\n\nReminder to review and e-sign your ${label}.\n\nSign here: ${base()}/review-sign/${r.employeeToken}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
+        html: `<p>Hi ${r.employee.name.split(" ")[0]},</p><p>Reminder to review and e-sign your ${label}.</p><p><a href="${base()}/review-sign/${r.employeeToken}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
       });
       if (res.status === "sent") sent++;
     }
@@ -166,8 +168,8 @@ export async function remindVehicleDocs() {
       kind: "doc_renewal",
       relatedType: "vehicle_document",
       relatedId: d.id,
-      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— Canopy OS`,
-      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— Canopy OS</p>`,
+      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— CanopyOS`,
+      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— CanopyOS</p>`,
     });
     await prisma.vehicleDocument.update({ where: { id: d.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;
@@ -189,7 +191,7 @@ export async function remindManual() {
   });
   let sent = 0;
   for (const r of open) {
-    if (r.dueDate.getTime() - r.leadDays * 864e5 > now.getTime()) continue; // lead window not open
+    if (!leadWindowOpen(r.dueDate, r.leadDays, now.getTime())) continue; // lead window not open
     const days = Math.round((r.dueDate.getTime() - now.getTime()) / 864e5);
     const overdue = days < 0;
     const tag = r.employee ? ` — ${r.employee.name}` : r.vehicle ? ` — ${r.vehicle.unitNumber ? `#${r.vehicle.unitNumber} ` : ""}${r.vehicle.name}` : "";
@@ -212,8 +214,8 @@ export async function remindManual() {
         kind: "manual_reminder",
         relatedType: "reminder",
         relatedId: r.id,
-        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— Canopy OS`,
-        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— Canopy OS</p>`,
+        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— CanopyOS`,
+        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— CanopyOS</p>`,
       });
       if (res.status === "sent") sent++;
     }
@@ -242,8 +244,8 @@ export async function remindSignatures() {
       kind: "signature_reminder",
       relatedType: "personnel_record",
       relatedId: r.recordId,
-      text: `Reminder to review and e-sign the ${label.toLowerCase()} as "${roleDef?.label ?? r.role}".\n\nSign here: ${link}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— Canopy OS`,
-      html: `<p>Reminder to review and e-sign the <strong>${label.toLowerCase()}</strong> as <strong>${roleDef?.label ?? r.role}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— Canopy OS</p>`,
+      text: `Reminder to review and e-sign the ${label.toLowerCase()} as "${roleDef?.label ?? r.role}".\n\nSign here: ${link}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
+      html: `<p>Reminder to review and e-sign the <strong>${label.toLowerCase()}</strong> as <strong>${roleDef?.label ?? r.role}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
     });
     await prisma.signatureRequest.update({ where: { id: r.id }, data: { lastReminderAt: now } });
     if (res.status === "sent") sent++;

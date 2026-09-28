@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createSession, verifyPassword } from "@/lib/auth";
@@ -35,11 +36,8 @@ export async function POST(req: Request) {
         : user.role === "employee" ? "/me" : user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
     return NextResponse.json({ ok: true, redirect });
   } catch (e) {
-    // Surface the underlying cause (e.g. database not reachable / not migrated)
-    // instead of a generic failure, so setup issues are diagnosable.
-    return NextResponse.json(
-      { error: `Sign-in error: ${(e as Error).message}` },
-      { status: 500 }
-    );
+    // Log the underlying cause server-side (DB unreachable / not migrated) for
+    // diagnosis, but never leak it to an unauthenticated caller.
+    return fail(e, 500);
   }
 }

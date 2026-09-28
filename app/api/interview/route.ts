@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
@@ -19,7 +21,7 @@ const str = (v: unknown) => {
   const s = typeof v === "string" ? v.trim() : "";
   return s === "" ? null : s;
 };
-const base = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const base = () => appUrl();
 
 // Interviewer-side scorecard workflow.
 //   save   — partial draft save (assigned interviewer or HR)
@@ -85,6 +87,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

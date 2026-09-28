@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { hasInsightsKey, runInsightsChat, type InsightsMessage } from "@/lib/insights";
@@ -32,6 +33,6 @@ export async function POST(req: Request) {
     const reply = await runInsightsChat(messages);
     return NextResponse.json({ configured: true, reply });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

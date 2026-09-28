@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { recordInAppAck, recordTokenAck } from "@/lib/policy-docs";
@@ -38,6 +39,6 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true, version: ack.version, acknowledgedAt: ack.acknowledgedAt, already });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

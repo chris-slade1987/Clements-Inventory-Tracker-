@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { claudeExtractMbr, commitMbr, normalize, type ParsedMbr } from "@/lib/mbr/extract";
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       const result = await commitMbr(body.parsed as ParsedMbr);
       return NextResponse.json({ ok: true, ...result });
     } catch (e) {
-      return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+      return fail(e);
     }
   }
 

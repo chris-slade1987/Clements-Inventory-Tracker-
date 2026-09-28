@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, canManageSales } from "@/lib/auth";
@@ -37,6 +38,6 @@ export async function POST(req: Request) {
     const sheet = await upsertGoalSheet(advisorEmployeeId, periodKey, data, { branch: emp?.branch ?? null, userId: user.id });
     return NextResponse.json({ ok: true, id: sheet.id, periodKey });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, type SessionUser } from "@/lib/auth";
@@ -20,7 +22,7 @@ export const maxDuration = 20;
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const dateOf = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; if (!t) return null; const d = new Date(t); return isNaN(d.getTime()) ? null : d; };
 
-const APP = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const APP = () => appUrl();
 const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 
 /** May the actor decide (approve/deny) or set allowance for someone on `branch`? */
@@ -142,6 +144,6 @@ ${hrRouteNote}<p>Review it${link ? `: <a href="${link}">${link}</a>` : "."}.${ma
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }

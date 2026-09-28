@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/prisma";
 import { cell, periodValues, BRANCHES, branchLabel, type Cell } from "@/lib/management";
 import { branchQuarterAll, type BranchKpiKey } from "@/lib/branch-kpis";
@@ -367,7 +368,7 @@ export async function listArchivedReviews(branches: string[]) {
   });
 }
 
-const APP_BASE = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+const APP_BASE = () => appUrl();
 
 /** Active-admin login emails (recipients for change notices). */
 async function adminEmails(): Promise<string[]> {

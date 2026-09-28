@@ -1,3 +1,4 @@
+import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { canManageAts } from "@/lib/ats";
@@ -78,6 +79,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+    return fail(e);
   }
 }
