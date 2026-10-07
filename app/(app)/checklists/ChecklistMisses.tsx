@@ -42,6 +42,10 @@ export default function ChecklistMisses({
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bulk clear (CEO / HR only) — one note applied to every open miss.
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkNote, setBulkNote] = useState("");
+  const [bulkError, setBulkError] = useState<string | null>(null);
 
   async function clearMiss(missId: string) {
     if (!note.trim()) return setError("A note is required to clear this.");
@@ -60,15 +64,68 @@ export default function ChecklistMisses({
     router.refresh();
   }
 
+  async function clearAll() {
+    if (!bulkNote.trim()) return setBulkError("A note is required to clear these.");
+    setBusy(true);
+    setBulkError(null);
+    const res = await fetch("/api/checklists/miss", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "clearAll", note: bulkNote.trim() }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) return setBulkError(data.error ?? "Could not clear.");
+    setBulkOpen(false);
+    setBulkNote("");
+    router.refresh();
+  }
+
   return (
     <div className="space-y-4">
       <Card className="p-0 overflow-hidden ring-1 ring-red-200" data-testid="missed-checklists">
-        <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-3">
           <div className="text-sm font-medium text-ink">Missed checklists</div>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${open.length === 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
-            {open.length === 0 ? "None open" : `${open.length} open`}
-          </span>
+          <div className="flex items-center gap-3">
+            {canClear && open.length > 0 ? (
+              <button
+                onClick={() => { setBulkOpen((v) => !v); setBulkNote(""); setBulkError(null); }}
+                className="text-xs font-medium text-brand-700 hover:underline"
+                data-testid="clear-all-btn"
+              >
+                {bulkOpen ? "Cancel" : `Clear all ${open.length}`}
+              </button>
+            ) : null}
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${open.length === 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+              {open.length === 0 ? "None open" : `${open.length} open`}
+            </span>
+          </div>
         </div>
+        {canClear && bulkOpen && open.length > 0 ? (
+          <div className="border-b border-line bg-amber-50/60 px-4 py-3">
+            <div className="text-sm font-medium text-ink">Clear all {open.length} open missed checklists</div>
+            <p className="mt-0.5 text-xs text-muted">
+              One note is recorded on every cleared item (who &amp; when is stamped automatically). They stay on the cleared-history record.
+            </p>
+            <textarea
+              value={bulkNote}
+              onChange={(e) => setBulkNote(e.target.value)}
+              placeholder="Required: reason these are being cleared (e.g. pre-launch weeks — waived)"
+              className="mt-2 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface"
+              rows={2}
+              data-testid="clear-all-note"
+            />
+            {bulkError ? <p className="mt-1 text-sm text-red-600">{bulkError}</p> : null}
+            <button
+              onClick={clearAll}
+              disabled={busy}
+              className={`${btn.primary} mt-2`}
+              data-testid="clear-all-confirm"
+            >
+              {busy ? "Clearing…" : `Clear all ${open.length} with note`}
+            </button>
+          </div>
+        ) : null}
         {open.length === 0 ? (
           <p className="px-4 py-6 text-center text-sm text-muted">No open missed-checklist infractions.</p>
         ) : (
