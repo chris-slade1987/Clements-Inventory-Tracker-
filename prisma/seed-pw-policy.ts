@@ -23,7 +23,7 @@ const OWNER_EMAIL = "c.slade@clementspestcontrol.com";
 // Bumped to force the one-time reset to run again on this deploy (the earlier
 // rollout aborted before it on prod-specific data). A new key = one more
 // guaranteed reset-everyone-to-clements123 pass, then it stays put.
-const PW_POLICY_MARKER = "pw_policy_init_2026_10c";
+const PW_POLICY_MARKER = "pw_policy_init_2026_10d";
 
 // The four leadership logins the CEO wants provisioned, with their REAL work
 // emails. Note Howard's real email is hcohn@ — but the org roster auto-generates
@@ -62,8 +62,10 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
       const byEmail = await prisma.user.findUnique({ where: { email } });
       const byEmployee = await prisma.user.findFirst({ where: { employeeId: e.id } });
       if (byEmail || byEmployee) {
-        // Keep the existing login; just ensure it is linked to this profile.
-        if (byEmail && !byEmail.employeeId) {
+        // Keep the existing login; link it to this profile only if the profile
+        // isn't already linked to another account (avoids a unique-constraint clash
+        // on employee_id when duplicates exist — leaders are consolidated in step 3).
+        if (byEmail && !byEmail.employeeId && !byEmployee) {
           await prisma.user.update({ where: { id: byEmail.id }, data: { employeeId: e.id } });
         }
         continue;
@@ -105,26 +107,44 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
     }
   }
 
-  // 3) Explicitly ensure the four leadership logins exist and can sign in with the
-  //    default password. We only SET the default when there is no usable password
-  //    (missing login, or an empty/placeholder hash) — a leader who has already
-  //    chosen their own password is never clobbered.
+  // 3) BULLETPROOF leadership logins. For each leader we consolidate to exactly
+  //    ONE canonical, active account at their real email with the default password,
+  //    no matter how messy prod got (wrong email like the roster-generated
+  //    first.last@, inactive account, OR duplicate accounts). This is the only way
+  //    to guarantee they can sign in without being able to read prod directly.
+  //    (Temporary launch behavior: it force-sets the default on the leaders every
+  //    deploy; remove once we move to per-person passwords with email.)
+  const emailFor = (name: string) => {
+    const parts = name.trim().toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(Boolean);
+    const first = parts[0] ?? "";
+    const last = parts.length > 1 ? parts[parts.length - 1] : "";
+    return `${last ? `${first}.${last}` : first}@clementspestcontrol.com`;
+  };
   for (const leader of LEADERS) {
     try {
-      const email = leader.email.toLowerCase();
+      const canonical = leader.email.toLowerCase();
+      const rosterGen = emailFor(leader.name).toLowerCase();
       const emp = await prisma.employee.findFirst({ where: { name: leader.name } });
-      let user =
-        (emp && (await prisma.user.findFirst({ where: { employeeId: emp.id } }))) ||
-        (await prisma.user.findUnique({ where: { email } })) ||
-        (await prisma.user.findFirst({ where: { name: leader.name } }));
 
-      if (!user) {
-        user = await prisma.user.create({
+      // Every account that could be this person.
+      const candidates = await prisma.user.findMany({
+        where: {
+          OR: [
+            { name: leader.name },
+            { email: canonical },
+            { email: rosterGen },
+            ...(emp ? [{ employeeId: emp.id }] : []),
+          ],
+        },
+      });
+
+      if (candidates.length === 0) {
+        await prisma.user.create({
           data: {
             name: leader.name,
-            email,
+            email: canonical,
             passwordHash: hashPassword(DEFAULT_PASSWORD),
-            role: "employee", // conservative; roster/access seeds grant real reach
+            role: "employee",
             employeeId: emp?.id ?? null,
             mustChangePassword: true,
           },
@@ -133,23 +153,34 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
         continue;
       }
 
-      const patch: Record<string, unknown> = {};
-      if (!user.active) patch.active = true; // a leadership login must be able to sign in
-      if (emp && !user.employeeId) patch.employeeId = emp.id;
-      // Correct the email to their real address (e.g. Howard's roster-generated
-      // howard.cohn@ → hcohn@), unless another account already holds it.
-      if (user.email.toLowerCase() !== email) {
-        const conflict = await prisma.user.findUnique({ where: { email } });
-        if (!conflict || conflict.id === user.id) patch.email = email;
+      // Choose the primary: employee-linked first, else the canonical-email one, else first.
+      const primary =
+        (emp && candidates.find((c) => c.employeeId === emp.id)) ||
+        candidates.find((c) => c.email.toLowerCase() === canonical) ||
+        candidates[0];
+
+      // Park + deactivate every OTHER candidate so the canonical email is free and
+      // there is only one login this person can use.
+      for (const c of candidates) {
+        if (c.id === primary.id) continue;
+        await prisma.user.update({
+          where: { id: c.id },
+          data: { active: false, email: `disabled+${c.id}@clementspestcontrol.invalid` },
+        });
       }
-      if (!isUsableHash(user.passwordHash)) {
-        patch.passwordHash = hashPassword(DEFAULT_PASSWORD);
-        patch.mustChangePassword = true;
-      }
-      if (Object.keys(patch).length) {
-        await prisma.user.update({ where: { id: user.id }, data: patch });
-        leadersFixed++;
-      }
+
+      // Force the primary to canonical email + active + the shared default password.
+      await prisma.user.update({
+        where: { id: primary.id },
+        data: {
+          email: canonical,
+          active: true,
+          passwordHash: hashPassword(DEFAULT_PASSWORD),
+          mustChangePassword: true,
+          ...(emp && !primary.employeeId ? { employeeId: emp.id } : {}),
+        },
+      });
+      leadersFixed++;
     } catch (err) {
       errors++;
       console.error(`seed-pw-policy: step3 (leader ${leader.email}) failed:`, (err as Error).message);
