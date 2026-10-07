@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { btn } from "@/components/ui";
 
 const inputCls =
   "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-white/40 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30";
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState("manager@clementspest.com");
-  const [password, setPassword] = useState("clements123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -30,8 +28,10 @@ export default function LoginForm() {
         setBusy(false);
         return;
       }
-      router.push(typeof data.redirect === "string" ? data.redirect : "/dashboard");
-      router.refresh();
+      // Full-page navigation (NOT router.push) so no stale client Router Cache
+      // from a previously signed-in account can render — that was causing the
+      // wrong "Welcome <name>" when switching accounts in one browser.
+      window.location.assign(typeof data.redirect === "string" ? data.redirect : "/dashboard");
     } catch {
       setError("Network error. Try again.");
       setBusy(false);

@@ -27,7 +27,11 @@ export function proxy(req: NextRequest) {
     // coarse "must have a cookie" rule below; signed-out visitors still redirect.
     const headers = new Headers(req.headers);
     headers.set("x-pathname", req.nextUrl.pathname);
-    return NextResponse.next({ request: { headers } });
+    const res = NextResponse.next({ request: { headers } });
+    // Authenticated responses are per-user — never let a browser/CDN reuse one
+    // for a different signed-in account (that caused the wrong "Welcome <name>").
+    res.headers.set("Cache-Control", "no-store, must-revalidate");
+    return res;
   }
 
   const url = req.nextUrl.clone();
