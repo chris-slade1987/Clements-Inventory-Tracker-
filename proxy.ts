@@ -20,7 +20,15 @@ const SESSION_COOKIE = "cinv_session";
 
 export function proxy(req: NextRequest) {
   const hasSession = req.cookies.has(SESSION_COOKIE);
-  if (hasSession) return NextResponse.next();
+  if (hasSession) {
+    // Carry the pathname forward as a request header so the (app) layout — which
+    // has DB access but can't see the URL — can enforce the forced-password-change
+    // deadline for the page actually being requested. This does NOT change the
+    // coarse "must have a cookie" rule below; signed-out visitors still redirect.
+    const headers = new Headers(req.headers);
+    headers.set("x-pathname", req.nextUrl.pathname);
+    return NextResponse.next({ request: { headers } });
+  }
 
   const url = req.nextUrl.clone();
   url.pathname = "/login";

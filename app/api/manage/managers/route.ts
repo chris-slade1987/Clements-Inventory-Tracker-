@@ -34,7 +34,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
 
       const m = await prisma.user.create({
-        data: { name, email, passwordHash: hashPassword(password), role, warehouseId, boardObserver: asObserver },
+        // New logins get the admin-set password as a temporary one: the user must
+        // set their own after first login (72h grace, stamped at that login).
+        data: { name, email, passwordHash: hashPassword(password), role, warehouseId, boardObserver: asObserver, mustChangePassword: true },
       });
       return NextResponse.json({ ok: true, id: m.id });
     }
@@ -67,7 +69,12 @@ export async function POST(req: Request) {
       if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
       if (password.length < 8)
         return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
-      await prisma.user.update({ where: { id }, data: { passwordHash: hashPassword(password) } });
+      // A reset hands out a temporary password: force the user to set their own on
+      // next login, and restart the 72h clock from that next login.
+      await prisma.user.update({
+        where: { id },
+        data: { passwordHash: hashPassword(password), mustChangePassword: true, firstLoginAt: null },
+      });
       // Invalidate existing sessions for that user so the old password stops working.
       await prisma.session.deleteMany({ where: { userId: id } });
       return NextResponse.json({ ok: true });

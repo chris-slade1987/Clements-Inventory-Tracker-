@@ -23,7 +23,11 @@ export async function POST(req: Request) {
     if (!row) throw new HttpError("Account not found.", 404);
     if (!verifyPassword(currentPassword, row.passwordHash)) throw new HttpError("Your current password is incorrect.");
 
-    await prisma.user.update({ where: { id: user.id }, data: { passwordHash: hashPassword(newPassword) } });
+    // Setting their own password clears the forced-change requirement.
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hashPassword(newPassword), mustChangePassword: false },
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return fail(e);

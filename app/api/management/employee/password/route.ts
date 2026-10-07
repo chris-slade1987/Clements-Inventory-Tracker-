@@ -27,7 +27,12 @@ export async function POST(req: Request) {
     const login = await prisma.user.findFirst({ where: { employeeId }, select: { id: true, email: true } });
     if (!login) throw new HttpError("This employee has no login account to reset.", 404);
 
-    await prisma.user.update({ where: { id: login.id }, data: { passwordHash: hashPassword(newPassword) } });
+    // An admin reset hands out a temporary password: force the user to set their
+    // own on next login, and restart the 72h clock from that next login.
+    await prisma.user.update({
+      where: { id: login.id },
+      data: { passwordHash: hashPassword(newPassword), mustChangePassword: true, firstLoginAt: null },
+    });
     return NextResponse.json({ ok: true, email: login.email });
   } catch (e) {
     return fail(e);

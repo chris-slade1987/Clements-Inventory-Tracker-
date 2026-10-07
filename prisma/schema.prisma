@@ -67,6 +67,12 @@ model User {
   seniorLeadership Boolean @default(false) @map("senior_leadership") // senior leadership group — may view the Compliance Command Center
   hrAccess     Boolean @default(false) @map("hr_access") // HR — may run pre-hire onboarding (+ HR tools)
   boardObserver Boolean @default(false) @map("board_observer") // board member — read-only access to the executive views only
+  // Default-password policy: when true, the user is on the shared default password
+  // and must set their own. `firstLoginAt` is stamped on their first successful
+  // login; enforcement blocks all app pages (except /account) once 72h have
+  // elapsed since that first login. Cleared when they set their own password.
+  mustChangePassword Boolean  @default(false) @map("must_change_password")
+  firstLoginAt       DateTime? @map("first_login_at")
   createdAt    DateTime @default(now()) @map("created_at")
 
   warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])

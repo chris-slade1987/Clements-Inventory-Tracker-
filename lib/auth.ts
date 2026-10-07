@@ -56,6 +56,8 @@ export type SessionUser = {
   seniorLeadership: boolean;
   hrAccess: boolean;
   boardObserver: boolean;
+  mustChangePassword: boolean;
+  firstLoginAt: Date | null;
 };
 
 /** "Admin" level = admin reach, but personnel profiles limited to their own team. */
@@ -187,7 +189,34 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     seniorLeadership: u.seniorLeadership,
     hrAccess: u.hrAccess,
     boardObserver: u.boardObserver,
+    mustChangePassword: u.mustChangePassword,
+    firstLoginAt: u.firstLoginAt,
   };
+}
+
+// Window a user has, after their first login, to keep using the default password
+// before the set-your-own-password screen becomes mandatory.
+export const PASSWORD_GRACE_MS = 72 * 60 * 60 * 1000; // 72 hours
+
+// Master switch for the forced-password-change policy. OFF by default: for launch
+// everyone simply uses the shared default `clements123` with NO forced change and
+// NO notice email (we have no email provider yet). Flip PASSWORD_POLICY_ENFORCED=1
+// in the environment once Resend + the custom domain are live to activate the 72h
+// forced change + the emailed notice for everyone still on the default.
+export const PASSWORD_POLICY_ENFORCED = process.env.PASSWORD_POLICY_ENFORCED === "1";
+
+/**
+ * Whether this user must be forced to the change-password screen right now: they
+ * are flagged, have logged in at least once, and the 72h grace window has passed.
+ * Being flagged alone never blocks — the clock only starts at first login — so a
+ * freshly-provisioned account is never locked out before it is ever used.
+ */
+export function passwordChangeOverdue(
+  user: Pick<SessionUser, "mustChangePassword" | "firstLoginAt">,
+  now: number = Date.now(),
+): boolean {
+  if (!user.mustChangePassword || !user.firstLoginAt) return false;
+  return now > user.firstLoginAt.getTime() + PASSWORD_GRACE_MS;
 }
 
 /** Use in server components / layouts to require a logged-in manager. */

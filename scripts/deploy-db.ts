@@ -630,6 +630,18 @@ async function main() {
       const fresh = await freshStart2026(prisma);
       console.log("deploy-db: fresh-start 2026-10 —", JSON.stringify(fresh));
     });
+
+    // Default-password policy rollout. Ensures every active employee with an email
+    // has a login, repairs empty/placeholder passwords (e.g. April), guarantees the
+    // four leadership logins (April/Julie/Howard/Graham) can sign in with the
+    // default password, and ONE TIME flags all active logins except the owner as
+    // mustChangePassword. Idempotent + non-fatal. Runs LAST so it covers logins
+    // created/provisioned by every seed above (incl. the gated fresh-start).
+    await runStep("password policy rollout", async () => {
+      const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
+      const pw = await seedPasswordPolicy(prisma);
+      console.log("deploy-db: password policy —", JSON.stringify(pw));
+    });
   } finally {
     await prisma.$disconnect();
   }
