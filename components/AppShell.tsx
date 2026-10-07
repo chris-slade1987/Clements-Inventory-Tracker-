@@ -290,11 +290,16 @@ export default function AppShell({
             <div className="text-sm font-normal text-white truncate">
               {managerName}
             </div>
-            <form action="/api/auth/logout" method="post">
-              <button className="mt-2 text-xs font-medium text-brand-300 hover:text-brand-200 hover:underline">
-                Sign out
-              </button>
-            </form>
+            <div className="mt-2 flex items-center gap-3">
+              <Link href="/account" className="text-xs font-medium text-brand-300 hover:text-brand-200 hover:underline">
+                Change password
+              </Link>
+              <form action="/api/auth/logout" method="post">
+                <button className="text-xs font-medium text-brand-300 hover:text-brand-200 hover:underline">
+                  Sign out
+                </button>
+              </form>
+            </div>
             <div className="mt-3 border-t border-white/5 pt-2.5 text-[10px] uppercase tracking-[0.14em] text-mint/55">
               Clements Internal Platform
             </div>

@@ -107,6 +107,13 @@ export function canManageSales(user: Pick<SessionUser, "role" | "accessLevel">):
   return user.role === "admin" || user.accessLevel === "sales_director";
 }
 
+/** Who may reset another person's login password from their employee profile:
+ *  the CEO/COO (admin), the Chief of Staff (senior leadership), and the Director
+ *  of HR (HR access) — i.e. Chris, Julie, and April. Never a branch manager. */
+export function canResetPasswords(user: Pick<SessionUser, "role" | "seniorLeadership" | "hrAccess">): boolean {
+  return user.role === "admin" || !!user.seniorLeadership || !!user.hrAccess;
+}
+
 /** A service advisor — their own sales dashboard + monthly goal planner. */
 export function isServiceAdvisor(user: Pick<SessionUser, "accessLevel">): boolean {
   return user.accessLevel === "sales";
