@@ -45,6 +45,7 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
   let passwordsRepaired = 0;
   let leadersFixed = 0;
   let flagged = 0;
+  let errors = 0;
 
   // 1) Ensure a login for every active employee that has an email but none yet.
   const emps = await prisma.employee.findMany({
@@ -52,29 +53,34 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
     select: { id: true, name: true, email: true, branch: true },
   });
   for (const e of emps) {
-    const email = (e.email ?? "").toLowerCase().trim();
-    if (!email) continue;
-    const byEmail = await prisma.user.findUnique({ where: { email } });
-    const byEmployee = await prisma.user.findFirst({ where: { employeeId: e.id } });
-    if (byEmail || byEmployee) {
-      // Keep the existing login; just ensure it is linked to this profile.
-      if (byEmail && !byEmail.employeeId) {
-        await prisma.user.update({ where: { id: byEmail.id }, data: { employeeId: e.id } });
+    try {
+      const email = (e.email ?? "").toLowerCase().trim();
+      if (!email) continue;
+      const byEmail = await prisma.user.findUnique({ where: { email } });
+      const byEmployee = await prisma.user.findFirst({ where: { employeeId: e.id } });
+      if (byEmail || byEmployee) {
+        // Keep the existing login; just ensure it is linked to this profile.
+        if (byEmail && !byEmail.employeeId) {
+          await prisma.user.update({ where: { id: byEmail.id }, data: { employeeId: e.id } });
+        }
+        continue;
       }
-      continue;
+      await prisma.user.create({
+        data: {
+          name: e.name,
+          email,
+          passwordHash: hashPassword(DEFAULT_PASSWORD),
+          role: "employee", // least privilege; roster/access seeds set the real level
+          branch: e.branch,
+          employeeId: e.id,
+          mustChangePassword: true,
+        },
+      });
+      loginsCreated++;
+    } catch (err) {
+      errors++;
+      console.error(`seed-pw-policy: step1 (login for ${e.email}) failed:`, (err as Error).message);
     }
-    await prisma.user.create({
-      data: {
-        name: e.name,
-        email,
-        passwordHash: hashPassword(DEFAULT_PASSWORD),
-        role: "employee", // least privilege; later role/roster seeds promote real leaders
-        branch: e.branch,
-        employeeId: e.id,
-        mustChangePassword: true,
-      },
-    });
-    loginsCreated++;
   }
 
   // 2) Repair any active login whose stored password is empty/placeholder.
@@ -83,12 +89,17 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
     select: { id: true, email: true, passwordHash: true },
   });
   for (const u of active) {
-    if (isUsableHash(u.passwordHash)) continue;
-    await prisma.user.update({
-      where: { id: u.id },
-      data: { passwordHash: hashPassword(DEFAULT_PASSWORD), mustChangePassword: true },
-    });
-    passwordsRepaired++;
+    try {
+      if (isUsableHash(u.passwordHash)) continue;
+      await prisma.user.update({
+        where: { id: u.id },
+        data: { passwordHash: hashPassword(DEFAULT_PASSWORD), mustChangePassword: true },
+      });
+      passwordsRepaired++;
+    } catch (err) {
+      errors++;
+      console.error(`seed-pw-policy: step2 (repair ${u.email}) failed:`, (err as Error).message);
+    }
   }
 
   // 3) Explicitly ensure the four leadership logins exist and can sign in with the
@@ -96,44 +107,49 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
   //    (missing login, or an empty/placeholder hash) — a leader who has already
   //    chosen their own password is never clobbered.
   for (const leader of LEADERS) {
-    const email = leader.email.toLowerCase();
-    const emp = await prisma.employee.findFirst({ where: { name: leader.name } });
-    let user =
-      (emp && (await prisma.user.findFirst({ where: { employeeId: emp.id } }))) ||
-      (await prisma.user.findUnique({ where: { email } })) ||
-      (await prisma.user.findFirst({ where: { name: leader.name } }));
+    try {
+      const email = leader.email.toLowerCase();
+      const emp = await prisma.employee.findFirst({ where: { name: leader.name } });
+      let user =
+        (emp && (await prisma.user.findFirst({ where: { employeeId: emp.id } }))) ||
+        (await prisma.user.findUnique({ where: { email } })) ||
+        (await prisma.user.findFirst({ where: { name: leader.name } }));
 
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          name: leader.name,
-          email,
-          passwordHash: hashPassword(DEFAULT_PASSWORD),
-          role: "employee", // conservative; roster/access seeds grant real reach
-          employeeId: emp?.id ?? null,
-          mustChangePassword: true,
-        },
-      });
-      leadersFixed++;
-      continue;
-    }
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            name: leader.name,
+            email,
+            passwordHash: hashPassword(DEFAULT_PASSWORD),
+            role: "employee", // conservative; roster/access seeds grant real reach
+            employeeId: emp?.id ?? null,
+            mustChangePassword: true,
+          },
+        });
+        leadersFixed++;
+        continue;
+      }
 
-    const patch: Record<string, unknown> = {};
-    if (!user.active) patch.active = true; // a leadership login must be able to sign in
-    if (emp && !user.employeeId) patch.employeeId = emp.id;
-    // Correct the email to their real address (e.g. Howard's roster-generated
-    // howard.cohn@ → hcohn@), unless another account already holds it.
-    if (user.email.toLowerCase() !== email) {
-      const conflict = await prisma.user.findUnique({ where: { email } });
-      if (!conflict || conflict.id === user.id) patch.email = email;
-    }
-    if (!isUsableHash(user.passwordHash)) {
-      patch.passwordHash = hashPassword(DEFAULT_PASSWORD);
-      patch.mustChangePassword = true;
-    }
-    if (Object.keys(patch).length) {
-      await prisma.user.update({ where: { id: user.id }, data: patch });
-      leadersFixed++;
+      const patch: Record<string, unknown> = {};
+      if (!user.active) patch.active = true; // a leadership login must be able to sign in
+      if (emp && !user.employeeId) patch.employeeId = emp.id;
+      // Correct the email to their real address (e.g. Howard's roster-generated
+      // howard.cohn@ → hcohn@), unless another account already holds it.
+      if (user.email.toLowerCase() !== email) {
+        const conflict = await prisma.user.findUnique({ where: { email } });
+        if (!conflict || conflict.id === user.id) patch.email = email;
+      }
+      if (!isUsableHash(user.passwordHash)) {
+        patch.passwordHash = hashPassword(DEFAULT_PASSWORD);
+        patch.mustChangePassword = true;
+      }
+      if (Object.keys(patch).length) {
+        await prisma.user.update({ where: { id: user.id }, data: patch });
+        leadersFixed++;
+      }
+    } catch (err) {
+      errors++;
+      console.error(`seed-pw-policy: step3 (leader ${leader.email}) failed:`, (err as Error).message);
     }
   }
 
@@ -156,5 +172,5 @@ export async function seedPasswordPolicy(prisma: PrismaClient) {
     });
   }
 
-  return { loginsCreated, passwordsRepaired, leadersFixed, flagged, markerAlreadySet: !!marker };
+  return { loginsCreated, passwordsRepaired, leadersFixed, flagged, errors, markerAlreadySet: !!marker };
 }
