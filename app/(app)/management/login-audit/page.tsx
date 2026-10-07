@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { PageHeader, Card } from "@/components/ui";
 import { requireUser, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import BlockedLogins from "./BlockedLogins";
 
 export const dynamic = "force-dynamic";
 
@@ -47,8 +48,8 @@ export default async function LoginAuditPage() {
 
       {blocked.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-red-200">
-          <div className="px-4 py-3 border-b border-line text-sm font-medium text-red-700">Cannot sign in with clements123</div>
-          <Table rows={blocked} showReason />
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-red-700">Cannot sign in with clements123 — click “Reset + activate” to fix</div>
+          <BlockedLogins rows={blocked.map((r) => ({ id: r.id, name: r.name, email: r.email, access: r.access, active: r.active, pwOk: r.pwOk, reason: r.reason, employee: r.employee }))} />
         </Card>
       ) : (
         <Card className="p-4 mb-5 text-sm text-emerald-700">Every account can sign in with clements123.</Card>
