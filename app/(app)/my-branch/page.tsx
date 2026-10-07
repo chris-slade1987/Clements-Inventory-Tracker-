@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
 import { managerReminders, type Reminder } from "@/lib/reminders";
+import { INVENTORY_ALERT_TYPES } from "@/lib/anomaly";
 import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
@@ -41,7 +42,9 @@ export default async function MyBranchPage({
   const [reminders, insp, openAlerts, followUps, myReviews, ptoPending] = await Promise.all([
     managerReminders(branch ?? undefined),
     inspectionStatus(year, month, branch ?? undefined),
-    prisma.alert.count({ where: { status: "open" } }),
+    // Company inventory-alert count — only needed for the non-locked (admin)
+    // all-branch view; branch-locked managers don't show this tile.
+    locked ? Promise.resolve(0) : prisma.alert.count({ where: { status: { in: ["open", "acknowledged"] }, type: { in: [...INVENTORY_ALERT_TYPES] } } }),
     openFollowUps(branch ?? undefined),
     reviewsForReviewer(user.id),
     // Pending PTO awaiting review — the same signal shown on the team page.
@@ -163,7 +166,9 @@ export default async function MyBranchPage({
           href="/my-branch/inspections"
         />
         <Tile label="Needs attention" value={String(attention.length)} tone={attention.some((r) => r.severity === "critical") ? "bad" : attention.length ? "warn" : "good"} sub={attention.length ? "Fleet & reminders" : "All clear"} />
-        <Tile label="Open alerts" value={String(openAlerts)} tone={openAlerts ? "warn" : "good"} href="/alerts" />
+        {/* The company inventory-alerts firehose is admin-only; a branch manager's
+            branch items (incl. low-stock) are in "Needs attention" above. */}
+        {!locked ? <Tile label="Open alerts" value={String(openAlerts)} tone={openAlerts ? "warn" : "good"} href="/alerts" /> : null}
         <Tile label={`Q${quarter} scorecard`} value={`${scScore}%`} sub={`${scScored}/${SCORECARD_METRICS.length} scored`} href={`/my-branch/scorecard?branch=${scBranch}&year=${year}&quarter=${quarter}`} />
       </div>
 

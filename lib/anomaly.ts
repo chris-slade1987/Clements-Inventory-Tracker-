@@ -1,5 +1,19 @@
 import { prisma } from "@/lib/prisma";
 
+// The six alert types that belong to INVENTORY (the anomaly agent + reorder +
+// savings). The /alerts page and the bulk-dismiss action use this so personnel
+// (review_due, scorecard_due), fleet/compliance (doc_renewal, warehouse_critical,
+// inspection_critical), and generic reminders never appear in the inventory
+// alerts section.
+export const INVENTORY_ALERT_TYPES = [
+  "price_increase",
+  "duplicate_invoice",
+  "negative_stock",
+  "quantity_spike",
+  "low_stock",
+  "savings",
+] as const;
+
 // The anomaly agent. Runs on invoice confirm and on demand ("run checks now").
 // It upserts alerts keyed by a stable dedupeKey so repeated runs don't pile up
 // duplicates, and it respects a user's dismissal (upsert never changes status).

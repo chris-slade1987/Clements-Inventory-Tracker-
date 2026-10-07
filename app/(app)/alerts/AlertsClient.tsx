@@ -28,16 +28,42 @@ export default function AlertsClient({
   alerts,
   thresholdPct,
   show,
+  isAdmin = false,
 }: {
   alerts: Alert[];
   thresholdPct: string;
   show: string;
+  isAdmin?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [threshold, setThreshold] = useState(thresholdPct);
+
+  const openCount = alerts.filter((a) => a.status === "open" || a.status === "acknowledged").length;
+
+  async function clearAll() {
+    if (!confirm(`Dismiss all ${openCount} open inventory alert(s)? They move to "dismissed" and won't reopen on the next check.`)) return;
+    setBusy(true);
+    setNote(null);
+    try {
+      const res = await fetch("/api/alerts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "dismissAll" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setNote(`Cleared ${data.dismissed ?? 0} alert(s).`);
+        router.refresh();
+      } else {
+        setNote(data.error ?? "Failed to clear alerts.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function runChecks() {
     setBusy(true);
@@ -98,6 +124,11 @@ export default function AlertsClient({
           <button onClick={runChecks} disabled={busy} className={btn.primary}>
             {busy ? "Running…" : "Run checks now"}
           </button>
+          {isAdmin && openCount > 0 ? (
+            <button onClick={clearAll} disabled={busy} className={btn.secondary} data-testid="clear-all-alerts">
+              {busy ? "Working…" : `Clear all ${openCount}`}
+            </button>
+          ) : null}
           <label className="text-xs font-medium text-muted">
             Price-increase threshold (%)
             <div className="mt-1 flex gap-2">

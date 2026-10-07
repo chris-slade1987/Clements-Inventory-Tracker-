@@ -1,10 +1,9 @@
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { canClearChecklistMiss } from "@/lib/personnel";
-import { sweepMissedChecklists, openMisses, clearedMisses } from "@/lib/checklists";
+import { INVENTORY_ALERT_TYPES } from "@/lib/anomaly";
 import { pastDueClearableCounts } from "@/lib/manual-reminders";
-import ChecklistMisses, { type MissDTO } from "../checklists/ChecklistMisses";
 import AlertsClient from "./AlertsClient";
 import ClearPastDueButton from "./ClearPastDueButton";
 
@@ -16,24 +15,13 @@ export default async function AlertsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  // This is the COMPANY inventory alerts/ops surface. A branch-locked manager
+  // sees their own branch's actionable items (incl. branch low-stock) on their
+  // My Branch "Needs attention" feed instead — send them there.
+  if (branchLocked(user)) redirect("/my-branch");
+
   const sp = await searchParams;
   const show = sp.show === "all" || sp.show === "dismissed" ? sp.show : "active";
-
-  // Lazy, idempotent detection of missed weekly checklists (no cron), reported
-  // here as a compliance section alongside inventory alerts.
-  await sweepMissedChecklists();
-  const [openM, clearedM] = await Promise.all([openMisses(), clearedMisses()]);
-  const canClear = canClearChecklistMiss(user);
-  const toDTO = (m: Awaited<ReturnType<typeof openMisses>>[number]): MissDTO => ({
-    id: m.id,
-    branchLabel: m.branchLabel,
-    periodLabel: m.periodLabel,
-    cadence: m.cadence,
-    createdAt: m.createdAt.toISOString(),
-    clearedByName: m.clearedByName,
-    clearedAt: m.clearedAt ? m.clearedAt.toISOString() : null,
-    clearNote: m.clearNote,
-  });
 
   const statusFilter =
     show === "dismissed"
@@ -44,7 +32,9 @@ export default async function AlertsPage({
 
   const [alerts, threshold] = await Promise.all([
     prisma.alert.findMany({
-      where: statusFilter,
+      // INVENTORY alerts only — personnel / compliance / fleet-review alert types
+      // are surfaced on their own screens, not here.
+      where: { ...statusFilter, type: { in: [...INVENTORY_ALERT_TYPES] } },
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
       include: { product: { select: { name: true } } },
       take: 200,
@@ -52,24 +42,20 @@ export default async function AlertsPage({
     prisma.setting.findUnique({ where: { key: "price_increase_threshold_pct" } }),
   ]);
 
+  const isAdmin = user.role === "admin";
   // Admin-only: how many past-due reminders + audit follow-ups can be cleared.
-  const pastDue = user.role === "admin" ? await pastDueClearableCounts() : { reminders: 0, auditFollowUps: 0, total: 0 };
+  const pastDue = isAdmin ? await pastDueClearableCounts() : { reminders: 0, auditFollowUps: 0, total: 0 };
 
   return (
     <>
       <PageHeader
-        title="Alerts"
-        subtitle="Anomalies and cost-saving opportunities flagged by the automated checks."
+        title="Inventory Alerts"
+        subtitle="Anomalies, low-stock, and cost-saving opportunities flagged by the automated checks."
       />
-      {user.role === "admin" ? <ClearPastDueButton counts={pastDue} /> : null}
-      {openM.length > 0 || clearedM.length > 0 ? (
-        <div className="mb-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-600">Compliance · missed checklists</div>
-          <ChecklistMisses open={openM.map(toDTO)} cleared={clearedM.map(toDTO)} canClear={canClear} showHistory={false} />
-        </div>
-      ) : null}
+      {isAdmin ? <ClearPastDueButton counts={pastDue} /> : null}
       <AlertsClient
         show={show}
+        isAdmin={isAdmin}
         thresholdPct={threshold?.value ?? "10"}
         alerts={alerts.map((a) => ({
           id: a.id,
