@@ -20,7 +20,10 @@ import { hashPassword, MANAGER_PASSWORD } from "./seed-core";
 
 const DEFAULT_PASSWORD = MANAGER_PASSWORD; // "clements123"
 const OWNER_EMAIL = "c.slade@clementspestcontrol.com";
-const PW_POLICY_MARKER = "pw_policy_init_2026_10";
+// Bumped to force the one-time reset to run again on this deploy (the earlier
+// rollout aborted before it on prod-specific data). A new key = one more
+// guaranteed reset-everyone-to-clements123 pass, then it stays put.
+const PW_POLICY_MARKER = "pw_policy_init_2026_10c";
 
 // The four leadership logins the CEO wants provisioned, with their REAL work
 // emails. Note Howard's real email is hcohn@ — but the org roster auto-generates
