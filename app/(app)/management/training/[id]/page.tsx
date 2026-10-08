@@ -9,6 +9,7 @@ import { parseQuestions, STATUS_LABEL } from "@/lib/training";
 import { listEmployees } from "@/lib/people";
 import Markdown from "@/components/Markdown";
 import AssignClient from "./AssignClient";
+import ClearOutstandingButton from "./ClearOutstandingButton";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   const questions = parseQuestions(course.questions);
   const employees = (await listEmployees()).map((e) => ({ id: e.id, name: e.name, branch: e.branch }));
   const assignedIds = new Set(course.assignments.map((a) => a.employeeId));
+  const outstanding = course.assignments.filter((a) => a.status !== "completed").length;
 
   return (
     <>
@@ -55,7 +57,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
       </Card>
 
       <Card className="p-0 overflow-hidden">
-        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Assigned ({course.assignments.length})</div>
+        <div className="px-4 py-3 border-b border-line flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-medium text-ink">Assigned ({course.assignments.length})</span>
+          <ClearOutstandingButton courseId={course.id} outstanding={outstanding} />
+        </div>
         {course.assignments.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">Not assigned to anyone yet.</p>
         ) : (

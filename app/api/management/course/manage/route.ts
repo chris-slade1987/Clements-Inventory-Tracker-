@@ -70,6 +70,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // Bulk-clear a course's OUTSTANDING assignments (not started / in progress) in
+    // one shot — the course and every COMPLETED record are kept. Used to stop a
+    // course that was assigned early (e.g. the August roll-out) from showing as
+    // incomplete for technicians before training actually goes live; reassign later.
+    if (action === "unassignOutstanding") {
+      const courseId = str(body?.courseId);
+      if (!courseId) return NextResponse.json({ error: "Missing course." }, { status: 400 });
+      const res = await prisma.trainingAssignment.deleteMany({
+        where: { courseId, status: { in: ["not_started", "in_progress"] } },
+      });
+      return NextResponse.json({ ok: true, removed: res.count });
+    }
+
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return fail(e);
