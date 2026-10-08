@@ -3,6 +3,7 @@ import { PageHeader, Card } from "@/components/ui";
 import { requireUser, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import BlockedLogins from "./BlockedLogins";
+import FixAllButton from "./FixAllButton";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,8 @@ export default async function LoginAuditPage() {
         title="Login audit"
         subtitle={`${rows.length} accounts · ${ok.length} can sign in with clements123 · ${blocked.length} cannot`}
       />
+
+      <FixAllButton />
 
       {blocked.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-red-200">
