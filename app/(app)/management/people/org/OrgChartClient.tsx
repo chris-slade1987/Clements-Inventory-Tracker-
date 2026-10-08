@@ -73,6 +73,16 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
     if (!res.ok) return setError(d.error ?? "Could not update the access level.");
     router.refresh();
   }
+  // Create a sign-in account for an employee who has none, at the chosen level.
+  // The login is their profile email + the shared default password clements123.
+  async function grantLogin(employeeId: string, accessLevel: string) {
+    setBusy(employeeId); setError(null);
+    const res = await fetch("/api/management/grant-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ employeeId, accessLevel }) });
+    setBusy(null);
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) return setError(d.error ?? "Could not create the login.");
+    router.refresh();
+  }
 
   const levelsPresent = ACCESS_LEVELS.filter((l) => employees.some((e) => e.accessLevel === l.key));
 
@@ -95,7 +105,14 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
               {ACCESS_LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
             </select>
           </label>
-        ) : null}
+        ) : (
+          <label>Grant login
+            <select value="" disabled={busy === e.id} onChange={(ev) => ev.target.value && grantLogin(e.id, ev.target.value)}>
+              <option value="">— no login · grant —</option>
+              {ACCESS_LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
+            </select>
+          </label>
+        )}
       </div>
     );
   }

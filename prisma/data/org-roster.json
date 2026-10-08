@@ -72,11 +72,19 @@
     "level": "admin"
   },
   {
+    "name": "Emily Trione",
+    "title": "Customer Service Representative Coordinator",
+    "department": "Corporate",
+    "branch": null,
+    "reportsTo": "April Williford",
+    "level": "admin"
+  },
+  {
     "name": "Chayse Harrell",
     "title": "Customer Service Representative",
     "department": "Corporate",
     "branch": null,
-    "reportsTo": "Julie Glanville",
+    "reportsTo": "Emily Trione",
     "level": "csr"
   },
   {
@@ -84,7 +92,7 @@
     "title": "Customer Service Representative",
     "department": "Corporate",
     "branch": null,
-    "reportsTo": "Julie Glanville",
+    "reportsTo": "Emily Trione",
     "level": "csr"
   },
   {
@@ -92,7 +100,7 @@
     "title": "Customer Service Representative",
     "department": "Corporate",
     "branch": null,
-    "reportsTo": "Julie Glanville",
+    "reportsTo": "Emily Trione",
     "level": "csr"
   },
   {

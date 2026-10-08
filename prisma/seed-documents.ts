@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 9 · Last updated July 28, 2026",
+    effective: "Version 10 · Last updated October 8, 2026",
+    // v10: documented managing people from the org chart — setting a person's
+    // manager (reporting line), assigning an access level, and GRANTING A LOGIN to
+    // a newly added employee who has none ("Grant login" on their org-chart card,
+    // creating their account at their work email + the shared default password).
+    version: 10,
     // v9: documented the company-wide physical-count reconciliation under
     // Inventory › Month-end physical reconciliation — on-hand at every branch is
     // trued up to a dated physical count via audited adjustment movements (the
@@ -54,7 +59,6 @@ const DOCS: DocSeed[] = [
     // — HR/admin-built interview + HR-screening templates (off-the-shelf bank,
     // custom questions, and AI-assisted drafting), role/worker-type assignment,
     // per-job template assignment, and the supervisor-fills-only access rule.
-    version: 9,
     // v7: documented the full applicant pipeline in Hiring / Onboarding — the
     // stage-grouped job container (Applied → Screening → Interview → Ranked →
     // Selected → Pre-hire + retained Excluded), HR shortlist + Google-native

@@ -304,6 +304,13 @@ export const EMPLOYEES: EmployeeSeed[] = [
     "hireDate": "2014-02-07"
   },
   {
+    "name": "Emily Trione",
+    "email": "etrione@clementspestcontrol.com",
+    "role": "Customer Service Representative Coordinator",
+    "division": null,
+    "branch": null
+  },
+  {
     "name": "Heather McCormack",
     "email": "hmccormack@clementspestcontrol.com",
     "role": null,
