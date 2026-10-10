@@ -74,6 +74,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, id: r.id });
     }
 
+    // Clear a "Needs attention" item by its stable key. A manual reminder flips its
+    // own row to dismissed; a COMPUTED item records a keyed dismissal so the engine
+    // skips it until its cycle/date changes. Managers/HR/admin (same guard above).
+    if (action === "clear") {
+      const key = s(body?.key);
+      if (!key) return NextResponse.json({ error: "Missing key." }, { status: 400 });
+      if (key.startsWith("manual:")) {
+        const rid = key.slice("manual:".length);
+        await prisma.reminder.update({ where: { id: rid }, data: { status: "dismissed" } });
+      } else {
+        await prisma.reminderDismissal.upsert({
+          where: { key },
+          create: { key, branch: s(body?.branch), reason: s(body?.reason), dismissedByUserId: user.id, dismissedByName: user.name },
+          update: { dismissedByUserId: user.id, dismissedByName: user.name, dismissedAt: new Date() },
+        });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
     const id = s(body?.id);
     if (!id) return NextResponse.json({ error: "Missing reminder." }, { status: 400 });
 

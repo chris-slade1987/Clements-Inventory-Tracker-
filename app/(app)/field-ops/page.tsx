@@ -6,6 +6,7 @@ import { requireUser, isBoardObserver, isFieldOpsDirector, homePath } from "@/li
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listAudits, openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
+import MyReviewsCard from "@/components/MyReviewsCard";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,8 @@ export default async function FieldOpsHomePage() {
         subtitle={totalOpen > 0 ? `${totalOpen} item${totalOpen === 1 ? "" : "s"} across the branches need attention` : "All branches are current on audits, inspections & service"}
         actions={<Link href="/management/audits" className="text-sm font-medium text-brand-700 hover:underline">Branch audits →</Link>}
       />
+
+      <MyReviewsCard userId={user.id} />
 
       {/* Snapshot */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -5,6 +5,7 @@ import { requireUser, canManageSales } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
+import MyReviewsCard from "@/components/MyReviewsCard";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         subtitle={`Targets, closed & pipeline across all branches — ${periodLabel(periodKey)}`}
         actions={<Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Sales &amp; Attrition analytics →</Link>}
       />
+
+      <MyReviewsCard userId={user.id} />
 
       {/* actuals connection state */}
       <div className={`mb-4 rounded-xl border px-4 py-2.5 text-sm ${actuals.connected ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>

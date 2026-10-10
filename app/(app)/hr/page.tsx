@@ -6,6 +6,7 @@ import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { allReviews } from "@/lib/review";
 import { employeeRoster } from "@/lib/people";
+import MyReviewsCard from "@/components/MyReviewsCard";
 import { formerEmployees } from "@/lib/separation";
 import { canManagePreHire, listPreHires } from "@/lib/prehire";
 import {
@@ -80,6 +81,8 @@ export default async function HrHomePage() {
           </div>
         }
       />
+
+      <MyReviewsCard userId={user.id} />
 
       {/* Snapshot stats */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">

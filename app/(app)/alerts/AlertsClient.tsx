@@ -24,6 +24,37 @@ const TYPE_LABEL: Record<string, string> = {
   savings: "Cost-saving opportunity",
 };
 
+// Inline-SVG path per alert type (24x24, stroke, currentColor) so each alert reads
+// at a glance instead of a wall of text.
+const TYPE_ICON: Record<string, string> = {
+  price_increase: "M3 17l6-6 4 4 7-7M14 8h7v7", // upward trend
+  duplicate_invoice: "M8 8h10v12H8zM6 16H4V4h10v2", // stacked pages
+  negative_stock: "M12 9v4m0 4h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L14 3.9a2 2 0 00-3.4 0z", // warning triangle
+  quantity_spike: "M3 3v18h18M7 15l3-4 3 3 4-6", // chart jump
+  low_stock: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-14L4 7m8 4v10M4 7v10l8 4", // open box
+  savings: "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6", // dollar sign
+};
+const FALLBACK_ICON = "M12 9v4m0 4h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L14 3.9a2 2 0 00-3.4 0z";
+
+// Severity → accent color set for the icon tile + card left border.
+const SEV_STYLE: Record<string, { border: string; tile: string; label: string }> = {
+  critical: { border: "#dc2626", tile: "bg-red-100 text-red-700", label: "text-red-700" },
+  warning: { border: "#d97706", tile: "bg-amber-100 text-amber-700", label: "text-amber-700" },
+  info: { border: "#2563eb", tile: "bg-blue-100 text-blue-700", label: "text-blue-700" },
+};
+const sevStyle = (s: string) => SEV_STYLE[s] ?? SEV_STYLE.info;
+
+function TypeIcon({ type, severity }: { type: string; severity: string }) {
+  const st = sevStyle(severity);
+  return (
+    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${st.tile}`}>
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+        <path d={TYPE_ICON[type] ?? FALLBACK_ICON} />
+      </svg>
+    </span>
+  );
+}
+
 export default function AlertsClient({
   alerts,
   thresholdPct,
@@ -160,21 +191,42 @@ export default function AlertsClient({
         {note ? <p className="mt-3 text-sm text-brand-700">{note}</p> : null}
       </Card>
 
+      {alerts.length > 0 ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {(["critical", "warning", "info"] as const).map((sev) => {
+            const n = alerts.filter((a) => a.severity === sev).length;
+            if (!n) return null;
+            const st = sevStyle(sev);
+            return (
+              <span key={sev} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${st.tile}`}>
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: st.border }} />
+                {n} {sev}
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+
       {alerts.length === 0 ? (
         <Card className="p-8 text-center text-muted">
           {show === "active" ? "No active alerts. Everything looks in order." : "Nothing here."}
         </Card>
       ) : (
         <div className="space-y-2">
-          {alerts.map((a) => (
-            <Card key={a.id} className="p-3">
+          {alerts.map((a) => {
+            const st = sevStyle(a.severity);
+            return (
+            <Card key={a.id} className="p-3 border-l-4" style={{ borderLeftColor: st.border }}>
               <div className="flex items-start gap-3">
-                <SeverityBadge severity={a.severity} />
+                <TypeIcon type={a.type} severity={a.severity} />
                 <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <span className="text-sm font-medium text-ink">{TYPE_LABEL[a.type] ?? a.type}</span>
+                    <span className={`text-[11px] font-semibold uppercase tracking-wide ${st.label}`}>{a.severity}</span>
+                  </div>
                   <div className="text-sm text-ink">{a.message}</div>
                   <div className="mt-0.5 text-xs text-muted">
-                    {TYPE_LABEL[a.type] ?? a.type}
-                    {a.productName ? ` · ${a.productName}` : ""} ·{" "}
+                    {a.productName ? `${a.productName} · ` : ""}
                     {new Date(a.createdAt).toLocaleString()}
                     {a.status !== "open" ? ` · ${a.status}` : ""}
                   </div>
@@ -208,22 +260,10 @@ export default function AlertsClient({
                 </div>
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
-  );
-}
-
-function SeverityBadge({ severity }: { severity: string }) {
-  const map: Record<string, string> = {
-    critical: "bg-red-100 text-red-700",
-    warning: "bg-amber-100 text-amber-700",
-    info: "bg-blue-100 text-blue-700",
-  };
-  return (
-    <span className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold capitalize ${map[severity] ?? map.info}`}>
-      {severity}
-    </span>
   );
 }

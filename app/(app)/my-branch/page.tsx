@@ -14,6 +14,7 @@ import { checklistStatusForBranch, sweepMissedChecklists, openMisses, fridayLabe
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
+import ClearReminderButton from "@/components/ClearReminderButton";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
@@ -299,12 +300,13 @@ function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
           <span className="block text-xs text-muted">{r.detail}</span>
         </span>
       </Link>
-      <div className="shrink-0 self-center">
+      <div className="shrink-0 self-center flex items-center gap-3">
         <ComposeThread
           variant="link"
           label="Discuss"
           context={{ type: "reminder", label: r.title, href: r.href, subject: `Re: ${r.title}` }}
         />
+        <ClearReminderButton reminderKey={r.key} branch={r.branch} />
       </div>
     </li>
   );

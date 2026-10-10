@@ -752,6 +752,26 @@ model Reminder {
   @@map("reminders")
 }
 
+// A manager/admin's dismissal of a COMPUTED "Needs attention" item. Those items
+// are derived live (maintenance due, registration expiring, PTO to review, low
+// stock, …) and have no row to flip, so a dismissal is recorded by a stable
+// `key`. The reminders engine skips any item whose key is dismissed. Keys embed
+// the relevant date/cycle (e.g. a registration-renewal date), so when the
+// underlying situation moves to a new cycle the key changes and the item returns
+// on its own. Manual reminders are NOT dismissed here — their own row flips to
+// "dismissed" instead.
+model ReminderDismissal {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  branch          String?
+  reason          String?
+  dismissedByUserId String? @map("dismissed_by_user_id")
+  dismissedByName   String? @map("dismissed_by_name")
+  dismissedAt     DateTime @default(now()) @map("dismissed_at")
+
+  @@map("reminder_dismissals")
+}
+
 // A document attached to a vehicle profile — insurance policy, registration,
 // title, etc. Uploaded through the Document Center, where the AI reads it and
 // proposes where it should be filed (which vehicle + category) before the user

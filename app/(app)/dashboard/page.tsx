@@ -18,6 +18,7 @@ import { computeReorderFindings, type ReorderFinding } from "@/lib/reorder";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
 import { DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
+import MyReviewsCard from "@/components/MyReviewsCard";
 
 export const dynamic = "force-dynamic";
 
@@ -132,6 +133,8 @@ export default async function DashboardPage({
   return (
     <>
       <PageHeader title="Dashboard" subtitle={`This month at a glance · ${p.monthLabel}`} />
+
+      <MyReviewsCard userId={user.id} />
 
       {toConfirm > 0 ? (
         <Link href="/manage/confirm" className="block mb-4">

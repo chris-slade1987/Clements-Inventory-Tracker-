@@ -40,7 +40,16 @@ export type Reminder = {
   branch: string | null;
   href: string;
   dueDate: Date | null;
+  // Stable dismissal key. Embeds the entity + its current date/cycle so a manager
+  // "Clear" hides THIS occurrence; when the cycle moves on the key changes and the
+  // item returns on its own. Manual reminders use `manual:<id>` and clear by
+  // flipping their own row instead.
+  key: string;
 };
+
+// A short date stamp (YYYY-MM-DD) for building cycle-aware dismissal keys; "none"
+// when there's no date so the key stays stable.
+const dkey = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "none");
 
 const DAY = 864e5;
 const REGISTRATION_WINDOW_DAYS = 60;
@@ -52,6 +61,11 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const reminders: Reminder[] = [];
+
+  // Computed items a manager/admin has explicitly cleared (by stable key). Filtered
+  // out at the end so a dismissed item stays gone until its cycle/date changes.
+  const dismissals = await prisma.reminderDismissal.findMany({ select: { key: true } });
+  const dismissed = new Set(dismissals.map((d) => d.key));
 
   const [vehicles, insp] = await Promise.all([
     listVehicles(branch),
@@ -69,6 +83,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: row.branch,
       href: `/fleet/${row.id}/inspect`,
       dueDate: null,
+      key: `inspection_due:${row.id}:${year}-${month}`,
     });
   }
 
@@ -84,6 +99,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: v.branch,
         href: `/fleet/${v.id}`,
         dueDate: v.nextDueDate,
+        key: `maintenance_due:${v.id}:${dkey(v.nextDueDate)}`,
       });
     }
   }
@@ -105,6 +121,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
           branch: v.branch,
           href: `/fleet/${v.id}`,
           dueDate: v.registrationRenewal,
+          key: `registration_expiring:${v.id}:${dkey(v.registrationRenewal)}`,
         });
       }
     }
@@ -119,6 +136,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
           branch: v.branch,
           href: `/fleet/${v.id}`,
           dueDate: v.payoffDate,
+          key: `loan_payoff:${v.id}:${dkey(v.payoffDate)}`,
         });
       }
     }
@@ -138,6 +156,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: bk,
         href: `/my-branch/warehouse?branch=${bk}`,
         dueDate: null,
+        key: `warehouse_due:${bk}:${year}-${month}`,
       });
     }
   });
@@ -155,6 +174,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: fu.branch,
       href: "/management/audits",
       dueDate: fu.dueDate,
+      key: `audit_followup:${fu.id}`,
     });
   }
 
@@ -175,6 +195,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: null,
         href: "/management/insurance",
         dueDate: p.expirationDate,
+        key: `policy_renewal:${p.id}:${dkey(p.expirationDate)}`,
       });
     }
   }
@@ -194,6 +215,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: null,
         href: `/management/people/candidates/${iv.candidate.id}`,
         dueDate: iv.scheduledAt,
+        key: `interview_overdue:${iv.id}`,
       });
     }
     for (const c of awaiting) {
@@ -205,6 +227,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: null,
         href: `/management/people/candidates/${c.id}`,
         dueDate: null,
+        key: `candidate_decision:${c.id}`,
       });
     }
     for (const j of closeouts) {
@@ -216,6 +239,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
         branch: null,
         href: `/management/people/jobs/${j.id}`,
         dueDate: null,
+        key: `hiring_closeout:${j.id}`,
       });
     }
   }
@@ -244,6 +268,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
           branch: d.branch,
           href: `/my-branch/documents?branch=${d.branch}`,
           dueDate: d.expirationDate,
+          key: `license_expiring:${d.id}:${dkey(d.expirationDate)}`,
         });
       }
     }
@@ -259,6 +284,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
             branch: d.branch,
             href: `/my-branch/documents?branch=${d.branch}`,
             dueDate: d.leaseEnd,
+            key: `lease_expiring:${d.id}:${dkey(d.leaseEnd)}`,
           });
         }
       }
@@ -272,6 +298,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
           branch: d.branch,
           href: `/my-branch/documents?branch=${d.branch}`,
           dueDate: null,
+          key: `rent_increase:${d.id}:${d.monthlyRent}`,
         });
       }
     }
@@ -293,6 +320,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: r.employee.branch,
       href: "/my-branch/team",
       dueDate: r.startDate,
+      key: `pto_request:${r.id}`,
     });
   }
 
@@ -309,6 +337,7 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: f.branch,
       href: "/alerts",
       dueDate: null,
+      key: `reorder_due:${f.productId}:${f.branch ?? "all"}`,
     });
   }
 
@@ -331,11 +360,14 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       branch: r.branch,
       href: r.vehicle ? `/fleet/${r.vehicle.id}` : r.employeeId ? `/management/people/${r.employeeId}` : "/my-branch",
       dueDate: r.dueDate,
+      key: `manual:${r.id}`,
     });
   }
 
   const rank = { critical: 0, warning: 1, info: 2 } as const;
-  return reminders.sort((a, b) => rank[a.severity] - rank[b.severity]);
+  return reminders
+    .filter((r) => !dismissed.has(r.key))
+    .sort((a, b) => rank[a.severity] - rank[b.severity]);
 }
 
 /** Compact per-branch counts for the fleet header / dashboard tiles. */
