@@ -16,7 +16,15 @@ function fmtStartDate(v: string): string {
   return `${MONTH_ABBR[Number(mo) - 1]} ${Number(d)}, ${y}`;
 }
 
-type Fields = { email: string; phone: string; personalPhone: string; title: string; status: string; hireDate: string };
+type Fields = { email: string; phone: string; personalPhone: string; personalEmail: string; title: string; division: string; birthMonth: string; birthDay: string; status: string; hireDate: string };
+
+// "Jun 1" from month (1-12) + day strings; empty/invalid -> "—". No year is
+// stored, so none is shown.
+function fmtBirthday(month: string, day: string): string {
+  const m = parseInt(month, 10); const d = parseInt(day, 10);
+  if (!(m >= 1 && m <= 12) || !(d >= 1 && d <= 31)) return "—";
+  return `${MONTH_ABBR[m - 1]} ${d}`;
+}
 
 export default function EmployeeContact({
   id,
@@ -67,9 +75,12 @@ export default function EmployeeContact({
         <>
           <div className="space-y-2">
             <InputRow label="Work email" v={f.email} on={(v) => setF({ ...f, email: v })} placeholder="name@clementspestcontrol.com" type="email" />
+            <InputRow label="Personal email" v={f.personalEmail} on={(v) => setF({ ...f, personalEmail: v })} placeholder="name@gmail.com" type="email" />
             <InputRow label="Work phone" v={f.phone} on={(v) => setF({ ...f, phone: v })} type="tel" placeholder="(772) 555-0100" />
             <InputRow label="Personal phone" v={f.personalPhone} on={(v) => setF({ ...f, personalPhone: v })} type="tel" placeholder="(772) 555-0100" />
             <InputRow label="Title" v={f.title} on={(v) => setF({ ...f, title: v })} />
+            <InputRow label="Department / Division" v={f.division} on={(v) => setF({ ...f, division: v })} placeholder="Service, Lawn, General Pest…" />
+            <BirthdayRow month={f.birthMonth} day={f.birthDay} onMonth={(v) => setF({ ...f, birthMonth: v })} onDay={(v) => setF({ ...f, birthDay: v })} />
             <InputRow label="Start date" v={f.hireDate} on={(v) => setF({ ...f, hireDate: v })} type="date" />
           </div>
           <p className="mt-2 text-[11px] text-muted">Start date schedules the 30 &amp; 60-day new-hire reviews automatically.</p>
@@ -83,9 +94,12 @@ export default function EmployeeContact({
         <>
           <dl className="space-y-2">
             <ViewRow label="Work email" v={f.email} />
+            <ViewRow label="Personal email" v={f.personalEmail} />
             <ViewRow label="Work phone" v={f.phone} />
             <ViewRow label="Personal phone" v={f.personalPhone} />
             <ViewRow label="Title" v={f.title} />
+            <ViewRow label="Department / Division" v={f.division} />
+            <ViewRow label="Birthday" v={fmtBirthday(f.birthMonth, f.birthDay)} raw />
             <ViewRow label="Start date" v={fmtStartDate(f.hireDate)} raw />
           </dl>
           {!f.email ? (
@@ -109,6 +123,23 @@ function ViewRow({ label, v, raw }: { label: string; v: string; raw?: boolean })
       <dt className="text-muted">{label}</dt>
       <dd className="text-ink">{shown}</dd>
     </div>
+  );
+}
+
+// Birthday editor — month dropdown + day number (no year; matches the schema's
+// privacy choice). Either both blank (no birthday) or a valid month + day.
+function BirthdayRow({ month, day, onMonth, onDay }: { month: string; day: string; onMonth: (v: string) => void; onDay: (v: string) => void }) {
+  return (
+    <label className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted">Birthday</span>
+      <span className="flex w-56 gap-2">
+        <select value={month} onChange={(e) => onMonth(e.target.value)} className="flex-1 rounded-lg border border-line px-2 py-1.5 text-sm text-ink bg-surface">
+          <option value="">Month</option>
+          {MONTH_ABBR.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+        </select>
+        <input type="number" min={1} max={31} value={day} onChange={(e) => onDay(e.target.value)} placeholder="Day" className="w-20 rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
+      </span>
+    </label>
   );
 }
 

@@ -10,6 +10,10 @@ export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 const bool = (v: unknown) => v === true || v === "true" || v === "on" || v === "yes";
+const intIn = (v: unknown, min: number, max: number) => {
+  const n = typeof v === "number" ? v : parseInt(String(v ?? "").trim(), 10);
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+};
 const dateOf = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; if (!t) return null; const d = new Date(t); return isNaN(d.getTime()) ? null : d; };
 
 // Employee lifecycle for HR: add a profile, terminate (with reason, supporting
@@ -38,10 +42,14 @@ export async function POST(req: Request) {
           name,
           email: s(get("email")),
           phone: s(get("phone")),
+          personalPhone: s(get("personalPhone")),
+          personalEmail: s(get("personalEmail")),
           role: s(get("role")),
           division: s(get("division")),
           branch: s(get("branch")),
           title: s(get("title")),
+          birthMonth: intIn(get("birthMonth"), 1, 12),
+          birthDay: intIn(get("birthDay"), 1, 31),
           hireDate: dateOf(get("hireDate")),
           status: "active",
         },

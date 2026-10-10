@@ -83,6 +83,7 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
           <div className="text-sm font-medium text-ink mb-2">Contact &amp; profile</div>
           <dl className="grid grid-cols-[9rem_1fr] gap-y-1.5 text-sm">
             <Row label="Work email" v={e.email} />
+            <Row label="Personal email" v={e.personalEmail} />
             <Row label="Work phone" v={e.phone} />
             <Row label="Personal phone" v={e.personalPhone} />
             <Row label="Title" v={e.title} />

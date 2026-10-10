@@ -104,7 +104,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         <EmployeeContact
           id={e.id}
           canEdit={canEdit}
-          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", title: e.title ?? "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
+          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", personalEmail: e.personalEmail ?? "", title: e.title ?? "", division: e.division ?? "", birthMonth: e.birthMonth != null ? String(e.birthMonth) : "", birthDay: e.birthDay != null ? String(e.birthDay) : "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
           emailConfigured={emailConfigured()}
         />
 

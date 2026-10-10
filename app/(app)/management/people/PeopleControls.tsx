@@ -12,7 +12,9 @@ const BRANCHES = [
   { key: "naples", label: "Naples" },
 ];
 
-const empty = { name: "", email: "", phone: "", role: "", division: "", branch: "", title: "", hireDate: "" };
+const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const empty = { name: "", email: "", personalEmail: "", phone: "", personalPhone: "", role: "", division: "", branch: "", title: "", birthMonth: "", birthDay: "", hireDate: "" };
 
 export default function PeopleControls({ defaultBranch }: { defaultBranch: string | null }) {
   const router = useRouter();
@@ -49,7 +51,11 @@ export default function PeopleControls({ defaultBranch }: { defaultBranch: strin
             <F label="Full name" v={form.name} on={(v) => setForm({ ...form, name: v })} />
             <div className="grid grid-cols-2 gap-3">
               <F label="Work email" v={form.email} on={(v) => setForm({ ...form, email: v })} />
-              <F label="Phone" v={form.phone} on={(v) => setForm({ ...form, phone: v })} />
+              <F label="Personal email" v={form.personalEmail} on={(v) => setForm({ ...form, personalEmail: v })} placeholder="name@gmail.com" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <F label="Work phone" v={form.phone} on={(v) => setForm({ ...form, phone: v })} />
+              <F label="Personal phone" v={form.personalPhone} on={(v) => setForm({ ...form, personalPhone: v })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <F label="Role" v={form.role} on={(v) => setForm({ ...form, role: v })} placeholder="Technician, CSR, Sales…" />
@@ -66,7 +72,18 @@ export default function PeopleControls({ defaultBranch }: { defaultBranch: strin
                 <DateInput className="mt-1" value={form.hireDate} onChange={(v) => setForm({ ...form, hireDate: v })} />
               </label>
             </div>
-            <p className="text-[11px] text-muted">Hire date schedules the 30 & 60-day new-hire reviews automatically.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm font-medium">Birthday
+                <span className="mt-1 flex gap-2">
+                  <select value={form.birthMonth} onChange={(e) => setForm({ ...form, birthMonth: e.target.value })} className="flex-1 rounded-lg border border-line px-2 py-2 text-sm bg-surface">
+                    <option value="">Month</option>
+                    {MONTH_ABBR.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+                  </select>
+                  <input type="number" min={1} max={31} value={form.birthDay} onChange={(e) => setForm({ ...form, birthDay: e.target.value })} placeholder="Day" className="w-20 rounded-lg border border-line px-2 py-2 text-sm" />
+                </span>
+              </label>
+            </div>
+            <p className="text-[11px] text-muted">Hire date schedules the 30 & 60-day new-hire reviews automatically. Birthday (month &amp; day, no year) feeds the company birthday calendar — leave blank if unknown.</p>
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
             <div className="flex gap-2 pt-1">
               <button onClick={() => { setForm(null); setError(null); }} className={btn.secondary}>Cancel</button>

@@ -875,6 +875,7 @@ model Employee {
   email         String? // work email (for emailing inspection scores); filled later
   phone         String? // WORK phone
   personalPhone String?   @map("personal_phone") // personal/cell number (separate from work phone)
+  personalEmail String?   @map("personal_email") // personal email (separate from work email)
   role          String? // "Technician" | "Manager" | "Sales Advisor" | ...
   division      String? // "Lawn" | "Service" | "General Pest" | ...
   branch        String? // "vero" | "stuart" | "orlando" | "naples"

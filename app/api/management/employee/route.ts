@@ -8,6 +8,12 @@ export const runtime = "nodejs";
 export const maxDuration = 20;
 
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
+// Parse an integer within [min,max]; anything else (blank, non-numeric, out of
+// range) -> null, so clearing a birthday field just unsets it.
+const intIn = (v: unknown, min: number, max: number) => {
+  const n = typeof v === "number" ? v : parseInt(String(v ?? "").trim(), 10);
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+};
 // Parse a date-only "YYYY-MM-DD" value as UTC midnight (timezone-stable); empty -> null.
 const date = (v: unknown) => {
   const s = typeof v === "string" ? v.trim() : "";
@@ -33,7 +39,11 @@ export async function POST(req: Request) {
         email: str(body?.email),
         phone: str(body?.phone), // work phone
         personalPhone: str(body?.personalPhone),
+        personalEmail: str(body?.personalEmail),
         title: str(body?.title),
+        division: str(body?.division),
+        birthMonth: intIn(body?.birthMonth, 1, 12),
+        birthDay: intIn(body?.birthDay, 1, 31),
         status: str(body?.status) ?? "active",
         hireDate: date(body?.hireDate),
       },
