@@ -20,14 +20,16 @@ type Sep = {
   exitResponses: Record<string, string>;
   exitInterviewAt: string | null;
   exitInterviewBy: string | null;
+  exitSentAt: string | null;
+  exitSentTo: string | null;
   createdByName: string | null;
 } | null;
 
 export default function Offboarding({
-  employeeId, employeeName, status, separation, canManage, types, reasons, exitForm,
+  employeeId, employeeName, status, separation, canManage, canSendExit, personalEmail, types, reasons, exitForm,
 }: {
   employeeId: string; employeeName: string; status: string; separation: Sep;
-  canManage: boolean; types: Opt[]; reasons: Opt[]; exitForm: ExitSection[];
+  canManage: boolean; canSendExit: boolean; personalEmail: string | null; types: Opt[]; reasons: Opt[]; exitForm: ExitSection[];
 }) {
   const router = useRouter();
   if (!canManage) return null;
@@ -42,7 +44,7 @@ export default function Offboarding({
       {active ? (
         <TerminatePanel employeeId={employeeId} employeeName={employeeName} types={types} reasons={reasons} onDone={() => router.refresh()} />
       ) : (
-        <FormerPanel employeeId={employeeId} separation={separation} exitForm={exitForm} types={types} reasons={reasons} onDone={() => router.refresh()} />
+        <FormerPanel employeeId={employeeId} separation={separation} exitForm={exitForm} types={types} reasons={reasons} canSendExit={canSendExit} personalEmail={personalEmail} onDone={() => router.refresh()} />
       )}
     </Card>
   );
@@ -146,13 +148,29 @@ function TerminatePanel({ employeeId, employeeName, types, reasons, onDone }: { 
 }
 
 /* -------------------------------------------------------------------------- */
-function FormerPanel({ employeeId, separation, exitForm, types, reasons, onDone }: { employeeId: string; separation: Sep; exitForm: ExitSection[]; types: Opt[]; reasons: Opt[]; onDone: () => void }) {
+function FormerPanel({ employeeId, separation, exitForm, types, reasons, canSendExit, personalEmail, onDone }: { employeeId: string; separation: Sep; exitForm: ExitSection[]; types: Opt[]; reasons: Opt[]; canSendExit: boolean; personalEmail: string | null; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conducting, setConducting] = useState(false);
   const [bypassing, setBypassing] = useState(false);
   const [bypassReason, setBypassReason] = useState("");
   const [resp, setResp] = useState<Record<string, string>>(separation?.exitResponses ?? {});
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
+
+  async function sendExit() {
+    setBusy(true); setError(null); setSendMsg(null);
+    const res = await fetch("/api/personnel/lifecycle", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sendExitInterview", employeeId }),
+    });
+    const d = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) return setError(d.error ?? "Could not send.");
+    setSendMsg(d.sent === "sent"
+      ? `Sent to ${d.to}.`
+      : `Saved for ${d.to}. Email isn't configured yet (Resend), so it will deliver once that's live — or copy the link from the former-employees list.`);
+    onDone();
+  }
 
   async function reactivate() {
     if (!confirm("Reactivate this employee? Their login is re-enabled and the separation record is removed.")) return;
@@ -247,9 +265,31 @@ function FormerPanel({ employeeId, separation, exitForm, types, reasons, onDone 
             </div>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            <button onClick={() => { setConducting(true); setError(null); }} className={btn.primary}>Conduct exit interview</button>
-            <button onClick={() => { setBypassing(true); setError(null); }} className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-muted hover:text-ink">Bypass</button>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => { setConducting(true); setError(null); }} className={btn.primary}>Conduct exit interview</button>
+              <button onClick={() => { setBypassing(true); setError(null); }} className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-muted hover:text-ink">Bypass</button>
+            </div>
+            {/* Super admins can email the interview to the former employee's PERSONAL
+                address (company email is cut off at termination). */}
+            {canSendExit ? (
+              <div className="rounded-lg bg-black/[0.02] p-2.5">
+                {personalEmail ? (
+                  <>
+                    <button onClick={sendExit} disabled={busy} className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50">
+                      {busy ? "Sending…" : `Email exit interview to ${personalEmail}`}
+                    </button>
+                    <p className="mt-1 text-[11px] text-muted">Sends a no-login link to their personal email. They complete it themselves and it files here automatically.</p>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-amber-700">Add a <span className="font-medium">personal email</span> on this profile to email them the exit interview (their company email is disabled).</p>
+                )}
+                {separation?.exitSentAt ? (
+                  <p className="mt-1 text-[11px] text-muted">Last sent to {separation.exitSentTo} on {new Date(separation.exitSentAt).toLocaleDateString()}.</p>
+                ) : null}
+                {sendMsg ? <p className="mt-1 text-[11px] font-medium text-emerald-700">{sendMsg}</p> : null}
+              </div>
+            ) : null}
           </div>
         )}
       </div>

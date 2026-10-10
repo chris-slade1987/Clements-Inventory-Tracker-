@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { saveUpload } from "@/lib/storage";
 import { isHrDirector } from "@/lib/personnel";
+import { sendEmail } from "@/lib/email";
+import { appUrl } from "@/lib/app-url";
 import { type SeparationDoc, syncTechnicianActiveForEmployee } from "@/lib/separation";
 
 export const runtime = "nodejs";
@@ -121,6 +124,32 @@ export async function POST(req: Request) {
         data: { exitResponses: responses, exitStatus: "completed", exitInterviewAt: new Date(), exitInterviewBy: user.name },
       });
       return NextResponse.json({ ok: true });
+    }
+
+    // ---- send the exit interview to the former employee's PERSONAL email ----
+    // Company email is cut off at termination, so the self-serve exit interview
+    // goes to the personal address on the profile. Super admins only.
+    if (action === "sendExitInterview") {
+      if (!isSuperAdmin(user)) return NextResponse.json({ error: "Only a super admin can send the exit interview." }, { status: 403 });
+      const sep = await prisma.employeeSeparation.findUnique({ where: { employeeId } });
+      if (!sep) return NextResponse.json({ error: "Terminate the employee first." }, { status: 400 });
+      if (sep.exitStatus === "completed") return NextResponse.json({ error: "The exit interview is already completed." }, { status: 400 });
+      const personalEmail = (employee.personalEmail ?? "").trim();
+      if (!personalEmail) return NextResponse.json({ error: "No personal email on file — add one on the employee profile first." }, { status: 400 });
+      const token = sep.exitToken ?? randomBytes(24).toString("hex");
+      await prisma.employeeSeparation.update({ where: { employeeId }, data: { exitToken: token, exitSentAt: new Date(), exitSentTo: personalEmail } });
+      const link = `${appUrl()}/exit-interview/${token}`;
+      const first = employee.name.split(" ")[0];
+      const res = await sendEmail({
+        to: personalEmail,
+        subject: "Clements Pest Control — exit interview",
+        kind: "exit_interview",
+        relatedType: "employee_separation",
+        relatedId: sep.id,
+        text: `Hi ${first},\n\nThank you for your time at Clements Pest Control. We'd appreciate a few minutes to complete a short exit interview — your feedback helps us improve.\n\nComplete it here: ${link}\n\n— Clements Pest Control`,
+        html: `<p>Hi ${first},</p><p>Thank you for your time at Clements Pest Control. We'd appreciate a few minutes to complete a short <strong>exit interview</strong> — your feedback helps us improve.</p><p><a href="${link}">Open the exit interview →</a></p><p>— Clements Pest Control</p>`,
+      });
+      return NextResponse.json({ ok: true, to: personalEmail, sent: res.status });
     }
 
     // ---- reactivate (rehire / correction) ----------------------------------

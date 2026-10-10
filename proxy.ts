@@ -47,6 +47,6 @@ export function proxy(req: NextRequest) {
 // with a file extension). Everything left is an authenticated app page.
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|login|apply|onboarding|sign|review-sign|scorecard-sign|health|manifest.webmanifest|sw.js|offline|robots.txt|sitemap.xml|favicon.ico|icons/|.*\\.).*)",
+    "/((?!api|_next/static|_next/image|login|apply|onboarding|sign|review-sign|scorecard-sign|exit-interview|health|manifest.webmanifest|sw.js|offline|robots.txt|sitemap.xml|favicon.ico|icons/|.*\\.).*)",
   ],
 };

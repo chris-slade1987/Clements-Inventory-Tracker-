@@ -64,6 +64,8 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         exitResponses: parseJson<Record<string, string>>(sep.exitResponses, {}),
         exitInterviewAt: sep.exitInterviewAt ? sep.exitInterviewAt.toISOString() : null,
         exitInterviewBy: sep.exitInterviewBy,
+        exitSentAt: sep.exitSentAt ? sep.exitSentAt.toISOString() : null,
+        exitSentTo: sep.exitSentTo,
         createdByName: sep.createdByName,
       }
     : null;
@@ -160,6 +162,8 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         status={e.status}
         separation={separation}
         canManage={canEdit}
+        canSendExit={canEditAccess}
+        personalEmail={e.personalEmail ?? null}
         types={SEPARATION_TYPES.map((t) => ({ key: t.key, label: t.label }))}
         reasons={REASON_CATEGORIES.map((r) => ({ key: r.key, label: r.label }))}
         exitForm={EXIT_INTERVIEW}

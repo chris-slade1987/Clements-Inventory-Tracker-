@@ -1079,6 +1079,12 @@ model EmployeeSeparation {
   exitResponses    String    @default("{}") @map("exit_responses") // JSON answers
   exitInterviewAt  DateTime? @map("exit_interview_at")
   exitInterviewBy  String?   @map("exit_interview_by")
+  // Self-serve exit interview emailed to the former employee's PERSONAL email
+  // (the company address is cut off at termination). Tokenized, no-login, like
+  // the review-sign flow.
+  exitToken        String?   @unique @map("exit_token")
+  exitSentAt       DateTime? @map("exit_sent_at")
+  exitSentTo       String?   @map("exit_sent_to")
 
   createdByUserId String?  @map("created_by_user_id")
   createdByName   String?  @map("created_by_name")

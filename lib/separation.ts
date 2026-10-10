@@ -78,6 +78,11 @@ export const EXIT_INTERVIEW: ExitSection[] = [
   },
 ];
 
+// Exit-interview item keys that are INTERNAL to HR — never shown on the
+// self-serve form the former employee fills, and never overwritten by their
+// submission (so HR's internal notes survive a self-serve completion).
+export const EXIT_INTERNAL_KEYS = ["hr_notes"];
+
 export function parseJson<T>(s: string | null | undefined, fallback: T): T {
   if (!s) return fallback;
   try { return JSON.parse(s) as T; } catch { return fallback; }
