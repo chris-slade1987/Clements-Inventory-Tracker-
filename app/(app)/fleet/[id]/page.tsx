@@ -14,6 +14,7 @@ import { listEmployees } from "@/lib/people";
 import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
 import AssignDriver from "./AssignDriver";
+import EditVehicle from "./EditVehicle";
 import VehicleDocuments from "./VehicleDocuments";
 import RemindersCard from "@/components/RemindersCard";
 
@@ -35,6 +36,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
     ? (await listEmployees()).map((e) => ({
         id: e.id,
         name: e.name,
+        branch: e.branch,
         meta: [e.role, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · "),
       }))
     : [];
@@ -49,6 +51,27 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
       <PageHeader
         title={`${v.unitNumber ? `${v.unitNumber} · ` : ""}${v.name}`}
         subtitle={[v.branch ? branchLabel(v.branch) : null, v.plate, v.vin].filter(Boolean).join(" · ") || "Vehicle"}
+        actions={user.role === "admin" ? (
+          <EditVehicle vehicle={{
+            id: v.id,
+            name: v.name,
+            unitNumber: v.unitNumber ?? "",
+            year: v.year != null ? String(v.year) : "",
+            make: v.make ?? "",
+            model: v.model ?? "",
+            vin: v.vin ?? "",
+            plate: v.plate ?? "",
+            branch: v.branch ?? "",
+            currentMileage: v.currentMileage != null ? String(v.currentMileage) : "",
+            purchasePrice: v.purchasePrice != null ? String(v.purchasePrice) : "",
+            loanBank: v.loanBank ?? "",
+            loanNumber: v.loanNumber ?? "",
+            monthlyPayment: v.monthlyPayment != null ? String(v.monthlyPayment) : "",
+            loanBalance: v.loanBalance != null ? String(v.loanBalance) : "",
+            payoffDate: v.payoffDate ? v.payoffDate.toISOString().slice(0, 10) : "",
+            status: v.status,
+          }} />
+        ) : undefined}
       />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
@@ -90,6 +113,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
                 vehicleId={v.id}
                 currentEmployeeId={v.assignedEmployeeId}
                 currentName={v.assignedTo}
+                vehicleBranch={v.branch}
+                canMoveBranch={user.role === "admin"}
                 drivers={drivers}
               />
             ) : (

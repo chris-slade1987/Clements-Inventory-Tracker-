@@ -31,15 +31,45 @@ export default async function FleetPage({
   const avgCpm = cpmVals.length ? cpmVals.reduce((s, n) => s + n, 0) / cpmVals.length : null;
   const dueSoon = vehicles.filter((v) => isDueSoon(v));
 
-  // Group the roster by branch (Vero → Stuart → Orlando → Naples), oldest to
-  // newest vehicle within each office.
+  // How to organize the roster: by Branch (default), by Driver, or a flat
+  // by-Vehicle list — the three views from the fleet board.
+  const group = sp.group === "driver" || sp.group === "vehicle" ? sp.group : "branch";
   const byYear = (a: (typeof vehicles)[number], b: (typeof vehicles)[number]) =>
     (a.year ?? Infinity) - (b.year ?? Infinity) || (a.unitNumber ?? "").localeCompare(b.unitNumber ?? "", undefined, { numeric: true });
-  const vehicleGroups: { key: string; label: string; items: typeof vehicles }[] = BRANCHES
-    .map((b) => ({ key: b.key as string, label: b.label as string, items: vehicles.filter((v) => v.branch === b.key).sort(byYear) }))
-    .filter((g) => g.items.length > 0);
-  const unassigned = vehicles.filter((v) => !BRANCHES.some((b) => b.key === v.branch)).sort(byYear);
-  if (unassigned.length) vehicleGroups.push({ key: "none", label: "Unassigned", items: unassigned });
+
+  let vehicleGroups: { key: string; label: string; items: typeof vehicles }[];
+  if (group === "driver") {
+    const byDriver = new Map<string, typeof vehicles>();
+    for (const v of vehicles) {
+      const k = v.assignedTo?.trim() || "__none__";
+      (byDriver.get(k) ?? byDriver.set(k, []).get(k)!).push(v);
+    }
+    vehicleGroups = [...byDriver.entries()]
+      .map(([k, items]) => ({ key: k, label: k === "__none__" ? "Unassigned" : k, items: items.sort(byYear) }))
+      .sort((a, b) => (a.label === "Unassigned" ? 1 : b.label === "Unassigned" ? -1 : a.label.localeCompare(b.label)));
+  } else if (group === "vehicle") {
+    vehicleGroups = [{ key: "all", label: "All vehicles", items: [...vehicles].sort(byYear) }];
+  } else {
+    vehicleGroups = BRANCHES
+      .map((b) => ({ key: b.key as string, label: b.label as string, items: vehicles.filter((v) => v.branch === b.key).sort(byYear) }))
+      .filter((g) => g.items.length > 0);
+    const unassigned = vehicles.filter((v) => !BRANCHES.some((b) => b.key === v.branch)).sort(byYear);
+    if (unassigned.length) vehicleGroups.push({ key: "none", label: "Unassigned", items: unassigned });
+  }
+  const groupHref = (g: string) => {
+    const qs = new URLSearchParams();
+    if (branch) qs.set("branch", branch);
+    if (g !== "branch") qs.set("group", g);
+    const s = qs.toString();
+    return s ? `/fleet?${s}` : "/fleet";
+  };
+  const branchHref = (b: string | null) => {
+    const qs = new URLSearchParams();
+    if (b) qs.set("branch", b);
+    if (group !== "branch") qs.set("group", group);
+    const s = qs.toString();
+    return s ? `/fleet?${s}` : "/fleet";
+  };
 
   return (
     <>
@@ -57,12 +87,21 @@ export default async function FleetPage({
 
       {user.role === "admin" ? <FleetControls /> : null}
 
+      <div className="mb-3 flex items-center gap-2 text-xs">
+        <span className="text-muted">View by:</span>
+        <div className="inline-flex rounded-lg border border-line p-0.5">
+          {([["branch", "Branch"], ["driver", "Driver"], ["vehicle", "Vehicle"]] as const).map(([g, label]) => (
+            <Link key={g} href={groupHref(g)} className={`rounded-md px-2.5 py-1 font-medium ${group === g ? "bg-brand-50 text-brand-700" : "text-muted hover:text-ink"}`}>{label}</Link>
+          ))}
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-        <BranchPill href="/fleet" label="All branches" active={branch === null} />
+        <BranchPill href={branchHref(null)} label="All branches" active={branch === null} />
         {BRANCHES.map((b) => (
           <BranchPill
             key={b.key}
-            href={`/fleet?branch=${b.key}`}
+            href={branchHref(b.key)}
             label={b.label}
             active={branch === b.key}
           />
@@ -120,6 +159,7 @@ export default async function FleetPage({
                 <thead>
                   <tr className="text-left text-xs text-muted border-b border-line">
                     <th className="px-4 py-2 font-medium">Vehicle</th>
+                    <th className="px-3 py-2 font-medium">Driver</th>
                     <th className="px-3 py-2 font-medium">Branch</th>
                     <th className="px-3 py-2 font-medium text-right">Mileage</th>
                     <th className="px-3 py-2 font-medium text-right">YTD cost</th>
@@ -133,7 +173,7 @@ export default async function FleetPage({
                   {vehicleGroups.map((g) => (
                     <Fragment key={g.key}>
                       <tr>
-                        <td colSpan={8} className="bg-black/[0.03] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                        <td colSpan={9} className="bg-black/[0.03] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
                           {g.label} · {g.items.length}
                         </td>
                       </tr>
@@ -147,6 +187,7 @@ export default async function FleetPage({
                               </Link>
                               {v.status !== "active" ? <span className="ml-2 text-[10px] uppercase text-muted">retired</span> : null}
                             </td>
+                            <td className="px-3 py-2 text-muted">{v.assignedTo ?? <span className="text-amber-600">Unassigned</span>}</td>
                             <td className="px-3 py-2 text-muted">{v.branch ? branchLabel(v.branch) : "—"}</td>
                             <td className="px-3 py-2 text-right tabular-nums">{v.currentMileage != null ? v.currentMileage.toLocaleString() : "—"}</td>
                             <td className="px-3 py-2 text-right tabular-nums">{money(v.ytdCost)}</td>

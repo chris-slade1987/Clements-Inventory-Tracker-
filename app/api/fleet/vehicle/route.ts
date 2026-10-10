@@ -22,6 +22,10 @@ export async function POST(req: Request) {
     if (action === "create" || action === "update") {
       const name = str(body?.name);
       if (!name) return NextResponse.json({ error: "Vehicle name is required." }, { status: 400 });
+      // NOTE: the driver (assignedTo / assignedEmployeeId) is deliberately NOT set
+      // here — it is managed only by /api/fleet/assign-driver, which keeps the name
+      // string and the structured employee link in sync. Writing assignedTo from
+      // this form used to desync them, so it's excluded.
       const data = {
         name,
         unitNumber: str(body?.unitNumber),
@@ -31,7 +35,6 @@ export async function POST(req: Request) {
         vin: str(body?.vin),
         plate: str(body?.plate),
         branch: str(body?.branch),
-        assignedTo: str(body?.assignedTo),
         currentMileage: int(body?.currentMileage),
         mileageAsOf: body?.currentMileage != null && String(body.currentMileage).trim() !== "" ? new Date() : undefined,
         purchasePrice: flt(body?.purchasePrice),
@@ -40,15 +43,27 @@ export async function POST(req: Request) {
         monthlyPayment: flt(body?.monthlyPayment),
         loanBalance: flt(body?.loanBalance),
         payoffDate: date(body?.payoffDate),
-        status: str(body?.status) ?? "active",
       };
       if (action === "create") {
-        const v = await prisma.vehicle.create({ data });
+        const v = await prisma.vehicle.create({ data: { ...data, status: str(body?.status) ?? "active" } });
         return NextResponse.json({ ok: true, id: v.id });
       }
       const id = str(body?.id);
       if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
-      await prisma.vehicle.update({ where: { id }, data });
+      // Only change status when explicitly provided — so editing a vehicle's
+      // details never accidentally reactivates a retired one (disposition owns status).
+      const statusVal = str(body?.status);
+      await prisma.vehicle.update({ where: { id }, data: { ...data, ...(statusVal ? { status: statusVal } : {}) } });
+      return NextResponse.json({ ok: true });
+    }
+
+    // Move a vehicle to another branch only (leaves every other field + the driver
+    // untouched). Used by the vehicle edit form's branch control and the optional
+    // "move to the driver's branch" prompt after a reassignment.
+    if (action === "setBranch") {
+      const id = str(body?.id);
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      await prisma.vehicle.update({ where: { id }, data: { branch: str(body?.branch) } });
       return NextResponse.json({ ok: true });
     }
 

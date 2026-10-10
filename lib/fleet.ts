@@ -22,6 +22,7 @@ export type VehicleRow = {
   name: string;
   year: number | null;
   branch: string | null;
+  assignedTo: string | null; // driver name (kept in sync with the employee link)
   status: string;
   currentMileage: number | null;
   totalCost: number; // all-time maintenance/repair cost
@@ -67,6 +68,7 @@ export async function listVehicles(branch?: string, scope: "active" | "inactive"
       name: v.name,
       year: v.year ?? null,
       branch: v.branch,
+      assignedTo: v.assignedTo ?? null,
       status: v.status,
       currentMileage: v.currentMileage,
       totalCost: total,
