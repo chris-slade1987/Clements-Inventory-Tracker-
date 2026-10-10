@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser, branchLocked, canResetPasswords } from "@/lib/auth";
+import { requireUser, branchLocked, canResetPasswords, canEditAccessLevels } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { separationForEmployee, SEPARATION_TYPES, REASON_CATEGORIES, EXIT_INTERVIEW, parseJson, type SeparationDoc } from "@/lib/separation";
@@ -20,6 +20,7 @@ import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
 import EmployeeContact from "./EmployeeContact";
 import PasswordResetCard from "./PasswordResetCard";
+import AccessRightsCard from "./AccessRightsCard";
 import Offboarding from "./Offboarding";
 import SignatureBlock from "@/app/(app)/my-branch/team/[id]/SignatureBlock";
 
@@ -45,7 +46,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const detail = await employeeDetail(id);
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
-  const login = await prisma.user.findFirst({ where: { employeeId: e.id }, select: { accessLevel: true, email: true } });
+  const login = await prisma.user.findFirst({ where: { employeeId: e.id }, select: { id: true, accessLevel: true, email: true } });
   const reviews = await reviewsForEmployee(e.id);
   const empReminders = await remindersForEmployee(e.id);
   const licenses = await documentsForEmployee(e.id);
@@ -72,6 +73,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const hr = isHrDirector(user);
   const canEdit = user.role === "admin" || hr;
   const canReset = canResetPasswords(user);
+  const canEditAccess = canEditAccessLevels(user);
 
   // Call-outs linked to an accident report — surfaced on the accident record so
   // the injury → time-off connection is visible with the report.
@@ -128,6 +130,17 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           ) : null}
         </Card>
       </div>
+
+      {/* Access rights — super admins only. Set the access level, or grant a
+          sign-in to a login-less employee (same controls as the org chart). */}
+      {canEditAccess ? (
+        <AccessRightsCard
+          employeeId={e.id}
+          userId={login?.id ?? null}
+          accessLevel={login?.accessLevel ?? null}
+          employeeName={e.name}
+        />
+      ) : null}
 
       {/* Login password reset — CEO / Chief of Staff / HR director only */}
       {canReset && login ? (

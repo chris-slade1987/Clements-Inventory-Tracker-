@@ -52,6 +52,44 @@ export async function POST(req: Request) {
       if (!canManageAbsenceBranch(user, employee.branch))
         return NextResponse.json({ error: "You can only log call-outs for your own branch." }, { status: 403 });
 
+      const kind = s(body?.kind) === "tardy" ? "tardy" : "absence";
+
+      // ---- Tardy (late arrival): a single day with no absent-days, no medical
+      // note, and no notification. Lives in the same Attendance section but is
+      // counted separately from call-outs.
+      if (kind === "tardy") {
+        const day = dateOf(body?.startDate);
+        if (!day) return NextResponse.json({ error: "Choose the date." }, { status: 400 });
+        const dUtc = toUtcDay(day);
+        const tReason = s(body?.reason);
+        if (tReason && !isReason(tReason)) return NextResponse.json({ error: "Choose a valid reason." }, { status: 400 });
+        const rawMin = body?.minutesLate;
+        const minutesLate = rawMin == null || rawMin === "" ? null : Math.max(0, parseInt(String(rawMin), 10) || 0);
+        const tData = {
+          kind: "tardy",
+          startDate: dUtc,
+          endDate: dUtc,
+          days: 0,
+          reason: tReason ?? "other",
+          reasonDetail: s(body?.reasonDetail),
+          minutesLate,
+          workplaceRelated: null,
+          accidentRecordId: null,
+          noteRequired: false,
+          noteStatus: "none",
+        };
+        if (action === "update" && id) {
+          const existing = await prisma.absence.findUnique({ where: { id } });
+          if (!existing) return NextResponse.json({ error: "Record not found." }, { status: 404 });
+          await prisma.absence.update({ where: { id }, data: tData });
+          return NextResponse.json({ ok: true, id, kind: "tardy" });
+        }
+        const created = await prisma.absence.create({
+          data: { employeeId, branch: employee.branch, ...tData, loggedById: user.id, loggedByName: user.name },
+        });
+        return NextResponse.json({ ok: true, id: created.id, kind: "tardy" });
+      }
+
       const start = dateOf(body?.startDate);
       const end = dateOf(body?.endDate);
       if (!start || !end) return NextResponse.json({ error: "Choose a start and end date." }, { status: 400 });
@@ -126,6 +164,7 @@ export async function POST(req: Request) {
         data: {
           employeeId,
           branch: employee.branch,
+          kind: "absence",
           startDate: startD,
           endDate: endD,
           days,

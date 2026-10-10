@@ -976,9 +976,14 @@ model Absence {
   id            String   @id @default(cuid())
   employeeId    String   @map("employee_id")
   branch        String?                          // denormalized from the employee for scoping/rollup
+  // "absence" = a call-out (day(s) missed); "tardy" = a late arrival (single day,
+  // days=0, no medical-note rule, no notification). Both live in the same
+  // Attendance section but are counted separately.
+  kind          String   @default("absence")
+  minutesLate   Int?     @map("minutes_late")    // tardy only: how many minutes late (optional)
   startDate     DateTime @map("start_date")
   endDate       DateTime @map("end_date")        // inclusive; equals startDate for a single day
-  days          Int                              // inclusive calendar-day count of the span
+  days          Int                              // inclusive calendar-day count of the span (0 for a tardy)
   reason        String                           // canonical code (see REASONS in lib/absence.ts)
   reasonDetail  String?  @map("reason_detail")   // REQUIRED when reason="other"; optional note otherwise
   excused       Boolean?                         // HR/manager determination; null = undetermined

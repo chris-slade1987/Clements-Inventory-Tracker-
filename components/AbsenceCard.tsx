@@ -68,6 +68,8 @@ export default async function AbsenceCard({
         accidents={accidentRecords.map((r) => ({ id: r.id, label: accidentLabel(r) }))}
         absences={absences.map((a) => ({
           id: a.id,
+          kind: a.kind,
+          minutesLate: a.minutesLate,
           startDate: a.startDate.toISOString(),
           endDate: a.endDate.toISOString(),
           days: a.days,

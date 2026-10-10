@@ -15,6 +15,8 @@ import { REASONS } from "@/lib/absence";
 
 type AbsenceView = {
   id: string;
+  kind: string; // "absence" | "tardy"
+  minutesLate: number | null;
   startDate: string;
   endDate: string;
   days: number;
@@ -65,6 +67,8 @@ export default function AbsenceLogger({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [mode, setMode] = useState<"absence" | "tardy">("absence");
+  const [minutesLate, setMinutesLate] = useState("");
   const [start, setStart] = useState(today());
   const [end, setEnd] = useState(today());
   const [reason, setReason] = useState<string>("");
@@ -80,6 +84,7 @@ export default function AbsenceLogger({
   const absenceDays = useMemo(() => {
     const set = new Set<string>();
     for (const a of absences) {
+      if (a.kind === "tardy") continue; // tardies aren't absent days
       const s = new Date(a.startDate);
       const e = new Date(a.endDate);
       for (const d = new Date(s); d.getTime() <= e.getTime(); d.setUTCDate(d.getUTCDate() + 1)) set.add(dayKey(d));
@@ -88,13 +93,15 @@ export default function AbsenceLogger({
   }, [absences]);
 
   function resetForm() {
-    setEditId(null); setStart(today()); setEnd(today()); setReason(""); setReasonDetail("");
+    setEditId(null); setMode("absence"); setMinutesLate(""); setStart(today()); setEnd(today()); setReason(""); setReasonDetail("");
     setWorkplaceRelated(""); setAccidentRecordId(""); setError(null);
   }
 
-  function beginAdd() { resetForm(); setOpen(true); setMsg(null); }
+  function beginAdd(m: "absence" | "tardy") { resetForm(); setMode(m); setOpen(true); setMsg(null); }
   function beginEdit(a: AbsenceView) {
     setEditId(a.id);
+    setMode(a.kind === "tardy" ? "tardy" : "absence");
+    setMinutesLate(a.minutesLate != null ? String(a.minutesLate) : "");
     setStart(a.startDate.slice(0, 10));
     setEnd(a.endDate.slice(0, 10));
     setReason(a.reason);
@@ -104,34 +111,52 @@ export default function AbsenceLogger({
     setError(null); setMsg(null); setOpen(true);
   }
 
-  const isInjury = reason === "physical_injury";
-  const isOther = reason === "other";
+  const isTardy = mode === "tardy";
+  const isInjury = !isTardy && reason === "physical_injury";
+  const isOther = !isTardy && reason === "other";
 
   async function submit() {
     setError(null);
-    if (!reason) return setError("Choose a reason.");
-    if (isOther && !reasonDetail.trim()) return setError("Add a detail for “Other”.");
-    if (isInjury && workplaceRelated === "") return setError("Indicate whether the injury is workplace-related.");
+    if (!isTardy) {
+      if (!reason) return setError("Choose a reason.");
+      if (isOther && !reasonDetail.trim()) return setError("Add a detail for “Other”.");
+      if (isInjury && workplaceRelated === "") return setError("Indicate whether the injury is workplace-related.");
+    }
     setBusy(true);
+    const payload = isTardy
+      ? {
+          action: editId ? "update" : "create",
+          id: editId ?? undefined,
+          employeeId,
+          kind: "tardy",
+          startDate: start,
+          minutesLate: minutesLate.trim() === "" ? undefined : minutesLate.trim(),
+          reason: reason || undefined,
+          reasonDetail: reasonDetail.trim() || undefined,
+        }
+      : {
+          action: editId ? "update" : "create",
+          id: editId ?? undefined,
+          employeeId,
+          kind: "absence",
+          startDate: start,
+          endDate: end,
+          reason,
+          reasonDetail: reasonDetail.trim() || undefined,
+          workplaceRelated: isInjury ? workplaceRelated === "yes" : undefined,
+          accidentRecordId: isInjury && workplaceRelated === "yes" ? accidentRecordId || undefined : undefined,
+        };
     const res = await fetch("/api/absence", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: editId ? "update" : "create",
-        id: editId ?? undefined,
-        employeeId,
-        startDate: start,
-        endDate: end,
-        reason,
-        reasonDetail: reasonDetail.trim() || undefined,
-        workplaceRelated: isInjury ? workplaceRelated === "yes" : undefined,
-        accidentRecordId: isInjury && workplaceRelated === "yes" ? accidentRecordId || undefined : undefined,
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Save failed.");
-    const parts: string[] = [editId ? "Call-out updated." : "Call-out logged."];
+    const parts: string[] = isTardy
+      ? [editId ? "Tardy updated." : "Tardy logged."]
+      : [editId ? "Call-out updated." : "Call-out logged."];
     if (data.noteRequired) parts.push("A medical note was requested.");
     if (Array.isArray(data.notified) && data.notified.length > 0) parts.push(`Leadership + HR notified (${data.notified.length}).`);
     setMsg(parts.join(" "));
@@ -165,12 +190,15 @@ export default function AbsenceLogger({
       <div className="flex items-center justify-between mb-1">
         <div className="text-sm font-medium text-ink">Attendance / Call-Outs</div>
         {canManage && !open ? (
-          <button onClick={beginAdd} className="text-xs font-medium text-brand-700 hover:underline">Log a call-out</button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => beginAdd("absence")} className="text-xs font-medium text-brand-700 hover:underline">Log a call-out</button>
+            <button onClick={() => beginAdd("tardy")} className="text-xs font-medium text-brand-700 hover:underline">Log a tardy</button>
+          </div>
         ) : null}
       </div>
       <p className="text-xs text-muted mb-3">
-        Unplanned absences, tracked for attendance patterns. Not PTO — there is no allowance. An illness (employee or family)
-        over 2 days requires a medical note.
+        Unplanned absences and tardies, tracked for attendance patterns. Not PTO — there is no allowance. An illness (employee or family)
+        over 2 days requires a medical note. Tardies do not count as absent days.
       </p>
 
       {/* Compact month view highlighting this employee's absence days */}
@@ -198,20 +226,31 @@ export default function AbsenceLogger({
       {open ? (
         <div className="mb-4 rounded-xl border border-line p-3 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-ink">{editId ? "Edit call-out" : `Log a call-out — ${employeeName.split(" ")[0]}`}</div>
+            <div className="text-sm font-medium text-ink">{editId ? (isTardy ? "Edit tardy" : "Edit call-out") : `Log a ${isTardy ? "tardy" : "call-out"} — ${employeeName.split(" ")[0]}`}</div>
             <button onClick={() => { setOpen(false); resetForm(); }} className="text-xs text-muted hover:text-red-600">Cancel</button>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block text-sm font-medium">First day out
-              <DateInput className="mt-1" value={start} onChange={(v) => { setStart(v); if (v > end) setEnd(v); }} />
-            </label>
-            <label className="block text-sm font-medium">Last day out
-              <DateInput className="mt-1" value={end} onChange={setEnd} min={start} />
-            </label>
-          </div>
-          <label className="block text-sm font-medium">Reason
+          {isTardy ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm font-medium">Date
+                <DateInput className="mt-1" value={start} onChange={setStart} />
+              </label>
+              <label className="block text-sm font-medium">Minutes late (optional)
+                <input type="number" min={0} value={minutesLate} onChange={(e) => setMinutesLate(e.target.value)} placeholder="e.g. 20" className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm font-medium">First day out
+                <DateInput className="mt-1" value={start} onChange={(v) => { setStart(v); if (v > end) setEnd(v); }} />
+              </label>
+              <label className="block text-sm font-medium">Last day out
+                <DateInput className="mt-1" value={end} onChange={setEnd} min={start} />
+              </label>
+            </div>
+          )}
+          <label className="block text-sm font-medium">Reason{isTardy ? " (optional)" : ""}
             <select value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
-              <option value="">— Select reason —</option>
+              <option value="">{isTardy ? "— No reason —" : "— Select reason —"}</option>
               {REASONS.map((r) => <option key={r.code} value={r.code}>{r.label}</option>)}
             </select>
           </label>
@@ -255,7 +294,7 @@ export default function AbsenceLogger({
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           <div className="flex gap-2">
             <button onClick={() => { setOpen(false); resetForm(); }} className={btn.secondary}>Cancel</button>
-            <button onClick={submit} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : editId ? "Save changes" : "Log call-out"}</button>
+            <button onClick={submit} disabled={busy} className={`${btn.primary} flex-1`}>{busy ? "Saving…" : editId ? "Save changes" : isTardy ? "Log tardy" : "Log call-out"}</button>
           </div>
         </div>
       ) : null}
@@ -270,10 +309,20 @@ export default function AbsenceLogger({
           {absences.map((a) => (
             <li key={a.id} className="py-2.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-ink">{a.days > 1 ? `${fmt(a.startDate)} – ${fmt(a.endDate)}` : fmt(a.startDate)}</span>
-                <span className="text-xs text-muted">· {a.days} day{a.days === 1 ? "" : "s"}</span>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{reasonLabel(a.reason)}</span>
-                {a.reason === "physical_injury" && a.workplaceRelated ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">workplace injury</span> : null}
+                <span className="text-sm font-medium text-ink">{a.kind !== "tardy" && a.days > 1 ? `${fmt(a.startDate)} – ${fmt(a.endDate)}` : fmt(a.startDate)}</span>
+                {a.kind === "tardy" ? (
+                  <>
+                    <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700">Tardy</span>
+                    {a.minutesLate != null ? <span className="text-xs text-muted">· {a.minutesLate} min late</span> : null}
+                    {a.reason && a.reason !== "other" ? <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{reasonLabel(a.reason)}</span> : null}
+                  </>
+                ) : (
+                  <>
+                    <span className="text-xs text-muted">· {a.days} day{a.days === 1 ? "" : "s"}</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{reasonLabel(a.reason)}</span>
+                    {a.reason === "physical_injury" && a.workplaceRelated ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">workplace injury</span> : null}
+                  </>
+                )}
                 {a.noteRequired ? <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${NOTE_STYLE[a.noteStatus] ?? NOTE_STYLE.none}`}>{NOTE_LABEL[a.noteStatus] ?? a.noteStatus}</span> : null}
                 {canManage ? <button onClick={() => beginEdit(a)} className="ml-auto text-[11px] font-medium text-brand-700 hover:underline">Edit</button> : null}
               </div>

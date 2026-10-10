@@ -92,10 +92,11 @@ export function absencesForEmployee(employeeId: string) {
   return prisma.absence.findMany({ where: { employeeId }, orderBy: { startDate: "desc" } });
 }
 
-/** Call-outs for a branch (null = every branch), newest first, with the person. */
+/** Call-outs for a branch (null = every branch), newest first, with the person.
+ *  Tardies are a separate attendance kind and are excluded from the call-out overview. */
 export function absencesForBranch(branch?: string | null, limit = 200) {
   return prisma.absence.findMany({
-    where: branch ? { branch } : undefined,
+    where: { kind: "absence", ...(branch ? { branch } : {}) },
     include: { employee: { select: { id: true, name: true, branch: true } } },
     orderBy: { startDate: "desc" },
     take: limit,
@@ -139,7 +140,7 @@ export type AbsencePattern = {
 export async function absencePatterns(branch?: string | null, sinceDays = 90): Promise<AbsencePattern[]> {
   const since = new Date(Date.now() - sinceDays * 864e5);
   const rows = await prisma.absence.findMany({
-    where: { startDate: { gte: since }, ...(branch ? { branch } : {}) },
+    where: { kind: "absence", startDate: { gte: since }, ...(branch ? { branch } : {}) },
     include: { employee: { select: { id: true, name: true, branch: true } } },
     orderBy: { startDate: "desc" },
   });
