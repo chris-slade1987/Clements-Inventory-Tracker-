@@ -5,7 +5,9 @@ import { requireUser, canManageSales } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
+import { teamFunnel, buildLeaderboards, type AdvisorFunnel } from "@/lib/sales-funnel";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import FunnelEntryButton from "./FunnelEntryButton";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,9 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const periodKey = currentPeriodKey();
   const { advisorRows, byBranch, totals, actuals } = await salesDirectorDashboard(periodKey, branch);
+  const { rows: funnelRows } = await teamFunnel(periodKey, branch);
+  const boards = buildLeaderboards(funnelRows);
+  const pLabel = periodLabel(periodKey);
 
   // The director's actionable gap: advisors who haven't set this period's goal.
   const notSet = advisorRows.filter((r) => !r.hasGoal);
@@ -51,7 +56,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
               </span>
               <div>
                 <div className="text-sm font-medium text-ink">All {totals.advisors} advisors have set their {periodLabel(periodKey)} goals.</div>
-                <div className="text-xs text-muted">You're set for the month — track pace in the tables below.</div>
+                <div className="text-xs text-muted">You&rsquo;re set for the month — track pace in the tables below.</div>
               </div>
             </Card>
           ) : (
@@ -89,6 +94,68 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <Tile label="Closed (YTD)" value={m(totals.closed)} />
         <Tile label="Open pipeline" value={m(totals.pipeline)} />
       </div>
+
+      {/* Leaderboard — the funnel, ranked. Each stage is its own board so activity
+          leaders are recognized alongside dollar closers. */}
+      {funnelRows.length > 0 ? (
+        <>
+          <h2 className="text-sm font-semibold text-ink mb-2">Leaderboard · {pLabel}</h2>
+          <div className="grid gap-3 lg:grid-cols-3 mb-3">
+            <MiniBoard title="Leads created" emoji="🚀" rows={boards.leads} fmt={(n) => qty(n)} />
+            <MiniBoard title="Proposals made" emoji="🎯" rows={boards.proposals} fmt={(n) => qty(n)} />
+            <MiniBoard title="Closed $" emoji="💰" rows={boards.closed} fmt={(n) => money(n)} />
+          </div>
+          {boards.mostImproved ? (
+            <Card className="p-3 mb-6 ring-1 ring-emerald-200 flex items-center gap-3">
+              <span className="text-lg">📈</span>
+              <div className="text-sm text-ink"><span className="font-semibold">Most improved:</span> {boards.mostImproved.advisor.name} — up {money(boards.mostImproved.delta)} in closed vs last month.</div>
+            </Card>
+          ) : <div className="mb-6" />}
+
+          {/* This month's funnel (editable) */}
+          <h2 className="text-sm font-semibold text-ink mb-2">This month&rsquo;s funnel</h2>
+          <Card className="p-0 overflow-hidden mb-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted border-b border-line">
+                    <th className="px-4 py-2 font-medium">Advisor</th>
+                    <th className="px-3 py-2 font-medium text-right">Leads</th>
+                    <th className="px-3 py-2 font-medium text-right">Proposals</th>
+                    <th className="px-3 py-2 font-medium text-right">Lead→Prop</th>
+                    <th className="px-3 py-2 font-medium text-right">Closed $</th>
+                    <th className="px-3 py-2 font-medium text-right">$ / Proposal</th>
+                    <th className="px-3 py-2 font-medium text-right">vs Goal</th>
+                    <th className="px-4 py-2 font-medium text-right"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {funnelRows.map((r: AdvisorFunnel) => (
+                    <tr key={r.advisor.id} className="border-b border-line last:border-0">
+                      <td className="px-4 py-2 font-medium">
+                        <Link href={`/sales/${r.advisor.id}`} className="text-brand-700 hover:underline">{r.advisor.name}</Link>
+                        {r.advisor.branch ? <span className="ml-2 text-[11px] text-muted">{branchLabel(r.advisor.branch)}</span> : null}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.leads || "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.proposals || "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.leads ? `${Math.round(r.proposalRate * 100)}%` : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums font-medium">{r.closed ? money(r.closed) : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.proposals ? money(r.dollarsPerProposal) : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.goal > 0 ? <span className={r.goalPct >= 1 ? "text-emerald-600 font-medium" : "text-muted"}>{Math.round(r.goalPct * 100)}%</span> : "—"}</td>
+                      <td className="px-4 py-2 text-right">
+                        <FunnelEntryButton advisorId={r.advisor.id} advisorName={r.advisor.name} periodKey={periodKey} periodLabel={pLabel} current={{ leadsCreated: r.leads, proposalsMade: r.proposals, closedAmount: r.closed }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-4 py-2 border-t border-line text-[11px] text-muted">
+              Enter numbers manually for now; they&rsquo;ll flow in automatically once SmarterLaunch is connected (then this stays as an override).
+            </div>
+          </Card>
+        </>
+      ) : null}
 
       {advisorRows.length === 0 ? (
         <EmptyState title="No service advisors yet" hint="Assign the Service Advisor access level to your sales reps in People, and they'll appear here." />
@@ -165,6 +232,29 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         </>
       )}
     </>
+  );
+}
+
+function MiniBoard({ title, emoji, rows, fmt }: { title: string; emoji: string; rows: { advisor: { id: string; name: string }; value: number; rank: number }[]; fmt: (n: number) => string }) {
+  const top = rows.filter((r) => r.value > 0).slice(0, 5);
+  const medal = (rank: number) => (rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`);
+  return (
+    <Card className="p-0 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-line text-sm font-medium text-ink flex items-center gap-2"><span>{emoji}</span>{title}</div>
+      {top.length === 0 ? (
+        <p className="px-4 py-6 text-center text-xs text-muted">No data yet this month.</p>
+      ) : (
+        <ul className="divide-y divide-line">
+          {top.map((r) => (
+            <li key={r.advisor.id} className="flex items-center gap-3 px-4 py-2 text-sm">
+              <span className="w-6 text-center">{medal(r.rank)}</span>
+              <span className="flex-1 truncate">{r.advisor.name}</span>
+              <span className="tabular-nums font-medium text-ink">{fmt(r.value)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
 

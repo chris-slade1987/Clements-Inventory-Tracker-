@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageHeader, Card } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import GoalPlanner from "@/components/GoalPlanner";
+import SalesStandingCard from "@/components/SalesStandingCard";
 import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,8 @@ export default async function MySalesPage() {
     <>
       <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link></div>
       <PageHeader title="My Sales Goals" subtitle={`Monthly goal planner — ${periodLabel(periodKey)}`} />
+
+      <SalesStandingCard advisorEmployeeId={user.employeeId} periodKey={periodKey} />
 
       <Card className="p-4 mb-5">
         <div className="flex items-start gap-3">

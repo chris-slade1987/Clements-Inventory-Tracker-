@@ -1221,6 +1221,29 @@ model SalesGoalSheet {
   @@map("sales_goal_sheets")
 }
 
+// Per-advisor monthly sales FUNNEL actuals: Leads created → Proposals made →
+// Closed $. Drives the Sales Director command center and the advisor leaderboard.
+// Source-agnostic: entered manually by the director today, and upserted from the
+// SmarterLaunch API (source="smarterlaunch") once that feed is live next month.
+// One row per advisor per month.
+model SalesPeriodStat {
+  id                String   @id @default(cuid())
+  advisorEmployeeId String   @map("advisor_employee_id")
+  branch            String? // snapshot of the advisor's branch for rollups
+  periodKey         String   @map("period_key") // "YYYY-MM"
+  leadsCreated      Int      @default(0) @map("leads_created")
+  proposalsMade     Int      @default(0) @map("proposals_made")
+  closedAmount      Float    @default(0) @map("closed_amount") // $ closed this month
+  source            String   @default("manual") // "manual" | "salescenter" | "smarterlaunch"
+  updatedByUserId   String?  @map("updated_by_user_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([advisorEmployeeId, periodKey])
+  @@index([periodKey, branch])
+  @@map("sales_period_stats")
+}
+
 model TrainingAssignment {
   id           String    @id @default(cuid())
   courseId     String    @map("course_id")
