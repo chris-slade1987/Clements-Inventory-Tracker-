@@ -65,8 +65,18 @@ export const REVIEW_PROGRAM_START = new Date("2026-07-01T00:00:00.000Z");
  * reviews as a historical record; only clears not-yet-completed ones. Idempotent.
  */
 export async function clearPreProgramReviews(): Promise<{ removed: number; alertsDismissed: number }> {
+  // Catch every spurious case: the employee was hired before the program start,
+  // has no hire date at all (null), or the review itself was stamped with a
+  // pre-program start date (e.g. a garbage/epoch hire date like 1975).
   const stale = await prisma.newHireReview.findMany({
-    where: { status: { not: "completed" }, employee: { hireDate: { lt: REVIEW_PROGRAM_START } } },
+    where: {
+      status: { not: "completed" },
+      OR: [
+        { employee: { hireDate: { lt: REVIEW_PROGRAM_START } } },
+        { employee: { hireDate: null } },
+        { startDate: { lt: REVIEW_PROGRAM_START } },
+      ],
+    },
     select: { id: true },
   });
   if (stale.length === 0) return { removed: 0, alertsDismissed: 0 };
