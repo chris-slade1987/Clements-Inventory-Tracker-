@@ -355,11 +355,10 @@ export const MANAGEMENT_NAV: NavItem[] = [
   },
   {
     href: "/management/documents",
-    label: "Document Center",
+    label: "Documents",
     shortLabel: "Docs",
     icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
-  INTAKE_NAV_ITEM,
   {
     href: "/management/insurance",
     label: "Insurance",

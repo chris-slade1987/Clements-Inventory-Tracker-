@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 17 · Last updated October 12, 2026",
+    effective: "Version 18 · Last updated October 12, 2026",
+    // v18: Documents consolidation — Document Intake is now the "Add" tab of a
+    // unified Documents page (Add = AI intake, Filed = vehicle-doc library); the
+    // standalone Document Center upload was removed and /management/intake redirects.
     // v17: reconciled the Inventory Check-IN + Document Intake sections — the
     // Check-In review screen now has an AI chat that revises the draft invoice in
     // plain English before Confirm, and Document Intake can route a distributor
@@ -72,7 +75,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 17,
+    version: 18,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
