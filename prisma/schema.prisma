@@ -26,6 +26,7 @@ model Warehouse {
   users       User[]
   invoices    Invoice[]
   movements   StockMovement[]
+  checkouts   Checkout[]
 
   @@map("warehouses")
 }
@@ -42,6 +43,7 @@ model Technician {
 
   homeWarehouse Warehouse       @relation(fields: [homeWarehouseId], references: [id])
   movements     StockMovement[]
+  checkouts     Checkout[]
 
   @@index([homeWarehouseId])
   @@map("technicians")
@@ -80,6 +82,8 @@ model User {
   sessions  Session[]
   invoices  Invoice[]
   movements StockMovement[]
+  checkoutsIssued Checkout[] @relation("CheckoutIssuedBy")
+  checkoutsVoided Checkout[] @relation("CheckoutVoidedBy")
 
   @@map("users")
 }
@@ -139,8 +143,77 @@ model Product {
   invoiceLines InvoiceLine[]
   movements    StockMovement[]
   alerts       Alert[]
+  barcodes     ProductBarcode[]
+  checkoutLines CheckoutLine[]
 
   @@map("products")
+}
+
+// A scanned barcode linked to a catalog product. Multiple barcodes may point at
+// the same product (first-time linking of new barcodes at check-out adds rows
+// here). `code` is globally unique. `Product.barcode` is kept as a legacy mirror;
+// lookups check ProductBarcode first, then Product.barcode.
+model ProductBarcode {
+  id              String   @id @default(cuid())
+  productId       String   @map("product_id")
+  code            String   @unique
+  symbology       String? // e.g. "upc_a" | "ean_13" | "code_128" | "qr" (optional)
+  createdByUserId String?  @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@map("product_barcodes")
+}
+
+// A scan-to-issue checkout session: one warehouse + technician, a set of lines,
+// and (on submit) a StockMovement per line. Never hard-deleted — a void sets
+// status VOIDED and writes offsetting adjustment movements.
+model Checkout {
+  id               String    @id @default(cuid())
+  warehouseId      String    @map("warehouse_id")
+  technicianId     String    @map("technician_id")
+  issuedByUserId   String    @map("issued_by_user_id")
+  status           String    @default("SUBMITTED") // "DRAFT" | "SUBMITTED" | "VOIDED"
+  signatureImageUrl String?  @map("signature_image_url")
+  submittedAt      DateTime? @map("submitted_at")
+  voidedAt         DateTime? @map("voided_at")
+  voidedByUserId   String?   @map("voided_by_user_id")
+  voidReason       String?   @map("void_reason")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+  technician Technician     @relation(fields: [technicianId], references: [id])
+  issuedBy   User           @relation("CheckoutIssuedBy", fields: [issuedByUserId], references: [id])
+  voidedBy   User?          @relation("CheckoutVoidedBy", fields: [voidedByUserId], references: [id])
+  lines      CheckoutLine[]
+
+  @@index([warehouseId])
+  @@index([technicianId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("checkouts")
+}
+
+// One product line within a Checkout. `identifiedBy` records how the product was
+// chosen (barcode scan, AI photo, manual catalog search, or a shelf QR label).
+model CheckoutLine {
+  id           String  @id @default(cuid())
+  checkoutId   String  @map("checkout_id")
+  productId    String  @map("product_id")
+  quantity     Int
+  identifiedBy String  @map("identified_by") // "BARCODE" | "AI_PHOTO" | "MANUAL_SEARCH" | "SHELF_QR"
+  photoUrl     String? @map("photo_url")
+  aiConfidence Float?  @map("ai_confidence")
+
+  checkout Checkout       @relation(fields: [checkoutId], references: [id], onDelete: Cascade)
+  product  Product        @relation(fields: [productId], references: [id])
+  movement StockMovement?
+
+  @@index([checkoutId])
+  @@index([productId])
+  @@map("checkout_lines")
 }
 
 model Invoice {
@@ -204,6 +277,10 @@ model StockMovement {
   // Reconciliation: reversals reference the movement they undo. Nothing is ever
   // hard-deleted; a reversed movement stays and gets an offsetting entry.
   reversalOfId    String?  @unique @map("reversal_of_id")
+  // Scan-to-issue: ties an issue (`check_out`) movement back to its CheckoutLine
+  // so a checkout can be reconstructed and undone/voided. Null for all other
+  // movements (invoice receipts, reconciliations, legacy check-outs).
+  checkoutLineId  String?  @unique @map("checkout_line_id")
   createdAt       DateTime @default(now()) @map("created_at")
 
   product       Product        @relation(fields: [productId], references: [id])
@@ -213,6 +290,7 @@ model StockMovement {
   user          User?          @relation(fields: [userId], references: [id])
   reversalOf    StockMovement? @relation("Reversal", fields: [reversalOfId], references: [id])
   reversedBy    StockMovement? @relation("Reversal")
+  checkoutLine  CheckoutLine?  @relation(fields: [checkoutLineId], references: [id])
 
   @@index([productId, warehouseId])
   @@index([warehouseId])

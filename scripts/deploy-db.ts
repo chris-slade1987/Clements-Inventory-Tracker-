@@ -722,6 +722,45 @@ async function main() {
       if (r.errors.length) for (const e of r.errors) console.error("deploy-db: dispersal", e);
     });
 
+    // Scan-to-issue (inventory checkout) backfills. Idempotent + Setting-marker
+    // guarded so they apply once; the standalone scripts in scripts/ can re-run
+    // them anytime. Runs after the catalog + distributor loads so products exist.
+    await runStep("scan-to-issue backfills", async () => {
+      const marker = await prisma.setting.findUnique({ where: { key: "scan_issue_backfill_v1" } });
+      if (marker) {
+        console.log("deploy-db: scan-to-issue backfills already applied — left as-is.");
+        return;
+      }
+      const { backfillProductBarcodes, backfillDistributorSku } = await import("../lib/backfills");
+      const bc = await backfillProductBarcodes(prisma);
+      const sku = await backfillDistributorSku(prisma);
+      await prisma.setting.create({ data: { key: "scan_issue_backfill_v1", value: new Date().toISOString() } });
+      console.log(
+        `deploy-db: scan-to-issue backfills — barcodes ${bc.created} created/${bc.skipped} existing of ${bc.scanned}; ` +
+          `distributorSku ${sku.set} set/${sku.skipped} skipped/${sku.unmatched} unmatched.`,
+      );
+    });
+
+    // Catalog CSV import — ADD/UPDATE products from the committed SiteOne line-item
+    // files. Idempotent (a re-run is zero-change) + Setting-marker guarded so the
+    // deploy applies it once; the admin "Import catalog CSV" button + the
+    // scripts/import-catalog-csv.ts can re-run it anytime. Runs AFTER the SKU
+    // backfill so item-# matching is maximally effective.
+    await runStep("catalog CSV import", async () => {
+      const marker = await prisma.setting.findUnique({ where: { key: "catalog_csv_import_v1" } });
+      if (marker) {
+        console.log("deploy-db: catalog CSV import already applied — left as-is.");
+        return;
+      }
+      const { importCatalog } = await import("../lib/catalog-import");
+      const r = await importCatalog(prisma, { apply: true });
+      await prisma.setting.create({ data: { key: "catalog_csv_import_v1", value: new Date().toISOString() } });
+      console.log(
+        `deploy-db: catalog CSV import — ${r.created} created, ${r.updated} updated, ${r.unchanged} unchanged ` +
+          `(${r.distinctItems} items; skipped ${r.skippedSurcharge} surcharge + ${r.skippedCredit} credit).`,
+      );
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);

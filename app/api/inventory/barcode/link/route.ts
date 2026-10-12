@@ -1,0 +1,55 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
+
+export const runtime = "nodejs";
+
+// POST /api/inventory/barcode/link  { code, productId, symbology? }
+// Link a newly-scanned barcode to a catalog product (admin or branch manager).
+// Handles P2002 (code already linked) gracefully.
+export async function POST(req: Request) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (isBoardObserver(user)) return NextResponse.json({ error: "Read-only access." }, { status: 403 });
+  if (user.role !== "admin" && user.role !== "manager") {
+    return NextResponse.json({ error: "Only managers or admins can link barcodes." }, { status: 403 });
+  }
+
+  const body = await req.json().catch(() => null);
+  const code = String(body?.code ?? "").trim();
+  const productId = String(body?.productId ?? "").trim();
+  const symbology = body?.symbology == null ? null : String(body.symbology).trim() || null;
+  if (!code || !productId) {
+    return NextResponse.json({ error: "code and productId are required." }, { status: 400 });
+  }
+
+  const product = await prisma.product.findUnique({ where: { id: productId }, select: { id: true, name: true } });
+  if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+  try {
+    const bc = await prisma.productBarcode.create({
+      data: { productId, code, symbology, createdByUserId: user.id },
+    });
+    return NextResponse.json({ ok: true, barcode: { id: bc.id, code: bc.code, productId: bc.productId } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      // Already linked — return the existing mapping instead of erroring.
+      const existing = await prisma.productBarcode.findUnique({ where: { code }, include: { product: { select: { id: true, name: true } } } });
+      if (existing) {
+        const sameProduct = existing.productId === productId;
+        return NextResponse.json(
+          {
+            ok: sameProduct,
+            alreadyLinked: true,
+            sameProduct,
+            barcode: { id: existing.id, code: existing.code, productId: existing.productId },
+            linkedTo: existing.product ? { id: existing.product.id, name: existing.product.name } : null,
+          },
+          { status: sameProduct ? 200 : 409 },
+        );
+      }
+    }
+    return NextResponse.json({ error: "Could not link barcode." }, { status: 500 });
+  }
+}

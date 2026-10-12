@@ -20,6 +20,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@types/leaflet": "^1.9.12",
+    "@types/qrcode": "^1.5.5",
     "@vercel/blob": "^2.6.1",
     "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
@@ -28,6 +29,7 @@
     "mermaid": "^11.16.0",
     "next": "16.2.10",
     "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",

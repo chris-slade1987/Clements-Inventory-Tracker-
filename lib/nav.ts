@@ -289,6 +289,15 @@ export const INVENTORY_NAV: NavItem[] = [
     icon: "M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2",
   },
   {
+    // Scan-to-issue checkout: scan/photo a product on a phone and issue it to a
+    // technician. A viewfinder + center line (scan) glyph, distinct from the
+    // Check-Out arrow. Admin-only sub-pages (labels/catalog) are gated in-page.
+    href: "/inventory/checkout",
+    label: "Scan Checkout",
+    shortLabel: "Scan",
+    icon: "M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M3 12h18",
+  },
+  {
     href: "/reconcile",
     label: "Reconcile",
     shortLabel: "Fix",

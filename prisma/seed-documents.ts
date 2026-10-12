@@ -45,7 +45,13 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 18 · Last updated October 12, 2026",
+    effective: "Version 19 · Last updated October 12, 2026",
+    // v19: added the Inventory › Scan Checkout subsection — the phone scan-to-issue
+    // flow (pick tech → scan barcode/shelf QR or AI photo → confirm → qty → cart →
+    // review + optional signature → submit), the 15-minute undo / admin void, the
+    // History screen, and the Stock / Stock Count screens (physical count writes
+    // adjustments and lifts the not-yet-counted 40-unit cap). Same core on-hand rule
+    // and the same over-dispense + unconfirmed hard stops as Check-Out.
     // v18: Documents consolidation — Document Intake is now the "Add" tab of a
     // unified Documents page (Add = AI intake, Filed = vehicle-doc library); the
     // standalone Document Center upload was removed and /management/intake redirects.
@@ -75,7 +81,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 18,
+    version: 19,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
