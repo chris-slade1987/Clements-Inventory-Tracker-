@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui";
 import { buildHeatMap, buildSourcePerformance, type DateRange } from "@/lib/sales-leads";
+import { smarterLaunchConfigured } from "@/lib/smarterlaunch";
 import LeadHeatMap from "@/components/LeadHeatMap";
 import LeadRangeControl from "@/components/LeadRangeControl";
 import LeadSourcePerformanceCard from "@/components/LeadSourcePerformanceCard";
@@ -9,6 +10,11 @@ import SalesInsightButton from "@/components/SalesInsightButton";
 // each with an on-demand AI insight. Used company-wide on the director `/sales`
 // hub and per-advisor on `/me/sales` (and any advisor drill-down). The date-range
 // control writes to the URL; the server resolves it and passes `range` in.
+//
+// When SmarterLaunch is connected the section reads ONLY the real
+// (origin="smarterlaunch") leads and the "Load sample data" demo control is hidden
+// — demo is replaced by the live feed. When it isn't, it reads every origin and
+// keeps today's demo behavior.
 export default async function LeadInsightsSection({
   scope, advisorEmployeeId = null, branch = null, range, mapTitle, mapSubtitle,
 }: {
@@ -19,7 +25,8 @@ export default async function LeadInsightsSection({
   mapTitle: string;
   mapSubtitle: string;
 }) {
-  const filter = { range, branch: scope === "team" ? branch : null, advisorEmployeeId };
+  const live = smarterLaunchConfigured();
+  const filter = { range, branch: scope === "team" ? branch : null, advisorEmployeeId, origin: live ? "smarterlaunch" : null };
   const [heat, perf] = await Promise.all([buildHeatMap(filter), buildSourcePerformance(filter)]);
 
   return (
@@ -34,7 +41,7 @@ export default async function LeadInsightsSection({
 
       {/* Geographic heat map */}
       <Card className="mb-4 p-4">
-        <LeadHeatMap clusters={heat.clusters} totals={heat.totals} canLoadDemo={scope === "team"} />
+        <LeadHeatMap clusters={heat.clusters} totals={heat.totals} canLoadDemo={scope === "team" && !live} />
         <SalesInsightButton kind="heatmap" scope={scope} advisorEmployeeId={advisorEmployeeId ?? undefined} branch={branch} range={range.preset} from={range.from} to={range.to} />
       </Card>
 

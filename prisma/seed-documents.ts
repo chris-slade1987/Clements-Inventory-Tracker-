@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 15 · Last updated October 12, 2026",
+    effective: "Version 16 · Last updated October 12, 2026",
+    // v16: reconciled the Sales Team section for the SmarterLaunch connector — the
+    // lead heat map and lead-source board switch from sample data to the live
+    // SmarterLaunch feed (signed webhook + nightly catch-up) once it's connected,
+    // and the "Load sample data" control is hidden at that point.
     // v15: added the Branch Manager and Corporate Employee new-hire review forms,
     // with Corporate Employee as the catch-all for any role that isn't Technician,
     // Service Advisor, CSR, or Branch Manager.
@@ -63,7 +67,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 15,
+    version: 16,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -64,7 +64,11 @@ export function resolveRange(preset?: string | null, from?: string | null, to?: 
 }
 
 // ---- Lead fetch --------------------------------------------------------------
-export type LeadFilter = { range: DateRange; branch?: string | null; advisorEmployeeId?: string | null };
+// `origin` scopes the read to one data origin. When SmarterLaunch is connected the
+// Sales-Team views pass origin="smarterlaunch" so they show ONLY real leads (demo
+// rows stay in the table but aren't read); when it isn't, origin is left null and
+// every origin (manual + demo) is read, preserving today's behavior.
+export type LeadFilter = { range: DateRange; branch?: string | null; advisorEmployeeId?: string | null; origin?: string | null };
 
 type LeadRow = {
   stage: string; channel: string; provided: boolean; value: number;
@@ -77,6 +81,7 @@ async function fetchLeads(f: LeadFilter): Promise<LeadRow[]> {
       createdAt: { gte: f.range.start, lte: f.range.end },
       ...(f.branch ? { branch: f.branch } : {}),
       ...(f.advisorEmployeeId ? { advisorEmployeeId: f.advisorEmployeeId } : {}),
+      ...(f.origin ? { origin: f.origin } : {}),
     },
     select: { stage: true, channel: true, provided: true, value: true, lat: true, lng: true, zip: true, neighborhood: true, branch: true },
   });

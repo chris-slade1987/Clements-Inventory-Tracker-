@@ -10,6 +10,7 @@ import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, 
 import MyReviewsCard from "@/components/MyReviewsCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
+import { smarterLaunchConfigured } from "@/lib/smarterlaunch";
 import FunnelEntryButton from "./FunnelEntryButton";
 import SalesDirectorTools from "./SalesDirectorTools";
 
@@ -31,6 +32,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const pLabel = periodLabel(periodKey);
   const pace = salesPace(periodKey);
   const demoCount = await prisma.salesPeriodStat.count({ where: { periodKey, source: "demo" } });
+  const slLive = smarterLaunchConfigured();
 
   // The director's actionable gap: advisors who haven't set this period's goal.
   const notSet = advisorRows.filter((r) => !r.hasGoal);
@@ -45,7 +47,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
       <MyReviewsCard userId={user.id} />
 
-      <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} />
+      <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} live={slLive} />
 
       {/* actuals connection state */}
       <div className={`mb-4 rounded-xl border px-4 py-2.5 text-sm ${actuals.connected ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>

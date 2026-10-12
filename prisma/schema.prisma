@@ -1285,6 +1285,12 @@ model SalesLead {
   provided Boolean  @default(false) // true = company-provided lead; false = advisor self-generated
   value    Float    @default(0) // estimated/closed deal value ($)
 
+  // SmarterLaunch provenance (additive, nullable — only set for origin="smarterlaunch").
+  // A SmarterLaunch "lead" = customer + proposal; externalId holds the proposal uuid.
+  customerUuid   String? @map("customer_uuid")   // SmarterLaunch customer uuid (for enrichment / re-lookup)
+  proposalStatus String? @map("proposal_status") // raw SmarterLaunch proposal status (Draft/Sent/Accepted/…)
+  referralSource String? @map("referral_source") // raw referral-source name (mapped into `channel`)
+
   origin    String   @default("manual") // "manual" | "demo" | "smarterlaunch"
   createdAt DateTime @default(now()) @map("created_at") // when the lead came in (drives date-range filters)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1294,6 +1300,24 @@ model SalesLead {
   @@index([channel])
   @@index([origin])
   @@map("sales_leads")
+}
+
+// A raw SmarterLaunch outbound-webhook event. SmarterLaunch's webhook payload
+// schema is NOT documented, so (like the GPS webhook store) EVERY event is
+// persisted raw before parsing, the last payload is surfaced in diagnostics, and
+// parsing is lenient/defensive. `leadId` links to the SalesLead this event
+// upserted (when it produced one). Append-only; never hard-deleted.
+model SmarterLaunchEvent {
+  id         String   @id @default(cuid())
+  receivedAt DateTime @default(now()) @map("received_at")
+  type       String? // detected event/payload type, if any
+  raw        String // the exact raw request body
+  parsedOk   Boolean  @default(false) @map("parsed_ok")
+  error      String? // parse/upsert error message (safe text only)
+  leadId     String?  @map("lead_id") // resulting SalesLead.id, when one was upserted
+
+  @@index([receivedAt])
+  @@map("smarterlaunch_events")
 }
 
 model TrainingAssignment {
