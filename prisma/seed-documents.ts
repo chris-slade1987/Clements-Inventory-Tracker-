@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 13 · Last updated October 12, 2026",
+    effective: "Version 14 · Last updated October 12, 2026",
+    // v14: reconciled the Hiring / Onboarding section for role-specific new-hire
+    // reviews (Technician / Service Advisor / CSR forms, auto-selected by access
+    // level, HR-overridable) and supervisor auto-assignment (the review is
+    // auto-assigned to the new hire's direct supervisor when it comes due).
     // v13: documented the Sales Team lead heat map (geographic lead density
     // color-coded by funnel stage, with the This month/Last month/YTD/custom
     // date-range control and stage filter — company-wide for the director,
@@ -56,7 +60,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 13,
+    version: 14,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

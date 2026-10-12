@@ -1103,6 +1103,9 @@ model NewHireReview {
   employeeId String   @map("employee_id")
   branch     String?
   type       String // "30_day" | "60_day"
+  // Role-specific review form: "technician" | "service_advisor" | "csr".
+  // Resolved from the employee's access level/role at creation, overridable by HR.
+  template   String?
   startDate  DateTime @map("start_date")
   dueDate    DateTime @map("due_date")
   // due -> sent -> in_progress -> pending_approval -> completed

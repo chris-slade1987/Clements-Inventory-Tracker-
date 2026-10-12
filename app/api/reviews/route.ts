@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { isHrDirector, getHrEmail } from "@/lib/personnel";
-import { REVIEW_LABEL } from "@/lib/review";
+import { REVIEW_LABEL, isReviewTemplate, notifyReviewAssigned } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { sendEmail } from "@/lib/email";
 
@@ -38,6 +38,8 @@ export async function POST(req: Request) {
   if (!review) return NextResponse.json({ error: "Review not found." }, { status: 404 });
 
   const hr = isHrDirector(user);
+  // HR for template management = admin/HR director OR anyone with the HR flag.
+  const hrManage = hr || !!user.hrAccess;
   const isReviewer = !!review.reviewerUserId && review.reviewerUserId === user.id;
   const isSubjectEmployee = !!user.employeeId && user.employeeId === review.employeeId;
   const label = REVIEW_LABEL[review.type] ?? "review";
@@ -53,6 +55,10 @@ export async function POST(req: Request) {
       const reviewer = await prisma.user.findUnique({ where: { id: reviewerUserId }, select: { id: true, name: true, email: true } });
       if (!reviewer) return NextResponse.json({ error: "Reviewer not found." }, { status: 404 });
 
+      // HR may also set/override the form while assigning (off-list roles).
+      const sendTemplate = str(body?.template);
+      if (sendTemplate && !isReviewTemplate(sendTemplate)) return NextResponse.json({ error: "Unknown review form." }, { status: 400 });
+
       const token = review.employeeToken ?? randomBytes(24).toString("hex");
       const updated = await prisma.newHireReview.update({
         where: { id: review.id },
@@ -60,6 +66,7 @@ export async function POST(req: Request) {
           reviewerUserId: reviewer.id,
           reviewerName: reviewer.name,
           employeeToken: token,
+          template: sendTemplate ?? review.template,
           status: review.status === "due" || review.status === "sent" ? "sent" : review.status,
           sentAt: review.sentAt ?? new Date(),
         },
@@ -68,29 +75,28 @@ export async function POST(req: Request) {
       // Quiet the "assign a reviewer" alert now that it's assigned.
       await prisma.alert.updateMany({ where: { dedupeKey: `review_due:${review.id}`, status: "open" }, data: { status: "dismissed" } });
 
-      // Notify the reviewer.
-      await sendEmail({
-        to: reviewer.email,
-        subject: `Action needed: conduct ${review.employee.name}'s ${label}`,
-        kind: "review_assigned",
-        relatedType: "newhire_review",
-        relatedId: review.id,
-        text: `You've been asked to conduct ${review.employee.name}'s ${label}${b}, due ${review.dueDate.toLocaleDateString()}.\n\nOpen the review, complete it with the employee, and both of you sign:\n${link(review.id)}\n\n— CanopyOS`,
-        html: `<p>You've been asked to conduct <strong>${review.employee.name}</strong>'s <strong>${label}</strong>${b}, due ${review.dueDate.toLocaleDateString()}.</p><p><a href="${link(review.id)}">Open the review →</a></p><p>Complete it with the employee, then both of you sign. It then returns to HR for final approval.</p><p>— CanopyOS</p>`,
+      // Notify the reviewer + employee (shared with the auto-assign job).
+      await notifyReviewAssigned({
+        reviewId: review.id,
+        employeeName: review.employee.name,
+        employeeEmail: review.employee.email,
+        reviewerName: reviewer.name,
+        reviewerEmail: reviewer.email,
+        type: review.type,
+        branch: review.branch,
+        dueDate: review.dueDate,
       });
-      // Notify the employee.
-      if (review.employee.email) {
-        await sendEmail({
-          to: review.employee.email,
-          subject: `Your ${label} is scheduled`,
-          kind: "review_employee_notice",
-          relatedType: "newhire_review",
-          relatedId: review.id,
-          text: `Hi ${review.employee.name.split(" ")[0]},\n\nYour ${label} with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.\n\n— CanopyOS`,
-          html: `<p>Hi ${review.employee.name.split(" ")[0]},</p><p>Your <strong>${label}</strong> with ${reviewer.name} is scheduled (target ${review.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.</p><p>— CanopyOS</p>`,
-        });
-      }
       return NextResponse.json({ ok: true, status: updated.status });
+    }
+
+    // ---- set_template: HR changes which role form the hire is on -------------
+    if (action === "set_template") {
+      if (!hrManage) return NextResponse.json({ error: "Only HR can change the review form." }, { status: 403 });
+      const template = str(body?.template);
+      if (!isReviewTemplate(template)) return NextResponse.json({ error: "Unknown review form." }, { status: 400 });
+      if (review.status === "completed") return NextResponse.json({ error: "This review is completed — reopen it before changing the form." }, { status: 400 });
+      await prisma.newHireReview.update({ where: { id: review.id }, data: { template } });
+      return NextResponse.json({ ok: true, template });
     }
 
     // ---- save: reviewer/HR saves the form -----------------------------------

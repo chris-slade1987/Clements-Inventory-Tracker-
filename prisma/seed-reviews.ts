@@ -37,7 +37,7 @@ export async function seedReviews(prisma: PrismaClient) {
   if (!has30) {
     await prisma.newHireReview.create({
       data: {
-        employeeId: employee.id, branch: "vero", type: "30_day", startDate: hireDate, dueDate: due30,
+        employeeId: employee.id, branch: "vero", type: "30_day", template: "technician", startDate: hireDate, dueDate: due30,
         status: "sent", reviewerUserId: reviewer?.id ?? null, reviewerName: reviewer?.name ?? null,
         employeeToken: randomBytes(24).toString("hex"), hrNotifiedAt: now, sentAt: now,
       },
@@ -51,7 +51,7 @@ export async function seedReviews(prisma: PrismaClient) {
   const has60 = await prisma.newHireReview.findUnique({ where: { employeeId_type: { employeeId: employee.id, type: "60_day" } } });
   if (!has60) {
     await prisma.newHireReview.create({
-      data: { employeeId: employee.id, branch: "vero", type: "60_day", startDate: hireDate, dueDate: due60, status: "due", hrNotifiedAt: now },
+      data: { employeeId: employee.id, branch: "vero", type: "60_day", template: "technician", startDate: hireDate, dueDate: due60, status: "due", hrNotifiedAt: now },
     });
   }
 

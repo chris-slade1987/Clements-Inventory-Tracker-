@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
-import { allReviews, reviewerCandidates, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
+import { allReviews, reviewerCandidates, REVIEW_LABEL, STATUS_LABEL, templateForEmployee } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import AssignReviewer from "./AssignReviewer";
@@ -63,7 +63,7 @@ export default async function ReviewsPage() {
 
                   {r.status === "due" || r.status === "sent" ? (
                     <div className="mt-2">
-                      <AssignReviewer reviewId={r.id} branch={r.branch} candidates={candidates} currentReviewerId={r.reviewerUserId} />
+                      <AssignReviewer reviewId={r.id} branch={r.branch} candidates={candidates} currentReviewerId={r.reviewerUserId} currentTemplate={r.template ?? templateForEmployee(r.employee) ?? "technician"} />
                     </div>
                   ) : (
                     <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] text-muted">

@@ -3,10 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { PageHeader, Card } from "@/components/ui";
 import { requireUser, homePath } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
-import { REVIEW_FORMS, REVIEW_LABEL, STATUS_LABEL, parseResponses, reviewById } from "@/lib/review";
+import { REVIEW_LABEL, STATUS_LABEL, parseResponses, reviewById, getReviewForm, templateForEmployee } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import ReviewForm from "./ReviewForm";
+import TemplateSelect from "./TemplateSelect";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +18,13 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
   if (!review) notFound();
 
   const hr = isHrDirector(user);
+  const canManageTemplate = hr || !!user.hrAccess; // admin/HR director OR HR-flag holders
   const isReviewer = !!review.reviewerUserId && review.reviewerUserId === user.id;
   const isSubjectEmployee = !!user.employeeId && user.employeeId === review.employeeId;
   if (!hr && !isReviewer && !isSubjectEmployee) redirect(homePath(user));
 
-  const form = REVIEW_FORMS[review.type];
+  const resolvedTemplate = review.template ?? templateForEmployee(review.employee) ?? "technician";
+  const form = getReviewForm(resolvedTemplate, review.type);
   const responses = parseResponses(review.responses);
   const completed = review.status === "completed";
   const label = REVIEW_LABEL[review.type] ?? "Review";
@@ -45,6 +48,9 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         {review.reviewerName ? <span className="text-xs text-muted">Reviewer: <span className="text-ink font-medium">{review.reviewerName}</span></span> : null}
         <span className="text-xs text-muted">Start date: {dateShort(review.startDate)}</span>
         {isSubjectEmployee && !completed ? <span className="text-xs text-muted">Review this with your manager, then sign below.</span> : null}
+        {canManageTemplate ? (
+          <TemplateSelect reviewId={review.id} current={resolvedTemplate} disabled={completed} />
+        ) : null}
       </Card>
 
       <ReviewForm

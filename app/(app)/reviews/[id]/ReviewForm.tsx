@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
-import type { ReviewForm as FormDef, ReviewItem } from "@/lib/review";
+import type { ReviewForm as FormDef, ReviewItem } from "@/lib/review-forms";
 
 type SigState = {
   reviewerSignedName: string | null;
@@ -149,6 +149,11 @@ function ItemRow({ it, value, onChange, readOnly }: { it: ReviewItem; value: str
         readOnly
           ? <p className="mt-2 text-sm text-muted whitespace-pre-line">{value || "—"}</p>
           : <input value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      ) : null}
+      {it.type === "number" ? (
+        readOnly
+          ? <p className="mt-2 text-sm text-muted whitespace-pre-line">{value || "—"}</p>
+          : <input type="number" inputMode="numeric" value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 w-full rounded-lg border border-line px-3 py-2 text-sm" />
       ) : null}
       {it.type === "textarea" ? (
         readOnly

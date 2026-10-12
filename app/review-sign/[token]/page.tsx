@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
-import { REVIEW_FORMS, REVIEW_LABEL, parseResponses } from "@/lib/review";
+import { getReviewForm, templateForEmployee, REVIEW_LABEL, parseResponses } from "@/lib/review";
 import ReviewSignClient from "./ReviewSignClient";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export default async function ReviewSignPage({ params }: { params: Promise<{ tok
   const { token } = await params;
   const review = await prisma.newHireReview.findUnique({
     where: { employeeToken: token },
-    include: { employee: { select: { name: true, branch: true } } },
+    include: { employee: { select: { name: true, branch: true, role: true, title: true, user: { select: { accessLevel: true } } } } },
   });
 
   return (
@@ -33,7 +33,7 @@ export default async function ReviewSignPage({ params }: { params: Promise<{ tok
           </Panel>
         ) : (
           (() => {
-            const form = REVIEW_FORMS[review.type];
+            const form = getReviewForm(review.template ?? templateForEmployee(review.employee) ?? "technician", review.type);
             const label = REVIEW_LABEL[review.type] ?? "Review";
             const responses = parseResponses(review.responses);
             return (

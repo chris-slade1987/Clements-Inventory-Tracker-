@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { leadWindowOpen } from "@/lib/reminders-shared";
 import { sendEmail } from "@/lib/email";
 import { signatureRoles, recordTypeLabel, getHrEmail } from "@/lib/personnel";
-import { dueFromStart, REVIEW_LABEL } from "@/lib/review";
+import { dueFromStart, REVIEW_LABEL, templateForEmployee, notifyReviewAssigned } from "@/lib/review";
+import { randomBytes } from "node:crypto";
 import { branchLabel, BRANCHES } from "@/lib/management";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
@@ -39,14 +40,30 @@ export async function remindTraining() {
 }
 
 /**
- * Detect new hires reaching their 30 / 60-day mark and create the review in
- * "due" status, alerting the HR director. Runs daily; a 5-day lead window gives
- * HR time to schedule it. Idempotent (one review per employee+type).
+ * Detect new hires reaching their 30 / 60-day mark and create the review.
+ * Runs daily; a 5-day lead window gives HR time. Idempotent (one per
+ * employee+type).
+ *
+ * The review is role-aware and self-assigning where it can be:
+ *   - The form `template` is resolved from the employee's access level/role.
+ *   - The reviewer is the employee's DIRECT MANAGER (`reportsTo` → their login).
+ *   - If BOTH resolve, the review is created already `sent`: reviewer + employee
+ *     are notified (no "assign a reviewer" alert), and HR gets an FYI that it
+ *     was created and assigned.
+ *   - Otherwise (off-list role or no manager login) it falls back to today's
+ *     behavior — `due`, with whatever resolved stamped on, and the HR
+ *     "assign a reviewer" alert + email raised.
  */
 export async function scheduleNewHireReviews() {
   const now = new Date();
   const lead = new Date(now.getTime() + 5 * 864e5);
-  const employees = await prisma.employee.findMany({ where: { status: "active", hireDate: { not: null } } });
+  const employees = await prisma.employee.findMany({
+    where: { status: "active", hireDate: { not: null } },
+    include: {
+      user: { select: { accessLevel: true } },
+      reportsTo: { include: { user: { select: { id: true, name: true, email: true, active: true } } } },
+    },
+  });
   let created = 0;
   for (const e of employees) {
     for (const type of ["30_day", "60_day"] as const) {
@@ -54,12 +71,52 @@ export async function scheduleNewHireReviews() {
       if (dueDate > lead) continue; // not due yet
       const exists = await prisma.newHireReview.findUnique({ where: { employeeId_type: { employeeId: e.id, type } } });
       if (exists) continue;
-      const review = await prisma.newHireReview.create({
-        data: { employeeId: e.id, branch: e.branch, type, startDate: e.hireDate!, dueDate, status: "due", hrNotifiedAt: now },
-      });
-      created++;
+
       const label = REVIEW_LABEL[type];
       const b = e.branch ? ` (${branchLabel(e.branch)})` : "";
+      const template = templateForEmployee({ accessLevel: e.user?.accessLevel, role: e.role, title: e.title });
+      const mgrUser = e.reportsTo?.user ?? null;
+      const reviewerResolved = !!(mgrUser && mgrUser.active && mgrUser.email);
+
+      // Auto-assign path: both the form and the direct-manager login resolve.
+      if (template && reviewerResolved) {
+        const review = await prisma.newHireReview.create({
+          data: {
+            employeeId: e.id, branch: e.branch, type, template, startDate: e.hireDate!, dueDate,
+            status: "sent", sentAt: now, hrNotifiedAt: now,
+            reviewerUserId: mgrUser!.id, reviewerName: mgrUser!.name, employeeToken: randomBytes(24).toString("hex"),
+          },
+        });
+        created++;
+        // Notify reviewer + employee (same logic as the HR `send` action).
+        await notifyReviewAssigned({
+          reviewId: review.id, employeeName: e.name, employeeEmail: e.email,
+          reviewerName: mgrUser!.name, reviewerEmail: mgrUser!.email,
+          type, branch: e.branch, dueDate,
+        });
+        // FYI to HR — created and assigned, no action needed.
+        await sendEmail({
+          to: await getHrEmail(),
+          subject: `New-hire review created & assigned: ${e.name} — ${label}`,
+          kind: "review_due",
+          relatedType: "newhire_review",
+          relatedId: review.id,
+          text: `${e.name}${b}'s ${label} (due ${dueDate.toLocaleDateString()}) was created and auto-assigned to their manager ${mgrUser!.name}. No action needed — you'll be notified when it's ready for final approval.`,
+          html: `<p><strong>${e.name}</strong>${b}'s <strong>${label}</strong> (due ${dueDate.toLocaleDateString()}) was created and auto-assigned to their manager <strong>${mgrUser!.name}</strong>.</p><p>No action needed — you'll be notified when it's ready for final approval.</p>`,
+        });
+        continue;
+      }
+
+      // Fallback path: create `due`, stamp what resolved, raise the HR alert.
+      const review = await prisma.newHireReview.create({
+        data: {
+          employeeId: e.id, branch: e.branch, type, template: template ?? null, startDate: e.hireDate!, dueDate,
+          status: "due", hrNotifiedAt: now,
+          reviewerUserId: reviewerResolved ? mgrUser!.id : null,
+          reviewerName: reviewerResolved ? mgrUser!.name : null,
+        },
+      });
+      created++;
       await prisma.alert.upsert({
         where: { dedupeKey: `review_due:${review.id}` },
         create: { dedupeKey: `review_due:${review.id}`, type: "review_due", severity: "warning", status: "open", message: `${e.name}${b} is due for a ${label} (${dueDate.toLocaleDateString()}). Assign a reviewer.` },
