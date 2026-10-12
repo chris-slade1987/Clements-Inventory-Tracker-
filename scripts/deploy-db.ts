@@ -646,6 +646,22 @@ async function main() {
       console.log("deploy-db: pre-program reviews cleared —", JSON.stringify(res));
     });
 
+    // One-time 7/31/2026 on-hand reconciliation — resets every branch's inventory
+    // to the uploaded workbook snapshot via dated `adjustment` movements (owner
+    // authorized an automatic apply, no manual step). Idempotent: the Setting
+    // marker `onhand_reconcile_2026-07-31` makes it apply EXACTLY ONCE; re-runs
+    // recompute to zero deltas and no-op. Non-fatal (retries next deploy if it
+    // ever throws). Never hard-deletes; Confirm/adjustment audit trail preserved.
+    await runStep("7/31 on-hand reconciliation", async () => {
+      const { reconcileOnHand20260731, APPLY_ENV } = await import("./reconcile-onhand-2026-07-31");
+      process.env[APPLY_ENV] = "1";
+      const r = await reconcileOnHand20260731(prisma, { apply: true });
+      console.log(
+        "deploy-db: 7/31 on-hand reconciliation —",
+        r.applied ? `APPLIED ${JSON.stringify(r.totals)}` : `skipped (${r.reason ?? "already applied"})`,
+      );
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);

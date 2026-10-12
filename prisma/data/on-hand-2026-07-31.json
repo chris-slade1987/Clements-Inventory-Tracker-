@@ -1325,9 +1325,10 @@
       {
         "productName": "LESCO CROSSCHECK PL Granular insecticide",
         "invoiceDescription": "LESCO CROSSCHECK PL Granular insecticide",
-        "quantity": 6,
+        "quantity": 0,
         "unit": "FB",
-        "otherProduct": true
+        "otherProduct": true,
+        "_note": "duplicate of standard 0-0-7 row (7 FB); zeroed per owner \u2014 0-0-7 Orlando on-hand is 7"
       },
       {
         "productName": "PT PI PRESSURIZED CONTACT INSECTICIDE 14 OZ CAN",
