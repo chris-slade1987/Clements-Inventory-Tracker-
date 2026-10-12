@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import "leaflet/dist/leaflet.css";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-// Offline, dependency-light lead heat map. Map tiles aren't reachable in this
-// environment (no key, outbound blocked), so instead of a tile map we render an
-// SVG density visualization: each neighborhood/zip cluster is a soft blurred blob
-// sized by lead volume and colored by funnel stage, with a crisp labeled marker
-// on top. Color-coded by stage (lead → proposal → closed) with a stage filter so
-// the director can isolate pending leads by stage. Renders fully from demo data
-// and reads well on a phone.
+// Lead heat map on a real OpenStreetMap basemap (Leaflet, no API key — free OSM
+// tiles that load in the viewer's browser). Each neighborhood/zip cluster is a
+// circle sized by lead volume and colored by funnel stage, over a zoomable street
+// map; a stage filter isolates pending leads by stage and tapping a cluster opens
+// its breakdown. Leaflet is imported dynamically so this client component still
+// renders safely on the server. Falls back to a plain list if the map can't load.
 
 export type HeatClusterView = {
   key: string; area: string; branch: string | null;
@@ -19,12 +19,12 @@ export type HeatClusterView = {
 };
 
 type Stage = "all" | "lead" | "proposal" | "closed";
+type LMap = import("leaflet").Map;
+type LLayerGroup = import("leaflet").LayerGroup;
+
 const STAGE_COLOR: Record<string, string> = { lead: "#d9972b", proposal: "#2563c9", closed: "#2e6f47" };
 const STAGE_LABEL: Record<string, string> = { lead: "Lead", proposal: "Proposal", closed: "Closed" };
-
-const W = 720, H = 560, PAD = 54;
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
-const toRad = (d: number) => (d * Math.PI) / 180;
 
 export default function LeadHeatMap({
   clusters, totals,
@@ -32,43 +32,81 @@ export default function LeadHeatMap({
   clusters: HeatClusterView[];
   totals: { leads: number; proposals: number; closed: number; total: number; closedValue: number; closeRate: number };
 }) {
-  const uid = useId().replace(/[:]/g, "");
   const [stage, setStage] = useState<Stage>("all");
   const [selected, setSelected] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
-  // Project lat/lng → SVG coords, preserving geographic aspect (cos-lat on lng),
-  // fit-to-box with letterboxing so a single cluster or a wide spread both read.
-  const projected = useMemo(() => {
-    if (clusters.length === 0) return [];
-    const lats = clusters.map((c) => c.lat);
-    const midLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-    const cos = Math.cos(toRad(midLat)) || 1;
-    const xs = clusters.map((c) => c.lng * cos);
-    const ys = clusters.map((c) => c.lat);
-    let minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-    // Guard a near-zero span (one cluster / tight group) so blobs aren't gigantic.
-    const spanX = Math.max(maxX - minX, 0.04), spanY = Math.max(maxY - minY, 0.04);
-    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-    minX = cx - spanX / 2; maxX = cx + spanX / 2; minY = cy - spanY / 2; maxY = cy + spanY / 2;
-    const innerW = W - PAD * 2, innerH = H - PAD * 2;
-    const scale = Math.min(innerW / (maxX - minX), innerH / (maxY - minY)) * 0.86;
-    const offX = (W - (maxX - minX) * scale) / 2;
-    const offY = (H - (maxY - minY) * scale) / 2;
-    return clusters.map((c) => ({
-      c,
-      x: offX + (c.lng * cos - minX) * scale,
-      y: H - (offY + (c.lat - minY) * scale), // invert: higher lat = higher on screen
-    }));
-  }, [clusters]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<LMap | null>(null);
+  const layerRef = useRef<LLayerGroup | null>(null);
+  const [ready, setReady] = useState(false);
 
   const count = useCallback((c: HeatClusterView) => (stage === "all" ? c.total : c[stage]), [stage]);
-  const maxCount = useMemo(() => projected.reduce((m, p) => Math.max(m, count(p.c)), 0) || 1, [projected, count]);
-  const visible = projected.filter((p) => count(p.c) > 0);
+  const color = useCallback((c: HeatClusterView) => (stage === "all" ? STAGE_COLOR[c.dominant] : STAGE_COLOR[stage]), [stage]);
   const sel = selected ? clusters.find((c) => c.key === selected) ?? null : null;
+  const maxCount = useMemo(() => clusters.reduce((m, c) => Math.max(m, stage === "all" ? c.total : c[stage]), 0) || 1, [clusters, stage]);
 
-  // Blob radius ∝ sqrt(count), 26–96px.
-  const radius = (c: HeatClusterView) => 26 + Math.sqrt(count(c) / maxCount) * 70;
-  const blobColor = (c: HeatClusterView) => (stage === "all" ? STAGE_COLOR[c.dominant] : STAGE_COLOR[stage]);
+  // Init the map once, then fit it to the leads.
+  useEffect(() => {
+    if (mapRef.current || !containerRef.current || clusters.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const L = (await import("leaflet")).default;
+        if (cancelled || !containerRef.current) return;
+        const map = L.map(containerRef.current, { scrollWheelZoom: false, attributionControl: true });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+        layerRef.current = L.layerGroup().addTo(map);
+        const bounds = L.latLngBounds(clusters.map((c) => [c.lat, c.lng] as [number, number]));
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+        mapRef.current = map;
+        setReady(true);
+        setTimeout(() => map.invalidateSize(), 150);
+      } catch {
+        if (!cancelled) setFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+      layerRef.current = null;
+    };
+    // Init is intentionally one-shot; marker/stage updates happen in the effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // (Re)draw the circles whenever the stage, selection, or data changes.
+  useEffect(() => {
+    if (!ready || !layerRef.current) return;
+    let cancelled = false;
+    (async () => {
+      const L = (await import("leaflet")).default;
+      const layer = layerRef.current;
+      if (cancelled || !layer) return;
+      layer.clearLayers();
+      clusters.forEach((c) => {
+        const n = stage === "all" ? c.total : c[stage];
+        if (n <= 0) return;
+        const isSel = selected === c.key;
+        const r = 9 + Math.sqrt(n / maxCount) * 22;
+        const m = L.circleMarker([c.lat, c.lng], {
+          radius: r,
+          color: isSel ? "#0b3d20" : "#ffffff",
+          weight: isSel ? 3 : 2,
+          fillColor: color(c),
+          fillOpacity: 0.65,
+        });
+        m.bindTooltip(`${c.area.split(" · ")[0]} · ${n}`, { direction: "top", offset: [0, -r] });
+        m.on("click", () => setSelected((prev) => (prev === c.key ? null : c.key)));
+        m.addTo(layer);
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [ready, stage, selected, clusters, maxCount, color]);
 
   if (clusters.length === 0) {
     return (
@@ -89,42 +127,23 @@ export default function LeadHeatMap({
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-line bg-[#eef3ef]">
-        <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" style={{ maxHeight: 520 }} role="img" aria-label="Lead density by neighborhood">
-          <defs>
-            <filter id={`blur-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="18" />
-            </filter>
-            <pattern id={`grid-${uid}`} width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0H0V48" fill="none" stroke="rgba(11,61,32,0.06)" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width={W} height={H} fill={`url(#grid-${uid})`} />
-
-          {/* soft heat blobs (blurred) */}
-          <g filter={`url(#blur-${uid})`} opacity={0.72}>
-            {visible.map((p) => (
-              <circle key={`b-${p.c.key}`} cx={p.x} cy={p.y} r={radius(p.c)} fill={blobColor(p.c)} opacity={0.3 + 0.5 * (count(p.c) / maxCount)} />
+      {!failed ? (
+        <div ref={containerRef} className="z-0 h-[420px] w-full overflow-hidden rounded-xl border border-line sm:h-[520px]" style={{ background: "#eef3ef" }} />
+      ) : (
+        // Tiles/library unavailable — stay useful with a ranked area list.
+        <div className="overflow-hidden rounded-xl border border-line">
+          <div className="border-b border-line bg-black/[0.02] px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-muted">Areas by {stage === "all" ? "volume" : STAGE_LABEL[stage].toLowerCase()}</div>
+          <ul className="divide-y divide-line">
+            {[...clusters].sort((a, b) => count(b) - count(a)).filter((c) => count(c) > 0).slice(0, 10).map((c) => (
+              <li key={c.key} className="flex items-center gap-3 px-3 py-2 text-sm">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color(c) }} />
+                <button onClick={() => setSelected(selected === c.key ? null : c.key)} className="min-w-0 flex-1 truncate text-left hover:underline">{c.area}</button>
+                <span className="tabular-nums text-muted">{count(c)}</span>
+              </li>
             ))}
-          </g>
-
-          {/* crisp markers + labels */}
-          {visible.map((p) => {
-            const isSel = selected === p.c.key;
-            return (
-              <g key={`m-${p.c.key}`} onClick={() => setSelected(isSel ? null : p.c.key)} style={{ cursor: "pointer" }}>
-                <circle cx={p.x} cy={p.y} r={isSel ? 9 : 7} fill="#fff" stroke={blobColor(p.c)} strokeWidth={isSel ? 4 : 3} />
-                <text x={p.x} y={p.y - (isSel ? 15 : 13)} textAnchor="middle" className="select-none" fontSize="12.5" fontWeight="600" fill="#0b3d20" stroke="#eef3ef" strokeWidth="3" paintOrder="stroke">
-                  {count(p.c)}
-                </text>
-                <text x={p.x} y={p.y + 22} textAnchor="middle" className="select-none" fontSize="10.5" fill="#1d2a23" stroke="#eef3ef" strokeWidth="2.6" paintOrder="stroke">
-                  {p.c.area.split(" · ")[0]}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+          </ul>
+        </div>
+      )}
 
       {/* selected cluster detail / hint */}
       {sel ? (
@@ -146,7 +165,7 @@ export default function LeadHeatMap({
         </div>
       ) : (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
-          <span>Tap an area for its breakdown. Blob size = lead volume; color = {stage === "all" ? "dominant stage" : STAGE_LABEL[stage].toLowerCase() + " stage"}.</span>
+          <span>Tap a circle for its breakdown. Size = lead volume; color = {stage === "all" ? "dominant stage" : STAGE_LABEL[stage].toLowerCase() + " stage"}. Zoom in to separate nearby neighborhoods.</span>
           <span className="tabular-nums">{totals.total} leads · {clusters.length} areas · {Math.round(totals.closeRate * 100)}% close · {money(totals.closedValue)} closed</span>
         </div>
       )}
