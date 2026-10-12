@@ -54,11 +54,38 @@ export async function remindTraining() {
  *     behavior — `due`, with whatever resolved stamped on, and the HR
  *     "assign a reviewer" alert + email raised.
  */
+// New-hire 30/60-day reviews only apply to people hired on/after the onboarding-
+// review program start. Anyone hired before this is existing staff, not a new
+// hire, and should never be assigned an onboarding review.
+export const REVIEW_PROGRAM_START = new Date("2026-07-01T00:00:00.000Z");
+
+/**
+ * Remove stale onboarding reviews (and dismiss their "assign a reviewer" alerts)
+ * for employees hired before the program start. Preserves already-completed
+ * reviews as a historical record; only clears not-yet-completed ones. Idempotent.
+ */
+export async function clearPreProgramReviews(): Promise<{ removed: number; alertsDismissed: number }> {
+  const stale = await prisma.newHireReview.findMany({
+    where: { status: { not: "completed" }, employee: { hireDate: { lt: REVIEW_PROGRAM_START } } },
+    select: { id: true },
+  });
+  if (stale.length === 0) return { removed: 0, alertsDismissed: 0 };
+  const ids = stale.map((r) => r.id);
+  const alerts = await prisma.alert.updateMany({
+    where: { dedupeKey: { in: ids.map((id) => `review_due:${id}`) }, status: "open" },
+    data: { status: "dismissed" },
+  });
+  const del = await prisma.newHireReview.deleteMany({ where: { id: { in: ids } } });
+  return { removed: del.count, alertsDismissed: alerts.count };
+}
+
 export async function scheduleNewHireReviews() {
   const now = new Date();
   const lead = new Date(now.getTime() + 5 * 864e5);
+  // Self-heal: clear any stale onboarding reviews for pre-program hires each run.
+  await clearPreProgramReviews();
   const employees = await prisma.employee.findMany({
-    where: { status: "active", hireDate: { not: null } },
+    where: { status: "active", hireDate: { not: null, gte: REVIEW_PROGRAM_START } },
     include: {
       user: { select: { accessLevel: true } },
       reportsTo: { include: { user: { select: { id: true, name: true, email: true, active: true } } } },

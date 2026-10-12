@@ -637,6 +637,15 @@ async function main() {
     // default password, and ONE TIME flags all active logins except the owner as
     // mustChangePassword. Idempotent + non-fatal. Runs LAST so it covers logins
     // created/provisioned by every seed above (incl. the gated fresh-start).
+    // Clear onboarding reviews for anyone hired before the new-hire review program
+    // started (REVIEW_PROGRAM_START) — existing staff shouldn't carry a 30/60-day
+    // onboarding review. Idempotent; completed reviews are preserved.
+    await runStep("clear pre-program new-hire reviews", async () => {
+      const { clearPreProgramReviews } = await import("../lib/jobs");
+      const res = await clearPreProgramReviews();
+      console.log("deploy-db: pre-program reviews cleared —", JSON.stringify(res));
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);
