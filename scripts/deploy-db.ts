@@ -662,6 +662,36 @@ async function main() {
       );
     });
 
+    // Load distributor purchase invoices (prisma/data/purchase-invoices/*.json) as
+    // incremental CONFIRMED receipts ON TOP of the 7/31 baseline. Runs AFTER the
+    // 7/31 reconciliation so those check-ins add to the reconciled on-hand. Branch
+    // is resolved PER INVOICE from its own column (never assumed). Idempotent per
+    // (distributor, invoiceNumber) — redeploys skip invoices already loaded — so
+    // the auto-apply is safe to re-run. Non-fatal. Positive check_in for receipts;
+    // vendor credits post a negative adjustment; never hard-deletes.
+    await runStep("purchase-invoice load", async () => {
+      const { loadPurchaseInvoices } = await import("./load-purchase-invoices");
+      const beforeMv = await prisma.stockMovement.count();
+      const r = await loadPurchaseInvoices(prisma, { apply: true });
+      const afterMv = await prisma.stockMovement.count();
+      const created = r.files.reduce(
+        (s, f) => s + Object.values(f.perBranch).reduce((a, b) => a + b.invoicesCreated, 0),
+        0,
+      );
+      const skipped = r.files.reduce(
+        (s, f) => s + Object.values(f.perBranch).reduce((a, b) => a + b.invoicesSkipped, 0),
+        0,
+      );
+      console.log(
+        `deploy-db: purchase invoices — ${created} loaded, ${skipped} already-loaded; ` +
+          `${r.matchedProducts.size} matched / ${r.createdProducts.size} created / ${r.unmatched.size} unmatched products; ` +
+          `movements ${beforeMv}->${afterMv}` +
+          (r.errors.length ? ` | ${r.errors.length} STOP/ERROR` : "") +
+          (r.duplicateInvoiceWarnings.length ? ` | ${r.duplicateInvoiceWarnings.length} dup-warning` : ""),
+      );
+      if (r.errors.length) for (const e of r.errors) console.error("deploy-db: purchase-invoice", e);
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);

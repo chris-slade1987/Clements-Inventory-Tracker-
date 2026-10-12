@@ -1,0 +1,1950 @@
+{
+  "vendor": "SiteOne",
+  "branch": "Vero Beach",
+  "sourceFile": "SiteOne_Sep2026_LineItems.csv",
+  "note": "Parsed from the owner-provided SiteOne line-item CSV. One object per invoice; branch is carried per invoice from the 'clements_branch' column. Only lines with qty_shipped != 0 are included (pure backorders/cancels are omitted). subtotalShipped = sum(extPrice) of the included lines (reproduces the printed subtotal, which includes fuel-surcharge lines). The loader (scripts/load-purchase-invoices.ts) decides which lines post stock.",
+  "skippedZeroShipped": 18,
+  "invoices": [
+    {
+      "invoiceNumber": "170508686-001",
+      "invoiceDate": "2026-09-01",
+      "branch": "Vero Beach",
+      "subtotalShipped": 3784.81,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "D00001542",
+          "description": "LESCO CROSSCHECK PLUS LIQUID INSECTICIDE 1 GAL. TIP & POUR CONTAINER",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 39.438,
+          "extPrice": 157.75,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511493-2.5",
+          "description": "LESCO BIO IRON PLUS SPAR-TECH 3%FE 0.75%MG 0.5%MN HUMIC KELP TURFGRASS & ORNAMENTAL LIQUID MICRONUTRIENT 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 79.74,
+          "extPrice": 318.96,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 3,
+          "itemNumber": "098186",
+          "description": "LESCO FLORIDA FRIENDLY AM TURFGRASS & ORNAMENTAL CHLEATED LIQUID MICRONUTRIENT 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 32.149,
+          "extPrice": 128.6,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 4,
+          "itemNumber": "D00000906",
+          "description": "LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 61.268,
+          "extPrice": 490.14,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 5,
+          "itemNumber": "D00000959",
+          "description": "MAXFORCE QUANTUM ANT BAIT 120 GM.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 47.238,
+          "extPrice": 47.24,
+          "category": "Insecticide",
+          "subcategory": "Bait"
+        },
+        {
+          "line": 6,
+          "itemNumber": "098504-NLA",
+          "description": "LESCO FLORIDA FRIENDLY K-FLOW 0-0-25 POTASSIUM THIOSULFATE 17% S TURFGRASS LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 33.535,
+          "extPrice": 134.14,
+          "category": "Fertilizer",
+          "subcategory": "Liquid fertilizer"
+        },
+        {
+          "line": 7,
+          "itemNumber": "35720",
+          "description": "SEDGEHAMMER POST EMERGENT WATER DISPERSIBLE GRANULE HERBICIDE 1.33 OZ. BOTTLE",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 65.151,
+          "extPrice": 65.15,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 8,
+          "itemNumber": "10441225",
+          "description": "LESCO T-STORM FLOWABLE SYSTEMIC LIQUID FUNGICIDE 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 134.086,
+          "extPrice": 134.09,
+          "category": "Fungicide",
+          "subcategory": "Liquid fungicide"
+        },
+        {
+          "line": 9,
+          "itemNumber": "24560-FAB",
+          "description": "WELLMARK EXTINGUISH PLUS FIRE ANT BAIT 25 LB.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 245.624,
+          "extPrice": 245.62,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 10,
+          "itemNumber": "291500",
+          "description": "LESCO CROSSCHECK 0.069% 0-0-7 AM INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 15,
+          "netUnitPrice": 17.036,
+          "extPrice": 255.54,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 12,
+          "itemNumber": "37860A",
+          "description": "ZOECON GENTROL INSECT GROWTH REGULATOR (IGR) LIQUID CONCENTRATE INSECTICIDE (10 X 1 FL OZ.) BOX",
+          "uom": "BX",
+          "qtyShipped": 1,
+          "netUnitPrice": 87.456,
+          "extPrice": 87.46,
+          "category": "Insecticide",
+          "subcategory": "IGR"
+        },
+        {
+          "line": 13,
+          "itemNumber": "CB4051",
+          "description": "CONTRAC ALL-WEATHER BLOX RATS & MICE BAIT 18 LB. PAIL",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 94.614,
+          "extPrice": 283.84,
+          "category": "Other/Rodenticide",
+          "subcategory": "Rodenticide"
+        },
+        {
+          "line": 14,
+          "itemNumber": "82004443",
+          "description": "BIFEN XTS INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 140.223,
+          "extPrice": 560.89,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 15,
+          "itemNumber": "400507",
+          "description": "LESCO SPREADER STICKER 2.5 GAL.",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 83.591,
+          "extPrice": 250.77,
+          "category": "Other/Rodenticide",
+          "subcategory": "Adjuvant/surfactant"
+        },
+        {
+          "line": 16,
+          "itemNumber": "82008300",
+          "description": "CONTROL SOLUTIONS CYPER TC CONTACT LIQUID CONCENTRATE INSECTICIDE/TERMITICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 69.81,
+          "extPrice": 139.62,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide/termiticide"
+        },
+        {
+          "line": 17,
+          "itemNumber": "8732176",
+          "description": "LESCO MOMENTUM SOUTHERN POST EMERGENT LIQUID HERBICIDE 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 237.5,
+          "extPrice": 475.0,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 18,
+          "itemNumber": "FS-AS",
+          "description": "FUEL SURCHARGE",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 1.0,
+          "extPrice": 10.0,
+          "category": "Other/Rodenticide",
+          "subcategory": "Fuel surcharge"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170617133-001",
+      "invoiceDate": "2026-09-01",
+      "branch": "Vero Beach",
+      "subtotalShipped": 2206.84,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511233",
+          "description": "LESCO 25-0-10 37.5% POLYPLUS OPTI90 25% AMMNIT 2.1%MG MOP SOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 31.99,
+          "extPrice": 1279.6,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 3,
+          "itemNumber": "80013",
+          "description": "KINETIX FULL SYNTHETIC 2-STROKE OIL 6.4 FL OZ. BOTTLE (2.5 GAL. MIX)",
+          "uom": "EA",
+          "qtyShipped": 6,
+          "netUnitPrice": 3.48,
+          "extPrice": 20.88,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170659271-001",
+      "invoiceDate": "2026-09-02",
+      "branch": "Vero Beach",
+      "subtotalShipped": 35.67,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "PM80008",
+          "description": "MEASURING PITCHER CLEAR POLYPROPYLENE 8 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 7.457,
+          "extPrice": 7.46,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 2,
+          "itemNumber": "089934",
+          "description": "ACCU-POUR MEASURING PITCHER PLASTIC 1 QT.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 12.35,
+          "extPrice": 12.35,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 3,
+          "itemNumber": "089935",
+          "description": "ACCU-POUR MEASURING PITCHER CLEAR PLASTIC 1/2 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 15.86,
+          "extPrice": 15.86,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170665859-001",
+      "invoiceDate": "2026-09-02",
+      "branch": "Vero Beach",
+      "subtotalShipped": 219.64,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 6,
+          "netUnitPrice": 22.659,
+          "extPrice": 135.95,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "007433",
+          "description": "LESCO LAWN SPRAY GUN W/O NOZZLE",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 76.277,
+          "extPrice": 76.28,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 3,
+          "itemNumber": "009510",
+          "description": "LESCO SPRAY GUN NOZZLE YELLOW 2.0 GPM",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 7.411,
+          "extPrice": 7.41,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170743977-001",
+      "invoiceDate": "2026-09-04",
+      "branch": "Vero Beach",
+      "subtotalShipped": 188.73,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 8,
+          "netUnitPrice": 22.659,
+          "extPrice": 181.27,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "PM80008",
+          "description": "MEASURING PITCHER CLEAR POLYPROPYLENE 8 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 7.457,
+          "extPrice": 7.46,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170768925-001",
+      "invoiceDate": "2026-09-04",
+      "branch": "Vero Beach",
+      "subtotalShipped": 276.68,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "37970",
+          "description": "EXTINGUISH PROFESSIONAL FIRE ANT BAIT (25 LB. BAG)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 238.123,
+          "extPrice": 238.12,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 2,
+          "itemNumber": "IBCC128",
+          "description": "INVADE BIO CLEANER 4-IN-1 LIQUID CLEANER 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 38.556,
+          "extPrice": 38.56,
+          "category": "Other/Rodenticide",
+          "subcategory": "Cleaner/sanitizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170780458-001",
+      "invoiceDate": "2026-09-04",
+      "branch": "Vero Beach",
+      "subtotalShipped": 3465.56,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511233",
+          "description": "LESCO 25-0-10 37.5% POLYPLUS OPTI90 25% AMMNIT 2.1%MG MOP SOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 80,
+          "netUnitPrice": 31.99,
+          "extPrice": 2559.2,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170804905-001",
+      "invoiceDate": "2026-09-08",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1297.05,
+      "lines": [
+        {
+          "line": 8,
+          "itemNumber": "37970",
+          "description": "EXTINGUISH PROFESSIONAL FIRE ANT BAIT (25 LB. BAG)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 238.123,
+          "extPrice": 238.12,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 9,
+          "itemNumber": "24560-FAB",
+          "description": "WELLMARK EXTINGUISH PLUS FIRE ANT BAIT 25 LB.",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 245.624,
+          "extPrice": 491.25,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 16,
+          "itemNumber": "CB4051",
+          "description": "CONTRAC ALL-WEATHER BLOX RATS & MICE BAIT 18 LB. PAIL",
+          "uom": "EA",
+          "qtyShipped": 6,
+          "netUnitPrice": 94.614,
+          "extPrice": 567.68,
+          "category": "Other/Rodenticide",
+          "subcategory": "Rodenticide"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170832885-001",
+      "invoiceDate": "2026-09-08",
+      "branch": "Vero Beach",
+      "subtotalShipped": 2185.96,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511233",
+          "description": "LESCO 25-0-10 37.5% POLYPLUS OPTI90 25% AMMNIT 2.1%MG MOP SOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 31.99,
+          "extPrice": 1279.6,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170804905-002",
+      "invoiceDate": "2026-09-09",
+      "branch": "Vero Beach",
+      "subtotalShipped": 2850.98,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "D00001542",
+          "description": "LESCO CROSSCHECK PLUS LIQUID INSECTICIDE 1 GAL. TIP & POUR CONTAINER",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 39.438,
+          "extPrice": 157.75,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511493-2.5",
+          "description": "LESCO BIO IRON PLUS SPAR-TECH 3%FE 0.75%MG 0.5%MN HUMIC KELP TURFGRASS & ORNAMENTAL LIQUID MICRONUTRIENT 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 79.74,
+          "extPrice": 318.96,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 3,
+          "itemNumber": "098186",
+          "description": "LESCO FLORIDA FRIENDLY AM TURFGRASS & ORNAMENTAL CHLEATED LIQUID MICRONUTRIENT 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 37.27,
+          "extPrice": 149.08,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 4,
+          "itemNumber": "D00000906",
+          "description": "LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 61.268,
+          "extPrice": 490.14,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 5,
+          "itemNumber": "098504-NLA",
+          "description": "LESCO FLORIDA FRIENDLY K-FLOW 0-0-25 POTASSIUM THIOSULFATE 17% S TURFGRASS LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 33.535,
+          "extPrice": 134.14,
+          "category": "Fertilizer",
+          "subcategory": "Liquid fertilizer"
+        },
+        {
+          "line": 6,
+          "itemNumber": "35720",
+          "description": "SEDGEHAMMER POST EMERGENT WATER DISPERSIBLE GRANULE HERBICIDE 1.33 OZ. BOTTLE",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 65.151,
+          "extPrice": 130.3,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 7,
+          "itemNumber": "10441225",
+          "description": "LESCO T-STORM FLOWABLE SYSTEMIC LIQUID FUNGICIDE 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 134.086,
+          "extPrice": 134.09,
+          "category": "Fungicide",
+          "subcategory": "Liquid fungicide"
+        },
+        {
+          "line": 11,
+          "itemNumber": "291500",
+          "description": "LESCO CROSSCHECK 0.069% 0-0-7 AM INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 17.036,
+          "extPrice": 170.36,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 12,
+          "itemNumber": "37860A",
+          "description": "ZOECON GENTROL INSECT GROWTH REGULATOR (IGR) LIQUID CONCENTRATE INSECTICIDE (10 X 1 FL OZ.) BOX",
+          "uom": "BX",
+          "qtyShipped": 1,
+          "netUnitPrice": 87.456,
+          "extPrice": 87.46,
+          "category": "Insecticide",
+          "subcategory": "IGR"
+        },
+        {
+          "line": 15,
+          "itemNumber": "11008370",
+          "description": "CB-80 DUAL SPRAY CAN AEROSOL INSECTICIDE 17 OZ.",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 26.886,
+          "extPrice": 268.86,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 17,
+          "itemNumber": "82003599",
+          "description": "CSI-PEST TAURUS SC BROAD SPECTRUM LIQUID CONCENTRATE TERMITICIDE/INSECTICIDE 78 FL OZ. BOTTLE (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 95.0,
+          "extPrice": 190.0,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide/termiticide"
+        },
+        {
+          "line": 18,
+          "itemNumber": "400507",
+          "description": "LESCO SPREADER STICKER 2.5 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 83.591,
+          "extPrice": 83.59,
+          "category": "Other/Rodenticide",
+          "subcategory": "Adjuvant/surfactant"
+        },
+        {
+          "line": 19,
+          "itemNumber": "10580032",
+          "description": "NUFARM ARENA 0.25G CLOTHIANIDIN 0.25 SYSTEMIC GRANULAR INSECTICIDE 30 LB. BAG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 72.0,
+          "extPrice": 216.0,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide"
+        },
+        {
+          "line": 20,
+          "itemNumber": "88504",
+          "description": "ADVION EVOLUTION COCKROACH GEL BAIT 4 X 1.06 OZ (30 G) SYRINGES (AGENCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 30.2,
+          "extPrice": 30.2,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 21,
+          "itemNumber": "7485A-K07",
+          "description": "ULD BP-300 FORMULA II INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 268.871,
+          "extPrice": 268.87,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 22,
+          "itemNumber": "D00001534",
+          "description": "LESCO WASP & HORNET PLUS AEROSOL INSECTICIDE 14 FL OZ. SPRAY CAN",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 11.183,
+          "extPrice": 11.18,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 23,
+          "itemNumber": "FS-AS",
+          "description": "FUEL SURCHARGE",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 1.0,
+          "extPrice": 10.0,
+          "category": "Other/Rodenticide",
+          "subcategory": "Fuel surcharge"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "170895963-001",
+      "invoiceDate": "2026-09-09",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1154.48,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "291527",
+          "description": "LESCO CROSSCHECK 0.096% 21-0-10 50% POLYPLUS OPTI45 3FE 2MN INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 31.015,
+          "extPrice": 248.12,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171028172-001",
+      "invoiceDate": "2026-09-14",
+      "branch": "Vero Beach",
+      "subtotalShipped": 543.82,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 24,
+          "netUnitPrice": 22.659,
+          "extPrice": 543.82,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171030339-001",
+      "invoiceDate": "2026-09-14",
+      "branch": "Vero Beach",
+      "subtotalShipped": 3755.11,
+      "lines": [
+        {
+          "line": 2,
+          "itemNumber": "D00000906",
+          "description": "LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 61.268,
+          "extPrice": 490.14,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 3,
+          "itemNumber": "80081D",
+          "description": "SYNGENTA DEMAND CS BROAD SPECTRUM LIQUID CONCENTRATE INSECTICIDE 1 QT. BOTTLE (AGENCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 112.75,
+          "extPrice": 112.75,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 4,
+          "itemNumber": "59026311",
+          "description": "PT PHANTOM II PRESSURIZED INSECTICIDE 14 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 28.746,
+          "extPrice": 28.75,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 5,
+          "itemNumber": "10441225",
+          "description": "LESCO T-STORM FLOWABLE SYSTEMIC LIQUID FUNGICIDE 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 134.086,
+          "extPrice": 134.09,
+          "category": "Fungicide",
+          "subcategory": "Liquid fungicide"
+        },
+        {
+          "line": 6,
+          "itemNumber": "37970",
+          "description": "EXTINGUISH PROFESSIONAL FIRE ANT BAIT (25 LB. BAG)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 238.123,
+          "extPrice": 238.12,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 7,
+          "itemNumber": "24560-FAB",
+          "description": "WELLMARK EXTINGUISH PLUS FIRE ANT BAIT 25 LB.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 245.624,
+          "extPrice": 245.62,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 8,
+          "itemNumber": "71339S",
+          "description": "SYNGENTA OPTIGARD ANT BAIT GEL INSECTICIDE (4 X 30 G) BOX",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 42.93,
+          "extPrice": 42.93,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 9,
+          "itemNumber": "IHSF019-12",
+          "description": "INVADE HOT SPOT+ BIO FOAM SANITIZER 19 OZ. SPRAY CAN",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 18.883,
+          "extPrice": 37.77,
+          "category": "Other/Rodenticide",
+          "subcategory": "Cleaner/sanitizer"
+        },
+        {
+          "line": 10,
+          "itemNumber": "291500",
+          "description": "LESCO CROSSCHECK 0.069% 0-0-7 AM INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 17.036,
+          "extPrice": 170.36,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 12,
+          "itemNumber": "73218",
+          "description": "ARCHER IGR INSECTICIDE 1 PT.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 63.375,
+          "extPrice": 63.38,
+          "category": "Insecticide",
+          "subcategory": "IGR"
+        },
+        {
+          "line": 13,
+          "itemNumber": "11008370",
+          "description": "CB-80 DUAL SPRAY CAN AEROSOL INSECTICIDE 17 OZ.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 26.886,
+          "extPrice": 107.54,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 14,
+          "itemNumber": "CB4051",
+          "description": "CONTRAC ALL-WEATHER BLOX RATS & MICE BAIT 18 LB. PAIL",
+          "uom": "EA",
+          "qtyShipped": 7,
+          "netUnitPrice": 94.614,
+          "extPrice": 662.3,
+          "category": "Other/Rodenticide",
+          "subcategory": "Rodenticide"
+        },
+        {
+          "line": 15,
+          "itemNumber": "37820",
+          "description": "GENTROL AEROSOL PEST CONTROL 16 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 19.406,
+          "extPrice": 19.41,
+          "category": "Insecticide",
+          "subcategory": "IGR"
+        },
+        {
+          "line": 17,
+          "itemNumber": "82003599",
+          "description": "CSI-PEST TAURUS SC BROAD SPECTRUM LIQUID CONCENTRATE TERMITICIDE/INSECTICIDE 78 FL OZ. BOTTLE (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 95.0,
+          "extPrice": 190.0,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide/termiticide"
+        },
+        {
+          "line": 18,
+          "itemNumber": "82004443",
+          "description": "BIFEN XTS INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 140.223,
+          "extPrice": 560.89,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 19,
+          "itemNumber": "400507",
+          "description": "LESCO SPREADER STICKER 2.5 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 83.591,
+          "extPrice": 83.59,
+          "category": "Other/Rodenticide",
+          "subcategory": "Adjuvant/surfactant"
+        },
+        {
+          "line": 20,
+          "itemNumber": "10580032",
+          "description": "NUFARM ARENA 0.25G CLOTHIANIDIN 0.25 SYSTEMIC GRANULAR INSECTICIDE 30 LB. BAG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 72.0,
+          "extPrice": 144.0,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide"
+        },
+        {
+          "line": 21,
+          "itemNumber": "80013",
+          "description": "KINETIX FULL SYNTHETIC 2-STROKE OIL 6.4 FL OZ. BOTTLE (2.5 GAL. MIX)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 3.48,
+          "extPrice": 3.48,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 22,
+          "itemNumber": "511665-2.5",
+          "description": "LESCO NUTRA-TECH MICRO MIX TURF & ORNAMENTAL LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 35.279,
+          "extPrice": 141.12,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 23,
+          "itemNumber": "7485A-K07",
+          "description": "ULD BP-300 FORMULA II INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 268.871,
+          "extPrice": 268.87,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 24,
+          "itemNumber": "FS-AS",
+          "description": "FUEL SURCHARGE",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 1.0,
+          "extPrice": 10.0,
+          "category": "Other/Rodenticide",
+          "subcategory": "Fuel surcharge"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171045809-001",
+      "invoiceDate": "2026-09-14",
+      "branch": "Vero Beach",
+      "subtotalShipped": 268.87,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "7485A-K07",
+          "description": "ULD BP-300 FORMULA II INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 268.871,
+          "extPrice": 268.87,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171062924-001",
+      "invoiceDate": "2026-09-14",
+      "branch": "Vero Beach",
+      "subtotalShipped": 3896.74,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511233",
+          "description": "LESCO 25-0-10 37.5% POLYPLUS OPTI90 25% AMMNIT 2.1%MG MOP SOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 80,
+          "netUnitPrice": 31.99,
+          "extPrice": 2559.2,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 3,
+          "itemNumber": "80013",
+          "description": "KINETIX FULL SYNTHETIC 2-STROKE OIL 6.4 FL OZ. BOTTLE (2.5 GAL. MIX)",
+          "uom": "EA",
+          "qtyShipped": 6,
+          "netUnitPrice": 3.48,
+          "extPrice": 20.88,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 4,
+          "itemNumber": "35720",
+          "description": "SEDGEHAMMER POST EMERGENT WATER DISPERSIBLE GRANULE HERBICIDE 1.33 OZ. BOTTLE",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 65.151,
+          "extPrice": 130.3,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 5,
+          "itemNumber": "040-7500",
+          "description": "ARBORJET ARBOR OTC INJECTABLE FUNGICIDE 1 OZ.",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 140.0,
+          "extPrice": 280.0,
+          "category": "Fungicide",
+          "subcategory": "Tree injection"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171134444-001",
+      "invoiceDate": "2026-09-16",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1832.72,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511384",
+          "description": "LESCO 16-0-8 50% POLYPLUS OPTI SPAR-TECH 0.50%FE 0.40%MN MOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 80,
+          "netUnitPrice": 22.648,
+          "extPrice": 1811.84,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        },
+        {
+          "line": 2,
+          "itemNumber": "80013",
+          "description": "KINETIX FULL SYNTHETIC 2-STROKE OIL 6.4 FL OZ. BOTTLE (2.5 GAL. MIX)",
+          "uom": "EA",
+          "qtyShipped": 6,
+          "netUnitPrice": 3.48,
+          "extPrice": 20.88,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171135210-001",
+      "invoiceDate": "2026-09-16",
+      "branch": "Vero Beach",
+      "subtotalShipped": 22.7,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "TM80128",
+          "description": "MEASURING PITCHER CLEAR PLASTIC 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 22.696,
+          "extPrice": 22.7,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171030339-002",
+      "invoiceDate": "2026-09-18",
+      "branch": "Vero Beach",
+      "subtotalShipped": 361.63,
+      "lines": [
+        {
+          "line": 25,
+          "itemNumber": "D00000997",
+          "description": "SUSPEND SC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 361.626,
+          "extPrice": 361.63,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171234242-001",
+      "invoiceDate": "2026-09-18",
+      "branch": "Vero Beach",
+      "subtotalShipped": 906.36,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.659,
+          "extPrice": 906.36,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171307895-001",
+      "invoiceDate": "2026-09-21",
+      "branch": "Vero Beach",
+      "subtotalShipped": 905.92,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511384",
+          "description": "LESCO 16-0-8 50% POLYPLUS OPTI SPAR-TECH 0.50%FE 0.40%MN MOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.648,
+          "extPrice": 905.92,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171308463-001",
+      "invoiceDate": "2026-09-21",
+      "branch": "Vero Beach",
+      "subtotalShipped": 5915.58,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511493-2.5",
+          "description": "LESCO BIO IRON PLUS SPAR-TECH 3%FE 0.75%MG 0.5%MN HUMIC KELP TURFGRASS & ORNAMENTAL LIQUID MICRONUTRIENT 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 79.74,
+          "extPrice": 318.96,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 2,
+          "itemNumber": "59014217",
+          "description": "ALPINE WSG INSECTICIDE 500 GM",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 216.573,
+          "extPrice": 216.57,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 3,
+          "itemNumber": "D00000906",
+          "description": "LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 61.268,
+          "extPrice": 490.14,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 5,
+          "itemNumber": "35720",
+          "description": "SEDGEHAMMER POST EMERGENT WATER DISPERSIBLE GRANULE HERBICIDE 1.33 OZ. BOTTLE",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 65.151,
+          "extPrice": 130.3,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 6,
+          "itemNumber": "59026330",
+          "description": "PT ULTRACIDE PRESSURIZED FLEA INSECTICIDE 14 OZ.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 25.847,
+          "extPrice": 103.39,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 7,
+          "itemNumber": "59026311",
+          "description": "PT PHANTOM II PRESSURIZED INSECTICIDE 14 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 28.746,
+          "extPrice": 28.75,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 8,
+          "itemNumber": "10441225",
+          "description": "LESCO T-STORM FLOWABLE SYSTEMIC LIQUID FUNGICIDE 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 134.086,
+          "extPrice": 134.09,
+          "category": "Fungicide",
+          "subcategory": "Liquid fungicide"
+        },
+        {
+          "line": 9,
+          "itemNumber": "37970",
+          "description": "EXTINGUISH PROFESSIONAL FIRE ANT BAIT (25 LB. BAG)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 238.123,
+          "extPrice": 238.12,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 10,
+          "itemNumber": "24560-FAB",
+          "description": "WELLMARK EXTINGUISH PLUS FIRE ANT BAIT 25 LB.",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 245.624,
+          "extPrice": 491.25,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 12,
+          "itemNumber": "291500",
+          "description": "LESCO CROSSCHECK 0.069% 0-0-7 AM INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 17.036,
+          "extPrice": 170.36,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 14,
+          "itemNumber": "11008370",
+          "description": "CB-80 DUAL SPRAY CAN AEROSOL INSECTICIDE 17 OZ.",
+          "uom": "EA",
+          "qtyShipped": 7,
+          "netUnitPrice": 26.886,
+          "extPrice": 188.2,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 15,
+          "itemNumber": "CB4051",
+          "description": "CONTRAC ALL-WEATHER BLOX RATS & MICE BAIT 18 LB. PAIL",
+          "uom": "EA",
+          "qtyShipped": 7,
+          "netUnitPrice": 94.614,
+          "extPrice": 662.3,
+          "category": "Other/Rodenticide",
+          "subcategory": "Rodenticide"
+        },
+        {
+          "line": 16,
+          "itemNumber": "82003599",
+          "description": "CSI-PEST TAURUS SC BROAD SPECTRUM LIQUID CONCENTRATE TERMITICIDE/INSECTICIDE 78 FL OZ. BOTTLE (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 95.0,
+          "extPrice": 190.0,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide/termiticide"
+        },
+        {
+          "line": 17,
+          "itemNumber": "53204-NLA",
+          "description": "SYNGENTA ADVION ANT GEL BAIT 4 X 30 GM TUBE (1PK/4 TUBES)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 43.553,
+          "extPrice": 43.55,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 18,
+          "itemNumber": "82004443",
+          "description": "BIFEN XTS INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 140.223,
+          "extPrice": 560.89,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 19,
+          "itemNumber": "400507",
+          "description": "LESCO SPREADER STICKER 2.5 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 83.591,
+          "extPrice": 83.59,
+          "category": "Other/Rodenticide",
+          "subcategory": "Adjuvant/surfactant"
+        },
+        {
+          "line": 20,
+          "itemNumber": "27991B-K07",
+          "description": "SECTOR MISTING LIQUID CONCENTRATE INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 131.248,
+          "extPrice": 524.99,
+          "category": "Insecticide",
+          "subcategory": "Fogging/misting"
+        },
+        {
+          "line": 21,
+          "itemNumber": "511665-2.5",
+          "description": "LESCO NUTRA-TECH MICRO MIX TURF & ORNAMENTAL LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 35.279,
+          "extPrice": 141.12,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 22,
+          "itemNumber": "63953N",
+          "description": "ADVION WDG INSECTICIDE 16.5 OZ. (AGENCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 136.85,
+          "extPrice": 136.85,
+          "category": "Insecticide",
+          "subcategory": "Bait"
+        },
+        {
+          "line": 23,
+          "itemNumber": "D00000977",
+          "description": "PREMISE FOAM INSECTICIDE 18 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 18.204,
+          "extPrice": 18.2,
+          "category": "Insecticide",
+          "subcategory": "Foam/termiticide"
+        },
+        {
+          "line": 24,
+          "itemNumber": "FZVAAJ-3",
+          "description": "FLOWZONE CYCLONE 3 VARIABLE PRESSURE 18V BATTERY POWERED SPRAYER (4-GALLON)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 269.99,
+          "extPrice": 269.99,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 25,
+          "itemNumber": "88504",
+          "description": "ADVION EVOLUTION COCKROACH GEL BAIT 4 X 1.06 OZ (30 G) SYRINGES (AGENCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 30.2,
+          "extPrice": 30.2,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 26,
+          "itemNumber": "7485A-K07",
+          "description": "ULD BP-300 FORMULA II INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 268.871,
+          "extPrice": 268.87,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 27,
+          "itemNumber": "511649-2.5",
+          "description": "LESCO NUTRA-TECH 0-0-25 POTASSIUM THIOSULFATE 17% S TURFGRASS LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 58.113,
+          "extPrice": 464.9,
+          "category": "Fertilizer",
+          "subcategory": "Liquid fertilizer"
+        },
+        {
+          "line": 28,
+          "itemNumber": "FS-AS",
+          "description": "FUEL SURCHARGE",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 1.0,
+          "extPrice": 10.0,
+          "category": "Other/Rodenticide",
+          "subcategory": "Fuel surcharge"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171332233-001",
+      "invoiceDate": "2026-09-21",
+      "branch": "Vero Beach",
+      "subtotalShipped": 12.76,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "6883-10-SAS",
+          "description": "POLYPROPYLENE SHOE COVER BLUE LARGE-10 PACK",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 4.253,
+          "extPrice": 12.76,
+          "category": "Other/Rodenticide",
+          "subcategory": "PPE"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171332782-001",
+      "invoiceDate": "2026-09-21",
+      "branch": "Vero Beach",
+      "subtotalShipped": 33.12,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "59012846",
+          "description": "TERMIDOR FOAM INSECTICIDE 20 OZ.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 33.117,
+          "extPrice": 33.12,
+          "category": "Insecticide",
+          "subcategory": "Foam/termiticide"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171385333-001",
+      "invoiceDate": "2026-09-22",
+      "branch": "Vero Beach",
+      "subtotalShipped": 905.92,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511384",
+          "description": "LESCO 16-0-8 50% POLYPLUS OPTI SPAR-TECH 0.50%FE 0.40%MN MOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.648,
+          "extPrice": 905.92,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171406671-001",
+      "invoiceDate": "2026-09-23",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1123.76,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511385",
+          "description": "LESCO 8-10-10 40% POLYPLUS OPTI45 AS SPAR-TECH 0.5%FE 0.4%MN MOP SOP K-MAG PALM & TROPICAL ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 28.094,
+          "extPrice": 1123.76,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171408582-001",
+      "invoiceDate": "2026-09-23",
+      "branch": "Vero Beach",
+      "subtotalShipped": 269.99,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "FZVAAJ-3",
+          "description": "FLOWZONE CYCLONE 3 VARIABLE PRESSURE 18V BATTERY POWERED SPRAYER (4-GALLON)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 269.99,
+          "extPrice": 269.99,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171427537-001",
+      "invoiceDate": "2026-09-23",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1811.84,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511384",
+          "description": "LESCO 16-0-8 50% POLYPLUS OPTI SPAR-TECH 0.50%FE 0.40%MN MOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 80,
+          "netUnitPrice": 22.648,
+          "extPrice": 1811.84,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171466948-001",
+      "invoiceDate": "2026-09-24",
+      "branch": "Vero Beach",
+      "subtotalShipped": -3623.68,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511384",
+          "description": "LESCO 16-0-8 50% POLYPLUS OPTI SPAR-TECH 0.50%FE 0.40%MN MOP TURFGRASS GRANULAR FERTILIZER 50 LB. BAG \u2014 CREDIT: inferior blend from blender (DAMAGED)",
+          "uom": "BG",
+          "qtyShipped": -160,
+          "netUnitPrice": 22.648,
+          "extPrice": -3623.68,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171580535-001",
+      "invoiceDate": "2026-09-28",
+      "branch": "Vero Beach",
+      "subtotalShipped": 3731.33,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "D00001542",
+          "description": "LESCO CROSSCHECK PLUS LIQUID INSECTICIDE 1 GAL. TIP & POUR CONTAINER",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 39.438,
+          "extPrice": 157.75,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 2,
+          "itemNumber": "511493-2.5",
+          "description": "LESCO BIO IRON PLUS SPAR-TECH 3%FE 0.75%MG 0.5%MN HUMIC KELP TURFGRASS & ORNAMENTAL LIQUID MICRONUTRIENT 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 79.74,
+          "extPrice": 318.96,
+          "category": "Fertilizer",
+          "subcategory": "Liquid micronutrient"
+        },
+        {
+          "line": 3,
+          "itemNumber": "D00000906",
+          "description": "LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 8,
+          "netUnitPrice": 61.268,
+          "extPrice": 490.14,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 4,
+          "itemNumber": "59026327",
+          "description": "PT MICROCARE CS PRESSURIZED INSECTICIDE 14 OZ.",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 20.393,
+          "extPrice": 61.18,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 6,
+          "itemNumber": "37970",
+          "description": "EXTINGUISH PROFESSIONAL FIRE ANT BAIT (25 LB. BAG)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 238.123,
+          "extPrice": 238.12,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 7,
+          "itemNumber": "24560-FAB",
+          "description": "WELLMARK EXTINGUISH PLUS FIRE ANT BAIT 25 LB.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 245.624,
+          "extPrice": 245.62,
+          "category": "Insecticide",
+          "subcategory": "Fire ant bait"
+        },
+        {
+          "line": 8,
+          "itemNumber": "71339S",
+          "description": "SYNGENTA OPTIGARD ANT BAIT GEL INSECTICIDE (4 X 30 G) BOX",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 42.93,
+          "extPrice": 42.93,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 10,
+          "itemNumber": "291500",
+          "description": "LESCO CROSSCHECK 0.069% 0-0-7 AM INSECTICIDE PLUS FERTILIZER 50 LB.",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 17.036,
+          "extPrice": 170.36,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide + fertilizer"
+        },
+        {
+          "line": 11,
+          "itemNumber": "37860A",
+          "description": "ZOECON GENTROL INSECT GROWTH REGULATOR (IGR) LIQUID CONCENTRATE INSECTICIDE (10 X 1 FL OZ.) BOX",
+          "uom": "BX",
+          "qtyShipped": 1,
+          "netUnitPrice": 87.456,
+          "extPrice": 87.46,
+          "category": "Insecticide",
+          "subcategory": "IGR"
+        },
+        {
+          "line": 13,
+          "itemNumber": "11008370",
+          "description": "CB-80 DUAL SPRAY CAN AEROSOL INSECTICIDE 17 OZ.",
+          "uom": "EA",
+          "qtyShipped": 5,
+          "netUnitPrice": 26.886,
+          "extPrice": 134.43,
+          "category": "Insecticide",
+          "subcategory": "Aerosol"
+        },
+        {
+          "line": 14,
+          "itemNumber": "CB4051",
+          "description": "CONTRAC ALL-WEATHER BLOX RATS & MICE BAIT 18 LB. PAIL",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 94.614,
+          "extPrice": 283.84,
+          "category": "Other/Rodenticide",
+          "subcategory": "Rodenticide"
+        },
+        {
+          "line": 15,
+          "itemNumber": "82003599",
+          "description": "CSI-PEST TAURUS SC BROAD SPECTRUM LIQUID CONCENTRATE TERMITICIDE/INSECTICIDE 78 FL OZ. BOTTLE (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 95.0,
+          "extPrice": 190.0,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide/termiticide"
+        },
+        {
+          "line": 16,
+          "itemNumber": "82004443",
+          "description": "BIFEN XTS INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 140.223,
+          "extPrice": 280.45,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 17,
+          "itemNumber": "44882",
+          "description": "SYNGENTA HEADWAY G BROAD SPECTRUM GRANULAR FUNGICIDE 30 LB. BAG",
+          "uom": "EA",
+          "qtyShipped": 3,
+          "netUnitPrice": 70.16,
+          "extPrice": 210.48,
+          "category": "Fungicide",
+          "subcategory": "Granular fungicide"
+        },
+        {
+          "line": 18,
+          "itemNumber": "10580032",
+          "description": "NUFARM ARENA 0.25G CLOTHIANIDIN 0.25 SYSTEMIC GRANULAR INSECTICIDE 30 LB. BAG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 72.0,
+          "extPrice": 144.0,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide"
+        },
+        {
+          "line": 19,
+          "itemNumber": "10441225",
+          "description": "LESCO T-STORM FLOWABLE SYSTEMIC LIQUID FUNGICIDE 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 134.086,
+          "extPrice": 134.09,
+          "category": "Fungicide",
+          "subcategory": "Liquid fungicide"
+        },
+        {
+          "line": 20,
+          "itemNumber": "7485A-K07",
+          "description": "ULD BP-300 FORMULA II INSECTICIDE 1 GAL.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 268.871,
+          "extPrice": 268.87,
+          "category": "Insecticide",
+          "subcategory": "Liquid insecticide"
+        },
+        {
+          "line": 21,
+          "itemNumber": "88504",
+          "description": "ADVION EVOLUTION COCKROACH GEL BAIT 4 X 1.06 OZ (30 G) SYRINGES (AGENCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 30.2,
+          "extPrice": 30.2,
+          "category": "Insecticide",
+          "subcategory": "Gel bait"
+        },
+        {
+          "line": 22,
+          "itemNumber": "511649-2.5",
+          "description": "LESCO NUTRA-TECH 0-0-25 POTASSIUM THIOSULFATE 17% S TURFGRASS LIQUID FERTILIZER 2.5 GAL. JUG",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 58.113,
+          "extPrice": 232.45,
+          "category": "Fertilizer",
+          "subcategory": "Liquid fertilizer"
+        },
+        {
+          "line": 23,
+          "itemNumber": "FS-AS",
+          "description": "FUEL SURCHARGE",
+          "uom": "EA",
+          "qtyShipped": 10,
+          "netUnitPrice": 1.0,
+          "extPrice": 10.0,
+          "category": "Other/Rodenticide",
+          "subcategory": "Fuel surcharge"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171595078-001",
+      "invoiceDate": "2026-09-28",
+      "branch": "Vero Beach",
+      "subtotalShipped": 1302.46,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "35720",
+          "description": "SEDGEHAMMER POST EMERGENT WATER DISPERSIBLE GRANULE HERBICIDE 1.33 OZ. BOTTLE",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 65.151,
+          "extPrice": 130.3,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        },
+        {
+          "line": 2,
+          "itemNumber": "040-7500",
+          "description": "ARBORJET ARBOR OTC INJECTABLE FUNGICIDE 1 OZ.",
+          "uom": "EA",
+          "qtyShipped": 2,
+          "netUnitPrice": 140.0,
+          "extPrice": 280.0,
+          "category": "Fungicide",
+          "subcategory": "Tree injection"
+        },
+        {
+          "line": 3,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 40,
+          "netUnitPrice": 22.304,
+          "extPrice": 892.16,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171624653-001",
+      "invoiceDate": "2026-09-29",
+      "branch": "Vero Beach",
+      "subtotalShipped": 509.99,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "FZVAAJ-3",
+          "description": "FLOWZONE CYCLONE 3 VARIABLE PRESSURE 18V BATTERY POWERED SPRAYER (4-GALLON)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 269.99,
+          "extPrice": 269.99,
+          "category": "Other/Rodenticide",
+          "subcategory": "Equipment/parts"
+        },
+        {
+          "line": 2,
+          "itemNumber": "8731126",
+          "description": "PBI GORDON AVENUE SOUTH POST EMERGENT LIQUID HERBICIDE 2.5 GAL. JUG (QGCY)",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 240.0,
+          "extPrice": 240.0,
+          "category": "Herbicide",
+          "subcategory": "Post-emergent"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171640555-001",
+      "invoiceDate": "2026-09-29",
+      "branch": "Vero Beach",
+      "subtotalShipped": 121.1,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "86764776",
+          "description": "ROUNDUP QUIKPRO NON SELECTIVE WATER DISPERSIBLE GRANULE HERBICIDE 6.8 LB.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 121.104,
+          "extPrice": 121.1,
+          "category": "Herbicide",
+          "subcategory": "Non-selective"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171660934-001",
+      "invoiceDate": "2026-09-29",
+      "branch": "Vero Beach",
+      "subtotalShipped": 24.12,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "12602",
+          "description": "ORTHENE 97 TURF AND ORNAMENTAL INSECTICIDE .773 LB.",
+          "uom": "EA",
+          "qtyShipped": 1,
+          "netUnitPrice": 24.115,
+          "extPrice": 24.12,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171678368-001",
+      "invoiceDate": "2026-09-30",
+      "branch": "Vero Beach",
+      "subtotalShipped": 267.65,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "511413",
+          "description": "LESCO 8-0-10 50% POLYPLUS OPTI SPAR-TECH 0.5FE 0.5MG 0.4MN 0.03B MOP LANDSCAPE & ORNAMENTAL GRANULAR FERTILIZER 50 LB. BAG",
+          "uom": "BG",
+          "qtyShipped": 12,
+          "netUnitPrice": 22.304,
+          "extPrice": 267.65,
+          "category": "Fertilizer",
+          "subcategory": "Granular fertilizer"
+        }
+      ]
+    },
+    {
+      "invoiceNumber": "171683812-001",
+      "invoiceDate": "2026-09-30",
+      "branch": "Vero Beach",
+      "subtotalShipped": 200.31,
+      "lines": [
+        {
+          "line": 1,
+          "itemNumber": "83014004",
+          "description": "ACEPHATE 90 PRILL INSECTICIDE 5 LB.",
+          "uom": "EA",
+          "qtyShipped": 4,
+          "netUnitPrice": 50.078,
+          "extPrice": 200.31,
+          "category": "Insecticide",
+          "subcategory": "Granular insecticide"
+        }
+      ]
+    }
+  ]
+}
