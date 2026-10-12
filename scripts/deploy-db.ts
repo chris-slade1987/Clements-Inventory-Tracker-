@@ -692,6 +692,36 @@ async function main() {
       if (r.errors.length) for (const e of r.errors) console.error("deploy-db: purchase-invoice", e);
     });
 
+    // Load warehouse->technician dispersals (prisma/data/dispersals/*.json) as
+    // negative check_out movements ON TOP of the baseline + purchase receipts.
+    // Runs AFTER the purchase-invoice load so dispersals draw down the fully
+    // received on-hand. Branch is resolved PER ROW from its own column; products
+    // match via the PestPac alias map (unmatched rows are reported, not loaded);
+    // technicians are resolved by card # or created. Idempotent per file via the
+    // `dispersal_load:<loadKey>` Setting marker — redeploys skip loaded files — so
+    // the auto-apply is safe to re-run. Negative on-hand is recorded, not blocked
+    // (it reveals a baseline/receipts gap). Non-fatal.
+    await runStep("dispersal load", async () => {
+      const { loadDispersals } = await import("./load-dispersals");
+      const beforeMv = await prisma.stockMovement.count();
+      const r = await loadDispersals(prisma, { apply: true });
+      const afterMv = await prisma.stockMovement.count();
+      const loaded = r.files.reduce(
+        (s, f) => s + Object.values(f.perBranch).reduce((a, b) => a + b.rowsLoaded, 0),
+        0,
+      );
+      const skippedFiles = r.files.filter((f) => f.alreadyLoaded).length;
+      console.log(
+        `deploy-db: dispersals — ${loaded} rows loaded across ${r.files.length - skippedFiles} file(s), ${skippedFiles} already-loaded; ` +
+          `${r.matchedProducts.size} products matched / ${r.unmatched.size} unmatched; ` +
+          `${r.techsMatched} techs matched / ${r.techsCreated.length} created; ` +
+          `movements ${beforeMv}->${afterMv}` +
+          (r.negativeOnHand.length ? ` | ${r.negativeOnHand.length} product(s) now negative on-hand` : "") +
+          (r.errors.length ? ` | ${r.errors.length} STOP/ERROR` : ""),
+      );
+      if (r.errors.length) for (const e of r.errors) console.error("deploy-db: dispersal", e);
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);

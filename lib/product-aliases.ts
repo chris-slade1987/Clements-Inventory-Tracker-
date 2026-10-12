@@ -117,6 +117,19 @@ export const PRODUCT_ALIASES: Record<string, string> = {
   "lesco macron soluble fertilize": "Lesco Macron Soluble Fertilizer",
   "promate 20-0-10": "Promate 20-0-10",
   "stop the bites!": "Stop The Bites!",
+
+  // --- Added from the Aug-Sep 2026 warehouse->technician transfer-history
+  // (dispersals) export. All resolve to existing approved catalog products
+  // except "gentrol aerosol pc", which maps to the "Gentrol Aerosol" SKU created
+  // by the SiteOne purchase-invoice loader (approved=false) so dispersals leave
+  // the SAME aerosol SKU the purchases entered — distinct from the liquid
+  // "Gentrol IGR Concentrate".
+  "acephate 90 prill insecticide": "Acephate 90 Prill",
+  "advion wdg insecticide": "Advion WDG Insecticide",
+  "gentrol aerosol pc": "Gentrol Aerosol",
+  "lesco 25-0-10 granular fert": "Lesco 25-0-10 Granular Fert",
+  "lesco fertilizer 13-0-0": "Lesco Fertilizer 13-0-0",
+  "pt wasp freeze": "PT wasp Freeze",
 };
 
 /** Resolve a history material name to an approved product name, or null. */
