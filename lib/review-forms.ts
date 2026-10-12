@@ -20,7 +20,7 @@ export type ReviewSection = { title: string; items: ReviewItem[] };
 export type ReviewForm = { title: string; sections: ReviewSection[] };
 
 /** The role-specific review form a review is built from. */
-export type ReviewTemplateKey = "technician" | "service_advisor" | "csr";
+export type ReviewTemplateKey = "technician" | "service_advisor" | "csr" | "branch_manager" | "corporate";
 /** The two review milestones. */
 export type ReviewType = "30_day" | "60_day";
 
@@ -485,11 +485,415 @@ const CSR: Record<ReviewType, ReviewForm> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Branch Manager (mirrors the HR director's Branch Manager PDFs). Reviewed by
+// the branch manager's supervisor; uses the branch header like the field roles.
+// ---------------------------------------------------------------------------
+const BRANCH_MANAGER: Record<ReviewType, ReviewForm> = {
+  "30_day": {
+    title: "30-Day Branch Manager Review",
+    sections: [
+      {
+        title: "Onboarding & Training",
+        items: [
+          { key: "onboarding_complete", type: "yesno", label: "Completed all required onboarding training, including HR, safety, and compliance", who: "manager" },
+          { key: "understands_policies", type: "yesno", label: "Demonstrates understanding of company policies, procedures, and the employee handbook", who: "manager" },
+          { key: "trained_pestpac", type: "yesno", label: "Trained on PestPac scheduling, routing, and reporting tools", who: "manager" },
+          { key: "understands_regs", type: "yesno", label: "Understands state regulatory requirements (FDACS licensing, pesticide recordkeeping, label compliance)", who: "manager" },
+          { key: "has_tools", type: "yesno", label: "Has the tools and resources needed to perform the job (laptop, PestPac access, financial reports, vehicle, etc.)", who: "manager" },
+          { key: "intro_corporate", type: "yesno", label: "Introduced to key corporate contacts (HR, Accounting, Fleet, Safety, Marketing)", who: "manager" },
+          { key: "training_needed", type: "textarea", label: "If additional training would help, or something is missing, describe", who: "employee" },
+        ],
+      },
+      {
+        title: "Leadership & Team Management",
+        items: [
+          { key: "met_team", type: "yesno", label: "Has met one-on-one with branch team members (technicians, office staff, service advisors)", who: "manager" },
+          { key: "sets_expectations", type: "yesno", label: "Sets clear expectations and holds the team accountable", who: "manager" },
+          { key: "team_meetings", type: "yesno", label: "Conducts or supports regular team and safety meetings", who: "manager" },
+          { key: "addresses_performance", type: "yesno", label: "Addresses performance and conduct issues promptly and involves HR when needed", who: "manager" },
+          { key: "visible", type: "yesno", label: "Visible and accessible to the team, including field ride-alongs", who: "manager" },
+          { key: "professional", type: "yesno", label: "Models a professional appearance and conduct", who: "manager" },
+          { key: "responsibilities_match", type: "yesno", label: "Job responsibilities have matched what was expected", who: "manager" },
+          { key: "strengths", type: "text", label: "What has the Branch Manager done well so far?", who: "manager" },
+          { key: "challenging", type: "text", label: "What has been challenging?", who: "manager" },
+        ],
+      },
+      {
+        title: "Branch Operations & Performance",
+        items: [
+          { key: "revenue_vs_budget", type: "text", label: "Branch revenue vs. budget to date", who: "manager" },
+          { key: "service_backlog", type: "text", label: "Service completion / backlog", who: "manager" },
+          { key: "cancellations", type: "text", label: "Cancellations to date", who: "manager" },
+          { key: "staffing_needs", type: "text", label: "Open positions / staffing needs", who: "manager" },
+          { key: "understands_pl", type: "yesno", label: "Understands the branch P&L, budget, and key performance metrics", who: "manager" },
+          { key: "monitors_scheduling", type: "yesno", label: "Monitors daily scheduling, routing, and service completion", who: "manager" },
+          { key: "manages_backlog", type: "yesno", label: "Manages service backlog, callbacks, and re-treatments promptly", who: "manager" },
+          { key: "oversees_inventory", type: "yesno", label: "Oversees chemical inventory, equipment, and supply ordering", who: "manager" },
+          { key: "fleet_uptodate", type: "yesno", label: "Ensures vehicle inspections and fleet maintenance are up to date", who: "manager" },
+          { key: "supports_sales", type: "yesno", label: "Supports the sales team in meeting new-sales and renewal goals", who: "manager" },
+        ],
+      },
+      {
+        title: "Safety & Compliance",
+        items: [
+          { key: "enforces_safety", type: "yesno", label: "Enforces company safety policies and PPE requirements", who: "manager" },
+          { key: "pesticide_compliance", type: "yesno", label: "Ensures pesticide applications, records, and storage meet state and label requirements", who: "manager" },
+          { key: "licenses_current", type: "yesno", label: "Verifies that technician licenses and certifications are current", who: "manager" },
+          { key: "reports_incidents", type: "yesno", label: "Reports accidents, injuries, and incidents promptly", who: "manager" },
+        ],
+      },
+      {
+        title: "Customer Service & Interactions",
+        items: [
+          { key: "no_complaints", type: "yesno", label: "Branch has no unresolved customer complaints", who: "manager" },
+          { key: "handles_escalations", type: "yesno", label: "Handles escalated customer issues promptly and professionally", who: "manager" },
+          { key: "monitors_reviews", type: "yesno", label: "Monitors customer reviews and feedback and follows up as needed", who: "manager" },
+          { key: "cs_challenges", type: "textarea", label: "What customer challenges has the branch faced, and how have they been addressed?", who: "employee" },
+        ],
+      },
+      {
+        title: "Communication & Corporate Partnership",
+        items: [
+          { key: "communicates_corporate", type: "yesno", label: "Communicates effectively with the corporate office and other departments", who: "manager" },
+          { key: "timely_comm", type: "yesno", label: "Responds to emails, messages, and calls in a timely manner", who: "manager" },
+          { key: "submits_reports", type: "yesno", label: "Submits required reports and approvals (payroll, timesheets, expenses) accurately and on time", who: "manager" },
+          { key: "reports_issues", type: "yesno", label: "Reports issues and concerns appropriately", who: "manager" },
+          { key: "unclear_processes", type: "choice", options: YN, label: "Is anything unclear about company processes or expectations?", who: "employee" },
+          { key: "unclear_explain", type: "textarea", label: "If yes, please explain", who: "employee" },
+          { key: "feedback_manager", type: "textarea", label: "Any feedback for your supervisor or the company?", who: "employee" },
+        ],
+      },
+      {
+        title: "Attendance & Reliability",
+        items: [
+          { key: "present", type: "yesno", label: "Consistently present and available during branch hours", who: "manager" },
+          { key: "coverage", type: "yesno", label: "Follows scheduling and time-off procedures and ensures branch coverage", who: "manager" },
+          { key: "manages_workload", type: "yesno", label: "Manages workload and priorities effectively", who: "manager" },
+        ],
+      },
+      {
+        title: "Overall Experience & Future Growth",
+        items: [
+          { key: "comfort", type: "choice", options: COMFORT, label: "How comfortable do you feel in the role so far?", who: "employee" },
+          { key: "on_track", type: "choice", options: YN, label: "Are you on track to meet branch goals for the next few months?", who: "employee" },
+          { key: "on_track_help", type: "textarea", label: "If no, what is needed to help?", who: "employee" },
+          { key: "priorities_goals", type: "textarea", label: "Priorities and goals for the next 30–60 days", who: "manager" },
+        ],
+      },
+      {
+        title: "Summary",
+        items: [
+          { key: "overall_rating", type: "choice", options: RATING, label: "Overall performance rating", who: "manager", added: true },
+          { key: "goals_next", type: "textarea", label: "Goals for the next 30 days", who: "manager", added: true },
+          { key: "next_steps", type: "textarea", label: "Next steps & action plan", who: "manager" },
+        ],
+      },
+    ],
+  },
+  "60_day": {
+    title: "60-Day Branch Manager Review",
+    sections: [
+      {
+        title: "Follow-Up from 30-Day Review",
+        items: [
+          { key: "training_addressed", type: "yesno", label: "Training needs identified at the 30-Day Review have been addressed", who: "manager" },
+          { key: "goals_on_track", type: "yesno", label: "Priorities and goals set at the 30-Day Review have been met or are on track", who: "manager" },
+          { key: "has_tools", type: "yesno", label: "Now has all the tools, systems access, and resources needed to perform the job", who: "manager" },
+          { key: "concerns_resolved", type: "yesno", label: "Concerns or questions raised at the 30-Day Review have been resolved", who: "manager" },
+          { key: "followup_summary", type: "textarea", label: "Summarize progress on items from the 30-Day Review, and note anything still open", who: "manager" },
+        ],
+      },
+      {
+        title: "Leadership & Team Management",
+        items: [
+          { key: "runs_independently", type: "yesno", label: "Runs day-to-day branch operations independently with minimal supervision", who: "manager" },
+          { key: "regular_oneonones", type: "yesno", label: "Holds regular one-on-ones and gives team members ongoing feedback", who: "manager" },
+          { key: "accountable", type: "yesno", label: "Holds the team accountable to expectations consistently and fairly", who: "manager" },
+          { key: "leads_meetings", type: "yesno", label: "Leads regular team and safety meetings", who: "manager" },
+          { key: "documents_hr", type: "yesno", label: "Addresses performance and conduct issues promptly and documents them with HR", who: "manager" },
+          { key: "involved_hiring", type: "yesno", label: "Involved in hiring, onboarding, and training new branch employees", who: "manager" },
+          { key: "earned_trust", type: "yesno", label: "Has earned the trust and respect of the branch team", who: "manager" },
+          { key: "strengths", type: "text", label: "What has the Branch Manager improved since the 30-Day Review?", who: "manager" },
+          { key: "still_developing", type: "text", label: "What is still developing?", who: "manager" },
+        ],
+      },
+      {
+        title: "Branch Operations & Performance",
+        items: [
+          { key: "revenue_vs_budget", type: "text", label: "Branch revenue vs. budget to date", who: "manager" },
+          { key: "service_backlog", type: "text", label: "Service completion / backlog", who: "manager" },
+          { key: "cancellations", type: "text", label: "Cancellations to date", who: "manager" },
+          { key: "staffing_needs", type: "text", label: "Open positions / staffing needs", who: "manager" },
+          { key: "uses_pl", type: "yesno", label: "Uses the branch P&L and key metrics to make decisions", who: "manager" },
+          { key: "efficient_routing", type: "yesno", label: "Keeps scheduling and routing efficient and service completion on target", who: "manager" },
+          { key: "controls_backlog", type: "yesno", label: "Keeps service backlog, callbacks, and re-treatments under control", who: "manager" },
+          { key: "manages_expenses", type: "yesno", label: "Manages labor, overtime, and branch expenses within budget", who: "manager" },
+          { key: "fleet_current", type: "yesno", label: "Keeps chemical inventory, equipment, and fleet maintenance current", who: "manager" },
+          { key: "works_sales", type: "yesno", label: "Works with the sales team on new-sales, renewal, and retention goals", who: "manager" },
+          { key: "improvement_opportunity", type: "yesno", label: "Has identified at least one improvement opportunity for the branch", who: "manager" },
+        ],
+      },
+      {
+        title: "Safety & Compliance",
+        items: [
+          { key: "enforces_safety", type: "yesno", label: "Consistently enforces company safety policies and PPE requirements", who: "manager" },
+          { key: "pesticide_compliance", type: "yesno", label: "Pesticide applications, records, and storage meet state and label requirements", who: "manager" },
+          { key: "licenses_tracked", type: "yesno", label: "Technician licenses and certifications are current, and renewals are being tracked", who: "manager" },
+          { key: "no_unreported", type: "yesno", label: "Branch has had no unreported accidents, injuries, or incidents", who: "manager" },
+        ],
+      },
+      {
+        title: "Customer Service & Interactions",
+        items: [
+          { key: "no_complaints", type: "yesno", label: "Branch has no unresolved customer complaints", who: "manager" },
+          { key: "resolves_escalations", type: "yesno", label: "Resolves escalated customer issues promptly and professionally", who: "manager" },
+          { key: "uses_reviews", type: "yesno", label: "Monitors customer reviews and feedback and uses them to improve service", who: "manager" },
+          { key: "cs_challenges", type: "textarea", label: "What customer challenges has the branch faced, and how have they been addressed?", who: "employee" },
+        ],
+      },
+      {
+        title: "Communication & Corporate Partnership",
+        items: [
+          { key: "communicates_corporate", type: "yesno", label: "Communicates effectively with the corporate office and other departments", who: "manager" },
+          { key: "timely_comm", type: "yesno", label: "Responds to emails, messages, and calls in a timely manner", who: "manager" },
+          { key: "submits_reports", type: "yesno", label: "Submits required reports and approvals (payroll, timesheets, expenses) accurately and on time", who: "manager" },
+          { key: "keeps_supervisor_informed", type: "yesno", label: "Keeps their Supervisor informed of branch results, problems, and risks", who: "manager" },
+          { key: "unclear_processes", type: "choice", options: YN, label: "Is anything unclear about company processes or expectations?", who: "employee" },
+          { key: "unclear_explain", type: "textarea", label: "If yes, please explain", who: "employee" },
+          { key: "feedback_manager", type: "textarea", label: "Any feedback for your supervisor or the company?", who: "employee" },
+        ],
+      },
+      {
+        title: "Attendance & Reliability",
+        items: [
+          { key: "present", type: "yesno", label: "Consistently present and available during branch hours", who: "manager" },
+          { key: "coverage", type: "yesno", label: "Follows scheduling and time-off procedures and ensures branch coverage", who: "manager" },
+          { key: "follows_through", type: "yesno", label: "Follows through on commitments without needing follow-up", who: "manager" },
+        ],
+      },
+      {
+        title: "Overall Performance & Future Growth",
+        items: [
+          { key: "overall_rating", type: "choice", options: RATING, label: "Overall performance at 60 days", who: "manager" },
+          { key: "comfort", type: "choice", options: COMFORT, label: "How comfortable do you feel in the role so far?", who: "employee" },
+          { key: "on_track_90", type: "choice", options: YN, label: "On track to meet expectations at the 90-Day Review?", who: "employee" },
+          { key: "on_track_help", type: "textarea", label: "If no, what is needed to help?", who: "employee" },
+          { key: "priorities_goals", type: "textarea", label: "Branch priorities and goals leading into the 90-Day Review", who: "manager" },
+        ],
+      },
+      {
+        title: "Summary",
+        items: [
+          { key: "recommendation", type: "choice", options: RECOMMENDATION, label: "End-of-probation recommendation", who: "manager", added: true },
+          { key: "goals_next", type: "textarea", label: "Goals for the next 90 days", who: "manager", added: true },
+          { key: "next_steps", type: "textarea", label: "Next steps & action plan", who: "manager" },
+        ],
+      },
+    ],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Corporate Employee — the CATCH-ALL. Any new hire who isn't a Technician,
+// Service Advisor, CSR, or Branch Manager (coordinators, directors, marketing,
+// chief of staff, etc.) gets this. Carries Department + Work Location fields in
+// place of a branch. Mirrors the HR director's Corporate Employee PDFs.
+// ---------------------------------------------------------------------------
+const WORK_LOCATION = ["Corporate Office – Vero Beach", "Hybrid", "Remote", "Other"];
+
+const CORPORATE: Record<ReviewType, ReviewForm> = {
+  "30_day": {
+    title: "30-Day Corporate Employee Review",
+    sections: [
+      {
+        title: "Onboarding & Training",
+        items: [
+          { key: "department", type: "text", label: "Department", who: "manager" },
+          { key: "work_location", type: "choice", options: WORK_LOCATION, label: "Work location", who: "manager" },
+          { key: "onboarding_complete", type: "yesno", label: "Completed all required onboarding training and new-hire paperwork", who: "manager" },
+          { key: "understands_policies", type: "yesno", label: "Demonstrates understanding of company policies, procedures, and the employee handbook", who: "manager" },
+          { key: "enough_training", type: "choice", options: YN, label: "Have you received enough training to do your job effectively?", who: "employee" },
+          { key: "training_needed", type: "textarea", label: "If not, what additional training would help?", who: "employee" },
+          { key: "has_tools", type: "choice", options: YN, label: "Do you have the tools, systems access, and resources needed to perform your job (computer, email, phone, PestPac, software logins, etc.)?", who: "employee" },
+          { key: "intro_contacts", type: "yesno", label: "Introduced to key contacts in other departments and branch locations", who: "manager" },
+        ],
+      },
+      {
+        title: "Job Performance & Competency",
+        items: [
+          { key: "understands_role", type: "yesno", label: "Understands the core responsibilities and priorities of the role", who: "manager" },
+          { key: "accurate_ontime", type: "yesno", label: "Completes assigned tasks accurately and on time", who: "manager" },
+          { key: "attention_detail", type: "yesno", label: "Demonstrates attention to detail and quality in their work", who: "manager" },
+          { key: "learning_systems", type: "yesno", label: "Learning company systems and software (PestPac, Microsoft Office, etc.) at the expected pace", who: "manager" },
+          { key: "understands_support", type: "yesno", label: "Understands how their role supports branch operations, field teams, and customers", who: "manager" },
+          { key: "confidentiality", type: "yesno", label: "Follows confidentiality procedures for customer, employee, and financial information", who: "manager" },
+          { key: "dress_code", type: "yesno", label: "Follows the dress code and maintains a professional appearance", who: "manager" },
+          { key: "responsibilities_match", type: "yesno", label: "Job responsibilities have matched what was expected", who: "manager" },
+          { key: "mastered", type: "text", label: "Tasks / skills mastered", who: "employee" },
+          { key: "challenging", type: "text", label: "Tasks / skills still challenging", who: "employee" },
+        ],
+      },
+      {
+        title: "Goals & Key Deliverables",
+        items: [
+          { key: "key_projects", type: "text", label: "Key projects / tasks assigned to date", who: "manager" },
+          { key: "progress_goals", type: "text", label: "Progress on 30-day goals", who: "manager" },
+          { key: "on_track_goals", type: "yesno", label: "On track to meet the goals and expectations set at hire", who: "manager" },
+          { key: "manages_workload", type: "yesno", label: "Manages workload and prioritizes tasks effectively", who: "manager" },
+          { key: "asks_help", type: "yesno", label: "Asks for clarification or help when needed", who: "manager" },
+          { key: "understands_pay", type: "yesno", label: "Demonstrates a clear understanding of their pay, benefits, and timekeeping/pay schedule", who: "manager" },
+        ],
+      },
+      {
+        title: "Internal & External Customer Service",
+        items: [
+          { key: "no_complaints", type: "yesno", label: "No complaints from customers, branches, or coworkers", who: "manager" },
+          { key: "professional_comm", type: "yesno", label: "Communicates professionally by phone, email, and in person", who: "manager" },
+          { key: "responds_promptly", type: "yesno", label: "Responds to branch, field team, and customer requests promptly and helpfully", who: "manager" },
+          { key: "cs_challenges", type: "textarea", label: "What challenges have you faced with internal or external customers, and how have you addressed them?", who: "employee" },
+        ],
+      },
+      {
+        title: "Teamwork & Communication",
+        items: [
+          { key: "respectful", type: "yesno", label: "Respectful & professional with corporate staff, branch managers, technicians, and coworkers", who: "manager" },
+          { key: "timely_comm", type: "yesno", label: "Responds to emails, messages, and calls in a timely manner", who: "manager" },
+          { key: "reports_issues", type: "yesno", label: "Reports issues and concerns appropriately and through the proper channels", who: "manager" },
+          { key: "collaborates", type: "yesno", label: "Collaborates effectively with other departments", who: "manager" },
+          { key: "unclear_processes", type: "choice", options: YN, label: "Is anything unclear about company processes or expectations?", who: "employee" },
+          { key: "unclear_explain", type: "textarea", label: "If yes, please explain", who: "employee" },
+          { key: "feedback_manager", type: "textarea", label: "Any feedback for your manager or the company?", who: "employee" },
+        ],
+      },
+      {
+        title: "Attendance & Reliability",
+        items: [
+          { key: "on_time", type: "yesno", label: "Consistently on time for scheduled work hours and meetings", who: "manager" },
+          { key: "callout_procedures", type: "yesno", label: "Adheres to scheduling, time-off request, and call-out procedures", who: "manager" },
+          { key: "timekeeping", type: "yesno", label: "Follows timekeeping procedures accurately (clocking in/out, breaks)", who: "manager" },
+          { key: "meets_deadlines", type: "yesno", label: "Meets deadlines and follows through on commitments", who: "manager" },
+        ],
+      },
+      {
+        title: "Overall Experience & Future Growth",
+        items: [
+          { key: "comfort", type: "choice", options: COMFORT, label: "How comfortable do you feel in the role so far?", who: "employee" },
+          { key: "on_track", type: "choice", options: YN, label: "On track to meet expectations at the 60- and 90-day marks?", who: "employee" },
+          { key: "on_track_help", type: "textarea", label: "If no, what is needed to help?", who: "employee" },
+          { key: "goals_focus", type: "textarea", label: "Goals and focus areas for the next 30–60 days", who: "manager" },
+        ],
+      },
+      {
+        title: "Summary",
+        items: [
+          { key: "overall_rating", type: "choice", options: RATING, label: "Overall performance rating", who: "manager", added: true },
+          { key: "goals_next", type: "textarea", label: "Goals for the next 30 days", who: "manager", added: true },
+          { key: "next_steps", type: "textarea", label: "Next steps & action plan", who: "manager" },
+        ],
+      },
+    ],
+  },
+  "60_day": {
+    title: "60-Day Corporate Employee Review",
+    sections: [
+      {
+        title: "Follow-Up from 30-Day Review",
+        items: [
+          { key: "department", type: "text", label: "Department", who: "manager" },
+          { key: "work_location", type: "choice", options: WORK_LOCATION, label: "Work location", who: "manager" },
+          { key: "training_addressed", type: "yesno", label: "Training needs identified at the 30-Day Review have been addressed", who: "manager" },
+          { key: "goals_on_track", type: "yesno", label: "Goals set at the 30-Day Review have been met or are on track", who: "manager" },
+          { key: "has_tools", type: "yesno", label: "Now has all the tools, systems access, and resources needed to perform the job", who: "manager" },
+          { key: "concerns_resolved", type: "yesno", label: "Concerns or questions raised at the 30-Day Review have been resolved", who: "manager" },
+          { key: "followup_summary", type: "textarea", label: "Summarize progress on items from the 30-Day Review, and note anything still open", who: "manager" },
+        ],
+      },
+      {
+        title: "Job Performance & Competency",
+        items: [
+          { key: "independent", type: "yesno", label: "Performs core job duties independently with minimal supervision", who: "manager" },
+          { key: "accurate_ontime", type: "yesno", label: "Consistently completes work accurately and on time", who: "manager" },
+          { key: "proficient_systems", type: "yesno", label: "Proficient in the company systems and software used in the role (PestPac, Microsoft Office, etc.)", who: "manager" },
+          { key: "applies_policies", type: "yesno", label: "Applies company policies and procedures correctly without needing reminders", who: "manager" },
+          { key: "solves_problems", type: "yesno", label: "Solves routine problems on their own and knows when to escalate issues", who: "manager" },
+          { key: "confidentiality", type: "yesno", label: "Follows confidentiality procedures for customer, employee, and financial information", who: "manager" },
+          { key: "dress_code", type: "yesno", label: "Follows the dress code and maintains a professional appearance", who: "manager" },
+          { key: "mastered", type: "text", label: "Tasks / skills mastered since the 30-Day Review", who: "employee" },
+          { key: "still_developing", type: "text", label: "Tasks / skills still developing", who: "employee" },
+        ],
+      },
+      {
+        title: "Goals & Key Deliverables",
+        items: [
+          { key: "key_projects", type: "text", label: "Key projects / tasks completed since 30-Day Review", who: "manager" },
+          { key: "progress_goals", type: "text", label: "Progress on 60-day goals", who: "manager" },
+          { key: "meeting_goals", type: "yesno", label: "Meeting the goals and expectations for the role", who: "manager" },
+          { key: "manages_workload", type: "yesno", label: "Manages workload, prioritizes effectively, and meets deadlines", who: "manager" },
+          { key: "takes_initiative", type: "yesno", label: "Takes initiative, such as suggesting improvements or taking on new tasks", who: "manager" },
+          { key: "accepts_feedback", type: "yesno", label: "Accepts feedback and applies it to their work", who: "manager" },
+        ],
+      },
+      {
+        title: "Internal & External Customer Service",
+        items: [
+          { key: "no_complaints", type: "yesno", label: "No complaints from customers, branches, or coworkers", who: "manager" },
+          { key: "positive_relationships", type: "yesno", label: "Has built positive working relationships with branch staff and field teams", who: "manager" },
+          { key: "handles_difficult", type: "yesno", label: "Handles difficult requests or situations professionally", who: "manager" },
+          { key: "cs_challenges", type: "textarea", label: "What challenges have you faced with internal or external customers, and how have you addressed them?", who: "employee" },
+        ],
+      },
+      {
+        title: "Teamwork & Communication",
+        items: [
+          { key: "respectful", type: "yesno", label: "Respectful & professional with corporate staff, branch managers, technicians, and coworkers", who: "manager" },
+          { key: "timely_comm", type: "yesno", label: "Responds to emails, messages, and calls in a timely manner", who: "manager" },
+          { key: "keeps_informed", type: "yesno", label: "Keeps their Manager informed of progress, problems, and deadlines", who: "manager" },
+          { key: "collaborates", type: "yesno", label: "Collaborates effectively with other departments", who: "manager" },
+          { key: "unclear_processes", type: "choice", options: YN, label: "Is anything unclear about company processes or expectations?", who: "employee" },
+          { key: "unclear_explain", type: "textarea", label: "If yes, please explain", who: "employee" },
+          { key: "feedback_manager", type: "textarea", label: "Any feedback for your manager or the company?", who: "employee" },
+        ],
+      },
+      {
+        title: "Attendance & Reliability",
+        items: [
+          { key: "on_time", type: "yesno", label: "Consistently on time for scheduled work hours and meetings", who: "manager" },
+          { key: "callout_procedures", type: "yesno", label: "Adheres to scheduling, time-off request, and call-out procedures", who: "manager" },
+          { key: "timekeeping", type: "yesno", label: "Follows timekeeping procedures accurately (clocking in/out, breaks)", who: "manager" },
+          { key: "follows_through", type: "yesno", label: "Follows through on commitments without needing follow-up", who: "manager" },
+        ],
+      },
+      {
+        title: "Overall Performance & Future Growth",
+        items: [
+          { key: "overall_rating", type: "choice", options: RATING, label: "Overall performance at 60 days", who: "manager" },
+          { key: "comfort", type: "choice", options: COMFORT, label: "How comfortable do you feel in the role so far?", who: "employee" },
+          { key: "on_track", type: "choice", options: YN, label: "On track to meet expectations at the 90-Day Review?", who: "employee" },
+          { key: "on_track_help", type: "textarea", label: "If no, what is needed to help?", who: "employee" },
+          { key: "strengths", type: "textarea", label: "Strengths to build on", who: "manager" },
+          { key: "goals_focus", type: "textarea", label: "Goals and focus areas leading into the 90-Day Review", who: "manager" },
+        ],
+      },
+      {
+        title: "Summary",
+        items: [
+          { key: "recommendation", type: "choice", options: RECOMMENDATION, label: "End-of-probation recommendation", who: "manager", added: true },
+          { key: "goals_next", type: "textarea", label: "Goals for the next 90 days", who: "manager", added: true },
+          { key: "next_steps", type: "textarea", label: "Next steps & action plan", who: "manager" },
+        ],
+      },
+    ],
+  },
+};
+
 /** Role-specific review forms, keyed by template then by milestone. */
 export const REVIEW_FORMS: Record<ReviewTemplateKey, Record<ReviewType, ReviewForm>> = {
   technician: TECHNICIAN,
   service_advisor: SERVICE_ADVISOR,
   csr: CSR,
+  branch_manager: BRANCH_MANAGER,
+  corporate: CORPORATE,
 };
 
 /** The templates HR can pick from (dropdown order + labels). */
@@ -497,10 +901,12 @@ export const REVIEW_TEMPLATES: { key: ReviewTemplateKey; label: string }[] = [
   { key: "technician", label: "Technician" },
   { key: "service_advisor", label: "Service Advisor" },
   { key: "csr", label: "Customer Service Representative" },
+  { key: "branch_manager", label: "Branch Manager" },
+  { key: "corporate", label: "Corporate Employee" },
 ];
 
 export function templateLabel(key: string | null | undefined): string {
-  return REVIEW_TEMPLATES.find((t) => t.key === key)?.label ?? "Technician";
+  return REVIEW_TEMPLATES.find((t) => t.key === key)?.label ?? "Corporate Employee";
 }
 
 const TEMPLATE_KEYS = new Set<string>(REVIEW_TEMPLATES.map((t) => t.key));
@@ -510,25 +916,31 @@ export function isReviewTemplate(key: string | null | undefined): key is ReviewT
 
 /**
  * Resolve the review form for an employee from their access level, then role /
- * title keywords. Returns null for an off-list role (HR then picks the form).
- * Accepts the employee's own `accessLevel` or, failing that, their login's.
+ * title keywords. **Corporate Employee is the catch-all** — anyone who isn't a
+ * Technician, Service Advisor, CSR, or Branch Manager defaults to it (e.g. a
+ * coordinator, director, marketing assistant, or chief of staff). HR can always
+ * override the resolved form. Accepts the employee's own `accessLevel` or, failing
+ * that, their login's.
  */
 export function templateForEmployee(e: {
   accessLevel?: string | null;
   role?: string | null;
   title?: string | null;
   user?: { accessLevel?: string | null } | null;
-}): ReviewTemplateKey | null {
+}): ReviewTemplateKey {
   const accessLevel = e.accessLevel ?? e.user?.accessLevel ?? null;
   if (accessLevel === "technician") return "technician";
   if (accessLevel === "sales") return "service_advisor";
   if (accessLevel === "csr") return "csr";
+  if (accessLevel === "manager") return "branch_manager";
 
   const hay = `${e.role ?? ""} ${e.title ?? ""}`;
+  if (/branch manager|branch mgr/i.test(hay)) return "branch_manager";
   if (/tech/i.test(hay)) return "technician";
   if (/service advisor|sales advisor|\bsales\b/i.test(hay)) return "service_advisor";
   if (/csr|customer service/i.test(hay)) return "csr";
-  return null;
+  // Catch-all: coordinators, directors, corporate/office staff, and anyone else.
+  return "corporate";
 }
 
 /** The resolved form for a (template, type), falling back to the technician form. */

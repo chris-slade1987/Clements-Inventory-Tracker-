@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 14 · Last updated October 12, 2026",
+    effective: "Version 15 · Last updated October 12, 2026",
+    // v15: added the Branch Manager and Corporate Employee new-hire review forms,
+    // with Corporate Employee as the catch-all for any role that isn't Technician,
+    // Service Advisor, CSR, or Branch Manager.
     // v14: reconciled the Hiring / Onboarding section for role-specific new-hire
     // reviews (Technician / Service Advisor / CSR forms, auto-selected by access
     // level, HR-overridable) and supervisor auto-assignment (the review is
@@ -60,7 +63,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 14,
+    version: 15,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
