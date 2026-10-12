@@ -45,7 +45,13 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 19 · Last updated October 12, 2026",
+    effective: "Version 20 · Last updated October 12, 2026",
+    // v20: documented the employee Birthday field now being Month/Day/Year with an
+    // HR-only birth year (shown only on the HR profile, never on the team view,
+    // bulletin, or any celebration), and the day-of Buzz celebration — a profile
+    // banner + org/roster markers, an auto-posted bulletin shoutout, and a
+    // supervisor heads-up in Messages/Inbox — all timed to Eastern Time and firing
+    // once per person per year.
     // v19: added the Inventory › Scan Checkout subsection — the phone scan-to-issue
     // flow (pick tech → scan barcode/shelf QR or AI photo → confirm → qty → cart →
     // review + optional signature → submit), the 15-minute undo / admin void, the
@@ -81,7 +87,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 19,
+    version: 20,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

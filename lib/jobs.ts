@@ -6,6 +6,8 @@ import { signatureRoles, recordTypeLabel, getHrEmail } from "@/lib/personnel";
 import { dueFromStart, REVIEW_LABEL, templateForEmployee, notifyReviewAssigned } from "@/lib/review";
 import { randomBytes } from "node:crypto";
 import { branchLabel, BRANCHES } from "@/lib/management";
+import { etParts } from "@/lib/date";
+import { notifyThread } from "@/lib/threads";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
 // Called by the daily cron (/api/cron/daily) and the manual admin endpoints.
@@ -409,4 +411,129 @@ export async function remindScorecardsDue() {
     results.push({ period: `${year}Q${q}`, outstanding, emailed });
   }
   return results;
+}
+
+/**
+ * Daily birthday + work-anniversary celebrations. For every active employee whose
+ * birthday or work anniversary (>= 1 year) falls TODAY in Eastern Time, this:
+ *   1. Auto-posts a Buzz "shoutout" to the company bulletin (birthday first if
+ *      both land today), published immediately.
+ *   2. Sends the employee's supervisor (their org-chart `reportsTo` → linked
+ *      login) a heads-up in Messages/Inbox, which emails them too.
+ *
+ * Both are idempotent once-per-person-per-YEAR via `Setting` stamp keys
+ * (mirrors the `remindScorecardsDue` Setting-stamp pattern) so re-running the day's
+ * cron — or a manual run — never duplicates. Each employee is wrapped in its own
+ * try/catch so one failure can't abort the batch. The birth YEAR is never used or
+ * exposed here — celebrations are month+day only.
+ */
+export async function runCelebrations() {
+  const now = new Date();
+  const { month, day, year } = etParts(now);
+
+  const employees = await prisma.employee.findMany({
+    where: { status: "active" },
+    select: {
+      id: true, name: true, branch: true, hireDate: true, birthMonth: true, birthDay: true,
+      reportsTo: { include: { user: { select: { id: true, name: true, email: true, active: true } } } },
+    },
+  });
+
+  let posts = 0;
+  let notifications = 0;
+  let errors = 0;
+
+  for (const e of employees) {
+    try {
+      const first = e.name.split(" ")[0] || e.name;
+      const branchTag = e.branch ? ` (${branchLabel(e.branch)})` : "";
+
+      // Which celebrations land today (ET)? Birthday first, then anniversary.
+      const events: { kind: "birthday" | "anniversary"; years: number | null }[] = [];
+      if (e.birthMonth === month && e.birthDay === day) events.push({ kind: "birthday", years: null });
+      if (e.hireDate && e.hireDate.getUTCMonth() + 1 === month && e.hireDate.getUTCDate() === day) {
+        const years = year - e.hireDate.getUTCFullYear();
+        if (years >= 1) events.push({ kind: "anniversary", years });
+      }
+      if (events.length === 0) continue;
+
+      // Resolve the supervisor's active login (org-chart reports-to → their user).
+      const sup = e.reportsTo?.user ?? null;
+      const supervisor = sup && sup.active && sup.email ? sup : null;
+
+      for (const { kind, years } of events) {
+        // --- 1. Bulletin auto-post (dedupe once/year) ---
+        const postKey = `celebration_post:${kind}:${e.id}:${year}`;
+        const postStamp = await prisma.setting.findUnique({ where: { key: postKey } }).catch(() => null);
+        if (!postStamp) {
+          const title = kind === "birthday"
+            ? `Happy Birthday, ${first}!`
+            : `${first} — ${years} year${years === 1 ? "" : "s"} at Clements!`;
+          const excerpt = kind === "birthday"
+            ? `Wishing ${first} a very happy birthday from everyone at Clements!`
+            : `Congratulations to ${first} on ${years} year${years === 1 ? "" : "s"} at Clements${branchTag} — thank you for all you do!`;
+          await prisma.bulletinPost.create({
+            data: {
+              type: "shoutout",
+              title,
+              excerpt,
+              honoreeId: e.id,
+              honoreeName: e.name,
+              branch: e.branch,
+              published: true,
+              publishAt: now,
+              authorName: "Buzz",
+            },
+          });
+          // Stamp AFTER a successful create so a mid-run failure retries next run.
+          await prisma.setting.create({ data: { key: postKey, value: now.toISOString() } });
+          posts++;
+        }
+
+        // --- 2. Supervisor heads-up in Messages/Inbox (dedupe once/year) ---
+        if (supervisor) {
+          const notifyKey = `celebration_notify:${kind}:${e.id}:${year}`;
+          const notifyStamp = await prisma.setting.findUnique({ where: { key: notifyKey } }).catch(() => null);
+          if (!notifyStamp) {
+            const subject = kind === "birthday"
+              ? `Birthday today: ${e.name}`
+              : `${e.name} — ${years}-year work anniversary today`;
+            const body = kind === "birthday"
+              ? `It's ${e.name}'s birthday today${branchTag}. Take a moment to wish ${first} a happy birthday — a quick word from their supervisor goes a long way.`
+              : `${e.name}${branchTag} celebrates ${years} year${years === 1 ? "" : "s"} at Clements today. Please take a moment to recognize ${first} for the milestone.`;
+            const thread = await prisma.thread.create({
+              data: {
+                subject,
+                branch: e.branch,
+                contextType: "employee",
+                contextId: e.id,
+                contextLabel: e.name,
+                contextHref: `/my-branch/team/${e.id}`,
+                createdByName: "Buzz",
+                updatedAt: now,
+                messages: { create: { authorName: "Buzz", body } },
+                participants: { create: [{ userId: supervisor.id, name: supervisor.name, email: supervisor.email }] },
+              },
+            });
+            await notifyThread({
+              threadId: thread.id,
+              subject,
+              contextLabel: e.name,
+              authorName: "Buzz",
+              authorUserId: null,
+              body,
+              isNew: true,
+            }).catch(() => {});
+            await prisma.setting.create({ data: { key: notifyKey, value: now.toISOString() } });
+            notifications++;
+          }
+        }
+      }
+    } catch (err) {
+      errors++;
+      console.error(`[runCelebrations] ${e.id} (${e.name}) failed:`, err);
+    }
+  }
+
+  return { candidates: employees.length, posts, notifications, errors };
 }

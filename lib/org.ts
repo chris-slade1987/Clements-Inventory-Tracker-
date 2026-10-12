@@ -14,6 +14,11 @@ export type OrgEmployee = {
   reportsToId: string | null;
   userId: string | null; // linked login (null = no account → no access level)
   accessLevel: string | null; // from the linked login
+  // Month+day (and hire date) only — drives the day-of celebration marker on the
+  // org chart. The birth YEAR is deliberately NOT selected here (HR-only).
+  birthMonth: number | null;
+  birthDay: number | null;
+  hireDate: Date | null;
 };
 
 /** Active employees with their reporting line + linked login's access level. */
@@ -22,12 +27,14 @@ export async function listOrgEmployees(): Promise<OrgEmployee[]> {
     where: { status: "active" },
     select: {
       id: true, name: true, role: true, title: true, branch: true, reportsToId: true,
+      birthMonth: true, birthDay: true, hireDate: true,
       user: { select: { id: true, accessLevel: true } },
     },
     orderBy: [{ name: "asc" }],
   });
   return rows.map((e) => ({
     id: e.id, name: e.name, role: e.role, title: e.title, branch: e.branch, reportsToId: e.reportsToId,
+    birthMonth: e.birthMonth, birthDay: e.birthDay, hireDate: e.hireDate,
     userId: e.user?.id ?? null, accessLevel: e.user?.accessLevel ?? null,
   }));
 }

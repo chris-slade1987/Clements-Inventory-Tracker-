@@ -5,6 +5,8 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 import { teamRoster } from "@/lib/personnel";
 import { pendingRequestsForBranch, ptoTypeLabel, overlapForRequests } from "@/lib/pto";
 import PtoReviewPanel from "@/components/PtoReviewPanel";
+import { isSameMonthDay } from "@/lib/date";
+import { BuzzMarker } from "@/components/Buzz";
 
 export const dynamic = "force-dynamic";
 
@@ -75,16 +77,26 @@ export default async function TeamPage({
                 </tr>
               </thead>
               <tbody>
-                {roster.map((e) => (
+                {roster.map((e) => {
+                  const birthdayToday = isSameMonthDay(e.birthMonth, e.birthDay);
+                  const anniversaryToday = !!e.hireDate && isSameMonthDay(e.hireDate.getUTCMonth() + 1, e.hireDate.getUTCDate());
+                  return (
                   <tr key={e.id} className="border-b border-line last:border-0">
-                    <td className="px-4 py-2 font-medium"><Link href={`/my-branch/team/${e.id}`} className="text-brand-700 hover:underline">{e.name}</Link></td>
+                    <td className="px-4 py-2 font-medium">
+                      <span className="relative inline-flex items-center pr-3">
+                        <Link href={`/my-branch/team/${e.id}`} className="text-brand-700 hover:underline">{e.name}</Link>
+                        {birthdayToday ? <BuzzMarker kind="birthday" /> : null}
+                        {anniversaryToday ? <BuzzMarker kind="anniversary" className={birthdayToday ? "buzz-marker-2" : undefined} /> : null}
+                      </span>
+                    </td>
                     <td className="px-3 py-2 text-muted">{e.role ?? "—"}</td>
                     <td className="px-3 py-2 text-muted">{e.branch ? branchLabel(e.branch) : "—"}</td>
                     <td className={`px-3 py-2 text-right tabular-nums ${e.writeups ? "text-amber-600 font-medium" : "text-muted"}`}>{e.writeups || "—"}</td>
                     <td className={`px-3 py-2 text-right tabular-nums ${e.accidents ? "text-red-600 font-medium" : "text-muted"}`}>{e.accidents || "—"}</td>
                     <td className="px-4 py-2 text-right tabular-nums text-muted">{e.total || "—"}</td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

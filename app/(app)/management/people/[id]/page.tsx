@@ -18,6 +18,8 @@ import AbsenceCard from "@/components/AbsenceCard";
 import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLabel } from "@/lib/absence";
 import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
+import { etParts, isSameMonthDay } from "@/lib/date";
+import { CelebrationBanner } from "@/components/Buzz";
 import EmployeeContact from "./EmployeeContact";
 import PasswordResetCard from "./PasswordResetCard";
 import AccessRightsCard from "./AccessRightsCard";
@@ -93,6 +95,17 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
     return a.days > 1 ? `${f(a.startDate)} – ${f(a.endDate)}` : f(a.startDate);
   };
 
+  // Day-of celebration (Eastern Time) — a birthday today, and/or a work
+  // anniversary today of at least one year. If both land today, show both
+  // (birthday first). Month+day only — the birth year is never used here.
+  const todayEt = etParts();
+  const isBirthdayToday = isSameMonthDay(e.birthMonth, e.birthDay);
+  const anniversaryYears =
+    e.hireDate && isSameMonthDay(e.hireDate.getUTCMonth() + 1, e.hireDate.getUTCDate())
+      ? todayEt.year - e.hireDate.getUTCFullYear()
+      : 0;
+  const isAnniversaryToday = anniversaryYears >= 1;
+
   return (
     <>
       <div className="mb-2">
@@ -103,12 +116,15 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null, login ? `Access: ${accessLevelLabel(login.accessLevel)}` : null].filter(Boolean).join(" · ") || "Employee"}
       />
 
+      {isBirthdayToday ? <CelebrationBanner kind="birthday" name={e.name} /> : null}
+      {isAnniversaryToday ? <CelebrationBanner kind="anniversary" name={e.name} years={anniversaryYears} /> : null}
+
       <div className="grid gap-4 lg:grid-cols-2 mb-5">
         {/* Contact / profile (editable by admin) */}
         <EmployeeContact
           id={e.id}
           canEdit={canEdit}
-          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", personalEmail: e.personalEmail ?? "", title: e.title ?? "", division: e.division ?? "", birthMonth: e.birthMonth != null ? String(e.birthMonth) : "", birthDay: e.birthDay != null ? String(e.birthDay) : "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
+          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", personalEmail: e.personalEmail ?? "", title: e.title ?? "", division: e.division ?? "", birthMonth: e.birthMonth != null ? String(e.birthMonth) : "", birthDay: e.birthDay != null ? String(e.birthDay) : "", birthYear: e.birthYear != null ? String(e.birthYear) : "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
           emailConfigured={emailConfigured()}
         />
 

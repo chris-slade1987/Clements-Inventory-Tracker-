@@ -980,8 +980,9 @@ model Employee {
   title         String?
   status        String    @default("active") // "active" | "inactive" (former employee)
   hireDate      DateTime? @map("hire_date")
-  birthMonth    Int?      @map("birth_month") // 1-12; no birth year stored (privacy) — feeds birthday celebrations
+  birthMonth    Int?      @map("birth_month") // 1-12; feeds month+day birthday celebrations (bulletin/team view)
   birthDay      Int?      @map("birth_day") // 1-31
+  birthYear     Int?      @map("birth_year") // HR-ONLY — shown only on the HR profile, never on the bulletin/team view or any derived celebration
   terminatedAt  DateTime? @map("terminated_at")
   licenseNumber String?   @map("license_number")
   // Org chart: who this employee reports to (their team lead / manager). Forms a

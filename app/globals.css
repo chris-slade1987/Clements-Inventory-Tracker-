@@ -151,6 +151,8 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
 /* List / roster marker */
 .buzz-marker { position: absolute; right: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #dce8e0); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
 .buzz-marker::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid #1f9d57; opacity: 0.6; animation: buzz-pulse 1.9s ease-out infinite; }
+/* Second marker when a birthday AND an anniversary land on the same day — nudge it clear of the first. */
+.buzz-marker-2 { right: 16px; }
 
 @media (prefers-reduced-motion: reduce) {
   .buzz-fig, .buzz-ant, .buzz-eye, .buzz-medal, .buzz-shine, .buzz-confetti i, .buzz-marker::after { animation: none !important; }

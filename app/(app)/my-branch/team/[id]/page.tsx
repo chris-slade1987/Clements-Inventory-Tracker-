@@ -14,6 +14,8 @@ import { absencesForEmployee, canManageAbsenceBranch, canResolveNotes, reasonLab
 import PtoProfileCard from "@/components/PtoProfileCard";
 import AbsenceCard from "@/components/AbsenceCard";
 import RemindersCard from "@/components/RemindersCard";
+import { etParts, isSameMonthDay } from "@/lib/date";
+import { CelebrationBanner } from "@/components/Buzz";
 import RecordForm from "./RecordForm";
 import SignatureBlock from "./SignatureBlock";
 import OtherNoteForm from "./OtherNoteForm";
@@ -72,10 +74,23 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
   };
   const birthday = e.birthMonth ? `${MONTH_ABBR[e.birthMonth]}${e.birthDay ? ` ${e.birthDay}` : ""}` : null;
 
+  // Day-of celebration (Eastern Time), month+day only — the birth year is HR-only
+  // and never used here. Birthday today, and/or a work anniversary of >=1 year.
+  const todayEt = etParts();
+  const isBirthdayToday = isSameMonthDay(e.birthMonth, e.birthDay);
+  const anniversaryYears =
+    e.hireDate && isSameMonthDay(e.hireDate.getUTCMonth() + 1, e.hireDate.getUTCDate())
+      ? todayEt.year - e.hireDate.getUTCFullYear()
+      : 0;
+  const isAnniversaryToday = anniversaryYears >= 1;
+
   return (
     <>
       <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-700 hover:underline">← My Team</Link></div>
       <PageHeader title={e.name} subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · ") || "Team member"} />
+
+      {isBirthdayToday ? <CelebrationBanner kind="birthday" name={e.name} /> : null}
+      {isAnniversaryToday ? <CelebrationBanner kind="anniversary" name={e.name} years={anniversaryYears} /> : null}
 
       <div className="grid gap-4 lg:grid-cols-2 mb-5">
         {/* Contact / profile (read-only for managers; HR edits it on the People profile) */}

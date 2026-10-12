@@ -16,14 +16,16 @@ function fmtStartDate(v: string): string {
   return `${MONTH_ABBR[Number(mo) - 1]} ${Number(d)}, ${y}`;
 }
 
-type Fields = { email: string; phone: string; personalPhone: string; personalEmail: string; title: string; division: string; birthMonth: string; birthDay: string; status: string; hireDate: string };
+type Fields = { email: string; phone: string; personalPhone: string; personalEmail: string; title: string; division: string; birthMonth: string; birthDay: string; birthYear: string; status: string; hireDate: string };
 
-// "Jun 1" from month (1-12) + day strings; empty/invalid -> "—". No year is
-// stored, so none is shown.
-function fmtBirthday(month: string, day: string): string {
+// "Jun 1" from month (1-12) + day strings; empty/invalid -> "—". This is the HR
+// profile, so when a birth YEAR is on file we show the full date ("Jun 1, 1975").
+// The year is HR-only and is never surfaced on the team view or any celebration.
+function fmtBirthday(month: string, day: string, year: string): string {
   const m = parseInt(month, 10); const d = parseInt(day, 10);
   if (!(m >= 1 && m <= 12) || !(d >= 1 && d <= 31)) return "—";
-  return `${MONTH_ABBR[m - 1]} ${d}`;
+  const y = parseInt(year, 10);
+  return Number.isInteger(y) ? `${MONTH_ABBR[m - 1]} ${d}, ${y}` : `${MONTH_ABBR[m - 1]} ${d}`;
 }
 
 export default function EmployeeContact({
@@ -80,7 +82,7 @@ export default function EmployeeContact({
             <InputRow label="Personal phone" v={f.personalPhone} on={(v) => setF({ ...f, personalPhone: v })} type="tel" placeholder="(772) 555-0100" />
             <InputRow label="Title" v={f.title} on={(v) => setF({ ...f, title: v })} />
             <InputRow label="Department / Division" v={f.division} on={(v) => setF({ ...f, division: v })} placeholder="Service, Lawn, General Pest…" />
-            <BirthdayRow month={f.birthMonth} day={f.birthDay} onMonth={(v) => setF({ ...f, birthMonth: v })} onDay={(v) => setF({ ...f, birthDay: v })} />
+            <BirthdayRow month={f.birthMonth} day={f.birthDay} year={f.birthYear} onMonth={(v) => setF({ ...f, birthMonth: v })} onDay={(v) => setF({ ...f, birthDay: v })} onYear={(v) => setF({ ...f, birthYear: v })} />
             <InputRow label="Start date" v={f.hireDate} on={(v) => setF({ ...f, hireDate: v })} type="date" />
           </div>
           <p className="mt-2 text-[11px] text-muted">Start date schedules the 30 &amp; 60-day new-hire reviews automatically.</p>
@@ -99,7 +101,7 @@ export default function EmployeeContact({
             <ViewRow label="Personal phone" v={f.personalPhone} />
             <ViewRow label="Title" v={f.title} />
             <ViewRow label="Department / Division" v={f.division} />
-            <ViewRow label="Birthday" v={fmtBirthday(f.birthMonth, f.birthDay)} raw />
+            <ViewRow label="Birthday" v={fmtBirthday(f.birthMonth, f.birthDay, f.birthYear)} raw />
             <ViewRow label="Start date" v={fmtStartDate(f.hireDate)} raw />
           </dl>
           {!f.email ? (
@@ -126,9 +128,12 @@ function ViewRow({ label, v, raw }: { label: string; v: string; raw?: boolean })
   );
 }
 
-// Birthday editor — month dropdown + day number (no year; matches the schema's
-// privacy choice). Either both blank (no birthday) or a valid month + day.
-function BirthdayRow({ month, day, onMonth, onDay }: { month: string; day: string; onMonth: (v: string) => void; onDay: (v: string) => void }) {
+// Birthday editor — Month / Day / Year dropdowns. The year is HR-only (stored
+// and shown here only; never on the team view or any celebration). Validation:
+// either all blank (no birthday) or a valid month + day; the year is optional.
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+const BIRTH_YEARS = Array.from({ length: new Date().getFullYear() - 1940 + 1 }, (_, i) => new Date().getFullYear() - i);
+function BirthdayRow({ month, day, year, onMonth, onDay, onYear }: { month: string; day: string; year: string; onMonth: (v: string) => void; onDay: (v: string) => void; onYear: (v: string) => void }) {
   return (
     <label className="flex items-center justify-between gap-3 text-sm">
       <span className="text-muted">Birthday</span>
@@ -137,7 +142,14 @@ function BirthdayRow({ month, day, onMonth, onDay }: { month: string; day: strin
           <option value="">Month</option>
           {MONTH_ABBR.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
         </select>
-        <input type="number" min={1} max={31} value={day} onChange={(e) => onDay(e.target.value)} placeholder="Day" className="w-20 rounded-lg border border-line px-2 py-1.5 text-sm text-ink" />
+        <select value={day} onChange={(e) => onDay(e.target.value)} className="w-20 rounded-lg border border-line px-2 py-1.5 text-sm text-ink bg-surface">
+          <option value="">Day</option>
+          {DAYS.map((d) => <option key={d} value={String(d)}>{d}</option>)}
+        </select>
+        <select value={year} onChange={(e) => onYear(e.target.value)} title="Year (HR only)" className="w-24 rounded-lg border border-line px-2 py-1.5 text-sm text-ink bg-surface">
+          <option value="">—</option>
+          {BIRTH_YEARS.map((y) => <option key={y} value={String(y)}>{y}</option>)}
+        </select>
       </span>
     </label>
   );

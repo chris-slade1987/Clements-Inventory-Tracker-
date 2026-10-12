@@ -6,6 +6,7 @@ import { listPosts, authorQueue, calendarFeed, canPostBulletin, postTypeLabel, m
 import { NewPostButton, NewEventButton, PublishNow, DeletePostText, EditPostButton } from "./BulletinClient";
 import Glyph from "@/components/Glyph";
 import BulletinTile from "@/components/BulletinTile";
+import { Buzz } from "@/components/Buzz";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Company Bulletin — CanopyOS" };
@@ -116,12 +117,17 @@ export default async function BulletinPage() {
 
 function CalendarRow({ it }: { it: CalendarItem }) {
   const st = KIND_STYLE[it.kind] ?? KIND_STYLE.event;
+  const isCelebration = it.kind === "birthday" || it.kind === "anniversary";
   return (
     <li className="flex items-start gap-3 px-4 py-2.5">
       <div className="w-12 shrink-0 text-center">
         <div className="text-[11px] font-semibold text-ink tabular-nums">{fmtDay(it.date)}</div>
       </div>
-      <span className={`mt-0.5 shrink-0 ${st.color}`}><Glyph name={st.icon} className="h-4 w-4" /></span>
+      {isCelebration ? (
+        <span className="mt-0.5 shrink-0"><Buzz variant={it.kind as "birthday" | "anniversary"} size={28} animated={false} /></span>
+      ) : (
+        <span className={`mt-0.5 shrink-0 ${st.color}`}><Glyph name={st.icon} className="h-4 w-4" /></span>
+      )}
       <div className="min-w-0 flex-1">
         <div className="text-sm text-ink leading-snug">{it.title}</div>
         <div className="text-[11px] text-muted">

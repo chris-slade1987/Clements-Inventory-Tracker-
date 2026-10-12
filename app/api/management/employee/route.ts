@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         division: str(body?.division),
         birthMonth: intIn(body?.birthMonth, 1, 12),
         birthDay: intIn(body?.birthDay, 1, 31),
+        birthYear: intIn(body?.birthYear, 1940, new Date().getFullYear()), // HR-only
         status: str(body?.status) ?? "active",
         hireDate: date(body?.hireDate),
       },

@@ -53,6 +53,7 @@ export async function POST(req: Request) {
           title: s(get("title")),
           birthMonth: intIn(get("birthMonth"), 1, 12),
           birthDay: intIn(get("birthDay"), 1, 31),
+          birthYear: intIn(get("birthYear"), 1940, new Date().getFullYear()), // HR-only
           hireDate: dateOf(get("hireDate")),
           status: "active",
         },

@@ -3,8 +3,27 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ACCESS_LEVELS, accessLevelLabel } from "@/lib/access-levels";
+import { BuzzMarker } from "@/components/Buzz";
+import { isSameMonthDay } from "@/lib/date";
 
-export type OrgEmployee = { id: string; name: string; role: string | null; title: string | null; branch: string | null; reportsToId: string | null; userId: string | null; accessLevel: string | null };
+export type OrgEmployee = { id: string; name: string; role: string | null; title: string | null; branch: string | null; reportsToId: string | null; userId: string | null; accessLevel: string | null; birthMonth: number | null; birthDay: number | null; hireDate: Date | string | null };
+
+// A pulsing Buzz marker when today (ET) is this person's birthday and/or work
+// anniversary (>=1yr). Positioned absolute on a relatively-positioned wrapper so
+// it sits beside the name without disturbing the card/list layout. Month+day
+// only — the birth year is HR-only and never reaches the org chart.
+function CelebrationMarkers({ e }: { e: OrgEmployee }) {
+  const birthdayToday = isSameMonthDay(e.birthMonth, e.birthDay);
+  const hire = e.hireDate ? new Date(e.hireDate) : null;
+  const anniversaryToday = !!hire && isSameMonthDay(hire.getUTCMonth() + 1, hire.getUTCDate());
+  if (!birthdayToday && !anniversaryToday) return null;
+  return (
+    <span className="oc-buzz" aria-hidden={false}>
+      {birthdayToday ? <BuzzMarker kind="birthday" /> : null}
+      {anniversaryToday ? <BuzzMarker kind="anniversary" /> : null}
+    </span>
+  );
+}
 
 const BRANCH: Record<string, string> = { vero: "Vero Beach", stuart: "Stuart", orlando: "Orlando", naples: "Naples" };
 
@@ -125,7 +144,7 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
     return (
       <li>
         <div className="oc-card" style={{ borderColor: st.border, background: st.bg }}>
-          <div className="oc-name">{e.name}</div>
+          <div className="oc-name oc-name-wrap">{e.name}<CelebrationMarkers e={e} /></div>
           <div className="oc-sub">{[e.title || e.role, e.branch ? BRANCH[e.branch] ?? e.branch : null].filter(Boolean).join(" · ") || "—"}</div>
           <div className="oc-row">
             <span className={`oc-chip ${st.chip}`}>{e.userId ? accessLevelLabel(e.accessLevel) : "No login"}</span>
@@ -151,7 +170,7 @@ export default function OrgChartClient({ employees, canEditLevels = false }: { e
       <li>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-2" style={{ borderLeftColor: st.border, borderLeftWidth: 4, background: st.bg }}>
           <div className="min-w-0">
-            <div className="font-medium text-ink">{e.name}</div>
+            <div className="font-medium text-ink oc-name-wrap">{e.name}<CelebrationMarkers e={e} /></div>
             <div className="text-[11px] text-muted">
               {[e.title || e.role, e.branch ? BRANCH[e.branch] ?? e.branch : null].filter(Boolean).join(" · ") || "—"}
               {kids.length ? <span className="ml-2 rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] font-medium text-ink/70">{kids.length} report{kids.length > 1 ? "s" : ""}</span> : null}
@@ -258,4 +277,7 @@ const CSS = `
 .oc-edit { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; border-top: 1px dashed #cfe3dc; padding-top: 5px; }
 .oc-edit label { display: flex; flex-direction: column; font-size: 9px; text-transform: uppercase; letter-spacing: .03em; color: #5b7a70; gap: 2px; }
 .oc-edit select { font-size: 11px; border: 1px solid #cfe3dc; border-radius: 6px; padding: 2px 4px; color: #0b2e22; background: #fff; max-width: 190px; }
+.oc-name-wrap { position: relative; display: inline-block; }
+.oc-buzz { position: absolute; top: -9px; right: -12px; display: inline-flex; gap: 2px; pointer-events: none; }
+.oc-buzz .buzz-marker { position: relative; right: auto; top: auto; width: 18px; height: 18px; }
 `;
