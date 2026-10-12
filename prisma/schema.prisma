@@ -1251,6 +1251,48 @@ model SalesPeriodStat {
   @@map("sales_period_stats")
 }
 
+// An individual sales LEAD — one prospect record. Powers the geographic heat map
+// (where leads cluster, by funnel stage) and the lead-source performance board
+// (which marketing channels + company-provided vs. self-generated leads convert
+// best). Source-agnostic like SalesPeriodStat: entered/seeded today and upserted
+// from the SmarterLaunch lead feed (`origin="smarterlaunch"`) once that's live.
+//
+// Two "source" concepts are kept deliberately separate:
+//   channel = the MARKETING source of the lead (BNI, referral, Google/web, …)
+//   origin  = the ROW's data origin ("manual" | "demo" | "smarterlaunch"); demo
+//             rows are tagged "demo" and cleared at the SmarterLaunch cutover.
+model SalesLead {
+  id                String  @id @default(cuid())
+  externalId        String? @unique @map("external_id") // SmarterLaunch lead id, for idempotent upsert
+  advisorEmployeeId String? @map("advisor_employee_id") // assigned service advisor (null = unassigned)
+  advisorName       String? @map("advisor_name")        // snapshot, for display when no employee link
+  branch            String? // branch area the lead belongs to
+
+  // Geography (for the heat map). Neighborhood is the area label; zip clusters it.
+  address      String?
+  city         String?
+  zip          String?
+  neighborhood String?
+  lat          Float?
+  lng          Float?
+
+  // Funnel + source
+  stage    String   @default("lead") // "lead" | "proposal" | "closed" | "lost"
+  channel  String   @default("other") // "bni" | "referral" | "google" | "web" | "other"
+  provided Boolean  @default(false) // true = company-provided lead; false = advisor self-generated
+  value    Float    @default(0) // estimated/closed deal value ($)
+
+  origin    String   @default("manual") // "manual" | "demo" | "smarterlaunch"
+  createdAt DateTime @default(now()) @map("created_at") // when the lead came in (drives date-range filters)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([branch, stage])
+  @@index([advisorEmployeeId, createdAt])
+  @@index([channel])
+  @@index([origin])
+  @@map("sales_leads")
+}
+
 model TrainingAssignment {
   id           String    @id @default(cuid())
   courseId     String    @map("course_id")

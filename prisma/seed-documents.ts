@@ -45,12 +45,18 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 12 · Last updated October 12, 2026",
+    effective: "Version 13 · Last updated October 12, 2026",
+    // v13: documented the Sales Team lead heat map (geographic lead density
+    // color-coded by funnel stage, with the This month/Last month/YTD/custom
+    // date-range control and stage filter — company-wide for the director,
+    // personal for the advisor) and the lead-source performance board (per-channel
+    // volume + conversion and the company-provided vs. self-generated split), both
+    // with AI insight and SmarterLaunch-ready / sample-data-until-cutover behavior.
     // v12: added the Document Intake section — the universal drop-any-file intake
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 12,
+    version: 13,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

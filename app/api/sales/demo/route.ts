@@ -4,6 +4,7 @@ import { getSessionUser, canManageSales } from "@/lib/auth";
 import { fail } from "@/lib/http";
 import { listServiceAdvisors, currentPeriodKey } from "@/lib/sales";
 import { priorPeriodKey } from "@/lib/sales-funnel";
+import { loadDemoLeads, clearDemoLeads } from "@/lib/sales-leads-demo";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -31,11 +32,12 @@ export async function POST(req: Request) {
     const prevKey = priorPeriodKey(periodKey);
 
     if (action === "clear") {
-      const [stat, sheet] = await Promise.all([
+      const [stat, sheet, leads] = await Promise.all([
         prisma.salesPeriodStat.deleteMany({ where: { periodKey: { in: [periodKey, prevKey] }, source: "demo" } }),
         prisma.salesGoalSheet.deleteMany({ where: { periodKey, source: "demo" } }),
+        clearDemoLeads(),
       ]);
-      return NextResponse.json({ ok: true, cleared: stat.count + sheet.count });
+      return NextResponse.json({ ok: true, cleared: stat.count + sheet.count + leads });
     }
 
     const advisors = await listServiceAdvisors(null);
@@ -69,7 +71,8 @@ export async function POST(req: Request) {
       });
       loaded++;
     }
-    return NextResponse.json({ ok: true, loaded });
+    const leads = await loadDemoLeads();
+    return NextResponse.json({ ok: true, loaded, leads: leads.loaded });
   } catch (e) {
     return fail(e);
   }

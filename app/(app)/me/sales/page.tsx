@@ -3,11 +3,13 @@ import { PageHeader, Card } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
+import LeadInsightsSection from "@/components/LeadInsightsSection";
+import { resolveRange } from "@/lib/sales-leads";
 import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
 
 export const dynamic = "force-dynamic";
 
-export default async function MySalesPage() {
+export default async function MySalesPage({ searchParams }: { searchParams: Promise<{ range?: string; from?: string; to?: string }> }) {
   const user = await requireUser();
   if (!user.employeeId) {
     return (
@@ -19,6 +21,8 @@ export default async function MySalesPage() {
   }
 
   const periodKey = currentPeriodKey();
+  const sp = await searchParams;
+  const range = resolveRange(sp.range, sp.from, sp.to);
   const g = await advisorGoal(user.employeeId, periodKey);
   const initial = { ...g.recap, salesGoal: g.goal.salesGoal, workdays: g.goal.workdays };
 
@@ -28,6 +32,16 @@ export default async function MySalesPage() {
       <PageHeader title="My Sales Goals" subtitle={`Monthly goal planner — ${periodLabel(periodKey)}`} />
 
       <SalesFunnelCard advisorEmployeeId={user.employeeId} periodKey={periodKey} />
+
+      {/* Your personal lead heat map + lead-source performance — the areas and
+          sources that work best for you, so you can target them more often. */}
+      <LeadInsightsSection
+        scope="advisor"
+        advisorEmployeeId={user.employeeId}
+        range={range}
+        mapTitle="Your lead heat map"
+        mapSubtitle="The neighborhoods you work and how they perform for you. Concentrate on your densest, highest-closing areas. Color-coded by funnel stage."
+      />
 
       <Card className="p-4 mb-5">
         <div className="flex items-start gap-3">

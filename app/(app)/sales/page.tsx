@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
 import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel, type StageStatus } from "@/lib/sales-funnel";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import LeadInsightsSection from "@/components/LeadInsightsSection";
+import { resolveRange } from "@/lib/sales-leads";
 import FunnelEntryButton from "./FunnelEntryButton";
 import SalesDirectorTools from "./SalesDirectorTools";
 
@@ -15,12 +17,13 @@ export const dynamic = "force-dynamic";
 
 const m = (n: number | null) => (n == null ? "—" : money(n));
 
-export default async function SalesTeamPage({ searchParams }: { searchParams: Promise<{ branch?: string }> }) {
+export default async function SalesTeamPage({ searchParams }: { searchParams: Promise<{ branch?: string; range?: string; from?: string; to?: string }> }) {
   const user = await requireUser();
   if (!canManageSales(user)) redirect("/me");
 
   const sp = await searchParams;
   const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const range = resolveRange(sp.range, sp.from, sp.to);
   const periodKey = currentPeriodKey();
   const { advisorRows, byBranch, totals, actuals } = await salesDirectorDashboard(periodKey, branch);
   const { rows: funnelRows } = await teamFunnel(periodKey, branch);
@@ -100,6 +103,16 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <Tile label="Closed (YTD)" value={m(totals.closed)} />
         <Tile label="Open pipeline" value={m(totals.pipeline)} />
       </div>
+
+      {/* Lead geographic heat map + lead-source performance (company-wide, honors
+          the branch filter and the date-range control). */}
+      <LeadInsightsSection
+        scope="team"
+        branch={branch}
+        range={range}
+        mapTitle={`Lead heat map${branch ? ` · ${branchLabel(branch)}` : " · all branches"}`}
+        mapSubtitle="Where leads are coming in and which neighborhoods have the most density and best close rate. Color-coded by funnel stage — filter to a stage to see pending leads by stage."
+      />
 
       {/* Leaderboard — the funnel, ranked. Each stage is its own board so activity
           leaders are recognized alongside dollar closers. */}

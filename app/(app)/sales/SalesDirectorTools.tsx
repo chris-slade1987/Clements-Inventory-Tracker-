@@ -18,7 +18,7 @@ export default function SalesDirectorTools({ periodKey, hasDemo }: { periodKey: 
       const res = await fetch("/api/sales/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setMsg(d.error ?? "Failed."); return; }
-      setMsg(action === "load" ? `Loaded sample data for ${d.loaded} advisor(s).` : `Cleared ${d.cleared} sample row(s).`);
+      setMsg(action === "load" ? `Loaded sample data for ${d.loaded} advisor(s)${typeof d.leads === "number" ? ` + ${d.leads} sample leads` : ""}.` : `Cleared ${d.cleared} sample row(s).`);
       router.refresh();
     } finally { setBusy(false); }
   }

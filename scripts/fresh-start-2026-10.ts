@@ -116,9 +116,10 @@ export async function freshStart2026(prisma: PrismaClient) {
   await clear("ptoRequests", () => prisma.ptoRequest.deleteMany({}));
   await clear("absences", () => prisma.absence.deleteMany({}));
 
-  // --- Sales test data (example goal sheets + sync snapshots) ------------
+  // --- Sales test data (example goal sheets + sync snapshots + leads) ----
   await clear("salesGoalSheets", () => prisma.salesGoalSheet.deleteMany({}));
   await clear("salesSnapshots", () => prisma.salesSnapshot.deleteMany({}));
+  await clear("salesLeads", () => prisma.salesLead.deleteMany({}));
 
   // --- Internal threads/messages (test) ----------------------------------
   // Participants + messages cascade from Thread.
