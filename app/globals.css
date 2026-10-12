@@ -120,3 +120,39 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
   opacity: 0;
   cursor: pointer;
 }
+
+/* ===== Buzz — celebration mascot (birthdays + work anniversaries) ===== */
+/* All motion stops under prefers-reduced-motion (guard at the end). */
+@keyframes buzz-bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes buzz-wig { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(9deg); } }
+@keyframes buzz-blink { 0%,94%,100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+@keyframes buzz-sway { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes buzz-shine { 0%,55%,100% { opacity: 0; transform: translateX(-7px); } 28% { opacity: 0.85; transform: translateX(7px); } }
+@keyframes buzz-fall { 0% { transform: translateY(-10px) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(130px) rotate(420deg); opacity: 0.9; } }
+@keyframes buzz-pulse { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(1.75); opacity: 0; } }
+
+.buzz-fig { animation: buzz-bob 3s ease-in-out infinite; transform-origin: 50% 92%; }
+.buzz-ant { transform-box: fill-box; transform-origin: bottom center; animation: buzz-wig 1.8s ease-in-out infinite; }
+.buzz-ant-r { animation-delay: 0.25s; }
+.buzz-eye { transform-box: fill-box; transform-origin: center; animation: buzz-blink 4.2s ease-in-out infinite; }
+.buzz-medal { transform-box: fill-box; transform-origin: 50% 0; animation: buzz-sway 2.6s ease-in-out infinite; }
+.buzz-shine { animation: buzz-shine 3s ease-in-out infinite; }
+
+/* Celebration banner */
+.buzz-banner { display: flex; align-items: center; gap: 16px; overflow: hidden; position: relative; border: 1px solid var(--color-line, #dce8e0); border-radius: 18px; padding: 16px 18px; }
+.buzz-banner-birthday { background: linear-gradient(135deg, rgba(239,97,134,0.10), rgba(31,157,87,0.10)); }
+.buzz-banner-anniversary { background: linear-gradient(135deg, rgba(237,193,78,0.16), rgba(19,96,58,0.10)); }
+.buzz-stage { position: relative; width: 108px; height: 108px; flex: 0 0 auto; }
+.buzz-msg { min-width: 0; }
+.buzz-msg-big { font-size: 18px; font-weight: 800; margin: 0; }
+.buzz-msg-small { font-size: 13px; color: var(--color-muted, #5a6b60); margin: 2px 0 0; }
+.buzz-confetti i { position: absolute; top: -6px; opacity: 0.95; animation: buzz-fall 3.2s linear infinite; }
+
+/* List / roster marker */
+.buzz-marker { position: absolute; right: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #dce8e0); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
+.buzz-marker::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid #1f9d57; opacity: 0.6; animation: buzz-pulse 1.9s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .buzz-fig, .buzz-ant, .buzz-eye, .buzz-medal, .buzz-shine, .buzz-confetti i, .buzz-marker::after { animation: none !important; }
+  .buzz-confetti { display: none; }
+}
