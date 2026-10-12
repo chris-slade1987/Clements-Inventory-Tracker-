@@ -45,13 +45,17 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 11 · Last updated October 12, 2026",
+    effective: "Version 12 · Last updated October 12, 2026",
+    // v12: added the Document Intake section — the universal drop-any-file intake
+    // with a Claude chat that proposes where each document routes (vehicle doc,
+    // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
+    // manager's approval.
+    version: 12,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
     // / funnel-health matrix / inline funnel entry, the AI coach + team briefing,
     // and the load/clear-sample-data controls used until SmarterLaunch is connected.
-    version: 11,
     // v10: documented managing people from the org chart — setting a person's
     // manager (reporting line), assigning an access level, and GRANTING A LOGIN to
     // a newly added employee who has none ("Grant login" on their org-chart card,

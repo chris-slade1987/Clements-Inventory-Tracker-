@@ -2152,3 +2152,41 @@ model DocumentAckToken {
 
   @@map("document_ack_tokens")
 }
+
+// Universal Document Intake. Any file is dropped here; Claude reads it, the user
+// explains in a chat what it is / where it goes, and Claude proposes a routing
+// action the user approves. On approval the file is routed to the right module
+// (a vehicle document, a branch document, the MBR review, or filed here with
+// tags). This row is the intake record + audit trail of what happened to it.
+model IntakeDocument {
+  id       String  @id @default(cuid())
+  fileName String? @map("file_name")
+  filePath String? @map("file_path")
+  fileSize Int?    @map("file_size")
+  mimeType String? @map("mime_type")
+
+  // What the AI reader made of it.
+  kind      String  @default("other") // ai-detected: vehicle_insurance | mbr | invoice | …
+  title     String?
+  aiSummary String? @map("ai_summary")
+  extracted String? // JSON string of the extracted fields (transparency)
+  source    String  @default("claude") // "claude" | "mock"
+
+  // Where it ended up.
+  status      String  @default("pending") // "pending" | "filed" | "discarded"
+  routedTo    String? @map("routed_to") // destination key
+  routedRef   String? @map("routed_ref") // created record id / redirect url
+  routedLabel String? @map("routed_label") // human label of the destination
+  branch      String?
+  tags        String? // comma-separated
+  notes       String?
+  messages    String? // JSON chat transcript (audit)
+
+  uploadedByUserId String?   @map("uploaded_by_user_id")
+  uploadedByName   String?   @map("uploaded_by_name")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  filedAt          DateTime? @map("filed_at")
+
+  @@index([status])
+  @@map("intake_documents")
+}

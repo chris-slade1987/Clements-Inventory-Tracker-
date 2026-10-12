@@ -31,9 +31,9 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Checklists | 3 | 0 | 0 | 0 | 3 |
 | Management | 6 | 2 | 0 | 1 | 9 |
 | Comms | 0 | 0 | 0 | 2 | 2 |
-| Document Center | 2 | 0 | 0 | 0 | 2 |
+| Document Center | 3 | 0 | 0 | 0 | 3 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **47** | **3** | **0** | **9** | **59** |
+| **Total** | **48** | **3** | **0** | **9** | **60** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 9 🆕 remaining are the launch-gate open items.
@@ -163,6 +163,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 |---|---|---|---|---|---|
 | Employee Handbook (read + acknowledge) | Renders the handbook; typed-signature acknowledgment vs current version. (`/resources/handbook`) | — | Using the Clements Portal | ✅ | Aligned. |
 | Manager Operating Manual (read) | Manager/admin-only reference with TOC; no acknowledgment. (`/resources/manual`) | (this document) | — | ✅ | Aligned. |
+| Document Intake (universal, agentic) | **Drop any file, chat with Claude, approve where it routes.** A single intake drop-zone (`/management/intake`, admin + manager) accepts any upload; PDFs/images are **read by Claude** (`analyzeIntake` → kind/title/summary/extracted fields), other types are stored for the manager to describe. A **conversational agent** (`lib/intake-ai.ts`, Claude via `SALES_ANTHROPIC_API_KEY`/`ANTHROPIC_API_KEY` with a deterministic fallback) talks with the manager and, when it has enough, emits a structured **routing proposal** rendered as an approve/edit/cancel **action card** — nothing is filed until the human approves. Destinations (`INTAKE_DESTINATIONS`): **vehicle_document** (files a `VehicleDocument`, reuses `matchDocVehicle`, sets renewal reminders), **branch_document** (files a `BranchDocument`, branch-scoped for locked managers), **mbr_handoff** (admin-only; never writes financials — hands off to `/management/upload` to extract & confirm), and **general_file** (keeps the file in intake, tagged + optional branch; explicitly no inventory/other-module writes). Each execution re-checks its own permission behind the page gate. Every intake is recorded in `IntakeDocument` (status, routed-to, label, tags, chat transcript) and listed under "Recently handled". (`/management/intake`, `/api/intake`, `/api/intake/chat`, `/api/intake/file`, `lib/intake.ts`, `lib/intake-ai.ts`, `components/…/IntakeWorkbench.tsx`, `IntakeDocument` model) | FDACS On-site Document Management | — | ✅ | **New.** Adds `intake_documents` (`prisma db push`). Human-in-the-loop by design: Claude proposes the route, the manager approves; financial docs always hand off to the MBR reader rather than being written automatically. |
 
 ## Auth / Access
 

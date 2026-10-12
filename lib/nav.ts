@@ -146,6 +146,17 @@ export const HANDBOOK_NAV_ITEM: NavItem = {
   icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 3v5h5M9 13h6M9 17h6",
 };
 
+// Document Intake — the universal, agentic upload: drop any file, chat with
+// Claude about what it is, and approve where it routes. Admin + manager; lives
+// in the management nav next to the (vehicle) Document Center. An inbox/upload
+// glyph, distinct from the folder-style Document Center icon.
+export const INTAKE_NAV_ITEM: NavItem = {
+  href: "/management/intake",
+  label: "Document Intake",
+  shortLabel: "Intake",
+  icon: "M12 15V4M8 8l4-4 4 4M4 14v5a1 1 0 001 1h14a1 1 0 001-1v-5",
+};
+
 export const MANUAL_NAV_ITEM: NavItem = {
   href: "/resources/manual",
   label: "Manager Manual",
@@ -348,6 +359,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Docs",
     icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
+  INTAKE_NAV_ITEM,
   {
     href: "/management/insurance",
     label: "Insurance",

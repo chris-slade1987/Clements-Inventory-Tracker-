@@ -176,6 +176,12 @@ To help guide you, a checklist and set of procedures follow this section. These 
 
 ## 5. Policies, Procedures & Forms
 
+## Document Intake
+
+**Document Intake (`Management → Document Intake`).** A single place to hand any file to the portal and have it filed correctly. Drop in a PDF, an image, or another document — an insurance policy, a registration, an invoice, the Monthly Board Report, a photo of a form — and the reader looks it over and tells you what it is. Alongside the upload is a short chat with Claude: say in plain words what the file is and where it should go ("this is the renewal for truck 12 — file it and remind HR 30 days out"). Claude then proposes exactly where it will route the document, and **nothing is filed until you approve it.** You can adjust the details (which vehicle, which branch, the category, the expiration date, tags) on the approval card before confirming.
+
+Where documents can go: a **vehicle document** (filed to a specific truck, with a renewal reminder set), a **branch document** (licensing, lease, or other paperwork for a branch), the **MBR review** (financial reports are never changed automatically — Claude hands you off to the MBR reader to extract and confirm the numbers), or simply **filed in intake** with tags for later reference. Filing an invoice here does **not** add it to inventory; inventory check-in stays its own step. Admins and managers have access; a branch-locked manager files only to their own branch. Every document you handle is listed under "Recently handled" with where it ended up.
+
 ## Sales Team
 
 The portal has a dedicated Sales Team area for service advisors and the Sales Director, extending the existing Sales & Attrition reporting.
