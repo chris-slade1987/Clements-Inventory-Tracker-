@@ -4,10 +4,12 @@ import { PageHeader, Card, EmptyState } from "@/components/ui";
 import { requireUser, canManageSales } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
+import { prisma } from "@/lib/prisma";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
-import { teamFunnel, buildLeaderboards, type AdvisorFunnel } from "@/lib/sales-funnel";
+import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel, type StageStatus } from "@/lib/sales-funnel";
 import MyReviewsCard from "@/components/MyReviewsCard";
 import FunnelEntryButton from "./FunnelEntryButton";
+import SalesDirectorTools from "./SalesDirectorTools";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const { rows: funnelRows } = await teamFunnel(periodKey, branch);
   const boards = buildLeaderboards(funnelRows);
   const pLabel = periodLabel(periodKey);
+  const pace = salesPace(periodKey);
+  const demoCount = await prisma.salesPeriodStat.count({ where: { periodKey, source: "demo" } });
 
   // The director's actionable gap: advisors who haven't set this period's goal.
   const notSet = advisorRows.filter((r) => !r.hasGoal);
@@ -37,6 +41,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
       />
 
       <MyReviewsCard userId={user.id} />
+
+      <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} />
 
       {/* actuals connection state */}
       <div className={`mb-4 rounded-xl border px-4 py-2.5 text-sm ${actuals.connected ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
@@ -99,6 +105,36 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
           leaders are recognized alongside dollar closers. */}
       {funnelRows.length > 0 ? (
         <>
+          <h2 className="text-sm font-semibold text-ink mb-2">Funnel health · where each advisor is leaking</h2>
+          <Card className="p-0 overflow-hidden mb-6 scroll">
+            <table style={{ minWidth: "560px" }} className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted border-b border-line">
+                  <th className="px-4 py-2 font-medium">Advisor</th>
+                  <th className="px-3 py-2 font-medium">Leads</th>
+                  <th className="px-3 py-2 font-medium">Proposals</th>
+                  <th className="px-3 py-2 font-medium">Closing</th>
+                  <th className="px-4 py-2 font-medium">Bottleneck</th>
+                </tr>
+              </thead>
+              <tbody>
+                {funnelRows.map((r: AdvisorFunnel) => {
+                  const d = diagnoseFunnel(r, pace);
+                  return (
+                    <tr key={r.advisor.id} className="border-b border-line last:border-0">
+                      <td className="px-4 py-2 font-medium">{r.advisor.name}{r.advisor.branch ? <span className="ml-2 text-[11px] text-muted">{branchLabel(r.advisor.branch)}</span> : null}</td>
+                      <td className="px-3 py-2"><HealthDot s={stageStatus(r.leads, r.leadsGoal, pace)} /></td>
+                      <td className="px-3 py-2"><HealthDot s={stageStatus(r.proposals, r.propGoal, pace)} /></td>
+                      <td className="px-3 py-2"><HealthDot s={stageStatus(r.closed, r.goal, pace)} /></td>
+                      <td className="px-4 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${BTL[d.key]}`}>{d.label}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="px-4 py-2 border-t border-line text-[11px] text-muted">Dot = pace status (green on track · amber watch · red behind). Bottleneck is the first stage that breaks the chain.</div>
+          </Card>
+
           <h2 className="text-sm font-semibold text-ink mb-2">Leaderboard · {pLabel}</h2>
           <div className="grid gap-3 lg:grid-cols-3 mb-3">
             <MiniBoard title="Leads created" emoji="🚀" rows={boards.leads} fmt={(n) => qty(n)} />
@@ -123,8 +159,9 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                     <th className="px-3 py-2 font-medium text-right">Leads</th>
                     <th className="px-3 py-2 font-medium text-right">Proposals</th>
                     <th className="px-3 py-2 font-medium text-right">Lead→Prop</th>
+                    <th className="px-3 py-2 font-medium text-right">Deals</th>
+                    <th className="px-3 py-2 font-medium text-right">Close %</th>
                     <th className="px-3 py-2 font-medium text-right">Closed $</th>
-                    <th className="px-3 py-2 font-medium text-right">$ / Proposal</th>
                     <th className="px-3 py-2 font-medium text-right">vs Goal</th>
                     <th className="px-4 py-2 font-medium text-right"></th>
                   </tr>
@@ -138,12 +175,13 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">{r.leads || "—"}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{r.proposals || "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.leads ? `${Math.round(r.proposalRate * 100)}%` : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.leads ? `${Math.round(r.lpRate * 100)}%` : "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.deals || "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.proposals ? `${Math.round(r.pcRate * 100)}%` : "—"}</td>
                       <td className="px-3 py-2 text-right tabular-nums font-medium">{r.closed ? money(r.closed) : "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-muted">{r.proposals ? money(r.dollarsPerProposal) : "—"}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{r.goal > 0 ? <span className={r.goalPct >= 1 ? "text-emerald-600 font-medium" : "text-muted"}>{Math.round(r.goalPct * 100)}%</span> : "—"}</td>
                       <td className="px-4 py-2 text-right">
-                        <FunnelEntryButton advisorId={r.advisor.id} advisorName={r.advisor.name} periodKey={periodKey} periodLabel={pLabel} current={{ leadsCreated: r.leads, proposalsMade: r.proposals, closedAmount: r.closed }} />
+                        <FunnelEntryButton advisorId={r.advisor.id} advisorName={r.advisor.name} periodKey={periodKey} periodLabel={pLabel} current={{ leadsCreated: r.leads, proposalsMade: r.proposals, dealsClosed: r.deals, closedAmount: r.closed }} />
                       </td>
                     </tr>
                   ))}
@@ -233,6 +271,23 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
       )}
     </>
   );
+}
+
+const BTL: Record<StageStatus, string> = {
+  on: "bg-emerald-100 text-emerald-700",
+  watch: "bg-amber-100 text-amber-700",
+  behind: "bg-red-100 text-red-700",
+  nogoal: "bg-slate-100 text-slate-500",
+};
+function HealthDot({ s }: { s: StageStatus }) {
+  const map: Record<StageStatus, { c: string; t: string }> = {
+    on: { c: "bg-emerald-500", t: "On track" },
+    watch: { c: "bg-amber-500", t: "Watch" },
+    behind: { c: "bg-red-500", t: "Behind" },
+    nogoal: { c: "bg-slate-300", t: "No goal" },
+  };
+  const m = map[s];
+  return <span className="inline-flex items-center gap-1.5 text-xs text-muted"><span className={`h-2.5 w-2.5 rounded-full ${m.c}`} />{m.t}</span>;
 }
 
 function MiniBoard({ title, emoji, rows, fmt }: { title: string; emoji: string; rows: { advisor: { id: string; name: string }; value: number; rank: number }[]; fmt: (n: number) => string }) {

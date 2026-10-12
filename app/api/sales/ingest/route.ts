@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       await upsertFunnelStat(
         advisor.id,
         periodKey,
-        { leadsCreated: num(r?.leadsCreated), proposalsMade: num(r?.proposalsMade), closedAmount: num(r?.closedAmount) },
+        { leadsCreated: num(r?.leadsCreated), proposalsMade: num(r?.proposalsMade), dealsClosed: num(r?.dealsClosed), closedAmount: num(r?.closedAmount) },
         { branch: advisor.branch, source },
       );
       applied++;

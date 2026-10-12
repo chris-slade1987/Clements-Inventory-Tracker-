@@ -45,12 +45,17 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 10 · Last updated October 8, 2026",
+    effective: "Version 11 · Last updated October 12, 2026",
+    // v11: expanded the Sales Team section to document the per-advisor visual
+    // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
+    // and plain-English leak diagnosis), the director leaderboard / most-improved
+    // / funnel-health matrix / inline funnel entry, the AI coach + team briefing,
+    // and the load/clear-sample-data controls used until SmarterLaunch is connected.
+    version: 11,
     // v10: documented managing people from the org chart — setting a person's
     // manager (reporting line), assigning an access level, and GRANTING A LOGIN to
     // a newly added employee who has none ("Grant login" on their org-chart card,
     // creating their account at their work email + the shared default password).
-    version: 10,
     // v9: documented the company-wide physical-count reconciliation under
     // Inventory › Month-end physical reconciliation — on-hand at every branch is
     // trued up to a dated physical count via audited adjustment movements (the

@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     await upsertFunnelStat(
       advisorEmployeeId,
       periodKey,
-      { leadsCreated: num(body?.leadsCreated), proposalsMade: num(body?.proposalsMade), closedAmount: num(body?.closedAmount) },
+      { leadsCreated: num(body?.leadsCreated), proposalsMade: num(body?.proposalsMade), dealsClosed: num(body?.dealsClosed), closedAmount: num(body?.closedAmount) },
       { branch: emp.branch, source: "manual", userId: user.id },
     );
     return NextResponse.json({ ok: true });

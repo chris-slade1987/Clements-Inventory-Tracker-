@@ -1212,6 +1212,12 @@ model SalesGoalSheet {
   // This month's goal
   salesGoal Float @default(0) @map("sales_goal") // $ target for the month
   workdays  Int   @default(0)                    // # workdays in the month
+  // Optional explicit per-stage funnel goals. When 0, the funnel derives the
+  // stage goal from the computed plan (prospects/proposals needed, $ ÷ avg job).
+  leadsGoal     Int    @default(0) @map("leads_goal")
+  proposalsGoal Int    @default(0) @map("proposals_goal")
+  dealsGoal     Int    @default(0) @map("deals_goal")
+  source        String @default("manual") // "manual" | "demo" — demo rows are cleared on SmarterLaunch cutover
   createdByUserId String?  @map("created_by_user_id")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1233,6 +1239,7 @@ model SalesPeriodStat {
   periodKey         String   @map("period_key") // "YYYY-MM"
   leadsCreated      Int      @default(0) @map("leads_created")
   proposalsMade     Int      @default(0) @map("proposals_made")
+  dealsClosed       Int      @default(0) @map("deals_closed")  // count of proposals won
   closedAmount      Float    @default(0) @map("closed_amount") // $ closed this month
   source            String   @default("manual") // "manual" | "salescenter" | "smarterlaunch"
   updatedByUserId   String?  @map("updated_by_user_id")

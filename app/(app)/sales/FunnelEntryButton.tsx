@@ -11,7 +11,7 @@ export default function FunnelEntryButton({
   advisorId, advisorName, periodKey, periodLabel, current,
 }: {
   advisorId: string; advisorName: string; periodKey: string; periodLabel: string;
-  current: { leadsCreated: number; proposalsMade: number; closedAmount: number };
+  current: { leadsCreated: number; proposalsMade: number; dealsClosed: number; closedAmount: number };
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -42,6 +42,7 @@ export default function FunnelEntryButton({
             <h3 className="text-base font-semibold">{advisorName} — {periodLabel}</h3>
             <Num label="Leads created" v={f.leadsCreated} on={(n) => setF({ ...f, leadsCreated: n })} />
             <Num label="Proposals made" v={f.proposalsMade} on={(n) => setF({ ...f, proposalsMade: n })} />
+            <Num label="Deals closed (count)" v={f.dealsClosed} on={(n) => setF({ ...f, dealsClosed: n })} />
             <Num label="Closed ($ this month)" v={f.closedAmount} on={(n) => setF({ ...f, closedAmount: n })} step="0.01" />
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
             <div className="flex gap-2 pt-1">
