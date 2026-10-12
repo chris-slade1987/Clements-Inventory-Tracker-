@@ -54,6 +54,26 @@ export async function saveUpload(bytes: Buffer, originalName: string, contentTyp
   }
 }
 
+/** Read a previously stored file back into memory (best-effort). Accepts a Blob
+ *  URL (production) or a local /uploads/... path (dev). Returns the bytes, or
+ *  null when there is nothing to read / the read failed. */
+export async function readUpload(urlOrPath: string | null | undefined): Promise<Buffer | null> {
+  if (!urlOrPath) return null;
+  try {
+    if (/^https?:\/\//.test(urlOrPath)) {
+      const res = await fetch(urlOrPath);
+      if (!res.ok) return null;
+      return Buffer.from(await res.arrayBuffer());
+    }
+    const { readFile } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    return await readFile(join(process.cwd(), "public", urlOrPath.replace(/^\//, "")));
+  } catch (e) {
+    console.error("readUpload failed:", (e as Error).message);
+    return null;
+  }
+}
+
 /** Delete a previously stored file (best-effort). Accepts a Blob URL or a
  *  local /uploads/... path. */
 export async function deleteUpload(urlOrPath: string | null | undefined): Promise<void> {

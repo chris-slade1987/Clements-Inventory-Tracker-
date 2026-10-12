@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
 import {
-  INTAKE_DESTINATIONS, execVehicleDocument, execBranchDocument, execMbrHandoff, execGeneralFile,
+  INTAKE_DESTINATIONS, execVehicleDocument, execBranchDocument, execMbrHandoff, execInventoryCheckin, execGeneralFile,
   type DestinationKey, type RouteParams, type ExecResult,
 } from "@/lib/intake";
 
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       result = await execBranchDocument(doc, params, user);
     } else if (destination === "mbr_handoff") {
       result = execMbrHandoff();
+    } else if (destination === "inventory_checkin") {
+      result = await execInventoryCheckin(doc, user);
     } else {
       result = execGeneralFile(params);
     }

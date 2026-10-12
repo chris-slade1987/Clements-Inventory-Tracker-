@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { matchDocVehicle } from "@/lib/documents";
+import { readUpload } from "@/lib/storage";
+import { parseInvoice } from "@/lib/invoice/parse";
 
 // Universal Document Intake. A single drop-zone for ANY file: Claude reads it,
 // the user explains what it is / where it goes in a chat, and Claude proposes a
@@ -9,7 +11,7 @@ import { matchDocVehicle } from "@/lib/documents";
 // executors that actually file each kind. Server-only.
 
 // ---- Destinations (the only places intake can route to) --------------------
-export type DestinationKey = "vehicle_document" | "branch_document" | "mbr_handoff" | "general_file";
+export type DestinationKey = "vehicle_document" | "branch_document" | "mbr_handoff" | "inventory_checkin" | "general_file";
 
 export const INTAKE_DESTINATIONS: {
   key: DestinationKey;
@@ -21,6 +23,7 @@ export const INTAKE_DESTINATIONS: {
   { key: "vehicle_document", label: "Fleet · vehicle document", blurb: "Insurance, registration, title or inspection docs filed to a specific vehicle (sets renewal reminders)." },
   { key: "branch_document", label: "Branch document", blurb: "Licensing, leases or other paperwork filed to one of the four branches." },
   { key: "mbr_handoff", label: "MBR review (hand-off)", blurb: "A Monthly Board Report — hand off to the MBR reader for extract-and-confirm; never written silently.", adminOnly: true, handoff: true },
+  { key: "inventory_checkin", label: "Inventory check-in (receive stock)", blurb: "A distributor invoice/bill for products received — hand off to the Check-In screen with the lines staged for review + Confirm; never posts stock on its own.", handoff: true },
   { key: "general_file", label: "Filed in intake (with tags)", blurb: "Anything else — keep the file here, tagged and optionally tied to a branch, as a searchable record. No data is pushed into other modules." },
 ];
 
@@ -174,7 +177,16 @@ export async function suggestDestination(a: IntakeAnalysis): Promise<Suggestion>
       },
     };
   }
-  // Invoices / everything else → file here with tags (never auto-touch inventory).
+  // A distributor invoice/bill → hand off to Check-In (lines staged for review +
+  // Confirm). It never posts stock here; the manager can still choose to file it
+  // as a plain record instead.
+  if (a.kind === "invoice") {
+    return {
+      destination: "inventory_checkin",
+      params: { distributor: f.vendor ?? null, invoiceNumber: f.doc_number ?? null, invoiceDate: f.effective_date ?? null },
+    };
+  }
+  // Everything else → file here with tags (never auto-touch inventory).
   const branch = branchKeyFromHint(f.branch_hint);
   const tags = [a.kind !== "other" ? a.kind : null, f.vendor ?? null].filter(Boolean).join(", ");
   return { destination: "general_file", params: { branch, title: a.title, tags: tags || null, notes: null } };
@@ -228,6 +240,46 @@ export function execMbrHandoff(): ExecResult {
   // We never overwrite financials on our own — hand the manager to the MBR
   // reader to extract and confirm.
   return { ref: null, label: "MBR review", redirect: "/management/upload" };
+}
+
+// File types the invoice reader can parse. Mirrors the Check-In parse route.
+const INVOICE_READABLE = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
+export async function execInventoryCheckin(
+  doc: { id: string; filePath: string | null; mimeType: string | null },
+  user: { id: string }
+): Promise<ExecResult> {
+  // HAND-OFF ONLY. We never post stock movements here — on-hand changes solely
+  // through POST /api/check-in/confirm. We re-read the stored invoice, parse it
+  // with the invoice reader, stage the lines as a CheckInDraft, and send the
+  // manager to the Check-In screen to review (and chat-edit) before Confirm.
+  let parsed: Awaited<ReturnType<typeof parseInvoice>> | null = null;
+  const mime = doc.mimeType || "application/pdf";
+  if (doc.filePath && INVOICE_READABLE.includes(mime)) {
+    const bytes = await readUpload(doc.filePath);
+    if (bytes) {
+      try {
+        parsed = await parseInvoice(bytes.toString("base64"), mime);
+      } catch {
+        parsed = null; // couldn't read it — stage an empty draft to fill by hand
+      }
+    }
+  }
+  const draft = await prisma.checkInDraft.create({
+    data: {
+      distributor: parsed?.distributor ?? null,
+      invoiceNumber: parsed?.invoiceNumber ?? null,
+      invoiceDate: parsed?.invoiceDate ?? null,
+      subtotal: parsed?.subtotal ?? null,
+      total: parsed?.total ?? null,
+      lines: JSON.stringify(parsed?.lines ?? []),
+      filePath: doc.filePath,
+      source: "intake",
+      intakeDocId: doc.id,
+      createdByUserId: user.id,
+    },
+  });
+  return { ref: draft.id, label: "Check-In", redirect: `/check-in?draft=${draft.id}` };
 }
 
 export function execGeneralFile(p: RouteParams): ExecResult {

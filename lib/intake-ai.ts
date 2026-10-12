@@ -45,6 +45,14 @@ export function buildPlan(destination: DestinationKey, params: RouteParams, vehi
       { label: "Dashboards", value: "Updated only after you confirm the figures", warn: true },
     ];
   }
+  if (destination === "inventory_checkin") {
+    return [
+      { label: "Destination", value: "Inventory › Check-In" },
+      { label: "Action", value: `Stage ${v("distributor") ? `${v("distributor")} ` : ""}invoice lines for review` },
+      ...(v("invoiceNumber") ? [{ label: "Invoice #", value: String(v("invoiceNumber")) }] : []),
+      { label: "Stock", value: "Posted only after you review and Confirm on Check-In", warn: true },
+    ];
+  }
   return [
     { label: "Destination", value: "Filed in intake" },
     { label: "Branch", value: v("branch") ? branchLabel(String(v("branch"))) : "Company-wide" },
@@ -70,14 +78,14 @@ You may route to exactly these destinations:
 
 Guardrails:
 - A Monthly Board Report (financials) must use "mbr_handoff" — never claim you updated dashboards; it hands off to the MBR reader for the manager to confirm.
-- An invoice or bill must NOT be checked into inventory. If the manager implies inventory, say that intake only files the record and inventory check-in is a separate screen. Default invoices to "general_file".
+- A distributor invoice/bill for products received should use "inventory_checkin": a HAND-OFF that stages the invoice lines on the Check-In screen for the manager to review and Confirm. It NEVER posts stock on its own — say the stock is added only after they confirm on Check-In. If the manager just wants it kept as a record (not received into stock), use "general_file" instead.
 - Keep replies to 1-3 sentences, plain and direct. Ask a clarifying question only when you genuinely need one (e.g. which vehicle, which branch).
 
 Respond with ONLY a JSON object, no prose or code fences:
 {
   "reply": string,                      // what you say to the manager
   "proposal": null | {
-    "destination": "vehicle_document" | "branch_document" | "mbr_handoff" | "general_file",
+    "destination": "vehicle_document" | "branch_document" | "mbr_handoff" | "inventory_checkin" | "general_file",
     "params": {                         // fill what you know; leave unknowns out
       "vehicleId": string,             // only if the manager named/confirmed a vehicle id you were given
       "category": string,              // vehicle: insurance|registration|title|inspection|other; branch: licensing|lease|other
@@ -87,6 +95,8 @@ Respond with ONLY a JSON object, no prose or code fences:
       "branch": string,                // vero|stuart|orlando|naples
       "tags": string,                  // comma-separated, for general_file
       "period": string,                // for mbr_handoff
+      "distributor": string,           // for inventory_checkin
+      "invoiceNumber": string,         // for inventory_checkin
       "remindHr": true                 // vehicle renewal reminder
     }
   }

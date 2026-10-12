@@ -21,6 +21,7 @@ const DESTINATIONS = [
   { key: "vehicle_document", label: "Fleet · vehicle document" },
   { key: "branch_document", label: "Branch document" },
   { key: "mbr_handoff", label: "MBR review (hand-off)" },
+  { key: "inventory_checkin", label: "Inventory check-in (receive stock)" },
   { key: "general_file", label: "Filed in intake (with tags)" },
 ];
 const VEHICLE_CATS = ["insurance", "registration", "title", "inspection", "other"];

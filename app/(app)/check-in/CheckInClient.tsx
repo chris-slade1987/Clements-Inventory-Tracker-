@@ -4,9 +4,42 @@ import { useRef, useState } from "react";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import DateInput from "@/components/DateInput";
 import { uomCode } from "@/lib/uom";
+import { matchProduct } from "@/lib/invoice/match";
+import type { ParsedLine } from "@/lib/invoice/types";
 
 type Warehouse = { id: string; name: string };
-type Product = { id: string; name: string; unit: string };
+type Product = { id: string; name: string; unit: string; distributorSku: string | null };
+
+// A draft staged by the Document Intake inventory hand-off, loaded via ?draft=.
+export type InitialDraft = {
+  warehouseId: string | null;
+  distributor: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  subtotal: number | null;
+  total: number | null;
+  filePath: string | null;
+  lines: ParsedLine[];
+};
+
+// A line shape returned by the chat assistant (the full revised line set).
+type ChatDraftLine = {
+  descriptionRaw?: string;
+  description?: string;
+  quantity?: number;
+  unit?: string | null;
+  unitPrice?: number | null;
+  lineTotal?: number | null;
+  productId?: string | null;
+};
+type ChatDraft = {
+  warehouseId?: string | null;
+  distributor?: string | null;
+  invoiceNumber?: string | null;
+  invoiceDate?: string | null;
+  lines: ChatDraftLine[];
+};
+type ChatMsg = { role: "user" | "assistant"; content: string };
 
 type ReviewLine = {
   key: string;
@@ -39,29 +72,77 @@ export default function CheckInClient({
   defaultWarehouseId,
   warehouses,
   products,
+  initialDraft = null,
 }: {
   mode: "mock" | "claude";
   defaultWarehouseId: string;
   warehouses: Warehouse[];
   products: Product[];
+  initialDraft?: InitialDraft | null;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [warehouseId, setWarehouseId] = useState(defaultWarehouseId);
-  const [distributor, setDistributor] = useState("");
+  // When a hand-off draft is present it preloads the review state directly (no
+  // effect needed) — same editable list the user would see after reading an
+  // invoice. Confirm remains the only path that posts stock.
+  const [warehouseId, setWarehouseId] = useState(() =>
+    initialDraft?.warehouseId && warehouses.some((w) => w.id === initialDraft.warehouseId)
+      ? initialDraft.warehouseId
+      : defaultWarehouseId
+  );
+  const [distributor, setDistributor] = useState(initialDraft?.distributor ?? "");
   // Manual mode: dropdown selection ("Other" reveals the free-text `distributor`).
   const [distributorChoice, setDistributorChoice] = useState("");
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [invoiceDate, setInvoiceDate] = useState("");
-  const [subtotal, setSubtotal] = useState<number | null>(null);
-  const [total, setTotal] = useState<number | null>(null);
-  const [filePath, setFilePath] = useState<string | null>(null);
-  const [lines, setLines] = useState<ReviewLine[] | null>(null);
+  const [invoiceNumber, setInvoiceNumber] = useState(initialDraft?.invoiceNumber ?? "");
+  const [invoiceDate, setInvoiceDate] = useState(() =>
+    initialDraft ? initialDraft.invoiceDate || new Date().toISOString().slice(0, 10) : ""
+  );
+  const [subtotal, setSubtotal] = useState<number | null>(initialDraft?.subtotal ?? null);
+  const [total, setTotal] = useState<number | null>(initialDraft?.total ?? null);
+  const [filePath, setFilePath] = useState<string | null>(initialDraft?.filePath ?? null);
+  const [lines, setLines] = useState<ReviewLine[] | null>(() =>
+    initialDraft ? (initialDraft.lines.length ? initialDraft.lines.map((l) => toReviewLine(l)) : [blankLine()]) : null
+  );
   const [manualMode, setManualMode] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+
+  // ---- Check-In assistant (chat) --------------------------------------
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatSending, setChatSending] = useState(false);
+  const [chatOpen, setChatOpen] = useState(!!initialDraft);
+
+  // Fuzzy-match a description to a catalog product id for client-side re-matching
+  // after a chat revision (candidates computed inline so lazy state init is safe).
+  function matchFor(description: string): string {
+    return matchProduct(
+      description ?? "",
+      null,
+      products.map((p) => ({ id: p.id, name: p.name, distributorSku: p.distributorSku }))
+    ) ?? "";
+  }
+
+  // Build a review line from a parsed/chat line, running product matching (an
+  // explicit, still-valid productId wins; otherwise fuzzy-match the description).
+  function toReviewLine(l: { descriptionRaw?: string; description?: string; quantity?: number; unit?: string | null; unitPrice?: number | null; lineTotal?: number | null; productId?: string | null }): ReviewLine {
+    const desc = (l.descriptionRaw ?? l.description ?? "").trim();
+    const unit = uomCode(l.unit) ?? "EA";
+    const explicit = l.productId && products.some((p) => p.id === l.productId) ? l.productId : null;
+    return {
+      key: `l${keySeq++}`,
+      descriptionRaw: desc,
+      quantity: Number(l.quantity) || 0,
+      unit,
+      unitPrice: l.unitPrice ?? null,
+      lineTotal: l.lineTotal ?? null,
+      productId: explicit ?? matchFor(desc),
+      newName: desc,
+      newUnit: unit,
+    };
+  }
 
   function blankLine(preferNew = false): ReviewLine {
     return {
@@ -92,6 +173,62 @@ export default function CheckInClient({
   }
   function addLine() {
     setLines((prev) => [...(prev ?? []), blankLine()]);
+  }
+
+  // Apply a chat-revised draft to the editable state, re-running product matching.
+  function applyChatDraft(d: ChatDraft) {
+    if (d.warehouseId && warehouses.some((w) => w.id === d.warehouseId)) setWarehouseId(d.warehouseId);
+    if (typeof d.distributor === "string") setDistributor(d.distributor);
+    if (typeof d.invoiceNumber === "string") setInvoiceNumber(d.invoiceNumber);
+    if (typeof d.invoiceDate === "string" && d.invoiceDate) setInvoiceDate(d.invoiceDate);
+    if (Array.isArray(d.lines)) {
+      setLines(d.lines.map((l) => toReviewLine(l)));
+    }
+  }
+
+  // Current editable state as a chat draft payload for the assistant.
+  function currentDraftPayload(): ChatDraft {
+    return {
+      warehouseId,
+      distributor,
+      invoiceNumber,
+      invoiceDate,
+      lines: (lines ?? []).map((l) => ({
+        descriptionRaw: l.productId === "__new__" ? l.newName : l.descriptionRaw,
+        quantity: l.quantity,
+        unit: l.unit,
+        unitPrice: l.unitPrice,
+        lineTotal: l.lineTotal,
+        productId: l.productId && l.productId !== "__new__" ? l.productId : null,
+      })),
+    };
+  }
+
+  async function sendChat() {
+    const text = chatInput.trim();
+    if (!text || chatSending) return;
+    const history = chatMessages;
+    setChatMessages((m) => [...m, { role: "user", content: text }]);
+    setChatInput("");
+    setChatSending(true);
+    try {
+      const res = await fetch("/api/check-in/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft: currentDraftPayload(), history, message: text }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setChatSending(false);
+      if (!res.ok) {
+        setChatMessages((m) => [...m, { role: "assistant", content: data.error ?? "Something went wrong — try again." }]);
+        return;
+      }
+      setChatMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+      if (data.draft) applyChatDraft(data.draft as ChatDraft);
+    } catch {
+      setChatSending(false);
+      setChatMessages((m) => [...m, { role: "assistant", content: "Network error — try again." }]);
+    }
   }
 
   async function readInvoice() {
@@ -222,6 +359,9 @@ export default function CheckInClient({
     setSubtotal(null);
     setTotal(null);
     setError(null);
+    setChatMessages([]);
+    setChatInput("");
+    setChatOpen(false);
     if (fileRef.current) fileRef.current.value = "";
   }
 
@@ -440,6 +580,71 @@ export default function CheckInClient({
           </svg>
           Add {manualMode ? "another product" : "line"}
         </button>
+
+        {/* ---- Check-In assistant ---------------------------------------- */}
+        <Card className="p-0 overflow-hidden">
+          <button
+            onClick={() => setChatOpen((o) => !o)}
+            className="flex w-full items-center gap-2 px-4 py-3 text-left"
+            aria-expanded={chatOpen}
+          >
+            <span className="grid h-6 w-6 flex-none place-items-center rounded-full bg-emerald-grad text-white">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+                <path d="M12 3l1.7 5.6L19 10l-5.3 1.4L12 17l-1.7-5.6L5 10l5.3-1.4L12 3z" />
+              </svg>
+            </span>
+            <span className="text-sm font-medium text-ink">Ask the assistant to fix this invoice</span>
+            <span className="ml-auto text-xs text-muted">
+              {mode === "claude" ? "AI live" : "AI off"}
+            </span>
+            <svg viewBox="0 0 24 24" className={`h-4 w-4 text-muted transition-transform ${chatOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {chatOpen ? (
+            <div className="border-t border-line">
+              <div className="max-h-72 space-y-3 overflow-y-auto p-4">
+                {chatMessages.length === 0 ? (
+                  <p className="text-[13px] leading-relaxed text-muted">
+                    Tell me what to change in plain words and I&rsquo;ll revise the lines below for you to review &mdash; e.g. &ldquo;the 3rd line is Termidor SC, qty is 4 cases not 48 units,&rdquo; &ldquo;drop the freight line,&rdquo; or &ldquo;put this in the Stuart warehouse.&rdquo; I never check anything in &mdash; you still press Confirm.
+                  </p>
+                ) : null}
+                {chatMessages.map((m, i) => (
+                  <div key={i} className={`flex gap-2.5 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
+                    <span className={`grid h-7 w-7 flex-none place-items-center rounded-full ${m.role === "user" ? "bg-brand-100 text-brand-700 text-[11px] font-semibold" : "bg-emerald-grad text-white"}`}>
+                      {m.role === "user" ? "You" : (
+                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M12 3l1.7 5.6L19 10l-5.3 1.4L12 17l-1.7-5.6L5 10l5.3-1.4L12 3z" /></svg>
+                      )}
+                    </span>
+                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-[13.5px] leading-relaxed ${m.role === "user" ? "bg-brand-700 text-white rounded-tr-sm" : "bg-canvas border border-line text-ink rounded-tl-sm"}`}>{m.content}</div>
+                  </div>
+                ))}
+                {chatSending ? <div className="pl-10 text-xs text-muted">Thinking&hellip;</div> : null}
+              </div>
+              <div className="flex items-center gap-2 border-t border-line p-3">
+                <input
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendChat()}
+                  disabled={chatSending}
+                  placeholder="Describe a correction…"
+                  className="min-w-0 flex-1 rounded-xl border border-line bg-canvas px-3 py-2.5 text-sm disabled:opacity-60"
+                />
+                <button
+                  onClick={sendChat}
+                  disabled={chatSending || !chatInput.trim()}
+                  aria-label="Send"
+                  className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-emerald-grad text-white disabled:opacity-50"
+                >
+                  <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 19V5" /><path d="M6 11l6-6 6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </Card>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 

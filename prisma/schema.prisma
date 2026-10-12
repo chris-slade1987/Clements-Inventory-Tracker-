@@ -2259,3 +2259,29 @@ model IntakeDocument {
   @@index([status])
   @@map("intake_documents")
 }
+
+// A staged Check-IN draft: parsed invoice lines awaiting a manager's review and
+// Confirm on the Check-In screen. Created by the Document Intake inventory
+// hand-off (which NEVER posts stock) and loaded by `/check-in?draft=<id>`. The
+// actual receipt still goes through POST /api/check-in/confirm — the ONLY path
+// that writes `check_in` stock movements. `consumedAt` is stamped when a manager
+// opens the draft; nothing here moves stock or mutates on-hand.
+model CheckInDraft {
+  id              String    @id @default(cuid())
+  warehouseId     String?   @map("warehouse_id")
+  distributor     String?
+  invoiceNumber   String?   @map("invoice_number")
+  invoiceDate     String?   @map("invoice_date") // ISO yyyy-mm-dd as read (verify on the screen)
+  subtotal        Float?
+  total           Float?
+  lines           String    @default("[]") // JSON: ParsedLine[] from the invoice reader
+  filePath        String?   @map("file_path") // the stored invoice, carried onto the confirmed Invoice
+  source          String?   @default("intake") // where the draft came from (e.g. "intake")
+  intakeDocId     String?   @map("intake_doc_id") // the originating IntakeDocument, for the audit trail
+  createdByUserId String?   @map("created_by_user_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  consumedAt      DateTime? @map("consumed_at")
+
+  @@index([createdAt])
+  @@map("check_in_drafts")
+}

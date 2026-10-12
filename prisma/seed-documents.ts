@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 16 · Last updated October 12, 2026",
+    effective: "Version 17 · Last updated October 12, 2026",
+    // v17: reconciled the Inventory Check-IN + Document Intake sections — the
+    // Check-In review screen now has an AI chat that revises the draft invoice in
+    // plain English before Confirm, and Document Intake can route a distributor
+    // invoice to "Inventory check-in" (staged for review on the Check-In screen).
+    // Neither posts stock on its own; Confirm remains the only path that does.
     // v16: reconciled the Sales Team section for the SmarterLaunch connector — the
     // lead heat map and lead-source board switch from sample data to the live
     // SmarterLaunch feed (signed webhook + nightly catch-up) once it's connected,
@@ -67,7 +72,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 16,
+    version: 17,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -180,7 +180,7 @@ To help guide you, a checklist and set of procedures follow this section. These 
 
 **Document Intake (`Management → Document Intake`).** A single place to hand any file to the portal and have it filed correctly. Drop in a PDF, an image, or another document — an insurance policy, a registration, an invoice, the Monthly Board Report, a photo of a form — and the reader looks it over and tells you what it is. Alongside the upload is a short chat with Claude: say in plain words what the file is and where it should go ("this is the renewal for truck 12 — file it and remind HR 30 days out"). Claude then proposes exactly where it will route the document, and **nothing is filed until you approve it.** You can adjust the details (which vehicle, which branch, the category, the expiration date, tags) on the approval card before confirming.
 
-Where documents can go: a **vehicle document** (filed to a specific truck, with a renewal reminder set), a **branch document** (licensing, lease, or other paperwork for a branch), the **MBR review** (financial reports are never changed automatically — Claude hands you off to the MBR reader to extract and confirm the numbers), or simply **filed in intake** with tags for later reference. Filing an invoice here does **not** add it to inventory; inventory check-in stays its own step. Admins and managers have access; a branch-locked manager files only to their own branch. Every document you handle is listed under "Recently handled" with where it ended up.
+Where documents can go: a **vehicle document** (filed to a specific truck, with a renewal reminder set), a **branch document** (licensing, lease, or other paperwork for a branch), the **MBR review** (financial reports are never changed automatically — Claude hands you off to the MBR reader to extract and confirm the numbers), **Inventory check-in** (for a distributor invoice of products received — Claude reads the invoice and hands you off to the Check-In screen with the lines staged for you to review and Confirm), or simply **filed in intake** with tags for later reference. Routing an invoice to Inventory check-in never adds stock on its own — it only stages the lines; you still review and press Confirm on the Check-In screen. If you only want to keep an invoice as a record rather than receive it, choose "Filed in intake" instead. Admins and managers have access; a branch-locked manager files only to their own branch. Every document you handle is listed under "Recently handled" with where it ended up.
 
 ## Sales Team
 
@@ -957,10 +957,12 @@ Every stock change is a **movement**. On-hand for a product at a warehouse is th
 
 ### Check-IN (receiving from a distributor)
 
-- Go to **Check-In** and upload the distributor invoice.
+- Go to **Check-In** and upload the distributor invoice (or start a manual check-in and enter products by hand).
 - The **AI invoice reader** extracts the line items (product, quantity, unit, price).
-- Review the extracted lines and **confirm**. Confirmed lines post as positive stock movements into the receiving warehouse.
+- Review the extracted lines. If anything is off, you can **fix it in plain English** using the **Ask the assistant to fix this invoice** panel on the review screen — tell it things like "the 3rd line is Termidor SC, qty is 4 cases not 48 units," "drop the freight line," or "put this in the Stuart warehouse," and it revises the draft and re-matches products for you. The assistant only edits the draft; **nothing is received until you press Confirm.**
+- Review the lines and **confirm**. Confirmed lines post as positive stock movements into the receiving warehouse.
 - Any new or unrecognized product lands in a **confirm queue** (Manage → Products / Confirm). Unconfirmed products are **blocked from check-out** until an admin reviews and confirms them, so a mis-read or brand-new item can never be dispensed before it has been vetted.
+- You can also start a check-in from **Document Intake**: drop a distributor invoice there and route it to **Inventory check-in**, and the portal reads the invoice and opens Check-In with the lines already staged for you to review, adjust (including with the assistant), and Confirm. Sending an invoice to Check-In never posts stock on its own — the Confirm step is still yours.
 
 ### Check-OUT (dispensing to a technician)
 
