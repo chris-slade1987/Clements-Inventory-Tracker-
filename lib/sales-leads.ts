@@ -53,13 +53,14 @@ export function resolveRange(preset?: string | null, from?: string | null, to?: 
     const end = new Date(Date.UTC(y, mo, 1) - 1);
     return { start, end, preset: "last_month", label: monthLabel(start), from: iso(start), to: iso(end) };
   }
-  if (preset === "ytd") {
-    const start = new Date(Date.UTC(y, 0, 1));
-    return { start, end: now, preset: "ytd", label: `Year to date (${y})`, from: iso(start), to: iso(now) };
+  if (preset === "this_month") {
+    const start = new Date(Date.UTC(y, mo, 1));
+    return { start, end: now, preset: "this_month", label: monthLabel(start), from: iso(start), to: iso(now) };
   }
-  // default: this month
-  const start = new Date(Date.UTC(y, mo, 1));
-  return { start, end: now, preset: "this_month", label: monthLabel(start), from: iso(start), to: iso(now) };
+  // default: year-to-date — the board lands populated (leads, demo or real, are
+  // spread across the year), and the director can narrow to a month from there.
+  const start = new Date(Date.UTC(y, 0, 1));
+  return { start, end: now, preset: "ytd", label: `Year to date (${y})`, from: iso(start), to: iso(now) };
 }
 
 // ---- Lead fetch --------------------------------------------------------------

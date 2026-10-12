@@ -34,7 +34,7 @@ export default async function LeadInsightsSection({
 
       {/* Geographic heat map */}
       <Card className="mb-4 p-4">
-        <LeadHeatMap clusters={heat.clusters} totals={heat.totals} />
+        <LeadHeatMap clusters={heat.clusters} totals={heat.totals} canLoadDemo={scope === "team"} />
         <SalesInsightButton kind="heatmap" scope={scope} advisorEmployeeId={advisorEmployeeId ?? undefined} branch={branch} range={range.preset} from={range.from} to={range.to} />
       </Card>
 

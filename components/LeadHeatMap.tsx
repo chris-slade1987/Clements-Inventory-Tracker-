@@ -2,6 +2,8 @@
 
 import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { btn } from "@/components/ui";
 
 // Lead heat map on a real OpenStreetMap basemap (Leaflet, no API key — free OSM
 // tiles that load in the viewer's browser). Each neighborhood/zip cluster is a
@@ -27,14 +29,27 @@ const STAGE_LABEL: Record<string, string> = { lead: "Lead", proposal: "Proposal"
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 export default function LeadHeatMap({
-  clusters, totals,
+  clusters, totals, canLoadDemo = false,
 }: {
   clusters: HeatClusterView[];
   totals: { leads: number; proposals: number; closed: number; total: number; closedValue: number; closeRate: number };
+  canLoadDemo?: boolean;
 }) {
+  const router = useRouter();
   const [stage, setStage] = useState<Stage>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  async function loadDemo() {
+    setLoadingDemo(true);
+    try {
+      await fetch("/api/sales/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "load" }) });
+      router.refresh();
+    } finally {
+      setLoadingDemo(false);
+    }
+  }
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LMap | null>(null);
@@ -112,7 +127,16 @@ export default function LeadHeatMap({
     return (
       <div className="rounded-xl border border-line bg-surface p-8 text-center">
         <div className="text-sm font-medium text-ink">No mapped leads in this range</div>
-        <div className="mt-1 text-xs text-muted">Leads with an address will plot here. Load sample data or adjust the date range.</div>
+        <div className="mt-1 text-xs text-muted">
+          {canLoadDemo
+            ? "Until SmarterLaunch is connected, load sample leads to see the map in action. You can clear them anytime."
+            : "Leads with an address will plot here once the sales feed is connected, or try a wider date range."}
+        </div>
+        {canLoadDemo ? (
+          <button onClick={loadDemo} disabled={loadingDemo} className={`${btn.primary} mt-4`}>
+            {loadingDemo ? "Loading sample data…" : "Load sample data"}
+          </button>
+        ) : null}
       </div>
     );
   }
