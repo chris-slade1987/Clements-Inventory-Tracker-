@@ -1,0 +1,1801 @@
+{
+  "asOf": "2026-07-31",
+  "source": "On_Hand_Inventory_7_2026_1.xlsx (\"On Hand Inventory 7/2026\")",
+  "note": "Per-branch on-hand snapshot parsed from the uploaded workbook. One tab per branch; columns Product Name, Invoice Description, Quantity on hand, UOM. A blank Quantity means the branch holds none (0). 'otherProduct' rows carried the product identity in the Invoice Description column.",
+  "branches": {
+    "Vero Beach": [
+      {
+        "productName": "19-19-19 Sprayable fertilizer",
+        "invoiceDescription": "LESCO 19-19-19  Soluble Fertilizer 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-0-0 Liquid Fertilizer",
+        "invoiceDescription": "LESCO 20-0-0 Liquid Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-20-20 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "33-0-17 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO 33-0-17 AM Turf Soluble Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Acephate 90 Prill",
+        "invoiceDescription": "Acephate 90 Prill Insecticide 5 lb.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Advion Ant Gel",
+        "invoiceDescription": "Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes)",
+        "quantity": 4,
+        "unit": "T"
+      },
+      {
+        "productName": "Advion cockroach gel bait",
+        "invoiceDescription": "Advion Evolution Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 3,
+        "unit": "T"
+      },
+      {
+        "productName": "Advion Insect Granular",
+        "invoiceDescription": "Advion Insect Granule 25 lb.",
+        "quantity": 2,
+        "unit": null
+      },
+      {
+        "productName": "Advion WDG Insecticide",
+        "invoiceDescription": "Advion WDG Insecticide 5 Packets x 0.33oz (must be sold in 5 packets x 0.33oz)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Alpine Roach Gel Bait",
+        "invoiceDescription": "Alpine Cockroach Gel Bait Rotation 1 Box (4 x 30 gm) Syringes",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Archer IGR",
+        "invoiceDescription": "Archer Igr Insecticide 1 pt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Arena Granular Insecticide",
+        "invoiceDescription": "Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag",
+        "quantity": 5,
+        "unit": "FB"
+      },
+      {
+        "productName": "Atrazine",
+        "invoiceDescription": "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Avenue South",
+        "invoiceDescription": "Avenue South Post Emergent Liquid Herbicide 2.5 gal.",
+        "quantity": 3,
+        "unit": "J"
+      },
+      {
+        "productName": "Bandit 2F",
+        "invoiceDescription": "LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug",
+        "quantity": 7,
+        "unit": "J"
+      },
+      {
+        "productName": "Bifen XTS",
+        "invoiceDescription": "Bifen XTS Insecticide 1 gal.",
+        "quantity": 5,
+        "unit": "J"
+      },
+      {
+        "productName": "Blackout Fertilizer 0-0-18 (turf)",
+        "invoiceDescription": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "CB-80 Insecticide",
+        "invoiceDescription": "CB-80 Dual Spray Can Aerosol Insecticide 17 oz.",
+        "quantity": 11,
+        "unit": "AC"
+      },
+      {
+        "productName": "Celsius",
+        "invoiceDescription": "Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Certainty",
+        "invoiceDescription": "Certainty Turf Post Emergent Dry Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Contrac Rodent Bait Blox",
+        "invoiceDescription": "Contrac Bait Block Cb4052 18lb. Pail",
+        "quantity": 3,
+        "unit": "BU"
+      },
+      {
+        "productName": "CrossCheck 0.069% plus fertilizer (0-0-7)",
+        "invoiceDescription": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
+        "quantity": 24,
+        "unit": "FB"
+      },
+      {
+        "productName": "CrossCheck Plus",
+        "invoiceDescription": "LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container",
+        "quantity": 6,
+        "unit": "J"
+      },
+      {
+        "productName": "Cyper TC",
+        "invoiceDescription": "Cyper TC Termiticide/Insecticide 1 gal.",
+        "quantity": 9,
+        "unit": "J"
+      },
+      {
+        "productName": "Delta dust",
+        "invoiceDescription": "DeltaDust Insecticide",
+        "quantity": 2,
+        "unit": "B"
+      },
+      {
+        "productName": "Demand CS",
+        "invoiceDescription": "Demand CS Insecticide 1 qt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "DIPEL PRO",
+        "invoiceDescription": "DiPel PRO DF Biological Insecticide 1 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Evo Bait Station",
+        "invoiceDescription": "Protecta Evo Express Bait Station w/ Weight",
+        "quantity": 107,
+        "unit": "BS"
+      },
+      {
+        "productName": "Extinguish",
+        "invoiceDescription": "Extinguish Professional Fire Ant Bait (25 lb. bag)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Extinguish Plus",
+        "invoiceDescription": "Wellmark Extinguish Plus Fire Ant Bait 25 lb.",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "Fertilizer 21-0-6 (Turf)",
+        "invoiceDescription": "LESCO Fertilizer 21-0-6 50 lb",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 24-0-11 (Turf)",
+        "invoiceDescription": "LESCO 24-0-11 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 8-0-10 (Shrub)",
+        "invoiceDescription": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Gentrol IGR Concentrate",
+        "invoiceDescription": "Gentrol Igr Insecticide 10/ 1 oz. Bottles",
+        "quantity": 13,
+        "unit": "B"
+      },
+      {
+        "productName": "Headway Fungicide",
+        "invoiceDescription": "Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Invade Hot Spot",
+        "invoiceDescription": "Invade Hot Spot Pest Control 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco 10-0-12",
+        "invoiceDescription": "LESCO Fertilizer 10-0-12 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco Bio Iron Plus",
+        "invoiceDescription": "LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.",
+        "quantity": 10,
+        "unit": "J"
+      },
+      {
+        "productName": "Lesco Fertilizer 13-0-0",
+        "invoiceDescription": "LESCO Fertilizer 13-0-0 2.5 gal",
+        "quantity": 4,
+        "unit": "J"
+      },
+      {
+        "productName": "LESCO Liquid 0-0-25",
+        "invoiceDescription": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
+        "quantity": 9,
+        "unit": "J"
+      },
+      {
+        "productName": "Lesco T&O Chelated Liquid Fertilizer",
+        "invoiceDescription": "LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug",
+        "quantity": 5,
+        "unit": "J"
+      },
+      {
+        "productName": "Mansion Turf Herbicide",
+        "invoiceDescription": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
+        "quantity": 3,
+        "unit": "B"
+      },
+      {
+        "productName": "Maxforce Complete Granular Bait",
+        "invoiceDescription": "Maxforce Complete Insect Bait 4 lb.",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "Maxforce Quantum Ant Bait",
+        "invoiceDescription": "Maxforce Quantum Ant Bait 120 gm.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Optigard Ant Gel Bait",
+        "invoiceDescription": "Optigard Ant Gel Bait 4 x 30 gm.",
+        "quantity": 3,
+        "unit": "T"
+      },
+      {
+        "productName": "Optigard Cockroach Gel Bait",
+        "invoiceDescription": "Optigard Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "OTC Fungicide",
+        "invoiceDescription": "Arborjet Arbor OTC Injectable Fungicide 5 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Premise Foam",
+        "invoiceDescription": "Precor 2000 Premise Spray 16 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "Prosecutor",
+        "invoiceDescription": "LESCO Prosecutor Pro Non Selective Liquid Herbicide 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Alpine",
+        "invoiceDescription": "PT Alpine Pressurized Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "B"
+      },
+      {
+        "productName": "PT ALPINE WSG",
+        "invoiceDescription": "PT Alpine WSG Insecticide 500 gm",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Microcare CS",
+        "invoiceDescription": "PT Microcare CS Pressurized Insecticide 14 oz.",
+        "quantity": 9,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT Phantom",
+        "invoiceDescription": "PT Phantom II Pressurized Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT Ultraside",
+        "invoiceDescription": "PT Ultracide Pressurized Flea Insecticide 14 oz.",
+        "quantity": 9,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT wasp Freeze",
+        "invoiceDescription": "PT Wasp Freeze II Aerosol Insecticide 17.5 oz.",
+        "quantity": 1,
+        "unit": "AC"
+      },
+      {
+        "productName": "Safari SG",
+        "invoiceDescription": "Safari 20 SG Insecticide 3 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sector",
+        "invoiceDescription": "Sector Misting Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sedgehammer Turf Herbicide",
+        "invoiceDescription": "Sedgehammer Soluble Herbicide 1.33 oz. Bottle",
+        "quantity": 2,
+        "unit": "B"
+      },
+      {
+        "productName": "Shockwave",
+        "invoiceDescription": "Shockwave Fogging Concentrate Insecticide 1 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Speedzone Southern Herbicide",
+        "invoiceDescription": "PBI Gordon SpeedZone Southern EW Post Emergent Liquid Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Spreader Sticker",
+        "invoiceDescription": "LESCO Spreader Sticker 2.5 gal.",
+        "quantity": 4,
+        "unit": "J"
+      },
+      {
+        "productName": "Suspend SC",
+        "invoiceDescription": "Suspend SC Insecticide 1 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "T-Rex Snap Trap",
+        "invoiceDescription": "Trapper T-Rex Plastic Snap Trap (12/case)",
+        "quantity": 17,
+        "unit": "RT"
+      },
+      {
+        "productName": "T-Storm Fungicide",
+        "invoiceDescription": "LESCO T-Storm Liquid Fungicide 2.5 gal. Jug",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Taurus SC",
+        "invoiceDescription": "Taurus SC Insecticide 78 oz.",
+        "quantity": 3,
+        "unit": "B"
+      },
+      {
+        "productName": "Termidor Foam",
+        "invoiceDescription": "Termidor Foam Insecticide 20 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor SC",
+        "invoiceDescription": "Termidor SC Termiticide/Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Timbor",
+        "invoiceDescription": "Tim-bor Insecticide/Fungicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Top Choice",
+        "invoiceDescription": "Topchoice Granular Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Transport Mikron Insecticide",
+        "invoiceDescription": "Transport Mikron Insecticide 1 qt.",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "ULD BP-300",
+        "invoiceDescription": "ULD BP-300 Formula II Insecticide 1 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Vendetta Plus",
+        "invoiceDescription": "Vendetta Plus Roaach Bait 30 gm. X 4",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Wasp & Hornet Spray",
+        "invoiceDescription": "LESCO Aerosol Wasp and Hornet Spray",
+        "quantity": 0,
+        "unit": null
+      }
+    ],
+    "Stuart": [
+      {
+        "productName": "19-19-19 Sprayable fertilizer",
+        "invoiceDescription": "LESCO 19-19-19  Soluble Fertilizer 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-0-0 Liquid Fertilizer",
+        "invoiceDescription": "LESCO 20-0-0 Liquid Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-20-20 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "33-0-17 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO 33-0-17 AM Turf Soluble Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Acephate 90 Prill",
+        "invoiceDescription": "Acephate 90 Prill Insecticide 5 lb.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Advion Ant Gel",
+        "invoiceDescription": "Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion cockroach gel bait",
+        "invoiceDescription": "Advion Evolution Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 2,
+        "unit": "T"
+      },
+      {
+        "productName": "Advion Insect Granular",
+        "invoiceDescription": "Advion Insect Granule 25 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion WDG Insecticide",
+        "invoiceDescription": "Advion WDG Insecticide 5 Packets x 0.33oz (must be sold in 5 packets x 0.33oz)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Alpine Roach Gel Bait",
+        "invoiceDescription": "Alpine Cockroach Gel Bait Rotation 1 Box (4 x 30 gm) Syringes",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Archer IGR",
+        "invoiceDescription": "Archer Igr Insecticide 1 pt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Arena Granular Insecticide",
+        "invoiceDescription": "Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Atrazine",
+        "invoiceDescription": "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Avenue South",
+        "invoiceDescription": "Avenue South Post Emergent Liquid Herbicide 2.5 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Bandit 2F",
+        "invoiceDescription": "LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug",
+        "quantity": 5,
+        "unit": "J"
+      },
+      {
+        "productName": "Bifen XTS",
+        "invoiceDescription": "Bifen XTS Insecticide 1 gal.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Blackout Fertilizer 0-0-18 (turf)",
+        "invoiceDescription": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "CB-80 Insecticide",
+        "invoiceDescription": "CB-80 Dual Spray Can Aerosol Insecticide 17 oz.",
+        "quantity": 3,
+        "unit": "AC"
+      },
+      {
+        "productName": "Celsius",
+        "invoiceDescription": "Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.",
+        "quantity": 2,
+        "unit": "B"
+      },
+      {
+        "productName": "Certainty",
+        "invoiceDescription": "Certainty Turf Post Emergent Dry Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Contrac Rodent Bait Blox",
+        "invoiceDescription": "Contrac Bait Block Cb4052 18lb. Pail",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "CrossCheck 0.069% plus fertilizer (0-0-7)",
+        "invoiceDescription": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
+        "quantity": 9,
+        "unit": "FB"
+      },
+      {
+        "productName": "CrossCheck Plus",
+        "invoiceDescription": "LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Cyper TC",
+        "invoiceDescription": "Cyper TC Termiticide/Insecticide 1 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Delta dust",
+        "invoiceDescription": "DeltaDust Insecticide",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "Demand CS",
+        "invoiceDescription": "Demand CS Insecticide 1 qt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "DIPEL PRO",
+        "invoiceDescription": "DiPel PRO DF Biological Insecticide 1 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Evo Bait Station",
+        "invoiceDescription": "Protecta Evo Express Bait Station w/ Weight",
+        "quantity": 95,
+        "unit": "BS"
+      },
+      {
+        "productName": "Extinguish",
+        "invoiceDescription": "Extinguish Professional Fire Ant Bait (25 lb. bag)",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "Extinguish Plus",
+        "invoiceDescription": "Wellmark Extinguish Plus Fire Ant Bait 25 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 21-0-6 (Turf)",
+        "invoiceDescription": "LESCO Fertilizer 21-0-6 50 lb",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 24-0-11 (Turf)",
+        "invoiceDescription": "LESCO 24-0-11 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 8-0-10 (Shrub)",
+        "invoiceDescription": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
+        "quantity": 6,
+        "unit": "FB"
+      },
+      {
+        "productName": "Gentrol IGR Concentrate",
+        "invoiceDescription": "Gentrol Igr Insecticide 10/ 1 oz. Bottles",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Headway Fungicide",
+        "invoiceDescription": "Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag",
+        "quantity": 4,
+        "unit": "FB"
+      },
+      {
+        "productName": "Invade Hot Spot",
+        "invoiceDescription": "Invade Hot Spot Pest Control 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco 10-0-12",
+        "invoiceDescription": "LESCO Fertilizer 10-0-12 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco Bio Iron Plus",
+        "invoiceDescription": "LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco Fertilizer 13-0-0",
+        "invoiceDescription": "LESCO Fertilizer 13-0-0 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "LESCO Liquid 0-0-25",
+        "invoiceDescription": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco T&O Chelated Liquid Fertilizer",
+        "invoiceDescription": "LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Mansion Turf Herbicide",
+        "invoiceDescription": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "Maxforce Complete Granular Bait",
+        "invoiceDescription": "Maxforce Complete Insect Bait 4 lb.",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Maxforce Quantum Ant Bait",
+        "invoiceDescription": "Maxforce Quantum Ant Bait 120 gm.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Optigard Ant Gel Bait",
+        "invoiceDescription": "Optigard Ant Gel Bait 4 x 30 gm.",
+        "quantity": 1,
+        "unit": "T"
+      },
+      {
+        "productName": "Optigard Cockroach Gel Bait",
+        "invoiceDescription": "Optigard Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "OTC Fungicide",
+        "invoiceDescription": "Arborjet Arbor OTC Injectable Fungicide 5 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Premise Foam",
+        "invoiceDescription": "Precor 2000 Premise Spray 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Prosecutor",
+        "invoiceDescription": "LESCO Prosecutor Pro Non Selective Liquid Herbicide 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Alpine",
+        "invoiceDescription": "PT Alpine Pressurized Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "B"
+      },
+      {
+        "productName": "PT ALPINE WSG",
+        "invoiceDescription": "PT Alpine WSG Insecticide 500 gm",
+        "quantity": 7,
+        "unit": "B"
+      },
+      {
+        "productName": "PT Microcare CS",
+        "invoiceDescription": "PT Microcare CS Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Phantom",
+        "invoiceDescription": "PT Phantom II Pressurized Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT Ultraside",
+        "invoiceDescription": "PT Ultracide Pressurized Flea Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT wasp Freeze",
+        "invoiceDescription": "PT Wasp Freeze II Aerosol Insecticide 17.5 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "Safari SG",
+        "invoiceDescription": "Safari 20 SG Insecticide 3 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sector",
+        "invoiceDescription": "Sector Misting Insecticide 1 gal.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Sedgehammer Turf Herbicide",
+        "invoiceDescription": "Sedgehammer Soluble Herbicide 1.33 oz. Bottle",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "Shockwave",
+        "invoiceDescription": "Shockwave Fogging Concentrate Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Speedzone Southern Herbicide",
+        "invoiceDescription": "PBI Gordon SpeedZone Southern EW Post Emergent Liquid Herbicide",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Spreader Sticker",
+        "invoiceDescription": "LESCO Spreader Sticker 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Suspend SC",
+        "invoiceDescription": "Suspend SC Insecticide 1 gal. Jug",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "T-Rex Snap Trap",
+        "invoiceDescription": "Trapper T-Rex Plastic Snap Trap (12/case)",
+        "quantity": 2,
+        "unit": "RT"
+      },
+      {
+        "productName": "T-Storm Fungicide",
+        "invoiceDescription": "LESCO T-Storm Liquid Fungicide 2.5 gal. Jug",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Taurus SC",
+        "invoiceDescription": "Taurus SC Insecticide 78 oz.",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "Termidor Foam",
+        "invoiceDescription": "Termidor Foam Insecticide 20 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor SC",
+        "invoiceDescription": "Termidor SC Termiticide/Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Timbor",
+        "invoiceDescription": "Tim-bor Insecticide/Fungicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Top Choice",
+        "invoiceDescription": "Topchoice Granular Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Transport Mikron Insecticide",
+        "invoiceDescription": "Transport Mikron Insecticide 1 qt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "ULD BP-300",
+        "invoiceDescription": "ULD BP-300 Formula II Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Vendetta Plus",
+        "invoiceDescription": "Vendetta Plus Roaach Bait 30 gm. X 4",
+        "quantity": 2,
+        "unit": "T"
+      },
+      {
+        "productName": "Wasp & Hornet Spray",
+        "invoiceDescription": "LESCO Aerosol Wasp and Hornet Spray",
+        "quantity": 0,
+        "unit": null
+      }
+    ],
+    "Orlando": [
+      {
+        "productName": "19-19-19 Sprayable fertilizer",
+        "invoiceDescription": "LESCO 19-19-19  Soluble Fertilizer 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-0-0 Liquid Fertilizer",
+        "invoiceDescription": "LESCO 20-0-0 Liquid Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-20-20 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "33-0-17 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO 33-0-17 AM Turf Soluble Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Acephate 90 Prill",
+        "invoiceDescription": "Acephate 90 Prill Insecticide 5 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion Ant Gel",
+        "invoiceDescription": "Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion cockroach gel bait",
+        "invoiceDescription": "Advion Evolution Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion Insect Granular",
+        "invoiceDescription": "Advion Insect Granule 25 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion WDG Insecticide",
+        "invoiceDescription": "Advion WDG Insecticide 5 Packets x 0.33oz (must be sold in 5 packets x 0.33oz)",
+        "quantity": 1,
+        "unit": "OZ"
+      },
+      {
+        "productName": "Alpine Roach Gel Bait",
+        "invoiceDescription": "Alpine Cockroach Gel Bait Rotation 1 Box (4 x 30 gm) Syringes",
+        "quantity": 4,
+        "unit": "T"
+      },
+      {
+        "productName": "Archer IGR",
+        "invoiceDescription": "Archer Igr Insecticide 1 pt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Arena Granular Insecticide",
+        "invoiceDescription": "Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "Atrazine",
+        "invoiceDescription": "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Avenue South",
+        "invoiceDescription": "Avenue South Post Emergent Liquid Herbicide 2.5 gal.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Bandit 2F",
+        "invoiceDescription": "LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug",
+        "quantity": 5,
+        "unit": "J"
+      },
+      {
+        "productName": "Bifen XTS",
+        "invoiceDescription": "Bifen XTS Insecticide 1 gal.",
+        "quantity": 4,
+        "unit": "J"
+      },
+      {
+        "productName": "Blackout Fertilizer 0-0-18 (turf)",
+        "invoiceDescription": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "CB-80 Insecticide",
+        "invoiceDescription": "CB-80 Dual Spray Can Aerosol Insecticide 17 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "Celsius",
+        "invoiceDescription": "Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Certainty",
+        "invoiceDescription": "Certainty Turf Post Emergent Dry Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Contrac Rodent Bait Blox",
+        "invoiceDescription": "Contrac Bait Block Cb4052 18lb. Pail",
+        "quantity": 3,
+        "unit": "BU"
+      },
+      {
+        "productName": "CrossCheck 0.069% plus fertilizer (0-0-7)",
+        "invoiceDescription": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
+        "quantity": 7,
+        "unit": "FB"
+      },
+      {
+        "productName": "CrossCheck Plus",
+        "invoiceDescription": "LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container",
+        "quantity": 6,
+        "unit": "J"
+      },
+      {
+        "productName": "Cyper TC",
+        "invoiceDescription": "Cyper TC Termiticide/Insecticide 1 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Delta dust",
+        "invoiceDescription": "DeltaDust Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Demand CS",
+        "invoiceDescription": "Demand CS Insecticide 1 qt.",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "DIPEL PRO",
+        "invoiceDescription": "DiPel PRO DF Biological Insecticide 1 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Evo Bait Station",
+        "invoiceDescription": "Protecta Evo Express Bait Station w/ Weight",
+        "quantity": 114,
+        "unit": "BS"
+      },
+      {
+        "productName": "Extinguish",
+        "invoiceDescription": "Extinguish Professional Fire Ant Bait (25 lb. bag)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Extinguish Plus",
+        "invoiceDescription": "Wellmark Extinguish Plus Fire Ant Bait 25 lb.",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Fertilizer 21-0-6 (Turf)",
+        "invoiceDescription": "LESCO Fertilizer 21-0-6 50 lb",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 24-0-11 (Turf)",
+        "invoiceDescription": "LESCO 24-0-11 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 8-0-10 (Shrub)",
+        "invoiceDescription": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Gentrol IGR Concentrate",
+        "invoiceDescription": "Gentrol Igr Insecticide 10/ 1 oz. Bottles",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Headway Fungicide",
+        "invoiceDescription": "Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "Invade Hot Spot",
+        "invoiceDescription": "Invade Hot Spot Pest Control 16 oz.",
+        "quantity": 1,
+        "unit": "AC"
+      },
+      {
+        "productName": "Lesco 10-0-12",
+        "invoiceDescription": "LESCO Fertilizer 10-0-12 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco Bio Iron Plus",
+        "invoiceDescription": "LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Lesco Fertilizer 13-0-0",
+        "invoiceDescription": "LESCO Fertilizer 13-0-0 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "LESCO Liquid 0-0-25",
+        "invoiceDescription": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Lesco T&O Chelated Liquid Fertilizer",
+        "invoiceDescription": "LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Mansion Turf Herbicide",
+        "invoiceDescription": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Maxforce Complete Granular Bait",
+        "invoiceDescription": "Maxforce Complete Insect Bait 4 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Maxforce Quantum Ant Bait",
+        "invoiceDescription": "Maxforce Quantum Ant Bait 120 gm.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Optigard Ant Gel Bait",
+        "invoiceDescription": "Optigard Ant Gel Bait 4 x 30 gm.",
+        "quantity": 4,
+        "unit": "T"
+      },
+      {
+        "productName": "Optigard Cockroach Gel Bait",
+        "invoiceDescription": "Optigard Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "OTC Fungicide",
+        "invoiceDescription": "Arborjet Arbor OTC Injectable Fungicide 5 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Premise Foam",
+        "invoiceDescription": "Precor 2000 Premise Spray 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Prosecutor",
+        "invoiceDescription": "LESCO Prosecutor Pro Non Selective Liquid Herbicide 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Alpine",
+        "invoiceDescription": "PT Alpine Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT ALPINE WSG",
+        "invoiceDescription": "PT Alpine WSG Insecticide 500 gm",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "PT Microcare CS",
+        "invoiceDescription": "PT Microcare CS Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Phantom",
+        "invoiceDescription": "PT Phantom II Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Ultraside",
+        "invoiceDescription": "PT Ultracide Pressurized Flea Insecticide 14 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "PT wasp Freeze",
+        "invoiceDescription": "PT Wasp Freeze II Aerosol Insecticide 17.5 oz.",
+        "quantity": 4,
+        "unit": "AC"
+      },
+      {
+        "productName": "Safari SG",
+        "invoiceDescription": "Safari 20 SG Insecticide 3 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sector",
+        "invoiceDescription": "Sector Misting Insecticide 1 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Sedgehammer Turf Herbicide",
+        "invoiceDescription": "Sedgehammer Soluble Herbicide 1.33 oz. Bottle",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "Shockwave",
+        "invoiceDescription": "Shockwave Fogging Concentrate Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Speedzone Southern Herbicide",
+        "invoiceDescription": "PBI Gordon SpeedZone Southern EW Post Emergent Liquid Herbicide",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Spreader Sticker",
+        "invoiceDescription": "LESCO Spreader Sticker 2.5 gal.",
+        "quantity": 3,
+        "unit": "J"
+      },
+      {
+        "productName": "Suspend SC",
+        "invoiceDescription": "Suspend SC Insecticide 1 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "T-Rex Snap Trap",
+        "invoiceDescription": "Trapper T-Rex Plastic Snap Trap (12/case)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "T-Storm Fungicide",
+        "invoiceDescription": "LESCO T-Storm Liquid Fungicide 2.5 gal. Jug",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Taurus SC",
+        "invoiceDescription": "Taurus SC Insecticide 78 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor Foam",
+        "invoiceDescription": "Termidor Foam Insecticide 20 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor SC",
+        "invoiceDescription": "Termidor SC Termiticide/Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Timbor",
+        "invoiceDescription": "Tim-bor Insecticide/Fungicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Top Choice",
+        "invoiceDescription": "Topchoice Granular Insecticide",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Transport Mikron Insecticide",
+        "invoiceDescription": "Transport Mikron Insecticide 1 qt.",
+        "quantity": 1,
+        "unit": "B"
+      },
+      {
+        "productName": "ULD BP-300",
+        "invoiceDescription": "ULD BP-300 Formula II Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Vendetta Plus",
+        "invoiceDescription": "Vendetta Plus Roaach Bait 30 gm. X 4",
+        "quantity": 20,
+        "unit": "T"
+      },
+      {
+        "productName": "Wasp & Hornet Spray",
+        "invoiceDescription": "LESCO Aerosol Wasp and Hornet Spray",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "LESCO CROSSCHECK PL Granular insecticide",
+        "invoiceDescription": "LESCO CROSSCHECK PL Granular insecticide",
+        "quantity": 6,
+        "unit": "FB",
+        "otherProduct": true
+      },
+      {
+        "productName": "PT PI PRESSURIZED CONTACT INSECTICIDE 14 OZ CAN",
+        "invoiceDescription": "PT PI PRESSURIZED CONTACT INSECTICIDE 14 OZ CAN",
+        "quantity": 6,
+        "unit": "AC",
+        "otherProduct": true
+      },
+      {
+        "productName": "LESCO 25-0-10 GRANULAR FERT 50lb bag",
+        "invoiceDescription": "LESCO 25-0-10 GRANULAR FERT 50lb bag",
+        "quantity": 116,
+        "unit": "FB",
+        "otherProduct": true
+      },
+      {
+        "productName": "LESCO L&O PALM 8-0-10 GRANULAR 50LB BAG",
+        "invoiceDescription": "LESCO L&O PALM 8-0-10 GRANULAR 50LB BAG",
+        "quantity": 2,
+        "unit": "FB",
+        "otherProduct": true
+      }
+    ],
+    "Naples": [
+      {
+        "productName": "0-0-7 Fertilizer + Insecticide",
+        "invoiceDescription": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "19-19-19 Sprayable fertilizer",
+        "invoiceDescription": "LESCO 19-19-19  Soluble Fertilizer 25 lb. Bag",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "20-0-0 Liquid Fertilizer",
+        "invoiceDescription": "LESCO 20-0-0 Liquid Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "20-20-20 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "33-0-17 Sprayable Fertilizer",
+        "invoiceDescription": "LESCO 33-0-17 AM Turf Soluble Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Acephate 90 Prill",
+        "invoiceDescription": "Acephate 90 Prill Insecticide 5 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion Ant Gel",
+        "invoiceDescription": "Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes)",
+        "quantity": 3,
+        "unit": "T"
+      },
+      {
+        "productName": "Advion cockroach gel bait",
+        "invoiceDescription": "Advion Evolution Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion Insect Granular",
+        "invoiceDescription": "Advion Insect Granule 25 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Advion WDG Insecticide",
+        "invoiceDescription": "Advion WDG Insecticide 5 Packets x 0.33oz (must be sold in 5 packets x 0.33oz)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Alpine Roach Gel Bait",
+        "invoiceDescription": "Alpine Cockroach Gel Bait Rotation 1 Box (4 x 30 gm) Syringes",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Archer IGR",
+        "invoiceDescription": "Archer Igr Insecticide 1 pt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Arena Granular Insecticide",
+        "invoiceDescription": "Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Atrazine",
+        "invoiceDescription": "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Avenue South",
+        "invoiceDescription": "Avenue South Post Emergent Liquid Herbicide 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Bandit 2F",
+        "invoiceDescription": "LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Bifen XTS",
+        "invoiceDescription": "Bifen XTS Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Blackout Fertilizer 0-0-18 (turf)",
+        "invoiceDescription": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "CB-80 Insecticide",
+        "invoiceDescription": "CB-80 Dual Spray Can Aerosol Insecticide 17 oz.",
+        "quantity": 2,
+        "unit": "AC"
+      },
+      {
+        "productName": "Celsius",
+        "invoiceDescription": "Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Certainty",
+        "invoiceDescription": "Certainty Turf Post Emergent Dry Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Contrac Rodent Bait Blox",
+        "invoiceDescription": "Contrac Bait Block Cb4052 18lb. Pail",
+        "quantity": 2,
+        "unit": "FB"
+      },
+      {
+        "productName": "CrossCheck 0.069% plus fertilizer (0-0-7)",
+        "invoiceDescription": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "CrossCheck Plus",
+        "invoiceDescription": "LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container",
+        "quantity": 2,
+        "unit": "J"
+      },
+      {
+        "productName": "Cyper TC",
+        "invoiceDescription": "Cyper TC Termiticide/Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Delta dust",
+        "invoiceDescription": "DeltaDust Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Demand CS",
+        "invoiceDescription": "Demand CS Insecticide 1 qt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "DIPEL PRO",
+        "invoiceDescription": "DiPel PRO DF Biological Insecticide 1 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Evo Bait Station",
+        "invoiceDescription": "Protecta Evo Express Bait Station w/ Weight",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Extinguish",
+        "invoiceDescription": "Extinguish Professional Fire Ant Bait (25 lb. bag)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Extinguish Plus",
+        "invoiceDescription": "Wellmark Extinguish Plus Fire Ant Bait 25 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 21-0-6 (Turf)",
+        "invoiceDescription": "LESCO Fertilizer 21-0-6 50 lb",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 24-0-11 (Turf)",
+        "invoiceDescription": "LESCO 24-0-11 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Fertilizer 8-0-10 (Shrub)",
+        "invoiceDescription": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Gentrol IGR Concentrate",
+        "invoiceDescription": "Gentrol Igr Insecticide 10/ 1 oz. Bottles",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Headway Fungicide",
+        "invoiceDescription": "Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Invade Hot Spot",
+        "invoiceDescription": "Invade Hot Spot Pest Control 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco 10-0-12",
+        "invoiceDescription": "LESCO Fertilizer 10-0-12 50 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco Bio Iron Plus",
+        "invoiceDescription": "LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.",
+        "quantity": 1,
+        "unit": "J"
+      },
+      {
+        "productName": "Lesco Fertilizer 13-0-0",
+        "invoiceDescription": "LESCO Fertilizer 13-0-0 2.5 gal",
+        "quantity": 8,
+        "unit": "J"
+      },
+      {
+        "productName": "LESCO Liquid 0-0-25",
+        "invoiceDescription": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Lesco T&O Chelated Liquid Fertilizer",
+        "invoiceDescription": "LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Mansion Turf Herbicide",
+        "invoiceDescription": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
+        "quantity": 1,
+        "unit": "FB"
+      },
+      {
+        "productName": "Maxforce Complete Granular Bait",
+        "invoiceDescription": "Maxforce Complete Insect Bait 4 lb.",
+        "quantity": 1,
+        "unit": null
+      },
+      {
+        "productName": "Maxforce Quantum Ant Bait",
+        "invoiceDescription": "Maxforce Quantum Ant Bait 120 gm.",
+        "quantity": 2,
+        "unit": "T"
+      },
+      {
+        "productName": "Optigard Ant Gel Bait",
+        "invoiceDescription": "Optigard Ant Gel Bait 4 x 30 gm.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Optigard Cockroach Gel Bait",
+        "invoiceDescription": "Optigard Cockroach Gel Bait 4x30g (4 pack)",
+        "quantity": 7,
+        "unit": "T"
+      },
+      {
+        "productName": "OTC Fungicide",
+        "invoiceDescription": "Arborjet Arbor OTC Injectable Fungicide 5 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Premise Foam",
+        "invoiceDescription": "Precor 2000 Premise Spray 16 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Prosecutor",
+        "invoiceDescription": "LESCO Prosecutor Pro Non Selective Liquid Herbicide 2.5 gal",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Alpine",
+        "invoiceDescription": "PT Alpine Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT ALPINE WSG",
+        "invoiceDescription": "PT Alpine WSG Insecticide 500 gm",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Microcare CS",
+        "invoiceDescription": "PT Microcare CS Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Phantom",
+        "invoiceDescription": "PT Phantom II Pressurized Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT Ultraside",
+        "invoiceDescription": "PT Ultracide Pressurized Flea Insecticide 14 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "PT wasp Freeze",
+        "invoiceDescription": "PT Wasp Freeze II Aerosol Insecticide 17.5 oz.",
+        "quantity": 4,
+        "unit": "AC"
+      },
+      {
+        "productName": "Safari SG",
+        "invoiceDescription": "Safari 20 SG Insecticide 3 lb.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sector",
+        "invoiceDescription": "Sector Misting Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Sedgehammer Turf Herbicide",
+        "invoiceDescription": "Sedgehammer Soluble Herbicide 1.33 oz. Bottle",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Shockwave",
+        "invoiceDescription": "Shockwave Fogging Concentrate Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Speedzone Southern Herbicide",
+        "invoiceDescription": "PBI Gordon SpeedZone Southern EW Post Emergent Liquid Herbicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Spreader Sticker",
+        "invoiceDescription": "LESCO Spreader Sticker 2.5 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Suspend SC",
+        "invoiceDescription": "Suspend SC Insecticide 1 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "T-Rex Snap Trap",
+        "invoiceDescription": "Trapper T-Rex Plastic Snap Trap (12/case)",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "T-Storm Fungicide",
+        "invoiceDescription": "LESCO T-Storm Liquid Fungicide 2.5 gal. Jug",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Taurus SC",
+        "invoiceDescription": "Taurus SC Insecticide 78 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor Foam",
+        "invoiceDescription": "Termidor Foam Insecticide 20 oz.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Termidor SC",
+        "invoiceDescription": "Termidor SC Termiticide/Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Timbor",
+        "invoiceDescription": "Tim-bor Insecticide/Fungicide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Top Choice",
+        "invoiceDescription": "Topchoice Granular Insecticide",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Transport Mikron Insecticide",
+        "invoiceDescription": "Transport Mikron Insecticide 1 qt.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "ULD BP-300",
+        "invoiceDescription": "ULD BP-300 Formula II Insecticide 1 gal.",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Vendetta Plus",
+        "invoiceDescription": "Vendetta Plus Roaach Bait 30 gm. X 4",
+        "quantity": 0,
+        "unit": null
+      },
+      {
+        "productName": "Wasp & Hornet Spray",
+        "invoiceDescription": "LESCO Aerosol Wasp and Hornet Spray",
+        "quantity": 0,
+        "unit": null
+      }
+    ]
+  }
+}
