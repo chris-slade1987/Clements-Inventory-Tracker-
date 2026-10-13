@@ -549,15 +549,16 @@ async function main() {
       );
     });
 
-    // Internal Certification Program (SHELL) — seed the content-free reference
-    // data (10 certifications, 87 modules, 16 prerequisites, 6 pathways). All
-    // upserts are idempotent (keyed by code/key), so this runs every deploy with
-    // no marker needed and never touches employee data. NON-FATAL.
-    await runStep("certification program reference seed", async () => {
-      const { seedCertifications } = await import("../prisma/seed-certifications");
-      const cert = await seedCertifications(prisma);
+    // Training Center catalog — seed the Program → Module → Course reference data
+    // (10 certifications, 5 programs, 17 modules, 91 courses, 40 program-module +
+    // 357 module-course links) from prisma/data/training-catalog.json. All upserts
+    // are idempotent (keyed by code/join), so this runs every deploy with no marker
+    // and never touches the per-employee assignment/progress tables. NON-FATAL.
+    await runStep("training catalog seed", async () => {
+      const { seedTrainingCatalog } = await import("../prisma/seed-training-catalog");
+      const cat = await seedTrainingCatalog(prisma);
       console.log(
-        `deploy-db: certification program (shell) — ${cert.certifications} certifications, ${cert.modules} modules, ${cert.prerequisites} prerequisites, ${cert.pathways} pathways.`,
+        `deploy-db: training catalog — ${cat.certifications} certifications, ${cat.programs} programs, ${cat.modules} modules, ${cat.courses} courses, ${cat.programModules} program-module + ${cat.moduleCourses} module-course links.`,
       );
     });
 

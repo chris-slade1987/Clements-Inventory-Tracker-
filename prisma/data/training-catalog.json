@@ -1,0 +1,3342 @@
+{
+  "_source": "Clements_Certification_Import.xlsx (validated 2026-10-13)",
+  "certifications": [
+    {
+      "code": "CW",
+      "name": "The Clements Way",
+      "order": 1
+    },
+    {
+      "code": "FC",
+      "name": "Field Core",
+      "order": 2
+    },
+    {
+      "code": "PC",
+      "name": "General Household Pest",
+      "order": 3
+    },
+    {
+      "code": "LAWN",
+      "name": "Lawn & Ornamental",
+      "order": 4
+    },
+    {
+      "code": "TERM",
+      "name": "Termite & WDO",
+      "order": 5
+    },
+    {
+      "code": "RX",
+      "name": "Rodent Exclusion (Rodent Shield)",
+      "order": 6
+    },
+    {
+      "code": "MOS",
+      "name": "Mosquito Misting",
+      "order": 7
+    },
+    {
+      "code": "WL",
+      "name": "Wildlife",
+      "order": 8
+    },
+    {
+      "code": "CSR",
+      "name": "Customer Service",
+      "order": 9
+    },
+    {
+      "code": "SLS",
+      "name": "Sales",
+      "order": 10
+    }
+  ],
+  "programs": [
+    {
+      "code": "PRG-ONB",
+      "name": "Onboarding",
+      "whenToAssign": "New hires. Assign the module for the position they were hired into.",
+      "order": 1
+    },
+    {
+      "code": "PRG-CUR",
+      "name": "Current Employee Certification",
+      "whenToAssign": "Current employees. Assign the module for the position they hold today.",
+      "order": 2
+    },
+    {
+      "code": "PRG-SVC",
+      "name": "Service Expansion",
+      "whenToAssign": "Technicians adding or switching to another service (e.g., Lawn to PC). Only that service.",
+      "order": 3
+    },
+    {
+      "code": "PRG-SLS",
+      "name": "Sales Advancement",
+      "whenToAssign": "Any employee moving into Sales. Every service plus Sales, one module per month.",
+      "order": 4
+    },
+    {
+      "code": "PRG-MGT",
+      "name": "Management Advancement",
+      "whenToAssign": "Any employee moving into Management. Every module, one per month.",
+      "order": 5
+    }
+  ],
+  "modules": [
+    {
+      "code": "ONB-GHP",
+      "name": "GHP Technician",
+      "certificationsEarned": "CW, FC, PC",
+      "audience": "New or current GHP technicians",
+      "fieldRequirement": "40 hrs / 5 days documented field training (FDACS-13665)",
+      "order": 1
+    },
+    {
+      "code": "ONB-LAWN",
+      "name": "Lawn Technician",
+      "certificationsEarned": "CW, FC, LAWN",
+      "audience": "New or current lawn technicians",
+      "fieldRequirement": "40 hrs / 5 days documented field training (FDACS-13665)",
+      "order": 2
+    },
+    {
+      "code": "ONB-TERM",
+      "name": "Termite Technician",
+      "certificationsEarned": "CW, FC, TERM",
+      "audience": "New or current termite technicians",
+      "fieldRequirement": "40 hrs FDACS minimum; WDO ID card and Corteva CSS required",
+      "order": 3
+    },
+    {
+      "code": "ONB-RX",
+      "name": "Rodent Shield Technician",
+      "certificationsEarned": "CW, FC, RX",
+      "audience": "New or current Rodent Shield technicians",
+      "fieldRequirement": "40 hrs FDACS minimum; 20–30 Rodent Shield field hrs",
+      "order": 4
+    },
+    {
+      "code": "ONB-MOS",
+      "name": "Mosquito Misting Technician",
+      "certificationsEarned": "CW, FC, MOS",
+      "audience": "New or current misting technicians",
+      "fieldRequirement": "40 hrs FDACS minimum; MistAway competency sign-off",
+      "order": 5
+    },
+    {
+      "code": "ONB-WL",
+      "name": "Wildlife Technician",
+      "certificationsEarned": "CW, FC, WL",
+      "audience": "New or current wildlife technicians",
+      "fieldRequirement": "To be defined",
+      "order": 6
+    },
+    {
+      "code": "ONB-CSR",
+      "name": "Customer Service Representative",
+      "certificationsEarned": "CW, CSR",
+      "audience": "New or current CSRs",
+      "fieldRequirement": "Live-call shadowing, 3-hr ride-along, 2-hr live-call evaluation",
+      "order": 7
+    },
+    {
+      "code": "ONB-SLS",
+      "name": "Sales / Service Advisor",
+      "certificationsEarned": "CW, FC, PC, LAWN, TERM, RX, MOS, WL, SLS",
+      "audience": "New or current salespeople",
+      "fieldRequirement": "All service field sign-offs; 3 consecutive observed appointments at 80%+",
+      "order": 8
+    },
+    {
+      "code": "SVC-FC",
+      "name": "Field Core",
+      "certificationsEarned": "FC",
+      "audience": "Non-field employees entering a field service for the first time",
+      "fieldRequirement": "None beyond course sign-offs",
+      "order": 9
+    },
+    {
+      "code": "SVC-PC",
+      "name": "Add GHP",
+      "certificationsEarned": "PC",
+      "audience": "Employees adding GHP",
+      "fieldRequirement": "40 hrs field training",
+      "order": 10
+    },
+    {
+      "code": "SVC-LAWN",
+      "name": "Add Lawn & Ornamental",
+      "certificationsEarned": "LAWN",
+      "audience": "Employees adding Lawn & Ornamental",
+      "fieldRequirement": "40 hrs field training",
+      "order": 11
+    },
+    {
+      "code": "SVC-TERM",
+      "name": "Add Termite & WDO",
+      "certificationsEarned": "TERM",
+      "audience": "Employees adding Termite & WDO",
+      "fieldRequirement": "Field hours to be set; WDO ID card and Corteva CSS",
+      "order": 12
+    },
+    {
+      "code": "SVC-RX",
+      "name": "Add Rodent Shield",
+      "certificationsEarned": "RX",
+      "audience": "Employees adding Rodent Shield",
+      "fieldRequirement": "20–30 field hrs, Vero Beach",
+      "order": 13
+    },
+    {
+      "code": "SVC-MOS",
+      "name": "Add Mosquito Misting",
+      "certificationsEarned": "MOS",
+      "audience": "Employees adding Mosquito Misting",
+      "fieldRequirement": "MistAway competency sign-off",
+      "order": 14
+    },
+    {
+      "code": "SVC-WL",
+      "name": "Add Wildlife",
+      "certificationsEarned": "WL",
+      "audience": "Employees adding Wildlife",
+      "fieldRequirement": "To be defined",
+      "order": 15
+    },
+    {
+      "code": "ADV-CSR",
+      "name": "Customer Service",
+      "certificationsEarned": "CSR",
+      "audience": "Management advancement",
+      "fieldRequirement": "Live-call evaluation",
+      "order": 16
+    },
+    {
+      "code": "ADV-SLS",
+      "name": "Sales Certification",
+      "certificationsEarned": "SLS",
+      "audience": "Sales or Management advancement, after all service modules",
+      "fieldRequirement": "Written 90% (18/20); 8 role-play conditions; 3 consecutive observed appointments at 80%+",
+      "order": 17
+    }
+  ],
+  "courses": [
+    {
+      "code": "CW-01",
+      "name": "Who We Are",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 1
+    },
+    {
+      "code": "CW-02",
+      "name": "Standards & the Three Pillars",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists (needs role-neutral rewrite)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 2
+    },
+    {
+      "code": "CW-03",
+      "name": "The Orange Ice Cube Customer Experience",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Built (pilot)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 3
+    },
+    {
+      "code": "CW-04",
+      "name": "Internal Communication",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 4
+    },
+    {
+      "code": "CW-05",
+      "name": "What We Sell",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 5
+    },
+    {
+      "code": "CW-06",
+      "name": "Company Policies",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 6
+    },
+    {
+      "code": "CW-07",
+      "name": "Appearance & Dress Code",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 7
+    },
+    {
+      "code": "CW-08",
+      "name": "Payroll, Benefits & Paychex",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 8
+    },
+    {
+      "code": "CW-09",
+      "name": "Safety Basics & Accident Reporting",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 9
+    },
+    {
+      "code": "CW-10",
+      "name": "Our Systems (PestPac, email, Google Chat, Paychex)",
+      "group": "CW",
+      "groupName": "The Clements Way",
+      "courseType": "written",
+      "contentStatus": "None",
+      "targetMinutes": "45–60",
+      "trainingFolder": "01 CW – The Clements Way",
+      "order": 10
+    },
+    {
+      "code": "FC-01",
+      "name": "Pest Management & IPM",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 11
+    },
+    {
+      "code": "FC-02",
+      "name": "Labels & Pesticide Law",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 12
+    },
+    {
+      "code": "FC-03",
+      "name": "PPE & Respirators",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 13
+    },
+    {
+      "code": "FC-04",
+      "name": "Environmental Safety",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 14
+    },
+    {
+      "code": "FC-05",
+      "name": "Chemical Storage & Spill Response",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 15
+    },
+    {
+      "code": "FC-06",
+      "name": "Ladder Safety",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 16
+    },
+    {
+      "code": "FC-07",
+      "name": "Vehicle Standards",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 17
+    },
+    {
+      "code": "FC-08",
+      "name": "Driver Safety & GPS",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 18
+    },
+    {
+      "code": "FC-09",
+      "name": "Route Management",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 19
+    },
+    {
+      "code": "FC-10",
+      "name": "PestPac Mobile",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 20
+    },
+    {
+      "code": "FC-11",
+      "name": "The Clements Service Visit",
+      "group": "FC",
+      "groupName": "Field Core",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "02 FC – Field Core",
+      "order": 21
+    },
+    {
+      "code": "PC-01",
+      "name": "GHP Equipment",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 22
+    },
+    {
+      "code": "PC-02",
+      "name": "Interior Treatment",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 23
+    },
+    {
+      "code": "PC-03",
+      "name": "Exterior Three-Pass Treatment",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 24
+    },
+    {
+      "code": "PC-04",
+      "name": "GHP Calibration & Mix Rates",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 25
+    },
+    {
+      "code": "PC-05",
+      "name": "Initial Service Standard",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 26
+    },
+    {
+      "code": "PC-06",
+      "name": "Inspection",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 27
+    },
+    {
+      "code": "PC-07",
+      "name": "Pest ID: Ants, Roaches, Rodents",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 28
+    },
+    {
+      "code": "PC-08",
+      "name": "Cleanouts (flea, tick, roach)",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 29
+    },
+    {
+      "code": "PC-FLD",
+      "name": "GHP Field Training & Sign-Off (40 hrs / 5 days, FDACS)",
+      "group": "PC",
+      "groupName": "General Household Pest",
+      "courseType": "field_signoff",
+      "contentStatus": "Forms exist",
+      "targetMinutes": null,
+      "trainingFolder": "03 PC – General Household Pest",
+      "order": 30
+    },
+    {
+      "code": "LAWN-01",
+      "name": "L&O Equipment",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 31
+    },
+    {
+      "code": "LAWN-02",
+      "name": "L&O Program & Calendar",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 32
+    },
+    {
+      "code": "LAWN-03",
+      "name": "Standard L&O Visit",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 33
+    },
+    {
+      "code": "LAWN-04",
+      "name": "Turfgrass Varieties",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 34
+    },
+    {
+      "code": "LAWN-05",
+      "name": "Fertilizer & Blackout Rules",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 35
+    },
+    {
+      "code": "LAWN-06",
+      "name": "Weeds & Herbicides",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 36
+    },
+    {
+      "code": "LAWN-07",
+      "name": "Turf Pests",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 37
+    },
+    {
+      "code": "LAWN-08",
+      "name": "Disease & Stress Diagnosis",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 38
+    },
+    {
+      "code": "LAWN-09",
+      "name": "L&O Calibration & Mix Rates",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "written",
+      "contentStatus": "None",
+      "targetMinutes": "45–60",
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 39
+    },
+    {
+      "code": "LAWN-FLD",
+      "name": "L&O Field Training & Sign-Off (40 hrs / 5 days, FDACS)",
+      "group": "LAWN",
+      "groupName": "Lawn & Ornamental",
+      "courseType": "field_signoff",
+      "contentStatus": "Forms exist",
+      "targetMinutes": null,
+      "trainingFolder": "04 LAWN – Lawn & Ornamental",
+      "order": 40
+    },
+    {
+      "code": "TERM-01",
+      "name": "Termite Biology & ID",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 41
+    },
+    {
+      "code": "TERM-02",
+      "name": "Sentricon Install & Monitoring",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Exists (also requires Corteva CSS)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 42
+    },
+    {
+      "code": "TERM-03",
+      "name": "Liquid Subterranean Treatment",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Partial (V5 draft)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 43
+    },
+    {
+      "code": "TERM-04",
+      "name": "Drywood Spot & Whole-Home Treatment",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Partial (V5 draft)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 44
+    },
+    {
+      "code": "TERM-05",
+      "name": "New-Construction Pretreat",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Partial (V5 draft)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 45
+    },
+    {
+      "code": "TERM-06",
+      "name": "WDO Inspections & Reporting",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Partial (requires FDACS WDO ID card)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 46
+    },
+    {
+      "code": "TERM-07",
+      "name": "Warranty, Renewals & ATI",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "written",
+      "contentStatus": "Partial (V5 draft)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 47
+    },
+    {
+      "code": "TERM-FLD",
+      "name": "Termite Field Training & Sign-Off",
+      "group": "TERM",
+      "groupName": "Termite & WDO",
+      "courseType": "field_signoff",
+      "contentStatus": "Hours to be set",
+      "targetMinutes": null,
+      "trainingFolder": "05 TERM – Termite & WDO",
+      "order": 48
+    },
+    {
+      "code": "RX-01",
+      "name": "Rodent Biology & Behavior",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 49
+    },
+    {
+      "code": "RX-02",
+      "name": "Inspection & Entry Point Assessment",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 50
+    },
+    {
+      "code": "RX-03",
+      "name": "Traps & Devices",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 51
+    },
+    {
+      "code": "RX-04",
+      "name": "Exclusion — Clements Standard",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 52
+    },
+    {
+      "code": "RX-05",
+      "name": "Add-On Services",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 53
+    },
+    {
+      "code": "RX-06",
+      "name": "Basic vs. Plus, Warranty & Customer Conversations",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 54
+    },
+    {
+      "code": "RX-07",
+      "name": "Documentation & Return Visits",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 55
+    },
+    {
+      "code": "RX-08",
+      "name": "Rodent Field Safety",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 56
+    },
+    {
+      "code": "RX-09",
+      "name": "Limits & Escalation",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 57
+    },
+    {
+      "code": "RX-10",
+      "name": "Scored Knowledge Check",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 58
+    },
+    {
+      "code": "RX-11",
+      "name": "Field Training & Sign-Off (20–30 hrs, Vero Beach)",
+      "group": "RX",
+      "groupName": "Rodent Exclusion (Rodent Shield)",
+      "courseType": "field_signoff",
+      "contentStatus": "Exists",
+      "targetMinutes": null,
+      "trainingFolder": "06 RX – Rodent Exclusion (Rodent Shield)",
+      "order": 59
+    },
+    {
+      "code": "MOS-01",
+      "name": "Misting Program & Concentrates",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 60
+    },
+    {
+      "code": "MOS-02",
+      "name": "Equipment: Gen 3 Tankless & Gen 1.3 Drum",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 61
+    },
+    {
+      "code": "MOS-03",
+      "name": "First 5 Minutes & System Inspection",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 62
+    },
+    {
+      "code": "MOS-04",
+      "name": "Refill & Reprogram",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 63
+    },
+    {
+      "code": "MOS-05",
+      "name": "Error Codes & Diagnostics",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 64
+    },
+    {
+      "code": "MOS-06",
+      "name": "Nozzle Replacement & Repair Approval",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 65
+    },
+    {
+      "code": "MOS-07",
+      "name": "Installation",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 66
+    },
+    {
+      "code": "MOS-08",
+      "name": "Warranty, Seasonal Service & Customer Communication",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 67
+    },
+    {
+      "code": "MOS-09",
+      "name": "MistAway U (external)",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 68
+    },
+    {
+      "code": "MOS-10",
+      "name": "Competency Sign-Off",
+      "group": "MOS",
+      "groupName": "Mosquito Misting",
+      "courseType": "field_signoff",
+      "contentStatus": "Exists",
+      "targetMinutes": null,
+      "trainingFolder": "07 MOS – Mosquito Misting",
+      "order": 69
+    },
+    {
+      "code": "WL-00",
+      "name": "Wildlife courses (to be defined)",
+      "group": "WL",
+      "groupName": "Wildlife",
+      "courseType": "written",
+      "contentStatus": "None",
+      "targetMinutes": "45–60",
+      "trainingFolder": "08 WL – Wildlife",
+      "order": 70
+    },
+    {
+      "code": "CSR-01",
+      "name": "Phone Handling",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 71
+    },
+    {
+      "code": "CSR-02",
+      "name": "PestPac Office Operations",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 72
+    },
+    {
+      "code": "CSR-03",
+      "name": "Scheduling & Routing Rules",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 73
+    },
+    {
+      "code": "CSR-04",
+      "name": "Booking Each Service (intake shared with SLS-02)",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Partial (Lawn not written)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 74
+    },
+    {
+      "code": "CSR-05",
+      "name": "Leads & Opportunities",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 75
+    },
+    {
+      "code": "CSR-06",
+      "name": "Cancellations & Saves",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 76
+    },
+    {
+      "code": "CSR-07",
+      "name": "Callbacks & Reviews",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 77
+    },
+    {
+      "code": "CSR-08",
+      "name": "Scripts & Policies",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 78
+    },
+    {
+      "code": "CSR-09",
+      "name": "Field Ride-Along & Live-Call Evaluation",
+      "group": "CSR",
+      "groupName": "Customer Service",
+      "courseType": "field_signoff",
+      "contentStatus": "Exists",
+      "targetMinutes": null,
+      "trainingFolder": "09 CSR – Customer Service",
+      "order": 79
+    },
+    {
+      "code": "SLS-01",
+      "name": "Role, Standards & Field Setup",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Partial",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 80
+    },
+    {
+      "code": "SLS-02",
+      "name": "Lead Response, Intake & Appointment Setting",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 81
+    },
+    {
+      "code": "SLS-03",
+      "name": "Arrival, Discovery & Whole-Property Inspection",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 82
+    },
+    {
+      "code": "SLS-04",
+      "name": "Selling Termite Services",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists (agreements pending approval)",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 83
+    },
+    {
+      "code": "SLS-05",
+      "name": "Selling GHP, Rodent, Wildlife, Insulation, Lawn & Mosquito",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Partial",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 84
+    },
+    {
+      "code": "SLS-06",
+      "name": "Pricing & Proposal Building",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Partial",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 85
+    },
+    {
+      "code": "SLS-07",
+      "name": "Presenting, Agreements, Financing & Closing",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 86
+    },
+    {
+      "code": "SLS-08",
+      "name": "Objection Handling",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 87
+    },
+    {
+      "code": "SLS-09",
+      "name": "Contract Entry & Handoff to Service",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Partial",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 88
+    },
+    {
+      "code": "SLS-10",
+      "name": "Prospecting & Lead Generation",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 89
+    },
+    {
+      "code": "SLS-11",
+      "name": "Follow-Up, Pipeline & Referrals",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "written",
+      "contentStatus": "Exists",
+      "targetMinutes": "45–60",
+      "trainingFolder": "10 SLS – Sales",
+      "order": 90
+    },
+    {
+      "code": "SLS-12",
+      "name": "Role-Play Certification & Observed Appointments",
+      "group": "SLS",
+      "groupName": "Sales",
+      "courseType": "field_signoff",
+      "contentStatus": "Exists",
+      "targetMinutes": null,
+      "trainingFolder": "10 SLS – Sales",
+      "order": 91
+    }
+  ],
+  "programModules": [
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-GHP",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-LAWN",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-TERM",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-RX",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-MOS",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-WL",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-CSR",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-SLS",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-GHP",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-LAWN",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-TERM",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-RX",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-MOS",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-WL",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-CSR",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-CUR",
+      "moduleCode": "ONB-SLS",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-FC",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-PC",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-LAWN",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-TERM",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-RX",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-MOS",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SVC",
+      "moduleCode": "SVC-WL",
+      "rule": "choose_one",
+      "step": null
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-FC",
+      "rule": "step",
+      "step": 1
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-PC",
+      "rule": "step",
+      "step": 2
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-LAWN",
+      "rule": "step",
+      "step": 3
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-TERM",
+      "rule": "step",
+      "step": 4
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-RX",
+      "rule": "step",
+      "step": 5
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-MOS",
+      "rule": "step",
+      "step": 6
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "SVC-WL",
+      "rule": "step",
+      "step": 7
+    },
+    {
+      "programCode": "PRG-SLS",
+      "moduleCode": "ADV-SLS",
+      "rule": "step",
+      "step": 8
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-FC",
+      "rule": "step",
+      "step": 1
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-PC",
+      "rule": "step",
+      "step": 2
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-LAWN",
+      "rule": "step",
+      "step": 3
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-TERM",
+      "rule": "step",
+      "step": 4
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-RX",
+      "rule": "step",
+      "step": 5
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-MOS",
+      "rule": "step",
+      "step": 6
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "SVC-WL",
+      "rule": "step",
+      "step": 7
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "ADV-CSR",
+      "rule": "step",
+      "step": 8
+    },
+    {
+      "programCode": "PRG-MGT",
+      "moduleCode": "ADV-SLS",
+      "rule": "step",
+      "step": 9
+    }
+  ],
+  "moduleCourses": [
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 22,
+      "courseCode": "PC-01"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 23,
+      "courseCode": "PC-02"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 24,
+      "courseCode": "PC-03"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 25,
+      "courseCode": "PC-04"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 26,
+      "courseCode": "PC-05"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 27,
+      "courseCode": "PC-06"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 28,
+      "courseCode": "PC-07"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 29,
+      "courseCode": "PC-08"
+    },
+    {
+      "moduleCode": "ONB-GHP",
+      "sequence": 30,
+      "courseCode": "PC-FLD"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 22,
+      "courseCode": "LAWN-01"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 23,
+      "courseCode": "LAWN-02"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 24,
+      "courseCode": "LAWN-03"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 25,
+      "courseCode": "LAWN-04"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 26,
+      "courseCode": "LAWN-05"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 27,
+      "courseCode": "LAWN-06"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 28,
+      "courseCode": "LAWN-07"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 29,
+      "courseCode": "LAWN-08"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 30,
+      "courseCode": "LAWN-09"
+    },
+    {
+      "moduleCode": "ONB-LAWN",
+      "sequence": 31,
+      "courseCode": "LAWN-FLD"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 22,
+      "courseCode": "TERM-01"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 23,
+      "courseCode": "TERM-02"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 24,
+      "courseCode": "TERM-03"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 25,
+      "courseCode": "TERM-04"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 26,
+      "courseCode": "TERM-05"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 27,
+      "courseCode": "TERM-06"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 28,
+      "courseCode": "TERM-07"
+    },
+    {
+      "moduleCode": "ONB-TERM",
+      "sequence": 29,
+      "courseCode": "TERM-FLD"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 22,
+      "courseCode": "RX-01"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 23,
+      "courseCode": "RX-02"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 24,
+      "courseCode": "RX-03"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 25,
+      "courseCode": "RX-04"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 26,
+      "courseCode": "RX-05"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 27,
+      "courseCode": "RX-06"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 28,
+      "courseCode": "RX-07"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 29,
+      "courseCode": "RX-08"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 30,
+      "courseCode": "RX-09"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 31,
+      "courseCode": "RX-10"
+    },
+    {
+      "moduleCode": "ONB-RX",
+      "sequence": 32,
+      "courseCode": "RX-11"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 22,
+      "courseCode": "MOS-01"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 23,
+      "courseCode": "MOS-02"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 24,
+      "courseCode": "MOS-03"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 25,
+      "courseCode": "MOS-04"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 26,
+      "courseCode": "MOS-05"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 27,
+      "courseCode": "MOS-06"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 28,
+      "courseCode": "MOS-07"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 29,
+      "courseCode": "MOS-08"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 30,
+      "courseCode": "MOS-09"
+    },
+    {
+      "moduleCode": "ONB-MOS",
+      "sequence": 31,
+      "courseCode": "MOS-10"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-WL",
+      "sequence": 22,
+      "courseCode": "WL-00"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 11,
+      "courseCode": "CSR-01"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 12,
+      "courseCode": "CSR-02"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 13,
+      "courseCode": "CSR-03"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 14,
+      "courseCode": "CSR-04"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 15,
+      "courseCode": "CSR-05"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 16,
+      "courseCode": "CSR-06"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 17,
+      "courseCode": "CSR-07"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 18,
+      "courseCode": "CSR-08"
+    },
+    {
+      "moduleCode": "ONB-CSR",
+      "sequence": 19,
+      "courseCode": "CSR-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 1,
+      "courseCode": "CW-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 2,
+      "courseCode": "CW-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 3,
+      "courseCode": "CW-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 4,
+      "courseCode": "CW-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 5,
+      "courseCode": "CW-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 6,
+      "courseCode": "CW-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 7,
+      "courseCode": "CW-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 8,
+      "courseCode": "CW-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 9,
+      "courseCode": "CW-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 10,
+      "courseCode": "CW-10"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 11,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 12,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 13,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 14,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 15,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 16,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 17,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 18,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 19,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 20,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 21,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 22,
+      "courseCode": "PC-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 23,
+      "courseCode": "PC-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 24,
+      "courseCode": "PC-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 25,
+      "courseCode": "PC-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 26,
+      "courseCode": "PC-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 27,
+      "courseCode": "PC-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 28,
+      "courseCode": "PC-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 29,
+      "courseCode": "PC-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 30,
+      "courseCode": "PC-FLD"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 31,
+      "courseCode": "LAWN-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 32,
+      "courseCode": "LAWN-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 33,
+      "courseCode": "LAWN-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 34,
+      "courseCode": "LAWN-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 35,
+      "courseCode": "LAWN-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 36,
+      "courseCode": "LAWN-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 37,
+      "courseCode": "LAWN-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 38,
+      "courseCode": "LAWN-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 39,
+      "courseCode": "LAWN-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 40,
+      "courseCode": "LAWN-FLD"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 41,
+      "courseCode": "TERM-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 42,
+      "courseCode": "TERM-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 43,
+      "courseCode": "TERM-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 44,
+      "courseCode": "TERM-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 45,
+      "courseCode": "TERM-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 46,
+      "courseCode": "TERM-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 47,
+      "courseCode": "TERM-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 48,
+      "courseCode": "TERM-FLD"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 49,
+      "courseCode": "RX-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 50,
+      "courseCode": "RX-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 51,
+      "courseCode": "RX-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 52,
+      "courseCode": "RX-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 53,
+      "courseCode": "RX-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 54,
+      "courseCode": "RX-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 55,
+      "courseCode": "RX-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 56,
+      "courseCode": "RX-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 57,
+      "courseCode": "RX-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 58,
+      "courseCode": "RX-10"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 59,
+      "courseCode": "RX-11"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 60,
+      "courseCode": "MOS-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 61,
+      "courseCode": "MOS-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 62,
+      "courseCode": "MOS-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 63,
+      "courseCode": "MOS-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 64,
+      "courseCode": "MOS-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 65,
+      "courseCode": "MOS-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 66,
+      "courseCode": "MOS-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 67,
+      "courseCode": "MOS-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 68,
+      "courseCode": "MOS-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 69,
+      "courseCode": "MOS-10"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 70,
+      "courseCode": "WL-00"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 71,
+      "courseCode": "SLS-01"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 72,
+      "courseCode": "SLS-02"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 73,
+      "courseCode": "SLS-03"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 74,
+      "courseCode": "SLS-04"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 75,
+      "courseCode": "SLS-05"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 76,
+      "courseCode": "SLS-06"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 77,
+      "courseCode": "SLS-07"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 78,
+      "courseCode": "SLS-08"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 79,
+      "courseCode": "SLS-09"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 80,
+      "courseCode": "SLS-10"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 81,
+      "courseCode": "SLS-11"
+    },
+    {
+      "moduleCode": "ONB-SLS",
+      "sequence": 82,
+      "courseCode": "SLS-12"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 1,
+      "courseCode": "FC-01"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 2,
+      "courseCode": "FC-02"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 3,
+      "courseCode": "FC-03"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 4,
+      "courseCode": "FC-04"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 5,
+      "courseCode": "FC-05"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 6,
+      "courseCode": "FC-06"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 7,
+      "courseCode": "FC-07"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 8,
+      "courseCode": "FC-08"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 9,
+      "courseCode": "FC-09"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 10,
+      "courseCode": "FC-10"
+    },
+    {
+      "moduleCode": "SVC-FC",
+      "sequence": 11,
+      "courseCode": "FC-11"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 1,
+      "courseCode": "PC-01"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 2,
+      "courseCode": "PC-02"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 3,
+      "courseCode": "PC-03"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 4,
+      "courseCode": "PC-04"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 5,
+      "courseCode": "PC-05"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 6,
+      "courseCode": "PC-06"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 7,
+      "courseCode": "PC-07"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 8,
+      "courseCode": "PC-08"
+    },
+    {
+      "moduleCode": "SVC-PC",
+      "sequence": 9,
+      "courseCode": "PC-FLD"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 1,
+      "courseCode": "LAWN-01"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 2,
+      "courseCode": "LAWN-02"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 3,
+      "courseCode": "LAWN-03"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 4,
+      "courseCode": "LAWN-04"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 5,
+      "courseCode": "LAWN-05"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 6,
+      "courseCode": "LAWN-06"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 7,
+      "courseCode": "LAWN-07"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 8,
+      "courseCode": "LAWN-08"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 9,
+      "courseCode": "LAWN-09"
+    },
+    {
+      "moduleCode": "SVC-LAWN",
+      "sequence": 10,
+      "courseCode": "LAWN-FLD"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 1,
+      "courseCode": "TERM-01"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 2,
+      "courseCode": "TERM-02"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 3,
+      "courseCode": "TERM-03"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 4,
+      "courseCode": "TERM-04"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 5,
+      "courseCode": "TERM-05"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 6,
+      "courseCode": "TERM-06"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 7,
+      "courseCode": "TERM-07"
+    },
+    {
+      "moduleCode": "SVC-TERM",
+      "sequence": 8,
+      "courseCode": "TERM-FLD"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 1,
+      "courseCode": "RX-01"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 2,
+      "courseCode": "RX-02"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 3,
+      "courseCode": "RX-03"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 4,
+      "courseCode": "RX-04"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 5,
+      "courseCode": "RX-05"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 6,
+      "courseCode": "RX-06"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 7,
+      "courseCode": "RX-07"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 8,
+      "courseCode": "RX-08"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 9,
+      "courseCode": "RX-09"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 10,
+      "courseCode": "RX-10"
+    },
+    {
+      "moduleCode": "SVC-RX",
+      "sequence": 11,
+      "courseCode": "RX-11"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 1,
+      "courseCode": "MOS-01"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 2,
+      "courseCode": "MOS-02"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 3,
+      "courseCode": "MOS-03"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 4,
+      "courseCode": "MOS-04"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 5,
+      "courseCode": "MOS-05"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 6,
+      "courseCode": "MOS-06"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 7,
+      "courseCode": "MOS-07"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 8,
+      "courseCode": "MOS-08"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 9,
+      "courseCode": "MOS-09"
+    },
+    {
+      "moduleCode": "SVC-MOS",
+      "sequence": 10,
+      "courseCode": "MOS-10"
+    },
+    {
+      "moduleCode": "SVC-WL",
+      "sequence": 1,
+      "courseCode": "WL-00"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 1,
+      "courseCode": "CSR-01"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 2,
+      "courseCode": "CSR-02"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 3,
+      "courseCode": "CSR-03"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 4,
+      "courseCode": "CSR-04"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 5,
+      "courseCode": "CSR-05"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 6,
+      "courseCode": "CSR-06"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 7,
+      "courseCode": "CSR-07"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 8,
+      "courseCode": "CSR-08"
+    },
+    {
+      "moduleCode": "ADV-CSR",
+      "sequence": 9,
+      "courseCode": "CSR-09"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 1,
+      "courseCode": "SLS-01"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 2,
+      "courseCode": "SLS-02"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 3,
+      "courseCode": "SLS-03"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 4,
+      "courseCode": "SLS-04"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 5,
+      "courseCode": "SLS-05"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 6,
+      "courseCode": "SLS-06"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 7,
+      "courseCode": "SLS-07"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 8,
+      "courseCode": "SLS-08"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 9,
+      "courseCode": "SLS-09"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 10,
+      "courseCode": "SLS-10"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 11,
+      "courseCode": "SLS-11"
+    },
+    {
+      "moduleCode": "ADV-SLS",
+      "sequence": 12,
+      "courseCode": "SLS-12"
+    }
+  ],
+  "situations": [
+    {
+      "situation": "New hire, GHP technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-GHP",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, lawn technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-LAWN",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, termite technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-TERM",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, Rodent Shield technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-RX",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, misting technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-MOS",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, wildlife technician",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-WL",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, CSR",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-CSR",
+      "mode": "module"
+    },
+    {
+      "situation": "New hire, salesperson",
+      "programCode": "PRG-ONB",
+      "moduleCode": "ONB-SLS",
+      "mode": "module"
+    },
+    {
+      "situation": "Current employee, certify in current position",
+      "programCode": "PRG-CUR",
+      "moduleCode": null,
+      "mode": "pick_module",
+      "note": "Module matching their position"
+    },
+    {
+      "situation": "Technician adding or switching a service",
+      "programCode": "PRG-SVC",
+      "moduleCode": null,
+      "mode": "pick_service",
+      "note": "SVC- module for that service"
+    },
+    {
+      "situation": "CSR or office employee moving into a field service",
+      "programCode": "PRG-SVC",
+      "moduleCode": null,
+      "mode": "service_with_fc",
+      "note": "SVC-FC, then the SVC- service module"
+    },
+    {
+      "situation": "Any employee moving into Sales",
+      "programCode": "PRG-SLS",
+      "moduleCode": null,
+      "mode": "program_steps",
+      "note": "All steps; completed modules are skipped"
+    },
+    {
+      "situation": "Any employee moving into Management",
+      "programCode": "PRG-MGT",
+      "moduleCode": null,
+      "mode": "program_steps",
+      "note": "All steps; completed modules are skipped"
+    }
+  ]
+}

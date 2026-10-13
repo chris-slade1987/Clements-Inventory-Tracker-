@@ -7,7 +7,7 @@
 // match the spec while keeping idiomatic camelCase in TypeScript.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -51,39 +51,39 @@ model Technician {
 
 // Managers only — v1 has no technician logins.
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         String   @default("manager") // "employee" | "manager" | "admin"
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  passwordHash       String    @map("password_hash")
+  role               String    @default("manager") // "employee" | "manager" | "admin"
   // Access level (the assignable "user level"): "super_admin" | "admin" |
   // "manager" | "technician" | "csr" | "sales". Drives access rights on top of
   // `role` (super_admin & admin both carry role "admin"; "admin" is walled to its
   // team for personnel profiles). Only super admins may change it. See lib/access-levels.ts.
-  accessLevel  String?  @map("access_level")
-  warehouseId  String?  @map("warehouse_id") // null = access to all warehouses
-  branch       String? // "vero" | "stuart" | "orlando" | "naples" — home branch (null = all-branch / exec)
-  employeeId   String?  @unique @map("employee_id") // personnel profile (for employee logins)
-  active       Boolean  @default(true)
-  canPostBulletin Boolean @default(false) @map("can_post_bulletin") // may author company bulletin posts / calendar
-  seniorLeadership Boolean @default(false) @map("senior_leadership") // senior leadership group — may view the Compliance Command Center
-  hrAccess     Boolean @default(false) @map("hr_access") // HR — may run pre-hire onboarding (+ HR tools)
-  boardObserver Boolean @default(false) @map("board_observer") // board member — read-only access to the executive views only
+  accessLevel        String?   @map("access_level")
+  warehouseId        String?   @map("warehouse_id") // null = access to all warehouses
+  branch             String? // "vero" | "stuart" | "orlando" | "naples" — home branch (null = all-branch / exec)
+  employeeId         String?   @unique @map("employee_id") // personnel profile (for employee logins)
+  active             Boolean   @default(true)
+  canPostBulletin    Boolean   @default(false) @map("can_post_bulletin") // may author company bulletin posts / calendar
+  seniorLeadership   Boolean   @default(false) @map("senior_leadership") // senior leadership group — may view the Compliance Command Center
+  hrAccess           Boolean   @default(false) @map("hr_access") // HR — may run pre-hire onboarding (+ HR tools)
+  boardObserver      Boolean   @default(false) @map("board_observer") // board member — read-only access to the executive views only
   // Default-password policy: when true, the user is on the shared default password
   // and must set their own. `firstLoginAt` is stamped on their first successful
   // login; enforcement blocks all app pages (except /account) once 72h have
   // elapsed since that first login. Cleared when they set their own password.
-  mustChangePassword Boolean  @default(false) @map("must_change_password")
+  mustChangePassword Boolean   @default(false) @map("must_change_password")
   firstLoginAt       DateTime? @map("first_login_at")
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
 
-  warehouse Warehouse?      @relation(fields: [warehouseId], references: [id])
-  employee  Employee?       @relation(fields: [employeeId], references: [id])
-  sessions  Session[]
-  invoices  Invoice[]
-  movements StockMovement[]
-  checkoutsIssued Checkout[] @relation("CheckoutIssuedBy")
-  checkoutsVoided Checkout[] @relation("CheckoutVoidedBy")
+  warehouse       Warehouse?      @relation(fields: [warehouseId], references: [id])
+  employee        Employee?       @relation(fields: [employeeId], references: [id])
+  sessions        Session[]
+  invoices        Invoice[]
+  movements       StockMovement[]
+  checkoutsIssued Checkout[]      @relation("CheckoutIssuedBy")
+  checkoutsVoided Checkout[]      @relation("CheckoutVoidedBy")
 
   @@map("users")
 }
@@ -103,47 +103,47 @@ model Session {
 
 // Master chemical catalog.
 model Product {
-  id             String  @id @default(cuid())
-  name           String
-  manufacturer   String?
-  epaRegNumber   String? @map("epa_reg_number")
+  id                String  @id @default(cuid())
+  name              String
+  manufacturer      String?
+  epaRegNumber      String? @map("epa_reg_number")
   // Official Safety Data Sheet (SDS/MSDS) URL — a link to the manufacturer's own
   // SDS PDF (verified only; null when not confidently found). We store the URL
   // only and never host the PDF. Fertilizers/chemicals have SDS; devices usually
   // do not. See prisma/data/product-sds.json + prisma/seed-epa-numbers.ts.
-  sdsUrl         String? @map("sds_url")
-  unitOfMeasure  String  @map("unit_of_measure") // e.g. "jug", "case", "lb", "gal"
-  category       String?
-  barcode        String? @unique
-  distributorSku String? @map("distributor_sku")
+  sdsUrl            String? @map("sds_url")
+  unitOfMeasure     String  @map("unit_of_measure") // e.g. "jug", "case", "lb", "gal"
+  category          String?
+  barcode           String? @unique
+  distributorSku    String? @map("distributor_sku")
   activeIngredient  String? @map("active_ingredient")
   targetPest        String? @map("target_pest")
   applicationMethod String? @map("application_method")
-  active          Boolean @default(true)
+  active            Boolean @default(true)
   // Governance: whether this product is on the CEO's approved catalog. Off-list
   // products stay usable but are flagged. unitOfMeasure holds a canonical UoM
   // CODE from lib/uom.ts (never free text).
-  approved        Boolean @default(true)
+  approved          Boolean @default(true)
   // Case -> unit pack size (e.g. tubes per case). Null until a later step fills
   // it; see unitsFromCases() in lib/uom.ts. No conversion math runs yet.
-  unitsPerCase    Int?    @map("units_per_case")
+  unitsPerCase      Int?    @map("units_per_case")
   // Line-of-service classification (additive to `category`). `division` is one of
   // DIVISIONS in lib/constants.ts (GHP | LO | TERMITE | RODENT | OTHER);
   // `subdivision` is one of that division's SUBDIVISIONS. Null for off-catalog
   // products that haven't been classified.
-  division        String?
-  subdivision     String?
+  division          String?
+  subdivision       String?
   // Formal-approval gate: `approved` = on the CEO's catalog; `confirmed` = a human
   // has reviewed this row's data. Auto-added products (invoice/history) start
   // unconfirmed and are BLOCKED at check-out until an admin confirms them.
-  confirmed       Boolean @default(true)
+  confirmed         Boolean @default(true)
   // Free-text note (e.g. "added from transfer history — confirm naming").
-  notes           String?
+  notes             String?
 
-  invoiceLines InvoiceLine[]
-  movements    StockMovement[]
-  alerts       Alert[]
-  barcodes     ProductBarcode[]
+  invoiceLines  InvoiceLine[]
+  movements     StockMovement[]
+  alerts        Alert[]
+  barcodes      ProductBarcode[]
   checkoutLines CheckoutLine[]
 
   @@map("products")
@@ -171,17 +171,17 @@ model ProductBarcode {
 // and (on submit) a StockMovement per line. Never hard-deleted — a void sets
 // status VOIDED and writes offsetting adjustment movements.
 model Checkout {
-  id               String    @id @default(cuid())
-  warehouseId      String    @map("warehouse_id")
-  technicianId     String    @map("technician_id")
-  issuedByUserId   String    @map("issued_by_user_id")
-  status           String    @default("SUBMITTED") // "DRAFT" | "SUBMITTED" | "VOIDED"
-  signatureImageUrl String?  @map("signature_image_url")
-  submittedAt      DateTime? @map("submitted_at")
-  voidedAt         DateTime? @map("voided_at")
-  voidedByUserId   String?   @map("voided_by_user_id")
-  voidReason       String?   @map("void_reason")
-  createdAt        DateTime  @default(now()) @map("created_at")
+  id                String    @id @default(cuid())
+  warehouseId       String    @map("warehouse_id")
+  technicianId      String    @map("technician_id")
+  issuedByUserId    String    @map("issued_by_user_id")
+  status            String    @default("SUBMITTED") // "DRAFT" | "SUBMITTED" | "VOIDED"
+  signatureImageUrl String?   @map("signature_image_url")
+  submittedAt       DateTime? @map("submitted_at")
+  voidedAt          DateTime? @map("voided_at")
+  voidedByUserId    String?   @map("voided_by_user_id")
+  voidReason        String?   @map("void_reason")
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
   technician Technician     @relation(fields: [technicianId], references: [id])
@@ -398,13 +398,13 @@ model BranchKpiTarget {
 
 // Revenue by line of business (service category) per branch per period.
 model LobRevenue {
-  id         String  @id @default(cuid())
-  periodId   String  @map("period_id")
-  scope      String  @default("company") // "company" | branch key
-  lob        String // "Pest" | "Fertilizer" | "L&O" | "Termite" | "Rat" | ...
-  revenue    Float   @default(0)
-  jobs       Int?
-  budget     Float?
+  id       String @id @default(cuid())
+  periodId String @map("period_id")
+  scope    String @default("company") // "company" | branch key
+  lob      String // "Pest" | "Fertilizer" | "L&O" | "Termite" | "Rat" | ...
+  revenue  Float  @default(0)
+  jobs     Int?
+  budget   Float?
 
   period ReportPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
 
@@ -415,12 +415,12 @@ model LobRevenue {
 // New-sales lead sources per period/scope. leads/won drive close rate when
 // that lead-level data is available (not in the MBR — fed separately).
 model LeadSource {
-  id           String  @id @default(cuid())
-  periodId     String  @map("period_id")
-  scope        String  @default("company")
+  id           String @id @default(cuid())
+  periodId     String @map("period_id")
+  scope        String @default("company")
   source       String
-  revenueMonth Float   @default(0) @map("revenue_month")
-  revenueYtd   Float?  @map("revenue_ytd")
+  revenueMonth Float  @default(0) @map("revenue_month")
+  revenueYtd   Float? @map("revenue_ytd")
   leads        Int?
   won          Int?
 
@@ -487,12 +487,12 @@ model ScorecardReview {
   status  String @default("draft") // "draft" | "final" | "archived"
 
   // Publish → manager e-sign flow.
-  publishedAt   DateTime? @map("published_at")
-  signToken     String?   @unique @map("sign_token") // manager's emailed sign link
-  bonusNotifiedAt DateTime? @map("bonus_notified_at") // HR bonus-payout email idempotency
+  publishedAt        DateTime? @map("published_at")
+  signToken          String?   @unique @map("sign_token") // manager's emailed sign link
+  bonusNotifiedAt    DateTime? @map("bonus_notified_at") // HR bonus-payout email idempotency
   // Set true when an already-archived review is reopened & edited, so the next
   // archive notifies every stakeholder that the published version CHANGED.
-  editedAfterArchive Boolean @default(false) @map("edited_after_archive")
+  editedAfterArchive Boolean   @default(false) @map("edited_after_archive")
 
   // Header block (the company template's part 1).
   managerName  String?   @map("manager_name")
@@ -555,33 +555,33 @@ model ScorecardSignature {
 // fields are here so it can slot in.
 // ---------------------------------------------------------------------------
 model Vehicle {
-  id             String    @id @default(cuid())
-  unitNumber     String?   @map("unit_number") // fleet unit / asset number
-  name           String // e.g. "2019 Ford Transit 250"
-  year           Int?
-  make           String?
-  model          String?
-  vin            String?   @unique
-  plate          String?
-  branch         String? // "vero" | "stuart" | "orlando" | "naples"
-  assignedTo     String?   @map("assigned_to") // technician / driver name (kept in sync with assignedEmployee)
+  id                 String    @id @default(cuid())
+  unitNumber         String?   @map("unit_number") // fleet unit / asset number
+  name               String // e.g. "2019 Ford Transit 250"
+  year               Int?
+  make               String?
+  model              String?
+  vin                String?   @unique
+  plate              String?
+  branch             String? // "vero" | "stuart" | "orlando" | "naples"
+  assignedTo         String?   @map("assigned_to") // technician / driver name (kept in sync with assignedEmployee)
   // Structured driver link. assignedTo (the name string) is kept in sync so all
   // existing name-based matching keeps working; this FK is the durable link.
-  assignedEmployeeId String? @map("assigned_employee_id")
+  assignedEmployeeId String?   @map("assigned_employee_id")
   assignedEmployee   Employee? @relation("VehicleDriver", fields: [assignedEmployeeId], references: [id])
-  status         String    @default("active") // "active" | "inactive" (sold/retired/etc.)
-  acquiredDate   DateTime? @map("acquired_date")
-  purchasePrice  Float?    @map("purchase_price")
+  status             String    @default("active") // "active" | "inactive" (sold/retired/etc.)
+  acquiredDate       DateTime? @map("acquired_date")
+  purchasePrice      Float?    @map("purchase_price")
 
   // Disposition (when no longer in service). All data is retained; the vehicle
   // just moves to the sold/retired list.
-  disposition      String?   // "sold" | "retired" | "totaled" | "traded" | "transferred"
+  disposition      String? // "sold" | "retired" | "totaled" | "traded" | "transferred"
   dispositionDate  DateTime? @map("disposition_date")
   salePrice        Float?    @map("sale_price")
   dispositionNotes String?   @map("disposition_notes")
-  currentMileage Int?      @map("current_mileage")
-  mileageAsOf    DateTime? @map("mileage_as_of") // date the mileage reading is from
-  statusNotes    String?   @map("status_notes") // replacement/condition notes
+  currentMileage   Int?      @map("current_mileage")
+  mileageAsOf      DateTime? @map("mileage_as_of") // date the mileage reading is from
+  statusNotes      String?   @map("status_notes") // replacement/condition notes
 
   // Registration / access / telematics
   driverCard          String?   @map("driver_card") // fuel card (Coast)
@@ -602,13 +602,13 @@ model Vehicle {
   loanBalance    Float?    @map("loan_balance")
   payoffDate     DateTime? @map("payoff_date") // maturity
 
-  createdAt      DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  services    VehicleService[]
-  inspections VehicleInspection[]
-  documents   VehicleDocument[]
-  reminders   Reminder[]
-  fuel        FuelTransaction[]
+  services     VehicleService[]
+  inspections  VehicleInspection[]
+  documents    VehicleDocument[]
+  reminders    Reminder[]
+  fuel         FuelTransaction[]
   gpsPositions GpsPosition[]
   gpsTrips     GpsTrip[]
   gpsAlerts    GpsAlert[]
@@ -643,7 +643,7 @@ model GpsPosition {
   ignition      Boolean?
   odometer      Float?
   sample        Boolean  @default(false) // true = synthesized demo data (Verizon not configured)
-  raw           String?  // raw JSON from Reveal (kept for traceability)
+  raw           String? // raw JSON from Reveal (kept for traceability)
   createdAt     DateTime @default(now()) @map("created_at")
 
   vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
@@ -655,9 +655,9 @@ model GpsPosition {
 
 // A journey or stop for a vehicle on a given day (from /rad segments).
 model GpsTrip {
-  id            String   @id @default(cuid())
-  vehicleId     String?  @map("vehicle_id")
-  verizonNumber String   @map("verizon_number")
+  id            String    @id @default(cuid())
+  vehicleId     String?   @map("vehicle_id")
+  verizonNumber String    @map("verizon_number")
   day           DateTime
   startTs       DateTime? @map("start_ts")
   endTs         DateTime? @map("end_ts")
@@ -746,14 +746,14 @@ model FuelTransaction {
   id        String  @id @default(cuid())
   vehicleId String? @map("vehicle_id")
 
-  date       DateTime
-  postedTime String?  @map("posted_time")
-  driverName String?  @map("driver_name")
-  merchant   String?
+  date        DateTime
+  postedTime  String?  @map("posted_time")
+  driverName  String?  @map("driver_name")
+  merchant    String?
   description String?
-  type       String   @default("Purchase") // "Purchase" | "Fee" | "Credit" | "Bill Payment"
-  category   String?
-  amount     Float    @default(0)
+  type        String   @default("Purchase") // "Purchase" | "Fee" | "Credit" | "Bill Payment"
+  category    String?
+  amount      Float    @default(0)
 
   // Where the row came from: "upload" (a parsed Coast .xlsx statement) or
   // "coast" (the live Coast API sync). Null on legacy rows loaded before this
@@ -764,11 +764,11 @@ model FuelTransaction {
   status String?
 
   gallons       Float?
-  costPerGallon Float? @map("cost_per_gallon")
+  costPerGallon Float?  @map("cost_per_gallon")
   fuelGrade     String? @map("fuel_grade")
   odometer      Int?
-  calculatedMpg Float? @map("calculated_mpg")
-  mileageDriven Int?   @map("mileage_driven")
+  calculatedMpg Float?  @map("calculated_mpg")
+  mileageDriven Int?    @map("mileage_driven")
 
   // As printed on the statement (kept even when we link by card/unit, so plate
   // discrepancies against the registry stay visible).
@@ -839,13 +839,13 @@ model Reminder {
 // on its own. Manual reminders are NOT dismissed here — their own row flips to
 // "dismissed" instead.
 model ReminderDismissal {
-  id              String   @id @default(cuid())
-  key             String   @unique
-  branch          String?
-  reason          String?
-  dismissedByUserId String? @map("dismissed_by_user_id")
-  dismissedByName   String? @map("dismissed_by_name")
-  dismissedAt     DateTime @default(now()) @map("dismissed_at")
+  id                String   @id @default(cuid())
+  key               String   @unique
+  branch            String?
+  reason            String?
+  dismissedByUserId String?  @map("dismissed_by_user_id")
+  dismissedByName   String?  @map("dismissed_by_name")
+  dismissedAt       DateTime @default(now()) @map("dismissed_at")
 
   @@map("reminder_dismissals")
 }
@@ -894,18 +894,18 @@ model VehicleDocument {
 }
 
 model VehicleService {
-  id            String    @id @default(cuid())
-  vehicleId     String    @map("vehicle_id")
-  date          DateTime
-  type          String // "oil_change" | "repair" | "inspection" | "tires" | "pm" | "other"
-  description   String?
-  cost          Float     @default(0)
-  mileage       Int? // odometer at service
-  vendor        String?
-  invoiceRef    String?   @map("invoice_ref")
-  nextDueMileage Int?     @map("next_due_mileage")
-  nextDueDate   DateTime? @map("next_due_date")
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id             String    @id @default(cuid())
+  vehicleId      String    @map("vehicle_id")
+  date           DateTime
+  type           String // "oil_change" | "repair" | "inspection" | "tires" | "pm" | "other"
+  description    String?
+  cost           Float     @default(0)
+  mileage        Int? // odometer at service
+  vendor         String?
+  invoiceRef     String?   @map("invoice_ref")
+  nextDueMileage Int?      @map("next_due_mileage")
+  nextDueDate    DateTime? @map("next_due_date")
+  createdAt      DateTime  @default(now()) @map("created_at")
 
   vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
@@ -968,50 +968,50 @@ model VehicleInspection {
 // (future) annual reviews tag to the profile so scores accrue to the person.
 // ---------------------------------------------------------------------------
 model Employee {
-  id            String    @id @default(cuid())
-  name          String
-  email         String? // work email (for emailing inspection scores); filled later
-  phone         String? // WORK phone
-  personalPhone String?   @map("personal_phone") // personal/cell number (separate from work phone)
-  personalEmail String?   @map("personal_email") // personal email (separate from work email)
-  role          String? // "Technician" | "Manager" | "Sales Advisor" | ...
-  division      String? // "Lawn" | "Service" | "General Pest" | ...
-  branch        String? // "vero" | "stuart" | "orlando" | "naples"
-  title         String?
-  status        String    @default("active") // "active" | "inactive" (former employee)
-  hireDate      DateTime? @map("hire_date")
-  birthMonth    Int?      @map("birth_month") // 1-12; feeds month+day birthday celebrations (bulletin/team view)
-  birthDay      Int?      @map("birth_day") // 1-31
-  birthYear     Int?      @map("birth_year") // HR-ONLY — shown only on the HR profile, never on the bulletin/team view or any derived celebration
-  terminatedAt  DateTime? @map("terminated_at")
-  licenseNumber String?   @map("license_number")
+  id               String     @id @default(cuid())
+  name             String
+  email            String? // work email (for emailing inspection scores); filled later
+  phone            String? // WORK phone
+  personalPhone    String?    @map("personal_phone") // personal/cell number (separate from work phone)
+  personalEmail    String?    @map("personal_email") // personal email (separate from work email)
+  role             String? // "Technician" | "Manager" | "Sales Advisor" | ...
+  division         String? // "Lawn" | "Service" | "General Pest" | ...
+  branch           String? // "vero" | "stuart" | "orlando" | "naples"
+  title            String?
+  status           String     @default("active") // "active" | "inactive" (former employee)
+  hireDate         DateTime?  @map("hire_date")
+  birthMonth       Int?       @map("birth_month") // 1-12; feeds month+day birthday celebrations (bulletin/team view)
+  birthDay         Int?       @map("birth_day") // 1-31
+  birthYear        Int?       @map("birth_year") // HR-ONLY — shown only on the HR profile, never on the bulletin/team view or any derived celebration
+  terminatedAt     DateTime?  @map("terminated_at")
+  licenseNumber    String?    @map("license_number")
   // Org chart: who this employee reports to (their team lead / manager). Forms a
   // self-referencing tree — a person's "team" is everyone in the subtree beneath
   // them. Powers the visual org chart and team-scoped Admin-Lite access.
-  reportsToId   String?   @map("reports_to_id")
-  reportsTo     Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
-  reports       Employee[] @relation("OrgChart")
-  ptoAllowanceDays Int?   @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
-  notes         String?
-  createdAt     DateTime  @default(now()) @map("created_at")
+  reportsToId      String?    @map("reports_to_id")
+  reportsTo        Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
+  reports          Employee[] @relation("OrgChart")
+  ptoAllowanceDays Int?       @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
+  notes            String?
+  createdAt        DateTime   @default(now()) @map("created_at")
 
-  inspections VehicleInspection[]
-  rideAlongs  AuditRideAlong[]
-  assignments TrainingAssignment[]
-  records     PersonnelRecord[]
-  reviews     NewHireReview[]
-  separation  EmployeeSeparation?
-  reminders   Reminder[]
-  branchDocuments BranchDocument[]
-  ptoRequests PtoRequest[]
-  absences    Absence[]
-  user        User?
-  assignedVehicles Vehicle[] @relation("VehicleDriver")
-  // Internal certification program (SEPARATE system from Course/TrainingAssignment).
-  certEnrollments CertEnrollment[]
-  moduleProgress  ModuleProgress[]
-  fieldHourLogs   FieldHourLog[]
-  certAwards      CertAward[]
+  inspections       VehicleInspection[]
+  rideAlongs        AuditRideAlong[]
+  assignments       TrainingAssignment[]
+  records           PersonnelRecord[]
+  reviews           NewHireReview[]
+  separation        EmployeeSeparation?
+  reminders         Reminder[]
+  branchDocuments   BranchDocument[]
+  ptoRequests       PtoRequest[]
+  absences          Absence[]
+  user              User?
+  assignedVehicles  Vehicle[]            @relation("VehicleDriver")
+  // Training Center — internal certification program (Program → Module → Course).
+  moduleAssignments ModuleAssignment[]
+  courseProgress    CourseProgress[]
+  fieldSignoffs     FieldSignoff[]
+  certAwards        CertAward[]
 
   @@index([branch])
   @@index([name])
@@ -1057,32 +1057,32 @@ model PtoRequest {
 // path. On-hand math philosophy doesn't apply here (no balance) — each row is
 // simply a logged occurrence.
 model Absence {
-  id            String   @id @default(cuid())
-  employeeId    String   @map("employee_id")
-  branch        String?                          // denormalized from the employee for scoping/rollup
+  id               String    @id @default(cuid())
+  employeeId       String    @map("employee_id")
+  branch           String? // denormalized from the employee for scoping/rollup
   // "absence" = a call-out (day(s) missed); "tardy" = a late arrival (single day,
   // days=0, no medical-note rule, no notification). Both live in the same
   // Attendance section but are counted separately.
-  kind          String   @default("absence")
-  minutesLate   Int?     @map("minutes_late")    // tardy only: how many minutes late (optional)
-  startDate     DateTime @map("start_date")
-  endDate       DateTime @map("end_date")        // inclusive; equals startDate for a single day
-  days          Int                              // inclusive calendar-day count of the span (0 for a tardy)
-  reason        String                           // canonical code (see REASONS in lib/absence.ts)
-  reasonDetail  String?  @map("reason_detail")   // REQUIRED when reason="other"; optional note otherwise
-  excused       Boolean?                         // HR/manager determination; null = undetermined
+  kind             String    @default("absence")
+  minutesLate      Int?      @map("minutes_late") // tardy only: how many minutes late (optional)
+  startDate        DateTime  @map("start_date")
+  endDate          DateTime  @map("end_date") // inclusive; equals startDate for a single day
+  days             Int // inclusive calendar-day count of the span (0 for a tardy)
+  reason           String // canonical code (see REASONS in lib/absence.ts)
+  reasonDetail     String?   @map("reason_detail") // REQUIRED when reason="other"; optional note otherwise
+  excused          Boolean? // HR/manager determination; null = undetermined
   // Physical-injury linkage
-  workplaceRelated Boolean? @map("workplace_related")  // REQUIRED non-null when reason="physical_injury"
-  accidentRecordId String?  @map("accident_record_id") // -> PersonnelRecord(id) where type="accident"
+  workplaceRelated Boolean?  @map("workplace_related") // REQUIRED non-null when reason="physical_injury"
+  accidentRecordId String?   @map("accident_record_id") // -> PersonnelRecord(id) where type="accident"
   // Medical-note tracking (illness > 2 days). STATUS ONLY — no medical details.
-  noteRequired   Boolean   @default(false) @map("note_required")
-  noteStatus     String    @default("none") @map("note_status") // "none" | "requested" | "received" | "waived"
-  noteResolvedAt DateTime? @map("note_resolved_at")
-  noteResolvedBy String?   @map("note_resolved_by")
-  loggedById     String?   @map("logged_by_id")
-  loggedByName   String?   @map("logged_by_name")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  noteRequired     Boolean   @default(false) @map("note_required")
+  noteStatus       String    @default("none") @map("note_status") // "none" | "requested" | "received" | "waived"
+  noteResolvedAt   DateTime? @map("note_resolved_at")
+  noteResolvedBy   String?   @map("note_resolved_by")
+  loggedById       String?   @map("logged_by_id")
+  loggedByName     String?   @map("logged_by_name")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -1095,24 +1095,24 @@ model Absence {
 // notes, recognition, and workplace accident reports. Every submission is
 // emailed to HR and filed on the employee's profile.
 model PersonnelRecord {
-  id           String    @id @default(cuid())
-  employeeId   String    @map("employee_id")
-  branch       String?
-  type         String // "writeup" | "note" | "recognition" | "accident"
-  category     String? // writeup: verbal|written|final|pip ; accident: minor|recordable|serious
-  title        String?
-  body         String?
-  incidentDate DateTime? @map("incident_date")
-  actionTaken  String?   @map("action_taken")
-  followUp     String?   @map("follow_up")
-  details      String    @default("{}") // JSON: accident fields + manager checklist state
-  attachmentFile String? @map("attachment_file")
-  attachmentName String? @map("attachment_name")
-  authorId     String?   @map("author_id")
-  authorName   String?   @map("author_name")
-  hrNotified   Boolean   @default(false) @map("hr_notified")
+  id             String    @id @default(cuid())
+  employeeId     String    @map("employee_id")
+  branch         String?
+  type           String // "writeup" | "note" | "recognition" | "accident"
+  category       String? // writeup: verbal|written|final|pip ; accident: minor|recordable|serious
+  title          String?
+  body           String?
+  incidentDate   DateTime? @map("incident_date")
+  actionTaken    String?   @map("action_taken")
+  followUp       String?   @map("follow_up")
+  details        String    @default("{}") // JSON: accident fields + manager checklist state
+  attachmentFile String?   @map("attachment_file")
+  attachmentName String?   @map("attachment_name")
+  authorId       String?   @map("author_id")
+  authorName     String?   @map("author_name")
+  hrNotified     Boolean   @default(false) @map("hr_notified")
   acknowledgedAt DateTime? @map("acknowledged_at") // future: employee sign-off
-  createdAt    DateTime  @default(now()) @map("created_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
 
   employee          Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   signatures        PersonnelSignature[]
@@ -1146,11 +1146,11 @@ model PersonnelSignature {
 // bypass when a separation is not on good terms). Created when an employee is
 // moved to inactive; the profile and all linked data are retained.
 model EmployeeSeparation {
-  id             String  @id @default(cuid())
-  employeeId     String  @unique @map("employee_id")
-  separationType String  @map("separation_type") // "voluntary" | "involuntary" | "layoff" | "other"
-  reasonCategory String? @map("reason_category") // resignation | performance | misconduct | attendance | job_abandonment | layoff | other
-  reasonNotes    String? @map("reason_notes")
+  id             String   @id @default(cuid())
+  employeeId     String   @unique @map("employee_id")
+  separationType String   @map("separation_type") // "voluntary" | "involuntary" | "layoff" | "other"
+  reasonCategory String?  @map("reason_category") // resignation | performance | misconduct | attendance | job_abandonment | layoff | other
+  reasonNotes    String?  @map("reason_notes")
   lastDay        DateTime @map("last_day")
   rehireEligible Boolean? @map("rehire_eligible")
 
@@ -1212,8 +1212,8 @@ model NewHireReview {
   hrSignedAt         DateTime? @map("hr_signed_at")
 
   // Remote-sign token for the employee (emailed link when not on-site).
-  employeeToken     String?   @unique @map("employee_token")
-  lastReminderAt    DateTime? @map("last_reminder_at")
+  employeeToken  String?   @unique @map("employee_token")
+  lastReminderAt DateTime? @map("last_reminder_at")
 
   hrNotifiedAt DateTime? @map("hr_notified_at")
   sentAt       DateTime? @map("sent_at")
@@ -1288,26 +1288,26 @@ model SalesGoalSheet {
   branch            String? // snapshot of the advisor's branch for director rollups
   periodKey         String   @map("period_key") // "YYYY-MM"
   // Prior-month recap (the light-green inputs)
-  reis          Int   @default(0) // real-estate re-inspections
-  appts         Int   @default(0) // appointments
-  proposals     Int   @default(0)
-  pcExposed     Float @default(0) @map("pc_exposed")     // $ pest-control exposed
-  pcSold        Float @default(0) @map("pc_sold")        // $ pest-control sold
-  tcSold        Float @default(0) @map("tc_sold")        // $ termite sold
-  totalExposure Float @default(0) @map("total_exposure") // $ total exposure
-  tcUnits       Int   @default(0) @map("tc_units")       // termite units sold
+  reis              Int      @default(0) // real-estate re-inspections
+  appts             Int      @default(0) // appointments
+  proposals         Int      @default(0)
+  pcExposed         Float    @default(0) @map("pc_exposed") // $ pest-control exposed
+  pcSold            Float    @default(0) @map("pc_sold") // $ pest-control sold
+  tcSold            Float    @default(0) @map("tc_sold") // $ termite sold
+  totalExposure     Float    @default(0) @map("total_exposure") // $ total exposure
+  tcUnits           Int      @default(0) @map("tc_units") // termite units sold
   // This month's goal
-  salesGoal Float @default(0) @map("sales_goal") // $ target for the month
-  workdays  Int   @default(0)                    // # workdays in the month
+  salesGoal         Float    @default(0) @map("sales_goal") // $ target for the month
+  workdays          Int      @default(0) // # workdays in the month
   // Optional explicit per-stage funnel goals. When 0, the funnel derives the
   // stage goal from the computed plan (prospects/proposals needed, $ ÷ avg job).
-  leadsGoal     Int    @default(0) @map("leads_goal")
-  proposalsGoal Int    @default(0) @map("proposals_goal")
-  dealsGoal     Int    @default(0) @map("deals_goal")
-  source        String @default("manual") // "manual" | "demo" — demo rows are cleared on SmarterLaunch cutover
-  createdByUserId String?  @map("created_by_user_id")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+  leadsGoal         Int      @default(0) @map("leads_goal")
+  proposalsGoal     Int      @default(0) @map("proposals_goal")
+  dealsGoal         Int      @default(0) @map("deals_goal")
+  source            String   @default("manual") // "manual" | "demo" — demo rows are cleared on SmarterLaunch cutover
+  createdByUserId   String?  @map("created_by_user_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@unique([advisorEmployeeId, periodKey])
   @@index([branch, periodKey])
@@ -1326,7 +1326,7 @@ model SalesPeriodStat {
   periodKey         String   @map("period_key") // "YYYY-MM"
   leadsCreated      Int      @default(0) @map("leads_created")
   proposalsMade     Int      @default(0) @map("proposals_made")
-  dealsClosed       Int      @default(0) @map("deals_closed")  // count of proposals won
+  dealsClosed       Int      @default(0) @map("deals_closed") // count of proposals won
   closedAmount      Float    @default(0) @map("closed_amount") // $ closed this month
   source            String   @default("manual") // "manual" | "salescenter" | "smarterlaunch"
   updatedByUserId   String?  @map("updated_by_user_id")
@@ -1352,7 +1352,7 @@ model SalesLead {
   id                String  @id @default(cuid())
   externalId        String? @unique @map("external_id") // SmarterLaunch lead id, for idempotent upsert
   advisorEmployeeId String? @map("advisor_employee_id") // assigned service advisor (null = unassigned)
-  advisorName       String? @map("advisor_name")        // snapshot, for display when no employee link
+  advisorName       String? @map("advisor_name") // snapshot, for display when no employee link
   branch            String? // branch area the lead belongs to
 
   // Geography (for the heat map). Neighborhood is the area label; zip clusters it.
@@ -1364,14 +1364,14 @@ model SalesLead {
   lng          Float?
 
   // Funnel + source
-  stage    String   @default("lead") // "lead" | "proposal" | "closed" | "lost"
-  channel  String   @default("other") // "bni" | "referral" | "google" | "web" | "other"
-  provided Boolean  @default(false) // true = company-provided lead; false = advisor self-generated
-  value    Float    @default(0) // estimated/closed deal value ($)
+  stage    String  @default("lead") // "lead" | "proposal" | "closed" | "lost"
+  channel  String  @default("other") // "bni" | "referral" | "google" | "web" | "other"
+  provided Boolean @default(false) // true = company-provided lead; false = advisor self-generated
+  value    Float   @default(0) // estimated/closed deal value ($)
 
   // SmarterLaunch provenance (additive, nullable — only set for origin="smarterlaunch").
   // A SmarterLaunch "lead" = customer + proposal; externalId holds the proposal uuid.
-  customerUuid   String? @map("customer_uuid")   // SmarterLaunch customer uuid (for enrichment / re-lookup)
+  customerUuid   String? @map("customer_uuid") // SmarterLaunch customer uuid (for enrichment / re-lookup)
   proposalStatus String? @map("proposal_status") // raw SmarterLaunch proposal status (Draft/Sent/Accepted/…)
   referralSource String? @map("referral_source") // raw referral-source name (mapped into `channel`)
 
@@ -1459,10 +1459,10 @@ model EmailLog {
 // thread clears their unread "alert". Notifications also go out by email.
 // ---------------------------------------------------------------------------
 model Thread {
-  id      String @id @default(cuid())
+  id      String  @id @default(cuid())
   subject String
   branch  String?
-  status  String @default("open") // "open" | "resolved"
+  status  String  @default("open") // "open" | "resolved"
 
   // What this thread is about — used to deep-link back to the source item.
   contextType  String  @default("general") @map("context_type") // "reminder" | "alert" | "employee" | "vehicle" | "general"
@@ -1488,16 +1488,16 @@ model Thread {
 // (e.g. an employee without a login) still get notified. `lastReadAt` drives the
 // per-person unread badge — null means never opened.
 model ThreadParticipant {
-  id         String    @id @default(cuid())
-  threadId   String    @map("thread_id")
-  userId     String?   @map("user_id")
-  employeeId String?   @map("employee_id")
-  name       String
-  email      String?
-  role       String    @default("member") // "owner" | "member"
-  lastReadAt DateTime? @map("last_read_at")
-  notifyEmail Boolean  @default(true) @map("notify_email")
-  createdAt  DateTime  @default(now()) @map("created_at")
+  id          String    @id @default(cuid())
+  threadId    String    @map("thread_id")
+  userId      String?   @map("user_id")
+  employeeId  String?   @map("employee_id")
+  name        String
+  email       String?
+  role        String    @default("member") // "owner" | "member"
+  lastReadAt  DateTime? @map("last_read_at")
+  notifyEmail Boolean   @default(true) @map("notify_email")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
@@ -1545,11 +1545,11 @@ model BranchAudit {
   suggestions     String? // engagement / inclusion suggestions
   nextQuarterPlan String? @map("next_quarter_plan")
 
-  score       Int      @default(0)
-  maxScore    Int      @default(0) @map("max_score")
-  scorePct    Float    @default(0) @map("score_pct")
+  score       Int       @default(0)
+  maxScore    Int       @default(0) @map("max_score")
+  scorePct    Float     @default(0) @map("score_pct")
   submittedAt DateTime? @map("submitted_at")
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   rideAlongs AuditRideAlong[]
   followUps  AuditFollowUp[]
@@ -1560,11 +1560,11 @@ model BranchAudit {
 }
 
 model AuditRideAlong {
-  id          String  @id @default(cuid())
-  auditId     String  @map("audit_id")
-  employeeId  String? @map("employee_id")
+  id             String  @id @default(cuid())
+  auditId        String  @map("audit_id")
+  employeeId     String? @map("employee_id")
   technicianName String? @map("technician_name")
-  serviceType String? @map("service_type") // general_pest | termite | lawn | mosquito | rodent | other
+  serviceType    String? @map("service_type") // general_pest | termite | lawn | mosquito | rodent | other
 
   // 1-5 ratings.
   customerInteraction Int? @map("customer_interaction")
@@ -1613,8 +1613,8 @@ model WarehouseInspection {
   date          DateTime
   inspectorName String?  @map("inspector_name")
 
-  checks   String @default("{}") // {itemKey: true/false}
-  comments String @default("{}") // {itemKey: "corrective action"}
+  checks   String  @default("{}") // {itemKey: true/false}
+  comments String  @default("{}") // {itemKey: "corrective action"}
   notes    String?
 
   score    Int    @default(0)
@@ -1651,9 +1651,9 @@ model AuditPrecheck {
 // payment schedule so monthly budgets can be forecast; documents hold the PDFs.
 // ---------------------------------------------------------------------------
 model InsurancePolicy {
-  id     String @id @default(cuid())
-  line   String // canonical line key (see INSURANCE_LINES)
-  name   String // subline / descriptor, e.g. "Fleet Auto — Auto-Owners"
+  id           String  @id @default(cuid())
+  line         String // canonical line key (see INSURANCE_LINES)
+  name         String // subline / descriptor, e.g. "Fleet Auto — Auto-Owners"
   carrier      String?
   policyNumber String? @map("policy_number")
   agent        String? // broker / agency
@@ -1668,13 +1668,13 @@ model InsurancePolicy {
   coverages String @default("[]")
 
   // Payment / financing (drives the monthly forecast).
-  paymentMethod    String @default("direct") @map("payment_method") // "direct" | "financed" | "agency_bill"
-  paymentFrequency String @default("annual") @map("payment_frequency") // "annual" | "semiannual" | "quarterly" | "monthly" | "financed"
-  downPayment      Float? @map("down_payment")
-  financedAmount   Float? @map("financed_amount")
-  financeCharge    Float? @map("finance_charge")
-  numberOfPayments Int?   @map("number_of_payments")
-  paymentAmount    Float? @map("payment_amount")
+  paymentMethod    String  @default("direct") @map("payment_method") // "direct" | "financed" | "agency_bill"
+  paymentFrequency String  @default("annual") @map("payment_frequency") // "annual" | "semiannual" | "quarterly" | "monthly" | "financed"
+  downPayment      Float?  @map("down_payment")
+  financedAmount   Float?  @map("financed_amount")
+  financeCharge    Float?  @map("finance_charge")
+  numberOfPayments Int?    @map("number_of_payments")
+  paymentAmount    Float?  @map("payment_amount")
   apr              Float?
   financeCompany   String? @map("finance_company")
   financeAccount   String? @map("finance_account")
@@ -1741,7 +1741,7 @@ model InsuranceDocument {
 // certified operator for Orlando). Lease docs track rent + term for alerts.
 // ---------------------------------------------------------------------------
 model BranchDocument {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   branch   String // the branch this document belongs to (e.g. the branch a license certifies)
   category String // "licensing" | "lease" | "other"
   title    String
@@ -1785,17 +1785,17 @@ model BranchDocument {
 }
 
 model BranchContact {
-  id       String @id @default(cuid())
-  branch   String
-  category String // property_manager | maintenance | chemical_vendor | fdacs | vehicle_maintenance | vehicle_wrap | utilities | landlord | other
-  name     String
-  company  String?
-  role     String?
-  phone    String?
-  email    String?
-  website  String?
-  notes    String?
-  sortOrder Int    @default(0) @map("sort_order")
+  id        String   @id @default(cuid())
+  branch    String
+  category  String // property_manager | maintenance | chemical_vendor | fdacs | vehicle_maintenance | vehicle_wrap | utilities | landlord | other
+  name      String
+  company   String?
+  role      String?
+  phone     String?
+  email     String?
+  website   String?
+  notes     String?
+  sortOrder Int      @default(0) @map("sort_order")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -1854,7 +1854,7 @@ model BulletinPost {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  acks        BulletinAck[]
+  acks BulletinAck[]
 
   @@index([published, pinned])
   @@index([type])
@@ -1945,16 +1945,16 @@ model PreHireDocument {
 // approveAndConvert and marks the candidate "hired".
 // ---------------------------------------------------------------------------
 model Job {
-  id                String   @id @default(cuid())
-  title             String
-  branch            String? // "vero" | "stuart" | "orlando" | "naples"
-  openings          Int      @default(1)
-  description       String?
-  hiringManagerName String?  @map("hiring_manager_name")
-  status            String   @default("open") // open | on_hold | filled | closed
+  id                      String    @id @default(cuid())
+  title                   String
+  branch                  String? // "vero" | "stuart" | "orlando" | "naples"
+  openings                Int       @default(1)
+  description             String?
+  hiringManagerName       String?   @map("hiring_manager_name")
+  status                  String    @default("open") // open | on_hold | filled | closed
   // Public application "front door": the unguessable slug for /apply/<token>.
   // Generated on create; backfilled for existing jobs in deploy-db.
-  applyToken        String?  @unique @map("apply_token")
+  applyToken              String?   @unique @map("apply_token")
   // Interview handoff: the supervisor HR assigns to run in-person interviews for
   // this job, and the HR-set date interviews must be scheduled/completed by.
   interviewSupervisorId   String?   @map("interview_supervisor_id")
@@ -1967,16 +1967,16 @@ model Job {
   // assigned to this job. Nullable — when unset, the fill UIs fall back to the
   // role-matched template, then the default template for that kind, then the
   // legacy hardcoded questionnaire. Backfilled to null by `prisma db push`.
-  interviewTemplateId String? @map("interview_template_id")
-  screeningTemplateId String? @map("screening_template_id")
+  interviewTemplateId     String?   @map("interview_template_id")
+  screeningTemplateId     String?   @map("screening_template_id")
   // Close-out: the candidate selected when hiring completes (plain scalar id —
   // resolved manually, NOT a Prisma relation, since `candidates` already relates
   // this job to its Candidate rows) + when the job was filled/closed.
-  hiredCandidateId  String?  @map("hired_candidate_id")
-  filledAt          DateTime? @map("filled_at")
-  createdByName     String?  @map("created_by_name")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+  hiredCandidateId        String?   @map("hired_candidate_id")
+  filledAt                DateTime? @map("filled_at")
+  createdByName           String?   @map("created_by_name")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at")
 
   candidates Candidate[]
 
@@ -1985,35 +1985,35 @@ model Job {
 }
 
 model Candidate {
-  id            String   @id @default(cuid())
-  jobId         String?  @map("job_id")
-  name          String
+  id                   String    @id @default(cuid())
+  jobId                String?   @map("job_id")
+  name                 String
   // Split name parts captured by the public application form. `name` stays
   // populated ("First Last") for back-compat with all existing ATS code.
-  firstName     String?  @map("first_name")
-  lastName      String?  @map("last_name")
-  email         String
-  phone         String?
-  source        String? // where they came from (Indeed, referral, walk-in, …)
-  resumePath    String?  @map("resume_path")
-  resumeName    String?  @map("resume_name")
+  firstName            String?   @map("first_name")
+  lastName             String?   @map("last_name")
+  email                String
+  phone                String?
+  source               String? // where they came from (Indeed, referral, walk-in, …)
+  resumePath           String?   @map("resume_path")
+  resumeName           String?   @map("resume_name")
   // Mailing address + a short self-intro captured on the public application.
-  addressStreet String?  @map("address_street")
-  addressCity   String?  @map("address_city")
-  addressState  String?  @map("address_state")
-  addressZip    String?  @map("address_zip")
-  about         String?  // "Tell us about yourself" (capped ~250 words)
-  stage         String   @default("applied") // applied | screening | interviewing | ranked | selected | pre_hire | offer | onboarding | hired | excluded | rejected
-  notes         String?
-  preHireId     String?  @unique @map("prehire_id") // set once onboarding starts (links to PreHire)
+  addressStreet        String?   @map("address_street")
+  addressCity          String?   @map("address_city")
+  addressState         String?   @map("address_state")
+  addressZip           String?   @map("address_zip")
+  about                String? // "Tell us about yourself" (capped ~250 words)
+  stage                String    @default("applied") // applied | screening | interviewing | ranked | selected | pre_hire | offer | onboarding | hired | excluded | rejected
+  notes                String?
+  preHireId            String?   @unique @map("prehire_id") // set once onboarding starts (links to PreHire)
   // Stage-specific exclusion (a RETAINED, reason-tagged archive — never a delete).
   // excludedStage records the stage the candidate was cut AT; keepWarm marks a
   // re-engageable finalist (e.g. an un-selected ranked runner-up).
-  excludedReason String?   @map("excluded_reason")
-  excludedStage  String?   @map("excluded_stage")
-  excludedAt     DateTime? @map("excluded_at")
-  excludedByName String?   @map("excluded_by_name")
-  keepWarm       Boolean   @default(false) @map("keep_warm")
+  excludedReason       String?   @map("excluded_reason")
+  excludedStage        String?   @map("excluded_stage")
+  excludedAt           DateTime? @map("excluded_at")
+  excludedByName       String?   @map("excluded_by_name")
+  keepWarm             Boolean   @default(false) @map("keep_warm")
   // Screening (HR): booking-link request + call notes / completion.
   screeningRequestedAt DateTime? @map("screening_requested_at")
   screeningNotes       String?   @map("screening_notes")
@@ -2022,14 +2022,14 @@ model Candidate {
   // id (JSON). Null for candidates screened before templates / with notes only.
   screeningResponses   String?   @map("screening_responses")
   // Interview handoff: the confirmed date/time the supervisor logs.
-  interviewAt   DateTime? @map("interview_at")
+  interviewAt          DateTime? @map("interview_at")
   // Forced ranking (supervisor) → selection (HR).
-  interviewRank Int?      @map("interview_rank")
-  selectedAt    DateTime? @map("selected_at")
-  selectedByName String?  @map("selected_by_name")
-  createdByName String?  @map("created_by_name")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+  interviewRank        Int?      @map("interview_rank")
+  selectedAt           DateTime? @map("selected_at")
+  selectedByName       String?   @map("selected_by_name")
+  createdByName        String?   @map("created_by_name")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
   job        Job?        @relation(fields: [jobId], references: [id], onDelete: SetNull)
   interviews Interview[]
@@ -2040,31 +2040,31 @@ model Candidate {
 }
 
 model Interview {
-  id               String    @id @default(cuid())
-  candidateId      String    @map("candidate_id")
-  interviewerId    String?   @map("interviewer_id") // User id — the logged-in team member who conducts it
-  interviewerName  String?   @map("interviewer_name")
-  interviewerEmail String?   @map("interviewer_email")
-  scheduledAt      DateTime? @map("scheduled_at")
-  durationMins     Int       @default(45) @map("duration_mins")
-  type             String    @default("in_person") // in_person | video
-  location         String?
-  meetingLink      String?   @map("meeting_link")
+  id                String    @id @default(cuid())
+  candidateId       String    @map("candidate_id")
+  interviewerId     String?   @map("interviewer_id") // User id — the logged-in team member who conducts it
+  interviewerName   String?   @map("interviewer_name")
+  interviewerEmail  String?   @map("interviewer_email")
+  scheduledAt       DateTime? @map("scheduled_at")
+  durationMins      Int       @default(45) @map("duration_mins")
+  type              String    @default("in_person") // in_person | video
+  location          String?
+  meetingLink       String?   @map("meeting_link")
   // Reserved for a future Google Calendar API integration (Workspace service
   // account creates the event server-side + auto-generates a Meet link).
-  calendarEventId  String?   @map("calendar_event_id")
-  status           String    @default("scheduled") // scheduled | completed | cancelled
-  assignedByName   String?   @map("assigned_by_name")
-  responses        String    @default("{}") // JSON scorecard (competency ratings + notes + basics)
-  overallRating    Int?      @map("overall_rating")
-  recommendation   String? // strong_yes | yes | lean_yes | lean_no | no
-  summary          String?
+  calendarEventId   String?   @map("calendar_event_id")
+  status            String    @default("scheduled") // scheduled | completed | cancelled
+  assignedByName    String?   @map("assigned_by_name")
+  responses         String    @default("{}") // JSON scorecard (competency ratings + notes + basics)
+  overallRating     Int?      @map("overall_rating")
+  recommendation    String? // strong_yes | yes | lean_yes | lean_no | no
+  summary           String?
   // Set when the job is closed out and this interview's interviewer is notified
   // of the hiring result (idempotency guard for the outcome email).
   outcomeNotifiedAt DateTime? @map("outcome_notified_at")
-  completedAt      DateTime? @map("completed_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+  completedAt       DateTime? @map("completed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
 
   candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
@@ -2256,12 +2256,12 @@ model QcInspection {
 // principle as stock_movements / checklist_completions — never mutate or delete).
 // ---------------------------------------------------------------------------
 model PolicyDocument {
-  id        String  @id @default(cuid())
-  slug      String  @unique // "employee-handbook" | "manager-manual"
+  id        String   @id @default(cuid())
+  slug      String   @unique // "employee-handbook" | "manager-manual"
   title     String
   kind      String // "handbook" | "manual"
   audience  String // "all" | "manager"
-  version   Int     @default(1)
+  version   Int      @default(1)
   summary   String?
   body      String // Markdown
   effective String? // effective / last-updated note
@@ -2371,191 +2371,227 @@ model CheckInDraft {
 }
 
 // ---------------------------------------------------------------------------
-// Internal Certification Program (CanopyOS). SHELL ONLY — schema + seeded
-// reference data (certifications, modules, prerequisites, pathways). There is NO
-// training content, NO enforcement logic (prereq checks, one-cert-per-month,
-// award gating), and NO UI in this layer. This is a SEPARATE system from the
-// Course / TrainingAssignment LMS above and does not touch or reuse it.
-//
-// Program rules (from the Chief of Staff's build spec, for reference):
-//  - Every hire completes The Clements Way (CW) + the cert for their role.
-//  - Field roles share Field Core (FC); CSR does not require FC.
-//  - Six service certs (PC/LAWN/TERM/RX/MOS/WL) gate performing that service.
-//  - Sales (SLS) requires all service certs (the requiresAllServiceCerts flag).
-// The enrollment / progress / field-hour / award tables are created EMPTY.
+// TRAINING CENTER — internal certification program.
+// Vocabulary (CanopyOS Training Assignment Build Spec, J. Glanville 2026-10-13):
+//   Certification group = course-code prefix (CW, FC, PC, LAWN, TERM, RX, MOS, WL, CSR, SLS)
+//   Course  = one training unit (CW-01, PC-FLD) — the catalog atom
+//   Module  = a locked, ordered PACKAGE of courses (ONB-GHP, SVC-PC, ADV-SLS)
+//   Program = why training is assigned; groups modules (PRG-ONB, PRG-SVC, …)
+// Catalog (certifications / programs / modules / courses + joins) is seeded from
+// prisma/data/training-catalog.json and is admin-editable + versioned. The
+// per-employee tables (assignments, progress, sign-offs, awards) start EMPTY.
+// SEPARATE from the Course / TrainingAssignment CEU LMS above.
 // ---------------------------------------------------------------------------
 
-// A certification track. `code` is the stable key (CW, FC, PC, …). Open decisions
-// in the spec (field-hour minimums, pass score) are left null on purpose.
+// A certification group — awarded when every course in the group (incl. the
+// field sign-off) is complete and the sign-off is approved.
 model Certification {
-  id                      String   @id @default(cuid())
-  code                    String   @unique // CW | FC | PC | LAWN | TERM | RX | MOS | WL | CSR | SLS
-  name                    String
-  audience                String // who the cert applies to (free text from the spec's code table)
-  order                   Int
-  isServiceCert           Boolean  @default(false) // true for the six service certs: PC/LAWN/TERM/RX/MOS/WL
-  requiresAllServiceCerts Boolean  @default(false) // true for SLS (must hold every service cert)
-  fieldHoursRequired      Int?     @map("field_hours_required") // OPEN DECISION — left null
-  fieldHoursNote          String?  @map("field_hours_note") // e.g. "40 hours / 5 days minimum (FDACS)"
-  passScore               Int?     @map("pass_score") // OPEN DECISION — left null
-  signOffRoles            String?  @map("sign_off_roles") // e.g. "trainer or supervisor"
-  externalRequirement     String?  @map("external_requirement") // external gate noted in the spec
-  active                  Boolean  @default(true)
-  status                  String   @default("active") // "active" | "retired"
-  createdAt               DateTime @default(now()) @map("created_at")
+  id            String   @id @default(cuid())
+  code          String   @unique // CW | FC | PC | LAWN | TERM | RX | MOS | WL | CSR | SLS
+  name          String
+  order         Int      @default(0)
+  isServiceCert Boolean  @default(false) @map("is_service_cert") // PC/LAWN/TERM/RX/MOS/WL
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  modules         CertModule[]
-  prerequisites   CertPrerequisite[]  @relation("CertToPrereqs") // this cert's prerequisites (dependent side)
-  prerequisiteFor CertPrerequisite[]  @relation("CertAsPrereq")  // certs that require this one (inverse)
-  pathwayLinks    CertPathwayCert[]
-  enrollments     CertEnrollment[]
-  awards          CertAward[]
-  fieldHourLogs   FieldHourLog[]
+  courses  CertCourse[]
+  awards   CertAward[]
+  signoffs FieldSignoff[]
 
   @@map("certifications")
 }
 
-// A written module within a certification. NO content fields — only the code,
-// name, order, and where the source content stands.
-model CertModule {
+// A single training unit (CW-01 … SLS-12). Renamed from the old CertModule to
+// match the spec's "course" vocabulary. Content lives elsewhere (out of scope);
+// `trainingFolder` points at the source material for when content is dropped in.
+model CertCourse {
   id              String   @id @default(cuid())
-  code            String   @unique // e.g. "CW-01"
+  code            String   @unique // "CW-01", "PC-FLD"
   name            String
   certificationId String   @map("certification_id")
-  order           Int
-  contentStatus   String   @map("content_status") // "exists" | "partial" | "none"
-  sourceNote      String?  @map("source_note") // parenthetical note from the spec (e.g. "V5 draft")
+  order           Int // global catalog order
+  courseType      String   @default("written") @map("course_type") // "written" | "field_signoff"
+  contentStatus   String   @map("content_status") // "Exists" | "Partial (...)" | "None" | …
+  sourceNote      String?  @map("source_note")
+  targetMinutes   String?  @map("target_minutes") // e.g. "45–60"
+  trainingFolder  String?  @map("training_folder")
   createdAt       DateTime @default(now()) @map("created_at")
 
-  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
-  progress      ModuleProgress[]
+  certification         Certification          @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  moduleLinks           TrainingModuleCourse[]
+  progress              CourseProgress[]
+  signoffs              FieldSignoff[]
+  standaloneAssignments ModuleAssignment[]     @relation("StandaloneCourse")
 
   @@index([certificationId])
-  @@map("cert_modules")
+  @@map("cert_courses")
 }
 
-// A prerequisite edge between two certifications (self-referential join):
-// `certification` requires `prerequisite` to be held first.
-model CertPrerequisite {
-  id              String   @id @default(cuid())
-  certificationId String   @map("certification_id") // the dependent cert
-  prerequisiteId  String   @map("prerequisite_id")  // the cert that must come first
-  createdAt       DateTime @default(now()) @map("created_at")
+// Why training is assigned (PRG-ONB, PRG-CUR, PRG-SVC, PRG-SLS, PRG-MGT).
+model TrainingProgram {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  whenToAssign String?  @map("when_to_assign")
+  order        Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  certification Certification @relation("CertToPrereqs", fields: [certificationId], references: [id], onDelete: Cascade)
-  prerequisite  Certification @relation("CertAsPrereq", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+  modules     ProgramModule[]
+  assignments ModuleAssignment[]
 
-  @@unique([certificationId, prerequisiteId])
-  @@index([certificationId])
-  @@index([prerequisiteId])
-  @@map("cert_prerequisites")
+  @@map("training_programs")
 }
 
-// A career pathway (role or move) → the set of certifications it requires. Some
-// requirements are fixed certs (the `certs` join); others are rule flags that an
-// enforcement layer (NOT built here) would expand (e.g. "all service certs").
-model CertPathway {
-  id                     String   @id @default(cuid())
-  key                    String   @unique // new_hire_field | new_hire_csr | new_hire_sales | add_service | into_sales | into_management
-  label                  String
-  description            String?
-  order                  Int
-  includeHiredService    Boolean  @default(false) @map("include_hired_service") // + the service the person was hired into / is adding
-  includeAllServiceCerts Boolean  @default(false) @map("include_all_service_certs") // + every service cert (PC/LAWN/TERM/RX/MOS/WL)
-  includeSLS             Boolean  @default(false) @map("include_sls")
-  includeCSR             Boolean  @default(false) @map("include_csr")
-  includeAllCerts        Boolean  @default(false) @map("include_all_certs") // every certification (Management)
-  createdAt              DateTime @default(now()) @map("created_at")
+// A locked, ordered package of courses (ONB-GHP … ADV-SLS). `version` bumps on a
+// template edit; edits apply to NEW assignments only.
+model TrainingModule {
+  id                   String   @id @default(cuid())
+  code                 String   @unique
+  name                 String
+  certificationsEarned String?  @map("certifications_earned") // "CW, FC, PC"
+  audience             String?
+  fieldRequirement     String?  @map("field_requirement")
+  version              Int      @default(1)
+  active               Boolean  @default(true)
+  order                Int      @default(0)
+  createdAt            DateTime @default(now()) @map("created_at")
 
-  certs CertPathwayCert[]
+  programs    ProgramModule[]
+  courses     TrainingModuleCourse[]
+  assignments ModuleAssignment[]
 
-  @@map("cert_pathways")
+  @@map("training_modules")
 }
 
-// Join: a fixed required certification for a pathway.
-model CertPathwayCert {
-  id              String @id @default(cuid())
-  pathwayId       String @map("pathway_id")
-  certificationId String @map("certification_id")
+// Join: which modules a program offers, and how. `rule` = "choose_one" (ONB/CUR/
+// SVC — April picks one) or "step" (advancement programs run modules in `step`
+// order, skipping completed).
+model ProgramModule {
+  id        String  @id @default(cuid())
+  programId String  @map("program_id")
+  moduleId  String  @map("module_id")
+  rule      String  @default("choose_one") // "choose_one" | "step"
+  step      Int? // step number for PRG-SLS / PRG-MGT
+  situation String? // Assignment-Guide situation label, when applicable
 
-  pathway       CertPathway   @relation(fields: [pathwayId], references: [id], onDelete: Cascade)
-  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  program TrainingProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  module  TrainingModule  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
-  @@unique([pathwayId, certificationId])
-  @@index([pathwayId])
-  @@index([certificationId])
-  @@map("cert_pathway_certs")
-}
-
-// An employee's enrollment in a certification. `monthLocked` ("YYYY-MM") supports
-// the one-cert-per-calendar-month pacing rule (enforcement NOT built here).
-// Seeded EMPTY.
-model CertEnrollment {
-  id              String   @id @default(cuid())
-  employeeId      String   @map("employee_id")
-  certificationId String   @map("certification_id")
-  startDate       DateTime? @map("start_date")
-  monthLocked     String?  @map("month_locked") // "YYYY-MM"
-  status          String   @default("not_started") // "not_started" | "in_progress" | "field_training" | "awarded"
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
-
-  @@unique([employeeId, certificationId])
-  @@index([employeeId])
-  @@index([certificationId])
-  @@map("cert_enrollments")
-}
-
-// An employee's progress on a single module. Seeded EMPTY.
-model ModuleProgress {
-  id             String    @id @default(cuid())
-  employeeId     String    @map("employee_id")
-  moduleId       String    @map("module_id")
-  status         String    @default("not_started") // "not_started" | "in_progress" | "passed"
-  completionDate DateTime? @map("completion_date")
-  score          Int?
-  attempts       Int       @default(0)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  employee Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  module   CertModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-  @@unique([employeeId, moduleId])
-  @@index([employeeId])
+  @@unique([programId, moduleId])
+  @@index([programId])
   @@index([moduleId])
-  @@map("cert_module_progress")
+  @@map("program_modules")
 }
 
-// A logged field-hour / observed sign-off entry toward a certification.
-// `trainerUserId` is a plain id (no User relation needed for the shell). EMPTY.
-model FieldHourLog {
-  id              String    @id @default(cuid())
-  employeeId      String    @map("employee_id")
-  certificationId String    @map("certification_id")
-  date            DateTime
-  hours           Float?
-  observedItem    String?   @map("observed_item")
-  trainerName     String?   @map("trainer_name")
-  trainerUserId   String?   @map("trainer_user_id")
-  signedOff       Boolean   @default(false) @map("signed_off")
-  signedOffAt     DateTime? @map("signed_off_at")
-  note            String?
-  createdAt       DateTime  @default(now()) @map("created_at")
+// Join: the ordered course list inside a module (locked). `sequence` is 1-based
+// within the module.
+model TrainingModuleCourse {
+  id       String @id @default(cuid())
+  moduleId String @map("module_id")
+  courseId String @map("course_id")
+  sequence Int
 
-  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  module TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  course CertCourse     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, courseId])
+  @@index([moduleId])
+  @@index([courseId])
+  @@map("training_module_courses")
+}
+
+// What April creates: a module assignment (or a single standalone course) for an
+// employee. The engine expands it into CourseProgress rows (credited / linked /
+// assigned). `startMonth` anchors the one-module-per-month pacing rule.
+model ModuleAssignment {
+  id                 String    @id @default(cuid())
+  employeeId         String    @map("employee_id")
+  programId          String?   @map("program_id")
+  moduleId           String?   @map("module_id") // null for a standalone-course assignment
+  standaloneCourseId String?   @map("standalone_course_id") // set for a single-course assignment
+  moduleVersion      Int?      @map("module_version") // snapshot of TrainingModule.version at assignment
+  branch             String?
+  assignedById       String?   @map("assigned_by_id")
+  assignedByName     String?   @map("assigned_by_name")
+  assignedAt         DateTime  @default(now()) @map("assigned_at")
+  startMonth         String?   @map("start_month") // "YYYY-MM" pacing anchor
+  status             String    @default("active") // "active" | "complete" | "cancelled"
+  // Ordered course-code list snapshotted at assignment time, so a later template
+  // edit (which bumps the module version) never changes an assignment already in
+  // progress. JSON string array, e.g. ["FC-01",...,"PC-FLD"].
+  courseCodesSnapshot String? @map("course_codes_snapshot")
+  prereqNote         String?   @map("prereq_note") // e.g. "SVC-FC added: no Field Core on record"
+  completedAt        DateTime? @map("completed_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  program          TrainingProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  module           TrainingModule?  @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  standaloneCourse CertCourse?      @relation("StandaloneCourse", fields: [standaloneCourseId], references: [id], onDelete: SetNull)
+  progress         CourseProgress[]
+
+  @@index([employeeId, status])
+  @@index([branch, status])
+  @@map("module_assignments")
+}
+
+// Per employee, per COURSE CODE — the ledger that powers automatic credit. One
+// row per employee+course across all assignments. Renamed from ModuleProgress.
+model CourseProgress {
+  id                 String    @id @default(cuid())
+  employeeId         String    @map("employee_id")
+  courseId           String    @map("course_id")
+  status             String    @default("assigned") // "assigned" | "in_progress" | "complete" | "credited"
+  sequence           Int? // position within its source assignment (display order)
+  completedDate      DateTime? @map("completed_date")
+  score              Int?
+  attempts           Int       @default(0)
+  sourceAssignmentId String?   @map("source_assignment_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  employee         Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  course           CertCourse        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  sourceAssignment ModuleAssignment? @relation(fields: [sourceAssignmentId], references: [id], onDelete: SetNull)
+
+  @@unique([employeeId, courseId])
+  @@index([employeeId, status])
+  @@index([courseId])
+  @@map("course_progress")
+}
+
+// A field-hour / observed sign-off, anchored to the field-sign-off COURSE (PC-FLD
+// …) and its certification group. A certification is not awarded until its
+// sign-off is `approved`. Extends the old FieldHourLog.
+model FieldSignoff {
+  id               String    @id @default(cuid())
+  employeeId       String    @map("employee_id")
+  courseId         String?   @map("course_id") // the FLD course
+  certificationId  String?   @map("certification_id") // its group
+  date             DateTime
+  hours            Float?
+  trainerName      String?   @map("trainer_name")
+  trainerUserId    String?   @map("trainer_user_id")
+  approved         Boolean   @default(false)
+  approvedByName   String?   @map("approved_by_name")
+  approvedByUserId String?   @map("approved_by_user_id")
+  approvedAt       DateTime? @map("approved_at")
+  note             String?
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  employee      Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  course        CertCourse?    @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  certification Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
 
   @@index([employeeId])
-  @@index([certificationId])
-  @@map("cert_field_hour_logs")
+  @@index([courseId])
+  @@map("field_signoffs")
 }
 
-// A granted certification (the award record). `approvedByUserId` is a plain id
-// (no User relation needed for the shell). Seeded EMPTY.
+// A granted certification (award record). Awarded only when every course in the
+// group is complete and the field sign-off is approved.
 model CertAward {
   id               String   @id @default(cuid())
   employeeId       String   @map("employee_id")

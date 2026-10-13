@@ -2,91 +2,85 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
-import {
-  listPathways,
-  canViewCertifications,
-  SERVICE_CERT_CODES,
-} from "@/lib/certifications";
+import { listPrograms, listModules, canViewCertifications } from "@/lib/certifications";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Certification Pathways — CanopyOS" };
+export const metadata = { title: "Programs & Modules — CanopyOS" };
 
-function CodeChip({ code }: { code: string }) {
-  return (
-    <Link
-      href={`/management/certifications/${code}`}
-      className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700 hover:bg-brand-100"
-    >
-      {code}
-    </Link>
-  );
-}
-
-export default async function CertificationPathwaysPage() {
+export default async function ProgramsModulesPage() {
   const user = await requireUser();
   if (!canViewCertifications(user)) {
     redirect(isBoardObserver(user) ? "/management/board" : homePath(user));
   }
-
-  const pathways = await listPathways();
+  const [programs, modules] = await Promise.all([listPrograms(), listModules()]);
 
   return (
     <>
-      <div className="mb-2">
-        <Link href="/management/certifications" className="text-xs font-medium text-brand-700 hover:underline">
-          ← Certifications
-        </Link>
-      </div>
       <PageHeader
-        title="Certification Pathways"
-        subtitle="The required certifications for each career move. Read-only; rule flags (e.g. “all service certs”) are expanded here for reference — no enforcement is applied yet."
+        title="Programs & Modules"
+        subtitle="Programs say why training is assigned; modules are the locked, ordered packages of courses April assigns."
+        actions={
+          <Link
+            href="/management/certifications"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-[#0e1b15] hover:bg-[#eef5f0] transition-colors"
+          >
+            Certifications
+          </Link>
+        }
       />
 
-      <div className="space-y-4">
-        {pathways.map((p) => {
-          const rules: string[] = [];
-          if (p.includeHiredService) rules.push("the hired service's certification");
-          if (p.includeAllServiceCerts) rules.push(`all service certifications (${SERVICE_CERT_CODES.join(", ")})`);
-          if (p.includeSLS) rules.push("SLS");
-          if (p.includeCSR) rules.push("CSR");
-          if (p.includeAllCerts) rules.push("every certification (all service certs + CSR + SLS)");
-          const nothing = p.fixedCerts.length === 0 && rules.length === 0;
-
-          return (
-            <Card key={p.key} className="p-4">
-              <div className="text-base font-medium text-ink">{p.label}</div>
-              {p.description ? <div className="mt-0.5 text-sm text-muted">{p.description}</div> : null}
-
-              <div className="mt-3 border-t border-line pt-3">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Required certifications</div>
-                {nothing ? (
-                  <div className="mt-1.5 text-sm text-muted">None defined.</div>
-                ) : (
-                  <div className="mt-2 space-y-2">
-                    {p.fixedCerts.length > 0 ? (
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {p.fixedCerts.map((c) => (
-                          <CodeChip key={c.code} code={c.code} />
-                        ))}
-                      </div>
-                    ) : null}
-                    {rules.length > 0 ? (
-                      <ul className="space-y-1">
-                        {rules.map((r, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-ink">
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
-                            <span>{r}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                )}
-              </div>
-            </Card>
-          );
-        })}
+      <h2 className="mb-2 text-sm font-semibold text-ink">Programs</h2>
+      <div className="mb-6 space-y-3">
+        {programs.map((p) => (
+          <Card key={p.code} className="p-4">
+            <div className="flex items-start justify-between gap-2">
+              <span className="inline-flex items-center gap-2">
+                <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{p.code}</span>
+                <span className="font-medium text-ink">{p.name}</span>
+              </span>
+            </div>
+            {p.whenToAssign ? <div className="mt-1 text-xs text-muted">{p.whenToAssign}</div> : null}
+            <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
+              {p.modules.map((m) => (
+                <span key={m.code} className="rounded bg-black/[0.05] px-1.5 py-0.5 font-medium text-ink">
+                  {m.step ? `${m.step}. ` : ""}
+                  {m.code}
+                </span>
+              ))}
+            </div>
+          </Card>
+        ))}
       </div>
+
+      <h2 className="mb-2 text-sm font-semibold text-ink">Modules</h2>
+      <Card className="p-0 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[11px] text-muted border-b border-line">
+              <th className="px-4 py-2.5 font-medium">Module</th>
+              <th className="px-3 py-2.5 font-medium">Earns</th>
+              <th className="px-3 py-2.5 font-medium text-center">Courses</th>
+              <th className="px-3 py-2.5 font-medium text-center">v</th>
+            </tr>
+          </thead>
+          <tbody>
+            {modules.map((m) => (
+              <tr key={m.code} className="border-b border-line last:border-0">
+                <td className="px-4 py-3 align-top">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{m.code}</span>
+                    <span className="font-medium text-ink">{m.name}</span>
+                  </span>
+                  {m.audience ? <div className="mt-0.5 text-[11px] text-muted">{m.audience}</div> : null}
+                </td>
+                <td className="px-3 py-3 align-top text-muted">{m.certificationsEarned ?? "—"}</td>
+                <td className="px-3 py-3 align-top text-center tabular-nums text-ink">{m.courseCount}</td>
+                <td className="px-3 py-3 align-top text-center tabular-nums text-muted">{m.version}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
     </>
   );
 }

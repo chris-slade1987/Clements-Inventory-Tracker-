@@ -11,7 +11,7 @@ import { seedHiringTemplates } from "./seed-hiring-templates";
 import { seedApprovedProducts } from "./seed-products-approved";
 import { seedEpaNumbers } from "./seed-epa-numbers";
 import { seedOnHandCount } from "./seed-onhand-count";
-import { seedCertifications } from "./seed-certifications";
+import { seedTrainingCatalog } from "./seed-training-catalog";
 
 const prisma = new PrismaClient();
 
@@ -38,8 +38,8 @@ seedDatabase(prisma, { reset: true })
       console.error("  EPA/SDS backfill FAILED (non-fatal):", e);
     }
     const onhand = await seedOnHandCount(prisma);
-    // Internal Certification Program (SHELL) — content-free reference data only.
-    const cert = await seedCertifications(prisma);
+    // Training Center catalog — Program → Module → Course reference data.
+    const cert = await seedTrainingCatalog(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`
@@ -50,7 +50,7 @@ seedDatabase(prisma, { reset: true })
     console.log(`  People: ${people.total} employees`);
     console.log(`  Hiring templates: ${hiring.templatesCreated} created (${hiring.templatesTotal} off-the-shelf), ${hiring.bankUpserted} bank items`);
     console.log(`  On-hand count 7/27/2026: applied=${onhand.applied}, ${onhand.adjustmentsCreated} adjustments, ${onhand.productsZeroed} zeroed, ${onhand.unmatched.length} unmatched`);
-    console.log(`  Certification program (shell): ${cert.certifications} certifications, ${cert.modules} modules, ${cert.prerequisites} prerequisites, ${cert.pathways} pathways`);
+    console.log(`  Training catalog: ${cert.certifications} certifications, ${cert.programs} programs, ${cert.modules} modules, ${cert.courses} courses, ${cert.programModules}+${cert.moduleCourses} links`);
     console.log(`  Manager login:  ${MANAGER_EMAIL}  /  ${MANAGER_PASSWORD}`);
     await prisma.$disconnect();
   })
