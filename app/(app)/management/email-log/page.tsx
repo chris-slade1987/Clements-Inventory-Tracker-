@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import TestEmail from "./TestEmail";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,8 @@ export default async function EmailLogPage({
         title="Email delivery log"
         subtitle="Every outbound notification and its delivery status — sent, skipped, or errored"
       />
+
+      <TestEmail defaultTo="awilliford@clementspestcontrol.com" />
 
       {/* Kind filter */}
       <div className="mb-4 flex flex-wrap gap-1.5 print:hidden">
