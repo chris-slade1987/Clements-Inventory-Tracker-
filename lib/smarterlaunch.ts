@@ -215,7 +215,9 @@ async function apiGet<T = unknown>(path: string, query?: Record<string, string |
   }
 
   if (!res.ok) {
-    const body = (await res.text().catch(() => "")).slice(0, 400);
+    // Capture enough of the body to show full validation detail (e.g. the allowed
+    // include_fields enum), surfaced in diagnostics.pull.rawBody.
+    const body = (await res.text().catch(() => "")).slice(0, 4000);
     throw new SmarterLaunchError(`SmarterLaunch GET ${path} failed (${res.status})`, res.status, body);
   }
   const text = await res.text();
