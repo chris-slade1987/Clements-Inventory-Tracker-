@@ -109,7 +109,7 @@ export async function POST(req: Request) {
           responses,
           overallRating: str(body?.overallRating) ?? review.overallRating,
           nextSteps: str(body?.nextSteps) ?? review.nextSteps,
-          status: review.status === "sent" ? "in_progress" : review.status,
+          status: review.status === "sent" || review.status === "due" ? "in_progress" : review.status,
         },
       });
       return NextResponse.json({ ok: true });
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
 
       if (role === "reviewer") {
         if (!isReviewer && !hr) return NextResponse.json({ error: "Only the assigned reviewer can sign here." }, { status: 403 });
-        await prisma.newHireReview.update({ where: { id: review.id }, data: { reviewerSignedName: signerName, reviewerSignedAt: now, status: review.status === "sent" ? "in_progress" : review.status } });
+        await prisma.newHireReview.update({ where: { id: review.id }, data: { reviewerSignedName: signerName, reviewerSignedAt: now, status: review.status === "sent" || review.status === "due" ? "in_progress" : review.status } });
       } else if (role === "employee") {
         if (!isSubjectEmployee && !hr) return NextResponse.json({ error: "Only the employee can sign here." }, { status: 403 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { employeeSignedName: signerName, employeeSignedAt: now } });

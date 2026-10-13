@@ -17,23 +17,17 @@ export default function AssignDriver({
   vehicleId,
   currentEmployeeId,
   currentName,
-  vehicleBranch = null,
-  canMoveBranch = false,
   drivers,
 }: {
   vehicleId: string;
   currentEmployeeId: string | null;
   currentName: string | null;
-  vehicleBranch?: string | null;
-  canMoveBranch?: boolean;
   drivers: Driver[];
 }) {
   const router = useRouter();
   const [sel, setSel] = useState(currentEmployeeId ?? "");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  // When set, offer to move the vehicle to this branch (the new driver's branch).
-  const [moveTo, setMoveTo] = useState<string | null>(null);
 
   const dirty = (sel || null) !== (currentEmployeeId || null);
   // If the assigned driver is no longer in the active roster (terminated), the
@@ -43,7 +37,6 @@ export default function AssignDriver({
   async function save(nextId: string | null) {
     setBusy(true);
     setMsg(null);
-    setMoveTo(null);
     try {
       const res = await fetch("/api/fleet/assign-driver", {
         method: "POST",
@@ -54,29 +47,17 @@ export default function AssignDriver({
       if (!res.ok || d.ok === false) {
         setMsg(d.error ?? "Could not update the driver.");
       } else {
-        setMsg(nextId ? `Assigned to ${d.driver}.` : "Driver removed.");
-        // Offer a branch move when the new driver sits in a different office.
-        const driver = nextId ? drivers.find((x) => x.id === nextId) : null;
-        if (canMoveBranch && driver?.branch && driver.branch !== vehicleBranch) setMoveTo(driver.branch);
+        // The vehicle follows its driver: the server moves it to the new driver's
+        // home branch automatically, so just reflect what happened.
+        setMsg(
+          nextId
+            ? `Assigned to ${d.driver}${d.movedToBranch ? ` · moved to ${branchLabel(d.movedToBranch)}` : ""}.`
+            : "Driver removed.",
+        );
         router.refresh();
       }
     } catch {
       setMsg("Could not update the driver.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function moveBranch(branch: string) {
-    setBusy(true);
-    try {
-      const res = await fetch("/api/fleet/vehicle", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "setBranch", id: vehicleId, branch }),
-      });
-      if (res.ok) { setMsg(`Moved to ${branchLabel(branch)}.`); setMoveTo(null); router.refresh(); }
-      else setMsg("Could not move the vehicle.");
     } finally {
       setBusy(false);
     }
@@ -122,13 +103,6 @@ export default function AssignDriver({
         </p>
       ) : null}
       {msg ? <p className="mt-1 text-[11px] text-brand-700">{msg}</p> : null}
-      {moveTo ? (
-        <div className="mt-1.5 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] text-amber-800">
-          <span>New driver is in <span className="font-medium">{branchLabel(moveTo)}</span>. Move this vehicle there?</span>
-          <button onClick={() => moveBranch(moveTo)} disabled={busy} className="rounded-md bg-amber-600 px-2 py-0.5 font-medium text-white disabled:opacity-50">Move</button>
-          <button onClick={() => setMoveTo(null)} disabled={busy} className="font-medium text-amber-700 hover:underline">Keep here</button>
-        </div>
-      ) : null}
     </div>
   );
 }

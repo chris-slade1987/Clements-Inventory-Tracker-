@@ -113,8 +113,6 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
                 vehicleId={v.id}
                 currentEmployeeId={v.assignedEmployeeId}
                 currentName={v.assignedTo}
-                vehicleBranch={v.branch}
-                canMoveBranch={user.role === "admin"}
                 drivers={drivers}
               />
             ) : (

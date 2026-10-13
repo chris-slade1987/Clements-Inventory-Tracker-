@@ -70,10 +70,14 @@ export function reviewFullySigned(r: { reviewerSignedAt: Date | null; employeeSi
   return !!r.reviewerSignedAt && !!r.employeeSignedAt;
 }
 
-/** A reviewer/coordinator's active reviews (dashboard). */
+/** A reviewer/coordinator's active reviews (dashboard). Includes "due" — a review
+ * can be assigned to a reviewer (reviewerUserId set) while still "due" (scheduled
+ * but not yet formally "sent" by HR), and the assigned reviewer should still be
+ * alerted and able to start it. Only completed reviews drop off. (reviewerUserId
+ * filtering means an unassigned "due" review never shows here.) */
 export async function reviewsForReviewer(userId: string) {
   return prisma.newHireReview.findMany({
-    where: { reviewerUserId: userId, status: { in: ["sent", "in_progress", "pending_approval"] } },
+    where: { reviewerUserId: userId, status: { in: ["due", "sent", "in_progress", "pending_approval"] } },
     include: { employee: { select: { name: true } } },
     orderBy: { dueDate: "asc" },
   });

@@ -28,10 +28,18 @@ export async function POST(req: Request) {
       await prisma.vehicle.update({ where: { id: vehicleId }, data: { assignedEmployeeId: null, assignedTo: null } });
       return NextResponse.json({ ok: true, driver: null });
     }
-    const emp = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true, name: true } });
+    const emp = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true, name: true, branch: true } });
     if (!emp) return NextResponse.json({ error: "That employee no longer exists." }, { status: 400 });
-    await prisma.vehicle.update({ where: { id: vehicleId }, data: { assignedEmployeeId: emp.id, assignedTo: emp.name } });
-    return NextResponse.json({ ok: true, driver: emp.name });
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId }, select: { branch: true } });
+    // The vehicle follows its driver: when the new driver has a home branch and the
+    // vehicle isn't already there, move it in the same update so the fleet board's
+    // by-branch view reflects the reassignment immediately (no separate manual step).
+    const movedToBranch = emp.branch && emp.branch !== vehicle?.branch ? emp.branch : null;
+    await prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: { assignedEmployeeId: emp.id, assignedTo: emp.name, ...(movedToBranch ? { branch: movedToBranch } : {}) },
+    });
+    return NextResponse.json({ ok: true, driver: emp.name, movedToBranch });
   } catch (e) {
     return fail(e);
   }
