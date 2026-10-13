@@ -46,6 +46,16 @@ const BASE = (process.env.SMARTERLAUNCH_API_BASE || "https://api.smarterlaunch.c
 const INCLUDE_FIELDS =
   process.env.SMARTERLAUNCH_INCLUDE_FIELDS ||
   "customer,customer_contacts,customer_addresses,line_items,service_plans,referral_source,assigned_user,referral_user,company_location,status";
+// SmarterLaunch validates include_fields as an ARRAY (400 "The include fields must
+// be an array." otherwise), so we send it as repeated include_fields[] params.
+const INCLUDE_FIELDS_ARR = INCLUDE_FIELDS.split(",").map((s) => s.trim()).filter(Boolean);
+
+// Listing /proposals without a customer_uuid REQUIRES a date range (400 otherwise),
+// so the list/backfill/diagnostics pull always sends one. Default lookback window
+// (days) + which timestamp to range on; both env-overridable without a code change.
+const DEFAULT_RANGE_DAYS = Number(process.env.SMARTERLAUNCH_RANGE_DAYS || "365") || 365;
+const DEFAULT_RANGE_TYPE = process.env.SMARTERLAUNCH_RANGE_TYPE || "created_at";
+const ymd = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
 
 const FETCH_TIMEOUT_MS = 20 * 1000;
 const QUOTA_SETTING_KEY = "smarterlaunch:quota";
@@ -174,10 +184,18 @@ type Envelope<T> = { status?: unknown; code?: unknown; msg?: unknown; version?: 
  * (caller STOPS until reset); a route throttle honors `Retry-After` and retries
  * once. Never sends `Authorization: Bearer`.
  */
-async function apiGet<T = unknown>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
+async function apiGet<T = unknown>(path: string, query?: Record<string, string | number | string[] | undefined>): Promise<T> {
   if (!API_KEY) throw new SmarterLaunchError("SmarterLaunch API key is not configured", 0, path);
   const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(query ?? {})) if (v !== undefined && v !== "") qs.set(k, String(v));
+  for (const [k, v] of Object.entries(query ?? {})) {
+    if (v === undefined || v === "") continue;
+    // Arrays go out as repeated `key[]=value` params (SmarterLaunch/Laravel array).
+    if (Array.isArray(v)) {
+      for (const item of v) if (item !== undefined && item !== "") qs.append(`${k}[]`, String(item));
+    } else {
+      qs.set(k, String(v));
+    }
+  }
   const url = `${BASE}${path}${qs.toString() ? `?${qs.toString()}` : ""}`;
 
   let res = await fetchWithTimeout(url);
@@ -229,16 +247,20 @@ export async function fetchProposalsPage(opts: {
   dateRangeEnd?: string;
   dateRangeType?: string;
   sortBy?: string;
-  includeFields?: string;
+  includeFields?: string[];
 }): Promise<ProposalListResult> {
+  // SmarterLaunch requires a date range unless a customer_uuid is given, so always
+  // send one — default to the last DEFAULT_RANGE_DAYS on DEFAULT_RANGE_TYPE.
+  const end = opts.dateRangeEnd ?? ymd(new Date());
+  const start = opts.dateRangeStart ?? ymd(new Date(Date.now() - DEFAULT_RANGE_DAYS * 864e5));
   const data = await apiGet<unknown>("/proposals", {
     page: opts.page ?? 1,
     page_size: opts.pageSize ?? 50,
-    date_range_start: opts.dateRangeStart,
-    date_range_end: opts.dateRangeEnd,
-    date_range_type: opts.dateRangeType,
+    date_range_start: start,
+    date_range_end: end,
+    date_range_type: opts.dateRangeType ?? DEFAULT_RANGE_TYPE,
     sort_by: opts.sortBy ?? "created_at",
-    include_fields: opts.includeFields ?? INCLUDE_FIELDS,
+    include_fields: opts.includeFields ?? INCLUDE_FIELDS_ARR,
   });
   return normalizeList(data, opts.page ?? 1, opts.pageSize ?? 50);
 }
@@ -265,7 +287,7 @@ function normalizeList(data: unknown, page: number, pageSize: number): ProposalL
 }
 
 export async function fetchProposal(uuid: string): Promise<Record<string, unknown> | null> {
-  const data = await apiGet<unknown>(`/proposals/${encodeURIComponent(uuid)}`, { include_fields: INCLUDE_FIELDS });
+  const data = await apiGet<unknown>(`/proposals/${encodeURIComponent(uuid)}`, { include_fields: INCLUDE_FIELDS_ARR });
   return data && typeof data === "object" ? (data as Record<string, unknown>) : null;
 }
 
