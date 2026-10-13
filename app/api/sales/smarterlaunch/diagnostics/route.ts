@@ -25,7 +25,7 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const out: Record<string, unknown> = { status: smarterLaunchStatus(), build: { tag: "smarterlaunch-1" } };
+  const out: Record<string, unknown> = { status: smarterLaunchStatus(), build: { tag: "smarterlaunch-2" } };
 
   // Quota / budget.
   out.quota = await getStoredQuota();
