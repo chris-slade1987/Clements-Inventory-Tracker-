@@ -761,6 +761,28 @@ async function main() {
       );
     });
 
+    // Load each employee's birthday from the HR "Employee Listings" export
+    // (prisma/data/employee-birthdays.json) onto their profile. Matches active
+    // employees by exact name / formal-name alias (no fuzzy guessing); unmatched
+    // rows are reported and surfaced at /api/management/birthdays/diagnostics.
+    // Applies ONCE (Setting marker employee_birthdays:v1 — bump to re-run after a
+    // data correction) so it never clobbers later manual HR edits. Non-fatal.
+    await runStep("employee birthdays backfill", async () => {
+      const markerKey = "employee_birthdays:v1";
+      const marker = await prisma.setting.findUnique({ where: { key: markerKey } }).catch(() => null);
+      if (marker) {
+        console.log("deploy-db: employee birthdays already applied (v1).");
+        return;
+      }
+      const { backfillBirthdays } = await import("./backfill-birthdays");
+      const r = await backfillBirthdays(prisma, { apply: true });
+      await prisma.setting.upsert({ where: { key: markerKey }, update: { value: new Date().toISOString() }, create: { key: markerKey, value: new Date().toISOString() } });
+      console.log(
+        `deploy-db: employee birthdays — matched ${r.matched.length}/${r.total}, unmatched ${r.unmatched.length}` +
+          (r.unmatched.length ? `: ${r.unmatched.map((u) => u.sheet).join(", ")}` : ""),
+      );
+    });
+
     await runStep("password policy rollout", async () => {
       const { seedPasswordPolicy } = await import("../prisma/seed-pw-policy");
       const pw = await seedPasswordPolicy(prisma);
