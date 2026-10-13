@@ -167,6 +167,17 @@ export const CERTIFICATIONS_NAV_ITEM: NavItem = {
   icon: "M12 15a5 5 0 100-10 5 5 0 000 10zm0 0l-3 6 3-1.5L15 21l-3-6m-2.1-4.4l1.4 1.4 2.8-2.8",
 };
 
+// Training Center — the HR/admin hub (Assign · Courses · Certifications ·
+// Reports). Replaces the old "Training" link; the Certifications link now folds
+// into this hub. Admins reach the Courses landing (requireAdmin); non-admin HR /
+// senior-leadership grantees are routed to the Assign tab instead (see AppShell).
+export const TRAINING_CENTER_NAV_ITEM: NavItem = {
+  href: "/management/training",
+  label: "Training Center",
+  shortLabel: "Training",
+  icon: "M12 4L2 9l10 5 8-4v6M6 12v5c0 1 3 2 6 2s6-1 6-2v-5",
+};
+
 export const MANUAL_NAV_ITEM: NavItem = {
   href: "/resources/manual",
   label: "Manager Manual",
@@ -355,13 +366,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Audits",
     icon: "M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4",
   },
-  {
-    href: "/management/training",
-    label: "Training",
-    shortLabel: "Training",
-    icon: "M12 4L2 9l10 5 8-4v6M6 12v5c0 1 3 2 6 2s6-1 6-2v-5",
-  },
-  CERTIFICATIONS_NAV_ITEM,
+  TRAINING_CENTER_NAV_ITEM,
   {
     href: "/management/people",
     label: "People / HR",

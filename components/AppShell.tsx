@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -141,7 +141,12 @@ export default function AppShell({
   if (isHrAccess) grantedMgmt.push(HR_HOME_NAV_ITEM);
   if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
   if (canViewCompliance) grantedMgmt.push(CHECKLIST_OVERSIGHT_NAV_ITEM);
-  if (canViewCertifications) grantedMgmt.push(CERTIFICATIONS_NAV_ITEM);
+  // Certifications folded into the Training Center hub. Non-admin HR / senior-
+  // leadership grantees land on the Assign tab (the Courses landing is admin-only).
+  if (canViewCertifications)
+    grantedMgmt.push(
+      isAdmin ? TRAINING_CENTER_NAV_ITEM : { ...TRAINING_CENTER_NAV_ITEM, href: "/management/training-center/assign" },
+    );
   if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
   if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
   if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);

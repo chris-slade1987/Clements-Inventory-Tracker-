@@ -3,6 +3,7 @@ import { Card, PageHeader, EmptyState, btn } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { listCourses, branchTrainingStatus } from "@/lib/training";
+import TrainingCenterTabs from "@/components/TrainingCenterTabs";
 import SeedGhpButton from "./SeedGhpButton";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,8 @@ export default async function TrainingAdminPage() {
 
   return (
     <>
-      <PageHeader title="Training" subtitle="Create courses, assign monthly training, and track completion" />
+      <PageHeader title="Training Center" subtitle="Create courses, assign monthly training, and track completion" />
+      <TrainingCenterTabs showCourses />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
         <Tile label="Courses" value={String(courses.length)} />

@@ -1,0 +1,128 @@
+import Link from "next/link";
+import { Card, PageHeader, EmptyState } from "@/components/ui";
+import { requireUser } from "@/lib/auth";
+import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
+import { getEmployeeRecord, COURSE_STATUS_LABEL } from "@/lib/training-center";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "My Training — CanopyOS" };
+
+const STATUS_CHIP: Record<string, string> = {
+  assigned: "bg-slate-100 text-slate-700",
+  in_progress: "bg-amber-100 text-amber-800",
+  complete: "bg-emerald-100 text-emerald-800",
+  credited: "bg-emerald-50 text-emerald-700",
+  not_started: "bg-slate-100 text-slate-500",
+};
+
+export default async function MyTrainingPage() {
+  const user = await requireUser();
+  if (!user.employeeId) {
+    return (
+      <>
+        <PageHeader title="My Training" subtitle="Your training courses & certifications" />
+        <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no training to show." />
+      </>
+    );
+  }
+
+  const [record, ceu] = await Promise.all([
+    getEmployeeRecord(user.employeeId),
+    employeeAssignments(user.employeeId),
+  ]);
+  const ceuOpen = ceu.filter((a) => a.status !== "completed");
+
+  return (
+    <>
+      <PageHeader title="My Training" subtitle="Your certification program, course progress, and CEU courses." />
+
+      {/* Certifications held */}
+      {record && record.awards.length > 0 ? (
+        <Card className="mb-5 p-4">
+          <div className="mb-2 text-sm font-semibold text-ink">My certifications</div>
+          <div className="flex flex-wrap gap-2">
+            {record.awards.map((a) => (
+              <span key={a.code} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                <span className="font-semibold">{a.code}</span>
+                {a.name}
+                <span className="text-emerald-600">· {a.awardedAt}</span>
+              </span>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {/* Training Center module progress */}
+      <h2 className="mb-2 text-sm font-semibold text-ink">Certification courses</h2>
+      {!record || record.activeAssignments.length === 0 ? (
+        <EmptyState title="No active certification modules" hint="When HR assigns you a module, your course list and progress will show here." />
+      ) : (
+        <div className="mb-6 space-y-3">
+          {record.activeAssignments.map((a) => (
+            <Card key={a.id} className="p-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-2">
+                  {a.moduleCode ? (
+                    <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{a.moduleCode}</span>
+                  ) : a.standaloneCourseCode ? (
+                    <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{a.standaloneCourseCode}</span>
+                  ) : null}
+                  <span className="font-medium text-ink">{a.moduleName ?? "Single course"}</span>
+                </div>
+                <span className="shrink-0 text-xs text-muted tabular-nums">{a.completeCount}/{a.totalCount} done</span>
+              </div>
+              {a.prereqNote ? (
+                <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{a.prereqNote}</div>
+              ) : null}
+              <ol className="space-y-1.5">
+                {a.courses.map((c) => (
+                  <li key={c.code} className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] font-semibold text-slate-700">{c.code}</span>
+                    <span className="text-ink">{c.name}</span>
+                    {c.courseType === "field_signoff" ? (
+                      <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-medium text-sky-800">field sign-off</span>
+                    ) : null}
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_CHIP[c.status] ?? "bg-slate-100 text-slate-700"}`}>
+                      {COURSE_STATUS_LABEL[c.status] ?? c.status}
+                    </span>
+                    {c.completedDate ? <span className="text-xs text-muted">{c.completedDate}</span> : null}
+                  </li>
+                ))}
+              </ol>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* CEU / onboarding quiz courses (existing training system) */}
+      <h2 className="mb-2 text-sm font-semibold text-ink">CEU &amp; onboarding courses</h2>
+      {ceu.length === 0 ? (
+        <EmptyState title="No CEU courses assigned" />
+      ) : (
+        <Card className="p-0 overflow-hidden">
+          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+            <div className="text-sm font-medium text-ink">Assigned courses{ceuOpen.length ? ` · ${ceuOpen.length} open` : ""}</div>
+            <Link href="/me/library" className="text-xs font-medium text-brand-700 hover:underline">Lesson library →</Link>
+          </div>
+          <ul className="divide-y divide-line">
+            {ceu.map((a) => (
+              <li key={a.id}>
+                <Link href={`/me/training/${a.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium text-ink">{a.course.title}</span>
+                    <span className="block text-xs text-muted">
+                      {STATUS_LABEL[a.status] ?? a.status}
+                      {a.course.category === "onboarding" ? " · onboarding" : " · CEU"}
+                      {a.status === "completed" && a.score != null ? ` · ${a.score}%` : ""}
+                    </span>
+                  </span>
+                  <span className="text-xs font-medium text-brand-700">{a.status === "completed" ? "Review" : "Open →"}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+    </>
+  );
+}

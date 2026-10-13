@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
 import { listCertifications, programSummary, canViewCertifications } from "@/lib/certifications";
+import TrainingCenterTabs from "@/components/TrainingCenterTabs";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Certifications — CanopyOS" };
@@ -17,6 +18,7 @@ export default async function CertificationsIndexPage() {
 
   return (
     <>
+      <TrainingCenterTabs showCourses={user.role === "admin"} />
       <PageHeader
         title="Certifications"
         subtitle="The certification groups and their course catalog. A certification is awarded when every course in its group — including the field sign-off — is complete and approved."
