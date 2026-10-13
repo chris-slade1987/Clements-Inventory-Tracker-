@@ -976,26 +976,20 @@ Every stock change is a **movement**. On-hand for a product at a warehouse is th
 
 ### Check-OUT (dispensing to a technician)
 
-- Go to **Check-Out** and select the **warehouse**, the **technician**, and the **products**.
-- Quantities use a **canonical unit-of-measure dropdown — there is no free-text unit**. Every quantity is recorded in a governed unit, which is what makes on-hand totals reliable across branches. This replaces the old step of hand-keying chemical handout data into a spreadsheet.
-- Confirmed check-out lines post as negative stock movements.
+**Portal (v6) — one Check-Out, powered by scanning.** There is now a **single Check-Out screen** at **Inventory → Check-Out**. It is phone-friendly and built for one-handed use in the warehouse — the separate "Scan Checkout" screen was folded into it, so there is one place to dispense stock. (The old `Scan Checkout` link now just opens Check-Out.)
+
+- **Pick the warehouse and technician.** The warehouse defaults to **your branch**; branch managers are **pinned** to it, while **admins can switch branches** (the technician list and on-hand figures follow the selected branch). The technician list is grouped into "This warehouse" and "Other warehouses."
+- **Scan the product.** Tap **Scan a product** and point the camera at the product's **barcode** or its **shelf QR label** — a known code goes straight to a confirm card.
+  - **New barcode?** A barcode that isn't linked yet prompts **"which product is this?"** — search by name or SKU, pick the product once, and the barcode is **linked for next time** (so the same bottle just scans in on the next check-out).
+  - **No barcode or an unreadable one?** Use **Take photo instead** and the portal's **AI** proposes the most likely catalog matches (you pick the right one — it never guesses on its own). You can also **Search catalog instead** to find it by name or SKU.
+- **Confirm the product.** A card shows the product, its unit, and **On hand at your branch: N**. If the product has **never been counted** at your branch it shows a **"Not yet counted"** badge instead, and the quantity is capped at **40** until you count it (see below). Choose the quantity and **Add to cart**.
+- **Build the cart**, editing quantities or removing lines as needed.
+- **Review & submit.** Review the lines and optionally capture the **technician's signature** on the signature pad, then **Submit**. Each line posts a negative **check-out** movement — a governed, auditable stock movement; on-hand totals stay reliable across branches instead of being hand-keyed into a spreadsheet.
+- **Undo window.** Right after submitting you can **Undo** the whole checkout for **15 minutes** (the person who issued it, or an admin). After 15 minutes only an admin can void it, and a reason is required. An undo/void never deletes anything — it writes an offsetting adjustment so stock comes back and the audit trail stays intact. Past checkouts (with their photos, status, and Undo/Void where allowed) live under **Inventory → History**, linked from the success screen.
 
 ### Over-dispense hard stop
 
-If a check-out would drive on-hand **negative**, the portal **blocks it** with a pop-up. **No one can override the block by dispensing into the negative.** The pop-up explains the next steps: recount the shelf, re-log what was actually taken, or reconcile the discrepancy. From the block you can start a **one-click escalation group chat** to senior management — the **Chief of Staff** (Julie Glanville), the **Director of Field Operations** (Graham Foster), and the **COO** (Chris Slade) — so a real shortage is surfaced immediately instead of being papered over.
-
-### Scan Checkout (scan or photo on your phone)
-
-**Scan Checkout** is the phone-friendly way to dispense stock — the same movement as Check-Out, built for one-handed use in the warehouse. From **Inventory → Scan Checkout**:
-
-- **Pick the technician.** The warehouse is **your branch** (pinned — admins can switch branches); the technician list is grouped into "This warehouse" and "Other warehouses."
-- **Scan or photograph the product.** Tap **Scan** and point the camera at the product's **barcode** or its **shelf QR label**. No barcode, or an unreadable one? Use **Take photo instead** and the portal's **AI** proposes the most likely catalog matches (you pick; it never guesses on its own), or **Search catalog instead** to find it by name or SKU.
-  - A **brand-new barcode** that isn't linked yet prompts **"which product is this?"** — pick the product once and the barcode is linked for next time.
-- **Confirm the product.** A card shows the product, its unit, and **On hand at your branch: N**. If the product has **never been counted** at your branch it shows a **"Not yet counted"** badge instead, and the quantity is capped at **40** until you count it (see below). Choose the quantity and **Add to cart**.
-- **Build the cart**, editing quantities or removing lines as needed.
-- **Review & submit.** Review the lines and optionally capture the **technician's signature** on the signature pad, then **Submit**. Each line posts a negative **check-out** movement — the same governed, auditable movement as the Check-Out screen.
-- The **over-dispense hard stop** and the **unconfirmed-product hard stop** apply here exactly as on Check-Out — neither is overridable by a manager.
-- **Undo window.** Right after submitting you can **Undo** the whole checkout for **15 minutes** (the person who issued it, or an admin). After 15 minutes only an admin can void it, and a reason is required. An undo/void never deletes anything — it writes an offsetting adjustment so stock comes back and the audit trail stays intact. Past checkouts (with their photos, status, and Undo/Void where allowed) live under **Inventory → History**.
+If a check-out would drive on-hand **negative**, the portal **blocks it** with a pop-up. **No one can override the block by dispensing into the negative.** The pop-up explains the next steps: recount the shelf, re-log what was actually taken, or reconcile the discrepancy. From the block you can add a note and start a **one-click escalation group chat** to senior management — the **Chief of Staff** (Julie Glanville), the **Director of Field Operations** (Graham Foster), and the **COO** (Chris Slade) — so a real shortage is surfaced immediately instead of being papered over. The same **unconfirmed-product hard stop** also applies — a brand-new or unvetted product can't be dispensed until an admin confirms it. (A product that has never been counted is the one exception to the negative-stock block — its on-hand isn't trustworthy yet, so it uses the 40-unit cap instead.)
 
 **Stock count.** A product shows "Not yet counted" until you do a physical count of it at your branch. From **Inventory → Stock Count**, enter the counted quantity for each product and save; the portal writes the **adjustment** needed to match and marks the product counted (after that its check-out quantity is capped at the real on-hand, not 40). Current on-hand by product is on **Inventory → Stock**.
 

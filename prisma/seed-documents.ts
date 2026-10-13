@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 20 · Last updated October 12, 2026",
+    effective: "Version 21 · Last updated October 13, 2026",
+    // v21: consolidated the Inventory Check-OUT section to the single smart
+    // Check-Out screen — the separate "Scan Checkout" screen was retired and now
+    // redirects to Check-Out. The one Check-Out is scan-powered (scan barcode /
+    // shelf QR, unknown-barcode "which product is this?" linker, AI photo
+    // fallback), with the cart, optional signature, 15-minute undo, History, and
+    // the over-dispense + unconfirmed hard stops (never-counted products exempt
+    // from the negative-stock block); escalation on the over-dispense stop kept.
     // v20: documented the employee Birthday field now being Month/Day/Year with an
     // HR-only birth year (shown only on the HR profile, never on the team view,
     // bulletin, or any celebration), and the day-of Buzz celebration — a profile
@@ -87,7 +94,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 20,
+    version: 21,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

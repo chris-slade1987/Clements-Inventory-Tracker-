@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Horizontal sub-navigation for the Scan-to-Issue inventory area. Admin-only
+// Horizontal sub-navigation for the Check-Out / inventory area. Admin-only
 // tabs (Labels, Catalog) are rendered only for admins. Mobile-first: scrolls
 // horizontally with large tap targets.
 const TABS: { href: string; label: string; adminOnly?: boolean }[] = [
-  { href: "/inventory/checkout", label: "Scan Checkout" },
+  { href: "/check-out", label: "Check-Out" },
   { href: "/inventory/history", label: "History" },
   { href: "/inventory/stock", label: "Stock" },
   { href: "/inventory/stock-count", label: "Stock Count" },

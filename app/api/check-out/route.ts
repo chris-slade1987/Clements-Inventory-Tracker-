@@ -4,6 +4,13 @@ import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHandByWarehouse } from "@/lib/inventory";
 import { uomCode } from "@/lib/uom";
 
+// NOTE: Legacy check-out submit endpoint. As of the Check-Out consolidation, the
+// single /check-out screen submits via POST /api/inventory/checkout instead, so
+// this route is no longer referenced by the UI. It is kept intact (it still posts
+// valid negative check_out movements) for any external/bookmarked caller and as a
+// fallback; prefer /api/inventory/checkout for new work. The sibling
+// /api/check-out/escalate route IS still used (over-on-hand escalation).
+
 export const maxDuration = 20;
 
 type LineIn = { productId: string; quantity: number; unit?: string | null };

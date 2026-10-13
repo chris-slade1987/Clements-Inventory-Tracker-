@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import { uomLabel } from "@/lib/uom";
@@ -99,8 +100,15 @@ export default function ScanCheckoutClient({
 
   // Submit / receipt.
   const [receipt, setReceipt] = useState<Receipt | null>(null);
-  const [blocked, setBlocked] = useState<{ name: string; onHand: number; requested: number }[] | null>(null);
+  const [blocked, setBlocked] = useState<{ productId?: string; name: string; onHand: number; requested: number; after?: number }[] | null>(null);
   const [blockedUnconfirmed, setBlockedUnconfirmed] = useState<{ name: string }[] | null>(null);
+
+  // Over-on-hand escalation (carried from the legacy Check-Out flow): the manager
+  // can't override the hard stop, but they can one-click message senior management
+  // to reconcile on-hand. Opens an internal thread via /api/check-out/escalate.
+  const [escalateNote, setEscalateNote] = useState("");
+  const [escalating, setEscalating] = useState(false);
+  const [escalateError, setEscalateError] = useState<string | null>(null);
 
   const onHandFor = (pid: string) => onHand[warehouseId]?.[pid] ?? 0;
   const countedSet = useMemo(() => new Set(countedByWarehouse[warehouseId] ?? []), [countedByWarehouse, warehouseId]);
@@ -320,6 +328,8 @@ export default function ScanCheckoutClient({
       }
       if (res.status === 409 && data.error === "negative_stock") {
         setBlocked(data.offending ?? []);
+        setEscalateNote("");
+        setEscalateError(null);
         setBusy(false);
         return;
       }
@@ -357,6 +367,40 @@ export default function ScanCheckoutClient({
     } catch {
       setBusy(false);
       setError("Network error during undo.");
+    }
+  }
+
+  // Over-on-hand escalation: open an internal discussion for senior management to
+  // reconcile on-hand. Reuses the legacy /api/check-out/escalate endpoint.
+  async function escalate() {
+    if (!blocked) return;
+    setEscalating(true);
+    setEscalateError(null);
+    try {
+      const res = await fetch("/api/check-out/escalate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          warehouseId,
+          offending: blocked.map((o) => ({
+            name: o.name,
+            onHand: o.onHand,
+            requested: o.requested,
+            after: o.after ?? o.onHand - o.requested,
+          })),
+          note: escalateNote.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.threadId) {
+        setEscalateError(data.error ?? "Could not start the discussion. Try again.");
+        setEscalating(false);
+        return;
+      }
+      router.push(`/inbox/${data.threadId}`);
+    } catch {
+      setEscalateError("Network error. Try again.");
+      setEscalating(false);
     }
   }
 
@@ -405,6 +449,9 @@ export default function ScanCheckoutClient({
           <button onClick={reset} className={btn.primary} disabled={busy}>New checkout</button>
           <button onClick={undo} className={btn.secondary} disabled={busy}>Undo (15 min)</button>
         </div>
+        <Link href="/inventory/history" className="mt-3 block text-center text-sm font-medium text-brand-700 hover:underline">
+          View checkout history
+        </Link>
       </Card>
     );
   }
@@ -617,17 +664,36 @@ export default function ScanCheckoutClient({
 
       {/* Hard-stop overlays */}
       {blocked ? (
-        <Overlay onClose={() => setBlocked(null)} title="Over-dispense blocked">
+        <Overlay onClose={() => (escalating ? undefined : setBlocked(null))} title="Over-dispense blocked">
           <p className="text-sm text-muted mb-2">These lines exceed on-hand at {branchName}. Recount the shelf or reconcile before dispensing — no override.</p>
           <ul className="divide-y divide-line text-sm">
             {blocked.map((o, i) => (
-              <li key={i} className="flex justify-between py-2">
+              <li key={o.productId ?? i} className="flex justify-between py-2">
                 <span>{o.name}</span>
                 <span className="text-red-600 font-medium">need {o.requested}, have {o.onHand}</span>
               </li>
             ))}
           </ul>
-          <button className={`${btn.secondary} mt-3 w-full`} onClick={() => setBlocked(null)}>Back to cart</button>
+
+          <label className="mt-3 block text-sm font-medium">
+            Add a note for senior management (optional)
+            <textarea
+              value={escalateNote}
+              onChange={(e) => setEscalateNote(e.target.value)}
+              rows={3}
+              placeholder="Anything that helps them reconcile…"
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            />
+          </label>
+
+          {escalateError ? <p className="mt-2 text-sm text-red-600" role="alert">{escalateError}</p> : null}
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button className={btn.secondary} onClick={() => setBlocked(null)} disabled={escalating}>Back to cart</button>
+            <button className={btn.primary} onClick={escalate} disabled={escalating}>
+              {escalating ? "Starting…" : "Message senior management"}
+            </button>
+          </div>
         </Overlay>
       ) : null}
       {blockedUnconfirmed ? (
