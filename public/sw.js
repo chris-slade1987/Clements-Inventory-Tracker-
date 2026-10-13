@@ -15,7 +15,7 @@
 //     (safe: not user-specific, and a new deploy ships new filenames).
 //   - API responses → always live (never touched).
 
-const CACHE = "clements-cc-v6";
+const CACHE = "clements-cc-v7";
 // Only non-user-specific shells are pre-cached. NEVER pre-cache an authenticated
 // page (e.g. /dashboard) — that would be a per-user page in a shared cache.
 const APP_SHELL = ["/offline"];
