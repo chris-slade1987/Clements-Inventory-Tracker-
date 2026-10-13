@@ -18,6 +18,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Attested checklists** for weekly & monthly manager responsibilities, with a leadership completion rollup. See *Weekly* and *Monthly Responsibilities*.
 - **Branch Hub** for on-site licenses/documents with expiry reminders. See *FDACS On-site Document Management* and *Warehouse Safety*.
 - **Sales Team** — service advisors plan their month with a built-in **Monthly Goal Sheet**, and the **Sales Director** oversees advisors and goals across all four branches. See *Sales Team*.
+- **Certifications** — a read-only console to browse the internal certification program's structure (certifications, modules, prerequisites, and career pathways). Leadership and HR can SEE the program today; training content and tracking are coming. See *Certifications*.
 
 ## Table of Contents
 
@@ -50,6 +51,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - [Drug Free Workplace](#drug-free-workplace)
 - [Sales Center Clean Up Process & Procedure](#sales-center-clean-up-process-and-procedure)
 - [Inventory Process & Procedure](#inventory-process-and-procedure)
+- [Certifications](#certifications)
 - [Paid Time Off (PTO)](#paid-time-off-pto)
 - [Extra Days Policy](#extra-days-policy)
 - [Hurricane Preparedness Guidelines](#hurricane-preparedness-guidelines)
@@ -1025,6 +1027,23 @@ Acknowledge, dismiss, or **Discuss** (open a thread) any alert. This is how purc
 - **Dispersals.** What went out to technicians (your check-outs), shown as positive units. A **by-technician rollup** (lines, units, estimated value) sits above the full line-item list (Date, Branch, Technician, Product, Qty, Unit, Est. value at product cost). Defaults to **last month**; filter by branch, technician, or product.
 - **Spend.** Purchasing spend for the window: a **Spend by distributor** table (distributor, invoices, total $), a **Spend by category** table, and a **monthly spend trend** chart. Defaults to the **last 3 months**; filter by branch (and distributor).
 - **On-hand.** A point-in-time snapshot of current stock with dollar value — per product, per branch, with unit cost, total value, per-branch value subtotals, and a grand total value. Set an **"As of" date** to see what was on hand on any past date (on-hand as of a date is the sum of every movement up to and including that day). Filter by branch, category, or product.
+
+## Certifications
+
+> **Portal (v1 — read-only).** **Management → Certifications** is a read-only console for leadership and HR to SEE how the internal certification program is structured. This first phase is **browse only**: there is nothing to create, edit, enroll, or sign off yet, and no employee progress is shown. Training content and tracking are coming in a later phase. The link appears only for **admins, HR, and senior leadership**.
+
+The certification program is Clements' own internal ladder — separate from the monthly **Training** (CEU) courses. It is organized as:
+
+- **Certifications** — the award a person earns (e.g. *CW — The Clements Way*, *FC — Field Core*, the six service certifications *PC / LAWN / TERM / RX / MOS / WL*, *CSR*, and *SLS — Sales*).
+- **Modules** — the written lessons inside each certification.
+- **Prerequisites** — certifications that must be held first (for example, Field Core requires The Clements Way; each service certification requires both).
+- **Pathways** — the set of certifications required for a career move (new hire in the field, new CSR, new Sales, adding a service, moving into Sales, or moving into Management).
+
+What each page shows:
+
+- **Certifications (index)** — all certifications in order, each with its code, name, audience, service-cert / all-service tags, module count, prerequisite codes, field-hours note, and pass score (field hours and pass score read **TBD** where the program hasn't set them yet). A content-status legend (**Exists / Partial / None**) and a program summary (totals of certifications and modules, and how many modules exist / are partial / are not written) sit at the top. Select any certification to open its detail.
+- **Certification detail** — the requirements summary (written modules, field hours, pass score, who signs off) and any external requirement; the prerequisites (each links to its own detail; Sales also notes it requires all service certifications); the full module list in order with each module's content status and source note (certifications with no modules yet show an empty state); and a **Required by** section listing the certifications and pathways that depend on this one.
+- **Pathways** — the six career moves, each showing the certifications it requires: the fixed ones as linked codes plus plain-language expansions of rules like "all service certifications."
 
 ## Paid Time Off (PTO)
 

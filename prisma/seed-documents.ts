@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 22 · Last updated October 13, 2026",
+    effective: "Version 23 · Last updated October 13, 2026",
+    // v23: added the Certifications subsection — the read-only Management →
+    // Certifications console (admin / HR / senior leadership) for browsing the
+    // internal certification program's structure (certifications, modules,
+    // prerequisites, pathways). Browse-only for now; no enrollment, progress,
+    // sign-off, or module content, and no employee data.
     // v22: added the Inventory › Reports & analysis subsection — the tabbed
     // Reports hub (Overview / Purchases / Dispersals / Spend / On-hand), each tab's
     // filters + date presets + per-view CSV export, and branch scoping (branch-locked
@@ -98,7 +103,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 22,
+    version: 23,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

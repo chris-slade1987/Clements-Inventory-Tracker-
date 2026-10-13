@@ -157,6 +157,16 @@ export const INTAKE_NAV_ITEM: NavItem = {
   icon: "M12 15V4M8 8l4-4 4 4M4 14v5a1 1 0 001 1h14a1 1 0 001-1v-5",
 };
 
+// Certifications — the read-only HR/admin console over the internal
+// certification program (certifications, modules, prerequisites, pathways).
+// Admins + HR + senior leadership only; gated in AppShell. An award/ribbon glyph.
+export const CERTIFICATIONS_NAV_ITEM: NavItem = {
+  href: "/management/certifications",
+  label: "Certifications",
+  shortLabel: "Certs",
+  icon: "M12 15a5 5 0 100-10 5 5 0 000 10zm0 0l-3 6 3-1.5L15 21l-3-6m-2.1-4.4l1.4 1.4 2.8-2.8",
+};
+
 export const MANUAL_NAV_ITEM: NavItem = {
   href: "/resources/manual",
   label: "Manager Manual",
@@ -351,6 +361,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Training",
     icon: "M12 4L2 9l10 5 8-4v6M6 12v5c0 1 3 2 6 2s6-1 6-2v-5",
   },
+  CERTIFICATIONS_NAV_ITEM,
   {
     href: "/management/people",
     label: "People / HR",

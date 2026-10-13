@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -131,6 +131,8 @@ export default function AppShell({
   // Pre-hires = HR. An employee-shell user with any grant keeps their stripped
   // self-service shell and may reach ONLY their granted management pages.
   const canViewCompliance = isAdmin || isSeniorLeadership;
+  // Certifications console — admins + HR + senior leadership (read-only).
+  const canViewCertifications = isAdmin || isHrAccess || isSeniorLeadership;
   const canManagePreHire = isAdmin || isHrAccess;
   const canManageAts = isAdmin || isHrAccess;
   const canViewAllPto = isAdmin || isHrAccess;
@@ -139,6 +141,7 @@ export default function AppShell({
   if (isHrAccess) grantedMgmt.push(HR_HOME_NAV_ITEM);
   if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
   if (canViewCompliance) grantedMgmt.push(CHECKLIST_OVERSIGHT_NAV_ITEM);
+  if (canViewCertifications) grantedMgmt.push(CERTIFICATIONS_NAV_ITEM);
   if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
   if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
   if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
@@ -171,6 +174,8 @@ export default function AppShell({
   } else {
     // The Compliance Command Center + checklist oversight are senior-leadership only.
     let list = rawItems.filter((i) => (i.href !== COMPLIANCE_NAV_ITEM.href && i.href !== CHECKLIST_OVERSIGHT_NAV_ITEM.href && i.href !== SYSTEM_MAP_NAV_ITEM.href) || canViewCompliance);
+    // Certifications console is admin / HR / senior-leadership only.
+    list = list.filter((i) => i.href !== CERTIFICATIONS_NAV_ITEM.href || canViewCertifications);
     // Surface granted management links + My Hiring on the grantee's employee home
     // nav (inserted just before the company bulletin).
     if (mode === "employee" && privilegedEmployee) {
