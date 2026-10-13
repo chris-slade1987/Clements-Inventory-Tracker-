@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
@@ -103,6 +104,7 @@ export default function AppShell({
   unread?: number;
 }) {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
     : pathname.startsWith("/bulletin")
@@ -216,8 +218,20 @@ export default function AppShell({
     .map((i) => i.href)
     .filter((h) => pathname === h || pathname.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
-  // Mobile bottom bar shows the center nav plus the resources links.
-  const mobileItems = [...items, ...resources];
+  // Mobile bottom bar: show only the CURRENT module's primary actions (first few),
+  // and tuck the rest — extra module items, cross-module resources, and admin/
+  // account links — behind a single "More" sheet. The top module switcher already
+  // lets the user change centers, so the bar stays uncluttered and thumb-friendly.
+  const MAX_PRIMARY = 4;
+  const mobileExtras: NavItem[] = [
+    ...resources,
+    ...(isAdmin ? [USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM] : []),
+  ];
+  const needMore = items.length > MAX_PRIMARY || mobileExtras.length > 0;
+  const primaryItems = needMore ? items.slice(0, MAX_PRIMARY) : items;
+  const moreItems = needMore ? [...items.slice(MAX_PRIMARY), ...mobileExtras] : [];
+  const moreActive = moreItems.some((i) => i.href === activeHref);
+  const bottomCols = primaryItems.length + (needMore ? 1 : 0);
 
   return (
     <div className="flex min-h-screen">
@@ -334,12 +348,63 @@ export default function AppShell({
         </main>
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile "More" sheet — overflow nav + resources + account actions. */}
+      {moreOpen ? (
+        <div className="md:hidden fixed inset-0 z-30" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMoreOpen(false)} />
+          <div className="absolute bottom-0 inset-x-0 bg-forest-grad border-t border-white/10 rounded-t-2xl p-3 pb-6 max-h-[75vh] overflow-y-auto">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/25" />
+            <div className="grid grid-cols-3 gap-2">
+              {moreItems.map((item) => {
+                const active = item.href === activeHref;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMoreOpen(false)}
+                    className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1 text-center text-[11px] font-light ${
+                      active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5"
+                    }`}
+                  >
+                    <Icon path={item.icon} className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="mt-3 border-t border-white/10 pt-3 space-y-1">
+              <Link href="/help" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/help"))}>
+                <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d={HELP} strokeLinecap="round" />
+                </svg>
+                Help
+              </Link>
+              {managerName ? (
+                <>
+                  <Link href="/account" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/account"))}>
+                    <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
+                    Change password
+                  </Link>
+                  <form action="/api/auth/logout" method="post">
+                    <button className={`${navClass(false)} w-full text-left`}>
+                      <Icon path="M15 17l5-5-5-5M20 12H9M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4" className="h-5 w-5 shrink-0" />
+                      Sign out
+                    </button>
+                  </form>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Mobile bottom nav — current module's primary actions + a More button. */}
       <nav
         className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid"
-        style={{ gridTemplateColumns: `repeat(${mobileItems.length}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${bottomCols}, minmax(0, 1fr))` }}
       >
-        {mobileItems.map((item) => {
+        {primaryItems.map((item) => {
           const active = item.href === activeHref;
           return (
             <Link
@@ -356,6 +421,19 @@ export default function AppShell({
             </Link>
           );
         })}
+        {needMore ? (
+          <button
+            type="button"
+            onClick={() => setMoreOpen(true)}
+            aria-label="More"
+            className={`relative flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-light ${
+              moreActive ? "text-brand-300" : "text-mint"
+            }`}
+          >
+            <Icon path="M5 12h.01M12 12h.01M19 12h.01" className="h-5 w-5" />
+            More
+          </button>
+        ) : null}
       </nav>
 
       {/* Floating grounded-Q&A assistant — leadership only. */}
