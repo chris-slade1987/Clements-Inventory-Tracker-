@@ -43,9 +43,21 @@ const BASE = (process.env.SMARTERLAUNCH_API_BASE || "https://api.smarterlaunch.c
 // customer, pricing, referral source, assigned user and location inline (keeps us
 // far under the daily budget). Unknown fields are ignored server-side, so a
 // superset is harmless; override via env if SmarterLaunch names them differently.
+// SmarterLaunch /proposals only accepts a fixed enum of include_fields (a 400
+// "must be one of the following types" lists them). Valid set discovered live:
+//   company, description, expire_at, first_year_revenue, annual_revenue, form,
+//   forms_table, has_service_plans_updated, initial_billing_amount,
+//   declined_initial_billing_amount, integrations, is_accepted_signed,
+//   proposalServicePlans, proposalVersions, proposal_template_data,
+//   proposal_values, saved_service_plans, service_plan, settings,
+//   signature_photo_url, signed_at, signed_by_ip_address
+// We request the ones useful for the lead board (company = customer/company incl.
+// location, the revenue/billing amounts, the service plans, and acceptance state).
+// Override via env if needed. (customer/referral/advisor are inline on the base
+// proposal, not includes — confirmed from the raw sample.)
 const INCLUDE_FIELDS =
   process.env.SMARTERLAUNCH_INCLUDE_FIELDS ||
-  "customer,customer_contacts,customer_addresses,line_items,service_plans,referral_source,assigned_user,referral_user,company_location,status";
+  "company,service_plan,saved_service_plans,proposalServicePlans,first_year_revenue,annual_revenue,initial_billing_amount,is_accepted_signed,signed_at,expire_at,description,settings";
 // SmarterLaunch validates include_fields as an ARRAY (400 "The include fields must
 // be an array." otherwise), so we send it as repeated include_fields[] params.
 const INCLUDE_FIELDS_ARR = INCLUDE_FIELDS.split(",").map((s) => s.trim()).filter(Boolean);

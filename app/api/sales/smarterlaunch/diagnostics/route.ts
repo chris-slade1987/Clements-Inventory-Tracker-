@@ -25,7 +25,7 @@ export async function GET() {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const out: Record<string, unknown> = { status: smarterLaunchStatus(), build: { tag: "smarterlaunch-2" } };
+  const out: Record<string, unknown> = { status: smarterLaunchStatus(), build: { tag: "smarterlaunch-3" } };
 
   // Quota / budget.
   out.quota = await getStoredQuota();
@@ -63,6 +63,8 @@ export async function GET() {
           ok: true,
           total: page.total,
           returned: page.items.length,
+          sampleKeys: first ? Object.keys(first) : [],
+          sampleRaw: first ?? null, // raw proposal shape, to wire the field mapping
           sampleMapped: first ? normalizeProposal(first) : null,
           quotaAfter: await getStoredQuota(),
         };
