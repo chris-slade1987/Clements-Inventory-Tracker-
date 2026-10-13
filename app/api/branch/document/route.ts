@@ -38,6 +38,15 @@ export async function POST(req: Request) {
       fileName = file.name;
       fileSize = bytes.length;
       filePath = await saveUpload(bytes, file.name, mimeType, "branch-docs").catch(() => null);
+      // A file was provided but storage rejected it (e.g. Vercel Blob not
+      // configured → read-only FS). Fail loudly instead of saving a record with
+      // no openable file — that's the confusing "it's listed but won't open" bug.
+      if (!filePath) {
+        return NextResponse.json(
+          { error: "The file could not be stored, so the document was not saved. Document storage (Vercel Blob) isn't configured — connect it and try again." },
+          { status: 503 },
+        );
+      }
     }
 
     const rent = numOf(g("monthlyRent"));
