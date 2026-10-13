@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 21 · Last updated October 13, 2026",
+    effective: "Version 22 · Last updated October 13, 2026",
+    // v22: added the Inventory › Reports & analysis subsection — the tabbed
+    // Reports hub (Overview / Purchases / Dispersals / Spend / On-hand), each tab's
+    // filters + date presets + per-view CSV export, and branch scoping (branch-locked
+    // managers see only their branch; admins/senior leadership see all).
     // v21: consolidated the Inventory Check-OUT section to the single smart
     // Check-Out screen — the separate "Scan Checkout" screen was retired and now
     // redirects to Check-Out. The one Check-Out is scan-powered (scan barcode /
@@ -94,7 +98,7 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 21,
+    version: 22,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

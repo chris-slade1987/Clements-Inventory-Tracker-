@@ -1016,6 +1016,16 @@ The **Alerts** screen watches your inventory automatically (checks run on each c
 
 Acknowledge, dismiss, or **Discuss** (open a thread) any alert. This is how purchasing patterns are spotted and how reordering is driven day to day.
 
+### Reports & analysis
+
+> **Portal.** **Inventory → Reports** is a tabbed hub. Each tab has its own filters (with quick **This month / Last month / Last 3 months / Year to date** presets and custom From/To dates) and its own **Export CSV** button that downloads exactly what's on screen — the rows plus the subtotals and totals. A branch-locked manager sees only their own branch; admins and senior leadership see every branch and can filter by branch.
+
+- **Overview.** The at-a-glance picture: purchased vs. dispersed vs. on-hand by warehouse (dollars across all products, units when you pick one product), the per-branch warehouse summary you can expand to products, and the on-hand-by-product table.
+- **Purchases.** Distributor receipts (your check-ins), one row per invoice line — Date, Distributor, Invoice #, Branch, Product, Qty, Unit, Unit cost, Line total — grouped by invoice with an **invoice subtotal**, then **per-branch subtotals** and a **grand total** in dollars. Defaults to **last month**; filter by branch, distributor, or product.
+- **Dispersals.** What went out to technicians (your check-outs), shown as positive units. A **by-technician rollup** (lines, units, estimated value) sits above the full line-item list (Date, Branch, Technician, Product, Qty, Unit, Est. value at product cost). Defaults to **last month**; filter by branch, technician, or product.
+- **Spend.** Purchasing spend for the window: a **Spend by distributor** table (distributor, invoices, total $), a **Spend by category** table, and a **monthly spend trend** chart. Defaults to the **last 3 months**; filter by branch (and distributor).
+- **On-hand.** A point-in-time snapshot of current stock with dollar value — per product, per branch, with unit cost, total value, per-branch value subtotals, and a grand total value. Set an **"As of" date** to see what was on hand on any past date (on-hand as of a date is the sum of every movement up to and including that day). Filter by branch, category, or product.
+
 ## Paid Time Off (PTO)
 
 > **Portal (v1).** PTO is requested and approved in the portal.

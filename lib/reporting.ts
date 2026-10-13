@@ -8,6 +8,11 @@ export type ReportFilters = {
   productId?: string;
   warehouseId?: string;
   category?: string;
+  // Tabbed Reports hub additions.
+  view?: string; // overview | purchases | dispersals | spend | onhand
+  distributor?: string; // Purchases / Spend filter
+  technicianId?: string; // Dispersals filter
+  asOf?: Date; // On-hand snapshot "as of" date (inclusive, end of day)
 };
 
 /** Relation filter fragment applied to movement/invoice-line queries. */
@@ -622,12 +627,18 @@ export async function productCostMap(): Promise<Map<string, number>> {
 export type Ranked = { key: string; label: string; value: number; qty: number };
 
 /** Spend ($) by product category from confirmed invoices in a range. */
-export async function spendByCategory(from: Date, to?: Date, warehouseId?: string): Promise<Ranked[]> {
+export async function spendByCategory(
+  from: Date,
+  to?: Date,
+  warehouseId?: string,
+  distributor?: string
+): Promise<Ranked[]> {
   const lines = await prisma.invoiceLine.findMany({
     where: {
       invoice: {
         status: "confirmed",
         warehouseId: warehouseId ?? undefined,
+        distributor: distributor ?? undefined,
         invoiceDate: { gte: from, ...(to ? { lte: to } : {}) },
       },
     },
@@ -820,11 +831,451 @@ export async function topProductsOnHand(
 export function parseFilters(sp: Record<string, string | undefined>): ReportFilters {
   const from = sp.from ? new Date(sp.from) : undefined;
   const to = sp.to ? new Date(sp.to + "T23:59:59") : undefined;
+  const asOf = sp.asOf ? new Date(sp.asOf + "T23:59:59") : undefined;
   return {
     from: from && !isNaN(from.getTime()) ? from : undefined,
     to: to && !isNaN(to.getTime()) ? to : undefined,
     productId: sp.productId || undefined,
     warehouseId: sp.warehouseId || undefined,
     category: sp.category || undefined,
+    view: sp.view || undefined,
+    distributor: sp.distributor || undefined,
+    technicianId: sp.technicianId || undefined,
+    asOf: asOf && !isNaN(asOf.getTime()) ? asOf : undefined,
   };
+}
+
+// ---- Default date windows for the report views ------------------------
+// Mirror the FilterBar presets so a view's server default matches what the
+// "Last month" / "Last 3 months" preset buttons produce.
+export function lastMonthRange(now: Date = new Date()): { from: Date; to: Date } {
+  const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  return { from, to };
+}
+export function last3MonthsRange(now: Date = new Date()): { from: Date; to: Date } {
+  const from = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  return { from, to };
+}
+
+// =======================================================================
+// Tabbed Reports hub — detail reports (Purchases / Dispersals / Spend / On-hand)
+// =======================================================================
+
+// ---- 1) Purchases (check-in) detail -----------------------------------
+export type PurchaseLineRow = {
+  invoiceId: string;
+  date: Date;
+  distributor: string;
+  invoiceNumber: string;
+  warehouseId: string;
+  warehouseName: string;
+  productId: string | null;
+  product: string; // product name, or descriptionRaw when unmatched
+  qty: number;
+  unit: string | null;
+  unitCost: number | null;
+  lineTotal: number;
+};
+export type PurchaseInvoiceGroup = {
+  invoiceId: string;
+  date: Date;
+  distributor: string;
+  invoiceNumber: string;
+  warehouseId: string;
+  warehouseName: string;
+  lines: PurchaseLineRow[];
+  subtotal: number;
+};
+export type BranchSubtotal = { warehouseId: string; warehouseName: string; subtotal: number };
+export type PurchasesDetail = {
+  invoices: PurchaseInvoiceGroup[];
+  byBranch: BranchSubtotal[];
+  grandTotal: number;
+};
+
+/**
+ * Confirmed distributor receipts as one row per invoice line, grouped by invoice
+ * (sorted by invoiceDate then invoice #) with an invoice subtotal, per-branch
+ * subtotals and a grand total in DOLLARS (qty isn't comparable across units).
+ * Date range applies to `invoiceDate`. Respects branch / distributor / product.
+ */
+export async function purchasesDetail(f: ReportFilters): Promise<PurchasesDetail> {
+  const df = dateWhere(f);
+  const lines = await prisma.invoiceLine.findMany({
+    where: {
+      productId: f.productId ?? undefined,
+      product: productFilter(f),
+      invoice: {
+        status: "confirmed",
+        warehouseId: f.warehouseId ?? undefined,
+        distributor: f.distributor ?? undefined,
+        ...(df ? { invoiceDate: df } : {}),
+      },
+    },
+    select: {
+      quantity: true,
+      unit: true,
+      unitPrice: true,
+      lineTotal: true,
+      descriptionRaw: true,
+      productId: true,
+      product: { select: { name: true } },
+      invoice: {
+        select: {
+          id: true,
+          distributor: true,
+          invoiceNumber: true,
+          invoiceDate: true,
+          warehouseId: true,
+          warehouse: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  const byInvoice = new Map<string, PurchaseInvoiceGroup>();
+  const byBranch = new Map<string, BranchSubtotal>();
+  let grandTotal = 0;
+
+  for (const l of lines) {
+    const inv = l.invoice;
+    const lineTotal = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    const rowWarehouseName = inv.warehouse?.name ?? "Unknown";
+    const g =
+      byInvoice.get(inv.id) ??
+      ({
+        invoiceId: inv.id,
+        date: inv.invoiceDate,
+        distributor: inv.distributor,
+        invoiceNumber: inv.invoiceNumber,
+        warehouseId: inv.warehouseId,
+        warehouseName: rowWarehouseName,
+        lines: [],
+        subtotal: 0,
+      } as PurchaseInvoiceGroup);
+    g.lines.push({
+      invoiceId: inv.id,
+      date: inv.invoiceDate,
+      distributor: inv.distributor,
+      invoiceNumber: inv.invoiceNumber,
+      warehouseId: inv.warehouseId,
+      warehouseName: rowWarehouseName,
+      productId: l.productId,
+      product: l.product?.name ?? l.descriptionRaw,
+      qty: l.quantity,
+      unit: l.unit ?? null,
+      unitCost: l.unitPrice ?? null,
+      lineTotal,
+    });
+    g.subtotal += lineTotal;
+    byInvoice.set(inv.id, g);
+
+    const b =
+      byBranch.get(inv.warehouseId) ??
+      ({ warehouseId: inv.warehouseId, warehouseName: rowWarehouseName, subtotal: 0 } as BranchSubtotal);
+    b.subtotal += lineTotal;
+    byBranch.set(inv.warehouseId, b);
+
+    grandTotal += lineTotal;
+  }
+
+  const invoices = [...byInvoice.values()].sort(
+    (a, b) => a.date.getTime() - b.date.getTime() || a.invoiceNumber.localeCompare(b.invoiceNumber)
+  );
+  for (const g of invoices) g.lines.sort((a, b) => a.product.localeCompare(b.product));
+
+  return {
+    invoices,
+    byBranch: [...byBranch.values()].sort((a, b) => a.warehouseName.localeCompare(b.warehouseName)),
+    grandTotal,
+  };
+}
+
+// ---- 2) Dispersals (check-out) detail ---------------------------------
+export type DispersalLineRow = {
+  id: string;
+  date: Date;
+  warehouseId: string;
+  warehouseName: string;
+  technicianId: string | null;
+  technician: string; // name, or "—" when null
+  productId: string;
+  product: string;
+  qty: number; // absolute units
+  unit: string | null;
+  value: number; // abs qty × cost
+};
+export type DispersalTechRollup = {
+  technicianId: string | null;
+  technician: string;
+  units: number;
+  value: number;
+  lines: number;
+};
+export type DispersalsDetail = {
+  lines: DispersalLineRow[];
+  byTech: DispersalTechRollup[];
+  totalUnits: number;
+  totalValue: number;
+};
+
+/**
+ * check_out movements (quantity stored negative → shown absolute) as one row per
+ * movement, plus a by-technician rollup. Date range applies to `createdAt`.
+ * Respects branch / technician / product. Est. value = abs qty × product cost.
+ */
+export async function dispersalsDetail(
+  f: ReportFilters,
+  cost: Map<string, number>
+): Promise<DispersalsDetail> {
+  const df = dateWhere(f);
+  const movements = await prisma.stockMovement.findMany({
+    where: {
+      type: "check_out",
+      productId: f.productId ?? undefined,
+      product: productFilter(f),
+      warehouseId: f.warehouseId ?? undefined,
+      technicianId: f.technicianId ?? undefined,
+      ...(df ? { createdAt: df } : {}),
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      quantity: true,
+      unit: true,
+      productId: true,
+      warehouseId: true,
+      technicianId: true,
+      product: { select: { name: true } },
+      warehouse: { select: { name: true } },
+      technician: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const lines: DispersalLineRow[] = [];
+  const byTechMap = new Map<string, DispersalTechRollup>();
+  let totalUnits = 0;
+  let totalValue = 0;
+
+  for (const m of movements) {
+    const units = Math.abs(m.quantity);
+    const value = units * (cost.get(m.productId) ?? 0);
+    const techName = m.technician?.name ?? "—";
+    lines.push({
+      id: m.id,
+      date: m.createdAt,
+      warehouseId: m.warehouseId,
+      warehouseName: m.warehouse?.name ?? "Unknown",
+      technicianId: m.technicianId,
+      technician: techName,
+      productId: m.productId,
+      product: m.product?.name ?? "Unknown",
+      qty: units,
+      unit: m.unit ?? null,
+      value,
+    });
+    totalUnits += units;
+    totalValue += value;
+
+    const key = m.technicianId ?? "__none__";
+    const r =
+      byTechMap.get(key) ??
+      ({ technicianId: m.technicianId, technician: techName, units: 0, value: 0, lines: 0 } as DispersalTechRollup);
+    r.units += units;
+    r.value += value;
+    r.lines += 1;
+    byTechMap.set(key, r);
+  }
+
+  return {
+    lines,
+    byTech: [...byTechMap.values()].sort((a, b) => b.value - a.value || b.units - a.units),
+    totalUnits,
+    totalValue,
+  };
+}
+
+// ---- 3) Spend by distributor / category -------------------------------
+export type DistributorSpend = { distributor: string; invoices: number; total: number };
+
+/** Spend ($) by distributor from confirmed invoices in a range. */
+export async function spendByDistributor(
+  from: Date,
+  to?: Date,
+  warehouseId?: string,
+  distributor?: string
+): Promise<DistributorSpend[]> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: {
+      invoice: {
+        status: "confirmed",
+        warehouseId: warehouseId ?? undefined,
+        distributor: distributor ?? undefined,
+        invoiceDate: { gte: from, ...(to ? { lte: to } : {}) },
+      },
+    },
+    select: {
+      quantity: true,
+      unitPrice: true,
+      lineTotal: true,
+      invoice: { select: { id: true, distributor: true } },
+    },
+  });
+  const m = new Map<string, { total: number; invoices: Set<string> }>();
+  for (const l of lines) {
+    const dist = l.invoice.distributor;
+    const v = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    const r = m.get(dist) ?? { total: 0, invoices: new Set<string>() };
+    r.total += v;
+    r.invoices.add(l.invoice.id);
+    m.set(dist, r);
+  }
+  return [...m.entries()]
+    .map(([dist, r]) => ({ distributor: dist, invoices: r.invoices.size, total: r.total }))
+    .sort((a, b) => b.total - a.total);
+}
+
+export type MonthlySpend = { month: string; label: string; total: number };
+
+/** Total purchase $ per calendar month across the range (confirmed invoices). */
+export async function spendMonthlyTrend(
+  from: Date,
+  to?: Date,
+  warehouseId?: string,
+  distributor?: string
+): Promise<MonthlySpend[]> {
+  const lines = await prisma.invoiceLine.findMany({
+    where: {
+      invoice: {
+        status: "confirmed",
+        warehouseId: warehouseId ?? undefined,
+        distributor: distributor ?? undefined,
+        invoiceDate: { gte: from, ...(to ? { lte: to } : {}) },
+      },
+    },
+    select: {
+      quantity: true,
+      unitPrice: true,
+      lineTotal: true,
+      invoice: { select: { invoiceDate: true } },
+    },
+  });
+  const m = new Map<string, number>();
+  for (const l of lines) {
+    const d = l.invoice.invoiceDate;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const v = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    m.set(key, (m.get(key) ?? 0) + v);
+  }
+  return [...m.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([month, total]) => {
+      const [y, mo] = month.split("-").map(Number);
+      const label = new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+      return { month, label, total };
+    });
+}
+
+// ---- 4) On-hand snapshot (point-in-time, with value) ------------------
+export type OnHandSnapshotRow = {
+  productId: string;
+  name: string;
+  category: string;
+  unit: string;
+  byWarehouse: Record<string, number>;
+  totalQty: number;
+  unitCost: number;
+  totalValue: number;
+};
+export type OnHandSnapshot = {
+  asOf: Date;
+  rows: OnHandSnapshotRow[];
+  byWarehouseValue: Record<string, { units: number; value: number }>;
+  grandTotalQty: number;
+  grandTotalValue: number;
+};
+
+/**
+ * Point-in-time on-hand per product per warehouse with $ value. On-hand as of a
+ * date = SUM(quantity) of movements with createdAt <= asOf (default now). Value =
+ * qty × product cost (latest known unit cost). Respects branch / category /
+ * product. Only products with nonzero on-hand are returned.
+ */
+export async function onHandSnapshot(
+  opts: { asOf?: Date; warehouseId?: string; category?: string; productId?: string },
+  cost: Map<string, number>
+): Promise<OnHandSnapshot> {
+  const asOf = opts.asOf ?? new Date();
+  const rows = await prisma.stockMovement.groupBy({
+    by: ["productId", "warehouseId"],
+    where: {
+      productId: opts.productId ?? undefined,
+      product: opts.category ? { category: opts.category } : undefined,
+      warehouseId: opts.warehouseId ?? undefined,
+      createdAt: { lte: asOf },
+    },
+    _sum: { quantity: true },
+  });
+
+  const productIds = [...new Set(rows.map((r) => r.productId))];
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, name: true, unitOfMeasure: true, category: true },
+  });
+  const pById = new Map(products.map((p) => [p.id, p]));
+
+  const byProduct = new Map<string, OnHandSnapshotRow>();
+  const byWarehouseValue: Record<string, { units: number; value: number }> = {};
+  for (const r of rows) {
+    const p = pById.get(r.productId);
+    if (!p) continue;
+    const q = r._sum.quantity ?? 0;
+    if (!byProduct.has(r.productId)) {
+      byProduct.set(r.productId, {
+        productId: r.productId,
+        name: p.name,
+        category: p.category ?? "Other",
+        unit: uomLabel(p.unitOfMeasure),
+        byWarehouse: {},
+        totalQty: 0,
+        unitCost: cost.get(r.productId) ?? 0,
+        totalValue: 0,
+      });
+    }
+    const row = byProduct.get(r.productId)!;
+    row.byWarehouse[r.warehouseId] = q;
+    row.totalQty += q;
+    row.totalValue += q * row.unitCost;
+
+    const wv = byWarehouseValue[r.warehouseId] ?? { units: 0, value: 0 };
+    wv.units += q;
+    wv.value += q * (cost.get(r.productId) ?? 0);
+    byWarehouseValue[r.warehouseId] = wv;
+  }
+
+  const outRows = [...byProduct.values()]
+    .filter((r) => Math.abs(r.totalQty) > 1e-6)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return {
+    asOf,
+    rows: outRows,
+    byWarehouseValue,
+    grandTotalQty: outRows.reduce((s, r) => s + r.totalQty, 0),
+    grandTotalValue: outRows.reduce((s, r) => s + r.totalValue, 0),
+  };
+}
+
+/** Distinct distributors across confirmed invoices (for the FilterBar select). */
+export async function distinctDistributors(): Promise<string[]> {
+  const rows = await prisma.invoice.findMany({
+    where: { status: "confirmed" },
+    select: { distributor: true },
+    distinct: ["distributor"],
+    orderBy: { distributor: "asc" },
+  });
+  return rows.map((r) => r.distributor).filter(Boolean);
 }

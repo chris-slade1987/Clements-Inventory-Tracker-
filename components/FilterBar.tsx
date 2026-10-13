@@ -11,21 +11,39 @@ export default function FilterBar({
   products,
   warehouses,
   categories,
+  distributors,
+  technicians,
   initial,
   exportBase,
+  view,
+  showDateRange = true,
+  showAsOf = false,
 }: {
   products: Option[];
   warehouses?: Option[];
   categories?: readonly string[];
+  /** Distributor options — rendered as a select on Purchases / Spend. */
+  distributors?: readonly string[];
+  /** Technician options — rendered as a select on Dispersals. */
+  technicians?: Option[];
   initial: {
     from?: string;
     to?: string;
     productId?: string;
     warehouseId?: string;
     category?: string;
+    distributor?: string;
+    technicianId?: string;
+    asOf?: string;
   };
   /** If set, renders an "Export CSV" link to `${exportBase}?<current filters>`. */
   exportBase?: string;
+  /** Current report view — carried into the URL push and the Export CSV link. */
+  view?: string;
+  /** Show the date presets + from/to range (hidden on the On-hand snapshot). */
+  showDateRange?: boolean;
+  /** Show the "As of" date input (On-hand snapshot). */
+  showAsOf?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -34,14 +52,21 @@ export default function FilterBar({
   const [productId, setProductId] = useState(initial.productId ?? "");
   const [warehouseId, setWarehouseId] = useState(initial.warehouseId ?? "");
   const [category, setCategory] = useState(initial.category ?? "");
+  const [distributor, setDistributor] = useState(initial.distributor ?? "");
+  const [technicianId, setTechnicianId] = useState(initial.technicianId ?? "");
+  const [asOf, setAsOf] = useState(initial.asOf ?? "");
 
   function params() {
     const p = new URLSearchParams();
-    if (from) p.set("from", from);
-    if (to) p.set("to", to);
+    if (view) p.set("view", view);
+    if (showDateRange && from) p.set("from", from);
+    if (showDateRange && to) p.set("to", to);
     if (productId) p.set("productId", productId);
     if (warehouseId) p.set("warehouseId", warehouseId);
     if (category) p.set("category", category);
+    if (distributors && distributor) p.set("distributor", distributor);
+    if (technicians && technicianId) p.set("technicianId", technicianId);
+    if (showAsOf && asOf) p.set("asOf", asOf);
     return p;
   }
 
@@ -76,31 +101,47 @@ export default function FilterBar({
     setProductId("");
     setWarehouseId("");
     setCategory("");
-    router.push(pathname);
+    setDistributor("");
+    setTechnicianId("");
+    setAsOf("");
+    // Preserve the active view when clearing filters.
+    router.push(view ? `${pathname}?view=${view}` : pathname);
   }
 
   return (
     <Card className="p-3 mb-5">
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        {PRESETS.map((r) => (
-          <button
-            key={r.key}
-            onClick={() => preset(r.key)}
-            className="rounded-full border border-line px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
-          >
-            {r.label}
-          </button>
-        ))}
-      </div>
+      {showDateRange ? (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {PRESETS.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => preset(r.key)}
+              className="rounded-full border border-line px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="text-xs font-medium text-muted">
-          From
-          <DateInput className="mt-1" value={from} onChange={setFrom} />
-        </label>
-        <label className="text-xs font-medium text-muted">
-          To
-          <DateInput className="mt-1" value={to} onChange={setTo} />
-        </label>
+        {showDateRange ? (
+          <>
+            <label className="text-xs font-medium text-muted">
+              From
+              <DateInput className="mt-1" value={from} onChange={setFrom} />
+            </label>
+            <label className="text-xs font-medium text-muted">
+              To
+              <DateInput className="mt-1" value={to} onChange={setTo} />
+            </label>
+          </>
+        ) : null}
+        {showAsOf ? (
+          <label className="text-xs font-medium text-muted">
+            As of
+            <DateInput className="mt-1" value={asOf} onChange={setAsOf} />
+          </label>
+        ) : null}
         {categories ? (
           <label className="text-xs font-medium text-muted">
             Category
@@ -130,6 +171,40 @@ export default function FilterBar({
               {warehouses.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {distributors ? (
+          <label className="text-xs font-medium text-muted">
+            Distributor
+            <select
+              value={distributor}
+              onChange={(e) => setDistributor(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink bg-surface"
+            >
+              <option value="">All distributors</option>
+              {distributors.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {technicians ? (
+          <label className="text-xs font-medium text-muted">
+            Technician
+            <select
+              value={technicianId}
+              onChange={(e) => setTechnicianId(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-sm text-ink bg-surface"
+            >
+              <option value="">All technicians</option>
+              {technicians.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
                 </option>
               ))}
             </select>
