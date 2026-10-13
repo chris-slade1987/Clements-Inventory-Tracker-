@@ -103,7 +103,12 @@ const DOCS: DocSeed[] = [
     // with a Claude chat that proposes where each document routes (vehicle doc,
     // branch doc, MBR hand-off, or filed-with-tags) and files it only on the
     // manager's approval.
-    version: 23,
+    // v24: replaced the read-only "Certifications" section with the full
+    // "Training Center" section — HR-driven Program → Module → Course assignment
+    // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
+    // Field-Core prerequisite guard, one-module-per-month pacing, advancement
+    // stepping, and certification award gating on the approved field sign-off.
+    version: 24,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

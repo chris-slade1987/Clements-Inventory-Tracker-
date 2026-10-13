@@ -1028,22 +1028,38 @@ Acknowledge, dismiss, or **Discuss** (open a thread) any alert. This is how purc
 - **Spend.** Purchasing spend for the window: a **Spend by distributor** table (distributor, invoices, total $), a **Spend by category** table, and a **monthly spend trend** chart. Defaults to the **last 3 months**; filter by branch (and distributor).
 - **On-hand.** A point-in-time snapshot of current stock with dollar value — per product, per branch, with unit cost, total value, per-branch value subtotals, and a grand total value. Set an **"As of" date** to see what was on hand on any past date (on-hand as of a date is the sum of every movement up to and including that day). Filter by branch, category, or product.
 
-## Certifications
+## Training Center
 
-> **Portal (v1 — read-only).** **Management → Certifications** is a read-only console for leadership and HR to SEE how the internal certification program is structured. This first phase is **browse only**: there is nothing to create, edit, enroll, or sign off yet, and no employee progress is shown. Training content and tracking are coming in a later phase. The link appears only for **admins, HR, and senior leadership**.
+> **Portal.** **Training Center** (formerly Training) is where HR assigns and tracks all internal training in one place. It brings together the monthly **Courses** (CEU/onboarding) and the internal **certification program**. Assigning is **HR-driven**: April picks a person and a situation, and the system builds the right course list automatically. The link appears for **admins, HR, and senior leadership**.
 
-The certification program is Clements' own internal ladder — separate from the monthly **Training** (CEU) courses. It is organized as:
+The Training Center is organized as **Program → Module → Course**, and a **Certification** is awarded once a group of courses is finished:
 
-- **Certifications** — the award a person earns (e.g. *CW — The Clements Way*, *FC — Field Core*, the six service certifications *PC / LAWN / TERM / RX / MOS / WL*, *CSR*, and *SLS — Sales*).
-- **Modules** — the written lessons inside each certification.
-- **Prerequisites** — certifications that must be held first (for example, Field Core requires The Clements Way; each service certification requires both).
-- **Pathways** — the set of certifications required for a career move (new hire in the field, new CSR, new Sales, adding a service, moving into Sales, or moving into Management).
+- **Program** — *why* training is assigned (Onboarding, Current-Employee Certification, Service Expansion, Sales Advancement, Management Advancement).
+- **Module** — a locked, pre-mapped package of courses for one role or move (e.g. *ONB-GHP*, *SVC-PC*, *ADV-SLS*). HR assigns the module; the courses inside it and their order are fixed.
+- **Course** — a single training unit with a code (CW-01, PC-05, SLS-08). The last course in a service group is the **field sign-off**.
+- **Certification** — the award (CW, FC, the six service certs PC/LAWN/TERM/RX/MOS/WL, CSR, SLS), earned when every course in its group is complete **and** its field sign-off is approved.
 
-What each page shows:
+**Assigning training (the Assign tab).** Choose the employee, then either **Assign a module** (pick the situation — "New hire, GHP technician," "Technician adding a service," "Moving into Sales," etc. — and the system selects the module) or **Assign a single course**. Before you confirm, a **preview** shows exactly what will happen:
 
-- **Certifications (index)** — all certifications in order, each with its code, name, audience, service-cert / all-service tags, module count, prerequisite codes, field-hours note, and pass score (field hours and pass score read **TBD** where the program hasn't set them yet). A content-status legend (**Exists / Partial / None**) and a program summary (totals of certifications and modules, and how many modules exist / are partial / are not written) sit at the top. Select any certification to open its detail.
-- **Certification detail** — the requirements summary (written modules, field hours, pass score, who signs off) and any external requirement; the prerequisites (each links to its own detail; Sales also notes it requires all service certifications); the full module list in order with each module's content status and source note (certifications with no modules yet show an empty state); and a **Required by** section listing the certifications and pathways that depend on this one.
-- **Pathways** — the six career moves, each showing the certifications it requires: the fixed ones as linked codes plus plain-language expansions of rules like "all service certifications."
+- the courses to complete, in order;
+- courses the person already finished, marked **Credited** with their original dates (never reassigned);
+- any **prerequisite courses added automatically** with the reason — e.g. a CSR moving into the field gets **Field Core** added ahead of the service courses;
+- the certifications this will earn; and
+- the earliest start date under the pacing rule.
+
+Confirm, and the person's course list is created. You never build a module or work out what someone has already done — the system does that.
+
+**Guardrails the system enforces for you:**
+
+- **Automatic credit.** Completion is tracked per person per course code across everything, so a lawn tech assigned the GHP module only picks up the GHP courses — the shared Clements Way and Field Core courses show as Credited.
+- **Prerequisite guard.** Service modules automatically add Field Core first when it's missing, with a notice.
+- **One module per month.** A person can start **one module per calendar month** (an admin setting on the Reports tab; on by default) so written work isn't crammed and field training isn't rushed. Single-course assignments are exempt.
+- **Advancement runs in steps.** Sales and Management advancement assign the next module automatically as each is finished, skipping anything already complete — you assign the program once.
+- **Certifications are gated on the field sign-off.** A certification is awarded only after every written course **and** the approved field sign-off are in.
+
+**Other tabs.** **Courses** is the monthly CEU/onboarding course admin (unchanged). The **employee record** (open a person from Assign or Reports) shows certifications held, the current assignment with per-course progress, field hours and sign-offs, and full history. **Reports** gives HR assignments in progress by branch and module, stalled courses, field sign-offs waiting on a supervisor, and certifications awarded by month. **Certifications** is the read-only catalog of groups, programs, and modules.
+
+*Course content itself (the lessons inside each code) is being built separately and dropped into these shells over time.*
 
 ## Paid Time Off (PTO)
 
