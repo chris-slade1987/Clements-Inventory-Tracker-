@@ -27,13 +27,14 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Inventory | 17 | 0 | 0 | 1 | 18 |
 | Fleet | 6 | 1 | 0 | 2 | 9 |
 | People / HR | 21 | 0 | 0 | 0 | 21 |
+| Certifications | 1 | 0 | 0 | 0 | 1 |
 | Branch | 4 | 0 | 0 | 1 | 5 |
 | Checklists | 3 | 0 | 0 | 0 | 3 |
 | Management | 6 | 2 | 0 | 1 | 9 |
 | Comms | 0 | 0 | 0 | 2 | 2 |
 | Document Center | 3 | 0 | 0 | 0 | 3 |
 | Auth / Access | 1 | 0 | 0 | 1 | 2 |
-| **Total** | **60** | **3** | **0** | **8** | **71** |
+| **Total** | **61** | **3** | **0** | **8** | **72** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 8 🆕 remaining are the launch-gate open items.
@@ -123,6 +124,12 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 | Manager team-member profile (HR parity) | A manager's **My Team → employee** profile now mirrors the HR People profile — contact & profile, assigned vehicles, PTO, call-out log, full personnel record, licenses & credentials, reminders, vehicle-inspection history, audit ride-alongs, training record, and new-hire reviews — **scoped to their own branch's team** (`branchLocked` gate; admins/HR unrestricted). Keeps the manager tools (write-up / coaching / recognition / accident, call-out management, PTO) and adds the Other-notes box. Employment-status / offboarding stays HR-only and is not shown. (`/my-branch/team/[id]`, `employeeDetail` in `lib/people.ts`) | — | — | ✅ | **New.** Read-only parity view for managers; no sensitive PII exists in the model (no SSN/pay/home address), so the full operational profile is shown. |
 | Training assignment / submit | Assigned courses; start → submit → graded vs passing score; completion filed to personnel record; reminders. The lesson body now renders as **rich Markdown** — headings, tables, inline diagrams (images), callouts — via `components/Markdown.tsx` (image + pipe-table support added), so a CEU reads like a built-out course, not a text dump. **Admin course management** (`/management/training/[id]` → `/api/management/course/manage`): assign a course to picked employees (emails them), remove a single assignment, and **bulk "unassign outstanding"** — one click deletes every not-started/in-progress assignment of that course while **keeping the course and all completed records** (so an early/pre-launch roll-out, e.g. the August assignments, can be cleared and reassigned later without showing as incomplete). (`/me/training/[id]`, `/management/training`, `/management/training/[id]`, `/api/training/*`, `/api/management/course/manage`) | Onboarding Process; Monthly Responsibilities (training) | — | ✅ | Aligned. Added the bulk **unassign-outstanding** control (admin-only, course-scoped, completed records preserved). |
 | GHP CEU — Roach Identification (Aug 2026) | Seeded CEU course "Roach Identification — The Clements Way": full Markdown lesson (`prisma/data/ghp-roach-id-aug2026.md`) + six inline SVG diagrams (`public/training/ghp-august/*`) + a 20-question assessment (pass 80%). Idempotent by title; auto-assigned to every active technician (`prisma/seed-training-ghp.ts`, wired into `scripts/deploy-db.ts`). | Monthly Responsibilities (training) | — | ✅ | **New.** Content seed; assignment/grading reuse the existing training workflow above. |
+
+## Certifications
+
+| Workflow | What the system does (route) | Manual § | Handbook § | Status | Action |
+|---|---|---|---|---|---|
+| Internal Certification Program — SHELL (schema + reference data only) | Data model + seeded reference data for Clements' internal certification program, a **separate system** from the `Course`/`TrainingAssignment` LMS. Eight Prisma models: `Certification` (`certifications`), `CertModule` (`cert_modules`), `CertPrerequisite` (`cert_prerequisites`, self-referential join), `CertPathway` (`cert_pathways`) + `CertPathwayCert` (`cert_pathway_certs`), `CertEnrollment` (`cert_enrollments`), `ModuleProgress` (`cert_module_progress`), `FieldHourLog` (`cert_field_hour_logs`), `CertAward` (`cert_awards`); back-relations added on `Employee`. Idempotent reference seed (`prisma/seed-certifications.ts`, upsert by `code`/`key`) loads **10 certifications** (CW, FC, PC, LAWN, TERM, RX, MOS, WL, CSR, SLS), **87 modules** (every spec module code; **WL has none**), **16 prerequisite edges** (FC→CW; each service cert → CW+FC; CSR→CW; SLS→CW+FC) and **6 pathways** (new_hire_field, new_hire_csr, new_hire_sales, add_service, into_sales, into_management) with their fixed certs + rule flags. Wired into `scripts/deploy-db.ts` (non-fatal `runStep`, idempotent) and `prisma/seed.ts` (local chain). **Shell only — no training content, no enforcement logic (prereq checks, one-cert-per-month pacing, award gating), and no UI/screens/API yet.** The enrollment/progress/field-hour/award tables are created **empty**. Open decisions from the spec (per-cert field-hour minimum, written pass score) are left `null`. (`prisma/schema.prisma`, `prisma/seed-certifications.ts`, `scripts/deploy-db.ts`, `prisma/seed.ts`) | — (no manager-facing flow yet) | — | ✅ | **New (shell).** Schema + content-free reference data only, per the Chief of Staff's approved data model. No content/logic/UI; built as the base layer for a later program build-out. No manager manual / handbook change (nothing manager- or employee-facing exists yet). |
 
 ## Branch
 

@@ -549,6 +549,18 @@ async function main() {
       );
     });
 
+    // Internal Certification Program (SHELL) — seed the content-free reference
+    // data (10 certifications, 87 modules, 16 prerequisites, 6 pathways). All
+    // upserts are idempotent (keyed by code/key), so this runs every deploy with
+    // no marker needed and never touches employee data. NON-FATAL.
+    await runStep("certification program reference seed", async () => {
+      const { seedCertifications } = await import("../prisma/seed-certifications");
+      const cert = await seedCertifications(prisma);
+      console.log(
+        `deploy-db: certification program (shell) — ${cert.certifications} certifications, ${cert.modules} modules, ${cert.prerequisites} prerequisites, ${cert.pathways} pathways.`,
+      );
+    });
+
     // Backfill public apply tokens on any Job that predates the public
     // application "front door", so every existing job gets a shareable
     // /apply/<token> link. Idempotent — only fills nulls, one unique token each.

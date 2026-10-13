@@ -1007,6 +1007,11 @@ model Employee {
   absences    Absence[]
   user        User?
   assignedVehicles Vehicle[] @relation("VehicleDriver")
+  // Internal certification program (SEPARATE system from Course/TrainingAssignment).
+  certEnrollments CertEnrollment[]
+  moduleProgress  ModuleProgress[]
+  fieldHourLogs   FieldHourLog[]
+  certAwards      CertAward[]
 
   @@index([branch])
   @@index([name])
@@ -2363,4 +2368,208 @@ model CheckInDraft {
 
   @@index([createdAt])
   @@map("check_in_drafts")
+}
+
+// ---------------------------------------------------------------------------
+// Internal Certification Program (CanopyOS). SHELL ONLY — schema + seeded
+// reference data (certifications, modules, prerequisites, pathways). There is NO
+// training content, NO enforcement logic (prereq checks, one-cert-per-month,
+// award gating), and NO UI in this layer. This is a SEPARATE system from the
+// Course / TrainingAssignment LMS above and does not touch or reuse it.
+//
+// Program rules (from the Chief of Staff's build spec, for reference):
+//  - Every hire completes The Clements Way (CW) + the cert for their role.
+//  - Field roles share Field Core (FC); CSR does not require FC.
+//  - Six service certs (PC/LAWN/TERM/RX/MOS/WL) gate performing that service.
+//  - Sales (SLS) requires all service certs (the requiresAllServiceCerts flag).
+// The enrollment / progress / field-hour / award tables are created EMPTY.
+// ---------------------------------------------------------------------------
+
+// A certification track. `code` is the stable key (CW, FC, PC, …). Open decisions
+// in the spec (field-hour minimums, pass score) are left null on purpose.
+model Certification {
+  id                      String   @id @default(cuid())
+  code                    String   @unique // CW | FC | PC | LAWN | TERM | RX | MOS | WL | CSR | SLS
+  name                    String
+  audience                String // who the cert applies to (free text from the spec's code table)
+  order                   Int
+  isServiceCert           Boolean  @default(false) // true for the six service certs: PC/LAWN/TERM/RX/MOS/WL
+  requiresAllServiceCerts Boolean  @default(false) // true for SLS (must hold every service cert)
+  fieldHoursRequired      Int?     @map("field_hours_required") // OPEN DECISION — left null
+  fieldHoursNote          String?  @map("field_hours_note") // e.g. "40 hours / 5 days minimum (FDACS)"
+  passScore               Int?     @map("pass_score") // OPEN DECISION — left null
+  signOffRoles            String?  @map("sign_off_roles") // e.g. "trainer or supervisor"
+  externalRequirement     String?  @map("external_requirement") // external gate noted in the spec
+  active                  Boolean  @default(true)
+  status                  String   @default("active") // "active" | "retired"
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  modules         CertModule[]
+  prerequisites   CertPrerequisite[]  @relation("CertToPrereqs") // this cert's prerequisites (dependent side)
+  prerequisiteFor CertPrerequisite[]  @relation("CertAsPrereq")  // certs that require this one (inverse)
+  pathwayLinks    CertPathwayCert[]
+  enrollments     CertEnrollment[]
+  awards          CertAward[]
+  fieldHourLogs   FieldHourLog[]
+
+  @@map("certifications")
+}
+
+// A written module within a certification. NO content fields — only the code,
+// name, order, and where the source content stands.
+model CertModule {
+  id              String   @id @default(cuid())
+  code            String   @unique // e.g. "CW-01"
+  name            String
+  certificationId String   @map("certification_id")
+  order           Int
+  contentStatus   String   @map("content_status") // "exists" | "partial" | "none"
+  sourceNote      String?  @map("source_note") // parenthetical note from the spec (e.g. "V5 draft")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  progress      ModuleProgress[]
+
+  @@index([certificationId])
+  @@map("cert_modules")
+}
+
+// A prerequisite edge between two certifications (self-referential join):
+// `certification` requires `prerequisite` to be held first.
+model CertPrerequisite {
+  id              String   @id @default(cuid())
+  certificationId String   @map("certification_id") // the dependent cert
+  prerequisiteId  String   @map("prerequisite_id")  // the cert that must come first
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  certification Certification @relation("CertToPrereqs", fields: [certificationId], references: [id], onDelete: Cascade)
+  prerequisite  Certification @relation("CertAsPrereq", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@unique([certificationId, prerequisiteId])
+  @@index([certificationId])
+  @@index([prerequisiteId])
+  @@map("cert_prerequisites")
+}
+
+// A career pathway (role or move) → the set of certifications it requires. Some
+// requirements are fixed certs (the `certs` join); others are rule flags that an
+// enforcement layer (NOT built here) would expand (e.g. "all service certs").
+model CertPathway {
+  id                     String   @id @default(cuid())
+  key                    String   @unique // new_hire_field | new_hire_csr | new_hire_sales | add_service | into_sales | into_management
+  label                  String
+  description            String?
+  order                  Int
+  includeHiredService    Boolean  @default(false) @map("include_hired_service") // + the service the person was hired into / is adding
+  includeAllServiceCerts Boolean  @default(false) @map("include_all_service_certs") // + every service cert (PC/LAWN/TERM/RX/MOS/WL)
+  includeSLS             Boolean  @default(false) @map("include_sls")
+  includeCSR             Boolean  @default(false) @map("include_csr")
+  includeAllCerts        Boolean  @default(false) @map("include_all_certs") // every certification (Management)
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  certs CertPathwayCert[]
+
+  @@map("cert_pathways")
+}
+
+// Join: a fixed required certification for a pathway.
+model CertPathwayCert {
+  id              String @id @default(cuid())
+  pathwayId       String @map("pathway_id")
+  certificationId String @map("certification_id")
+
+  pathway       CertPathway   @relation(fields: [pathwayId], references: [id], onDelete: Cascade)
+  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@unique([pathwayId, certificationId])
+  @@index([pathwayId])
+  @@index([certificationId])
+  @@map("cert_pathway_certs")
+}
+
+// An employee's enrollment in a certification. `monthLocked` ("YYYY-MM") supports
+// the one-cert-per-calendar-month pacing rule (enforcement NOT built here).
+// Seeded EMPTY.
+model CertEnrollment {
+  id              String   @id @default(cuid())
+  employeeId      String   @map("employee_id")
+  certificationId String   @map("certification_id")
+  startDate       DateTime? @map("start_date")
+  monthLocked     String?  @map("month_locked") // "YYYY-MM"
+  status          String   @default("not_started") // "not_started" | "in_progress" | "field_training" | "awarded"
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, certificationId])
+  @@index([employeeId])
+  @@index([certificationId])
+  @@map("cert_enrollments")
+}
+
+// An employee's progress on a single module. Seeded EMPTY.
+model ModuleProgress {
+  id             String    @id @default(cuid())
+  employeeId     String    @map("employee_id")
+  moduleId       String    @map("module_id")
+  status         String    @default("not_started") // "not_started" | "in_progress" | "passed"
+  completionDate DateTime? @map("completion_date")
+  score          Int?
+  attempts       Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  employee Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  module   CertModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, moduleId])
+  @@index([employeeId])
+  @@index([moduleId])
+  @@map("cert_module_progress")
+}
+
+// A logged field-hour / observed sign-off entry toward a certification.
+// `trainerUserId` is a plain id (no User relation needed for the shell). EMPTY.
+model FieldHourLog {
+  id              String    @id @default(cuid())
+  employeeId      String    @map("employee_id")
+  certificationId String    @map("certification_id")
+  date            DateTime
+  hours           Float?
+  observedItem    String?   @map("observed_item")
+  trainerName     String?   @map("trainer_name")
+  trainerUserId   String?   @map("trainer_user_id")
+  signedOff       Boolean   @default(false) @map("signed_off")
+  signedOffAt     DateTime? @map("signed_off_at")
+  note            String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([certificationId])
+  @@map("cert_field_hour_logs")
+}
+
+// A granted certification (the award record). `approvedByUserId` is a plain id
+// (no User relation needed for the shell). Seeded EMPTY.
+model CertAward {
+  id               String   @id @default(cuid())
+  employeeId       String   @map("employee_id")
+  certificationId  String   @map("certification_id")
+  awardedAt        DateTime @map("awarded_at")
+  approvedByUserId String?  @map("approved_by_user_id")
+  approvedByName   String?  @map("approved_by_name")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  certification Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, certificationId])
+  @@index([employeeId])
+  @@index([certificationId])
+  @@map("cert_awards")
 }
