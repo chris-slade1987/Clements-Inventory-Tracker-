@@ -31,17 +31,28 @@ Generous whitespace, one idea per screen. **Never neon, never busy.**
 
 ## 2. Logo & mark
 
-- **Wordmark:** "CanopyOS" in the brand sans, medium (500).
-- **Symbol:** a single canopy leaf — thin, rounded line mark. Mint/pale-green
-  stroke on forest; forest green on light. Clear space ≥ the leaf's height.
-  Never recolor outside the palette, never add shadow/outline.
+**Always use the real committed asset files — never redraw or approximate the
+mark.** The CanopyOS logo is a thin **hexagon enclosing a stylized "canopy tree"**
+— a central trunk that branches upward into small circular nodes (a tree rendered
+as a clean line/"tech" tree) with short roots at the base — paired with the
+**"CanopyOS"** wordmark in a light sans (capital C, capital "OS"). It renders
+white/off-white on the forest ground.
 
-```svg
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-     stroke-linecap="round" stroke-linejoin="round">
-  <path d="M12 3C8 7 6 10 6 14a6 6 0 0012 0c0-4-2-7-6-11z"/><path d="M12 21v-7"/>
-</svg>
-```
+Canonical assets (in `public/`):
+- `canopyos-logo.png` — full lockup (hexagon-tree mark + wordmark).
+- `canopyos-wordmark.png` — the wordmark lockup used in-app (AppShell, login,
+  sign pages).
+- `canopyos-icon.png` — the hexagon-tree mark on its own.
+- `icons/canopyos-512.png` · `canopyos-192.png` · `canopyos-favicon.png` ·
+  `canopyos-maskable-512.png` · `apple-touch-icon.png` — app / PWA icons.
+
+Rules: keep clear space around the lockup ≥ the hexagon's height; don't recolor
+outside the palette, stretch, rotate, or add shadow/outline; on light grounds use
+the forest-green version. When a separate tool (e.g. Claude Design) can't read the
+repo, attach the actual PNG rather than describing it.
+
+> Note: `public/clements-mark.svg` (two overlapping circles + a split leaf) is a
+> separate legacy **Clements** mark — it is NOT the CanopyOS logo; don't use it here.
 
 ---
 
@@ -149,8 +160,9 @@ and honors `prefers-reduced-motion`.
 
 Mirror the app's chrome/content split. Build 16:9.
 
-- **Forest gradient header band** carries identity: leaf mark + "CanopyOS
-  Training" left, course-code chip (e.g. "FC-03 · PPE & Respirators") right.
+- **Forest gradient header band** carries identity: the CanopyOS logo/wordmark
+  asset (hexagon-tree mark — §2) + "CanopyOS Training" left, course-code chip
+  (e.g. "FC-03 · PPE & Respirators") right.
 - **Lesson body on the light canvas** (`#F4F6F5`) with white cards.
 - One accent moment per slide; `brand-600/700` for emphasis; semantic colors only
   for safety/warning call-outs. Line icons, not clip-art. No emoji.
