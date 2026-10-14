@@ -105,6 +105,7 @@ export default function AppShell({
 }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false); // desktop/tablet launcher pop-up
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
     : pathname.startsWith("/bulletin")
@@ -243,96 +244,154 @@ export default function AppShell({
   const moreActive = moreItems.some((i) => i.href === activeHref);
   const bottomCols = primaryItems.length + (needMore ? 1 : 0);
 
+  const currentCenterLabel = (showCenters ? CENTERS.find((c) => c.m === mode)?.label : null) ?? "Menu";
+  const initials = managerName
+    ? managerName.split(" ").map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase()
+    : "";
+
   return (
-    <div className="flex min-h-screen">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 bg-forest-grad border-r border-white/10">
-        <div className="flex items-center px-4 h-20 border-b border-white/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="w-3/4 h-auto" />
-        </div>
+    <div className="flex min-h-screen flex-col">
+      {/* Desktop / tablet top bar — center switcher + launcher trigger. The old
+          scrolling sidebar is replaced by an on-demand icon grid (same tiles as
+          the mobile "More" sheet), so the page gets the full width. */}
+      <header className="hidden md:flex sticky top-0 z-30 items-center gap-3 h-16 px-5 bg-forest-grad border-b border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-8 w-auto" />
         {showCenters ? (
-          <div className="px-3 pt-3">
-            <div className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-mint/70">Center</div>
-            <ModeToggle mode={mode} />
-          </div>
-        ) : null}
-        <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-1">
-          {items.map((item) => {
-            const active = item.href === activeHref;
-            return (
-              <Link key={item.href} href={item.href} className={navClass(active)}>
-                <Icon path={item.icon} className="h-5 w-5 shrink-0" />
-                {item.label}
-                {active ? (
-                  <span className="ml-auto text-mint">→</span>
-                ) : null}
-              </Link>
-            );
-          })}
-          {resources.length ? (
-            <div className="pt-3 mt-2 border-t border-white/10">
-              <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-mint/70">Resources</div>
-              {resources.map((item) => {
-                const active = item.href === activeHref;
+          <nav className="ml-3 flex items-center gap-1">
+            {CENTERS.map((c) => {
+              const current = mode === c.m;
+              if (current) {
                 return (
-                  <Link key={item.href} href={item.href} className={navClass(active)}>
-                    <Icon path={item.icon} className="h-5 w-5 shrink-0" />
-                    {item.label}
-                    {active ? <span className="ml-auto text-mint">→</span> : null}
-                  </Link>
+                  <button
+                    key={c.m}
+                    type="button"
+                    onClick={() => setNavOpen((v) => !v)}
+                    aria-expanded={navOpen}
+                    className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-light transition-colors ${navOpen ? "bg-white/10 text-white" : "bg-white/5 text-white hover:bg-white/10"}`}
+                  >
+                    {c.label}
+                    <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition-transform ${navOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
                 );
-              })}
-            </div>
-          ) : null}
-        </nav>
-        <div className="px-3 pb-2 space-y-1">
-          <NotificationBell initialCount={unread} layout="row" />
-          {isAdmin ? (
-            <>
-              <Link href={USERS_ACCESS_NAV_ITEM.href} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
-                <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
-                {USERS_ACCESS_NAV_ITEM.label}
-              </Link>
-              <Link href={EMAIL_LOG_NAV_ITEM.href} className={navClass(isActive(pathname, EMAIL_LOG_NAV_ITEM.href))}>
-                <Icon path={EMAIL_LOG_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
-                {EMAIL_LOG_NAV_ITEM.label}
-              </Link>
-            </>
-          ) : null}
-          <Link href="/help" className={navClass(isActive(pathname, "/help"))}>
-            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>
-              <circle cx="12" cy="12" r="9" />
-              <path d={HELP} strokeLinecap="round" />
-            </svg>
-            Help
+              }
+              return (
+                <Link key={c.m} href={c.href} className="rounded-xl px-3.5 py-2 text-sm font-light text-mint hover:bg-white/5 hover:text-white transition-colors">
+                  {c.label}
+                </Link>
+              );
+            })}
+          </nav>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setNavOpen((v) => !v)}
+            aria-expanded={navOpen}
+            className="ml-3 flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-light text-mint hover:bg-white/5 hover:text-white"
+          >
+            <Icon path="M4 6h16M4 12h16M4 18h16" className="h-5 w-5" />
+            Menu
+          </button>
+        )}
+        <div className="ml-auto flex items-center gap-1">
+          <NotificationBell initialCount={unread} />
+          <Link href="/help" aria-label="Help" className="rounded-xl p-2 text-mint hover:bg-white/5 hover:text-white">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>
           </Link>
+          {managerName ? (
+            <button
+              type="button"
+              onClick={() => setNavOpen((v) => !v)}
+              aria-label="Menu"
+              className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-brand-400 text-[12px] font-semibold text-forest-ink"
+            >
+              {initials}
+            </button>
+          ) : null}
         </div>
-        {managerName ? (
-          <div className="border-t border-white/10 px-4 py-3">
-            <div className="text-xs text-mint">Signed in as</div>
-            <div className="text-sm font-normal text-white truncate">
-              {managerName}
-            </div>
-            <div className="mt-2 flex items-center gap-3">
-              <Link href="/account" className="text-xs font-medium text-brand-300 hover:text-brand-200 hover:underline">
-                Change password
-              </Link>
-              <form action="/api/auth/logout" method="post">
-                <button className="text-xs font-medium text-brand-300 hover:text-brand-200 hover:underline">
-                  Sign out
+      </header>
+
+      {/* Desktop / tablet launcher pop-up — the current center's pages as an icon grid. */}
+      {navOpen ? (
+        <div className="hidden md:block fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={`${currentCenterLabel} menu`}>
+          <div className="absolute inset-0 bg-black/40" onClick={() => setNavOpen(false)} />
+          <div className="absolute inset-x-0 top-0 max-h-screen overflow-y-auto bg-forest-grad border-b border-white/10 shadow-2xl">
+            <div className="mx-auto w-full max-w-6xl px-6 pt-4 pb-6">
+              <div className="flex items-center justify-between h-10 mb-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-mint/70">{currentCenterLabel}</div>
+                <button type="button" onClick={() => setNavOpen(false)} aria-label="Close menu" className="rounded-lg p-2 text-mint hover:bg-white/5 hover:text-white">
+                  <Icon path="M6 6l12 12M18 6L6 18" className="h-5 w-5" />
                 </button>
-              </form>
-            </div>
-            <div className="mt-3 border-t border-white/5 pt-2.5 text-[10px] uppercase tracking-[0.14em] text-mint/55">
-              Clements Internal Platform
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                {items.map((item) => {
+                  const active = item.href === activeHref;
+                  return (
+                    <Link key={item.href} href={item.href} onClick={() => setNavOpen(false)} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
+                      <Icon path={item.icon} className="h-6 w-6" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+              {resources.length ? (
+                <>
+                  <div className="mt-5 mb-2 text-[11px] font-semibold uppercase tracking-wider text-mint/70">Resources</div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {resources.map((item) => {
+                      const active = item.href === activeHref;
+                      return (
+                        <Link key={item.href} href={item.href} onClick={() => setNavOpen(false)} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
+                          <Icon path={item.icon} className="h-6 w-6" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : null}
+              <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-1">
+                {isAdmin ? (
+                  <>
+                    <Link href={USERS_ACCESS_NAV_ITEM.href} onClick={() => setNavOpen(false)} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
+                      <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                      {USERS_ACCESS_NAV_ITEM.label}
+                    </Link>
+                    <Link href={EMAIL_LOG_NAV_ITEM.href} onClick={() => setNavOpen(false)} className={navClass(isActive(pathname, EMAIL_LOG_NAV_ITEM.href))}>
+                      <Icon path={EMAIL_LOG_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                      {EMAIL_LOG_NAV_ITEM.label}
+                    </Link>
+                  </>
+                ) : null}
+                <Link href="/help" onClick={() => setNavOpen(false)} className={navClass(isActive(pathname, "/help"))}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>
+                  Help
+                </Link>
+                {managerName ? (
+                  <>
+                    <Link href="/account" onClick={() => setNavOpen(false)} className={navClass(isActive(pathname, "/account"))}>
+                      <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
+                      Change password
+                    </Link>
+                    <form action="/api/auth/logout" method="post">
+                      <button className={`${navClass(false)} w-full text-left`}>
+                        <Icon path="M15 17l5-5-5-5M20 12H9M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4" className="h-5 w-5 shrink-0" />
+                        Sign out
+                      </button>
+                    </form>
+                  </>
+                ) : null}
+              </div>
+              {managerName ? (
+                <div className="mt-3 text-[11px] text-mint/70">Signed in as <span className="text-white">{managerName}</span></div>
+              ) : null}
             </div>
           </div>
-        ) : null}
-      </aside>
+        </div>
+      ) : null}
 
       {/* Main column */}
-      <div className="flex-1 md:pl-72 flex flex-col app-canvas">
+      <div className="flex-1 flex flex-col app-canvas">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
