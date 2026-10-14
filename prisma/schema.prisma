@@ -139,6 +139,9 @@ model Product {
   confirmed         Boolean @default(true)
   // Free-text note (e.g. "added from transfer history — confirm naming").
   notes             String?
+  // --- Reconciled-import fields (inventory reset) ---
+  vendorItemNumbers String? @map("vendor_item_numbers")
+  lastUnitCost      Float?  @map("last_unit_cost")
 
   invoiceLines  InvoiceLine[]
   movements     StockMovement[]
@@ -228,6 +231,13 @@ model Invoice {
   status        String   @default("parsed") // "parsed" | "confirmed"
   uploadedById  String?  @map("uploaded_by")
   createdAt     DateTime @default(now()) @map("created_at")
+  // --- Reconciled-import fields (inventory reset) ---
+  salesTax      Float?   @map("sales_tax")
+  freight       Float?
+  amountDue     Float?   @map("amount_due")
+  storeLocation String?  @map("store_location")
+  openInvoice   Boolean  @default(false) @map("open_invoice")
+  importBatchId String?  @map("import_batch_id")
 
   warehouse  Warehouse       @relation(fields: [warehouseId], references: [id])
   uploadedBy User?           @relation(fields: [uploadedById], references: [id])
@@ -249,6 +259,13 @@ model InvoiceLine {
   unitPrice      Float?  @map("unit_price")
   lineTotal      Float?  @map("line_total")
   matched        Boolean @default(false)
+  // --- Reconciled-import fields (inventory reset) ---
+  itemNumber     String?  @map("item_number")
+  category       String?
+  unitCost       Float?   @map("unit_cost")
+  nonInventory   Boolean  @default(false) @map("non_inventory")
+  externalRef    String?  @unique @map("external_ref")
+  invoiceUnits   Float?   @map("inventory_units_received")
 
   invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   product Product? @relation(fields: [productId], references: [id])
@@ -282,6 +299,13 @@ model StockMovement {
   // movements (invoice receipts, reconciliations, legacy check-outs).
   checkoutLineId  String?  @unique @map("checkout_line_id")
   createdAt       DateTime @default(now()) @map("created_at")
+  // --- Reconciled-import fields (inventory reset) ---
+  movementDate      DateTime? @map("movement_date")
+  externalRef       String?   @unique @map("external_ref")
+  source            String?
+  importBatchId     String?   @map("import_batch_id")
+  technicianNameRaw String?   @map("technician_name_raw")
+  needsCount        Boolean   @default(false) @map("needs_count")
 
   product       Product        @relation(fields: [productId], references: [id])
   warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
@@ -296,7 +320,35 @@ model StockMovement {
   @@index([warehouseId])
   @@index([type])
   @@index([createdAt])
+  @@index([movementDate])
+  @@index([importBatchId])
   @@map("stock_movements")
+}
+
+// Supplier store → Clements branch lookup (seeded from 07_supplier_store_to_branch).
+// The receiving branch is the supplier STORE, never the ship-to.
+model SupplierStore {
+  id            String   @id @default(cuid())
+  vendor        String
+  storeLocation String   @map("store_location")
+  branch        String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([vendor, storeLocation])
+  @@map("supplier_stores")
+}
+
+// One batch import of a reconciled file set (row counts + anomalies for diagnostics).
+model ImportBatch {
+  id              String   @id @default(cuid())
+  label           String
+  files           String
+  counts          String   @default("{}")
+  anomalies       String   @default("{}")
+  createdByUserId String?  @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("import_batches")
 }
 
 model Alert {

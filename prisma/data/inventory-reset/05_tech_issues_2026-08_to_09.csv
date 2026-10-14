@@ -1,0 +1,370 @@
+movement_type,branch,date,technician,inventory_product,qty,uom_as_logged,logged_to_pestpac,source_sheet_row,unit_cost_est,est_value,external_ref
+ISSUE_TO_TECH,Naples,2026-08-01,Corey Carter,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,jug,NONE ON HAND TO LOG,46,39.438,39.44,Naples#row46
+ISSUE_TO_TECH,Naples,2026-08-01,Jason Borden,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,2.0,bags ,NONE ON HAND TO LOG,42,17.036,34.07,Naples#row42
+ISSUE_TO_TECH,Naples,2026-08-01,Jason Borden,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,jug,NONE ON HAND TO LOG,43,39.438,39.44,Naples#row43
+ISSUE_TO_TECH,Naples,2026-08-01,Tyler Etter,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,jug,NONE ON HAND TO LOG,44,39.438,39.44,Naples#row44
+ISSUE_TO_TECH,Naples,2026-08-01,Tyler Etter,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,bag,NONE ON HAND TO LOG,45,17.036,17.04,Naples#row45
+ISSUE_TO_TECH,Orlando,2026-08-03,David Butler,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-09-02,143,42.93,42.93,Orlando#row143
+ISSUE_TO_TECH,Orlando,2026-08-03,David Butler,Vendetta Plus Roaach Bait 30 gm. X 4,1.0,t,2026-09-02,144,41.328,41.33,Orlando#row144
+ISSUE_TO_TECH,Orlando,2026-08-03,David Butler,LESCO 25-0-10 Turf Granular Fertilizer,2.0,fb,2026-09-02,145,31.99,63.98,Orlando#row145
+ISSUE_TO_TECH,Orlando,2026-08-03,Luis Ramos,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-09-02,139,39.438,39.44,Orlando#row139
+ISSUE_TO_TECH,Orlando,2026-08-03,Luis Ramos,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,t,2026-09-02,140,41.328,82.66,Orlando#row140
+ISSUE_TO_TECH,Orlando,2026-08-03,Luis Ramos,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-09-02,141,42.93,42.93,Orlando#row141
+ISSUE_TO_TECH,Orlando,2026-08-03,Samuel Dixon,LESCO T-Storm 2G Granular Fungicide 30lb,1.0,j,NONE ON HAND TO LOG,146,57.198,57.2,Orlando#row146
+ISSUE_TO_TECH,Orlando,2026-08-03,Samuel Dixon,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,1.0,j,2026-09-02,147,61.268,61.27,Orlando#row147
+ISSUE_TO_TECH,Orlando,2026-08-03,Samuel Dixon,Syngenta Heritage Granular Fungicide,2.0,fb,NONE ON HAND TO LOG,148,88.732,177.46,Orlando#row148
+ISSUE_TO_TECH,Orlando,2026-08-03,Steve Liberti,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-09-02,142,17.036,17.04,Orlando#row142
+ISSUE_TO_TECH,Orlando,2026-08-09,Steve Liberti,Protecta Evo Express Bait Station w/ Weight,4.0,Station ,NONE ON HAND TO LOG,149,18.38,73.52,Orlando#row149
+ISSUE_TO_TECH,Orlando,2026-08-14,David Butler,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-09-02,151,39.438,39.44,Orlando#row151
+ISSUE_TO_TECH,Orlando,2026-08-14,David Butler,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-02,152,29.404,29.4,Orlando#row152
+ISSUE_TO_TECH,Orlando,2026-08-14,Luis Ramos,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-02,153,29.404,29.4,Orlando#row153
+ISSUE_TO_TECH,Orlando,2026-08-14,Luis Ramos,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-09-02,154,39.438,39.44,Orlando#row154
+ISSUE_TO_TECH,Orlando,2026-08-14,Luis Ramos,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,t,2026-09-02,155,41.328,82.66,Orlando#row155
+ISSUE_TO_TECH,Orlando,2026-08-14,Steve Liberti,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-09-02,156,17.036,17.04,Orlando#row156
+ISSUE_TO_TECH,Orlando,2026-08-14,Ted Travelute,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-09-02,150,39.438,39.44,Orlando#row150
+ISSUE_TO_TECH,Orlando,2026-08-21,Ellie Ullian,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-02,157,95.0,95.0,Orlando#row157
+ISSUE_TO_TECH,Orlando,2026-08-21,Ellie Ullian,Demand CS Insecticide 1 qt.,1.0,b,2026-09-02,158,112.75,112.75,Orlando#row158
+ISSUE_TO_TECH,Orlando,2026-08-21,Ellie Ullian,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-09-02,159,17.036,17.04,Orlando#row159
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-02,163,95.0,95.0,Orlando#row163
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-02,164,29.404,29.4,Orlando#row164
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,fb,2026-09-02,165,72.0,72.0,Orlando#row165
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,1.0,j,NONE ON HAND TO LOG,166,134.086,134.09,Orlando#row166
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,Demand CS Insecticide 1 qt.,1.0,b,2026-09-02,167,112.75,112.75,Orlando#row167
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,Bifen XTS Insecticide 1 gal.,1.0,j,2026-09-02,168,140.223,140.22,Orlando#row168
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,LESCO Spreader Sticker 2.5 gal.,1.0,j,2026-09-02,169,83.591,83.59,Orlando#row169
+ISSUE_TO_TECH,Orlando,2026-08-24,David Butler,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,1.0,j,2026-09-02,170,79.74,79.74,Orlando#row170
+ISSUE_TO_TECH,Orlando,2026-08-24,Luis Ramos,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-02,160,95.0,95.0,Orlando#row160
+ISSUE_TO_TECH,Orlando,2026-08-24,Luis Ramos,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-02,161,29.404,29.4,Orlando#row161
+ISSUE_TO_TECH,Orlando,2026-08-24,Luis Ramos,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,t,NONE ON HAND TO LOG,162,41.328,82.66,Orlando#row162
+ISSUE_TO_TECH,Orlando,2026-08-27,Joshua Flagg,Protecta Evo Express Bait Station w/ Weight,54.0,bs,NONE ON HAND TO LOG,172,18.38,992.52,Orlando#row172
+ISSUE_TO_TECH,Orlando,2026-08-27,Samuel Dixon,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,fb,2026-09-02,171,72.0,72.0,Orlando#row171
+ISSUE_TO_TECH,Orlando,2026-09-01,David Butler,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,178,95.0,95.0,Orlando#row178
+ISSUE_TO_TECH,Orlando,2026-09-01,Ellie Ullian,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,tubes,2026-09-22,174,41.328,82.66,Orlando#row174
+ISSUE_TO_TECH,Orlando,2026-09-01,Ellie Ullian,Optigard Ant Gel Bait 4 x 30 gm.,1.0,tube,NONE ON HAND TO LOG,175,42.93,42.93,Orlando#row175
+ISSUE_TO_TECH,Orlando,2026-09-01,Ellie Ullian,PT Wasp Freeze II Aerosol Insecticide 17.5 oz.,1.0,ac,2026-09-22,176,12.805,12.8,Orlando#row176
+ISSUE_TO_TECH,Orlando,2026-09-01,Luis Ramos,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,179,95.0,95.0,Orlando#row179
+ISSUE_TO_TECH,Orlando,2026-09-01,Luis Ramos,Optigard Ant Gel Bait 4 x 30 gm.,2.0,tubes,NONE ON HAND TO LOG,180,42.93,85.86,Orlando#row180
+ISSUE_TO_TECH,Orlando,2026-09-01,Luis Ramos,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,ac,2026-09-22,181,20.393,20.39,Orlando#row181
+ISSUE_TO_TECH,Orlando,2026-09-01,Luis Ramos,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-09-22,182,18.883,18.88,Orlando#row182
+ISSUE_TO_TECH,Orlando,2026-09-01,Samuel Dixon,LESCO 24-0-11 50 lb. Bag,14.0,fb,NONE ON HAND TO LOG,177,0.0,0.0,Orlando#row177
+ISSUE_TO_TECH,Orlando,2026-09-01,Steve Liberti,PT Wasp Freeze II Aerosol Insecticide 17.5 oz.,1.0,ac,,183,12.805,12.8,Orlando#row183
+ISSUE_TO_TECH,Orlando,2026-09-01,Steve Liberti,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,,184,17.036,17.04,Orlando#row184
+ISSUE_TO_TECH,Orlando,2026-09-01,Steve Liberti,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,ac,,185,20.393,20.39,Orlando#row185
+ISSUE_TO_TECH,Orlando,2026-09-01,Ted Travelute,PT Alpine WSG Insecticide 500 gm,1.0,b,2026-09-22,173,216.573,216.57,Orlando#row173
+ISSUE_TO_TECH,Orlando,2026-09-07,David Butler,Optigard Ant Gel Bait 4 x 30 gm.,2.0,tubes,NONE ON HAND TO LOG,188,42.93,85.86,Orlando#row188
+ISSUE_TO_TECH,Orlando,2026-09-07,David Butler,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,189,95.0,95.0,Orlando#row189
+ISSUE_TO_TECH,Orlando,2026-09-07,David Butler,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-22,190,29.404,29.4,Orlando#row190
+ISSUE_TO_TECH,Orlando,2026-09-07,David Butler,LESCO 25-0-10 Turf Granular Fertilizer,5.0,fb,2026-09-22,191,31.99,159.95,Orlando#row191
+ISSUE_TO_TECH,Orlando,2026-09-07,Ellie Ullian,Optigard Ant Gel Bait 4 x 30 gm.,1.0,tube,NONE ON HAND TO LOG,192,42.93,42.93,Orlando#row192
+ISSUE_TO_TECH,Orlando,2026-09-07,Ellie Ullian,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-22,193,29.404,29.4,Orlando#row193
+ISSUE_TO_TECH,Orlando,2026-09-07,Ellie Ullian,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,tubes,NONE ON HAND TO LOG,194,41.328,82.66,Orlando#row194
+ISSUE_TO_TECH,Orlando,2026-09-07,Samuel Dixon,Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag,2.0,fb,2026-09-22,186,70.16,140.32,Orlando#row186
+ISSUE_TO_TECH,Orlando,2026-09-07,Samuel Dixon,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,fb,2026-09-22,187,72.0,72.0,Orlando#row187
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,tubes,NONE ON HAND TO LOG,195,41.328,82.66,Orlando#row195
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,PT Wasp Freeze II Aerosol Insecticide 17.5 oz.,1.0,ac,2026-09-22,196,12.805,12.8,Orlando#row196
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-09-22,197,18.883,18.88,Orlando#row197
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,198,95.0,95.0,Orlando#row198
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,Demand CS Insecticide 1 qt.,1.0,b,2026-09-22,199,112.75,112.75,Orlando#row199
+ISSUE_TO_TECH,Orlando,2026-09-11,Olivia Leahy,PT PI Pressurized Contact Insecticide 14 oz,2.0,ac,2026-09-22,200,29.404,58.81,Orlando#row200
+ISSUE_TO_TECH,Orlando,2026-09-11,Samuel Dixon,Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag,2.0,fb,2026-09-22,202,70.16,140.32,Orlando#row202
+ISSUE_TO_TECH,Orlando,2026-09-11,Samuel Dixon,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,2.0,fb,2026-09-22,203,72.0,144.0,Orlando#row203
+ISSUE_TO_TECH,Orlando,2026-09-11,Ted Travelute,PT Alpine WSG Insecticide 500 gm,1.0,b,2026-09-22,201,216.573,216.57,Orlando#row201
+ISSUE_TO_TECH,Orlando,2026-09-16,Joshua Flagg,PT Alpine Pressurized Insecticide 14 oz.,2.0,ac,2026-09-22,208,24.187,48.37,Orlando#row208
+ISSUE_TO_TECH,Orlando,2026-09-16,Samuel Dixon,Avenue South Post Emergent Liquid Herbicide 2.5 gal.,1.0,j,2026-09-22,204,240.0,240.0,Orlando#row204
+ISSUE_TO_TECH,Orlando,2026-09-16,Steve Liberti,Taurus SC Insecticide 78 oz.,1.0,j,,205,95.0,95.0,Orlando#row205
+ISSUE_TO_TECH,Orlando,2026-09-16,Steve Liberti,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,,206,17.036,17.04,Orlando#row206
+ISSUE_TO_TECH,Orlando,2026-09-16,Steve Liberti,Invade Hot Spot Pest Control 16 oz.,1.0,ac,,207,18.883,18.88,Orlando#row207
+ISSUE_TO_TECH,Orlando,2026-09-17,David Butler,Precor 2000 Premise Spray 16 oz.,1.0,ac,2026-09-22,214,18.204,18.2,Orlando#row214
+ISSUE_TO_TECH,Orlando,2026-09-17,David Butler,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,215,95.0,95.0,Orlando#row215
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,PT PI Pressurized Contact Insecticide 14 oz,2.0,ac,2026-09-22,209,29.404,58.81,Orlando#row209
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,Optigard Ant Gel Bait 4 x 30 gm.,2.0,tubes,NONE ON HAND TO LOG,210,42.93,85.86,Orlando#row210
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,Vendetta Plus Roaach Bait 30 gm. X 4,4.0,tubes,NONE ON HAND TO LOG,217,41.328,165.31,Orlando#row217
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,Precor 2000 Premise Spray 16 oz.,1.0,ac,2026-09-22,218,18.204,18.2,Orlando#row218
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,PT PI Pressurized Contact Insecticide 14 oz,1.0,ac,2026-09-22,221,29.404,29.4,Orlando#row221
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-09-22,222,18.883,18.88,Orlando#row222
+ISSUE_TO_TECH,Orlando,2026-09-17,Ellie Ullian,Vendetta Plus Roaach Bait 30 gm. X 4,1.0,tube,2026-09-22,223,41.328,41.33,Orlando#row223
+ISSUE_TO_TECH,Orlando,2026-09-17,Luis Ramos,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,216,95.0,95.0,Orlando#row216
+ISSUE_TO_TECH,Orlando,2026-09-17,Olivia Leahy,PT Wasp Freeze II Aerosol Insecticide 17.5 oz.,1.0,ac,2026-09-22,219,12.805,12.8,Orlando#row219
+ISSUE_TO_TECH,Orlando,2026-09-17,Olivia Leahy,Precor 2000 Premise Spray 16 oz.,1.0,ac,NONE ON HAND TO LOG,220,18.204,18.2,Orlando#row220
+ISSUE_TO_TECH,Orlando,2026-09-17,Sarah Hoyt,Contrac Bait Block Cb4052 18lb. Pail,2.0,b,,211,94.614,189.23,Orlando#row211
+ISSUE_TO_TECH,Orlando,2026-09-17,Sarah Hoyt,PT Wasp Freeze II Aerosol Insecticide 17.5 oz.,1.0,ac,,213,12.805,12.8,Orlando#row213
+ISSUE_TO_TECH,Orlando,2026-09-17,Ted Travelute,Precor 2000 Premise Spray 16 oz.,1.0,ac,NONE ON HAND OT LOG,212,18.204,18.2,Orlando#row212
+ISSUE_TO_TECH,Orlando,2026-09-21,Luis Ramos,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-22,224,95.0,95.0,Orlando#row224
+ISSUE_TO_TECH,Orlando,2026-09-21,Luis Ramos,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-09-22,225,18.883,18.88,Orlando#row225
+ISSUE_TO_TECH,Orlando,2026-09-21,Luis Ramos,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-09-22,226,18.883,18.88,Orlando#row226
+ISSUE_TO_TECH,Orlando,2026-09-21,Luis Ramos,Vendetta Plus Roaach Bait 30 gm. X 4,2.0,tubes,NONE ON HAND TO LOG,227,41.328,82.66,Orlando#row227
+ISSUE_TO_TECH,Orlando,2026-09-21,Steve Liberti,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-09-24,228,17.036,17.04,Orlando#row228
+ISSUE_TO_TECH,Orlando,2026-09-21,Steve Liberti,Taurus SC Insecticide 78 oz.,1.0,j,2026-09-24,229,95.0,95.0,Orlando#row229
+ISSUE_TO_TECH,Stuart,2026-08-04,Adam Goetz,Maxforce Complete Insect Bait 4 lb.,1.0,j,2026-09-02,219,82.046,82.05,Stuart#row219
+ISSUE_TO_TECH,Stuart,2026-08-10,Maurice Campbell,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,1.0,j,,227,58.113,58.11,Stuart#row227
+ISSUE_TO_TECH,Stuart,2026-08-10,Michael Verderame,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,fb,NONE ON HAND TO LOG,220,238.123,238.12,Stuart#row220
+ISSUE_TO_TECH,Stuart,2026-08-10,Michael Verderame,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-09-02,221,17.036,17.04,Stuart#row221
+ISSUE_TO_TECH,Stuart,2026-08-10,Michael Verderame,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-09-02,222,42.93,42.93,Stuart#row222
+ISSUE_TO_TECH,Stuart,2026-08-10,Michael Verderame,PT Phantom II Pressurized Insecticide 14 oz.,1.0,ac,2026-09-02,223,28.746,28.75,Stuart#row223
+ISSUE_TO_TECH,Stuart,2026-08-10,Michael Verderame,Vendetta Plus Roaach Bait 30 gm. X 4,1.0,t,2026-09-02,224,41.328,41.33,Stuart#row224
+ISSUE_TO_TECH,Stuart,2026-08-13,Adam Goetz,Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.,1.0,j,2026-09-02,218,165.3,165.3,Stuart#row218
+ISSUE_TO_TECH,Stuart,2026-08-17,Michael Verderame,Alpine WSG Insecticide (10gm),1.0,fb,2026-09-02,225,8.213,8.21,Stuart#row225
+ISSUE_TO_TECH,Stuart,2026-08-21,Maurice Campbell,Avenue South Post Emergent Liquid Herbicide 2.5 gal.,1.0,j,,228,240.0,240.0,Stuart#row228
+ISSUE_TO_TECH,Stuart,2026-08-26,Maurice Campbell,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,1.0,j,,229,58.113,58.11,Stuart#row229
+ISSUE_TO_TECH,Stuart,2026-08-26,Michael Verderame,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-09-02,226,42.93,42.93,Stuart#row226
+ISSUE_TO_TECH,Stuart,2026-08-28,Maurice Campbell,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,1.0,j,,230,134.086,134.09,Stuart#row230
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,1.0,ac,2026-10-07,247,26.886,26.89,Stuart#row247
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,Contrac Bait Block Cb4052 18lb. Pail,1.0,bu,2026-10-07,248,94.614,94.61,Stuart#row248
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-10-07,249,39.438,39.44,Stuart#row249
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-10-07,250,17.036,17.04,Stuart#row250
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,Maxforce Complete Insect Bait 4 lb.,1.0,fb,2026-10-07,251,82.046,82.05,Stuart#row251
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,Optigard Ant Gel Bait 4 x 30 gm.,2.0,t,2026-10-07,252,42.93,85.86,Stuart#row252
+ISSUE_TO_TECH,Stuart,2026-09-08,Jason Renteria,Vendetta Plus Roaach Bait 30 gm. X 4,3.0,t,2026-10-07,253,41.328,123.98,Stuart#row253
+ISSUE_TO_TECH,Stuart,2026-09-08,Jesse Gonzalez,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-10-07,242,17.036,17.04,Stuart#row242
+ISSUE_TO_TECH,Stuart,2026-09-09,Adam Goetz,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,1.0,ac,2026-10-07,261,26.886,26.89,Stuart#row261
+ISSUE_TO_TECH,Stuart,2026-09-09,Matthew McCormack,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-10-07,257,42.93,42.93,Stuart#row257
+ISSUE_TO_TECH,Stuart,2026-09-09,Matthew McCormack,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,t,2026-10-07,258,30.2,30.2,Stuart#row258
+ISSUE_TO_TECH,Stuart,2026-09-09,Matthew McCormack,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,1.0,ac,2026-10-07,259,26.886,26.89,Stuart#row259
+ISSUE_TO_TECH,Stuart,2026-09-09,Matthew McCormack,Vendetta Plus Roaach Bait 30 gm. X 4,1.0,t,2026-10-07,260,41.328,41.33,Stuart#row260
+ISSUE_TO_TECH,Stuart,2026-09-10,Maurice Campbell,Bifen XTS Insecticide 1 gal.,1.0,j,2026-10-07,231,140.223,140.22,Stuart#row231
+ISSUE_TO_TECH,Stuart,2026-09-10,Maurice Campbell,Cyper TC Termiticide/Insecticide 1 gal.,1.0,j,2026-10-07,232,69.81,69.81,Stuart#row232
+ISSUE_TO_TECH,Stuart,2026-09-11,Michael Verderame,Contrac Bait Block Cb4052 18lb. Pail,1.0,bu,2026-10-07,236,94.614,94.61,Stuart#row236
+ISSUE_TO_TECH,Stuart,2026-09-11,Michael Verderame,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,fb,NONE ON HAND TO LOG,237,238.123,238.12,Stuart#row237
+ISSUE_TO_TECH,Stuart,2026-09-11,Michael Verderame,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-10-07,238,17.036,17.04,Stuart#row238
+ISSUE_TO_TECH,Stuart,2026-09-14,Maurice Campbell,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,1.0,j,2026-10-07,233,61.268,61.27,Stuart#row233
+ISSUE_TO_TECH,Stuart,2026-09-16,Jesse Gonzalez,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,fb,NONE ON HAND TO LOG,243,238.123,238.12,Stuart#row243
+ISSUE_TO_TECH,Stuart,2026-09-17,Maurice Campbell,Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.,1.0,j,2026-10-07,234,165.3,165.3,Stuart#row234
+ISSUE_TO_TECH,Stuart,2026-09-17,Maurice Campbell,Pageant Fungicide 1lb,1.0,fb,2026-10-07,235,0.0,0.0,Stuart#row235
+ISSUE_TO_TECH,Stuart,2026-09-18,Jesse Gonzalez,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-10-07,244,17.036,17.04,Stuart#row244
+ISSUE_TO_TECH,Stuart,2026-09-21,Jesse Gonzalez,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,j,2026-10-07,245,39.438,39.44,Stuart#row245
+ISSUE_TO_TECH,Stuart,2026-09-22,Michael Verderame,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,fb,NONE ON HAND TO LOG,239,238.123,238.12,Stuart#row239
+ISSUE_TO_TECH,Stuart,2026-09-22,Michael Verderame,Optigard Ant Gel Bait 4 x 30 gm.,1.0,t,2026-10-07,240,42.93,42.93,Stuart#row240
+ISSUE_TO_TECH,Stuart,2026-09-22,Michael Verderame,Tekko Pro Insecticide 1pt,1.0,j,,241,0.0,0.0,Stuart#row241
+ISSUE_TO_TECH,Stuart,2026-09-26,Jason Renteria,Invade Hot Spot Pest Control 16 oz.,1.0,ac,2026-10-07,254,18.883,18.88,Stuart#row254
+ISSUE_TO_TECH,Stuart,2026-09-26,Jason Renteria,Optigard Ant Gel Bait 4 x 30 gm.,2.0,t,2026-10-07,255,42.93,85.86,Stuart#row255
+ISSUE_TO_TECH,Stuart,2026-09-26,Jason Renteria,Alpine WSG Insecticide (10gm),2.0,fb,2026-10-07,256,8.213,16.43,Stuart#row256
+ISSUE_TO_TECH,Stuart,2026-09-27,Jesse Gonzalez,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,fb,2026-10-07,246,17.036,17.04,Stuart#row246
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Augustus Ludriecus,Bifen XTS Insecticide 1 gal.,1.0,J,2026-09-01,681,140.223,140.22,Vero Beach#row681
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Augustus Ludriecus,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,5.0,J,NONE ON HAND TO LOG,682,61.268,306.34,Vero Beach#row682
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Augustus Ludriecus,LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle,1.0,BO,2026-09-01,683,29.379,29.38,Vero Beach#row683
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Augustus Ludriecus,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,9.0,J,NONE ON HAND TO LOG,684,37.27,335.43,Vero Beach#row684
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Augustus Ludriecus,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-09-01,685,83.591,83.59,Vero Beach#row685
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,Avenue South Post Emergent Liquid Herbicide 2.5 gal.,1.0,J,2026-08-31,702,240.0,240.0,Vero Beach#row702
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,Bifen XTS Insecticide 1 gal.,3.0,J,2026-08-31,703,140.223,420.67,Vero Beach#row703
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,Cyper TC Termiticide/Insecticide 1 gal.,1.0,J,2026-08-31,704,69.81,69.81,Vero Beach#row704
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,2.0,J,2026-08-31,705,61.268,122.54,Vero Beach#row705
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-08-31,706,39.438,39.44,Vero Beach#row706
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,2.0,J,2026-08-31,707,58.113,116.23,Vero Beach#row707
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle,1.0,BO,2026-08-31,708,29.379,29.38,Vero Beach#row708
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-08-31,709,83.591,83.59,Vero Beach#row709
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,4.0,J,2026-08-31,710,37.27,149.08,Vero Beach#row710
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Brian Krause,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,1.0,J,2026-08-31,711,134.086,134.09,Vero Beach#row711
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,Contrac Bait Block Cb4052 18lb. Pail,3.0,BU,2026-08-31,724,94.614,283.84,Vero Beach#row724
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,Gentrol Igr Insecticide 10/ 1 oz. Bottles,2.0,BO,2026-08-31,725,8.7456,17.49,Vero Beach#row725
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,4.0,FB,2026-08-31,726,17.036,68.14,Vero Beach#row726
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-08-31,727,39.438,39.44,Vero Beach#row727
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,Maxforce Quantum Ant Bait 120 gm.,1.0,BO,2026-08-31,728,47.238,47.24,Vero Beach#row728
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,Optigard Ant Gel Bait 4 x 30 gm.,1.0,TU,2026-08-31,729,42.93,42.93,Vero Beach#row729
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,Protecta Evo Express Bait Station w/ Weight,4.0,EA,2026-08-31,730,18.38,73.52,Vero Beach#row730
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Chad Koehler,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-08-31,731,20.393,20.39,Vero Beach#row731
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,Contrac Bait Block Cb4052 18lb. Pail,3.0,BU,2026-08-31,686,94.614,283.84,Vero Beach#row686
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,FB,2026-08-31,687,238.123,238.12,Vero Beach#row687
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,Gentrol Igr Insecticide 10/ 1 oz. Bottles,2.0,BO,NONE ON HAND TO LOG,688,8.7456,17.49,Vero Beach#row688
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,FB,2026-08-31,689,17.036,17.04,Vero Beach#row689
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,2.0,J,2026-08-31,690,39.438,78.88,Vero Beach#row690
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Christian Tejeda,Maxforce Complete Insect Bait 4 lb.,1.0,J,2026-08-31,691,82.046,82.05,Vero Beach#row691
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Cote Lawrence,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-08-31,697,94.614,94.61,Vero Beach#row697
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Cote Lawrence,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,3.0,FB,2026-08-31,698,17.036,51.11,Vero Beach#row698
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Cote Lawrence,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-08-31,699,39.438,39.44,Vero Beach#row699
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Cote Lawrence,LESCO Aerosol Wasp and Hornet Spray,1.0,AC,2026-08-31,700,11.183,11.18,Vero Beach#row700
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Graham Foster,Gentrol Igr Insecticide 10/ 1 oz. Bottles,3.0,BO,NONE ON HAND TO LOG,732,8.7456,26.24,Vero Beach#row732
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Graham Foster,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,3.0,FB,2026-08-31,733,17.036,51.11,Vero Beach#row733
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Graham Foster,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-08-31,734,20.393,20.39,Vero Beach#row734
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,Bifen XTS Insecticide 1 gal.,3.0,J,2026-09-01,746,140.223,420.67,Vero Beach#row746
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,Cyper TC Termiticide/Insecticide 1 gal.,1.0,J,2026-09-01,747,69.81,69.81,Vero Beach#row747
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,3.0,J,2026-09-01,748,61.268,183.8,Vero Beach#row748
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,1.0,J,2026-09-01,749,79.74,79.74,Vero Beach#row749
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO Fertilizer 13-0-0 2.5 gal,1.0,J,2026-09-01,750,0.0,0.0,Vero Beach#row750
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle,1.0,BO,2026-09-01,751,29.379,29.38,Vero Beach#row751
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-09-01,752,83.591,83.59,Vero Beach#row752
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,5.0,J,2026-09-01,753,37.27,186.35,Vero Beach#row753
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jacob Johns,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,FB,2026-09-01,754,72.0,72.0,Vero Beach#row754
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,TU,NONE ON HAND TO LOG,692,30.2,30.2,Vero Beach#row692
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,FB,2026-09-01,693,238.123,238.12,Vero Beach#row693
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,Eaton Stick-Em Rat & Mouse,4.0,EA,2026-09-01,694,0.0,0.0,Vero Beach#row694
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,FB,2026-09-01,695,72.0,72.0,Vero Beach#row695
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-09-01,696,20.393,20.39,Vero Beach#row696
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Jason Colontrelle,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-09-01,763,94.614,94.61,Vero Beach#row763
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,Contrac Bait Block Cb4052 18lb. Pail,5.0,BU,2026-09-01,755,94.614,473.07,Vero Beach#row755
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,Extinguish Professional Fire Ant Bait (25 lb. bag),3.0,FB,NONE ON HAND TO LOG,756,238.123,714.37,Vero Beach#row756
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,Gentrol Igr Insecticide 10/ 1 oz. Bottles,1.0,BO,NONE ON HAND TO LOG,757,8.7456,8.75,Vero Beach#row757
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,10.0,FB,2026-09-01,758,17.036,170.36,Vero Beach#row758
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,2.0,J,2026-09-01,759,39.438,78.88,Vero Beach#row759
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-09-01,760,20.393,20.39,Vero Beach#row760
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,Shockwave Fogging Concentrate Insecticide 1 gal.,1.0,J,2026-09-01,761,239.361,239.36,Vero Beach#row761
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Joshua Main,Wellmark Extinguish Plus Fire Ant Bait 25 lb.,3.0,FB,2026-09-01,762,245.624,736.87,Vero Beach#row762
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,Cyper TC Termiticide/Insecticide 1 gal.,3.0,J,2026-09-01,670,69.81,209.43,Vero Beach#row670
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,Bifen XTS Insecticide 1 gal.,6.0,J,2026-09-01,671,140.223,841.34,Vero Beach#row671
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,DiPel PRO DF Biological Insecticide 1 lb.,1.0,BAG,2026-09-01,672,23.222,23.22,Vero Beach#row672
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,11.0,J,2026-09-01,673,61.268,673.95,Vero Beach#row673
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,4.0,J,2026-09-01,674,79.74,318.96,Vero Beach#row674
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,3.0,J,2026-09-01,675,58.113,174.34,Vero Beach#row675
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle,1.0,BO,2026-09-01,676,29.379,29.38,Vero Beach#row676
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-09-01,677,83.591,83.59,Vero Beach#row677
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,1.0,J,2026-09-01,678,134.086,134.09,Vero Beach#row678
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,FB,2026-09-01,679,72.0,72.0,Vero Beach#row679
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Logan Coffey,Sedgehammer Soluble Herbicide 1.33 oz. Bottle,2.0,BO,2026-09-01,680,65.151,130.3,Vero Beach#row680
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes),1.0,TU,NONE ON HAND TO LOG,735,43.553,43.55,Vero Beach#row735
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),3.0,TU,NONE ON HAND TO LOG,736,30.2,90.6,Vero Beach#row736
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,2.0,AC,2026-09-01,737,26.886,53.77,Vero Beach#row737
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Gentrol Igr Insecticide 10/ 1 oz. Bottles,6.0,BO,NONE ON HAND TO LOG,738,8.7456,52.47,Vero Beach#row738
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,FB,2026-09-01,739,17.036,17.04,Vero Beach#row739
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Optigard Ant Gel Bait 4 x 30 gm.,1.0,TU,NONE ON HAND TO LOG,740,42.93,42.93,Vero Beach#row740
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-09-01,741,20.393,20.39,Vero Beach#row741
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,PT Ultracide Pressurized Flea Insecticide 14 oz.,2.0,AC,2026-09-01,742,25.847,51.69,Vero Beach#row742
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Wellmark Extinguish Plus Fire Ant Bait 25 lb.,1.0,FB,2026-09-01,743,245.624,245.62,Vero Beach#row743
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Sector Misting Insecticide 1 gal.,4.0,J,2026-09-01,744,131.248,524.99,Vero Beach#row744
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Matthew Potter,Protecta Evo Express Bait Station w/ Weight,15.0,EA,2026-09-01,745,18.38,275.7,Vero Beach#row745
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Sedgehammer Soluble Herbicide 1.33 oz. Bottle,1.0,BO,2026-09-01,712,65.151,65.15,Vero Beach#row712
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Avenue South Post Emergent Liquid Herbicide 2.5 gal.,1.0,J,2026-09-01,713,240.0,240.0,Vero Beach#row713
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Bifen XTS Insecticide 1 gal.,2.0,J,2026-09-01,714,140.223,280.45,Vero Beach#row714
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Cyper TC Termiticide/Insecticide 1 gal.,2.0,J,2026-09-01,715,69.81,139.62,Vero Beach#row715
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,DiPel PRO DF Biological Insecticide 1 lb.,2.0,BAG,2026-09-01,716,23.222,46.44,Vero Beach#row716
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,7.0,J,2026-09-01,717,61.268,428.88,Vero Beach#row717
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,7.0,J,2026-09-01,718,79.74,558.18,Vero Beach#row718
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,10.0,J,2026-09-01,719,58.113,581.13,Vero Beach#row719
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Spreader Sticker 2.5 gal.,2.0,J,2026-09-01,720,83.591,167.18,Vero Beach#row720
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,2.0,J,2026-09-01,721,134.086,268.17,Vero Beach#row721
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Sedgehammer Soluble Herbicide 1.33 oz. Bottle,1.0,BO,2026-09-01,722,65.151,65.15,Vero Beach#row722
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,2.0,FB,2026-09-01,723,72.0,144.0,Vero Beach#row723
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,Bifen XTS Insecticide 1 gal.,1.0,J,2026-09-02,764,140.223,140.22,Vero Beach#row764
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,1.0,J,2026-09-02,765,61.268,61.27,Vero Beach#row765
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,1.0,J,2026-09-02,766,79.74,79.74,Vero Beach#row766
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Mike Mace,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,1.0,J,2026-09-02,767,58.113,58.11,Vero Beach#row767
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Ronnie Slade,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,1.0,AC,2026-09-01,701,26.886,26.89,Vero Beach#row701
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes),1.0,TU,NONE ON HAND TO LOG,655,43.553,43.55,Vero Beach#row655
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,TU,2026-08-31,656,30.2,30.2,Vero Beach#row656
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,Contrac Bait Block Cb4052 18lb. Pail,6.0,BU,2026-08-31,657,94.614,567.68,Vero Beach#row657
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,Protecta Evo Express Bait Station w/ Weight,4.0,EA,2026-08-31,658,18.38,73.52,Vero Beach#row658
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,3.0,AC,2026-08-31,659,26.886,80.66,Vero Beach#row659
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,20.0,FB,2026-08-31,660,17.036,340.72,Vero Beach#row660
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Rusty Stevens,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-08-31,661,39.438,39.44,Vero Beach#row661
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,TU,2026-09-01,662,30.2,30.2,Vero Beach#row662
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,Archer Igr Insecticide 1 pt.,1.0,J,2026-09-01,663,63.375,63.38,Vero Beach#row663
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,2.0,AC,2026-09-01,664,26.886,53.77,Vero Beach#row664
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,Contrac Bait Block Cb4052 18lb. Pail,5.0,BU,2026-09-01,665,94.614,473.07,Vero Beach#row665
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,Demand CS Insecticide 1 qt.,1.0,J,2026-09-01,666,112.75,112.75,Vero Beach#row666
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,Gentrol Igr Insecticide 10/ 1 oz. Bottles,5.0,BO,NONE ON HAND TO LOG,667,8.7456,43.73,Vero Beach#row667
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,11.0,FB,2026-09-01,668,17.036,187.4,Vero Beach#row668
+ISSUE_TO_TECH,Vero Beach,2026-08-28,Steve Farless,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-09-01,669,39.438,39.44,Vero Beach#row669
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Augustus Ludriecus,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,4.0,J,2026-10-06,769,61.268,245.07,Vero Beach#row769
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Augustus Ludriecus,LESCO Spreader Sticker 2.5 gal.,2.0,J,2026-10-06,770,83.591,167.18,Vero Beach#row770
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Augustus Ludriecus,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,2.0,J,2026-10-06,771,37.27,74.54,Vero Beach#row771
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Augustus Ludriecus,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,1.0,FB,2026-10-06,772,72.0,72.0,Vero Beach#row772
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,3.0,J,2026-10-06,789,61.268,183.8,Vero Beach#row789
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,Bifen XTS Insecticide 1 gal.,1.0,J,2026-10-06,790,140.223,140.22,Vero Beach#row790
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,2.0,J,2026-10-06,791,79.74,159.48,Vero Beach#row791
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-06,792,39.438,39.44,Vero Beach#row792
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,LESCO Fertilizer 13-0-0 2.5 gal,1.0,J,2026-10-06,793,0.0,0.0,Vero Beach#row793
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Krause,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,3.0,J,2026-10-06,794,58.113,174.34,Vero Beach#row794
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),4.0,TU,NONE ON HAND TO LOG,864,30.2,120.8,Vero Beach#row864
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-10-07,866,94.614,94.61,Vero Beach#row866
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,Gentrol Igr Insecticide 10/ 1 oz. Bottles,6.0,BO,NONE ON HAND TO LOG,867,8.7456,52.47,Vero Beach#row867
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-07,868,39.438,39.44,Vero Beach#row868
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,Optigard Ant Gel Bait 4 x 30 gm.,2.0,TB,NONE ON HAND TO LOG,869,42.93,85.86,Vero Beach#row869
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,PT Ultracide Pressurized Flea Insecticide 14 oz.,2.0,AC,2026-10-07,870,25.847,51.69,Vero Beach#row870
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,PT Alpine Pressurized Insecticide 14 oz.,1.0,AC,2026-10-07,871,24.187,24.19,Vero Beach#row871
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Brian Lasneski,PT Phantom II Pressurized Insecticide 14 oz.,2.0,AC,2026-10-07,872,28.746,57.49,Vero Beach#row872
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,1.0,AC,2026-10-07,849,26.886,26.89,Vero Beach#row849
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,Contrac Bait Block Cb4052 18lb. Pail,2.0,BU,2026-10-07,850,94.614,189.23,Vero Beach#row850
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,3.0,FB,2026-10-07,851,17.036,51.11,Vero Beach#row851
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-07,852,39.438,39.44,Vero Beach#row852
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-10-07,853,20.393,20.39,Vero Beach#row853
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,Taurus SC Insecticide 78 oz.,1.0,J,2026-10-07,854,95.0,95.0,Vero Beach#row854
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Chad Koehler,Gentrol Aerosol 16oz,1.0,AC,2026-10-07,855,19.406,19.41,Vero Beach#row855
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Christian Tejeda,Contrac Bait Block Cb4052 18lb. Pail,4.0,BU,2026-10-07,839,94.614,378.46,Vero Beach#row839
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Christian Tejeda,Extinguish Professional Fire Ant Bait (25 lb. bag),1.0,FB,2026-10-07,840,238.123,238.12,Vero Beach#row840
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Christian Tejeda,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,FB,2026-10-07,841,17.036,17.04,Vero Beach#row841
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Christian Tejeda,PT Alpine WSG Insecticide 500 gm,1.0,B,2026-10-07,842,216.573,216.57,Vero Beach#row842
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,Advion Ant Gel Bait 4 x 30 gm tube (1pk/4 tubes),2.0,TB,NOT ENOUGH ON HAND TO LOG,843,43.553,87.11,Vero Beach#row843
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,TB,2026-10-07,844,30.2,30.2,Vero Beach#row844
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-10-07,845,94.614,94.61,Vero Beach#row845
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,5.0,FB,2026-10-07,846,17.036,85.18,Vero Beach#row846
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-07,847,39.438,39.44,Vero Beach#row847
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Cote Lawrence,PT Microcare CS Pressurized Insecticide 14 oz.,1.0,AC,2026-10-07,848,20.393,20.39,Vero Beach#row848
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Graham Foster,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,3.0,AC,2026-10-06,820,26.886,80.66,Vero Beach#row820
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Graham Foster,Gentrol Igr Insecticide 10/ 1 oz. Bottles,1.0,BO,2026-10-06,821,8.7456,8.75,Vero Beach#row821
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Graham Foster,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,3.0,FB,2026-10-06,822,17.036,51.11,Vero Beach#row822
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Graham Foster,PT Phantom II Pressurized Insecticide 14 oz.,1.0,AC,2026-10-06,823,28.746,28.75,Vero Beach#row823
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Graham Foster,PT Ultracide Pressurized Flea Insecticide 14 oz.,2.0,AC,2026-10-06,824,25.847,51.69,Vero Beach#row824
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jacob Johns,Bifen XTS Insecticide 1 gal.,1.0,J,2026-10-06,773,140.223,140.22,Vero Beach#row773
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jacob Johns,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,5.0,J,2026-10-06,774,61.268,306.34,Vero Beach#row774
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jacob Johns,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,5.0,J,2026-10-06,775,37.27,186.35,Vero Beach#row775
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jacob Johns,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,5.0,FB,2026-10-06,776,72.0,360.0,Vero Beach#row776
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jason Colontrelle,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,3.0,AC,2026-10-06,816,26.886,80.66,Vero Beach#row816
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jason Colontrelle,Protecta Evo Express Bait Station w/ Weight,4.0,BS,2026-10-06,817,18.38,73.52,Vero Beach#row817
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jason Colontrelle,PT Ultracide Pressurized Flea Insecticide 14 oz.,1.0,AC,2026-10-06,818,25.847,25.85,Vero Beach#row818
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Jason Colontrelle,Taurus SC Insecticide 78 oz.,1.0,J,2026-10-06,819,95.0,95.0,Vero Beach#row819
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,Contrac Bait Block Cb4052 18lb. Pail,4.0,BU,2026-10-07,832,94.614,378.46,Vero Beach#row832
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,Extinguish Professional Fire Ant Bait (25 lb. bag),4.0,FB,2026-10-07,833,238.123,952.49,Vero Beach#row833
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,8.0,FB,2026-10-07,834,17.036,136.29,Vero Beach#row834
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,Invade Hot Spot Pest Control 16 oz.,1.0,AC,2026-10-07,835,18.883,18.88,Vero Beach#row835
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-07,836,39.438,39.44,Vero Beach#row836
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,Protecta Evo Express Bait Station w/ Weight,1.0,BS,2026-10-07,837,18.38,18.38,Vero Beach#row837
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Joshua Main,Wellmark Extinguish Plus Fire Ant Bait 25 lb.,5.0,FB,2026-10-07,838,245.624,1228.12,Vero Beach#row838
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,Bifen XTS Insecticide 1 gal.,3.0,J,2026-10-06,806,140.223,420.67,Vero Beach#row806
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,Celsius Post Emergent Water Dispersible Granule Herbicide 10 oz.,1.0,BO,None on hand to log,807,165.3,165.3,Vero Beach#row807
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,8.0,J,2026-10-06,808,61.268,490.14,Vero Beach#row808
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,5.0,J,2026-10-06,809,79.74,398.7,Vero Beach#row809
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,2.0,J,2026-10-06,810,58.113,116.23,Vero Beach#row810
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle,1.0,BO,2026-10-06,811,29.379,29.38,Vero Beach#row811
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-10-06,812,83.591,83.59,Vero Beach#row812
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,2.0,J,2026-10-06,813,134.086,268.17,Vero Beach#row813
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,2.0,FB,2026-10-06,814,72.0,144.0,Vero Beach#row814
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Logan Coffey,Sedgehammer Soluble Herbicide 1.33 oz. Bottle,3.0,BO,2026-10-06,815,65.151,195.45,Vero Beach#row815
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,8.0,AC,2026-10-06,777,26.886,215.09,Vero Beach#row777
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-10-06,778,94.614,94.61,Vero Beach#row778
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Gentrol Igr Insecticide 10/ 1 oz. Bottles,14.0,BO,Not enough on hand to log,779,8.7456,122.44,Vero Beach#row779
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,1.0,FB,2026-10-06,780,17.036,17.04,Vero Beach#row780
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Optigard Ant Gel Bait 4 x 30 gm.,2.0,TU,2026-10-06,781,42.93,85.86,Vero Beach#row781
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Protecta Evo Express Bait Station w/ Weight,4.0,BS,2026-10-06,782,18.38,73.52,Vero Beach#row782
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,PT Ultracide Pressurized Flea Insecticide 14 oz.,2.0,AC,2026-10-06,783,25.847,51.69,Vero Beach#row783
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Sector Misting Insecticide 1 gal.,2.0,J,2026-10-06,784,131.248,262.5,Vero Beach#row784
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Taurus SC Insecticide 78 oz.,1.0,J,2026-10-06,785,95.0,95.0,Vero Beach#row785
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,ULD BP-300 Formula II Insecticide 1 gal.,2.0,J,2026-10-06,786,268.871,537.74,Vero Beach#row786
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Advion WDG Insecticide 5 Packets x 0.33oz,1.0,EA,2026-10-06,787,37.75,37.75,Vero Beach#row787
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Matthew Potter,Stop the Bite,1.0,J,2026-10-07,788,419.923,419.92,Vero Beach#row788
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,Bifen XTS Insecticide 1 gal.,2.0,J,2026-10-06,795,140.223,280.45,Vero Beach#row795
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,Acephate 90 Prill Insecticide 5 lb.,1.0,J,2026-10-06,796,50.078,50.08,Vero Beach#row796
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,8.0,J,2026-10-06,797,61.268,490.14,Vero Beach#row797
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,8.0,J,2026-10-06,798,79.74,637.92,Vero Beach#row798
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,9.0,J,2026-10-06,799,58.113,523.02,Vero Beach#row799
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,LESCO Spreader Sticker 2.5 gal.,2.0,J,2026-10-06,800,83.591,167.18,Vero Beach#row800
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,LESCO T-Storm Liquid Fungicide 2.5 gal. Jug,2.0,J,2026-10-06,801,134.086,268.17,Vero Beach#row801
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,Sedgehammer Soluble Herbicide 1.33 oz. Bottle,1.0,BO,2026-10-06,802,65.151,65.15,Vero Beach#row802
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Mike Mace,Nufarm Arena 0.25G  Granular Insecticide 30 lb. Bag,2.0,FB,2026-10-06,803,72.0,144.0,Vero Beach#row803
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rob Segroves,LESCO Spreader Sticker 2.5 gal.,1.0,J,2026-10-06,804,83.591,83.59,Vero Beach#row804
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Ronnie Slade,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,4.0,AC,2026-10-06,805,26.886,107.54,Vero Beach#row805
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),2.0,TB,2026-10-06,825,30.2,60.4,Vero Beach#row825
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,Contrac Bait Block Cb4052 18lb. Pail,6.0,BU,2026-10-06,826,94.614,567.68,Vero Beach#row826
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,17.0,FB,2026-10-06,827,17.036,289.61,Vero Beach#row827
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-06,828,39.438,39.44,Vero Beach#row828
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,Optigard Ant Gel Bait 4 x 30 gm.,1.0,TB,None on hand to log,829,42.93,42.93,Vero Beach#row829
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,Protecta Evo Express Bait Station w/ Weight,2.0,EA,2026-10-06,830,18.38,36.76,Vero Beach#row830
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Rusty Stevens,Taurus SC Insecticide 78 oz.,1.0,J,2026-10-06,831,95.0,95.0,Vero Beach#row831
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,Advion Evolution Cockroach Gel Bait 4x30g (4 pack),1.0,TB,NONE ON HAND TO LOG,856,30.2,30.2,Vero Beach#row856
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,2.0,AC,2026-10-07,857,26.886,53.77,Vero Beach#row857
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,Contrac Bait Block Cb4052 18lb. Pail,4.0,BU,2026-10-07,858,94.614,378.46,Vero Beach#row858
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,Gentrol Igr Insecticide 10/ 1 oz. Bottles,2.0,BO,2026-10-07,859,8.7456,17.49,Vero Beach#row859
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,Invade Hot Spot Pest Control 16 oz.,1.0,AC,2026-10-07,860,18.883,18.88,Vero Beach#row860
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.,8.0,FB,2026-10-07,861,17.036,136.29,Vero Beach#row861
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,Taurus SC Insecticide 78 oz.,1.0,J,2026-10-07,862,95.0,95.0,Vero Beach#row862
+ISSUE_TO_TECH,Vero Beach,2026-09-28,Steve Farless,LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container,1.0,J,2026-10-07,863,39.438,39.44,Vero Beach#row863
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Cote Lawrence,Optigard Ant Gel Bait 4 x 30 gm.,1.0,TB,NONE ON HAND TO LOG,885,42.93,42.93,Vero Beach#row885
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Jacob Johns,LESCO T&O Chelated Liquid Chelated Micronutrient Fertilizer 2.5 gal. Jug,1.0,J,2026-10-07,876,37.27,37.27,Vero Beach#row876
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Jacob Johns,Sygenta Headway G Broad Spectrum Granualr Fungicide 30 lb. Bag,1.0,FB,2026-10-07,877,70.16,70.16,Vero Beach#row877
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Jason Colontrelle,CB-80 Dual Spray Can Aerosol Insecticide 17 oz.,2.0,AC,2026-10-07,883,26.886,53.77,Vero Beach#row883
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Jason Colontrelle,Gentrol Aerosol 16oz,1.0,AC,NONE ON HAND TO LOG,884,19.406,19.41,Vero Beach#row884
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Logan Coffey,LESCO Bio Iron Plus Liquid Fertilizer 2.5 gal.,1.0,J,2026-10-07,878,79.74,79.74,Vero Beach#row878
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Logan Coffey,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,1.0,J,2026-10-07,879,58.113,58.11,Vero Beach#row879
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Matthew Potter,Advion Insect Granule 25 lb.,1.0,FB,2026-10-07,880,0.0,0.0,Vero Beach#row880
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Matthew Potter,Gentrol Igr Insecticide 10/ 1 oz. Bottles,1.0,BO,NONE ON HAND TO LOG,881,8.7456,8.75,Vero Beach#row881
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Matthew Potter,Protecta Evo Express Bait Station w/ Weight,4.0,BS,2026-10-07,882,18.38,73.52,Vero Beach#row882
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Mike Mace,LESCO Bandit 2F Systemic Liquid Insecticide 1 gal. Jug,1.0,J,2026-10-07,874,61.268,61.27,Vero Beach#row874
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Mike Mace,LESCO Liquid Fertilizer 0-0-25 2.5 gal.,1.0,J,2026-10-07,875,58.113,58.11,Vero Beach#row875
+ISSUE_TO_TECH,Vero Beach,2026-09-30,Rusty Stevens,Contrac Bait Block Cb4052 18lb. Pail,1.0,BU,2026-10-07,873,94.614,94.61,Vero Beach#row873

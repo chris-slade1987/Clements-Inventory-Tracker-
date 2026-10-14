@@ -199,7 +199,13 @@ async function main() {
     // invoices whose "HIST-…" number already exists) and — critically — creates
     // NO StockMovement, so current on-hand is never touched. Runs after the
     // approved-product reconcile so every material resolves to a product.
-    await runStep("purchase-history load", async () => {
+    // The Aug/Sep purchase + dispersal + 7/31 history loaders below are SUPERSEDED
+    // by the reconciled "inventory reset 2026-10" step (near the end). Once that has
+    // applied (Setting marker), these legacy loaders are skipped so they never
+    // re-add data the reset wiped. On-hand = July count + Aug/Sep receipts − issues,
+    // all from prisma/data/inventory-reset/.
+    const INV_RESET_APPLIED = !!(await prisma.setting.findUnique({ where: { key: "inventory_reset_2026_10" } }));
+    if (!INV_RESET_APPLIED) await runStep("purchase-history load", async () => {
       const { loadPurchaseHistory } = await import("../prisma/seed-purchase-history");
       const beforeMv = await prisma.stockMovement.count();
       const ph = await loadPurchaseHistory(prisma);
@@ -665,7 +671,7 @@ async function main() {
     // marker `onhand_reconcile_2026-07-31` makes it apply EXACTLY ONCE; re-runs
     // recompute to zero deltas and no-op. Non-fatal (retries next deploy if it
     // ever throws). Never hard-deletes; Confirm/adjustment audit trail preserved.
-    await runStep("7/31 on-hand reconciliation", async () => {
+    if (!INV_RESET_APPLIED) await runStep("7/31 on-hand reconciliation", async () => {
       const { reconcileOnHand20260731, APPLY_ENV } = await import("./reconcile-onhand-2026-07-31");
       process.env[APPLY_ENV] = "1";
       const r = await reconcileOnHand20260731(prisma, { apply: true });
@@ -682,7 +688,7 @@ async function main() {
     // (distributor, invoiceNumber) — redeploys skip invoices already loaded — so
     // the auto-apply is safe to re-run. Non-fatal. Positive check_in for receipts;
     // vendor credits post a negative adjustment; never hard-deletes.
-    await runStep("purchase-invoice load", async () => {
+    if (!INV_RESET_APPLIED) await runStep("purchase-invoice load", async () => {
       const { loadPurchaseInvoices } = await import("./load-purchase-invoices");
       const beforeMv = await prisma.stockMovement.count();
       const r = await loadPurchaseInvoices(prisma, { apply: true });
@@ -714,7 +720,7 @@ async function main() {
     // `dispersal_load:<loadKey>` Setting marker — redeploys skip loaded files — so
     // the auto-apply is safe to re-run. Negative on-hand is recorded, not blocked
     // (it reveals a baseline/receipts gap). Non-fatal.
-    await runStep("dispersal load", async () => {
+    if (!INV_RESET_APPLIED) await runStep("dispersal load", async () => {
       const { loadDispersals } = await import("./load-dispersals");
       const beforeMv = await prisma.stockMovement.count();
       const r = await loadDispersals(prisma, { apply: true });
@@ -772,6 +778,42 @@ async function main() {
         `deploy-db: catalog CSV import — ${r.created} created, ${r.updated} updated, ${r.unchanged} unchanged ` +
           `(${r.distinctItems} items; skipped ${r.skippedSurcharge} surcharge + ${r.skippedCredit} credit).`,
       );
+    });
+
+    // INVENTORY RESET (2026-10): clear the old Aug/Sep purchase + dispersal history
+    // and rebuild from the owner-reconciled files in prisma/data/inventory-reset/,
+    // so on-hand as of 9/30 (= start of 10/1) equals file 06 exactly. The WIPE runs
+    // ONCE (marker), deleting historical invoices + non-checkout movements while
+    // PRESERVING live scan-to-issue checkouts (checkoutLineId set) and products /
+    // barcodes / warehouses / technicians. The IMPORT is idempotent (keyed by
+    // externalRef) and re-asserts the correct data on every deploy. Ties to the
+    // control totals in file 09; verify logs the per-row match vs file 06. NON-FATAL.
+    await runStep("inventory reset 2026-10", async () => {
+      const { runInventoryImport, verifyInventory } = await import("./inventory-reset");
+      const wiped = await prisma.setting.findUnique({ where: { key: "inventory_reset_2026_10_wiped" } });
+      if (!wiped) {
+        // FK-safe order: movements (hold sourceInvoiceId) first, then invoices (lines cascade).
+        const delMv = await prisma.stockMovement.deleteMany({ where: { checkoutLineId: null } });
+        const delInv = await prisma.invoice.deleteMany({});
+        await prisma.setting.create({ data: { key: "inventory_reset_2026_10_wiped", value: new Date().toISOString() } });
+        console.log(`deploy-db: inventory reset WIPE — ${delMv.count} movements + ${delInv.count} invoices (live checkouts preserved).`);
+      } else {
+        console.log("deploy-db: inventory reset WIPE already applied — left as-is.");
+      }
+      const imp = await runInventoryImport(prisma, { apply: true });
+      const v = await verifyInventory(prisma);
+      await prisma.setting.upsert({
+        where: { key: "inventory_reset_2026_10" },
+        update: { value: new Date().toISOString() },
+        create: { key: "inventory_reset_2026_10", value: new Date().toISOString() },
+      });
+      console.log(
+        `deploy-db: inventory reset IMPORT — ${imp.opening} opening, ${imp.receipts} receipts, ${imp.issues} issues; ` +
+          `catalog ${imp.catalog.matched} matched / ${imp.catalog.created} created; ` +
+          `${imp.unmatchedTechs.length} unmatched techs, ${imp.unmatchedProducts.length} unmatched products; ` +
+          `VERIFY vs file 06 — ${v.mismatches} mismatch(es), ${v.negatives} negatives.`,
+      );
+      if (v.mismatches > 0) console.error("deploy-db: inventory reset — ON-HAND MISMATCHES:", v.mismatchRows.join(" | "));
     });
 
     // Load each employee's birthday from the HR "Employee Listings" export
