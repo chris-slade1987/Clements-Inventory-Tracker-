@@ -37,6 +37,17 @@ adjustments so the audit trail stays intact.
   `PageHeader`, `EmptyState` instead of re-styling.
 - Mobile-first: managers use this on phones. Keep tap targets large.
 
+## Brand & design — always follow the brand kit
+
+Any UI, artifact, slide deck, course material, diagram, email, or graphic for
+this project MUST follow **`docs/BRAND_KIT.md`** (the canonical CanopyOS visual
+system: forest-green chrome + light content canvas, Helvetica Neue weight 300,
+thin 1.6 line icons, the exact color tokens/gradients, the component recipes, the
+"Buzz" celebration mascot, and motion rules). Read it before producing anything
+visual. No emoji in product/content (Buzz is the one sanctioned exception). The
+live tokens live in `app/globals.css` / `components/ui.tsx`; if they change, update
+`docs/BRAND_KIT.md` in the same change.
+
 ## Docs track the code
 
 Every change that adds or alters a workflow MUST, in the same change, update
