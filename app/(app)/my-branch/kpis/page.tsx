@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
-import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues } from "@/lib/management";
+import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues, cell, type Scope } from "@/lib/management";
 import { buildBranchPnlPayload } from "@/lib/branch-pnl";
 import BranchPnlClient, { type Metric } from "@/app/(app)/management/branch-pnl/BranchPnlClient";
 import { Gauge, KpiMeter } from "@/components/motivation";
@@ -10,11 +11,13 @@ import KpiSummaryButton from "@/components/KpiSummaryButton";
 
 export const dynamic = "force-dynamic";
 
-// Branch KPIs — the manager's own branch performance (budget-vs-actual), surfaced
-// inside My Branch with the v2 motivation gauges so managers see their numbers on
-// their home turf and never need the company-wide Executive center. Reuses the
-// same `buildBranchPnlPayload` + `BranchPnlClient` as the Executive dashboard's
-// branch view, pinned to the manager's branch.
+// KPIs inside My Branch. Scope-aware:
+//   • Branch managers (branch-locked) → pinned to THEIR OWN branch.
+//   • Admins / super admins / exec → COMPANY-WIDE by default (all branches), with
+//     a selector to drill into any one branch. They are never pinned to a single
+//     branch — the company is the default perspective.
+// Reuses the same `buildBranchPnlPayload` + `BranchPnlClient` as the Executive
+// dashboard for the per-branch view, and company KPI cells for the company view.
 export default async function MyBranchKpisPage({
   searchParams,
 }: {
@@ -22,20 +25,21 @@ export default async function MyBranchKpisPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
-  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
-  // Branch-locked managers are pinned to their own branch; admins/exec may pick one
-  // (defaulting to their home branch, else the first branch).
-  const branch = scopedBranch(user, requested) ?? user.branch ?? BRANCHES[0].key;
   const locked = branchLocked(user);
-  const branchQuery = requested && !locked ? `?branch=${requested}` : "";
+  const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  // Locked managers: always their own branch. Non-locked: a branch only if they
+  // explicitly picked one; otherwise the company-wide view.
+  const branch = locked ? (user.branch ?? BRANCHES[0].key) : requested;
+  const isCompany = branch === null;
+  const branchQuery = branch ? `?branch=${branch}` : "";
 
   const periods = await listPeriods();
   if (periods.length === 0) {
     return (
       <>
-        <PageHeader title="Branch KPIs" subtitle={branchLabel(branch)} />
+        <PageHeader title={isCompany ? "Company KPIs" : "Branch KPIs"} subtitle={isCompany ? "All branches" : branchLabel(branch!)} />
         <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
-        <EmptyState title="No report data yet" hint="Branch KPIs populate once a Monthly Board Report is uploaded." />
+        <EmptyState title="No report data yet" hint="KPIs populate once a Monthly Board Report is uploaded." />
       </>
     );
   }
@@ -43,55 +47,112 @@ export default async function MyBranchKpisPage({
   const period = (await resolvePeriod(sp.p))!;
   const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
   const values = await periodValues(period.id);
-  const payload = await buildBranchPnlPayload(values, branch, locked, { year: period.year, month: period.month });
 
-  // v2 headline gauges, drawn from the YTD budget-vs-actual already in the payload.
+  // Branch selector — non-locked users get "All branches" (company) + each branch.
+  const selector = !locked ? (
+    <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+      <Link
+        href="/my-branch/kpis"
+        className={`rounded-lg px-3 py-1.5 text-xs ${isCompany ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:text-white"}`}
+      >
+        All branches
+      </Link>
+      {BRANCHES.map((b) => (
+        <Link
+          key={b.key}
+          href={`/my-branch/kpis?branch=${b.key}`}
+          className={`rounded-lg px-3 py-1.5 text-xs ${branch === b.key ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:text-white"}`}
+        >
+          {b.label}
+        </Link>
+      ))}
+    </div>
+  ) : null;
+
+  // ---- Company-wide view (admins/exec, no branch selected) ------------------
+  if (isCompany) {
+    const c = (kpi: string) => cell(values, kpi, "company" as Scope, "ytd");
+    const netRev = c("net_revenue");
+    const production = c("production");
+    const netAfterLabor = c("net_after_labor");
+    const newSales = c("new_sales");
+
+    return (
+      <>
+        <PageHeader title="Company KPIs" subtitle={`All branches · ${period.label} · budget vs actual`} />
+        <MyBranchViewToggle view="kpis" branchQuery="" />
+        {selector}
+
+        <KpiSummaryButton scope="company" p={periodKey} basis="ytd" label="AI company summary" />
+
+        {/* Company headline — net revenue speedometer + YTD $ meters. */}
+        <Card className="p-5 mb-5">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-around">
+            {netRev.budget ? (
+              <div className="flex flex-col items-center">
+                <Gauge value={netRev.actual ?? 0} target={netRev.budget ?? 0} label="Net revenue vs budget · YTD" size={210} />
+                <div className="mt-1 text-xs text-muted tabular-nums">
+                  {money(netRev.actual)} of {money(netRev.budget)} budget
+                </div>
+              </div>
+            ) : null}
+            <div className="grid w-full max-w-sm gap-4 sm:w-auto">
+              {production.budget ? <KpiMeter label="Production · YTD" value={production.actual ?? 0} target={production.budget ?? 0} format={(n) => money(n)} /> : null}
+              {netAfterLabor.budget ? <KpiMeter label="Net after labor · YTD" value={netAfterLabor.actual ?? 0} target={netAfterLabor.budget ?? 0} format={(n) => money(n)} /> : null}
+              {newSales.budget ? <KpiMeter label="New sales · YTD" value={newSales.actual ?? 0} target={newSales.budget ?? 0} format={(n) => money(n)} /> : null}
+            </div>
+          </div>
+        </Card>
+
+        {/* Break it down by branch — production YTD per branch, click to drill in. */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-2">
+          {BRANCHES.map((b) => {
+            const prod = cell(values, "production", b.key as Scope, "ytd");
+            return (
+              <Link key={b.key} href={`/my-branch/kpis?branch=${b.key}`} className="block">
+                <Card className="p-4 overflow-hidden transition hover:ring-1 hover:ring-brand-300">
+                  <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
+                  <div className="text-xs font-medium uppercase tracking-wider text-muted">{b.label}</div>
+                  <div className="mt-2 text-2xl font-light tabular-nums">{money(prod.actual)}</div>
+                  <div className="text-[11px] text-muted">production · YTD</div>
+                  {prod.budget ? (
+                    <div className={`mt-1 text-[11px] ${(prod.actual ?? 0) >= prod.budget ? "text-brand-700" : "text-amber-600"}`}>
+                      {Math.round(((prod.actual ?? 0) / prod.budget) * 100)}% of budget
+                    </div>
+                  ) : null}
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+        <p className="mb-6 text-xs text-muted">For the full company financial dashboard, use the Executive → Company Overview center.</p>
+      </>
+    );
+  }
+
+  // ---- Single-branch view (a branch manager, or an admin who picked one) -----
+  const payload = await buildBranchPnlPayload(values, branch!, locked, { year: period.year, month: period.month });
   const metric = (key: string): Metric | undefined => payload.metrics.find((m) => m.key === key);
   const production = metric("production");
   const netAfterLabor = metric("net_after_labor");
   const newSales = metric("new_sales");
   const stops = metric("stops");
-
   const ytdActual = (m?: Metric) => m?.series.ytd.actual ?? null;
   const ytdBudget = (m?: Metric) => m?.series.ytd.budget ?? null;
 
   return (
     <>
-      <PageHeader
-        title="Branch KPIs"
-        subtitle={`${branchLabel(branch)} · ${period.label} · budget vs actual`}
-      />
+      <PageHeader title="Branch KPIs" subtitle={`${branchLabel(branch!)} · ${period.label} · budget vs actual`} />
       <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
+      {selector}
 
-      {/* Not branch-locked (admin/exec viewing My Branch): let them pick a branch. */}
-      {!locked ? (
-        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-          {BRANCHES.map((b) => (
-            <a
-              key={b.key}
-              href={`/my-branch/kpis?branch=${b.key}`}
-              className={`rounded-lg px-3 py-1.5 text-xs ${branch === b.key ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:text-white"}`}
-            >
-              {b.label}
-            </a>
-          ))}
-        </div>
-      ) : null}
+      <KpiSummaryButton scope={branch!} p={periodKey} basis="ytd" label="AI branch summary" />
 
-      {/* Scope-aware AI read-out of this branch's KPIs. */}
-      <KpiSummaryButton scope={branch} p={periodKey} basis="ytd" label="AI branch summary" />
-
-      {/* Headline attainment — the v2 speedometer leads, YTD $ gauges beside it. */}
       <Card className="p-5 mb-5">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-around">
           {production && ytdBudget(production) ? (
             <div className="flex flex-col items-center">
-              <Gauge
-                value={ytdActual(production) ?? 0}
-                target={ytdBudget(production) ?? 0}
-                label="Production vs budget · YTD"
-                size={210}
-              />
+              <Gauge value={ytdActual(production) ?? 0} target={ytdBudget(production) ?? 0} label="Production vs budget · YTD" size={210} />
               <div className="mt-1 text-xs text-muted tabular-nums">
                 {money(ytdActual(production))} of {money(ytdBudget(production))} budget
               </div>
@@ -99,34 +160,18 @@ export default async function MyBranchKpisPage({
           ) : null}
           <div className="grid w-full max-w-sm gap-4 sm:w-auto">
             {netAfterLabor && ytdBudget(netAfterLabor) ? (
-              <KpiMeter
-                label="Net after labor · YTD"
-                value={ytdActual(netAfterLabor) ?? 0}
-                target={ytdBudget(netAfterLabor) ?? 0}
-                format={(n) => money(n)}
-              />
+              <KpiMeter label="Net after labor · YTD" value={ytdActual(netAfterLabor) ?? 0} target={ytdBudget(netAfterLabor) ?? 0} format={(n) => money(n)} />
             ) : null}
             {newSales && ytdBudget(newSales) ? (
-              <KpiMeter
-                label="New sales · YTD"
-                value={ytdActual(newSales) ?? 0}
-                target={ytdBudget(newSales) ?? 0}
-                format={(n) => money(n)}
-              />
+              <KpiMeter label="New sales · YTD" value={ytdActual(newSales) ?? 0} target={ytdBudget(newSales) ?? 0} format={(n) => money(n)} />
             ) : null}
             {stops && ytdBudget(stops) ? (
-              <KpiMeter
-                label="Stops completed · YTD"
-                value={ytdActual(stops) ?? 0}
-                target={ytdBudget(stops) ?? 0}
-                format={(n) => n.toLocaleString()}
-              />
+              <KpiMeter label="Stops completed · YTD" value={ytdActual(stops) ?? 0} target={ytdBudget(stops) ?? 0} format={(n) => n.toLocaleString()} />
             ) : null}
           </div>
         </div>
       </Card>
 
-      {/* Full budget-vs-actual detail — the same client the Executive dashboard uses. */}
       <BranchPnlClient payload={payload} />
     </>
   );

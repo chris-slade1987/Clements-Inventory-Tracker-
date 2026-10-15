@@ -21,7 +21,7 @@ export default function MyBranchViewToggle({
         To-dos
       </Link>
       <Link href={`/my-branch/kpis${branchQuery}`} className={cell(view === "kpis")}>
-        Branch KPIs
+        KPIs
       </Link>
     </div>
   );
