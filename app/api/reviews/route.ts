@@ -134,18 +134,8 @@ export async function POST(req: Request) {
         if (!review.reviewerSignedAt || !review.employeeSignedAt)
           return NextResponse.json({ error: "Both the reviewer and employee must sign before HR approval." }, { status: 400 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { hrSignedName: signerName, hrSignedAt: now, status: "completed", completedAt: now, hrNotes: str(body?.hrNotes) ?? review.hrNotes } });
-        // Finalized — let both signers know it's filed to the personnel record.
-        const done = [review.reviewerUserId ? (await prisma.user.findUnique({ where: { id: review.reviewerUserId }, select: { email: true } }))?.email : null, review.employee.email].filter(Boolean) as string[];
-        if (done.length)
-          await sendEmail({
-            to: done,
-            subject: `Completed & approved: ${review.employee.name}'s ${label}`,
-            kind: "review_completed",
-            relatedType: "newhire_review",
-            relatedId: review.id,
-            text: `${review.employee.name}'s ${label} has been approved by HR and filed to the personnel record. Thank you.\n\n— CanopyOS`,
-            html: `<p><strong>${review.employee.name}</strong>'s ${label} has been approved by HR and filed to the personnel record. Thank you.</p><p>— CanopyOS</p>`,
-          });
+        // No standalone "completed & approved" self-receipt to reviewer+employee —
+        // the completion already shows on-screen and is filed to the record.
         return NextResponse.json({ ok: true, status: "completed" });
       } else {
         return NextResponse.json({ error: "Unknown signature role." }, { status: 400 });
