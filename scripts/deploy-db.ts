@@ -843,6 +843,14 @@ async function main() {
       const pw = await seedPasswordPolicy(prisma);
       console.log("deploy-db: password policy —", JSON.stringify(pw));
     });
+
+    // PTO-for-all: every active login must be linked to an Employee (PTO
+    // self-service keys off User.employeeId). Idempotent — links or creates each run.
+    await runStep("link logins to employees (PTO-for-all)", async () => {
+      const { ensureLoginsLinked } = await import("../prisma/link-logins");
+      const r = await ensureLoginsLinked(prisma);
+      console.log("deploy-db: login→employee link —", JSON.stringify(r));
+    });
   } finally {
     await prisma.$disconnect();
   }
