@@ -22,6 +22,8 @@ export function GoalSlider({
   rampCeiling,
   hint = true,
   id,
+  accentColor,
+  statusWord,
 }: {
   value: number;
   onChange: (n: number) => void;
@@ -33,13 +35,18 @@ export function GoalSlider({
   rampCeiling?: number;
   hint?: boolean;
   id?: string;
+  // When set, the fill + thumb color is driven by this instead of the thumb
+  // position — used by the sales goal sheet to color by real on-track PACE
+  // (projected close vs goal), not just where the thumb sits.
+  accentColor?: string;
+  statusWord?: string;
 }) {
   const [v, setV] = useState(value);
   const cur = v;
   const span = (rampCeiling ?? max) - min || 1;
   const rampPct = Math.max(0, Math.min(100, ((cur - min) / span) * 100));
   const trackPct = Math.max(0, Math.min(100, ((cur - min) / (max - min || 1)) * 100));
-  const color = rampColor(rampPct);
+  const color = accentColor ?? rampColor(rampPct);
 
   return (
     <div>
@@ -47,8 +54,8 @@ export function GoalSlider({
         <div className="flex items-baseline justify-between gap-3 mb-2">
           {label ? <label htmlFor={id} className="text-sm font-light text-ink">{label}</label> : <span />}
           <span className="text-right">
-            <span className="text-lg font-medium tabular-nums" style={{ color }}>{format(cur)}</span>
-            {hint && <span className="ml-2 text-xs text-muted">{encouragement(rampPct)}</span>}
+            <span className="text-2xl font-semibold tabular-nums" style={{ color }}>{format(cur)}</span>
+            {hint && <span className="ml-2 text-xs text-muted">{statusWord ?? encouragement(rampPct)}</span>}
           </span>
         </div>
       )}

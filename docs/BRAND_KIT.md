@@ -177,26 +177,33 @@ Progress should feel like momentum, not a report. Use the shared kit —
 (client) — everywhere we show attainment, goals, journeys, or completion. Never
 rebuild these inline.
 
-- **Encouragement ramp (`rampColor(pct)`):** a restrained **warm-clay → amber →
-  forest** ramp (`#B5654D → #D1A14E → #74A96E → #1F9D57`). It reads as "keep
-  climbing," not a traffic light — **no pure red, no neon.** Met/complete states
-  settle into brand green; 100% gets a gentle forest→celebrate gradient.
-- **`AchievementBar`** — horizontal attainment with milestone ticks + a live
-  percent in the ramp color. For dashboards, training, certification progress.
-- **`GoalSlider`** — drag to set a goal (replaces number boxes). Fill + thumb
-  climb the ramp as the goal rises, with a live word of encouragement; supports a
-  `rampCeiling` "stretch" target.
-- **`MilestoneStepper`** — a journey as connected nodes (done / current / ahead):
-  HR pipeline, onboarding, certification steps.
-- **`ProgressRing`** — compact circular completion for stat tiles.
-- **`KpiMeter`** — scorecard KPI as actual-vs-target with a target marker; met in
-  forest green, short of target on the ramp.
-- **Buzz** (§8) marks the *arrival* — completion/achievement moments — not the journey.
+- **Signal ramp (`rampColor(pct)` fills, `rampTextColor(pct)` text):** a deliberately
+  bold **red → amber → lime → green** ramp — `#E5484D → #F6B318 → #86C540 → #15B85C`
+  (stops .00 / .45 / .72 / 1.0). This is traffic-light energy **on purpose**: a glance
+  must tell behind / watch / on. **Fills use the bright hex; text uses the darker ink
+  variants** — red `#C42A2F`, amber `#8F6400`, green `#0E7A3D` — to hold ≥4.5:1 on the
+  light canvas. Met/complete states finish in green; 100% gets a `#15B85C → #1F9D57`
+  forest→celebrate gradient. Bold, but never literally neon, and never a flashing animation.
+  *(This supersedes the prior muted warm-clay ramp / "no traffic light, no neon" rule —
+  COO-approved 2026-10.)*
+- **`Gauge` (speedometer):** a semicircular dial with a red→amber→green arc, a needle,
+  and a tick at the 100% target. The default for a single headline KPI the eye should
+  land on first (goal attainment, pace, composite scorecard, team health).
+- **`AchievementBar`** — bold horizontal attainment (18–24px track, glossy fill + glow,
+  a large ≥18px tabular percent, milestone ticks). For dashboards, training, certs, bonus pools.
+- **`ProgressRing`** — 80–120px with an 11–14px stroke and a bold center value; compact (≤64px) only inside dense tables.
+- **`GoalSlider`** — 18px track, 34px thumb. Color may be driven by real on-track **pace**
+  (projected vs goal) via `accentColor`, not just thumb position.
+- **`MilestoneStepper`** — a journey as connected nodes (done / current / ahead): HR pipeline, onboarding, certification steps.
+- **`KpiMeter`** — scorecard KPI as actual-vs-target with a clearly visible (≥2px, full-opacity) target marker; met in green, short of target on the Signal ramp.
+- **`StreakFlame`** + **count-ups** — sanctioned motivators. **Buzz** (§8) still marks the *arrival* only.
 
-Rules: calm motion only (CSS width/stroke transitions, ~700ms ease-out, all
+Rules: calm, purposeful motion (CSS width/stroke transitions, ~700ms ease-out, all
 `motion-reduce` safe); always expose the real number alongside the visual; every
-bar/ring carries an ARIA progressbar role. Encouraging copy, never guilt ("Almost
-there," "Building momentum" — not "behind").
+bar/ring/gauge carries an ARIA role. Encouraging copy, never guilt ("Almost there,"
+"Building momentum" — not "behind"). The live tokens are the `RAMP`/`RAMP_TEXT` arrays
+in `components/motivation.tsx` + `.goal-slider` in `app/globals.css`; keep this section
+in lockstep with them.
 
 ## 11. Copy-paste tokens
 ```css
