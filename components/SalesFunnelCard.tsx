@@ -3,6 +3,7 @@ import { money, qty } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { advisorStanding, teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type StageStatus } from "@/lib/sales-funnel";
 import SalesCoachButton from "@/components/SalesCoachButton";
+import { AchievementBar, encouragement } from "@/components/motivation";
 
 const STATUS: Record<StageStatus, { bar: string; pill: string; label: string }> = {
   on: { bar: "bg-emerald-500", pill: "bg-emerald-100 text-emerald-700", label: "On track" },
@@ -75,6 +76,27 @@ export default async function SalesFunnelCard({ advisorEmployeeId, periodKey }: 
           {standing.badges.map((b) => (
             <span key={b.label} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${TONE[b.tone] ?? TONE.brand}`}>{b.emoji} {b.label}</span>
           ))}
+        </div>
+      ) : null}
+
+      {/* Attainment — your closed $ against this month's goal, plus each funnel
+          stage against its own target. On-brand encouragement ramp (motivation
+          kit); the real numbers stay in view. Shown once a goal is set. */}
+      {me.goal > 0 ? (
+        <div className="mb-4 rounded-xl border border-line bg-brand-50/40 p-3.5">
+          <AchievementBar
+            label="Goal attainment · closed $"
+            value={me.closed}
+            target={me.goal}
+            caption={`${money(me.closed)} of ${money(me.goal)} · ${encouragement(me.goal > 0 ? (me.closed / me.goal) * 100 : 0)}`}
+            size="lg"
+            milestones={[{ at: 25 }, { at: 50 }, { at: 75 }]}
+          />
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <AchievementBar size="sm" label="Leads" value={me.leads} target={me.leadsGoal} caption={`${me.leads} / ${me.leadsGoal || "—"}`} />
+            <AchievementBar size="sm" label="Proposals" value={me.proposals} target={me.propGoal} caption={`${me.proposals} / ${me.propGoal || "—"}`} />
+            <AchievementBar size="sm" label="Closed $" value={me.closed} target={me.goal} caption={`${money(me.closed)} / ${money(me.goal)}`} />
+          </div>
         </div>
       ) : null}
 

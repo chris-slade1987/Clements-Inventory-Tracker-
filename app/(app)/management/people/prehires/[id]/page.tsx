@@ -14,6 +14,7 @@ import {
   type Responses,
 } from "@/lib/prehire";
 import PreHireActions from "./PreHireActions";
+import { AchievementBar, MilestoneStepper, encouragement, type Step } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -70,27 +71,25 @@ export default async function PreHireDetailPage({ params }: { params: Promise<{ 
         </Card>
 
         <Card className="p-4">
-          <div className="text-sm font-medium text-ink mb-2">Progress</div>
-          <div className="text-sm text-muted mb-3">
-            {pre.status === "hired"
+          <div className="text-sm font-medium text-ink mb-3">Progress</div>
+          {(() => {
+            const stepsDone = done ? PACKET_STEPS.length : Math.min(pre.currentStep, PACKET_STEPS.length);
+            const steps: Step[] = PACKET_STEPS.map((step, i) => ({
+              label: step.title,
+              state: done || pre.currentStep > i ? "done" : !done && pre.currentStep === i ? "current" : "todo",
+            }));
+            const caption = pre.status === "hired"
               ? "Completed and converted to an employee."
               : pre.status === "rejected"
-              ? "This pre-hire was rejected."
-              : `${Math.min(pre.currentStep, PACKET_STEPS.length)} of ${PACKET_STEPS.length} steps done.`}
-          </div>
-          <ol className="space-y-1.5">
-            {PACKET_STEPS.map((step, i) => {
-              const complete = pre.currentStep > i || done;
-              return (
-                <li key={step.key} className="flex items-center gap-2 text-sm">
-                  <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] ${complete ? "bg-emerald-100 text-emerald-700" : "bg-black/5 text-muted"}`}>
-                    {complete ? "✓" : i + 1}
-                  </span>
-                  <span className={complete ? "text-ink" : "text-muted"}>{step.title}</span>
-                </li>
-              );
-            })}
-          </ol>
+              ? "This pre-hire was closed."
+              : `${stepsDone} of ${PACKET_STEPS.length} steps done · ${encouragement((stepsDone / PACKET_STEPS.length) * 100)}`;
+            return (
+              <>
+                <AchievementBar className="mb-4" value={stepsDone} target={PACKET_STEPS.length} caption={caption} size="lg" />
+                <MilestoneStepper steps={steps} />
+              </>
+            );
+          })()}
         </Card>
       </div>
 

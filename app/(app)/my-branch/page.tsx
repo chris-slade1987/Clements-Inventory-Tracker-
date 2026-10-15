@@ -19,6 +19,7 @@ import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
 import FollowUps from "./FollowUps";
+import { AchievementBar, ProgressRing, encouragement } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,17 @@ export default async function MyBranchPage({
   const scScore = weightedScore(metState);
   const scScored = SCORECARD_METRICS.filter((m) => metState[m.key] != null).length;
 
+  // This period's recurring duties, for the momentum bar (only the ones with a
+  // real signal — QC has no completion feed yet, so it's left out rather than
+  // counted as always-incomplete).
+  const duties: boolean[] = [
+    !!weekly?.completed,
+    ...(insp.total > 0 ? [insp.pending === 0] : []),
+    warehouse.done,
+    ...(totalTraining > 0 ? [trainingDone] : []),
+  ];
+  const dutiesDone = duties.filter(Boolean).length;
+
   const scopeLabel = branch ? branchLabel(branch) : "All branches";
 
   // Employee + vehicle pick lists for the "+ Reminder" pop-up.
@@ -110,6 +122,33 @@ export default async function MyBranchPage({
       />
 
       <BulletinBanner />
+
+      {/* Momentum — this period's compliance at a glance, on the encouragement
+          ramp (motivation kit). Built from data already on the page; nothing is
+          invented where there's no feed (QC is omitted). */}
+      <Card className="p-4 mb-5">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="flex-1">
+            <AchievementBar
+              label="This period's duties complete"
+              value={dutiesDone}
+              target={duties.length}
+              caption={`${dutiesDone} of ${duties.length} recurring duties · ${encouragement(duties.length > 0 ? (dutiesDone / duties.length) * 100 : 0)}`}
+              size="lg"
+              milestones={duties.map((_, i) => ({ at: ((i + 1) / duties.length) * 100 }))}
+            />
+          </div>
+          <div className="flex items-center justify-around gap-5 sm:justify-start">
+            {insp.total > 0 ? (
+              <RingStat label="Inspections" value={insp.completed} target={insp.total} />
+            ) : null}
+            <RingStat label={`Q${quarter} scorecard`} value={scScore} target={100} />
+            {totalTraining > 0 ? (
+              <RingStat label="Training" value={totalTraining - openTraining} target={totalTraining} />
+            ) : null}
+          </div>
+        </div>
+      </Card>
 
       {locked ? null : (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
@@ -366,6 +405,15 @@ function BranchPill({ href, label, active }: { href: string; label: string; acti
     <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>
       {label}
     </Link>
+  );
+}
+
+function RingStat({ label, value, target }: { label: string; value: number; target: number }) {
+  return (
+    <div className="flex flex-col items-center gap-1 text-center">
+      <ProgressRing value={value} target={target} size={58} stroke={7} />
+      <span className="text-[11px] text-muted">{label}</span>
+    </div>
   );
 }
 

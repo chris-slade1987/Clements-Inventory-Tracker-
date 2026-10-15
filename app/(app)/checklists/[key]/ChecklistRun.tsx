@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import { groupByCategory, type ChecklistItem, type ItemResult } from "@/lib/checklists";
+import { AchievementBar } from "@/components/motivation";
 
 type ExistingRecord = {
   signedName: string;
@@ -121,9 +122,19 @@ export default function ChecklistRun({
       ) : null}
 
       <Card className="p-0 overflow-hidden">
-        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-          <div className="text-sm font-medium text-ink">Progress</div>
-          <div className="text-sm tabular-nums text-muted">{doneCount}/{items.length} checked</div>
+        <div className="px-5 py-3 border-b border-line">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium text-ink">Progress</div>
+            <div className="text-sm tabular-nums text-muted">{doneCount}/{items.length} checked</div>
+          </div>
+          {/* Live, ramp-colored completion with a tick per item (motivation kit). */}
+          <AchievementBar
+            className="mt-2"
+            value={doneCount}
+            target={items.length}
+            showPercent={false}
+            milestones={items.map((_, i) => ({ at: ((i + 1) / items.length) * 100 }))}
+          />
         </div>
         {groups.map((g) => (
           <div key={g.category}>

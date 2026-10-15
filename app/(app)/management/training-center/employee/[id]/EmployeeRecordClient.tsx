@@ -8,6 +8,17 @@ import {
   type EmployeeRecord,
   type EmployeeAssignmentView,
 } from "@/lib/training-center-types";
+import { AchievementBar, MilestoneStepper, type Step } from "@/components/motivation";
+import { Buzz } from "@/components/Buzz";
+
+const isDone = (status: string) => status === "complete" || status === "credited";
+function moduleSteps(courses: { code: string; status: string }[]): Step[] {
+  const firstTodo = courses.findIndex((c) => !isDone(c.status));
+  return courses.map((c, i) => ({
+    label: c.code,
+    state: isDone(c.status) ? "done" : i === firstTodo ? "current" : "todo",
+  }));
+}
 
 const STATUS_CHIP: Record<string, string> = {
   assigned: "bg-slate-100 text-slate-700",
@@ -77,6 +88,21 @@ export default function EmployeeRecordClient({ record }: { record: EmployeeRecor
           <EmptyState title="No active assignments" hint="Use the Assign tab to assign a module or a single course." />
         ) : (
           <div className="space-y-3">
+            {(() => {
+              const done = record.activeAssignments.reduce((s, a) => s + a.completeCount, 0);
+              const total = record.activeAssignments.reduce((s, a) => s + a.totalCount, 0);
+              const anyComplete = record.activeAssignments.some((a) => a.totalCount > 0 && a.completeCount >= a.totalCount);
+              return (
+                <Card className="p-4">
+                  <div className="flex items-center gap-4">
+                    {anyComplete ? <Buzz size={52} className="shrink-0" title="Module complete" /> : null}
+                    <div className="flex-1">
+                      <AchievementBar label="Certification progress" value={done} target={total} caption={`${done} of ${total} courses complete`} size="lg" />
+                    </div>
+                  </div>
+                </Card>
+              );
+            })()}
             {record.activeAssignments.map((a) => (
               <AssignmentCard
                 key={a.id}
@@ -222,6 +248,8 @@ function AssignmentCard({
           {a.completeCount}/{a.totalCount} done
         </span>
       </div>
+      <AchievementBar className="mb-3" value={a.completeCount} target={a.totalCount} showPercent={false} size="sm" />
+      {a.courses.length > 1 ? <MilestoneStepper className="mb-3 px-1" steps={moduleSteps(a.courses)} /> : null}
       {a.prereqNote ? (
         <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{a.prereqNote}</div>
       ) : null}

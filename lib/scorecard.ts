@@ -487,6 +487,7 @@ export type ScorecardRow = {
   note: string | null;
   suggested: boolean | null;
   detail: string | null;
+  direction?: Direction; // passthrough of the metric's good-direction, for display
 };
 
 /**
@@ -551,6 +552,7 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
       note: savedRow.note,
       suggested,
       detail,
+      direction: m.direction,
     };
   });
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { btn } from "@/components/ui";
 import Markdown from "@/components/Markdown";
 import type { PacketStep, Responses, StepResponse } from "@/lib/prehire";
+import { AchievementBar, MilestoneStepper, encouragement, type Step } from "@/components/motivation";
 
 export default function OnboardingWizard({
   token,
@@ -112,14 +113,25 @@ export default function OnboardingWizard({
 
   return (
     <Panel>
-      {/* Header + progress */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between text-xs text-slate-500">
+      {/* Header + progress — your onboarding journey as a milestone stepper with an
+          encouraging attainment bar (motivation kit). */}
+      <div className="mb-5">
+        <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
           <span>Welcome, {candidateName}</span>
           <span>{onReview ? "Review" : `Step ${idx + 1} of ${total}`}</span>
         </div>
-        <div className="mt-2 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-          <div className="h-full rounded-full bg-emerald-600 transition-all" style={{ width: `${progressPct}%` }} />
+        <AchievementBar
+          value={Math.min(idx, total)}
+          target={total}
+          caption={onReview ? "All steps done — review & submit" : encouragement(progressPct)}
+        />
+        <div className="mt-4">
+          <MilestoneStepper
+            steps={steps.map((s, i): Step => ({
+              label: s.title,
+              state: onReview || i < idx ? "done" : i === idx ? "current" : "todo",
+            }))}
+          />
         </div>
       </div>
 

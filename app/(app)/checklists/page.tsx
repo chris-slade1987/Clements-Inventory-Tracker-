@@ -3,6 +3,7 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { checklistStatusForBranch, fridayLabel, endOfMonthLabel } from "@/lib/checklists";
+import { AchievementBar, encouragement } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function ChecklistsPage({
 
   const now = new Date();
   const statuses = await checklistStatusForBranch(branch, now);
+  const doneCount = statuses.filter((s) => s.completed).length;
 
   return (
     <>
@@ -44,6 +46,21 @@ export default async function ChecklistsPage({
         title="Oversight checklists"
         subtitle={`${branchLabel(branch)} · complete each period top to bottom, then sign off`}
       />
+
+      {/* This period's sign-offs at a glance — ramp-colored attainment with a tick
+          per checklist (motivation kit). */}
+      {statuses.length > 0 ? (
+        <Card className="p-4 mb-4">
+          <AchievementBar
+            label="This period's sign-offs"
+            value={doneCount}
+            target={statuses.length}
+            caption={`${doneCount} of ${statuses.length} complete · ${encouragement((doneCount / statuses.length) * 100)}`}
+            size="lg"
+            milestones={statuses.map((_, i) => ({ at: ((i + 1) / statuses.length) * 100 }))}
+          />
+        </Card>
+      ) : null}
 
       {locked ? null : (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">

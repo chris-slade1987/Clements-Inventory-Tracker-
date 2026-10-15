@@ -3,6 +3,22 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { getEmployeeRecord, COURSE_STATUS_LABEL } from "@/lib/training-center";
+import { AchievementBar, MilestoneStepper, type Step } from "@/components/motivation";
+import { Buzz } from "@/components/Buzz";
+
+// A certification course counts as "done" once complete or credited.
+function courseStep(status: string): Step["state"] {
+  return status === "complete" || status === "credited" ? "done" : "todo";
+}
+// Build the module's course sequence as stepper nodes, marking the first
+// unfinished course as the current one.
+function moduleSteps(courses: { code: string; status: string }[]): Step[] {
+  const firstTodo = courses.findIndex((c) => courseStep(c.status) !== "done");
+  return courses.map((c, i) => ({
+    label: c.code,
+    state: courseStep(c.status) === "done" ? "done" : i === firstTodo ? "current" : "todo",
+  }));
+}
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Training — CanopyOS" };
@@ -31,6 +47,10 @@ export default async function MyTrainingPage() {
     employeeAssignments(user.employeeId),
   ]);
   const ceuOpen = ceu.filter((a) => a.status !== "completed");
+  const activeMods = record?.activeAssignments ?? [];
+  const certDone = activeMods.reduce((s, a) => s + a.completeCount, 0);
+  const certTotal = activeMods.reduce((s, a) => s + a.totalCount, 0);
+  const anyModuleComplete = activeMods.some((a) => a.totalCount > 0 && a.completeCount >= a.totalCount);
 
   return (
     <>
@@ -58,6 +78,22 @@ export default async function MyTrainingPage() {
         <EmptyState title="No active certification modules" hint="When HR assigns you a module, your course list and progress will show here." />
       ) : (
         <div className="mb-6 space-y-3">
+          {/* Overall certification progress across active modules + a Buzz welcome
+              when a module is fully done (celebration mascot marks arrival only). */}
+          <Card className="p-4">
+            <div className="flex items-center gap-4">
+              {anyModuleComplete ? <Buzz size={56} className="shrink-0" title="A module complete — nice work!" /> : null}
+              <div className="flex-1">
+                <AchievementBar
+                  label="Certification progress"
+                  value={certDone}
+                  target={certTotal}
+                  caption={`${certDone} of ${certTotal} courses complete across your active modules`}
+                  size="lg"
+                />
+              </div>
+            </div>
+          </Card>
           {record.activeAssignments.map((a) => (
             <Card key={a.id} className="p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
@@ -71,6 +107,8 @@ export default async function MyTrainingPage() {
                 </div>
                 <span className="shrink-0 text-xs text-muted tabular-nums">{a.completeCount}/{a.totalCount} done</span>
               </div>
+              <AchievementBar className="mb-3" value={a.completeCount} target={a.totalCount} showPercent={false} size="sm" />
+              {a.courses.length > 1 ? <MilestoneStepper className="mb-3 px-1" steps={moduleSteps(a.courses)} /> : null}
               {a.prereqNote ? (
                 <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{a.prereqNote}</div>
               ) : null}

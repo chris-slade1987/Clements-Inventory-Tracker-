@@ -5,6 +5,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import ScorecardSignatures, { type SigLite } from "./ScorecardSignatures";
+import { AchievementBar, ProgressRing, KpiMeter, encouragement } from "@/components/motivation";
+
+// The quarterly manager bonus pool a 100% scorecard pays out — mirrors
+// MANAGER_BONUS_TARGET / bonusEarned() in lib/scorecard.ts (kept inline here so
+// this client component doesn't pull the server lib into the browser bundle).
+const BONUS_POOL = 1500;
 
 type Row = {
   key: string;
@@ -19,6 +25,7 @@ type Row = {
   note: string | null;
   suggested: boolean | null;
   detail?: string | null;
+  direction?: "higher" | "lower";
 };
 
 export type ReviewSerialized = {
@@ -131,6 +138,20 @@ export default function ScorecardClient({
 
   const earned = rows.reduce((s, r) => s + (state[r.key]?.met === true ? r.weight : 0), 0);
   const scored = rows.filter((r) => state[r.key]?.met != null).length;
+  // The weighted score that drives the summary + bonus (archived is locked).
+  const scoreVal = isArchived && review?.score != null ? review.score : earned;
+  const bonus = Math.round((scoreVal / 100) * BONUS_POOL);
+  // Auto KPIs with real numbers (actual + budget target). KpiMeter encodes
+  // higher-is-better, so "lower is better" metrics (attrition, cancellations)
+  // get an honest vs-ceiling readout instead of a bar that would look green when
+  // they're actually over target.
+  const numericAuto = rows.filter((r) => r.type === "auto" && r.actual != null && r.budgetTarget != null);
+  const meterRows = numericAuto.filter((r) => r.direction !== "lower");
+  const ceilingRows = numericAuto.filter((r) => r.direction === "lower");
+  const kpiFmt = (unit: string | null) => (v: number) =>
+    unit === "pct" ? `${v.toFixed(1)}%` : unit === "count" ? Math.round(v).toLocaleString() : money(v);
+  // Direction-correct "met" for display (live toggle, else the auto suggestion).
+  const metOf = (r: Row) => state[r.key]?.met ?? r.suggested ?? undefined;
   const sigs = review?.signatures ?? [];
   const supervisorSig = sigs.find((s) => s.role === "reviewer");
   const managerSig = sigs.find((s) => s.role === "manager");
@@ -270,6 +291,63 @@ export default function ScorecardClient({
           </div>
         </div>
       </div>
+
+      {/* Momentum summary (motivation kit) — the weighted score as a ring, the
+          bonus pool as attainment, and each measurable KPI as actual-vs-target.
+          Presentational only; scoring is unchanged. Hidden on the printed form. */}
+      <Card className="p-4 mb-4 print:hidden">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+          <div className="flex items-center gap-4 shrink-0">
+            <ProgressRing value={scoreVal} size={92} stroke={9} />
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted">Weighted score</div>
+              <div className="text-sm text-ink">{encouragement(scoreVal)}</div>
+              <div className="text-[11px] text-muted">{scored} of {rows.length} metrics scored</div>
+            </div>
+          </div>
+          <div className="flex-1">
+            <AchievementBar
+              label="Quarterly bonus pool"
+              value={bonus}
+              target={BONUS_POOL}
+              caption={`${money(bonus)} of ${money(BONUS_POOL)} — scales with the weighted score`}
+              size="lg"
+              milestones={[{ at: 25 }, { at: 50 }, { at: 75 }]}
+            />
+          </div>
+        </div>
+        {meterRows.length > 0 || ceilingRows.length > 0 ? (
+          <div className="mt-5 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+            {meterRows.map((r) => (
+              <KpiMeter
+                key={r.key}
+                label={r.label}
+                value={r.actual as number}
+                target={r.budgetTarget as number}
+                met={metOf(r)}
+                format={kpiFmt(r.unit)}
+              />
+            ))}
+            {ceilingRows.map((r) => {
+              const met = metOf(r);
+              const fmt = kpiFmt(r.unit);
+              return (
+                <div key={r.key}>
+                  <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                    <span className="text-sm font-light text-ink">{r.label} <span className="text-[11px] text-muted">(lower is better)</span></span>
+                    <span className="text-xs tabular-nums text-muted">
+                      <span className="font-medium" style={{ color: met === false ? "#B5654D" : "#2E6F47" }}>{fmt(r.actual as number)}</span> / {fmt(r.budgetTarget as number)} ceiling
+                    </span>
+                  </div>
+                  <div className="text-[11px]" style={{ color: met === false ? "#B5654D" : met ? "#2E6F47" : "var(--muted)" }}>
+                    {met === false ? "Over the ceiling" : met ? "Under the ceiling — on target" : "Awaiting review"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </Card>
 
       {isArchived ? (
         <div className="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">

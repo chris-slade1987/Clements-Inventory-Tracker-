@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import { money, qty } from "@/lib/format";
 import { deriveRates, buildPlan, type GoalSheetInput } from "@/lib/sales-goal";
+import GoalSlider from "@/components/GoalSlider";
 
 // A friendly, plain-language rebuild of the Sales Director's Excel goal sheet.
 // Two steps — last month's results, then this month's goal — and a live
@@ -113,12 +114,31 @@ export default function GoalPlanner({
               <h2 className="text-base font-semibold text-ink">This month&apos;s goal</h2>
             </div>
             <p className="text-xs text-muted mb-4">What are you going for this month, and how many days will you work?</p>
+            {/* Sales goal — drag to set (motivation kit). Saves the same value
+                through the same submit path; the fill climbs the encouragement
+                ramp toward the stretch target as the goal rises. */}
+            <div className="rounded-xl border border-line bg-white/60 p-4 mb-3">
+              {canEdit ? (
+                <GoalSlider
+                  id="salesGoal"
+                  label="Sales goal this month"
+                  value={v.salesGoal}
+                  onChange={(n) => set("salesGoal", String(n))}
+                  min={0}
+                  max={150000}
+                  step={500}
+                  rampCeiling={100000}
+                  format={(n) => money(n)}
+                />
+              ) : (
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm font-light text-ink">Sales goal this month</span>
+                  <span className="text-lg font-medium tabular-nums text-ink">{money(v.salesGoal)}</span>
+                </div>
+              )}
+              <p className="mt-2 text-[11px] text-muted">Drag to set your target — most advisors aim for $50,000+ a month.</p>
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-sm">
-                <span className="font-medium text-ink">Sales goal this month</span>
-                {numInput("salesGoal", "money")}
-                <span className="mt-0.5 block text-[11px] text-muted">e.g. $50,000</span>
-              </label>
               <label className="block text-sm">
                 <span className="font-medium text-ink">Workdays this month</span>
                 {numInput("workdays", "count")}

@@ -13,6 +13,7 @@ import { resolveRange } from "@/lib/sales-leads";
 import { smarterLaunchConfigured } from "@/lib/smarterlaunch";
 import FunnelEntryButton from "./FunnelEntryButton";
 import SalesDirectorTools from "./SalesDirectorTools";
+import { AchievementBar, ProgressRing, rampColor, encouragement } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,10 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const range = resolveRange(sp.range, sp.from, sp.to);
   const periodKey = currentPeriodKey();
   const { advisorRows, byBranch, totals, actuals } = await salesDirectorDashboard(periodKey, branch);
-  const { rows: funnelRows } = await teamFunnel(periodKey, branch);
+  const { rows: funnelRows, totals: funnelTotals } = await teamFunnel(periodKey, branch);
   const boards = buildLeaderboards(funnelRows);
+  const teamAttainPct = funnelTotals.goal > 0 ? (funnelTotals.closed / funnelTotals.goal) * 100 : 0;
+  const goalsSetPct = funnelTotals.advisors > 0 ? (funnelTotals.withGoal / funnelTotals.advisors) * 100 : 0;
   const pLabel = periodLabel(periodKey);
   const pace = salesPace(periodKey);
   const demoCount = await prisma.salesPeriodStat.count({ where: { periodKey, source: "demo" } });
@@ -105,6 +108,47 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <Tile label="Closed (YTD)" value={m(totals.closed)} />
         <Tile label="Open pipeline" value={m(totals.pipeline)} />
       </div>
+
+      {/* Team momentum — this month's attainment against goal, with the on-brand
+          encouragement ramp (motivation kit). Rings show the two numbers the
+          director steers: dollars closed vs goal, and how many advisors are set. */}
+      {funnelRows.length > 0 && (funnelTotals.goal > 0 || funnelTotals.advisors > 0) ? (
+        <Card className="p-4 mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            {funnelTotals.goal > 0 ? (
+              <div className="flex items-center gap-4 shrink-0">
+                <ProgressRing value={funnelTotals.closed} target={funnelTotals.goal} size={76} stroke={8} />
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted">Team attainment</div>
+                  <div className="text-sm text-ink">{encouragement(teamAttainPct)}</div>
+                </div>
+              </div>
+            ) : null}
+            <div className="flex-1 space-y-3">
+              {funnelTotals.goal > 0 ? (
+                <AchievementBar
+                  label="Closed vs team goal"
+                  value={funnelTotals.closed}
+                  target={funnelTotals.goal}
+                  caption={`${money(funnelTotals.closed)} of ${money(funnelTotals.goal)} this month`}
+                  milestones={[{ at: 25 }, { at: 50 }, { at: 75 }]}
+                />
+              ) : null}
+              <AchievementBar
+                label="Advisors with a goal set"
+                value={funnelTotals.withGoal}
+                target={funnelTotals.advisors}
+                caption={`${funnelTotals.withGoal} of ${funnelTotals.advisors} advisors`}
+                tone="brand"
+              />
+            </div>
+            <div className="shrink-0 text-center">
+              <ProgressRing value={goalsSetPct} tone="brand" size={60} stroke={7} />
+              <div className="mt-1 text-[11px] text-muted">Goals set</div>
+            </div>
+          </div>
+        </Card>
+      ) : null}
 
       {/* Lead geographic heat map + lead-source performance (company-wide, honors
           the branch filter and the date-range control). */}
@@ -308,6 +352,8 @@ function HealthDot({ s }: { s: StageStatus }) {
 function MiniBoard({ title, emoji, rows, fmt }: { title: string; emoji: string; rows: { advisor: { id: string; name: string }; value: number; rank: number }[]; fmt: (n: number) => string }) {
   const top = rows.filter((r) => r.value > 0).slice(0, 5);
   const medal = (rank: number) => (rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`);
+  // Ramp-colored mini-bar per row, scaled to the board leader (motivation kit).
+  const max = Math.max(1, ...top.map((r) => r.value));
   return (
     <Card className="p-0 overflow-hidden">
       <div className="px-4 py-2.5 border-b border-line text-sm font-medium text-ink flex items-center gap-2"><span>{emoji}</span>{title}</div>
@@ -315,13 +361,21 @@ function MiniBoard({ title, emoji, rows, fmt }: { title: string; emoji: string; 
         <p className="px-4 py-6 text-center text-xs text-muted">No data yet this month.</p>
       ) : (
         <ul className="divide-y divide-line">
-          {top.map((r) => (
-            <li key={r.advisor.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-              <span className="w-6 text-center">{medal(r.rank)}</span>
-              <span className="flex-1 truncate">{r.advisor.name}</span>
-              <span className="tabular-nums font-medium text-ink">{fmt(r.value)}</span>
-            </li>
-          ))}
+          {top.map((r) => {
+            const share = (r.value / max) * 100;
+            return (
+              <li key={r.advisor.id} className="px-4 py-2 text-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-6 text-center">{medal(r.rank)}</span>
+                  <span className="flex-1 truncate">{r.advisor.name}</span>
+                  <span className="tabular-nums font-medium text-ink">{fmt(r.value)}</span>
+                </div>
+                <div className="mt-1 ml-9 h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(4, share)}%`, background: rampColor(share) }} />
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </Card>
