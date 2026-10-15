@@ -438,25 +438,18 @@ export async function finalizeScorecard(reviewId: string, actorName: string) {
   const empEmail = emp ? (await prisma.employee.findUnique({ where: { id: emp.id }, select: { email: true, user: { select: { email: true } } } })) : null;
   const managerEmail = empEmail?.email || empEmail?.user?.email || null;
 
-  // 1) HR director → pay the bonus next cycle (once per archive). The dollar
-  // figure is spelled out so payroll can act without re-deriving it.
+  // 1) ONE notice to HR + leadership: completed/archived, filed, and the bonus to
+  // pay — merged so HR no longer gets a separate "bonus" + "archived" pair for a
+  // single finalize. The dollar figure is spelled out so payroll can act directly.
   const bonusStr = `$${bonus.toLocaleString()}`;
   const poolStr = `$${MANAGER_BONUS_TARGET.toLocaleString()}`;
+  const finalizeRecipients = [...new Set([hrDirectorEmail(), ...(await notifyList("note"))].filter(Boolean) as string[])];
   await sendEmail({
-    to: hrDirectorEmail(),
-    subject: `Bonus payout due: ${b} Q${quarter} ${year} manager scorecard — ${score}% = ${bonusStr}`,
+    to: finalizeRecipients,
+    subject: `Manager scorecard ${wasEdit ? "UPDATED" : "completed"}: ${b} Q${quarter} ${year} — ${score}% (bonus ${bonusStr})`,
     kind: "scorecard_bonus", relatedType: "scorecard_review", relatedId: review.id,
-    text: `The Q${quarter} ${year} manager scorecard for ${b} is complete and signed.\n\nScore: ${score}%\nQuarterly bonus earned: ${bonusStr} of ${poolStr} (${score}% of the pool)\n\nPlease pay ${emp?.name ?? "the branch manager"} ${bonusStr} on the next payroll cycle.\n\n${link}\n\n— CanopyOS`,
-    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> is complete and signed.</p><p>Score: <strong>${score}%</strong><br/>Quarterly bonus earned: <strong>${bonusStr}</strong> of ${poolStr} (${score}% of the pool)</p><p>Please pay ${emp?.name ?? "the branch manager"} <strong>${bonusStr}</strong> on the next payroll cycle.</p><p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
-  }).catch(() => null);
-
-  // 2) Leadership/HR list → filed.
-  await sendEmail({
-    to: await notifyList("note"),
-    subject: `Manager scorecard ${wasEdit ? "UPDATED" : "completed"}: ${b} Q${quarter} ${year} — ${score}%`,
-    kind: "scorecard_archived", relatedType: "scorecard_review", relatedId: review.id,
-    text: `The Q${quarter} ${year} manager scorecard for ${b} was ${wasEdit ? "edited and re-published" : "completed and archived"} by ${actorName}. Score: ${score}%.${emp ? `\n\nFiled to ${emp.name}'s personnel record + the branch hub.` : ""}\n\n${link}\n\n— CanopyOS`,
-    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> was ${wasEdit ? "<strong>edited and re-published</strong>" : "completed and archived"} by ${actorName}. Score: <strong>${score}%</strong>.</p>${emp ? `<p>Filed to <strong>${emp.name}</strong>'s personnel record + the branch hub.</p>` : ""}<p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
+    text: `The Q${quarter} ${year} manager scorecard for ${b} is ${wasEdit ? "edited and re-published" : "complete and signed"} (by ${actorName}).\n\nScore: ${score}%\nQuarterly bonus earned: ${bonusStr} of ${poolStr} (${score}% of the pool)\n\nPlease pay ${emp?.name ?? "the branch manager"} ${bonusStr} on the next payroll cycle.${emp ? `\nFiled to ${emp.name}'s personnel record + the branch hub.` : ""}\n\n${link}\n\n— CanopyOS`,
+    html: `<p>The <strong>Q${quarter} ${year}</strong> manager scorecard for <strong>${b}</strong> is ${wasEdit ? "<strong>edited and re-published</strong>" : "complete and signed"} (by ${actorName}).</p><p>Score: <strong>${score}%</strong><br/>Quarterly bonus earned: <strong>${bonusStr}</strong> of ${poolStr} (${score}% of the pool)</p><p>Please pay ${emp?.name ?? "the branch manager"} <strong>${bonusStr}</strong> on the next payroll cycle.</p>${emp ? `<p>Filed to <strong>${emp.name}</strong>'s personnel record + the branch hub.</p>` : ""}<p><a href="${link}">View scorecard →</a></p><p>— CanopyOS</p>`,
   }).catch(() => null);
 
   // 3) Edited-after-archive → notify every admin + the manager that it CHANGED.
