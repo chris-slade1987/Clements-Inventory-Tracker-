@@ -45,7 +45,13 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 23 · Last updated October 13, 2026",
+    effective: "Version 25 · Last updated October 15, 2026",
+    // v25: reconciled the Sales Team section for the motivation-kit v2 goal-sheet
+    // rework — the My Sales Goals pace speedometer (projected month-end close vs
+    // goal, colored by REAL on-track pace so dragging the goal no longer fakes the
+    // color; neutral "Awaiting results" until closed $ flow), close-rate rings, and
+    // the Sales Director's non-destructive "propose a goal" / advisor "accept"
+    // co-goal-setting with the Advisor-set / Director-proposed / Agreed status chip.
     // v23: added the Certifications subsection — the read-only Management →
     // Certifications console (admin / HR / senior leadership) for browsing the
     // internal certification program's structure (certifications, modules,
@@ -108,7 +114,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 24,
+    version: 25,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

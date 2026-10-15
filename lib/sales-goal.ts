@@ -105,6 +105,60 @@ export const EMPTY_RECAP: RecapInputs = {
   reis: 0, appts: 0, proposals: 0, pcExposed: 0, pcSold: 0, tcSold: 0, totalExposure: 0, tcUnits: 0,
 };
 
+// ---------------------------------------------------------------------------
+// On-track PACE — project the month-end close from real actuals, so the goal
+// sheet colors by whether the plan is realistically on pace (projected vs goal)
+// rather than by where the goal slider's thumb happens to sit. Pure + testable.
+// ---------------------------------------------------------------------------
+
+/** The live signal needed to project a month-end close. */
+export type PaceInput = {
+  closedSoFar: number; // $ closed so far this month (actuals-to-date)
+  priorClose: number;  // $ closed last month (a prior anchor; 0 if unknown)
+  paceFrac: number;    // fraction of the month elapsed (0..1); 1 = month over
+};
+
+/**
+ * Project this month's final closed $ by blending the current run-rate with
+ * last month's close as a prior. Early in the month the run-rate is noisy, so we
+ * lean on last month; as the month fills in we trust the run-rate. Weight on the
+ * run-rate = fraction of the month elapsed.
+ *   runRate   = closedSoFar / paceFrac          (linear extrapolation)
+ *   projected = paceFrac·runRate + (1−paceFrac)·priorClose
+ * With no prior to blend, the run-rate stands alone; a completed month returns
+ * the actual close; a not-yet-started month returns the prior.
+ */
+export function projectMonthEndClose(input: PaceInput): number {
+  const pace = Math.min(1, Math.max(0, input.paceFrac || 0));
+  const closed = Math.max(0, input.closedSoFar || 0);
+  const prior = Math.max(0, input.priorClose || 0);
+  if (pace >= 0.999) return closed;   // month complete — the actual is the result
+  if (pace <= 0) return prior;        // month not started — last month is the best estimate
+  const runRate = closed / pace;      // extrapolate today's rate across the month
+  if (prior <= 0) return runRate;     // nothing to blend against
+  return pace * runRate + (1 - pace) * prior;
+}
+
+/** Projected close as a fraction of the goal (projected ÷ goal). 0 if no goal. */
+export function paceRatio(projected: number, goal: number): number {
+  return goal > 0 ? Math.max(0, projected) / goal : 0;
+}
+
+/**
+ * A truthful, encouraging word for an on-track pace ratio (projected ÷ goal).
+ * The color ramp carries the behind/watch/on signal; the words stay positive
+ * (brand kit §12: encourage, don't guilt).
+ */
+export function paceStatusWord(ratio: number): string {
+  if (ratio >= 1.05) return "Ahead of goal";
+  if (ratio >= 0.98) return "On track";
+  if (ratio >= 0.85) return "Nearly on pace";
+  if (ratio >= 0.6) return "Climbing";
+  if (ratio >= 0.3) return "Building momentum";
+  if (ratio > 0) return "Getting started";
+  return "Awaiting results";
+}
+
 // Clements service lines (from the Pre-list), for goal breakdowns + future
 // actual-vs-target once the sales API is connected.
 export const PC_SERVICES = [

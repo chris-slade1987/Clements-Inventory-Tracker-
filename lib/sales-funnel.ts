@@ -157,6 +157,25 @@ export function projectClose(r: AdvisorFunnel, pace: number): number {
   return pace > 0 ? r.closed / pace : r.closed;
 }
 
+/**
+ * The live on-track signal for one advisor's goal sheet: closed $ so far this
+ * month, last month's close (a prior), and the fraction of the month elapsed.
+ * Feeds `projectMonthEndClose` so the goal slider/gauge color by REAL pace
+ * (projected vs goal), not by where the goal thumb sits. `hasActuals` is false
+ * when there is no closed data at all yet (don't fake a green/red signal then).
+ */
+export async function advisorPaceSignal(advisorEmployeeId: string, periodKey: string) {
+  const prevKey = priorPeriodKey(periodKey);
+  const [cur, prev] = await Promise.all([
+    prisma.salesPeriodStat.findUnique({ where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } }, select: { closedAmount: true } }),
+    prisma.salesPeriodStat.findUnique({ where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey: prevKey } }, select: { closedAmount: true } }),
+  ]);
+  const closedSoFar = Math.max(0, cur?.closedAmount ?? 0);
+  const priorClose = Math.max(0, prev?.closedAmount ?? 0);
+  return { closedSoFar, priorClose, paceFrac: salesPace(periodKey), hasActuals: closedSoFar > 0 || priorClose > 0 };
+}
+export type AdvisorPaceSignal = Awaited<ReturnType<typeof advisorPaceSignal>>;
+
 export type Rank = { advisor: Advisor; value: number; rank: number };
 export type Leaderboards = { leads: Rank[]; proposals: Rank[]; closed: Rank[]; mostImproved: { advisor: Advisor; delta: number } | null };
 
