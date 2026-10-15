@@ -19,6 +19,7 @@ import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
 import FollowUps from "./FollowUps";
+import MyBranchViewToggle from "./MyBranchViewToggle";
 import { AchievementBar, ProgressRing, encouragement } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
@@ -120,6 +121,8 @@ export default async function MyBranchPage({
         title={`Welcome, ${user.name?.split(" ")[0] ?? "Manager"}`}
         subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
       />
+
+      <MyBranchViewToggle view="todos" branchQuery={branch ? `?branch=${branch}` : ""} />
 
       <BulletinBanner />
 
