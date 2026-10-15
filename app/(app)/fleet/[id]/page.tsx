@@ -17,6 +17,7 @@ import AssignDriver from "./AssignDriver";
 import EditVehicle from "./EditVehicle";
 import VehicleDocuments from "./VehicleDocuments";
 import RemindersCard from "@/components/RemindersCard";
+import { ProgressRing } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,27 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             current={{ disposition: v.disposition, dispositionDate: v.dispositionDate ? v.dispositionDate.toISOString() : null, salePrice: v.salePrice, dispositionNotes: v.dispositionNotes }}
           />
         </div>
+      ) : null}
+
+      {/* Upkeep — monthly inspection cadence at a glance (motivation kit). */}
+      {v.status === "active" ? (
+        <Card className="p-4 mb-5">
+          <div className="flex items-center gap-5">
+            <ProgressRing
+              value={inspections.filter((i) => i.year === now.getFullYear()).length}
+              target={now.getMonth() + 1}
+              size={72}
+              stroke={10}
+            />
+            <div>
+              <div className="text-sm font-medium text-ink">Inspection cadence · {now.getFullYear()}</div>
+              <div className="text-xs text-muted">
+                {inspections.filter((i) => i.year === now.getFullYear()).length} of {now.getMonth() + 1} months logged ·{" "}
+                {thisMonthDone ? <span className="text-brand-700 font-medium">this month done</span> : <span className="text-amber-600 font-medium">this month pending</span>}
+              </div>
+            </div>
+          </div>
+        </Card>
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2 mb-5">

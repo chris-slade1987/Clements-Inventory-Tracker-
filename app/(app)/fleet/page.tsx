@@ -6,6 +6,7 @@ import { money, dateShort } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
 import { managerReminders } from "@/lib/reminders";
+import { Gauge, ProgressRing } from "@/components/motivation";
 import FleetControls from "./FleetControls";
 
 export const dynamic = "force-dynamic";
@@ -152,6 +153,29 @@ export default async function FleetPage({
             <Tile label="Avg cost / mile" value={avgCpm == null ? "—" : `$${avgCpm.toFixed(3)}`} />
             <Tile label="Due for service" value={String(dueSoon.length)} tone={dueSoon.length > 0 ? "warn" : undefined} />
           </div>
+
+          {/* Fleet health — the readiness of the fleet at a glance (motivation kit):
+              a speedometer for service-current, rings for assignment coverage. */}
+          <Card className="p-5 mb-5">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-around">
+              <Gauge
+                value={active.length - dueSoon.length}
+                target={active.length || 1}
+                label="Service-current"
+                format={(pct) => `${Math.round(pct)}%`}
+              />
+              <div className="flex items-center gap-8">
+                <div className="flex flex-col items-center gap-1.5">
+                  <ProgressRing value={active.filter((v) => (v.assignedTo ?? "").trim()).length} target={active.length || 1} />
+                  <span className="text-xs text-muted">Drivers assigned</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <ProgressRing value={active.length - dueSoon.length} target={active.length || 1} />
+                  <span className="text-xs text-muted">Up to date</span>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           <Card className="p-0 overflow-hidden">
             <div className="overflow-x-auto">
