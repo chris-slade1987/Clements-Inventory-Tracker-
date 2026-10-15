@@ -4,6 +4,7 @@ import AppShell from "@/components/AppShell";
 import { requireUser, isBoardObserver, isServiceAdvisor, isFieldOpsDirector, passwordChangeOverdue, PASSWORD_GRACE_MS, PASSWORD_POLICY_ENFORCED } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
+import { canManageAccessRights } from "@/lib/access";
 import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
 
@@ -55,6 +56,7 @@ export default async function AppGroupLayout({
       isSalesDirector={user.accessLevel === "sales_director" && user.role !== "admin"}
       isServiceAdvisor={isServiceAdvisor(user)}
       isFieldOpsDirector={isFieldOpsDirector(user)}
+      canManageAccessRights={canManageAccessRights(user)}
       unread={unread}
     >
       {demoMode ? <DemoModeBanner isAdmin={user.role === "admin"} /> : null}

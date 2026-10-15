@@ -55,6 +55,17 @@ Every change that adds or alters a workflow MUST, in the same change, update
 `prisma/data/handbook-suggestions.md` — never reword policy). The manual/handbook are
 launch-gated on a clean registry. See the **"Docs track the code"** directive in `AGENTS.md`.
 
+## Access Rights registry tracks the code
+
+The **Settings & Admin → Access Rights** screen (super admins only — Chris, Julie, April)
+is driven by `lib/access-catalog.ts` (`MODULES` + each level's `DEFAULT_GRANTS`) and resolved
+by `lib/access.ts`. **Any change that adds, renames, merges, moves, or removes a page, route,
+or tool, or that changes who can reach one, MUST update `lib/access-catalog.ts` in the SAME
+change** — add/rename/remove the item under the right module and set the affected levels'
+default grants — so the admin screen always mirrors the real portal. This is non-negotiable:
+the Access Rights matrix is only trustworthy if it stays in lockstep with the code. When you
+also add a new access level, add it to `LEVELS` and `DEFAULT_GRANTS` and to `deriveLevelKey()`.
+
 ## Next.js 16 note
 
 `cookies()`, `headers()`, and route `params` / `searchParams` are **async** —

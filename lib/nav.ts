@@ -207,6 +207,16 @@ export const USERS_ACCESS_NAV_ITEM: NavItem = {
   icon: "M12 2l7 3v6c0 4-3 7.5-7 9-4-1.5-7-5-7-9V5l7-3zM12 11a2 2 0 100-4 2 2 0 000 4zm-3.2 5a3.2 3.2 0 016.4 0",
 };
 
+// Access Rights — super-admin-only editor for each access level's default rights
+// and per-user overrides. A shield/key glyph. Lives in the Settings & Admin
+// footer links alongside Users & Access and Email Log.
+export const ACCESS_RIGHTS_NAV_ITEM: NavItem = {
+  href: "/settings/access-rights",
+  label: "Access Rights",
+  shortLabel: "Access Rights",
+  icon: "M12 2l8 3v6c0 4-3 7.5-8 9-5-1.5-8-5-8-9V5z M9 12l2 2 4-4",
+};
+
 // Email delivery log — admin-only audit of every outbound notification (sent /
 // skipped / errored). Surfaced as a de-emphasized settings link in the shell
 // footer, alongside Users & Access. An envelope-with-check glyph.

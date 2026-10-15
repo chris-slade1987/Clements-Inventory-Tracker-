@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, ACCESS_RIGHTS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -88,6 +88,7 @@ export default function AppShell({
   isSalesDirector = false,
   isServiceAdvisor = false,
   isFieldOpsDirector = false,
+  canManageAccessRights = false,
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -101,6 +102,7 @@ export default function AppShell({
   isSalesDirector?: boolean;
   isServiceAdvisor?: boolean;
   isFieldOpsDirector?: boolean;
+  canManageAccessRights?: boolean;
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -236,6 +238,7 @@ export default function AppShell({
   const MAX_PRIMARY = 4;
   const mobileExtras: NavItem[] = [
     ...resources,
+    ...(canManageAccessRights ? [ACCESS_RIGHTS_NAV_ITEM] : []),
     ...(isAdmin ? [USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM] : []),
   ];
   const needMore = items.length > MAX_PRIMARY || mobileExtras.length > 0;
@@ -379,6 +382,12 @@ export default function AppShell({
                 </>
               ) : null}
               <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-1">
+                {canManageAccessRights ? (
+                  <Link href={ACCESS_RIGHTS_NAV_ITEM.href} onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, ACCESS_RIGHTS_NAV_ITEM.href))}>
+                    <Icon path={ACCESS_RIGHTS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                    {ACCESS_RIGHTS_NAV_ITEM.label}
+                  </Link>
+                ) : null}
                 {isAdmin ? (
                   <>
                     <Link href={USERS_ACCESS_NAV_ITEM.href} onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
