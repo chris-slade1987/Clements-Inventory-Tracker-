@@ -7,7 +7,7 @@ export const ACCESS_LEVELS: { key: AccessLevelKey; label: string; blurb: string 
   { key: "super_admin", label: "Super Admin", blurb: "See & edit everything, all branches & employees." },
   { key: "admin", label: "Admin", blurb: "Admin reach, but personnel profiles limited to their team." },
   { key: "manager", label: "Manager", blurb: "Their branch only + read-only company KPIs." },
-  { key: "sales_director", label: "Sales Director", blurb: "Oversees service advisors & sales goals across all branches." },
+  { key: "sales_director", label: "Sales Director", blurb: "Admin-level reach: company + branch metrics, the sales team, and service advisors' profiles/reviews across all branches." },
   { key: "technician", label: "Technician", blurb: "Personal profile, training, tech dashboard." },
   { key: "csr", label: "CSR", blurb: "Customer service (scope TBD)." },
   { key: "sales", label: "Service Advisor", blurb: "Own sales dashboard, monthly goal planner, targets vs actual." },

@@ -30,7 +30,7 @@ export const LEVELS: AccessLevel[] = [
   { key: "manager", name: "Branch Manager", desc: "Their own branch only: dashboard, team, inspections, scorecard, checklists, and branch inventory/fleet." },
   { key: "senior", name: "Senior Leadership", desc: "Company executive views, compliance, and oversight; no day-to-day inventory or fleet operations." },
   { key: "hr", name: "HR", desc: "The full People/HR area, hiring, onboarding, reviews, PTO, and the certification program." },
-  { key: "sales_director", name: "Sales Director", desc: "Cross-branch sales team oversight and advisor goals." },
+  { key: "sales_director", name: "Sales Director", desc: "Admin-level reach for their domain: company + branch metrics, cross-branch sales team oversight and advisor goals, and the service advisors' profiles/logs." },
   { key: "service_advisor", name: "Service Advisor", desc: "Their own sales goal planner and self-service." },
   { key: "board", name: "Board Observer", desc: "Read-only executive views and the company bulletin. Nothing else." },
   { key: "employee", name: "Employee / Technician", desc: "Self-service only: their work, training, PTO, and the bulletin." },
@@ -111,7 +111,15 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     confirm: true, "training-assign": true, "training-record": "edit", "training-reports": true, certifications: "view",
     insurance: "view", documents: "view", ...SELF_BASIC,
   },
-  sales_director: { "sales-team": "edit", "sales-attrition": "view", account: true, bulletin: true, inbox: true, help: true },
+  // Admin-level reach for the sales domain (COO decision, Oct 2026): the Sales
+  // Director oversees the sales team AND sees company + branch performance
+  // metrics, plus the service advisors' profiles/logs (roster scoped to advisors
+  // in `visibleEmployeeIds`; they still report to branch managers in the org
+  // chart, who own day-to-day call-out/write-up/accident logging).
+  sales_director: {
+    "sales-team": "edit", "sales-attrition": "view", management: "view",
+    people: "view", "people-profile": "edit", ...SELF_BASIC,
+  },
   service_advisor: { "me-sales": "edit", ...SELF_BASIC },
   board: { board: "view", management: "view", "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
   employee: { ...SELF_BASIC },

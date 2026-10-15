@@ -80,6 +80,20 @@ export async function visibleEmployeeIds(
   if (user.accessLevel === "admin") {
     return user.employeeId ? teamEmployeeIds(user.employeeId) : new Set<string>();
   }
+  // The Sales Director oversees the service advisors — their profiles + logs
+  // (end-of-year reviews, coaching) — across all branches, plus their own
+  // profile. Advisors still report to BRANCH MANAGERS in the org chart (who own
+  // day-to-day call-out/write-up/accident logging); this is the director's
+  // parallel, cross-branch access to just the advisors, not the whole company.
+  if (user.accessLevel === "sales_director") {
+    const advisors = await prisma.employee.findMany({
+      where: { status: "active", user: { is: { accessLevel: "sales" } } },
+      select: { id: true },
+    });
+    const set = new Set(advisors.map((a) => a.id));
+    if (user.employeeId) set.add(user.employeeId);
+    return set;
+  }
   return null; // super admin / HR — unrestricted
 }
 
