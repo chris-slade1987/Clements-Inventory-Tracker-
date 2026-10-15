@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { userCanAccess } from "@/lib/access";
 import { runAnomalyChecks } from "@/lib/anomaly";
 import { runReorderChecks } from "@/lib/reorder";
 import { uomCode } from "@/lib/uom";
@@ -29,6 +30,10 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isBoardObserver(user)) return NextResponse.json({ error: "Board observers have read-only access." }, { status: 403 });
+  // Check-In is managers/admins only, unless a super admin has granted this person
+  // access in Settings & Admin → Access Rights (lets individual techs be piloted).
+  if (user.role !== "admin" && user.role !== "manager" && !(await userCanAccess(user, "check-in")))
+    return NextResponse.json({ error: "You don't have access to Check-In." }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   const warehouseId: string = body?.warehouseId ?? "";

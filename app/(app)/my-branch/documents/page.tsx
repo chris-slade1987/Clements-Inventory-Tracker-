@@ -39,7 +39,7 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
     <>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <PageHeader title="Branch Hub" subtitle={`${branchLabel(branch)} — licenses, lease & facility, key contacts a new manager needs`} />
-        {(user.role === "admin" || user.role === "manager") ? <RepairButton /> : null}
+        {user.role === "admin" ? <RepairButton /> : null}
       </div>
 
       {!locked ? (

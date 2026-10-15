@@ -19,7 +19,7 @@ async function run(req: Request) {
   const authed = secret && req.headers.get("authorization") === `Bearer ${secret}`;
   if (!authed) {
     const user = await getSessionUser();
-    if (!user || (user.role !== "admin" && user.role !== "manager")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const result = await syncSmarterLaunchBackfill();
   return NextResponse.json(result);

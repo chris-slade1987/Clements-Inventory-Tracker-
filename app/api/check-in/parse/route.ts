@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { userCanAccess } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { saveUpload } from "@/lib/storage";
 import { parseInvoice, invoiceReaderMode } from "@/lib/invoice/parse";
@@ -14,6 +15,8 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isBoardObserver(user)) return NextResponse.json({ error: "Board observers have read-only access." }, { status: 403 });
+  if (user.role !== "admin" && user.role !== "manager" && !(await userCanAccess(user, "check-in")))
+    return NextResponse.json({ error: "You don't have access to Check-In." }, { status: 403 });
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");

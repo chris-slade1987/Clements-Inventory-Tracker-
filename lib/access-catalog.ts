@@ -114,7 +114,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   sales_director: { "sales-team": "edit", "sales-attrition": "view", account: true, bulletin: true, inbox: true, help: true },
   service_advisor: { "me-sales": "edit", ...SELF_BASIC },
   board: { board: "view", management: "view", "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
-  employee: { "check-in": true, ...SELF_BASIC },
+  employee: { ...SELF_BASIC },
 };
 
 /** True if these grants allow at least viewing the item. */

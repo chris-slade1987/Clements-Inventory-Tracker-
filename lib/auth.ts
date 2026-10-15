@@ -150,8 +150,9 @@ export function homePath(user: SessionUser): string {
   if (isBoardObserver(user)) return "/management/board";
   // The Sales Director lands on the cross-branch Sales Team hub.
   if (user.accessLevel === "sales_director") return "/sales";
-  // HR (flag holders who aren't full admins) land on the HR Command Center.
-  if (user.hrAccess && user.role !== "admin") return "/hr";
+  // HR flag holders land on the HR Command Center — including April, who is also
+  // an admin (plain admins/super admins without the HR flag fall through below).
+  if (user.hrAccess) return "/hr";
   // The Director of Field Operations lands on the Field Ops command center
   // (even though he's a full admin — his day-to-day home is field oversight).
   if (isFieldOpsDirector(user)) return "/field-ops";

@@ -174,6 +174,12 @@ export async function POST(req: Request) {
     const title = str(body?.title);
     if (role !== "reviewer" && role !== "manager")
       return NextResponse.json({ error: "Signature role must be reviewer or manager." }, { status: 400 });
+    // The supervisor (reviewer) line must be signed by the reviewer HR assigned —
+    // an admin/exec — never by the branch manager themselves. This stops a manager
+    // self-signing both lines, which would finalize the review and trigger the
+    // bonus-payout notice. A branch-locked manager may only sign the manager line.
+    if (role === "reviewer" && branchLocked(user))
+      return NextResponse.json({ error: "The supervisor signature must come from the reviewer assigned by HR, not the branch manager." }, { status: 403 });
     if (!typedName) return NextResponse.json({ error: "Type the signer's full name." }, { status: 400 });
 
     const review = existing ?? await prisma.scorecardReview.create({ data: { year, quarter, branch } });

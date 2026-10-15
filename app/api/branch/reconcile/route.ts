@@ -11,10 +11,11 @@ export const maxDuration = 20;
 // same idempotent seed the deploy uses: assigns each certified operator to the
 // branch they certify (Chris → Naples, Adam → Stuart, Graham → Orlando),
 // restores any missing operator, business license, or lease, and never touches
-// a doc a manager uploaded. Safe to run repeatedly. Admin/manager only.
+// a doc a manager uploaded. Safe to run repeatedly. Admin only — this reseeds all
+// four branches' hub docs, so a single branch manager must not trigger it.
 export async function POST() {
   const user = await getSessionUser();
-  if (!user || (user.role !== "admin" && user.role !== "manager")) {
+  if (!user || user.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   try {
