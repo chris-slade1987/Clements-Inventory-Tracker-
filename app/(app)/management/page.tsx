@@ -23,6 +23,7 @@ import { Waterfall, GroupedBars, Donut, AreaTrend, BudgetVsForecast } from "@/co
 import { branchKpiMonthly, BRANCH_KPI_LABEL, BRANCH_KPI_KEYS } from "@/lib/branch-kpis";
 import { buildBranchPnlPayload } from "@/lib/branch-pnl";
 import BranchPnlClient from "./branch-pnl/BranchPnlClient";
+import KpiSummaryButton from "@/components/KpiSummaryButton";
 
 export const dynamic = "force-dynamic";
 
@@ -155,6 +156,10 @@ export default async function ManagementPage({
           basis={basis}
         />
       </div>
+
+      {/* Scope-aware AI read-out — company when viewing all branches, else the
+          selected branch. Tailored to exactly what's on screen. */}
+      <KpiSummaryButton scope={isCompany ? "company" : scope} p={periodKey} basis={basis} label={isCompany ? "AI company summary" : "AI branch summary"} />
 
       {/* Branch-locked managers default to their own branch; a toggle reveals the
           company / peer-branch comparison view. Admins & exec always see the selector. */}

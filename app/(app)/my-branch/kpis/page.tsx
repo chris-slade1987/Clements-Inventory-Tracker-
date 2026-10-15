@@ -6,6 +6,7 @@ import BranchPnlClient, { type Metric } from "@/app/(app)/management/branch-pnl/
 import { Gauge, KpiMeter } from "@/components/motivation";
 import { money } from "@/lib/format";
 import MyBranchViewToggle from "../MyBranchViewToggle";
+import KpiSummaryButton from "@/components/KpiSummaryButton";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export default async function MyBranchKpisPage({
   }
 
   const period = (await resolvePeriod(sp.p))!;
+  const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
   const values = await periodValues(period.id);
   const payload = await buildBranchPnlPayload(values, branch, locked, { year: period.year, month: period.month });
 
@@ -75,6 +77,9 @@ export default async function MyBranchKpisPage({
           ))}
         </div>
       ) : null}
+
+      {/* Scope-aware AI read-out of this branch's KPIs. */}
+      <KpiSummaryButton scope={branch} p={periodKey} basis="ytd" label="AI branch summary" />
 
       {/* Headline attainment — the v2 speedometer leads, YTD $ gauges beside it. */}
       <Card className="p-5 mb-5">
