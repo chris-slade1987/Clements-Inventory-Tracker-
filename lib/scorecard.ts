@@ -9,6 +9,7 @@ import { quarterWarehouseCompliance } from "@/lib/warehouse";
 import { quarterTrainingCompliance } from "@/lib/training";
 import { quarterQcCompliance } from "@/lib/qc";
 import { matchEmployeeByName } from "@/lib/people";
+import type { ReviewSerialized } from "@/app/(app)/management/scorecards/ScorecardClient";
 
 // The quarterly branch-manager bonus scorecard. Binary Met/Not-Met, weighted to
 // 100%, per the company template. Most metrics auto-compute from the canonical
@@ -281,6 +282,34 @@ export async function getScorecardReview(year: number, quarter: number, branch: 
     reopenedAt: r.reopenedAt,
     reopenedBy: r.reopenedBy,
     signatures: r.signatures.map((s) => ({ id: s.id, role: s.role, typedName: s.typedName, title: s.title, signedAt: s.signedAt })),
+  };
+}
+
+/**
+ * Serialize a scorecard review (Dates → ISO strings) for the client. Shared by
+ * the admin `/management/scorecards` and the manager `/my-branch/scorecard`
+ * pages so the two entry points render ONE scorecard view from one serializer.
+ */
+export function serializeScorecardReview(
+  r: Awaited<ReturnType<typeof getScorecardReview>>,
+): ReviewSerialized | null {
+  if (!r) return null;
+  return {
+    status: r.status,
+    managerName: r.managerName,
+    reviewerName: r.reviewerName,
+    reviewDate: r.reviewDate ? r.reviewDate.toISOString() : null,
+    overallNotes: r.overallNotes,
+    strengths: r.strengths,
+    areas: r.areas,
+    goals: r.goals,
+    score: r.score,
+    archivedAt: r.archivedAt ? r.archivedAt.toISOString() : null,
+    finalizedAt: r.finalizedAt ? r.finalizedAt.toISOString() : null,
+    reopenedAt: r.reopenedAt ? r.reopenedAt.toISOString() : null,
+    reopenedBy: r.reopenedBy,
+    personnelRecordId: r.personnelRecordId,
+    signatures: r.signatures.map((s) => ({ id: s.id, role: s.role, typedName: s.typedName, title: s.title, signedAt: s.signedAt.toISOString() })),
   };
 }
 

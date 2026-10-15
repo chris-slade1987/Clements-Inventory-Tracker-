@@ -3,30 +3,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail } from "@/lib/scorecard";
+import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail, serializeScorecardReview } from "@/lib/scorecard";
 import { listPeriods } from "@/lib/management";
-import ScorecardClient, { type ReviewSerialized, type ArchivedLite } from "./ScorecardClient";
-
-function serializeReview(r: Awaited<ReturnType<typeof getScorecardReview>>): ReviewSerialized | null {
-  if (!r) return null;
-  return {
-    status: r.status,
-    managerName: r.managerName,
-    reviewerName: r.reviewerName,
-    reviewDate: r.reviewDate ? r.reviewDate.toISOString() : null,
-    overallNotes: r.overallNotes,
-    strengths: r.strengths,
-    areas: r.areas,
-    goals: r.goals,
-    score: r.score,
-    archivedAt: r.archivedAt ? r.archivedAt.toISOString() : null,
-    finalizedAt: r.finalizedAt ? r.finalizedAt.toISOString() : null,
-    reopenedAt: r.reopenedAt ? r.reopenedAt.toISOString() : null,
-    reopenedBy: r.reopenedBy,
-    personnelRecordId: r.personnelRecordId,
-    signatures: r.signatures.map((s) => ({ id: s.id, role: s.role, typedName: s.typedName, title: s.title, signedAt: s.signedAt.toISOString() })),
-  };
-}
+import ScorecardClient, { type ArchivedLite } from "./ScorecardClient";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +92,7 @@ export default async function ScorecardsPage({
         canEdit={user.role === "admin"}
         canSign={user.role === "admin" || user.role === "manager"}
         canFinalize={user.role === "admin"}
-        review={serializeReview(review)}
+        review={serializeScorecardReview(review)}
         archived={archived}
         suggestedManagerName={mgr?.name ?? ""}
         signInfo={signInfo}
