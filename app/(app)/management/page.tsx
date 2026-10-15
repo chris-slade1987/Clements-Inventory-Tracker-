@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, branchLocked } from "@/lib/auth";
+import { requireUser, branchLocked, canViewExec } from "@/lib/auth";
 import { money } from "@/lib/format";
 import {
   BRANCHES,
@@ -35,6 +36,12 @@ export default async function ManagementPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  // Executive / Company Overview (company-wide + all-branch P&L) is admin/exec-only
+  // — plus the Sales Director, who needs company + branch metrics. Branch managers
+  // get their own branch numbers in My Branch → Branch KPIs (COO decision, Oct 2026).
+  if (!canViewExec(user) && user.accessLevel !== "sales_director") {
+    redirect(branchLocked(user) ? "/my-branch/kpis" : "/my-branch");
+  }
   const sp = await searchParams;
 
   const periods = await listPeriods();

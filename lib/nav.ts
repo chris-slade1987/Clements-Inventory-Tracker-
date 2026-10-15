@@ -411,6 +411,20 @@ export const SALES_DIRECTOR_NAV: NavItem[] = [
     shortLabel: "Analytics",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
+  // Admin-level reach (COO decision): company + branch performance metrics.
+  {
+    href: "/management",
+    label: "Company Overview",
+    shortLabel: "Overview",
+    icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
+  },
+  // The service advisors' profiles + logs (scoped to advisors in visibleEmployeeIds).
+  {
+    href: "/management/people",
+    label: "Service Advisors",
+    shortLabel: "Advisors",
+    icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
+  },
 ];
 
 // Board Observer — a distinct, strictly read-only principal (board members who

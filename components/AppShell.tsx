@@ -38,7 +38,7 @@ const CENTERS: { href: string; label: string; short: string; m: Mode }[] = [
   { href: "/fleet", label: "Fleet", short: "Fleet", m: "fleet" },
 ];
 
-function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }) {
+function ModeToggle({ mode, compact = false, centers = CENTERS }: { mode: Mode; compact?: boolean; centers?: typeof CENTERS }) {
   const cell = (active: boolean) =>
     `rounded-lg font-medium text-center transition-colors ${
       compact ? "px-2.5 py-1 text-[11px]" : "px-2.5 py-2 text-xs"
@@ -47,7 +47,7 @@ function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }
   if (compact) {
     return (
       <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-        {CENTERS.map((c) => (
+        {centers.map((c) => (
           <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
             {c.short}
           </Link>
@@ -57,7 +57,7 @@ function ModeToggle({ mode, compact = false }: { mode: Mode; compact?: boolean }
   }
   return (
     <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/20 p-1">
-      {CENTERS.map((c) => (
+      {centers.map((c) => (
         <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
           {c.label}
         </Link>
@@ -236,6 +236,11 @@ export default function AppShell({
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver && !isSalesDirector;
+  // The Executive center (Company Overview + all-branch P&L) is admin/exec-only;
+  // branch managers get their branch numbers in My Branch → Branch KPIs, so the
+  // Executive center is hidden from them (the page guard redirects direct hits).
+  const canViewExecCenter = isAdmin || isSeniorLeadership;
+  const visibleCenters = CENTERS.filter((c) => c.m !== "management" || canViewExecCenter);
   // Resources / document center. Handbook + Company Bulletin are for everyone;
   // the Manager Manual is managers/admin only. Board observers keep their fixed
   // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).
@@ -298,7 +303,7 @@ export default function AppShell({
   const panelLabel =
     openPanel === "menu" || openPanel === null
       ? "Menu"
-      : (CENTERS.find((c) => c.m === openPanel)?.label ?? "Menu");
+      : (visibleCenters.find((c) => c.m === openPanel)?.label ?? "Menu");
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -310,7 +315,7 @@ export default function AppShell({
         <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-8 w-auto" />
         {showCenters ? (
           <nav className="ml-3 flex items-center gap-1">
-            {CENTERS.map((c) => {
+            {visibleCenters.map((c) => {
               const current = mode === c.m;
               const open = openPanel === c.m;
               return (
@@ -449,7 +454,7 @@ export default function AppShell({
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-7 w-auto" />
-          {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact /></div> : null}
+          {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact centers={visibleCenters} /></div> : null}
           <div className="ml-auto flex items-center gap-2">
           <NotificationBell initialCount={unread} />
           <Link

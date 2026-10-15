@@ -98,7 +98,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit",
     dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
-    management: "view", scorecards: "view", audits: "view", people: "view", ...SELF_BASIC,
+    scorecards: "view", audits: "view", people: "view", ...SELF_BASIC,
   },
   senior: {
     board: "view", management: "view", insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
