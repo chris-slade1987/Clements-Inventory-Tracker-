@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { remindTraining, remindSignatures, remindReviewSignatures, remindVehicleDocs, remindManual, scheduleNewHireReviews, remindScorecardsDue, runCelebrations } from "@/lib/jobs";
+import { runDailyDigest, remindScorecardsDue, runCelebrations } from "@/lib/jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,13 +19,12 @@ async function run(req: Request) {
     const user = await getSessionUser();
     if (!user || user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+  // Reminder email is now a single per-recipient DIGEST: `runDailyDigest` creates
+  // new-hire reviews and folds every reminder source (training, review/signature
+  // signing, vehicle docs, manual reminders) into one email per recipient.
+  // Scorecard-due (weekly, targeted) and celebrations stay independent.
   const jobs = {
-    reviews: scheduleNewHireReviews,
-    reviewSignatures: remindReviewSignatures,
-    vehicleDocs: remindVehicleDocs,
-    manual: remindManual,
-    training: remindTraining,
-    signatures: remindSignatures,
+    digest: runDailyDigest,
     scorecardsDue: remindScorecardsDue,
     celebrations: runCelebrations,
   } as const;

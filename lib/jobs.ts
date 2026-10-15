@@ -8,37 +8,52 @@ import { randomBytes } from "node:crypto";
 import { branchLabel, BRANCHES } from "@/lib/management";
 import { etParts } from "@/lib/date";
 import { notifyThread } from "@/lib/threads";
+import { DigestCollector, sendDigests, dueForDigest } from "@/lib/email-digest";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
 // Called by the daily cron (/api/cron/daily) and the manual admin endpoints.
+//
+// Reminder EMAIL is a once-daily per-recipient DIGEST, not one email per item.
+// Each source `collect*`s its pending items into a shared `DigestCollector`; the
+// daily runner (`runDailyDigest`) flushes one email per recipient. The in-app
+// Alert rows are kept exactly as before — Alerts stay the primary channel.
+// Each public `remind*` wrapper stays runnable on its own (manual admin triggers)
+// by collecting just its own items and flushing a single-section digest.
 
 const base = () => appUrl();
 
-/** Email every employee with an incomplete training assignment, once per day. */
-export async function remindTraining() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+/** Collect incomplete-training reminders into the digest (one line per employee). */
+async function collectTraining(c: DigestCollector): Promise<{ candidates: number; queued: number }> {
+  const now = c.now;
   const pending = await prisma.trainingAssignment.findMany({
-    where: { status: { not: "completed" }, OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }] },
+    where: { status: { not: "completed" } },
     include: { course: { select: { title: true } }, employee: { select: { name: true, email: true } } },
   });
-  let sent = 0;
+  let queued = 0;
   for (const a of pending) {
-    const first = a.employee.name.split(" ")[0];
+    if (!a.employee.email) continue;
+    // Taper against how long the assignment has been outstanding (assignedAt).
+    if (!dueForDigest(now, a.lastReminderAt, a.assignedAt)) continue;
     const due = a.dueDate ? ` (due ${a.dueDate.toLocaleDateString()})` : "";
-    const res = await sendEmail({
-      to: a.employee.email,
-      subject: `Reminder: complete "${a.course.title}"`,
-      kind: "training_reminder",
-      relatedType: "training_assignment",
-      relatedId: a.id,
-      text: `Hi ${first},\n\nReminder to complete your assigned training "${a.course.title}"${due}.\n\nComplete it here: ${base()}/me/training/${a.id}\n\n— CanopyOS`,
-      html: `<p>Hi ${first},</p><p>Reminder to complete your assigned training <strong>${a.course.title}</strong>${due}.</p><p><a href="${base()}/me/training/${a.id}">Complete your training →</a></p><p>— CanopyOS</p>`,
+    c.add({
+      recipientEmail: a.employee.email,
+      section: "Training",
+      line: `Complete "${a.course.title}"${due}`,
+      link: `${base()}/me/training/${a.id}`,
+      stampKey: `training:${a.id}`,
+      stamp: () => prisma.trainingAssignment.update({ where: { id: a.id }, data: { lastReminderAt: now } }).then(() => {}),
     });
-    await prisma.trainingAssignment.update({ where: { id: a.id }, data: { lastReminderAt: now } });
-    if (res.status === "sent") sent++;
+    queued++;
   }
-  return { candidates: pending.length, emailed: sent };
+  return { candidates: pending.length, queued };
+}
+
+/** Manual admin trigger: send the training reminders as their own digest. */
+export async function remindTraining() {
+  const c = new DigestCollector();
+  const r = await collectTraining(c);
+  const d = await sendDigests(c);
+  return { candidates: r.candidates, queued: r.queued, recipients: d.recipients, emailed: d.emailed };
 }
 
 /**
@@ -91,8 +106,12 @@ export async function clearPreProgramReviews(): Promise<{ removed: number; alert
   return { removed: del.count, alertsDismissed: alerts.count };
 }
 
-export async function scheduleNewHireReviews() {
-  const now = new Date();
+export async function scheduleNewHireReviews(collector?: DigestCollector) {
+  const now = collector?.now ?? new Date();
+  // When run on its own (not from the daily digest), flush our own digest so the
+  // fallback "assign a reviewer" items still reach HR.
+  const c = collector ?? new DigestCollector(now);
+  const hrEmail = await getHrEmail();
   const lead = new Date(now.getTime() + 5 * 864e5);
   // Self-heal: clear any stale onboarding reviews for pre-program hires each run.
   await clearPreProgramReviews();
@@ -128,20 +147,12 @@ export async function scheduleNewHireReviews() {
         });
         created++;
         // Notify reviewer + employee (same logic as the HR `send` action).
+        // The "created & assigned — no action needed" FYI to HR is intentionally
+        // not sent: it's noise. HR is notified when the review needs approval.
         await notifyReviewAssigned({
           reviewId: review.id, employeeName: e.name, employeeEmail: e.email,
           reviewerName: mgrUser!.name, reviewerEmail: mgrUser!.email,
           type, branch: e.branch, dueDate,
-        });
-        // FYI to HR — created and assigned, no action needed.
-        await sendEmail({
-          to: await getHrEmail(),
-          subject: `New-hire review created & assigned: ${e.name} — ${label}`,
-          kind: "review_due",
-          relatedType: "newhire_review",
-          relatedId: review.id,
-          text: `${e.name}${b}'s ${label} (due ${dueDate.toLocaleDateString()}) was created and auto-assigned to their manager ${mgrUser!.name}. No action needed — you'll be notified when it's ready for final approval.`,
-          html: `<p><strong>${e.name}</strong>${b}'s <strong>${label}</strong> (due ${dueDate.toLocaleDateString()}) was created and auto-assigned to their manager <strong>${mgrUser!.name}</strong>.</p><p>No action needed — you'll be notified when it's ready for final approval.</p>`,
         });
         continue;
       }
@@ -161,17 +172,17 @@ export async function scheduleNewHireReviews() {
         create: { dedupeKey: `review_due:${review.id}`, type: "review_due", severity: "warning", status: "open", message: `${e.name}${b} is due for a ${label} (${dueDate.toLocaleDateString()}). Assign a reviewer.` },
         update: {},
       });
-      await sendEmail({
-        to: await getHrEmail(),
-        subject: `New-hire review due: ${e.name} — ${label}`,
-        kind: "review_due",
-        relatedType: "newhire_review",
-        relatedId: review.id,
-        text: `${e.name}${b} is due for their ${label} (due ${dueDate.toLocaleDateString()}).\n\nOpen HR › New-hire reviews to assign a reviewer and notify the employee.`,
-        html: `<p><strong>${e.name}</strong>${b} is due for their <strong>${label}</strong> (due ${dueDate.toLocaleDateString()}).</p><p>Open <em>HR › New-hire reviews</em> to assign a reviewer and notify the employee.</p>`,
+      // Action-required HR notice — route through the digest (one-shot at
+      // creation; the standing Alert above keeps it visible until assigned).
+      c.add({
+        recipientEmail: hrEmail,
+        section: "Reviews to sign",
+        line: `Assign a reviewer: ${e.name}${b}'s ${label} (due ${dueDate.toLocaleDateString()})`,
+        link: `${base()}/reviews/${review.id}`,
       });
     }
   }
+  if (!collector) await sendDigests(c);
   return { created };
 }
 
@@ -179,53 +190,61 @@ export async function scheduleNewHireReviews() {
  * Remind on new-hire reviews that are sent/in-progress but not fully signed —
  * the reviewer (in-app) and the employee (tokenized link), once per day.
  */
-export async function remindReviewSignatures() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+async function collectReviewSignatures(c: DigestCollector): Promise<{ candidates: number; queued: number }> {
+  const now = c.now;
   const dayAgo = new Date(now.getTime() - 24 * 3600 * 1000);
   const pending = await prisma.newHireReview.findMany({
     where: {
       status: { in: ["sent", "in_progress"] },
       sentAt: { lt: dayAgo },
-      OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }],
     },
     include: { employee: { select: { name: true, email: true } } },
   });
-  let sent = 0;
+  let queued = 0;
   for (const r of pending) {
+    // One taper per review row (shared by reviewer + employee lines).
+    if (!dueForDigest(now, r.lastReminderAt, r.sentAt)) continue;
     const label = REVIEW_LABEL[r.type] ?? "review";
+    const stamp = () => prisma.newHireReview.update({ where: { id: r.id }, data: { lastReminderAt: now } }).then(() => {});
+    let added = false;
     // Reviewer still needs to complete & sign.
     if (!r.reviewerSignedAt && r.reviewerUserId) {
       const reviewer = await prisma.user.findUnique({ where: { id: r.reviewerUserId }, select: { email: true } });
       if (reviewer?.email) {
-        const res = await sendEmail({
-          to: reviewer.email,
-          subject: `Reminder: complete ${r.employee.name}'s ${label}`,
-          kind: "review_reminder",
-          relatedType: "newhire_review",
-          relatedId: r.id,
-          text: `Reminder to complete and sign ${r.employee.name}'s ${label}.\n\nOpen it: ${base()}/reviews/${r.id}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
-          html: `<p>Reminder to complete and sign <strong>${r.employee.name}</strong>'s ${label}.</p><p><a href="${base()}/reviews/${r.id}">Open the review →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
+        c.add({
+          recipientEmail: reviewer.email,
+          section: "Reviews to sign",
+          line: `Complete and sign ${r.employee.name}'s ${label}`,
+          link: `${base()}/reviews/${r.id}`,
+          stampKey: `review:${r.id}`,
+          stamp,
         });
-        if (res.status === "sent") sent++;
+        added = true;
       }
     }
-    // Employee still needs to sign — send the tokenized remote link.
+    // Employee still needs to sign — the tokenized remote link.
     if (!r.employeeSignedAt && r.employeeToken && r.employee.email) {
-      const res = await sendEmail({
-        to: r.employee.email,
-        subject: `Reminder: sign your ${label}`,
-        kind: "review_reminder",
-        relatedType: "newhire_review",
-        relatedId: r.id,
-        text: `Hi ${r.employee.name.split(" ")[0]},\n\nReminder to review and e-sign your ${label}.\n\nSign here: ${base()}/review-sign/${r.employeeToken}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
-        html: `<p>Hi ${r.employee.name.split(" ")[0]},</p><p>Reminder to review and e-sign your ${label}.</p><p><a href="${base()}/review-sign/${r.employeeToken}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
+      c.add({
+        recipientEmail: r.employee.email,
+        section: "Reviews to sign",
+        line: `Review and e-sign your ${label}`,
+        link: `${base()}/review-sign/${r.employeeToken}`,
+        stampKey: `review:${r.id}`,
+        stamp,
       });
-      if (res.status === "sent") sent++;
+      added = true;
     }
-    await prisma.newHireReview.update({ where: { id: r.id }, data: { lastReminderAt: now } });
+    if (added) queued++;
   }
-  return { candidates: pending.length, emailed: sent };
+  return { candidates: pending.length, queued };
+}
+
+/** Manual admin trigger: review-signature reminders as their own digest. */
+export async function remindReviewSignatures() {
+  const c = new DigestCollector();
+  const r = await collectReviewSignatures(c);
+  const d = await sendDigests(c);
+  return { candidates: r.candidates, queued: r.queued, recipients: d.recipients, emailed: d.emailed };
 }
 
 /**
@@ -233,44 +252,51 @@ export async function remindReviewSignatures() {
  * document with remindHr is within 45 days of expiring (or already expired),
  * once per day, and files an Alert.
  */
-export async function remindVehicleDocs() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+async function collectVehicleDocs(c: DigestCollector): Promise<{ candidates: number; queued: number }> {
+  const now = c.now;
   const cutoff = new Date(now.getTime() + 45 * 864e5);
   const docs = await prisma.vehicleDocument.findMany({
     where: {
       status: "filed",
       remindHr: true,
       expirationDate: { not: null, lte: cutoff },
-      OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }],
     },
     include: { vehicle: { select: { unitNumber: true, name: true, branch: true } } },
   });
-  let sent = 0;
+  const hrEmail = await getHrEmail();
+  let queued = 0;
   for (const d of docs) {
     const exp = d.expirationDate!;
     const overdue = exp < now;
     const veh = d.vehicle ? `${d.vehicle.unitNumber ? `#${d.vehicle.unitNumber} ` : ""}${d.vehicle.name}` : "a vehicle";
     const b = d.vehicle?.branch ? ` (${branchLabel(d.vehicle.branch)})` : "";
     const cat = d.category === "registration" ? "registration" : d.category === "insurance" ? "insurance" : "document";
+    // Alert row is unchanged — upserted every run (idempotent).
     await prisma.alert.upsert({
       where: { dedupeKey: `doc_renewal:${d.id}` },
       create: { dedupeKey: `doc_renewal:${d.id}`, type: "doc_renewal", severity: overdue ? "critical" : "warning", status: "open", message: `${veh}${b}: ${cat} "${d.title}" ${overdue ? "expired" : "renews"} ${exp.toLocaleDateString()}.` },
       update: {},
     });
-    const res = await sendEmail({
-      to: await getHrEmail(),
-      subject: `${overdue ? "Expired" : "Renewal due"}: ${d.title} — ${veh}`,
-      kind: "doc_renewal",
-      relatedType: "vehicle_document",
-      relatedId: d.id,
-      text: `${veh}${b}: the ${cat} "${d.title}" ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.\n\nOpen the vehicle's Documents to review or upload the renewal.\n\n— CanopyOS`,
-      html: `<p><strong>${veh}</strong>${b}: the ${cat} <strong>${d.title}</strong> ${overdue ? "expired" : "is due to renew"} on ${exp.toLocaleDateString()}.</p><p>Open the vehicle's Documents to review or upload the renewal.</p><p>— CanopyOS</p>`,
+    // Taper against how long the document has been on file (createdAt).
+    if (!dueForDigest(now, d.lastReminderAt, d.createdAt)) continue;
+    c.add({
+      recipientEmail: hrEmail,
+      section: "Vehicle documents",
+      line: `${veh}${b}: ${cat} "${d.title}" ${overdue ? `expired ${exp.toLocaleDateString()}` : `renews ${exp.toLocaleDateString()}`} — review or upload the renewal`,
+      stampKey: `doc:${d.id}`,
+      stamp: () => prisma.vehicleDocument.update({ where: { id: d.id }, data: { lastReminderAt: now } }).then(() => {}),
     });
-    await prisma.vehicleDocument.update({ where: { id: d.id }, data: { lastReminderAt: now } });
-    if (res.status === "sent") sent++;
+    queued++;
   }
-  return { candidates: docs.length, emailed: sent };
+  return { candidates: docs.length, queued };
+}
+
+/** Manual admin trigger: vehicle-document renewal reminders as their own digest. */
+export async function remindVehicleDocs() {
+  const c = new DigestCollector();
+  const r = await collectVehicleDocs(c);
+  const d = await sendDigests(c);
+  return { candidates: r.candidates, queued: r.queued, recipients: d.recipients, emailed: d.emailed };
 }
 
 /**
@@ -278,14 +304,14 @@ export async function remindVehicleDocs() {
  * email the chosen recipients (HR and/or the creator) once per day and file an
  * Alert, until the reminder is completed or dismissed.
  */
-export async function remindManual() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+async function collectManual(c: DigestCollector): Promise<{ candidates: number; queued: number }> {
+  const now = c.now;
   const open = await prisma.reminder.findMany({
-    where: { status: "open", OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }] },
+    where: { status: "open" },
     include: { employee: { select: { name: true } }, vehicle: { select: { unitNumber: true, name: true } } },
   });
-  let sent = 0;
+  let hrEmail: string | null = null;
+  let queued = 0;
   for (const r of open) {
     if (!leadWindowOpen(r.dueDate, r.leadDays, now.getTime())) continue; // lead window not open
     const days = Math.round((r.dueDate.getTime() - now.getTime()) / 864e5);
@@ -294,59 +320,98 @@ export async function remindManual() {
     const b = r.branch ? ` (${branchLabel(r.branch)})` : "";
     const when = overdue ? `overdue (was due ${r.dueDate.toLocaleDateString()})` : days === 0 ? "due today" : `due in ${days} days (${r.dueDate.toLocaleDateString()})`;
 
+    // Alert row is unchanged — upserted every run (idempotent).
     await prisma.alert.upsert({
       where: { dedupeKey: `reminder:${r.id}` },
       create: { dedupeKey: `reminder:${r.id}`, type: "reminder", severity: overdue ? "critical" : (r.severity === "critical" ? "critical" : r.severity === "warning" ? "warning" : "info"), status: "open", message: `${r.title}${tag}${b} — ${when}.` },
       update: {},
     });
 
+    // Taper against how long the reminder has existed (createdAt).
+    if (!dueForDigest(now, r.lastReminderAt, r.createdAt)) continue;
+
     const to: string[] = [];
-    if (r.notify === "hr" || r.notify === "both") to.push(await getHrEmail());
+    if (r.notify === "hr" || r.notify === "both") { hrEmail = hrEmail ?? (await getHrEmail()); to.push(hrEmail); }
     if ((r.notify === "creator" || r.notify === "both") && r.createdByEmail) to.push(r.createdByEmail);
-    if (to.length) {
-      const res = await sendEmail({
-        to,
-        subject: `Reminder: ${r.title}${tag} — ${overdue ? "overdue" : days === 0 ? "due today" : `due in ${days}d`}`,
-        kind: "manual_reminder",
-        relatedType: "reminder",
-        relatedId: r.id,
-        text: `Reminder${tag}${b}: ${r.title}\n${r.notes ? `${r.notes}\n` : ""}${when}.\n\n— CanopyOS`,
-        html: `<p><strong>${r.title}</strong>${tag}${b}</p>${r.notes ? `<p>${r.notes}</p>` : ""}<p>${when}.</p><p>— CanopyOS</p>`,
+    if (to.length === 0) continue;
+
+    const stamp = () => prisma.reminder.update({ where: { id: r.id }, data: { lastReminderAt: now } }).then(() => {});
+    for (const addr of to) {
+      c.add({
+        recipientEmail: addr,
+        section: "Reminders",
+        line: `${r.title}${tag}${b} — ${when}${r.notes ? ` · ${r.notes}` : ""}`,
+        stampKey: `reminder:${r.id}`,
+        stamp,
       });
-      if (res.status === "sent") sent++;
     }
-    await prisma.reminder.update({ where: { id: r.id }, data: { lastReminderAt: now } });
+    queued++;
   }
-  return { candidates: open.length, emailed: sent };
+  return { candidates: open.length, queued };
 }
 
-/** Email signers with an outstanding signature request — starts 24h out, then daily. */
-export async function remindSignatures() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+/** Manual admin trigger: manual reminders as their own digest. */
+export async function remindManual() {
+  const c = new DigestCollector();
+  const r = await collectManual(c);
+  const d = await sendDigests(c);
+  return { candidates: r.candidates, queued: r.queued, recipients: d.recipients, emailed: d.emailed };
+}
+
+/** Collect outstanding signature requests — starts 24h out, then tapered. */
+async function collectSignatures(c: DigestCollector): Promise<{ candidates: number; queued: number }> {
+  const now = c.now;
   const dayAgo = new Date(now.getTime() - 24 * 3600 * 1000);
   const pending = await prisma.signatureRequest.findMany({
-    where: { signedAt: null, sentAt: { lt: dayAgo }, OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: startOfToday } }] },
+    where: { signedAt: null, sentAt: { lt: dayAgo } },
     include: { record: { include: { employee: { select: { name: true } } } } },
   });
-  let sent = 0;
+  let queued = 0;
   for (const r of pending) {
+    if (!dueForDigest(now, r.lastReminderAt, r.sentAt)) continue;
     const label = recordTypeLabel(r.record.type);
     const roleDef = signatureRoles(r.record.type).find((x) => x.key === r.role);
-    const link = `${base()}/sign/${r.token}`;
-    const res = await sendEmail({
-      to: r.email,
-      subject: `Reminder — signature still needed: ${label} for ${r.record.employee.name}`,
-      kind: "signature_reminder",
-      relatedType: "personnel_record",
-      relatedId: r.recordId,
-      text: `Reminder to review and e-sign the ${label.toLowerCase()} as "${roleDef?.label ?? r.role}".\n\nSign here: ${link}\n\nYou'll keep receiving daily reminders until it's signed.\n\n— CanopyOS`,
-      html: `<p>Reminder to review and e-sign the <strong>${label.toLowerCase()}</strong> as <strong>${roleDef?.label ?? r.role}</strong>.</p><p><a href="${link}">Review &amp; e-sign →</a></p><p>You'll keep receiving daily reminders until it's signed.</p><p>— CanopyOS</p>`,
+    c.add({
+      recipientEmail: r.email,
+      section: "Signatures",
+      line: `Review and e-sign the ${label.toLowerCase()} for ${r.record.employee.name} as ${roleDef?.label ?? r.role}`,
+      link: `${base()}/sign/${r.token}`,
+      stampKey: `sig:${r.id}`,
+      stamp: () => prisma.signatureRequest.update({ where: { id: r.id }, data: { lastReminderAt: now } }).then(() => {}),
     });
-    await prisma.signatureRequest.update({ where: { id: r.id }, data: { lastReminderAt: now } });
-    if (res.status === "sent") sent++;
+    queued++;
   }
-  return { candidates: pending.length, emailed: sent };
+  return { candidates: pending.length, queued };
+}
+
+/** Manual admin trigger: outstanding-signature reminders as their own digest. */
+export async function remindSignatures() {
+  const c = new DigestCollector();
+  const r = await collectSignatures(c);
+  const d = await sendDigests(c);
+  return { candidates: r.candidates, queued: r.queued, recipients: d.recipients, emailed: d.emailed };
+}
+
+/**
+ * The once-daily unified digest run. Creates reviews/auto-assigns (direct
+ * notifications), collects every reminder source into ONE shared collector, and
+ * flushes a single "Your CanopyOS daily summary" email per recipient. Replaces
+ * the former per-item email storm.
+ */
+export async function runDailyDigest() {
+  const now = new Date();
+  const c = new DigestCollector(now);
+  // Reviews first: creates rows + queues any fallback "assign a reviewer" items.
+  const reviews = await scheduleNewHireReviews(c);
+  const [training, reviewSignatures, vehicleDocs, manual, signatures] = await Promise.all([
+    collectTraining(c),
+    collectReviewSignatures(c),
+    collectVehicleDocs(c),
+    collectManual(c),
+    collectSignatures(c),
+  ]);
+  const digest = await sendDigests(c);
+  return { reviews, training, reviewSignatures, vehicleDocs, manual, signatures, digest };
 }
 
 // Quarterly branch scorecards are due 30–60 days after each quarter-end. Once we
@@ -388,15 +453,17 @@ export async function remindScorecardsDue() {
       update: { message: `Q${q} ${year} branch scorecards are due (${daysLeft}d left): ${names}.`, status: "open", severity: daysLeft <= 14 ? "critical" : "warning" },
     }).catch(() => null);
 
-    // Weekly email to managers + HR + admins (guarded by a Setting).
+    // Weekly email (guarded by a Setting) — ONLY the managers of the branches
+    // that are still outstanding, plus HR as an oversight copy. Not every
+    // manager/admin/HR company-wide.
     const key = `scorecard_due_email:${year}Q${q}`;
     const setting = await prisma.setting.findUnique({ where: { key } }).catch(() => null);
     const last = setting?.value ? new Date(setting.value) : null;
     const dueForEmail = !last || now.getTime() - last.getTime() >= 7 * DAY;
     let emailed = false;
     if (dueForEmail) {
-      const users = await prisma.user.findMany({ where: { active: true, OR: [{ role: { in: ["admin", "manager"] } }, { hrAccess: true }] }, select: { email: true } });
-      const recipients = [...new Set([...users.map((u) => u.email), await getHrEmail()].filter(Boolean))];
+      const managers = await prisma.user.findMany({ where: { active: true, role: "manager", branch: { in: outstanding } }, select: { email: true } });
+      const recipients = [...new Set([...managers.map((u) => u.email), await getHrEmail()].filter(Boolean))];
       const link = `${base()}/management/scorecards?year=${year}&quarter=${q}`;
       const r = await sendEmail({
         to: recipients,

@@ -278,40 +278,44 @@ export async function rejectCandidate(id: string) {
 // warm, branded confirmation email to the applicant.
 
 /**
- * Recipients for a new public application: HR (admins + granted HR) plus the
- * job's supervisors — active branch managers on the job's branch and anyone
- * already assigned an interview on the job. Deduped by user id; only those with
- * an email are kept.
+ * Recipients for a new public application: HR (admins + granted HR) plus the ONE
+ * hiring manager of the job's branch. We deliberately do NOT fan out to every
+ * branch manager or every prior interviewer on the job — that was noise. When a
+ * branch has more than one manager login, `hiringManagerName` (if set on the job)
+ * disambiguates; otherwise the first active branch manager is used. Deduped by
+ * user id; only those with an email are kept.
  */
-async function applicantNotifyRecipients(job: { id: string; branch: string | null }) {
-  const orFilters: Record<string, unknown>[] = [{ hrAccess: true }, { role: "admin" }];
-  if (job.branch) orFilters.push({ role: "manager", branch: job.branch });
-
-  const [staff, interviews] = await Promise.all([
-    prisma.user.findMany({
-      where: { active: true, OR: orFilters },
-      select: { id: true, name: true, email: true },
-    }),
-    prisma.interview.findMany({
-      where: { candidate: { jobId: job.id }, interviewerId: { not: null } },
-      select: { interviewerId: true, interviewerName: true, interviewerEmail: true },
-    }),
-  ]);
-
+async function applicantNotifyRecipients(job: { id: string; branch: string | null; hiringManagerName?: string | null }) {
   const byId = new Map<string, { id: string; name: string; email: string | null }>();
-  for (const u of staff) byId.set(u.id, { id: u.id, name: u.name, email: u.email });
-  for (const iv of interviews) {
-    if (iv.interviewerId && !byId.has(iv.interviewerId)) {
-      byId.set(iv.interviewerId, { id: iv.interviewerId, name: iv.interviewerName ?? "Interviewer", email: iv.interviewerEmail });
+
+  // HR: admins + granted HR.
+  const hr = await prisma.user.findMany({
+    where: { active: true, OR: [{ hrAccess: true }, { role: "admin" }] },
+    select: { id: true, name: true, email: true },
+  });
+  for (const u of hr) byId.set(u.id, { id: u.id, name: u.name, email: u.email });
+
+  // The single hiring manager of the job's branch.
+  if (job.branch) {
+    const managers = await prisma.user.findMany({
+      where: { active: true, role: "manager", branch: job.branch },
+      select: { id: true, name: true, email: true },
+    });
+    let mgr = managers[0] ?? null;
+    const target = job.hiringManagerName?.trim().toLowerCase();
+    if (target && managers.length > 1) {
+      mgr = managers.find((m) => m.name.trim().toLowerCase() === target) ?? managers[0];
     }
+    if (mgr) byId.set(mgr.id, { id: mgr.id, name: mgr.name, email: mgr.email });
   }
+
   return [...byId.values()].filter((u) => u.email);
 }
 
 /** Alert HR + the job's supervisors that a new candidate applied. Best-effort. */
 export async function notifyNewApplicant(
   candidate: { id: string; name: string; firstName: string | null; lastName: string | null; email: string; phone: string | null; source: string | null },
-  job: { id: string; title: string; branch: string | null },
+  job: { id: string; title: string; branch: string | null; hiringManagerName?: string | null },
 ) {
   const recipients = await applicantNotifyRecipients(job);
   if (recipients.length === 0) return { notified: 0 };
@@ -1227,22 +1231,9 @@ export async function assignInterviewSupervisor(
   // One consolidated notification to the supervisor (thread auto-emails them).
   await notifySupervisorAssigned(job, supervisor, handed, deadline).catch(() => {});
 
-  // Courtesy note to the supervisor who was replaced (best-effort).
-  if (reassigned && prevSupervisorId) {
-    const prev = await prisma.user.findUnique({ where: { id: prevSupervisorId }, select: { email: true, name: true } }).catch(() => null);
-    if (prev?.email) {
-      const first = (prev.name || "there").split(/\s+/)[0];
-      await sendEmail({
-        to: prev.email,
-        subject: `Interview reassigned: ${job.title}`,
-        kind: "interview_reassigned",
-        relatedType: "job",
-        relatedId: job.id,
-        text: `Hi ${first},\n\nYou've been unassigned from interviewing for ${job.title}. ${supervisor.name} is now handling these interviews — no further action is needed on your part. Thank you!\n\n— CanopyOS`,
-        html: `<p>Hi ${first},</p><p>You've been unassigned from interviewing for <strong>${job.title}</strong>. <strong>${supervisor.name}</strong> is now handling these interviews — no further action is needed on your part. Thank you!</p><p>— CanopyOS</p>`,
-      }).catch(() => {});
-    }
-  }
+  // The previous supervisor's still-open interviews were already cancelled above
+  // (that drops them off their My Work list). No courtesy email is sent — it was
+  // pure FYI noise; the reassignment is reflected in-app.
 
   return { handed: handed.length, supervisorName: supervisor.name, reassigned, revoked, previousSupervisorName: prevSupervisorName ?? null };
 }
