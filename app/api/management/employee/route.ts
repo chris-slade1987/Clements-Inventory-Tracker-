@@ -1,8 +1,9 @@
 import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -32,14 +33,30 @@ export async function POST(req: Request) {
   const id = str(body?.id);
   if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
 
+  // Branch/role transfers (promote/transfer) are a SUPER-ADMIN power only;
+  // everyone else keeps those fields as-is.
+  const superAdmin = isSuperAdmin(user);
+
   try {
+    const existing = await prisma.employee.findUnique({
+      where: { id },
+      include: { user: { select: { id: true, email: true } } },
+    });
+    if (!existing) return NextResponse.json({ error: "Employee not found." }, { status: 404 });
+
+    const newEmail = str(body?.email); // work email
+    const emailChanged = (existing.email ?? "").trim().toLowerCase() !== (newEmail ?? "").trim().toLowerCase();
+    const newBranch = superAdmin ? str(body?.branch) : existing.branch;
+    const branchChanged = superAdmin && (existing.branch ?? null) !== (newBranch ?? null);
+
     await prisma.employee.update({
       where: { id },
       data: {
-        email: str(body?.email),
+        email: newEmail,
         phone: str(body?.phone), // work phone
         personalPhone: str(body?.personalPhone),
         personalEmail: str(body?.personalEmail),
+        nickname: str(body?.nickname),
         title: str(body?.title),
         division: str(body?.division),
         birthMonth: intIn(body?.birthMonth, 1, 12),
@@ -47,8 +64,39 @@ export async function POST(req: Request) {
         birthYear: intIn(body?.birthYear, 1940, new Date().getFullYear()), // HR-only
         status: str(body?.status) ?? "active",
         hireDate: date(body?.hireDate),
+        // Branch/role transfer — super admins only (promote / transfer).
+        ...(superAdmin ? { branch: str(body?.branch), role: str(body?.role) } : {}),
       },
     });
+
+    // Keep the linked login (if any) in lockstep with the canonical profile.
+    const login = existing.user;
+    if (login) {
+      const userData: { email?: string; branch?: string | null } = {};
+      // Work email ↔ sign-in email. Only when a non-empty new address is set —
+      // User.email is required + unique, so we never null it out.
+      if (emailChanged && newEmail) userData.email = newEmail.toLowerCase();
+      // Branch transfer: User.branch drives branch-locking, Employee.branch drives
+      // roster scoping — keep them aligned so a transfer takes effect everywhere.
+      if (branchChanged) userData.branch = newBranch;
+      if (Object.keys(userData).length) {
+        await prisma.user.update({ where: { id: login.id }, data: userData });
+      }
+      // Notify the new address that their sign-in email changed. sendEmail no-ops
+      // cleanly without a provider, so this is safe pre-launch.
+      if (emailChanged && newEmail) {
+        await sendEmail({
+          to: newEmail,
+          subject: "Your CanopyOS sign-in email was updated",
+          kind: "login_email_changed",
+          relatedType: "user",
+          relatedId: login.id,
+          text: `Hi ${existing.name},\n\nYour CanopyOS sign-in email has been updated. Your sign-in email is now ${newEmail}. Please use this address the next time you sign in.\n\n— CanopyOS`,
+          html: `<p>Hi ${existing.name},</p><p>Your CanopyOS sign-in email has been updated. Your sign-in email is now <strong>${newEmail}</strong>. Please use this address the next time you sign in.</p><p>— CanopyOS</p>`,
+        });
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return fail(e);

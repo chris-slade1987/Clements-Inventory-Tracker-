@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser, branchLocked, canResetPasswords, canEditAccessLevels } from "@/lib/auth";
+import { requireUser, branchLocked, canResetPasswords, canEditAccessLevels, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { separationForEmployee, SEPARATION_TYPES, REASON_CATEGORIES, EXIT_INTERVIEW, parseJson, type SeparationDoc } from "@/lib/separation";
 import { remindersForEmployee } from "@/lib/manual-reminders";
 import RemindersCard from "@/components/RemindersCard";
 import { dateShort } from "@/lib/format";
-import { branchLabel } from "@/lib/management";
+import { branchLabel, BRANCHES } from "@/lib/management";
 import { employeeDetail } from "@/lib/people";
 import { prisma } from "@/lib/prisma";
 import { accessLevelLabel } from "@/lib/access-levels";
@@ -124,7 +124,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
         <EmployeeContact
           id={e.id}
           canEdit={canEdit}
-          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", personalEmail: e.personalEmail ?? "", title: e.title ?? "", division: e.division ?? "", birthMonth: e.birthMonth != null ? String(e.birthMonth) : "", birthDay: e.birthDay != null ? String(e.birthDay) : "", birthYear: e.birthYear != null ? String(e.birthYear) : "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
+          canEditOrg={isSuperAdmin(user)}
+          branches={BRANCHES.map((b) => ({ key: b.key, label: b.label }))}
+          initial={{ email: e.email ?? "", phone: e.phone ?? "", personalPhone: e.personalPhone ?? "", personalEmail: e.personalEmail ?? "", nickname: e.nickname ?? "", title: e.title ?? "", division: e.division ?? "", branch: e.branch ?? "", role: e.role ?? "", birthMonth: e.birthMonth != null ? String(e.birthMonth) : "", birthDay: e.birthDay != null ? String(e.birthDay) : "", birthYear: e.birthYear != null ? String(e.birthYear) : "", status: e.status, hireDate: e.hireDate ? e.hireDate.toISOString().slice(0, 10) : "" }}
           emailConfigured={emailConfigured()}
         />
 

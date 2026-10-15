@@ -117,17 +117,57 @@ function normName(n: string): string {
 
 /**
  * Flip the `active` flag on the technician pick-list row(s) matching an
- * employee (by normalized name) — false on termination, true on reactivation —
- * so the check-out dispersement list follows employment status. Name-based
- * because there is no FK between employees and technicians. Returns count changed.
+ * employee (by normalized name OR nickname) — false on termination, true on
+ * reactivation — so the check-out dispersement list follows employment status.
+ * Name-based because there is no FK between employees and technicians; the
+ * employee's `nickname` is resolved here so a tech listed under a known-by name
+ * is still flipped. Returns count changed.
  */
 export async function syncTechnicianActiveForEmployee(employeeName: string, active: boolean): Promise<number> {
-  const target = normName(employeeName);
+  const targets = new Set([normName(employeeName)]);
+  // Pull the employee's nickname (if any) so a roster entry under it also flips.
+  const emp = await prisma.employee.findFirst({ where: { name: employeeName }, select: { nickname: true } });
+  if (emp?.nickname) targets.add(normName(emp.nickname));
   const techs = await prisma.technician.findMany({ select: { id: true, name: true, active: true } });
-  const ids = techs.filter((t) => normName(t.name) === target && t.active !== active).map((t) => t.id);
+  const ids = techs.filter((t) => targets.has(normName(t.name)) && t.active !== active).map((t) => t.id);
   if (ids.length === 0) return 0;
   const r = await prisma.technician.updateMany({ where: { id: { in: ids } }, data: { active } });
   return r.count;
+}
+
+/**
+ * New-hire roster provisioning — the mirror of offboarding (which deactivates the
+ * technician). When an Employee is created/converted, ensure a matching
+ * `Technician` roster row exists and is active so chemicals can be issued to them
+ * immediately. Matched by normalized name OR nickname: reactivate a matching
+ * inactive row, no-op an already-active one, otherwise create a fresh row at the
+ * employee's home-branch warehouse. Does NOT create a User login (that stays the
+ * manual "Grant login" step). Idempotent.
+ */
+export async function provisionTechnicianForEmployee(employee: {
+  name: string;
+  nickname?: string | null;
+  branch?: string | null;
+}): Promise<void> {
+  const targets = new Set([normName(employee.name)]);
+  if (employee.nickname) targets.add(normName(employee.nickname));
+
+  const techs = await prisma.technician.findMany({ select: { id: true, name: true, active: true } });
+  const match = techs.find((t) => targets.has(normName(t.name)));
+  if (match) {
+    // Reactivate a matching inactive roster entry; leave an active one as-is.
+    if (!match.active) await prisma.technician.update({ where: { id: match.id }, data: { active: true } });
+    return;
+  }
+
+  // No roster entry yet — create one at the branch's warehouse. Skip (rather than
+  // throw) if we can't resolve a home warehouse, so conversion never breaks.
+  const branch = employee.branch ?? null;
+  if (!branch) return;
+  const warehouses = await prisma.warehouse.findMany({ where: { active: true }, select: { id: true, name: true } });
+  const wh = warehouses.find((w) => w.name.toLowerCase().includes(branch.toLowerCase()));
+  if (!wh) return;
+  await prisma.technician.create({ data: { name: employee.name, homeWarehouseId: wh.id, active: true } });
 }
 
 /**
@@ -137,9 +177,13 @@ export async function syncTechnicianActiveForEmployee(employeeName: string, acti
  * on the dispersement list). Idempotent; returns count changed.
  */
 export async function reconcileTerminatedTechnicians(): Promise<number> {
-  const inactive = await prisma.employee.findMany({ where: { status: "inactive" }, select: { name: true } });
+  const inactive = await prisma.employee.findMany({ where: { status: "inactive" }, select: { name: true, nickname: true } });
   if (inactive.length === 0) return 0;
-  const names = new Set(inactive.map((e) => normName(e.name)));
+  const names = new Set<string>();
+  for (const e of inactive) {
+    names.add(normName(e.name));
+    if (e.nickname) names.add(normName(e.nickname));
+  }
   const techs = await prisma.technician.findMany({ where: { active: true }, select: { id: true, name: true } });
   const ids = techs.filter((t) => names.has(normName(t.name))).map((t) => t.id);
   if (ids.length === 0) return 0;

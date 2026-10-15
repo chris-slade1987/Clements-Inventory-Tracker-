@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
+import { provisionTechnicianForEmployee } from "@/lib/separation";
 import type { SessionUser } from "@/lib/auth";
 
 /** Who may run the pre-hire onboarding portal: admins + granted HR (April). */
@@ -294,6 +295,17 @@ export async function approveAndConvert(id: string, reviewerName: string | null)
       notes: conversionNotes(pre),
     },
   });
+
+  // Add them to the check-out (chemical dispersement) roster so chemicals can be
+  // issued immediately — the mirror of offboarding, which deactivates the tech.
+  // Name-matched (create if none, reactivate a matching inactive one); no login
+  // is created here (that stays the manual "Grant login" step). Never blocks the
+  // conversion if roster provisioning hits a snag.
+  try {
+    await provisionTechnicianForEmployee({ name: employee.name, nickname: employee.nickname, branch: employee.branch });
+  } catch {
+    // Non-fatal: the employee is created either way; the roster can be reconciled later.
+  }
 
   await prisma.preHire.update({
     where: { id },
