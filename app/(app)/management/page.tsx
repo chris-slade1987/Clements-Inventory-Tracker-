@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, branchLocked, scopedBranch } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { money } from "@/lib/format";
 import {
   BRANCHES,
@@ -59,9 +59,11 @@ export default async function ManagementPage({
   const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
   const basis: Basis = sp.basis === "ytd" ? "ytd" : "month";
   const locked = branchLocked(user);
-  const requestedScope = BRANCHES.find((b) => b.key === sp.scope)?.key ?? null;
-  // Branch-locked managers land on and are pinned to their own branch; admins/exec default to company.
-  const scope: Scope = (locked ? (scopedBranch(user, requestedScope) ?? "company") : (requestedScope ?? "company")) as Scope;
+  const requestedScope = sp.scope === "company" ? "company" : (BRANCHES.find((b) => b.key === sp.scope)?.key ?? null);
+  // Branch-locked managers DEFAULT to their own branch, but may toggle to the
+  // company or a peer branch for comparison (leadership approved this). Admins/exec
+  // default to company.
+  const scope: Scope = (requestedScope ?? (locked ? (user.branch ?? "company") : "company")) as Scope;
   const isCompany = scope === "company";
 
   const [cat, values, lob, techs] = await Promise.all([
@@ -147,31 +149,45 @@ export default async function ManagementPage({
         />
       </div>
 
-      {/* Branch selector — company banner + branch cards (production scorecard) */}
-      <Link href={branchLink("company")} className="block mb-4 mt-2">
-        <Card className={`p-4 transition ${isCompany ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
-          <div className="text-xs uppercase tracking-wider text-muted">All branches · Net revenue ({basisLabel})</div>
-          <BudgetLine c={cell(values, "net_revenue", "company", basis)} unit="usd" big />
-        </Card>
-      </Link>
+      {/* Branch-locked managers default to their own branch; a toggle reveals the
+          company / peer-branch comparison view. Admins & exec always see the selector. */}
+      {locked && user.branch ? (
+        <div className="mb-4 mt-2 flex w-fit gap-1 rounded-xl bg-black/[0.06] p-1">
+          <Link href={branchLink(user.branch)} className={`rounded-lg px-4 py-2 text-sm ${!isCompany ? "bg-surface text-ink font-medium shadow-sm" : "text-muted"}`}>My branch</Link>
+          <Link href={branchLink("company")} className={`rounded-lg px-4 py-2 text-sm ${isCompany ? "bg-surface text-ink font-medium shadow-sm" : "text-muted"}`}>All branches</Link>
+        </div>
+      ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
-        {BRANCHES.map((b) => {
-          const prod = cell(values, "production", b.key, basis);
-          const sel = scope === b.key;
-          return (
-            <Link key={b.key} href={branchLink(sel ? "company" : b.key)} className="block">
-              <Card className={`p-4 overflow-hidden transition ${sel ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
-                <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
-                <div className="text-xs font-medium uppercase tracking-wider text-muted">{b.label}</div>
-                <div className="mt-2 text-2xl font-light tabular-nums">{money(prod.actual)}</div>
-                <div className="text-[11px] text-muted">production</div>
-                <VarianceChip c={prod} unit="usd" />
-              </Card>
-            </Link>
-          );
-        })}
-      </div>
+      {/* Company net-revenue banner + per-branch production cards. A branch-locked
+          manager sees these only after toggling to the All-branches view. */}
+      {(!locked || isCompany) ? (
+        <>
+          <Link href={branchLink("company")} className="block mb-4 mt-2">
+            <Card className={`p-4 transition ${isCompany ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
+              <div className="text-xs uppercase tracking-wider text-muted">All branches · Net revenue ({basisLabel})</div>
+              <BudgetLine c={cell(values, "net_revenue", "company", basis)} unit="usd" big />
+            </Card>
+          </Link>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+            {BRANCHES.map((b) => {
+              const prod = cell(values, "production", b.key, basis);
+              const sel = scope === b.key;
+              return (
+                <Link key={b.key} href={branchLink(sel ? "company" : b.key)} className="block">
+                  <Card className={`p-4 overflow-hidden transition ${sel ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
+                    <div className="h-1 -mx-4 -mt-4 mb-3 bg-emerald-grad" />
+                    <div className="text-xs font-medium uppercase tracking-wider text-muted">{b.label}</div>
+                    <div className="mt-2 text-2xl font-light tabular-nums">{money(prod.actual)}</div>
+                    <div className="text-[11px] text-muted">production</div>
+                    <VarianceChip c={prod} unit="usd" />
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      ) : null}
 
       {/* Budget vs actual tiles — companywide, honoring the Month/YTD toggle,
           with an FY-forecast line per category from the model's CY forecast. */}

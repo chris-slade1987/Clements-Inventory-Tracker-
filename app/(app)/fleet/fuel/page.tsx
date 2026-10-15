@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { fleetFuelRows, coastFuelStatus } from "@/lib/fuel";
 import { prisma } from "@/lib/prisma";
@@ -15,7 +15,9 @@ export default async function FleetFuelPage({ searchParams }: { searchParams: Pr
   const user = await requireUser();
   const canUpload = user.role === "admin" || user.role === "manager";
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const locked = branchLocked(user);
+  // Branch-locked managers only see their own branch's fuel spend.
+  const branch = scopedBranch(user, BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
 
   const isAdmin = user.role === "admin";
   const [data, period, coast] = await Promise.all([
@@ -39,12 +41,14 @@ export default async function FleetFuelPage({ searchParams }: { searchParams: Pr
 
       {canUpload ? <FuelStatementUpload /> : null}
 
+      {!locked ? (
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
         <BranchPill href="/fleet/fuel" label="All branches" active={branch === null} />
         {BRANCHES.map((b) => (
           <BranchPill key={b.key} href={`/fleet/fuel?branch=${b.key}`} label={b.label} active={branch === b.key} />
         ))}
       </div>
+      ) : null}
 
       {data.rows.length === 0 ? (
         <EmptyState title="No fuel data yet" hint="Coast statements haven't been imported for this scope." />

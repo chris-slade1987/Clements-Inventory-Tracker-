@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, branchLocked } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { vehicleDetail, serviceLabel, dispositionLabel, DISPOSITIONS } from "@/lib/fleet";
@@ -26,6 +26,9 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const detail = await vehicleDetail(id);
   if (!detail) notFound();
   const { vehicle: v, services, totalCost } = detail;
+  // Branch-locked managers can only open a vehicle at their own branch (keeps
+  // financing/loan balances for other branches out of reach). Admins see all.
+  if (branchLocked(user) && v.branch && v.branch !== user.branch) redirect("/fleet");
   const inspections = await vehicleInspections(id);
   const documents = await docsForVehicle(id);
   const reminders = await remindersForVehicle(id);

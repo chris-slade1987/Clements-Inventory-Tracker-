@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { money, dateShort } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { listVehicles, dispositionLabel } from "@/lib/fleet";
@@ -16,9 +16,11 @@ const DISP_STYLE: Record<string, string> = {
 };
 
 export default async function RetiredFleetPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const locked = branchLocked(user);
+  // Branch-locked managers only see their own branch's retired vehicles.
+  const branch = scopedBranch(user, BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
   const vehicles = await listVehicles(branch ?? undefined, "inactive");
   const salvage = vehicles.reduce((s, v) => s + (v.salePrice ?? 0), 0);
 
@@ -29,10 +31,12 @@ export default async function RetiredFleetPage({ searchParams }: { searchParams:
       </div>
       <PageHeader title="Sold & retired vehicles" subtitle="Out-of-service vehicles — every record (service, inspections, financing) is retained" />
 
-      <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-        <BranchPill href="/fleet/retired" label="All branches" active={branch === null} />
-        {BRANCHES.map((b) => <BranchPill key={b.key} href={`/fleet/retired?branch=${b.key}`} label={b.label} active={branch === b.key} />)}
-      </div>
+      {!locked ? (
+        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+          <BranchPill href="/fleet/retired" label="All branches" active={branch === null} />
+          {BRANCHES.map((b) => <BranchPill key={b.key} href={`/fleet/retired?branch=${b.key}`} label={b.label} active={branch === b.key} />)}
+        </div>
+      ) : null}
 
       {vehicles.length === 0 ? (
         <EmptyState title="No sold or retired vehicles" hint="When a vehicle leaves service, retire or mark it sold from its detail page — it moves here with all its history." />
