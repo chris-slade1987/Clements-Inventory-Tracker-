@@ -4,7 +4,7 @@ import { gradeLetter } from "@/lib/inspection";
 // Personnel / HR queries. Employees are the people that inspections and (later)
 // annual reviews tag to, so scores accrue to a profile over time.
 
-export type EmployeeLite = { id: string; name: string; role: string | null; division: string | null; branch: string | null };
+export type EmployeeLite = { id: string; name: string; role: string | null; division: string | null; branch: string | null; nickname?: string | null };
 
 export async function listEmployees(branch?: string) {
   return prisma.employee.findMany({
@@ -16,7 +16,9 @@ export async function listEmployees(branch?: string) {
 /**
  * Match a free-text driver name (e.g. the fleet sheet's "Josh F*") to a seeded
  * employee. Compares first name + last-initial so abbreviated names still tie
- * to the full profile.
+ * to the full profile. Each employee is matched against BOTH their full name and
+ * their `nickname` (when set), so a roster/vehicle entry recorded under someone's
+ * known-by name still links to their canonical profile.
  */
 export function matchEmployeeByName(name: string | null | undefined, employees: EmployeeLite[]): string | null {
   const raw = (name ?? "").replace(/\*/g, "").trim().toLowerCase();
@@ -24,19 +26,27 @@ export function matchEmployeeByName(name: string | null | undefined, employees: 
   const [first, rest] = [raw.split(/\s+/)[0], raw.split(/\s+/).slice(1).join(" ")];
   const lastInitial = rest ? rest[0] : null;
   let exact: string | null = null;
-  const firstMatches: { id: string; last: string }[] = [];
+  // De-dupe by employee id (an employee may match on both name and nickname);
+  // keep a non-empty last name when one of the candidates provides it.
+  const firstMatches = new Map<string, string>();
   for (const e of employees) {
-    const en = e.name.toLowerCase().split(/\s+/);
-    if (en[0] !== first) continue;
-    const last = en.slice(1).join(" ");
-    if (raw === e.name.toLowerCase()) exact = e.id;
-    firstMatches.push({ id: e.id, last });
+    const candidates = [e.name, e.nickname].filter((c): c is string => !!c && c.trim() !== "");
+    for (const cand of candidates) {
+      const cn = cand.toLowerCase().trim();
+      if (raw === cn) exact = e.id;
+      const en = cn.split(/\s+/);
+      if (en[0] !== first) continue;
+      const last = en.slice(1).join(" ");
+      const existing = firstMatches.get(e.id);
+      if (existing === undefined || (existing === "" && last !== "")) firstMatches.set(e.id, last);
+    }
   }
   if (exact) return exact;
-  if (firstMatches.length === 1) return firstMatches[0].id;
+  const entries = [...firstMatches.entries()];
+  if (entries.length === 1) return entries[0][0];
   if (lastInitial) {
-    const byInitial = firstMatches.filter((m) => m.last.startsWith(lastInitial));
-    if (byInitial.length === 1) return byInitial[0].id;
+    const byInitial = entries.filter(([, last]) => last.startsWith(lastInitial));
+    if (byInitial.length === 1) return byInitial[0][0];
   }
   return null;
 }

@@ -1022,6 +1022,7 @@ model VehicleInspection {
 model Employee {
   id               String     @id @default(cuid())
   name             String
+  nickname         String? // preferred/known-by name; used for Technician / vehicle roster name-matching (e.g. a tech listed under a nickname)
   email            String? // work email (for emailing inspection scores); filled later
   phone            String? // WORK phone
   personalPhone    String?    @map("personal_phone") // personal/cell number (separate from work phone)

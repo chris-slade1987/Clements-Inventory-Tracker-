@@ -16,7 +16,9 @@ function fmtStartDate(v: string): string {
   return `${MONTH_ABBR[Number(mo) - 1]} ${Number(d)}, ${y}`;
 }
 
-type Fields = { email: string; phone: string; personalPhone: string; personalEmail: string; title: string; division: string; birthMonth: string; birthDay: string; birthYear: string; status: string; hireDate: string };
+type Fields = { email: string; phone: string; personalPhone: string; personalEmail: string; nickname: string; title: string; division: string; branch: string; role: string; birthMonth: string; birthDay: string; birthYear: string; status: string; hireDate: string };
+
+type BranchOption = { key: string; label: string };
 
 // "Jun 1" from month (1-12) + day strings; empty/invalid -> "—". This is the HR
 // profile, so when a birth YEAR is on file we show the full date ("Jun 1, 1975").
@@ -31,11 +33,17 @@ function fmtBirthday(month: string, day: string, year: string): string {
 export default function EmployeeContact({
   id,
   canEdit,
+  canEditOrg,
+  branches,
   initial,
   emailConfigured,
 }: {
   id: string;
   canEdit: boolean;
+  // Super admins may change branch + role (promote / transfer); everyone else
+  // sees those two fields read-only.
+  canEditOrg: boolean;
+  branches: BranchOption[];
   initial: Fields;
   emailConfigured: boolean;
 }) {
@@ -76,12 +84,24 @@ export default function EmployeeContact({
       {editing ? (
         <>
           <div className="space-y-2">
+            <InputRow label="Nickname" v={f.nickname} on={(v) => setF({ ...f, nickname: v })} placeholder="Known-by name (for roster matching)" />
             <InputRow label="Work email" v={f.email} on={(v) => setF({ ...f, email: v })} placeholder="name@clementspestcontrol.com" type="email" />
             <InputRow label="Personal email" v={f.personalEmail} on={(v) => setF({ ...f, personalEmail: v })} placeholder="name@gmail.com" type="email" />
             <InputRow label="Work phone" v={f.phone} on={(v) => setF({ ...f, phone: v })} type="tel" placeholder="(772) 555-0100" />
             <InputRow label="Personal phone" v={f.personalPhone} on={(v) => setF({ ...f, personalPhone: v })} type="tel" placeholder="(772) 555-0100" />
             <InputRow label="Title" v={f.title} on={(v) => setF({ ...f, title: v })} />
             <InputRow label="Department / Division" v={f.division} on={(v) => setF({ ...f, division: v })} placeholder="Service, Lawn, General Pest…" />
+            {/* Branch + role transfer — editable by super admins only; read-only otherwise. */}
+            {canEditOrg ? (
+              <BranchRow label="Branch" value={f.branch} branches={branches} on={(v) => setF({ ...f, branch: v })} />
+            ) : (
+              <ViewRow label="Branch" v={branchLabelOf(f.branch, branches)} raw />
+            )}
+            {canEditOrg ? (
+              <InputRow label="Role" v={f.role} on={(v) => setF({ ...f, role: v })} placeholder="Technician, Manager, Sales Advisor…" />
+            ) : (
+              <ViewRow label="Role" v={f.role} />
+            )}
             <BirthdayRow month={f.birthMonth} day={f.birthDay} year={f.birthYear} onMonth={(v) => setF({ ...f, birthMonth: v })} onDay={(v) => setF({ ...f, birthDay: v })} onYear={(v) => setF({ ...f, birthYear: v })} />
             <InputRow label="Start date" v={f.hireDate} on={(v) => setF({ ...f, hireDate: v })} type="date" />
           </div>
@@ -95,12 +115,15 @@ export default function EmployeeContact({
       ) : (
         <>
           <dl className="space-y-2">
+            <ViewRow label="Nickname" v={f.nickname} />
             <ViewRow label="Work email" v={f.email} />
             <ViewRow label="Personal email" v={f.personalEmail} />
             <ViewRow label="Work phone" v={f.phone} />
             <ViewRow label="Personal phone" v={f.personalPhone} />
             <ViewRow label="Title" v={f.title} />
             <ViewRow label="Department / Division" v={f.division} />
+            <ViewRow label="Branch" v={branchLabelOf(f.branch, branches)} raw />
+            <ViewRow label="Role" v={f.role} />
             <ViewRow label="Birthday" v={fmtBirthday(f.birthMonth, f.birthDay, f.birthYear)} raw />
             <ViewRow label="Start date" v={fmtStartDate(f.hireDate)} raw />
           </dl>
@@ -151,6 +174,25 @@ function BirthdayRow({ month, day, year, onMonth, onDay, onYear }: { month: stri
           {BIRTH_YEARS.map((y) => <option key={y} value={String(y)}>{y}</option>)}
         </select>
       </span>
+    </label>
+  );
+}
+
+// Resolve a branch key ("vero") to its label ("Vero Beach"); empty -> "—".
+function branchLabelOf(key: string, branches: BranchOption[]): string {
+  if (!key) return "—";
+  return branches.find((b) => b.key === key)?.label ?? key;
+}
+
+// Branch transfer dropdown (super admins only). Keys are the 4 branch keys.
+function BranchRow({ label, value, branches, on }: { label: string; value: string; branches: BranchOption[]; on: (v: string) => void }) {
+  return (
+    <label className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted">{label}</span>
+      <select value={value} onChange={(e) => on(e.target.value)} className="w-56 rounded-lg border border-line px-2 py-1.5 text-sm text-ink bg-surface">
+        <option value="">— none —</option>
+        {branches.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
+      </select>
     </label>
   );
 }
