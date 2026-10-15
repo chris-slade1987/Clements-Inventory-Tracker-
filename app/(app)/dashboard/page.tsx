@@ -45,8 +45,8 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const user = await requireUser();
-  const sp = await searchParams;
+  // Independent reads — the session user and the (promised) search params.
+  const [user, sp] = await Promise.all([requireUser(), searchParams]);
   const now = new Date();
   const p = currentPeriods(now);
 
@@ -58,14 +58,18 @@ export default async function DashboardPage({
   // Branch-locked managers are pinned to their own warehouse — they never see
   // other branches' inventory/spend. Admins/exec see all and can pick.
   const locked = branchLocked(user);
-  const allWarehouses = await prisma.warehouse.findMany({
-    where: { active: true },
-    orderBy: { name: "asc" },
-  });
+  // Both reads are independent — fetch the warehouse list and the product cost
+  // map in parallel (cost isn't used until the analytics batch below).
+  const [allWarehouses, cost] = await Promise.all([
+    prisma.warehouse.findMany({
+      where: { active: true },
+      orderBy: { name: "asc" },
+    }),
+    productCostMap(),
+  ]);
   const warehouses = locked && user.warehouseId ? allWarehouses.filter((w) => w.id === user.warehouseId) : allWarehouses;
   const selected = locked ? warehouses[0] ?? null : warehouses.find((w) => w.id === sp.branch) ?? null;
   const scopeId = selected?.id; // undefined = all branches (admins only)
-  const cost = await productCostMap();
 
   // Confirm-queue nudge (admins + HR only — they can act on it).
   const canConfirm = user.role === "admin" || user.hrAccess;

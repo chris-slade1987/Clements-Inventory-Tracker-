@@ -54,31 +54,35 @@ export function matchEmployeeByName(name: string | null | undefined, employees: 
 export async function employeeDetail(id: string) {
   const employee = await prisma.employee.findUnique({ where: { id } });
   if (!employee) return null;
-  const inspections = await prisma.vehicleInspection.findMany({
-    where: { employeeId: id },
-    orderBy: [{ year: "desc" }, { month: "desc" }],
-    include: { vehicle: { select: { unitNumber: true, name: true } } },
-  });
-  const rideAlongs = await prisma.auditRideAlong.findMany({
-    where: { employeeId: id },
-    orderBy: { id: "desc" },
-    include: { audit: { select: { year: true, quarter: true, visitDate: true } } },
-  });
-  const training = await prisma.trainingAssignment.findMany({
-    where: { employeeId: id },
-    orderBy: [{ status: "asc" }, { assignedAt: "desc" }],
-    include: { course: { select: { title: true, category: true } } },
-  });
-  const records = await prisma.personnelRecord.findMany({
-    where: { employeeId: id },
-    orderBy: { createdAt: "desc" },
-    include: { signatures: { orderBy: { signedAt: "asc" } }, signatureRequests: { where: { signedAt: null } } },
-  });
-  // Vehicles currently assigned to this person (matched by name).
-  const vehicles = await prisma.vehicle.findMany({
-    where: { status: "active", branch: employee.branch ?? undefined },
-    select: { id: true, unitNumber: true, name: true, assignedTo: true },
-  });
+  // These five reads are independent of one another (vehicles only needs the
+  // already-resolved employee.branch), so run them in parallel.
+  const [inspections, rideAlongs, training, records, vehicles] = await Promise.all([
+    prisma.vehicleInspection.findMany({
+      where: { employeeId: id },
+      orderBy: [{ year: "desc" }, { month: "desc" }],
+      include: { vehicle: { select: { unitNumber: true, name: true } } },
+    }),
+    prisma.auditRideAlong.findMany({
+      where: { employeeId: id },
+      orderBy: { id: "desc" },
+      include: { audit: { select: { year: true, quarter: true, visitDate: true } } },
+    }),
+    prisma.trainingAssignment.findMany({
+      where: { employeeId: id },
+      orderBy: [{ status: "asc" }, { assignedAt: "desc" }],
+      include: { course: { select: { title: true, category: true } } },
+    }),
+    prisma.personnelRecord.findMany({
+      where: { employeeId: id },
+      orderBy: { createdAt: "desc" },
+      include: { signatures: { orderBy: { signedAt: "asc" } }, signatureRequests: { where: { signedAt: null } } },
+    }),
+    // Vehicles currently assigned to this person (matched by name).
+    prisma.vehicle.findMany({
+      where: { status: "active", branch: employee.branch ?? undefined },
+      select: { id: true, unitNumber: true, name: true, assignedTo: true },
+    }),
+  ]);
   const assigned = vehicles.filter((v) => matchEmployeeByName(v.assignedTo, [employee]) === employee.id);
 
   const pcts = inspections.map((i) => i.scorePct);
