@@ -5,6 +5,7 @@ import { requireUser, canManageSales } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
 import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
+import { advisorPaceSignal } from "@/lib/sales-funnel";
 import { branchLabel } from "@/lib/management";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,11 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
   const periodKey = currentPeriodKey();
   const g = await advisorGoal(emp.id, periodKey);
   const initial = { ...g.recap, salesGoal: g.goal.salesGoal, workdays: g.goal.workdays };
+  const paceSignal = await advisorPaceSignal(emp.id, periodKey);
+  const proposedByName = g.sheet?.proposedByUserId
+    ? (await prisma.user.findUnique({ where: { id: g.sheet.proposedByUserId }, select: { name: true } }))?.name ?? null
+    : null;
+  const proposal = { proposedGoal: g.sheet?.proposedGoal ?? null, goalStatus: g.sheet?.goalStatus ?? null, proposedByName };
 
   return (
     <>
@@ -32,6 +38,9 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
         advisorName={emp.name}
         initial={initial}
         canEdit
+        viewerRole="director"
+        paceSignal={paceSignal}
+        proposal={proposal}
       />
     </>
   );

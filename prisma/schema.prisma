@@ -1358,6 +1358,12 @@ model SalesGoalSheet {
   proposalsGoal     Int      @default(0) @map("proposals_goal")
   dealsGoal         Int      @default(0) @map("deals_goal")
   source            String   @default("manual") // "manual" | "demo" — demo rows are cleared on SmarterLaunch cutover
+  // Sales-Director co-goal-setting: the director may PROPOSE a goal alongside the
+  // advisor's without overwriting the advisor's entered sheet. The advisor accepts
+  // it (salesGoal := proposedGoal, goalStatus "agreed") or sets their own.
+  proposedGoal      Int?     @map("proposed_goal") // director's proposed $ goal (null = none)
+  proposedByUserId  String?  @map("proposed_by_user_id") // User.id of the proposing director
+  goalStatus        String?  @map("goal_status") // "advisor_set" | "director_proposed" | "agreed" (null = untouched)
   createdByUserId   String?  @map("created_by_user_id")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")

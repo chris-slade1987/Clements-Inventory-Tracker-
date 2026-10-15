@@ -69,10 +69,55 @@ export async function upsertGoalSheet(
     salesGoal: Math.max(0, data.salesGoal || 0),
     workdays: Math.max(0, Math.round(data.workdays || 0)),
   };
+  // Attribute the committed goal: "agreed" when it matches a director's pending
+  // proposal, otherwise "advisor_set". Leave status untouched when no goal is set.
+  const existing = await getGoalSheet(advisorEmployeeId, periodKey);
+  const goalStatus =
+    clean.salesGoal > 0
+      ? (existing?.proposedGoal != null && clean.salesGoal === existing.proposedGoal ? "agreed" : "advisor_set")
+      : (existing?.goalStatus ?? null);
   return prisma.salesGoalSheet.upsert({
     where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
-    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, ...clean },
-    update: { ...clean, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
+    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, goalStatus, ...clean },
+    update: { ...clean, goalStatus, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
+  });
+}
+
+/**
+ * The Sales Director PROPOSES a goal alongside the advisor's — non-destructive:
+ * it never overwrites the advisor's entered sheet (recap, their own salesGoal,
+ * workdays). The advisor sees the proposal and accepts it with `acceptProposal`.
+ */
+export async function proposeGoal(
+  advisorEmployeeId: string,
+  periodKey: string,
+  proposedGoal: number,
+  opts: { branch?: string | null; userId?: string | null } = {},
+) {
+  const clean = Math.max(0, Math.round(proposedGoal || 0));
+  return prisma.salesGoalSheet.upsert({
+    where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
+    create: {
+      advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null,
+      proposedGoal: clean, proposedByUserId: opts.userId ?? null, goalStatus: "director_proposed",
+    },
+    update: {
+      proposedGoal: clean, proposedByUserId: opts.userId ?? null, goalStatus: "director_proposed",
+      ...(opts.branch !== undefined ? { branch: opts.branch } : {}),
+    },
+  });
+}
+
+/** The advisor ACCEPTS the director's proposal: it becomes the committed goal. */
+export async function acceptProposal(
+  advisorEmployeeId: string,
+  periodKey: string,
+) {
+  const sheet = await getGoalSheet(advisorEmployeeId, periodKey);
+  if (!sheet || sheet.proposedGoal == null) return null;
+  return prisma.salesGoalSheet.update({
+    where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
+    data: { salesGoal: sheet.proposedGoal, goalStatus: "agreed" },
   });
 }
 
