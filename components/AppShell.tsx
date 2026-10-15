@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, ACCESS_RIGHTS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { matchPathToItem } from "@/lib/access-paths";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -89,6 +90,7 @@ export default function AppShell({
   isServiceAdvisor = false,
   isFieldOpsDirector = false,
   canManageAccessRights = false,
+  grantedKeys = [],
   unread = 0,
 }: {
   children: React.ReactNode;
@@ -103,6 +105,7 @@ export default function AppShell({
   isServiceAdvisor?: boolean;
   isFieldOpsDirector?: boolean;
   canManageAccessRights?: boolean;
+  grantedKeys?: string[];
   unread?: number;
 }) {
   const pathname = usePathname();
@@ -130,6 +133,16 @@ export default function AppShell({
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";
+  // Access Rights nav filtering: hide links a user's saved grants turn off.
+  // Admins are never filtered; an empty grant set disables filtering entirely
+  // (fail-open); unmapped hrefs are always shown. Hiding a link never locks
+  // anyone out — the (app) layout guard handles direct-URL access.
+  const enforceNav = !isAdmin && grantedKeys.length > 0;
+  const navAllowed = (href: string) => {
+    if (!enforceNav) return true;
+    const k = matchPathToItem(href);
+    return !k || grantedKeys.includes(k);
+  };
   // Access grants (admins always qualify). Compliance = senior leadership;
   // Pre-hires = HR. An employee-shell user with any grant keeps their stripped
   // self-service shell and may reach ONLY their granted management pages.
@@ -156,7 +169,7 @@ export default function AppShell({
   // Interviewers (non-HR) get a scoped "My Hiring" link. HR already has the full
   // Hiring nav, so don't double it up for them.
   const showMyHiring = isInterviewer && !canManageAts;
-  const homeExtras: NavItem[] = [...grantedMgmt, ...(showMyHiring ? [MY_HIRING_NAV_ITEM] : [])];
+  const homeExtras: NavItem[] = [...grantedMgmt, ...(showMyHiring ? [MY_HIRING_NAV_ITEM] : [])].filter((i) => navAllowed(i.href));
   const privilegedEmployee = isEmployee && homeExtras.length > 0;
 
   const rawItems =
@@ -217,6 +230,9 @@ export default function AppShell({
   if (mode === "inventory" && !isBoardObserver && (isAdmin || isHrAccess)) {
     items = [...items, CATALOG_ADMIN_NAV_ITEM];
   }
+  // Hide any remaining links the viewer's saved grants turn off (admins/empty
+  // grants are unaffected; see navAllowed).
+  items = items.filter((i) => navAllowed(i.href));
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver && !isSalesDirector;
@@ -225,7 +241,7 @@ export default function AppShell({
   // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).
   const resources: NavItem[] = isBoardObserver
     ? []
-    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : []), BULLETIN_NAV_ITEM];
+    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : []), BULLETIN_NAV_ITEM].filter((i) => navAllowed(i.href));
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = [...items, ...resources]
     .map((i) => i.href)
@@ -275,7 +291,7 @@ export default function AppShell({
     if (m === "inventory" && (isAdmin || isHrAccess)) {
       list = [...list, CATALOG_ADMIN_NAV_ITEM];
     }
-    return list;
+    return list.filter((i) => navAllowed(i.href));
   }
 
   const panelItems = openPanel && openPanel !== "menu" ? itemsForMode(openPanel) : items;

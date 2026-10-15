@@ -1,10 +1,11 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import { requireUser, isBoardObserver, isServiceAdvisor, isFieldOpsDirector, passwordChangeOverdue, PASSWORD_GRACE_MS, PASSWORD_POLICY_ENFORCED } from "@/lib/auth";
+import { requireUser, isBoardObserver, isServiceAdvisor, isFieldOpsDirector, homePath, passwordChangeOverdue, PASSWORD_GRACE_MS, PASSWORD_POLICY_ENFORCED } from "@/lib/auth";
 import { unreadCount } from "@/lib/threads";
 import { isActiveInterviewer } from "@/lib/ats";
-import { canManageAccessRights } from "@/lib/access";
+import { canManageAccessRights, effectiveGrantsForUser } from "@/lib/access";
+import { matchPathToItem } from "@/lib/access-paths";
 import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
 
@@ -39,11 +40,29 @@ export default async function AppGroupLayout({
     passwordDueInMs !== null && passwordDueInMs > 0 ? Math.ceil(passwordDueInMs / 3_600_000) : null;
 
   // Board observers never see Fleet, so skip the (branch-scoped) GPS badge for them.
-  const [unread, isInterviewer, demoMode] = await Promise.all([
+  const [unread, isInterviewer, demoMode, grants] = await Promise.all([
     unreadCount(user.id).catch(() => 0),
     isActiveInterviewer(user.id).catch(() => false),
     isDemoMode().catch(() => false),
+    effectiveGrantsForUser(user).catch(() => ({})),
   ]);
+
+  // Access Rights enforcement. Admins (super admin, team-scoped admin, the
+  // field-ops director) are never gated. For everyone else, if the page maps to a
+  // catalog item their effective grants don't include, send them to a page they
+  // can reach. Unmapped paths are never blocked; the target is loop-safe (falls
+  // back to /account, which every level can open). Existing per-page guards stay
+  // in place underneath this.
+  const grantedKeys = Object.keys(grants).filter((k) => (grants as Record<string, unknown>)[k]);
+  if (user.role !== "admin" && path) {
+    const item = matchPathToItem(path);
+    if (item && !(grants as Record<string, unknown>)[item]) {
+      let target = homePath(user);
+      const targetItem = matchPathToItem(target);
+      if (targetItem && !(grants as Record<string, unknown>)[targetItem]) target = "/account";
+      if (path !== target) redirect(target);
+    }
+  }
   return (
     <AppShell
       managerName={user.name}
@@ -57,6 +76,7 @@ export default async function AppGroupLayout({
       isServiceAdvisor={isServiceAdvisor(user)}
       isFieldOpsDirector={isFieldOpsDirector(user)}
       canManageAccessRights={canManageAccessRights(user)}
+      grantedKeys={grantedKeys}
       unread={unread}
     >
       {demoMode ? <DemoModeBanner isAdmin={user.role === "admin"} /> : null}
