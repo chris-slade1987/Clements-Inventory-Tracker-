@@ -127,7 +127,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             <Field label="VIN" value={v.vin} />
             <Field label="Plate" value={v.plate} />
             <Field label="Fuel card" value={v.driverCard} />
-            <Field label="GPS" value={v.gps} />
+            {/* GPS/telematics is hidden from the UI for now — the subsystem is dormant
+                (data retained in the schema) and will return when the GPS API is wired. */}
             <Field label="Registration renewal" value={v.registrationRenewal ? dateShort(v.registrationRenewal) : null} />
             <Field label="Mileage as of" value={v.mileageAsOf ? dateShort(v.mileageAsOf) : null} />
           </dl>

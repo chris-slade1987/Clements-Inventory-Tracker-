@@ -460,6 +460,3 @@ export const FLEET_NAV: NavItem[] = [
     icon: "M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4",
   },
 ];
-
-// Back-compat: default export used by older imports.
-export const NAV_ITEMS = INVENTORY_NAV;
