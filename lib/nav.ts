@@ -353,8 +353,8 @@ export const MANAGEMENT_NAV: NavItem[] = [
   INSIGHTS_NAV_ITEM,
   {
     href: "/management",
-    label: "Management",
-    shortLabel: "Mgmt",
+    label: "Company Overview",
+    shortLabel: "Overview",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {
@@ -426,8 +426,8 @@ export const BOARD_OBSERVER_NAV: NavItem[] = [
   },
   {
     href: "/management",
-    label: "Management",
-    shortLabel: "Mgmt",
+    label: "Company Overview",
+    shortLabel: "Overview",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {

@@ -41,7 +41,7 @@ export default async function ManagementPage({
   if (periods.length === 0) {
     return (
       <>
-        <PageHeader title="Management" subtitle="Board & management KPIs" />
+        <PageHeader title="Company Overview" subtitle="Company & branch KPIs — budget vs actual" />
         <EmptyState
           title="No reports uploaded yet"
           hint="Upload a Monthly Board Report (MBR) to populate the dashboard."
@@ -134,7 +134,7 @@ export default async function ManagementPage({
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
-          title="Management"
+          title="Company Overview"
           subtitle={`Budget vs actual · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
           actions={
             <Link href={branchLink(BRANCHES[0].key)} className="text-sm font-medium text-brand-700 hover:underline">

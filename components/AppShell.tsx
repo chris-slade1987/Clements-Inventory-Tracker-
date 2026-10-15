@@ -34,7 +34,7 @@ function isActive(pathname: string, href: string) {
 const CENTERS: { href: string; label: string; short: string; m: Mode }[] = [
   { href: "/my-branch", label: "My Branch", short: "Branch", m: "manager" },
   { href: "/dashboard", label: "Inventory", short: "Inventory", m: "inventory" },
-  { href: "/management", label: "Management", short: "Mgmt", m: "management" },
+  { href: "/management", label: "Executive", short: "Exec", m: "management" },
   { href: "/fleet", label: "Fleet", short: "Fleet", m: "fleet" },
 ];
 

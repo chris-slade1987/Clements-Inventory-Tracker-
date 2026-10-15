@@ -51,7 +51,7 @@ export const MODULES: AccessModule[] = [
     { id: "fleet", name: "Fleet Overview" }, { id: "fleet-detail", name: "Vehicle Detail" }, { id: "fleet-inspect", name: "Inspect Vehicle" },
     { id: "fleet-assign", name: "Driver Assignments" }, { id: "fleet-fuel", name: "Fuel" }, { id: "fleet-service", name: "Log Service" }, { id: "fleet-retired", name: "Retired Vehicles" } ] },
   { id: "mgmt", name: "Management & Executive", sub: "Company-wide", items: [
-    { id: "management", name: "Management (budget & P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
+    { id: "management", name: "Company Overview (budget & P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
     { id: "sales-attrition", name: "Sales & Attrition", ve: true }, { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
     { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance", ve: true }, { id: "insurance", name: "Insurance", ve: true },
     { id: "documents", name: "Documents", ve: true }, { id: "system-map", name: "System Map" }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
