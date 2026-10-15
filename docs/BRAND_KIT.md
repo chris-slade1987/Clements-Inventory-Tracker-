@@ -170,6 +170,34 @@ Mirror the app's chrome/content split. Build 16:9.
 
 ---
 
+## 12. Motivation & progress patterns
+
+Progress should feel like momentum, not a report. Use the shared kit —
+`components/motivation.tsx` (pure, server-renderable) + `components/GoalSlider.tsx`
+(client) — everywhere we show attainment, goals, journeys, or completion. Never
+rebuild these inline.
+
+- **Encouragement ramp (`rampColor(pct)`):** a restrained **warm-clay → amber →
+  forest** ramp (`#B5654D → #D1A14E → #74A96E → #1F9D57`). It reads as "keep
+  climbing," not a traffic light — **no pure red, no neon.** Met/complete states
+  settle into brand green; 100% gets a gentle forest→celebrate gradient.
+- **`AchievementBar`** — horizontal attainment with milestone ticks + a live
+  percent in the ramp color. For dashboards, training, certification progress.
+- **`GoalSlider`** — drag to set a goal (replaces number boxes). Fill + thumb
+  climb the ramp as the goal rises, with a live word of encouragement; supports a
+  `rampCeiling` "stretch" target.
+- **`MilestoneStepper`** — a journey as connected nodes (done / current / ahead):
+  HR pipeline, onboarding, certification steps.
+- **`ProgressRing`** — compact circular completion for stat tiles.
+- **`KpiMeter`** — scorecard KPI as actual-vs-target with a target marker; met in
+  forest green, short of target on the ramp.
+- **Buzz** (§8) marks the *arrival* — completion/achievement moments — not the journey.
+
+Rules: calm motion only (CSS width/stroke transitions, ~700ms ease-out, all
+`motion-reduce` safe); always expose the real number alongside the visual; every
+bar/ring carries an ARIA progressbar role. Encouraging copy, never guilt ("Almost
+there," "Building momentum" — not "behind").
+
 ## 11. Copy-paste tokens
 ```css
 --font: "Helvetica Neue", Arial, Helvetica, system-ui, sans-serif; /* base weight 300 */

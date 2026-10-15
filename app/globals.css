@@ -158,3 +158,22 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
   .buzz-fig, .buzz-ant, .buzz-eye, .buzz-medal, .buzz-shine, .buzz-confetti i, .buzz-marker::after { animation: none !important; }
   .buzz-confetti { display: none; }
 }
+
+/* ===== Goal slider — motivation kit (components/GoalSlider.tsx) ===== */
+/* Driven by inline vars: --pct (0-100%) and --accent (ramp color). The filled
+   portion and thumb take the encouragement color; the rest is a calm track. */
+.goal-slider {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 10px;
+  border-radius: 999px; outline: none; cursor: pointer;
+  background: linear-gradient(90deg, var(--accent, #2e6f47) 0%, var(--accent, #2e6f47) var(--pct, 50%), rgba(8,37,24,0.08) var(--pct, 50%), rgba(8,37,24,0.08) 100%);
+}
+.goal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--accent, #2e6f47);
+  box-shadow: 0 1px 3px rgba(8,37,24,0.3); transition: border-color .15s ease;
+}
+.goal-slider::-moz-range-thumb {
+  width: 24px; height: 24px; border-radius: 50%; background: #fff;
+  border: 3px solid var(--accent, #2e6f47); box-shadow: 0 1px 3px rgba(8,37,24,0.3);
+}
+.goal-slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(31,157,87,0.25); }
