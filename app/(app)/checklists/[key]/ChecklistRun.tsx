@@ -56,7 +56,9 @@ export default function ChecklistRun({
       <Card className="p-0 overflow-hidden">
         <div className="px-5 py-4 border-b border-line bg-emerald-50/50">
           <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700 text-sm">✓</span>
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+            </span>
             <div>
               <div className="text-sm font-semibold text-emerald-800">Signed &amp; recorded</div>
               <div className="text-xs text-emerald-700">This is a permanent, non-editable record.</div>
@@ -73,7 +75,9 @@ export default function ChecklistRun({
             const ok = r?.checked === true;
             return (
               <li key={it.id} className="flex items-start gap-3 px-5 py-3">
-                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded text-[11px] ${ok ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>{ok ? "✓" : "—"}</span>
+                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded text-[11px] ${ok ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>
+                  {ok ? <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg> : "—"}
+                </span>
                 <div className="flex-1">
                   <div className="text-[15px] font-semibold text-ink">{it.label}</div>
                   <div className="text-xs text-muted mt-0.5">{it.objective}</div>

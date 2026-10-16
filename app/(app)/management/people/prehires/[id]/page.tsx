@@ -132,7 +132,11 @@ export default async function PreHireDetailPage({ params }: { params: Promise<{ 
                       <ul className="space-y-1">
                         {step.documents.map((d) => (
                           <li key={d.key} className="flex items-center gap-2 text-ink">
-                            <span className="text-emerald-600">{resp.acknowledged?.[d.key] ? "✓" : "—"}</span>
+                            {resp.acknowledged?.[d.key] ? (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                            ) : (
+                              <span className="w-4 shrink-0 text-center text-muted">—</span>
+                            )}
                             {d.label}
                           </li>
                         ))}

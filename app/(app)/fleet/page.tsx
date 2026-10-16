@@ -166,11 +166,11 @@ export default async function FleetPage({
               />
               <div className="flex items-center gap-8">
                 <div className="flex flex-col items-center gap-1.5">
-                  <ProgressRing value={active.filter((v) => (v.assignedTo ?? "").trim()).length} target={active.length || 1} />
+                  <ProgressRing value={active.filter((v) => (v.assignedTo ?? "").trim()).length} target={active.length || 1} ariaLabel="Drivers assigned" />
                   <span className="text-xs text-muted">Drivers assigned</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
-                  <ProgressRing value={active.length - dueSoon.length} target={active.length || 1} />
+                  <ProgressRing value={active.length - dueSoon.length} target={active.length || 1} ariaLabel="Up to date" />
                   <span className="text-xs text-muted">Up to date</span>
                 </div>
               </div>
