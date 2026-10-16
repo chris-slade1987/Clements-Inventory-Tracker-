@@ -2,18 +2,22 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-// Month picker + Month/YTD basis toggle. Preserves the other query params
-// (scope/branch drill-down) when switching.
+// Month picker + basis toggle (This month · Year to date · optionally Full-Year
+// Forecast). Preserves the other query params (scope/branch drill-down) when
+// switching. `forecast` opts into the third basis (used by the Branch & Company
+// KPIs dashboard); the Executive dashboard omits it and stays Month/YTD only.
 export default function Controls({
   periods,
   period,
   basis,
   basePath = "/management",
+  forecast = false,
 }: {
   periods: { key: string; label: string }[];
   period: string;
   basis: string;
   basePath?: string;
+  forecast?: boolean;
 }) {
   const router = useRouter();
   const sp = useSearchParams();
@@ -23,6 +27,12 @@ export default function Controls({
     for (const [k, v] of Object.entries(next)) params.set(k, v);
     router.push(`${basePath}?${params.toString()}`);
   }
+
+  const options = [
+    { key: "month", label: "This month" },
+    { key: "ytd", label: "Year to date" },
+    ...(forecast ? [{ key: "cy_forecast", label: "Full-year forecast" }] : []),
+  ];
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -40,10 +50,7 @@ export default function Controls({
       </label>
 
       <div className="flex gap-1 rounded-xl bg-black/20 p-1">
-        {[
-          { key: "month", label: "This month" },
-          { key: "ytd", label: "Year to date" },
-        ].map((b) => (
+        {options.map((b) => (
           <button
             key={b.key}
             onClick={() => go({ basis: b.key })}

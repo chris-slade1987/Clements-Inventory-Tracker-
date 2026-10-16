@@ -396,6 +396,53 @@ export function BudgetVsForecast({
   );
 }
 
+// ---- Diverging bars (favorable / unfavorable impact) -----------------------
+// Horizontal bars that read left (hurts) / right (helps) from a center zero line.
+// Direction-aware: each row carries its own `favorable` flag so revenue beats and
+// cost savings both land on the right. Used for the YTD variance-by-category view.
+export function DivergingBars({
+  rows,
+  unit = "usd",
+}: {
+  rows: { label: string; value: number; favorable: boolean }[];
+  unit?: "usd" | "count";
+}) {
+  const [hover, setHover] = useState<Hover>(null);
+  if (rows.length === 0) return <p className="py-6 text-center text-sm" style={{ color: MUTED }}>No variance to show.</p>;
+  const fmtV = (n: number) => (unit === "count" ? Math.round(n).toLocaleString("en-US") : moneyK(n));
+  const W = 560, rh = 34, pt = 8, pl = 150, pr = 64, iw = W - pl - pr;
+  const H = pt * 2 + rows.length * rh;
+  const max = Math.max(...rows.map((r) => Math.abs(r.value)), 1) * 1.05;
+  const zero = pl + iw / 2;
+  const sc = (v: number) => (v / max) * (iw / 2);
+  return (
+    <div className="overflow-x-auto">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 440 }} role="img" aria-label="Variance by category">
+        <line x1={zero} x2={zero} y1={pt} y2={H - pt} stroke={GRID} strokeWidth={1} />
+        {rows.map((r, i) => {
+          const cy = pt + i * rh + rh / 2;
+          const good = r.favorable;
+          const signed = good ? Math.abs(r.value) : -Math.abs(r.value);
+          const w = Math.abs(sc(signed));
+          const bx = signed >= 0 ? zero : zero - w;
+          const col = good ? EMERALD : DECREASE;
+          const set = () => setHover({ x: signed >= 0 ? bx + w : bx, y: cy - 10, rows: [r.label, `${good ? "+" : "−"}${fmtV(Math.abs(r.value))} ${good ? "favorable" : "unfavorable"}`] });
+          return (
+            <g key={r.label} onMouseEnter={set} onMouseLeave={() => setHover(null)} onTouchStart={set}>
+              <text x={pl - 10} y={cy + 4} textAnchor="end" fontSize={11} fill={INK}>{r.label.length > 20 ? r.label.slice(0, 19) + "…" : r.label}</text>
+              <rect x={bx} y={cy - 9} width={Math.max(2, w)} height={18} rx={4} fill={col} />
+              <text x={signed >= 0 ? bx + w + 6 : bx - 6} y={cy + 4} textAnchor={signed >= 0 ? "start" : "end"} fontSize={10.5} fontWeight={600} fill={col}>
+                {good ? "+" : "−"}{fmtV(Math.abs(r.value))}
+              </text>
+            </g>
+          );
+        })}
+        <Tip hover={hover} W={W} />
+      </svg>
+    </div>
+  );
+}
+
 // ---- Donut -----------------------------------------------------------------
 export function Donut({
   slices,
