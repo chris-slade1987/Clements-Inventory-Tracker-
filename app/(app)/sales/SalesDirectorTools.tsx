@@ -27,7 +27,7 @@ export default function SalesDirectorTools({ periodKey, hasDemo, live = false }:
 
   return (
     <div className="mb-5 rounded-xl border border-line bg-surface p-4">
-      <SalesCoachButton scope="team" periodKey={periodKey} label="✨ AI team briefing" />
+      <SalesCoachButton scope="team" periodKey={periodKey} label="AI team briefing" />
       {live ? (
         // SmarterLaunch is connected — the board reads the live lead feed. Keep only
         // a one-time clear for any leftover sample rows.

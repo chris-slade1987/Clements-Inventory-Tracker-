@@ -8,15 +8,18 @@ import {
   deriveRates, buildPlan, projectMonthEndClose, paceRatio, paceStatusWord, type GoalSheetInput,
 } from "@/lib/sales-goal";
 import GoalSlider from "@/components/GoalSlider";
-import { Gauge, ProgressRing, AchievementBar, KpiMeter, rampColor, rampTextColor } from "@/components/motivation";
+import { Gauge, ProgressRing, AchievementBar, rampColor, rampTextColor } from "@/components/motivation";
 
-// A friendly, plain-language rebuild of the Sales Director's Excel goal sheet —
-// now funnel-first. The hero is a visual sales FUNNEL (Leads → Appointments →
-// Proposals → Closed $) that tells the month's story at a glance, for the whole
-// book of business (not just termite). Below it: a pace speedometer driven by the
-// advisor's REAL on-track pace (projected month-end close vs goal), the goal
-// slider, the derived rates, and the daily game plan. The Sales Director can also
-// propose a goal alongside the advisor's.
+// A friendly, plain-language rebuild of the Sales Director's Excel goal sheet.
+// Redesigned as a guided, confident flow (not a dense form): it leads with the
+// decision + the outcomes — this month's GOAL and its truthful pace, then the
+// visual sales FUNNEL (Leads → Appointments → Proposals → Closed $) tied straight
+// to the daily GAME PLAN ("to hit $X: ~N leads → ~M proposals a day"). The detailed
+// last-month inputs (activity + the pest/termite $ breakdown) are tucked into a
+// collapsible "Last month's details" section so the first screen isn't a wall of
+// inputs. The pace speedometer + goal-slider color are driven by the advisor's
+// REAL on-track pace (projected month-end close vs goal) — dragging the goal can
+// never fake a green reading. The Sales Director can also propose a goal.
 
 const pct = (r: number) => `${Math.round((r || 0) * 100)}%`;
 const div = (a: number, b: number) => (b > 0 ? a / b : 0);
@@ -112,6 +115,11 @@ export default function GoalPlanner({
     return { shown, leads, appts, proposals, closedAmt, proposedAmt, closeRate, hasData: firstReal !== -1 };
   }, [v, rates]);
 
+  // Last month's inputs (the collapsible). Open by default when there's nothing
+  // entered yet (so a first-timer is guided straight to it); collapsed once the
+  // funnel has data so returning advisors see the outcomes first.
+  const [detailsOpen, setDetailsOpen] = useState(!funnel.hasData);
+
   // REAL on-track pace (projected month-end close is fixed by actuals; the goal
   // slider never moves it — so a higher goal can't fake a green reading).
   const projected = useMemo(() => projectMonthEndClose(paceSignal), [paceSignal]);
@@ -158,6 +166,12 @@ export default function GoalPlanner({
     }
   };
 
+  // Jump to — and open — the last-month inputs (used by the empty-state CTAs).
+  const openDetails = () => {
+    setDetailsOpen(true);
+    requestAnimationFrame(() => document.getElementById("last-month-details")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
   const numInput = (k: keyof GoalSheetInput, kind: "count" | "money") => (
     <div className="relative">
       {kind === "money" ? <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">$</span> : null}
@@ -167,7 +181,7 @@ export default function GoalPlanner({
         value={v[k] === 0 ? "" : String(v[k])}
         onChange={(e) => set(k, e.target.value)}
         placeholder="0"
-        className={`w-full rounded-lg border border-line py-2 text-sm ${kind === "money" ? "pl-7 pr-3" : "px-3"} disabled:bg-slate-50`}
+        className={`w-full rounded-lg border border-line py-2.5 text-base sm:text-sm ${kind === "money" ? "pl-7 pr-3" : "px-3"} disabled:bg-slate-50`}
       />
     </div>
   );
@@ -175,13 +189,17 @@ export default function GoalPlanner({
   const fieldLabel = (f: Field) => (
     <label key={f.key} className="block text-sm">
       <span className="font-medium text-ink">{f.label}</span>
+      <span className="mb-1 mt-0.5 block text-[11px] leading-snug text-muted">{f.help}</span>
       {numInput(f.key, f.kind)}
-      <span className="mt-0.5 block text-[11px] text-muted">{f.help}</span>
     </label>
   );
 
+  const stepBadge = (n: number) => (
+    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-semibold text-white">{n}</span>
+  );
+
   return (
-    <div className="space-y-5 max-w-4xl pb-10">
+    <div className="max-w-3xl space-y-4 pb-10">
       {/* Header line + goal status chip */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         {advisorName ? <p className="text-sm text-muted">Goal sheet for <span className="font-medium text-ink">{advisorName}</span> · {periodLabelText}</p> : <span />}
@@ -191,66 +209,6 @@ export default function GoalPlanner({
           </span>
         ) : null}
       </div>
-
-      {/* ───────── FUNNEL HERO — last month's story, lead to close ───────── */}
-      <Card className="p-5">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-base font-semibold text-ink">Your sales funnel · last month</h2>
-          {funnel.hasData && funnel.proposedAmt > 0 ? (
-            <span className="text-xs text-muted">
-              <span className="font-medium text-ink tabular-nums">{money(funnel.closedAmt)}</span> closed from{" "}
-              <span className="tabular-nums">{money(funnel.proposedAmt)}</span> proposed ·{" "}
-              <span className="font-semibold" style={{ color: rampTextColor(funnel.closeRate * 100) }}>{pct(funnel.closeRate)} close</span>
-            </span>
-          ) : null}
-        </div>
-        {funnel.hasData ? (
-          <FunnelViz stages={funnel.shown} />
-        ) : (
-          <p className="rounded-lg border border-dashed border-line bg-black/[0.015] px-4 py-6 text-center text-sm text-muted">
-            Enter last month&rsquo;s activity below and your funnel — leads → appointments → proposals → closed — appears here.
-          </p>
-        )}
-        {funnel.hasData ? (
-          <p className="mt-3 text-[11px] text-muted">Each stage narrows to the next; the % shows how many advanced. This is your whole book — pest and termite together.</p>
-        ) : null}
-      </Card>
-
-      {/* ───────── PACE HERO — this month, projected vs goal ───────── */}
-      {v.salesGoal > 0 ? (
-        <Card className="p-5">
-          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
-            <div className="shrink-0">
-              {hasPace ? (
-                <Gauge value={projected} target={v.salesGoal} size={188} format={() => pct(ratio)} label="projected vs goal" showStatus={false} />
-              ) : (
-                <div className="grid place-items-center">
-                  <ProgressRing value={0} target={100} size={150} stroke={14} tone="#C3DAC9" label="—" />
-                  <div className="mt-1 text-xs text-muted">projected vs goal</div>
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1 text-center sm:text-left">
-              <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: paceTextColor }}>{paceWord}</div>
-              <div className="mt-2 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-line bg-white p-3">
-                  <div className="text-[11px] uppercase tracking-wide text-muted">Projected month-end</div>
-                  <div className="mt-0.5 text-2xl font-semibold tabular-nums" style={{ color: paceColor }}>{hasPace ? money(projected) : "—"}</div>
-                </div>
-                <div className="rounded-xl border border-line bg-white p-3">
-                  <div className="text-[11px] uppercase tracking-wide text-muted">Goal</div>
-                  <div className="mt-0.5 text-2xl font-semibold tabular-nums text-ink">{money(v.salesGoal)}</div>
-                </div>
-              </div>
-              <p className="mt-2.5 text-[11px] text-muted">
-                {hasPace
-                  ? <>Projected from <span className="font-medium text-ink">{money(paceSignal.closedSoFar)}</span> closed so far at today&rsquo;s run-rate{paceSignal.priorClose > 0 ? <>, blended with last month&rsquo;s <span className="font-medium text-ink">{money(paceSignal.priorClose)}</span></> : null}. The color tracks real pace — not the goal you set.</>
-                  : <>Your live closed $ will drive this gauge once the sales feed is connected. For now, build the plan below.</>}
-              </p>
-            </div>
-          </div>
-        </Card>
-      ) : null}
 
       {/* Advisor: the director proposed a goal — accept it, or set your own below. */}
       {showProposalBanner ? (
@@ -270,105 +228,204 @@ export default function GoalPlanner({
         </Card>
       ) : null}
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* STEP 1 — funnel-first inputs */}
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-600 text-xs font-semibold text-white">1</span>
-            <h2 className="text-base font-semibold text-ink">Last month&apos;s results</h2>
-          </div>
-          <p className="text-xs text-muted mb-4">Enter what actually happened — it builds your funnel above and learns your personal numbers (no guessing).</p>
-
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-2">Activity</div>
-          <div className="grid gap-3 sm:grid-cols-2 mb-5">
-            {ACTIVITY_FIELDS.map(fieldLabel)}
-          </div>
-
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-2">Dollars</div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {DOLLAR_FIELDS.map(fieldLabel)}
-          </div>
-        </Card>
-
-        {/* STEP 2 */}
-        <div className="space-y-5">
-          <Card className="p-5">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-600 text-xs font-semibold text-white">2</span>
-              <h2 className="text-base font-semibold text-ink">This month&apos;s goal</h2>
-            </div>
-            <p className="text-xs text-muted mb-4">What are you going for this month, and how many days will you work?</p>
-            <div className="rounded-xl border border-line bg-white/60 p-4 mb-3">
-              {canEdit ? (
-                <GoalSlider
-                  id="salesGoal"
-                  label="Sales goal this month"
-                  value={v.salesGoal}
-                  onChange={(n) => set("salesGoal", String(n))}
-                  min={0}
-                  max={150000}
-                  step={500}
-                  format={(n) => money(n)}
-                  accentColor={paceColor}
-                  statusWord={paceWord}
-                />
-              ) : (
-                <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-light text-ink">Sales goal this month</span>
-                  <span className="text-lg font-medium tabular-nums text-ink">{money(v.salesGoal)}</span>
-                </div>
-              )}
-              {v.salesGoal > 0 ? (
-                <div className="mt-3">
-                  {hasPace ? (
-                    <>
-                      <KpiMeter label="Projected vs goal" value={projected} target={v.salesGoal} format={(n) => money(n)} />
-                      <p className="mt-1.5 text-[11px] text-muted">On pace for <span className="font-medium" style={{ color: paceTextColor }}>{money(projected)}</span> of your {money(v.salesGoal)} goal.</p>
-                    </>
-                  ) : (
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-xs text-muted">Projected vs goal</span>
-                      <span className="text-xs text-muted">Awaiting results — dragging the goal won&rsquo;t fake the color.</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="mt-2 text-[11px] text-muted">Drag to set your target — most advisors aim for $50,000+ a month.</p>
-              )}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-sm">
-                <span className="font-medium text-ink">Workdays this month</span>
-                {numInput("workdays", "count")}
-                <span className="mt-0.5 block text-[11px] text-muted">e.g. 20</span>
-              </label>
-            </div>
-          </Card>
-
-          {/* Your numbers (derived) — funnel-wide rates; termite kept as a detail. */}
-          <Card className="p-5">
-            <h3 className="text-sm font-semibold text-ink mb-3">Your numbers (from last month)</h3>
-            <div className="flex flex-wrap items-center justify-around gap-4">
-              <RingStat label="Close rate" value={rates.totalClosingPct} />
-              <div className="min-w-[8rem] space-y-2">
-                <MiniStat label="Avg job value" value={money(rates.avgTcJobPrice)} />
-                <MiniStat label="Proposals / lead" value={qty(rates.proposalsPerProspect)} />
-                <MiniStat label="Termite close" value={pct(rates.tcClosingPct)} />
-              </div>
-            </div>
-            <p className="mt-3 text-[11px] text-muted">These come straight from last month&apos;s results — the more accurate that is, the better your plan.</p>
-          </Card>
+      {/* ───────── STEP 1 — This month's goal + truthful pace (the lead) ───────── */}
+      <Card className="p-4 sm:p-5">
+        <div className="mb-1 flex items-center gap-2">
+          {stepBadge(1)}
+          <h2 className="text-base font-semibold text-ink">Set this month&apos;s goal</h2>
         </div>
-      </div>
+        <p className="mb-4 text-xs text-muted">Pick your target for {periodLabelText} and how many days you&rsquo;ll work. The speedometer colors by your real pace once results come in.</p>
+
+        <div className="grid gap-4 sm:grid-cols-5 sm:items-stretch">
+          {/* Goal slider + workdays */}
+          <div className="rounded-xl border border-line bg-white/60 p-4 sm:col-span-3">
+            {canEdit ? (
+              <GoalSlider
+                id="salesGoal"
+                label="Sales goal this month"
+                value={v.salesGoal}
+                onChange={(n) => set("salesGoal", String(n))}
+                min={0}
+                max={150000}
+                step={500}
+                format={(n) => money(n)}
+                accentColor={paceColor}
+                statusWord={paceWord}
+              />
+            ) : (
+              <div className="flex items-baseline justify-between">
+                <span className="text-sm font-light text-ink">Sales goal this month</span>
+                <span className="text-2xl font-semibold tabular-nums text-ink">{money(v.salesGoal)}</span>
+              </div>
+            )}
+            {canEdit && v.salesGoal === 0 ? (
+              <p className="mt-2 text-[11px] text-muted">Drag to set your target — most advisors aim for $50,000+ a month.</p>
+            ) : null}
+
+            <label className="mt-4 flex items-center justify-between gap-3 text-sm">
+              <span className="font-medium text-ink">Workdays this month<span className="ml-1 text-[11px] font-normal text-muted">(e.g. 20)</span></span>
+              <div className="w-24">{numInput("workdays", "count")}</div>
+            </label>
+          </div>
+
+          {/* Pace gauge — truthful color, driven by projected close vs goal */}
+          <div className="grid place-items-center rounded-xl border border-line bg-white/60 p-4 sm:col-span-2">
+            {v.salesGoal > 0 ? (
+              <>
+                {hasPace ? (
+                  <Gauge value={projected} target={v.salesGoal} size={176} format={() => pct(ratio)} label="projected vs goal" showStatus={false} />
+                ) : (
+                  <div className="grid place-items-center py-2">
+                    <ProgressRing value={0} target={100} size={132} stroke={13} tone="#C3DAC9" label="—" />
+                    <div className="mt-1 text-xs text-muted">projected vs goal</div>
+                  </div>
+                )}
+                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide" style={{ color: paceTextColor }}>{paceWord}</div>
+                <div className="mt-2 grid w-full grid-cols-2 gap-2">
+                  <div className="rounded-lg border border-line bg-white p-2 text-center">
+                    <div className="text-[10px] uppercase tracking-wide text-muted">Projected</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: paceColor }}>{hasPace ? money(projected) : "—"}</div>
+                  </div>
+                  <div className="rounded-lg border border-line bg-white p-2 text-center">
+                    <div className="text-[10px] uppercase tracking-wide text-muted">Goal</div>
+                    <div className="text-sm font-semibold tabular-nums text-ink">{money(v.salesGoal)}</div>
+                  </div>
+                </div>
+                <p className="mt-2 text-center text-[11px] leading-snug text-muted">
+                  {hasPace
+                    ? <>From <span className="font-medium text-ink">{money(paceSignal.closedSoFar)}</span> closed so far at today&rsquo;s run-rate. The color tracks real pace — not the goal you set.</>
+                    : <>Your live closed $ drives this once results are in. Dragging the goal won&rsquo;t fake the color.</>}
+                </p>
+              </>
+            ) : (
+              <p className="py-8 text-center text-xs text-muted">Set a goal to see your pace projection.</p>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* ───────── STEP 2 — Your funnel & the daily game plan (outcomes) ───────── */}
+      <Card className={`p-4 sm:p-5 ${ready ? "ring-1 ring-brand-300" : ""}`}>
+        <div className="mb-1 flex items-center gap-2">
+          {stepBadge(2)}
+          <h2 className="text-base font-semibold text-ink">Your funnel &amp; game plan</h2>
+        </div>
+        <p className="mb-4 text-xs text-muted">Last month&rsquo;s funnel (your whole book — pest + termite) turns into exactly what it takes to hit this month&rsquo;s goal.</p>
+
+        {/* The funnel — last month's story, lead to close */}
+        {funnel.hasData ? (
+          <>
+            {funnel.proposedAmt > 0 ? (
+              <div className="mb-3 text-xs text-muted">
+                <span className="font-medium text-ink tabular-nums">{money(funnel.closedAmt)}</span> closed from{" "}
+                <span className="tabular-nums">{money(funnel.proposedAmt)}</span> proposed ·{" "}
+                <span className="font-semibold" style={{ color: rampTextColor(funnel.closeRate * 100) }}>{pct(funnel.closeRate)} close</span>
+              </div>
+            ) : null}
+            <FunnelViz stages={funnel.shown} />
+            <p className="mt-3 text-[11px] text-muted">Each stage narrows to the next; the % shows how many advanced.</p>
+          </>
+        ) : (
+          <div className="rounded-lg border border-dashed border-line bg-black/[0.015] px-4 py-6 text-center">
+            <p className="text-sm text-muted">Enter last month&rsquo;s activity and your funnel — leads → appointments → proposals → closed — appears here.</p>
+            {canEdit ? <button onClick={openDetails} className={`${btn.secondary} mt-3`}>Add last month&rsquo;s results</button> : null}
+          </div>
+        )}
+
+        {/* Your numbers (derived) — a compact strip so the plan's inputs are visible */}
+        {funnel.hasData ? (
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <StatChip label="Close rate" value={pct(rates.totalClosingPct)} />
+            <StatChip label="Avg job value" value={money(rates.avgTcJobPrice)} />
+            <StatChip label="Proposals / lead" value={qty(rates.proposalsPerProspect)} />
+            <StatChip label="Termite close" value={pct(rates.tcClosingPct)} />
+          </div>
+        ) : null}
+
+        {/* The game plan — tied straight to the goal */}
+        <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50/50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Your daily game plan</h3>
+          {!ready ? (
+            <p className="mt-1 text-sm text-muted">Set this month&rsquo;s goal above and enter last month&rsquo;s results, and your daily plan appears here.</p>
+          ) : (
+            <>
+              <p className="mb-3 mt-1 text-sm text-ink">
+                To hit <span className="font-semibold">{money(v.salesGoal)}</span> in <span className="font-semibold">{v.workdays}</span> workdays, each day aim for about{" "}
+                <span className="font-semibold tabular-nums text-brand-700">{qty(plan.prospectsPerDay)}</span> leads →{" "}
+                <span className="font-semibold tabular-nums text-brand-700">{qty(plan.proposalsPerDay)}</span> proposals →{" "}
+                <span className="font-semibold tabular-nums text-brand-700">{money(plan.exposurePerDay)}</span> proposed.
+              </p>
+              <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+                <Big label="Sales / day" value={money(plan.salesPerDay)} hero />
+                <Big label="Proposals / day" value={qty(plan.proposalsPerDay)} sub={`${qty(plan.totalProposals)} this month`} />
+                <Big label="Leads / day" value={qty(plan.prospectsPerDay)} sub={`${qty(plan.prospectsNeeded)} this month`} />
+                <Big label="$ proposed / day" value={money(plan.exposurePerDay)} sub={`${money(plan.exposureDollarsNeeded)} this month`} />
+              </div>
+              {hasPace ? (
+                <div className="mt-4">
+                  <AchievementBar
+                    label="Where you are vs. this month's goal"
+                    value={projected}
+                    target={v.salesGoal}
+                    caption={`Projected ${money(projected)} of ${money(v.salesGoal)} · ${paceWord}`}
+                    milestones={[{ at: 25 }, { at: 50 }, { at: 75 }]}
+                  />
+                </div>
+              ) : null}
+              {stretch ? (
+                <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  <strong>Reality check:</strong> {qty(plan.prospectsPerDay)} leads a day is a heavy load. Either raise your average job value by cross-selling more services, lift your close rate, or adjust the goal so the plan is realistic.
+                </p>
+              ) : null}
+            </>
+          )}
+        </div>
+      </Card>
+
+      {/* ───────── Last month's details — the inputs (collapsible) ───────── */}
+      <Card className="overflow-hidden p-0" id="last-month-details">
+        <button
+          type="button"
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
+        >
+          {stepBadge(3)}
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-ink">Last month&rsquo;s results</span>
+            <span className="block truncate text-[11px] text-muted">
+              {funnel.hasData
+                ? <>{qty(funnel.leads)} leads · {qty(funnel.proposals)} proposals · {money(funnel.closedAmt)} closed — tap to {detailsOpen ? "hide" : "edit"}</>
+                : "Enter what actually happened — it builds your funnel and learns your personal numbers."}
+            </span>
+          </span>
+          <svg viewBox="0 0 24 24" className={`h-5 w-5 shrink-0 text-muted transition-transform duration-200 motion-reduce:transition-none ${detailsOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        {detailsOpen ? (
+          <div className="border-t border-line px-4 pb-5 pt-4 sm:px-5">
+            <p className="mb-4 text-xs text-muted">No guessing — enter last month&rsquo;s actuals. The more accurate they are, the better your plan.</p>
+
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Activity</div>
+            <div className="mb-5 grid gap-3 sm:grid-cols-2">
+              {ACTIVITY_FIELDS.map(fieldLabel)}
+            </div>
+
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Dollars</div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {DOLLAR_FIELDS.map(fieldLabel)}
+            </div>
+          </div>
+        ) : null}
+      </Card>
 
       {/* ───────── Director co-goal-setting ───────── */}
       {viewerRole === "director" && canEdit ? (
-        <Card className="p-5 ring-1 ring-brand-200">
-          <div className="flex items-center gap-2 mb-1">
+        <Card className="p-4 ring-1 ring-brand-200 sm:p-5">
+          <div className="mb-1 flex items-center gap-2">
             <svg viewBox="0 0 24 24" className="h-5 w-5 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 3v18M5 8h14M7 13h10" /></svg>
             <h2 className="text-base font-semibold text-ink">Propose a goal</h2>
           </div>
-          <p className="text-xs text-muted mb-4">
+          <p className="mb-4 text-xs text-muted">
             Set a goal alongside {advisorName ?? "the advisor"} — it won&apos;t overwrite their sheet. They&apos;ll see your proposal and can accept it.
             {proposal.proposedGoal != null ? <> Current proposal: <span className="font-medium text-ink tabular-nums">{money(proposal.proposedGoal)}</span>{status === "agreed" ? " (accepted)" : ""}.</> : null}
           </p>
@@ -391,7 +448,7 @@ export default function GoalPlanner({
                 : <>Pick a realistic figure; once results are in, the color shows whether it&rsquo;s on pace.</>}
             </p>
           </div>
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <button onClick={propose} disabled={busy} className={btn.secondary}>{busy ? "Working…" : "Propose to advisor"}</button>
             {proposal.proposedGoal != null && status !== "agreed" ? (
               <button onClick={accept} disabled={busy} className={btn.primary}>Accept on their behalf</button>
@@ -400,42 +457,9 @@ export default function GoalPlanner({
         </Card>
       ) : null}
 
-      {/* GAME PLAN */}
-      <Card className={`p-5 ${ready ? "ring-1 ring-brand-300 bg-brand-50/40" : ""}`}>
-        <h2 className="text-base font-semibold text-ink mb-1">Your game plan</h2>
-        {!ready ? (
-          <p className="text-sm text-muted">Fill in last month&apos;s results and this month&apos;s goal above, and your daily plan appears here.</p>
-        ) : (
-          <>
-            <p className="text-sm text-ink mb-4">To hit <span className="font-semibold">{money(v.salesGoal)}</span> in <span className="font-semibold">{v.workdays}</span> workdays, here&apos;s your daily target:</p>
-            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-              <Big label="Sales / day" value={money(plan.salesPerDay)} hero />
-              <Big label="Proposals / day" value={qty(plan.proposalsPerDay)} sub={`${qty(plan.totalProposals)} this month`} />
-              <Big label="Leads / day" value={qty(plan.prospectsPerDay)} sub={`${qty(plan.prospectsNeeded)} this month`} />
-              <Big label="$ proposed / day" value={money(plan.exposurePerDay)} sub={`${money(plan.exposureDollarsNeeded)} this month`} />
-            </div>
-            {hasPace ? (
-              <div className="mt-4">
-                <AchievementBar
-                  label="Where you are vs. this month's goal"
-                  value={projected}
-                  target={v.salesGoal}
-                  caption={`Projected ${money(projected)} of ${money(v.salesGoal)} · ${paceWord}`}
-                  milestones={[{ at: 25 }, { at: 50 }, { at: 75 }]}
-                />
-              </div>
-            ) : null}
-            {stretch ? (
-              <p className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
-                <strong>Reality check:</strong> {qty(plan.prospectsPerDay)} leads a day is a heavy load. Either raise your average job value by cross-selling more services, lift your close rate, or adjust the goal so the plan is realistic.
-              </p>
-            ) : null}
-          </>
-        )}
-      </Card>
-
+      {/* Save */}
       {canEdit ? (
-        <div className="flex items-center gap-3">
+        <div className="sticky bottom-0 -mx-1 flex flex-wrap items-center gap-3 rounded-xl bg-canvas/80 px-1 py-2 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
           <button onClick={save} disabled={busy} className={`${btn.primary}`}>{busy ? "Saving…" : "Save goal sheet"}</button>
           {msg ? <span className={`text-sm ${err ? "text-red-600" : "text-brand-700"}`}>{msg}</span> : null}
         </div>
@@ -453,14 +477,14 @@ function FunnelViz({ stages }: { stages: FStage[] }) {
   return (
     <div role="list" aria-label="Sales funnel" className="space-y-1">
       {stages.map((s, i) => {
-        // Taper from 100% (largest stage) down to ~48% (smallest), so the funnel
-        // always narrows visibly while every bar stays wide enough to read.
-        const w = Math.round(48 + 52 * (s.size / maxSize));
+        // Taper from 100% (largest stage) down to ~55% (smallest), so the funnel
+        // always narrows visibly while every bar stays wide enough to read on a phone.
+        const w = Math.round(55 + 45 * (s.size / maxSize));
         return (
           <div key={s.key} role="listitem">
             <div
               className="mx-auto flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-white shadow-sm"
-              style={{ width: `${w}%`, minWidth: 150, background: s.color }}
+              style={{ width: `${w}%`, minWidth: 160, background: s.color }}
             >
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wide opacity-95">{s.label}</div>
@@ -483,27 +507,18 @@ function FunnelViz({ stages }: { stages: FStage[] }) {
   );
 }
 
-function RingStat({ label, value }: { label: string; value: number }) {
+function StatChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <ProgressRing value={(value || 0) * 100} target={100} size={88} stroke={11} />
-      <span className="text-[11px] uppercase tracking-wide text-muted">{label}</span>
-    </div>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-xs text-muted">{label}</span>
-      <span className="text-sm font-medium text-ink tabular-nums">{value}</span>
+    <div className="rounded-xl border border-line bg-white p-2.5 text-center">
+      <div className="text-lg font-semibold tabular-nums text-ink">{value}</div>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted">{label}</div>
     </div>
   );
 }
 
 function Big({ label, value, sub, hero }: { label: string; value: string; sub?: string; hero?: boolean }) {
   return (
-    <div className={`rounded-xl border p-3 ${hero ? "border-brand-300 bg-brand-50/60" : "border-line bg-white"}`}>
+    <div className={`rounded-xl border p-3 ${hero ? "border-brand-300 bg-white" : "border-line bg-white"}`}>
       <div className="text-[11px] uppercase tracking-wide text-muted">{label}</div>
       <div className={`mt-1 font-semibold tabular-nums ${hero ? "text-2xl text-brand-700" : "text-xl text-ink"}`}>{value}</div>
       {sub ? <div className="text-[11px] text-muted">{sub}</div> : null}
