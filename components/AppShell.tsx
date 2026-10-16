@@ -34,7 +34,7 @@ function isActive(pathname: string, href: string) {
 const CENTERS: { href: string; label: string; short: string; m: Mode }[] = [
   { href: "/my-branch", label: "My Branch", short: "Branch", m: "manager" },
   { href: "/dashboard", label: "Inventory", short: "Inventory", m: "inventory" },
-  { href: "/management", label: "Executive", short: "Exec", m: "management" },
+  { href: "/executive", label: "Executive", short: "Exec", m: "management" },
   { href: "/fleet", label: "Fleet", short: "Fleet", m: "fleet" },
 ];
 
@@ -125,8 +125,13 @@ export default function AppShell({
           ? "manager"
       : pathname.startsWith("/my-branch")
         ? "manager"
-        : pathname.startsWith("/management")
-          ? "management"
+        // Company KPIs live at /management (the Company center); the /management/*
+        // subpages + the Executive financial dashboard (/executive) are the
+        // Executive center.
+        : pathname === "/management"
+          ? "manager"
+          : (pathname.startsWith("/management") || pathname.startsWith("/executive"))
+            ? "management"
           // The Sales Team hub lives in the My Branch / Company center (company-wide
           // for admins, own-branch read-only for managers). The Sales Director has a
           // fixed nav, so mode is cosmetic for them.
@@ -238,8 +243,8 @@ export default function AppShell({
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver && !isSalesDirector;
-  // The Executive center (Company Overview + all-branch P&L) is admin/exec-only;
-  // branch managers get their branch numbers in My Branch → Branch KPIs, so the
+  // The Executive center (/executive — company financials / P&L) is admin/exec
+  // only; everyone else uses the operational Company KPIs at /management, so the
   // Executive center is hidden from them (the page guard redirects direct hits).
   const canViewExecCenter = isAdmin || isSeniorLeadership;
   const visibleCenters = CENTERS

@@ -90,6 +90,7 @@ const RULES: [RegExp, string][] = [
   [/^\/management\/intake(\/|$)/, "documents"],
   [/^\/management\/system-map(\/|$)/, "system-map"],
   [/^\/management\/upload(\/|$)/, "upload-mbr"],
+  [/^\/executive(\/|$)/, "executive"],
   [/^\/management(\/|$)/, "management"],
   [/^\/sales(\/|$)/, "sales-team"],
   [/^\/field-ops(\/|$)/, "field-ops"],

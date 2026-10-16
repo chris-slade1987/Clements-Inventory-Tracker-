@@ -51,7 +51,7 @@ export const MODULES: AccessModule[] = [
     { id: "fleet", name: "Fleet Overview" }, { id: "fleet-detail", name: "Vehicle Detail" }, { id: "fleet-inspect", name: "Inspect Vehicle" },
     { id: "fleet-assign", name: "Driver Assignments" }, { id: "fleet-fuel", name: "Fuel" }, { id: "fleet-service", name: "Log Service" }, { id: "fleet-retired", name: "Retired Vehicles" } ] },
   { id: "mgmt", name: "Management & Executive", sub: "Company-wide", items: [
-    { id: "management", name: "Company Overview (budget & P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
+    { id: "management", name: "Company KPIs (operational)", ve: true }, { id: "executive", name: "Executive (financials / P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
     { id: "sales-attrition", name: "Sales & Attrition", ve: true }, { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
     { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance", ve: true }, { id: "insurance", name: "Insurance", ve: true },
     { id: "documents", name: "Documents", ve: true }, { id: "system-map", name: "System Map" }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
@@ -98,10 +98,10 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit",
     dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
-    scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
+    management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
   },
   senior: {
-    board: "view", management: "view", insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
+    board: "view", management: "view", executive: "view", insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
     "checklist-oversight": true, scorecards: "view", audits: "view", insurance: "view", documents: "view", "field-ops": true,
     people: "view", org: true, ...SELF_BASIC,
   },
@@ -121,7 +121,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     people: "view", "people-profile": "edit", ...SELF_BASIC,
   },
   service_advisor: { "me-sales": "edit", ...SELF_BASIC },
-  board: { board: "view", management: "view", "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
+  board: { board: "view", management: "view", executive: "view", "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
   employee: { ...SELF_BASIC },
 };
 

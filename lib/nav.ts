@@ -355,9 +355,9 @@ export const MANAGEMENT_NAV: NavItem[] = [
   },
   INSIGHTS_NAV_ITEM,
   {
-    href: "/management",
-    label: "Company Overview",
-    shortLabel: "Overview",
+    href: "/executive",
+    label: "Executive",
+    shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {
@@ -415,11 +415,11 @@ export const SALES_DIRECTOR_NAV: NavItem[] = [
     shortLabel: "Analytics",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
-  // Admin-level reach (COO decision): company + branch performance metrics.
+  // Company KPIs (operational: revenue · sales · cancels · expenses), company-wide.
   {
     href: "/management",
-    label: "Company Overview",
-    shortLabel: "Overview",
+    label: "Company KPIs",
+    shortLabel: "KPIs",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   // The service advisors' profiles + logs (scoped to advisors in visibleEmployeeIds).
@@ -443,9 +443,9 @@ export const BOARD_OBSERVER_NAV: NavItem[] = [
     icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
   },
   {
-    href: "/management",
-    label: "Company Overview",
-    shortLabel: "Overview",
+    href: "/executive",
+    label: "Executive",
+    shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {
