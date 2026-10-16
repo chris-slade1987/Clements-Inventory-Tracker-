@@ -10,19 +10,19 @@ import {
 import GoalSlider from "@/components/GoalSlider";
 import { Gauge, ProgressRing, AchievementBar, rampColor, rampTextColor } from "@/components/motivation";
 
-// A friendly, plain-language rebuild of the Sales Director's Excel goal sheet.
-// Redesigned as a guided, confident flow (not a dense form): it leads with the
-// decision + the outcomes — this month's GOAL and its truthful pace, then the
-// visual sales FUNNEL (Leads → Appointments → Proposals → Closed $) tied straight
-// to the daily GAME PLAN ("to hit $X: ~N leads → ~M proposals a day"). The detailed
-// last-month inputs (activity + the pest/termite $ breakdown) are tucked into a
-// collapsible "Last month's details" section so the first screen isn't a wall of
-// inputs. The pace speedometer + goal-slider color are driven by the advisor's
-// REAL on-track pace (projected month-end close vs goal) — dragging the goal can
-// never fake a green reading. The Sales Director can also propose a goal.
+// The Sales Director's Excel goal sheet, rebuilt as an EASY, guided 4-step flow.
+// A sticky stepper across the top shows progress (1 Results · 2 Goal · 3 Focus ·
+// 4 Notes) and jumps to each step. The visual sales FUNNEL (Leads → Appointments
+// → Proposals → Closed $) is always on screen — a skeleton before results are in,
+// a tapering colored funnel once they are — so it's never hidden. The goal scale
+// caps at $75k and the slider colors along its range as you drag; the pace gauge +
+// achievement bar stay driven by REAL closed $ (projected vs goal) so a bigger
+// goal can't fake a green pace. The Sales Director can also propose a goal.
 
 const pct = (r: number) => `${Math.round((r || 0) * 100)}%`;
 const div = (a: number, b: number) => (b > 0 ? a / b : 0);
+
+const GOAL_MAX = 75000; // the agreed cap for a monthly sales goal
 
 type PaceSignal = { closedSoFar: number; priorClose: number; paceFrac: number; hasActuals: boolean };
 type Proposal = { proposedGoal: number | null; goalStatus: string | null; proposedByName: string | null };
@@ -40,7 +40,7 @@ const STATUS_TONE: Record<string, string> = {
 
 type Field = { key: keyof GoalSheetInput; label: string; help: string; kind: "count" | "money" };
 
-// Funnel-first inputs: the activity counts that build the funnel…
+// The activity counts that build the funnel…
 const ACTIVITY_FIELDS: Field[] = [
   { key: "leads", label: "Leads", help: "Every new sales opportunity you worked — calls, web, referrals, real-estate.", kind: "count" },
   { key: "reis", label: "Real-estate re-inspections", help: "Homes you inspected for a real-estate sale.", kind: "count" },
@@ -56,6 +56,9 @@ const DOLLAR_FIELDS: Field[] = [
   { key: "tcUnits", label: "Termite jobs sold", help: "Number of termite jobs closed (a count).", kind: "count" },
 ];
 
+// This month's focus — the initiatives an advisor plans to lean on.
+const INITIATIVE_OPTIONS = ["Group networking", "Drop-offs", "Cross-selling lists", "Team ride-alongs"];
+
 const FUNNEL_COLOR: Record<string, string> = {
   leads: "#74A96E", appts: "#4F8A5F", proposals: "#2E6F47", closed: "#15B85C",
 };
@@ -65,6 +68,8 @@ type FStage = { key: string; label: string; display: string; sub: string; size: 
 export default function GoalPlanner({
   periodKey, periodLabelText, advisorEmployeeId, advisorName, initial, canEdit,
   viewerRole = "advisor",
+  initialInitiatives = [],
+  initialNotes = "",
   paceSignal = { closedSoFar: 0, priorClose: 0, paceFrac: 0, hasActuals: false },
   proposal = { proposedGoal: null, goalStatus: null, proposedByName: null },
 }: {
@@ -75,15 +80,20 @@ export default function GoalPlanner({
   initial: GoalSheetInput;
   canEdit: boolean;
   viewerRole?: "advisor" | "director";
+  initialInitiatives?: string[];
+  initialNotes?: string;
   paceSignal?: PaceSignal;
   proposal?: Proposal;
 }) {
   const router = useRouter();
   const [v, setV] = useState<GoalSheetInput>(initial);
+  const [initiatives, setInitiatives] = useState<string[]>(initialInitiatives);
+  const [customInit, setCustomInit] = useState("");
+  const [notes, setNotes] = useState<string>(initialNotes);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState(false);
-  const [proposeVal, setProposeVal] = useState<number>(proposal.proposedGoal ?? (initial.salesGoal > 0 ? initial.salesGoal : 50000));
+  const [proposeVal, setProposeVal] = useState<number>(proposal.proposedGoal ?? (initial.salesGoal > 0 ? initial.salesGoal : 40000));
 
   const set = (k: keyof GoalSheetInput, val: string) => setV((s) => ({ ...s, [k]: val === "" ? 0 : Number(val) }));
 
@@ -92,7 +102,7 @@ export default function GoalPlanner({
     return { rates: r, plan: buildPlan(r, { salesGoal: v.salesGoal, workdays: v.workdays }) };
   }, [v]);
 
-  // ── The funnel: Leads → Appointments → Proposals → Closed $ ──────────────
+  // ── The funnel: Leads → Appointments → Proposals → Closed $ (always rendered) ──
   const funnel = useMemo(() => {
     const leads = v.leads || 0;
     const appts = (v.reis || 0) + (v.appts || 0);
@@ -100,28 +110,19 @@ export default function GoalPlanner({
     const closedAmt = (v.pcSold || 0) + (v.tcSold || 0);
     const proposedAmt = v.totalExposure || 0;
     const closeRate = rates.totalClosingPct; // $ closed / $ proposed
-    // "Closed" taper size rides on the count scale so the funnel narrows sensibly.
     const wonSize = proposals * (closeRate || 0);
-    const all: FStage[] = [
+    const stages: FStage[] = [
       { key: "leads", label: "Leads", display: qty(leads), sub: "opportunities worked", size: leads, value: leads, color: FUNNEL_COLOR.leads, convToNext: div(appts, leads), convLabel: "became appointments" },
       { key: "appts", label: "Appointments", display: qty(appts), sub: "ReIs + appointments run", size: appts, value: appts, color: FUNNEL_COLOR.appts, convToNext: div(proposals, appts), convLabel: "got a proposal" },
-      { key: "proposals", label: "Proposals", display: qty(proposals), sub: `${money(proposedAmt)} proposed`, size: proposals, value: proposals, color: FUNNEL_COLOR.proposals, convToNext: closeRate, convLabel: "close rate ($)" },
-      { key: "closed", label: "Closed", display: money(closedAmt), sub: `from ${money(proposedAmt)} proposed`, size: wonSize, value: closedAmt, color: FUNNEL_COLOR.closed, convToNext: null, convLabel: "" },
+      { key: "proposals", label: "Proposals", display: qty(proposals), sub: proposedAmt > 0 ? `${money(proposedAmt)} proposed` : "quotes presented", size: proposals, value: proposals, color: FUNNEL_COLOR.proposals, convToNext: closeRate, convLabel: "close rate ($)" },
+      { key: "closed", label: "Closed", display: money(closedAmt), sub: proposedAmt > 0 ? `from ${money(proposedAmt)} proposed` : "won this month", size: wonSize, value: closedAmt, color: FUNNEL_COLOR.closed, convToNext: null, convLabel: "" },
     ];
-    // Start the funnel at the first stage that actually has data (e.g. skip Leads
-    // if the advisor hasn't tracked them yet) — never show a dead top segment.
-    const firstReal = all.findIndex((s) => s.value > 0);
-    const shown = firstReal === -1 ? [] : all.slice(firstReal);
-    return { shown, leads, appts, proposals, closedAmt, proposedAmt, closeRate, hasData: firstReal !== -1 };
+    const hasData = stages.some((s) => s.value > 0);
+    return { stages, leads, appts, proposals, closedAmt, proposedAmt, closeRate, hasData };
   }, [v, rates]);
 
-  // Last month's inputs (the collapsible). Open by default when there's nothing
-  // entered yet (so a first-timer is guided straight to it); collapsed once the
-  // funnel has data so returning advisors see the outcomes first.
-  const [detailsOpen, setDetailsOpen] = useState(!funnel.hasData);
-
   // REAL on-track pace (projected month-end close is fixed by actuals; the goal
-  // slider never moves it — so a higher goal can't fake a green reading).
+  // slider never moves it — so a higher goal can't fake a green pace reading).
   const projected = useMemo(() => projectMonthEndClose(paceSignal), [paceSignal]);
   const ratio = paceRatio(projected, v.salesGoal);
   const hasPace = paceSignal.hasActuals && v.salesGoal > 0;
@@ -130,16 +131,20 @@ export default function GoalPlanner({
   const paceTextColor = hasPace ? rampTextColor(pacePct) : "#5C6B62";
   const paceWord = hasPace ? paceStatusWord(ratio) : "Awaiting results";
 
-  const propRatio = paceRatio(projected, proposeVal);
-  const propHasPace = paceSignal.hasActuals && proposeVal > 0;
-  const propColor = propHasPace ? rampColor(Math.min(100, propRatio * 100)) : "#9BB0A4";
-  const propWord = propHasPace ? paceStatusWord(propRatio) : "Set a figure";
-
   const ready = v.salesGoal > 0 && v.workdays > 0 && rates.tcClosingPct > 0 && rates.exposurePerProposal > 0 && rates.proposalsPerProspect > 0;
   const stretch = ready && plan.prospectsPerDay > 8;
 
   const status = proposal.goalStatus;
   const showProposalBanner = viewerRole === "advisor" && proposal.proposedGoal != null && status === "director_proposed";
+
+  // Step completion → the stepper + top progress bar.
+  const steps = [
+    { n: 1, id: "step-results", label: "Last month", done: funnel.hasData },
+    { n: 2, id: "step-goal", label: "This month's goal", done: v.salesGoal > 0 && v.workdays > 0 },
+    { n: 3, id: "step-initiatives", label: "Focus", done: initiatives.length > 0 },
+    { n: 4, id: "step-notes", label: "Notes", done: notes.trim().length > 0 },
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
 
   async function post(payload: Record<string, unknown>, okMsg: string) {
     setBusy(true); setMsg(null); setErr(false);
@@ -158,7 +163,7 @@ export default function GoalPlanner({
     } catch (e) { setBusy(false); setErr(true); setMsg((e as Error).message); return false; }
   }
 
-  const save = () => post({ ...v }, "Saved.");
+  const save = () => post({ ...v, initiatives, notesForDirector: notes }, "Saved.");
   const propose = () => post({ action: "propose", proposedGoal: proposeVal }, "Goal proposed to the advisor.");
   const accept = async () => {
     if (await post({ action: "accept" }, "Proposal accepted — it's now your goal.")) {
@@ -166,10 +171,15 @@ export default function GoalPlanner({
     }
   };
 
-  // Jump to — and open — the last-month inputs (used by the empty-state CTAs).
-  const openDetails = () => {
-    setDetailsOpen(true);
-    requestAnimationFrame(() => document.getElementById("last-month-details")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  const scrollTo = (id: string) =>
+    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+
+  const toggleInit = (label: string) =>
+    setInitiatives((cur) => (cur.includes(label) ? cur.filter((x) => x !== label) : [...cur, label]));
+  const addCustomInit = () => {
+    const t = customInit.trim();
+    if (t && !initiatives.includes(t)) setInitiatives((cur) => [...cur, t]);
+    setCustomInit("");
   };
 
   const numInput = (k: keyof GoalSheetInput, kind: "count" | "money") => (
@@ -194,8 +204,12 @@ export default function GoalPlanner({
     </label>
   );
 
-  const stepBadge = (n: number) => (
-    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-semibold text-white">{n}</span>
+  const stepBadge = (n: number, done: boolean) => (
+    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold ${done ? "bg-emerald-600 text-white" : "bg-brand-600 text-white"}`}>
+      {done ? (
+        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+      ) : n}
+    </span>
   );
 
   return (
@@ -208,6 +222,30 @@ export default function GoalPlanner({
             {STATUS_LABEL[status] ?? status}
           </span>
         ) : null}
+      </div>
+
+      {/* ───────── Sticky stepper + progress (makes the sheet feel quick) ───────── */}
+      <div className="sticky top-0 z-20 -mx-1 rounded-xl border border-line bg-canvas/85 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">Your goal sheet</span>
+          <span className="text-[11px] font-medium text-ink">{doneCount} of 4 done</span>
+        </div>
+        <div className="mb-2.5 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+          <div className="h-full rounded-full bg-emerald-grad transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${(doneCount / 4) * 100}%` }} />
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto">
+          {steps.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => scrollTo(s.id)}
+              className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left transition-colors ${s.done ? "border-emerald-200 bg-emerald-50" : "border-line bg-white hover:bg-black/[0.02]"}`}
+            >
+              {stepBadge(s.n, s.done)}
+              <span className="min-w-0 truncate text-[11px] font-medium text-ink">{s.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Advisor: the director proposed a goal — accept it, or set your own below. */}
@@ -228,13 +266,58 @@ export default function GoalPlanner({
         </Card>
       ) : null}
 
-      {/* ───────── STEP 1 — This month's goal + truthful pace (the lead) ───────── */}
-      <Card className="p-4 sm:p-5">
+      {/* ───────── STEP 1 — Last month's results + the funnel ───────── */}
+      <Card className="p-4 sm:p-5" id="step-results">
         <div className="mb-1 flex items-center gap-2">
-          {stepBadge(1)}
+          {stepBadge(1, steps[0].done)}
+          <h2 className="text-base font-semibold text-ink">Fill out last month&apos;s results</h2>
+        </div>
+        <p className="mb-4 text-xs text-muted">No guessing — enter what actually happened. It builds your funnel and learns your personal close rates.</p>
+
+        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Activity</div>
+        <div className="mb-5 grid gap-3 sm:grid-cols-2">
+          {ACTIVITY_FIELDS.map(fieldLabel)}
+        </div>
+
+        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Dollars</div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {DOLLAR_FIELDS.map(fieldLabel)}
+        </div>
+
+        {/* The funnel — always on screen (skeleton until results are entered) */}
+        <div className="mt-6 rounded-xl border border-line bg-white/60 p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-ink">Your sales funnel</h3>
+            {funnel.hasData && funnel.proposedAmt > 0 ? (
+              <span className="text-xs text-muted">
+                <span className="font-medium text-ink tabular-nums">{money(funnel.closedAmt)}</span> from{" "}
+                <span className="tabular-nums">{money(funnel.proposedAmt)}</span> ·{" "}
+                <span className="font-semibold" style={{ color: rampTextColor(funnel.closeRate * 100) }}>{pct(funnel.closeRate)} close</span>
+              </span>
+            ) : null}
+          </div>
+          <FunnelViz stages={funnel.stages} muted={!funnel.hasData} />
+          <p className="mt-3 text-[11px] text-muted">
+            {funnel.hasData ? "Leads → Appointments → Proposals → Closed. Each stage narrows; the % shows how many advanced." : "Enter your activity above and the funnel fills in — Leads → Appointments → Proposals → Closed."}
+          </p>
+          {funnel.hasData ? (
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <StatChip label="Close rate" value={pct(rates.totalClosingPct)} />
+              <StatChip label="Avg job value" value={money(rates.avgTcJobPrice)} />
+              <StatChip label="Proposals / lead" value={qty(rates.proposalsPerProspect)} />
+              <StatChip label="Termite close" value={pct(rates.tcClosingPct)} />
+            </div>
+          ) : null}
+        </div>
+      </Card>
+
+      {/* ───────── STEP 2 — Set this month's goal + pace + game plan ───────── */}
+      <Card className={`p-4 sm:p-5 ${ready ? "ring-1 ring-brand-300" : ""}`} id="step-goal">
+        <div className="mb-1 flex items-center gap-2">
+          {stepBadge(2, steps[1].done)}
           <h2 className="text-base font-semibold text-ink">Set this month&apos;s goal</h2>
         </div>
-        <p className="mb-4 text-xs text-muted">Pick your target for {periodLabelText} and how many days you&rsquo;ll work. The speedometer colors by your real pace once results come in.</p>
+        <p className="mb-4 text-xs text-muted">Pick your target (up to {money(GOAL_MAX)}) and your workdays. The slider colors as you aim higher; the speedometer colors by your <span className="font-medium text-ink">real</span> pace once results come in.</p>
 
         <div className="grid gap-4 sm:grid-cols-5 sm:items-stretch">
           {/* Goal slider + workdays */}
@@ -246,11 +329,9 @@ export default function GoalPlanner({
                 value={v.salesGoal}
                 onChange={(n) => set("salesGoal", String(n))}
                 min={0}
-                max={150000}
+                max={GOAL_MAX}
                 step={500}
                 format={(n) => money(n)}
-                accentColor={paceColor}
-                statusWord={paceWord}
               />
             ) : (
               <div className="flex items-baseline justify-between">
@@ -259,7 +340,7 @@ export default function GoalPlanner({
               </div>
             )}
             {canEdit && v.salesGoal === 0 ? (
-              <p className="mt-2 text-[11px] text-muted">Drag to set your target — most advisors aim for $50,000+ a month.</p>
+              <p className="mt-2 text-[11px] text-muted">Drag to set your target — most advisors aim for $40,000&ndash;$60,000 a month.</p>
             ) : null}
 
             <label className="mt-4 flex items-center justify-between gap-3 text-sm">
@@ -276,7 +357,7 @@ export default function GoalPlanner({
                   <Gauge value={projected} target={v.salesGoal} size={176} format={() => pct(ratio)} label="projected vs goal" showStatus={false} />
                 ) : (
                   <div className="grid place-items-center py-2">
-                    <ProgressRing value={0} target={100} size={132} stroke={13} tone="#C3DAC9" label="—" />
+                    <ProgressRing value={0} target={100} size={132} stroke={13} tone="#C3DAC9" label="—" ariaLabel="Projected pace — awaiting results" />
                     <div className="mt-1 text-xs text-muted">projected vs goal</div>
                   </div>
                 )}
@@ -302,51 +383,12 @@ export default function GoalPlanner({
             )}
           </div>
         </div>
-      </Card>
-
-      {/* ───────── STEP 2 — Your funnel & the daily game plan (outcomes) ───────── */}
-      <Card className={`p-4 sm:p-5 ${ready ? "ring-1 ring-brand-300" : ""}`}>
-        <div className="mb-1 flex items-center gap-2">
-          {stepBadge(2)}
-          <h2 className="text-base font-semibold text-ink">Your funnel &amp; game plan</h2>
-        </div>
-        <p className="mb-4 text-xs text-muted">Last month&rsquo;s funnel (your whole book — pest + termite) turns into exactly what it takes to hit this month&rsquo;s goal.</p>
-
-        {/* The funnel — last month's story, lead to close */}
-        {funnel.hasData ? (
-          <>
-            {funnel.proposedAmt > 0 ? (
-              <div className="mb-3 text-xs text-muted">
-                <span className="font-medium text-ink tabular-nums">{money(funnel.closedAmt)}</span> closed from{" "}
-                <span className="tabular-nums">{money(funnel.proposedAmt)}</span> proposed ·{" "}
-                <span className="font-semibold" style={{ color: rampTextColor(funnel.closeRate * 100) }}>{pct(funnel.closeRate)} close</span>
-              </div>
-            ) : null}
-            <FunnelViz stages={funnel.shown} />
-            <p className="mt-3 text-[11px] text-muted">Each stage narrows to the next; the % shows how many advanced.</p>
-          </>
-        ) : (
-          <div className="rounded-lg border border-dashed border-line bg-black/[0.015] px-4 py-6 text-center">
-            <p className="text-sm text-muted">Enter last month&rsquo;s activity and your funnel — leads → appointments → proposals → closed — appears here.</p>
-            {canEdit ? <button onClick={openDetails} className={`${btn.secondary} mt-3`}>Add last month&rsquo;s results</button> : null}
-          </div>
-        )}
-
-        {/* Your numbers (derived) — a compact strip so the plan's inputs are visible */}
-        {funnel.hasData ? (
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <StatChip label="Close rate" value={pct(rates.totalClosingPct)} />
-            <StatChip label="Avg job value" value={money(rates.avgTcJobPrice)} />
-            <StatChip label="Proposals / lead" value={qty(rates.proposalsPerProspect)} />
-            <StatChip label="Termite close" value={pct(rates.tcClosingPct)} />
-          </div>
-        ) : null}
 
         {/* The game plan — tied straight to the goal */}
         <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50/50 p-4">
           <h3 className="text-sm font-semibold text-ink">Your daily game plan</h3>
           {!ready ? (
-            <p className="mt-1 text-sm text-muted">Set this month&rsquo;s goal above and enter last month&rsquo;s results, and your daily plan appears here.</p>
+            <p className="mt-1 text-sm text-muted">Enter last month&rsquo;s results and set this month&rsquo;s goal, and your daily plan appears here.</p>
           ) : (
             <>
               <p className="mb-3 mt-1 text-sm text-ink">
@@ -382,47 +424,78 @@ export default function GoalPlanner({
         </div>
       </Card>
 
-      {/* ───────── Last month's details — the inputs (collapsible) ───────── */}
-      <Card className="overflow-hidden p-0" id="last-month-details">
-        <button
-          type="button"
-          onClick={() => setDetailsOpen((o) => !o)}
-          aria-expanded={detailsOpen}
-          className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
-        >
-          {stepBadge(3)}
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-ink">Last month&rsquo;s results</span>
-            <span className="block truncate text-[11px] text-muted">
-              {funnel.hasData
-                ? <>{qty(funnel.leads)} leads · {qty(funnel.proposals)} proposals · {money(funnel.closedAmt)} closed — tap to {detailsOpen ? "hide" : "edit"}</>
-                : "Enter what actually happened — it builds your funnel and learns your personal numbers."}
+      {/* ───────── STEP 3 — This month's focus (initiatives) ───────── */}
+      <Card className="p-4 sm:p-5" id="step-initiatives">
+        <div className="mb-1 flex items-center gap-2">
+          {stepBadge(3, steps[2].done)}
+          <h2 className="text-base font-semibold text-ink">What will you focus on this month?</h2>
+        </div>
+        <p className="mb-4 text-xs text-muted">Pick the initiatives you&rsquo;ll lean on to hit your goal. Tap to select — add your own if you have one.</p>
+
+        <div className="flex flex-wrap gap-2">
+          {INITIATIVE_OPTIONS.map((label) => {
+            const on = initiatives.includes(label);
+            return (
+              <button
+                key={label}
+                type="button"
+                disabled={!canEdit}
+                onClick={() => toggleInit(label)}
+                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-60 ${on ? "border-brand-400 bg-brand-50 text-brand-800" : "border-line bg-white text-ink hover:bg-black/[0.02]"}`}
+              >
+                <span className={`grid h-4 w-4 place-items-center rounded-full border ${on ? "border-brand-500 bg-brand-500 text-white" : "border-line"}`}>
+                  {on ? <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg> : null}
+                </span>
+                {label}
+              </button>
+            );
+          })}
+          {/* Custom initiatives the advisor added */}
+          {initiatives.filter((i) => !INITIATIVE_OPTIONS.includes(i)).map((label) => (
+            <span key={label} className="inline-flex items-center gap-2 rounded-full border border-brand-400 bg-brand-50 px-3.5 py-2 text-sm font-medium text-brand-800">
+              {label}
+              {canEdit ? <button type="button" onClick={() => toggleInit(label)} className="text-brand-600 hover:text-brand-900" aria-label={`Remove ${label}`}>×</button> : null}
             </span>
-          </span>
-          <svg viewBox="0 0 24 24" className={`h-5 w-5 shrink-0 text-muted transition-transform duration-200 motion-reduce:transition-none ${detailsOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
-        </button>
-        {detailsOpen ? (
-          <div className="border-t border-line px-4 pb-5 pt-4 sm:px-5">
-            <p className="mb-4 text-xs text-muted">No guessing — enter last month&rsquo;s actuals. The more accurate they are, the better your plan.</p>
+          ))}
+        </div>
 
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Activity</div>
-            <div className="mb-5 grid gap-3 sm:grid-cols-2">
-              {ACTIVITY_FIELDS.map(fieldLabel)}
-            </div>
-
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Dollars</div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {DOLLAR_FIELDS.map(fieldLabel)}
-            </div>
+        {canEdit ? (
+          <div className="mt-3 flex gap-2">
+            <input
+              value={customInit}
+              onChange={(e) => setCustomInit(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomInit(); } }}
+              placeholder="Add another focus…"
+              className="w-full max-w-xs rounded-lg border border-line px-3 py-2 text-sm"
+            />
+            <button type="button" onClick={addCustomInit} className={btn.secondary}>Add</button>
           </div>
         ) : null}
+      </Card>
+
+      {/* ───────── STEP 4 — Notes for the Sales Director ───────── */}
+      <Card className="p-4 sm:p-5" id="step-notes">
+        <div className="mb-1 flex items-center gap-2">
+          {stepBadge(4, steps[3].done)}
+          <h2 className="text-base font-semibold text-ink">Notes for your Sales Director</h2>
+        </div>
+        <p className="mb-3 text-xs text-muted">Anything you want to talk through this month — wins, roadblocks, support you need. Your Sales Director sees this on your sheet.</p>
+        <textarea
+          value={notes}
+          disabled={!canEdit}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          placeholder="e.g. Need help with two big termite bids · want to join the Tuesday BNI group · truck in the shop next week"
+          className="w-full rounded-lg border border-line px-3 py-2.5 text-base sm:text-sm disabled:bg-slate-50"
+        />
       </Card>
 
       {/* ───────── Director co-goal-setting ───────── */}
       {viewerRole === "director" && canEdit ? (
         <Card className="p-4 ring-1 ring-brand-200 sm:p-5">
           <div className="mb-1 flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="h-5 w-5 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 3v18M5 8h14M7 13h10" /></svg>
+            {/* target glyph (not a cross) */}
+            <svg viewBox="0 0 24 24" className="h-5 w-5 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /></svg>
             <h2 className="text-base font-semibold text-ink">Propose a goal</h2>
           </div>
           <p className="mb-4 text-xs text-muted">
@@ -436,16 +509,14 @@ export default function GoalPlanner({
               value={proposeVal}
               onChange={setProposeVal}
               min={0}
-              max={150000}
+              max={GOAL_MAX}
               step={500}
               format={(n) => money(n)}
-              accentColor={propColor}
-              statusWord={propWord}
             />
             <p className="mt-2 text-[11px] text-muted">
-              {propHasPace
-                ? <>At their current pace they project <span className="font-medium text-ink">{money(projected)}</span> — this proposal would be <span className="font-medium" style={{ color: propColor }}>{propWord.toLowerCase()}</span>.</>
-                : <>Pick a realistic figure; once results are in, the color shows whether it&rsquo;s on pace.</>}
+              {hasPace
+                ? <>At their current pace they project <span className="font-medium text-ink">{money(projected)}</span> — this proposal would be <span className="font-medium" style={{ color: rampTextColor(Math.min(100, paceRatio(projected, proposeVal) * 100)) }}>{paceStatusWord(paceRatio(projected, proposeVal)).toLowerCase()}</span>.</>
+                : <>Pick a realistic figure; once results are in, the pace color shows whether it&rsquo;s on track.</>}
             </p>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -472,31 +543,33 @@ export default function GoalPlanner({
 
 // A visual, tapering sales funnel — each stage a centered bar whose width rides on
 // the stage's size, with the conversion % to the next stage shown between bars.
-function FunnelViz({ stages }: { stages: FStage[] }) {
+// `muted` renders a greyed skeleton (fixed taper, "—" values) before any results.
+function FunnelViz({ stages, muted = false }: { stages: FStage[]; muted?: boolean }) {
   const maxSize = Math.max(1, ...stages.map((s) => s.size));
+  const SKELETON_W = [100, 82, 64, 50];
   return (
     <div role="list" aria-label="Sales funnel" className="space-y-1">
       {stages.map((s, i) => {
-        // Taper from 100% (largest stage) down to ~55% (smallest), so the funnel
-        // always narrows visibly while every bar stays wide enough to read on a phone.
-        const w = Math.round(55 + 45 * (s.size / maxSize));
+        // Live: taper 100%→55% by size. Skeleton: a fixed, evenly tapering shape.
+        const w = muted ? SKELETON_W[i] : Math.round(55 + 45 * (s.size / maxSize));
+        const bg = muted ? "#CBD8CE" : s.color;
         return (
           <div key={s.key} role="listitem">
             <div
-              className="mx-auto flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-white shadow-sm"
-              style={{ width: `${w}%`, minWidth: 160, background: s.color }}
+              className={`mx-auto flex items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-sm ${muted ? "text-slate-500" : "text-white"}`}
+              style={{ width: `${w}%`, minWidth: 160, background: bg }}
             >
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wide opacity-95">{s.label}</div>
                 {s.sub ? <div className="truncate text-[10px] opacity-85">{s.sub}</div> : null}
               </div>
-              <div className="shrink-0 text-xl font-semibold tabular-nums">{s.display}</div>
+              <div className="shrink-0 text-xl font-semibold tabular-nums">{muted ? "—" : s.display}</div>
             </div>
             {i < stages.length - 1 ? (
               <div className="flex items-center justify-center py-1" aria-hidden>
                 <span className="inline-flex items-center gap-1 rounded-full bg-black/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-muted">
                   <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
-                  {pct(s.convToNext ?? 0)} {s.convLabel}
+                  {muted ? "—" : <>{pct(s.convToNext ?? 0)} {s.convLabel}</>}
                 </span>
               </div>
             ) : null}

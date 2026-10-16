@@ -55,7 +55,7 @@ export async function upsertGoalSheet(
   advisorEmployeeId: string,
   periodKey: string,
   data: GoalSheetInput,
-  opts: { branch?: string | null; userId?: string | null } = {},
+  opts: { branch?: string | null; userId?: string | null; initiatives?: string[] | null; notesForDirector?: string | null } = {},
 ) {
   const clean = {
     leads: Math.max(0, Math.round(data.leads || 0)),
@@ -77,11 +77,32 @@ export async function upsertGoalSheet(
     clean.salesGoal > 0
       ? (existing?.proposedGoal != null && clean.salesGoal === existing.proposedGoal ? "agreed" : "advisor_set")
       : (existing?.goalStatus ?? null);
+  // This month's focus — only touch these columns when the caller supplied them.
+  const extras: { initiatives?: string | null; notesForDirector?: string | null } = {};
+  if (opts.initiatives !== undefined) {
+    const list = (opts.initiatives ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 20);
+    extras.initiatives = list.length ? JSON.stringify(list) : null;
+  }
+  if (opts.notesForDirector !== undefined) {
+    const n = (opts.notesForDirector ?? "").trim().slice(0, 4000);
+    extras.notesForDirector = n || null;
+  }
   return prisma.salesGoalSheet.upsert({
     where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
-    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, goalStatus, ...clean },
-    update: { ...clean, goalStatus, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
+    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, goalStatus, ...clean, ...extras },
+    update: { ...clean, goalStatus, ...extras, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
   });
+}
+
+/** Parse the stored initiatives JSON array into a clean string[] (never throws). */
+export function parseInitiatives(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.map((s) => String(s)).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
 }
 
 /**

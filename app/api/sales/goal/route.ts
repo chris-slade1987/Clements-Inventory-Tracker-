@@ -60,7 +60,13 @@ export async function POST(req: Request) {
       totalExposure: num(body.totalExposure), tcUnits: num(body.tcUnits),
       salesGoal: num(body.salesGoal), workdays: num(body.workdays),
     };
-    const sheet = await upsertGoalSheet(advisorEmployeeId, periodKey, data, { branch: emp?.branch ?? null, userId: user.id });
+    const initiatives = Array.isArray(body.initiatives) ? (body.initiatives as unknown[]).map((s) => String(s)) : undefined;
+    const notesForDirector = typeof body.notesForDirector === "string" ? body.notesForDirector : undefined;
+    const sheet = await upsertGoalSheet(advisorEmployeeId, periodKey, data, {
+      branch: emp?.branch ?? null, userId: user.id,
+      ...(initiatives !== undefined ? { initiatives } : {}),
+      ...(notesForDirector !== undefined ? { notesForDirector } : {}),
+    });
     return NextResponse.json({ ok: true, id: sheet.id, periodKey, goalStatus: sheet.goalStatus });
   } catch (e) {
     return fail(e);

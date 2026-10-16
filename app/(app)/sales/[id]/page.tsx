@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
-import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
+import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives } from "@/lib/sales";
 import { advisorPaceSignal } from "@/lib/sales-funnel";
 import { branchLabel } from "@/lib/management";
 
@@ -40,6 +40,8 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
         advisorEmployeeId={emp.id}
         advisorName={emp.name}
         initial={initial}
+        initialInitiatives={parseInitiatives(g.sheet?.initiatives)}
+        initialNotes={g.sheet?.notesForDirector ?? ""}
         canEdit={canManage}
         viewerRole="director"
         paceSignal={paceSignal}

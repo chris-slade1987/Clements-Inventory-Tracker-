@@ -5,7 +5,7 @@ import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
-import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
+import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives } from "@/lib/sales";
 import { advisorPaceSignal } from "@/lib/sales-funnel";
 import { prisma } from "@/lib/prisma";
 
@@ -66,6 +66,8 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
         periodKey={periodKey}
         periodLabelText={periodLabel(periodKey)}
         initial={initial}
+        initialInitiatives={parseInitiatives(g.sheet?.initiatives)}
+        initialNotes={g.sheet?.notesForDirector ?? ""}
         canEdit
         viewerRole="advisor"
         paceSignal={paceSignal}

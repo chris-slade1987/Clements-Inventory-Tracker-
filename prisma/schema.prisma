@@ -1359,6 +1359,11 @@ model SalesGoalSheet {
   proposalsGoal     Int      @default(0) @map("proposals_goal")
   dealsGoal         Int      @default(0) @map("deals_goal")
   source            String   @default("manual") // "manual" | "demo" — demo rows are cleared on SmarterLaunch cutover
+  // This month's focus (advisor-set): a JSON array of initiative labels (group
+  // networking, drop-offs, cross-selling lists, team ride-alongs, + custom) and a
+  // free-text note the advisor wants to discuss with the Sales Director.
+  initiatives       String?  // JSON array of focus-initiative labels
+  notesForDirector  String?  @map("notes_for_director")
   // Sales-Director co-goal-setting: the director may PROPOSE a goal alongside the
   // advisor's without overwriting the advisor's entered sheet. The advisor accepts
   // it (salesGoal := proposedGoal, goalStatus "agreed") or sets their own.
