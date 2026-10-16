@@ -5,6 +5,7 @@ import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues, cell, 
 import { buildBranchPnlPayload } from "@/lib/branch-pnl";
 import BranchPnlClient, { type Metric } from "@/app/(app)/management/branch-pnl/BranchPnlClient";
 import { Gauge, KpiMeter } from "@/components/motivation";
+import { KpiTile } from "@/components/kpi-tiles";
 import { money } from "@/lib/format";
 import MyBranchViewToggle from "../MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
@@ -76,6 +77,30 @@ export default async function MyBranchKpisPage({
     const production = c("production");
     const netAfterLabor = c("net_after_labor");
     const newSales = c("new_sales");
+    // More headline + cost KPIs so the company view is rich on its own.
+    const routeContribPct = c("route_contrib_pct");
+    const marginPct = c("margin_pct");
+    const attrition = c("attrition");
+    const techWages = c("tech_wages");
+    const fuel = c("fuel");
+    const chemical = c("chemical_expense");
+    const revActual = netRev.actual ?? 0;
+    const pOfRev = (x: typeof netRev) => (revActual > 0 && x.actual != null ? (x.actual / revActual) * 100 : null);
+    const headlineDefs: { label: string; c: typeof netRev; unit: "usd" | "pct" | "count" }[] = [
+      { label: "Net revenue", c: netRev, unit: "usd" },
+      { label: "Production", c: production, unit: "usd" },
+      { label: "Net after labor", c: netAfterLabor, unit: "usd" },
+      { label: "New sales", c: newSales, unit: "usd" },
+      { label: "Margin %", c: marginPct, unit: "pct" },
+      { label: "Route contribution %", c: routeContribPct, unit: "pct" },
+      { label: "Attrition", c: attrition, unit: "usd" },
+    ];
+    const headlineTiles = headlineDefs.filter((t) => t.c.actual != null || t.c.budget != null);
+    const costTiles = [
+      { label: "Technician wages", c: techWages },
+      { label: "Fuel", c: fuel },
+      { label: "Chemical expense", c: chemical },
+    ].filter((t) => t.c.actual != null || t.c.budget != null);
 
     return (
       <>
@@ -104,8 +129,25 @@ export default async function MyBranchKpisPage({
           </div>
         </Card>
 
+        {/* Company KPI tiles — actual vs budget with variance + budget bars. */}
+        {headlineTiles.length > 0 ? (
+          <section className="mb-6">
+            <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
+              <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> Company KPIs · YTD
+            </h2>
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {headlineTiles.map((t) => (
+                <KpiTile key={t.label} label={t.label} c={t.c} unit={t.unit} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {/* Break it down by branch — production YTD per branch, click to drill in. */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-2">
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
+          <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> By branch · production YTD
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
           {BRANCHES.map((b) => {
             const prod = cell(values, "production", b.key as Scope, "ytd");
             return (
@@ -125,7 +167,24 @@ export default async function MyBranchKpisPage({
             );
           })}
         </div>
-        <p className="mb-6 text-xs text-muted">For the full company financial dashboard, use the Executive → Company Overview center.</p>
+        {/* Cost lines — actual vs budget, each as % of revenue. */}
+        {costTiles.length > 0 ? (
+          <section className="mb-6">
+            <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
+              <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> Costs · YTD
+            </h2>
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
+              {costTiles.map((t) => (
+                <KpiTile key={t.label} label={t.label} c={t.c} unit="usd" pctOfRev={pOfRev(t.c)} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <p className="mb-6 text-xs text-muted">
+          Need the full P&amp;L, charts, waterfall and board view?{" "}
+          <Link href="/management" className="font-medium text-brand-700 hover:underline">Open the Executive dashboard →</Link>
+        </p>
       </>
     );
   }
