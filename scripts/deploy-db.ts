@@ -55,6 +55,23 @@ async function main() {
     console.log("deploy-db: switched Prisma provider to postgresql.");
   }
 
+  // PREVIEW / non-production Vercel builds: never run DDL or seeds against the
+  // shared database, and a preview's DATABASE_URL often has no usable DIRECT
+  // endpoint for `prisma db push` — which is exactly why preview builds were
+  // failing ("npm run build exited with 1"). Regenerate the Postgres client so the
+  // app still compiles and runs, then STOP before any schema push / seed. Only a
+  // real Production deploy migrates + seeds. (No VERCEL_ENV → not on Vercel, e.g.
+  // a manual/CI run, so fall through and behave as before.)
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+    console.log(`deploy-db: VERCEL_ENV=${process.env.VERCEL_ENV} — regenerating client only; skipping schema push + seeds (previews never mutate the shared DB).`);
+    try {
+      execSync("npx --no-install prisma generate", { stdio: "inherit" });
+    } catch (e) {
+      console.warn("deploy-db: prisma generate (preview) warning:", (e as Error).message);
+    }
+    return;
+  }
+
   // Create/align the schema (also regenerates the client for Postgres).
   // Pin the CLI to the installed 6.x: a bare `npx prisma` can resolve to a
   // freshly-published Prisma 7, which rejects this v6 schema (and the
