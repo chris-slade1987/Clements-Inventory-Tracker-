@@ -4,6 +4,7 @@ import { fail } from "@/lib/http";
 import { teamFunnel, salesPace } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
 import { coachAdvisor, briefTeam } from "@/lib/sales-ai";
+import { listFocusItems, focusFactsForAdvisor } from "@/lib/sales-focus";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -36,7 +37,9 @@ export async function POST(req: Request) {
     const { rows } = await teamFunnel(periodKey, null);
     const row = rows.find((x) => x.advisor.id === advisorEmployeeId);
     if (!row) return NextResponse.json({ error: "That advisor isn't on the sales team." }, { status: 404 });
-    const r = await coachAdvisor(row, pace);
+    // Feed the advisor's Focus Plan + logged outcomes into the coaching context.
+    const focusFacts = focusFactsForAdvisor(await listFocusItems(advisorEmployeeId, periodKey));
+    const r = await coachAdvisor(row, pace, focusFacts);
     return NextResponse.json({ ok: true, ...r });
   } catch (e) {
     return fail(e);

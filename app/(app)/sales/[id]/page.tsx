@@ -4,8 +4,9 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
-import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives } from "@/lib/sales";
-import { advisorPaceSignal } from "@/lib/sales-funnel";
+import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPrefillFromPriorActuals } from "@/lib/sales";
+import { advisorPaceSignal, priorPeriodKey } from "@/lib/sales-funnel";
+import { listFocusItems } from "@/lib/sales-focus";
 import { branchLabel } from "@/lib/management";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,11 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
     : null;
   const proposal = { proposedGoal: g.sheet?.proposedGoal ?? null, goalStatus: g.sheet?.goalStatus ?? null, proposedByName };
 
+  const recapEntered = (g.recap.leads + g.recap.reis + g.recap.appts + g.recap.proposals + g.recap.pcExposed + g.recap.pcSold + g.recap.tcSold + g.recap.totalExposure + g.recap.tcUnits) > 0;
+  const prefill = recapEntered ? null : await recapPrefillFromPriorActuals(emp.id, periodKey);
+  const focusItems = await listFocusItems(emp.id, periodKey);
+  const lastMonthFocus = await prisma.salesFocusItem.count({ where: { advisorEmployeeId: emp.id, periodKey: priorPeriodKey(periodKey), voided: false } });
+
   return (
     <>
       <div className="mb-2"><Link href="/sales" className="text-xs font-medium text-brand-700 hover:underline">← Sales Team</Link></div>
@@ -47,6 +53,11 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
         viewerRole="director"
         paceSignal={paceSignal}
         proposal={proposal}
+        prefill={prefill ? { recap: prefill.recap, source: "actuals" } : null}
+        focusAdvisorId={emp.id}
+        focusItems={focusItems}
+        focusHasLastMonth={lastMonthFocus > 0}
+        viewerName={user.name}
       />
     </>
   );

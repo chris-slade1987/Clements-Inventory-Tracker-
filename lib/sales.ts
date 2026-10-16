@@ -20,6 +20,13 @@ export function periodLabel(key: string): string {
   return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 }
 
+/** Prior month key, "YYYY-MM" (local copy to avoid a lib/sales-funnel import cycle). */
+function priorPeriodKey(key: string): string {
+  const [y, m] = key.split("-").map(Number);
+  const d = new Date(Date.UTC(y, (m || 1) - 2, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
 export type Advisor = { id: string; name: string; branch: string | null; email: string | null };
 
 /** Active service advisors — by Employee.role or a linked "sales" access level. */
@@ -48,6 +55,36 @@ export async function getGoalSheet(advisorEmployeeId: string, periodKey: string)
   return prisma.salesGoalSheet.findUnique({
     where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
   });
+}
+
+/**
+ * Prior-month recap PREFILL from real funnel actuals (SalesPeriodStat), so the
+ * advisor doesn't retype last month's numbers. We only prefill what we can map
+ * TRUTHFULLY — leads, proposals and the deals count — and leave the pest/termite
+ * $ split blank (no truthful source until SmarterLaunch is connected). Returns
+ * null when there's no prior data to pull from (never fabricates).
+ *   leadsCreated  → leads
+ *   proposalsMade → proposals
+ *   dealsClosed   → tcUnits (deals/termite-jobs count)
+ * The caller only applies this when the advisor hasn't entered a recap yet.
+ */
+export async function recapPrefillFromPriorActuals(
+  advisorEmployeeId: string,
+  periodKey: string,
+): Promise<{ recap: Partial<RecapInputs>; source: "actuals"; priorKey: string } | null> {
+  const priorKey = priorPeriodKey(periodKey);
+  const stat = await prisma.salesPeriodStat.findUnique({
+    where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey: priorKey } },
+    select: { leadsCreated: true, proposalsMade: true, dealsClosed: true, closedAmount: true },
+  });
+  if (!stat) return null;
+  const any = stat.leadsCreated > 0 || stat.proposalsMade > 0 || stat.dealsClosed > 0 || stat.closedAmount > 0;
+  if (!any) return null;
+  const recap: Partial<RecapInputs> = {};
+  if (stat.leadsCreated > 0) recap.leads = stat.leadsCreated;
+  if (stat.proposalsMade > 0) recap.proposals = stat.proposalsMade;
+  if (stat.dealsClosed > 0) recap.tcUnits = stat.dealsClosed;
+  return { recap, source: "actuals", priorKey };
 }
 
 /** Create or update an advisor's goal sheet for a month. */

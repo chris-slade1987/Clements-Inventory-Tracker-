@@ -8,6 +8,8 @@ import { randomBytes } from "node:crypto";
 import { branchLabel, BRANCHES } from "@/lib/management";
 import { etParts } from "@/lib/date";
 import { notifyThread } from "@/lib/threads";
+import { focusTypeLabel } from "@/lib/sales-focus";
+import { listServiceAdvisors } from "@/lib/sales";
 import { DigestCollector, sendDigests, dueForDigest } from "@/lib/email-digest";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
@@ -532,6 +534,199 @@ export async function remindMonthlyGoals() {
     await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
   }
   return { periodKey, emailed };
+}
+
+/**
+ * The 1-indexed business-day (Mon–Fri) ordinal of `now` within its own month, or
+ * null when `now` is a weekend. Day 1 = the first weekday of the month.
+ */
+function businessDayOrdinal(now: Date): number | null {
+  const y = now.getUTCFullYear(), m = now.getUTCMonth();
+  const dow = now.getUTCDay();
+  if (dow === 0 || dow === 6) return null; // weekend — not a business day
+  let count = 0;
+  for (let d = 1; d <= now.getUTCDate(); d++) {
+    const wd = new Date(Date.UTC(y, m, d)).getUTCDay();
+    if (wd !== 0 && wd !== 6) count++;
+  }
+  return count;
+}
+
+/**
+ * ADVISOR-facing monthly goal-sheet reminder (distinct from the DIRECTOR reminder
+ * `remindMonthlyGoals`). The COO wants each service advisor's goal sheet completed
+ * by the 2nd–3rd business day of the month, so on business days 1, 2 and 3 we nudge
+ * every ACTIVE advisor who hasn't set this month's goal to build their gameplan —
+ * both an in-app Alert (idempotent per advisor+period) AND an email (idempotent per
+ * advisor+period+business-day, so each of days 1/2/3 escalates once, and re-running
+ * the same day never double-sends). An advisor drops off the list the moment their
+ * sheet has a goal (salesGoal > 0). Pairs with the auto-populated prior-month recap
+ * (which fills from SmarterLaunch once connected) — this is the "now go plan this
+ * month" half of the loop.
+ */
+export async function remindAdvisorGoalSheets() {
+  const now = new Date();
+  const ordinal = businessDayOrdinal(now);
+  if (ordinal == null || ordinal > 3) return { skipped: "not business day 1–3", ordinal };
+
+  const periodKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const link = `${base()}/me/sales`;
+
+  const advisors = await listServiceAdvisors(null);
+  if (advisors.length === 0) return { periodKey, ordinal, advisors: 0, alerted: 0, emailed: 0 };
+
+  const ids = advisors.map((a) => a.id);
+  const [sheets, logins] = await Promise.all([
+    prisma.salesGoalSheet.findMany({ where: { advisorEmployeeId: { in: ids }, periodKey }, select: { advisorEmployeeId: true, salesGoal: true } }),
+    prisma.user.findMany({ where: { active: true, employeeId: { in: ids } }, select: { id: true, employeeId: true } }),
+  ]);
+  const goalBy = new Map(sheets.map((s) => [s.advisorEmployeeId, s.salesGoal]));
+  const hasLogin = new Set(logins.map((u) => u.employeeId as string));
+
+  // Escalating wording across the first three business days.
+  const headline = ordinal <= 1
+    ? `New month — build your ${monthLabel} gameplan`
+    : ordinal === 2
+      ? `Set your ${monthLabel} sales goal & gameplan`
+      : `Due today — complete your ${monthLabel} goal sheet`;
+
+  let alerted = 0, emailed = 0;
+  for (const a of advisors) {
+    // Complete = this month's goal is set (salesGoal > 0). Skip once done.
+    if ((goalBy.get(a.id) ?? 0) > 0) continue;
+
+    const alertMsg = `${a.name}: ${headline.toLowerCase()} — set this month's sales goal and focus plan.`;
+    // In-app Alert — only when the advisor has a linked login to target; idempotent
+    // per advisor+period (upsert refreshes the escalated wording in place).
+    if (hasLogin.has(a.id)) {
+      await prisma.alert.upsert({
+        where: { dedupeKey: `advisor_goal_due:${periodKey}:${a.id}` },
+        create: { dedupeKey: `advisor_goal_due:${periodKey}:${a.id}`, type: "advisor_goal_due", severity: ordinal >= 3 ? "critical" : "warning", status: "open", message: alertMsg },
+        update: { message: alertMsg, status: "open", severity: ordinal >= 3 ? "critical" : "warning" },
+      }).catch(() => null);
+      alerted++;
+    }
+
+    // Email — once per advisor+period+business-day (Setting-stamp idempotency).
+    if (a.email) {
+      const key = `advisor_goal_due_email:${periodKey}:${a.id}:${ordinal}`;
+      const already = await prisma.setting.findUnique({ where: { key } }).catch(() => null);
+      if (!already) {
+        const first = a.name.split(" ")[0] || a.name;
+        const lead = ordinal <= 1
+          ? `It's a new month. Build your ${monthLabel} gameplan and set your sales goal.`
+          : ordinal === 2
+            ? `A couple days into ${monthLabel} — please set this month's sales goal and focus plan.`
+            : `Your ${monthLabel} goal sheet is due today. Please take a few minutes to complete it.`;
+        const r = await sendEmail({
+          to: [a.email],
+          subject: `${headline}`,
+          kind: "advisor_goal_due", relatedType: "sales_period", relatedId: periodKey,
+          text: `${first}, ${lead}\n\nSet your goal, map your daily plan, and document this month's focus actions (networking, cross-sell lists, drop-offs). Last month's results prefill from your actuals so you can start from a plan, not a blank page.\n\nOpen your goal sheet: ${link}\n\n— CanopyOS`,
+          html: `<p>${first}, ${lead}</p><p>Set your goal, map your daily plan, and document this month's <strong>focus actions</strong> (networking, cross-sell lists, drop-offs). Last month's results prefill from your actuals so you can start from a plan, not a blank page.</p><p><a href="${link}">Open your goal sheet →</a></p><p>— CanopyOS</p>`,
+        }).catch(() => null);
+        if (r) emailed++;
+        await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
+      }
+    }
+  }
+  return { periodKey, ordinal, advisors: advisors.length, alerted, emailed };
+}
+
+/**
+ * Focus Plan follow-up nudges — the whole point of the Focus Plan. Runs daily:
+ *   1. Day-before PRE-MEETING reminders — any planned action whose optional
+ *      `remindAt` has arrived and hasn't been reminded yet.
+ *   2. FOLLOW-UP nudges — any planned action whose `followUpAt` is due: nudge the
+ *      advisor to log what came of it, then flip status "planned" → "nudged".
+ * Each advisor is nudged in-portal (a Thread in their Inbox, which also emails
+ * them) linking to their goal sheet, plus a standing in-app Alert (idempotent by
+ * `dedupeKey`, visible to super admins). Idempotent several ways: the Alert
+ * upsert, a per-item Setting stamp guarding the one-shot Thread, and the status
+ * transition itself (a nudged item is never picked up again). Best-effort per
+ * item so one failure can't abort the batch.
+ */
+export async function remindSalesFocusFollowUps() {
+  const now = new Date();
+  const link = `${base()}/me/sales`;
+
+  const [toRemind, toNudge] = await Promise.all([
+    prisma.salesFocusItem.findMany({ where: { voided: false, status: "planned", remindedAt: null, remindAt: { not: null, lte: now } } }),
+    prisma.salesFocusItem.findMany({ where: { voided: false, status: "planned", followUpAt: { not: null, lte: now } } }),
+  ]);
+
+  // Resolve each advisor's login (for the Inbox thread + email) in one query.
+  const empIds = [...new Set([...toRemind, ...toNudge].map((i) => i.advisorEmployeeId))];
+  const logins = empIds.length
+    ? await prisma.user.findMany({ where: { active: true, employeeId: { in: empIds } }, select: { id: true, name: true, email: true, employeeId: true } })
+    : [];
+  const loginByEmp = new Map(logins.map((u) => [u.employeeId as string, u]));
+
+  let reminded = 0, nudged = 0, errors = 0;
+
+  // Fire a one-shot Inbox thread to the advisor, guarded by a Setting stamp so a
+  // mid-run failure never double-sends. Returns true when the thread was created.
+  async function threadOnce(stampKey: string, login: { id: string; name: string; email: string | null }, subject: string, body: string, href: string, contextId: string) {
+    const existing = await prisma.setting.findUnique({ where: { key: stampKey } }).catch(() => null);
+    if (existing) return false;
+    const thread = await prisma.thread.create({
+      data: {
+        subject, contextType: "sales_focus", contextId, contextLabel: subject, contextHref: href,
+        createdByName: "Buzz", updatedAt: now,
+        messages: { create: { authorName: "Buzz", body } },
+        participants: { create: [{ userId: login.id, name: login.name, email: login.email }] },
+      },
+    });
+    await notifyThread({ threadId: thread.id, subject, contextLabel: subject, authorName: "Buzz", authorUserId: null, body, isNew: true }).catch(() => {});
+    await prisma.setting.create({ data: { key: stampKey, value: now.toISOString() } }).catch(() => {});
+    return true;
+  }
+
+  // 1. Day-before pre-meeting reminders.
+  for (const item of toRemind) {
+    try {
+      const label = item.title?.trim() || focusTypeLabel(item.type);
+      const b = item.branch ? ` (${branchLabel(item.branch)})` : "";
+      await prisma.alert.upsert({
+        where: { dedupeKey: `sales_focus_remind:${item.id}` },
+        create: { dedupeKey: `sales_focus_remind:${item.id}`, type: "sales_focus_remind", severity: "info", status: "open", message: `Tomorrow: ${label}${item.plan ? ` — ${item.plan}` : ""}.` },
+        update: {},
+      }).catch(() => null);
+      const login = loginByEmp.get(item.advisorEmployeeId);
+      if (login) {
+        await threadOnce(`focus_remind:${item.id}`, login, `Tomorrow: ${label}`, `Heads-up — your ${focusTypeLabel(item.type)} action is coming up: ${label}${item.plan ? `\n\n${item.plan}` : ""}${item.goalText ? `\n\nGoal: ${item.goalText}` : ""}\n\nYour plan: ${link}`, "/me/sales", item.id);
+      }
+      await prisma.salesFocusItem.update({ where: { id: item.id }, data: { remindedAt: now } });
+      reminded++;
+    } catch (err) {
+      errors++;
+      console.error(`[remindSalesFocusFollowUps] remind ${item.id} failed:`, err);
+    }
+  }
+
+  // 2. Follow-up nudges — "how'd it go — log the outcome".
+  for (const item of toNudge) {
+    try {
+      const label = item.title?.trim() || focusTypeLabel(item.type);
+      await prisma.alert.upsert({
+        where: { dedupeKey: `sales_focus_followup:${item.id}` },
+        create: { dedupeKey: `sales_focus_followup:${item.id}`, type: "sales_focus_followup", severity: "warning", status: "open", message: `How'd your ${focusTypeLabel(item.type).toLowerCase()} go — ${label}? Log the outcome.` },
+        update: {},
+      }).catch(() => null);
+      const login = loginByEmp.get(item.advisorEmployeeId);
+      if (login) {
+        await threadOnce(`focus_followup:${item.id}`, login, `How'd your ${focusTypeLabel(item.type).toLowerCase()} go?`, `How did "${label}" go — what came from it? Log the outcome on your goal sheet so it feeds your funnel and your Sales Director can see the win.\n\nLog the outcome: ${link}`, "/me/sales", item.id);
+      }
+      await prisma.salesFocusItem.update({ where: { id: item.id }, data: { status: "nudged", nudgedAt: now } });
+      nudged++;
+    } catch (err) {
+      errors++;
+      console.error(`[remindSalesFocusFollowUps] nudge ${item.id} failed:`, err);
+    }
+  }
+
+  return { reminded, nudged, errors };
 }
 
 /**

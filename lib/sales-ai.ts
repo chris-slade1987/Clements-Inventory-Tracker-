@@ -47,13 +47,15 @@ function funnelFacts(r: AdvisorFunnel, pace: number): string {
 }
 
 const ADVISOR_SYSTEM =
-  "You are a sales coach for Clements Pest Control service advisors. Using ONLY the funnel figures provided, write 2–3 short sentences of specific, encouraging coaching: name what's working, the single biggest lever to pull, and one concrete action. Pest-control sales terms (leads, consultations/inspections, proposals, close rate). Never mention pay, commission, or compensation. Plain, direct, no fluff.";
+  "You are a sales coach for Clements Pest Control service advisors. Using ONLY the funnel figures provided, write 2–3 short sentences of specific, encouraging coaching: name what's working, the single biggest lever to pull, and one concrete action. When a Focus Plan is provided, reference the advisor's own planned actions and their logged outcomes (e.g. praise a networking win, or nudge an overdue follow-up). Pest-control sales terms (leads, consultations/inspections, proposals, close rate). Never mention pay, commission, or compensation. Plain, direct, no fluff.";
 
-/** A coaching note + month-end projection line for one advisor. */
-export async function coachAdvisor(r: AdvisorFunnel, pace: number): Promise<{ text: string; projection: number; ai: boolean }> {
+/** A coaching note + month-end projection line for one advisor. `focusFacts` is
+ *  the advisor's Focus Plan summary (from focusFactsForAdvisor), appended when set. */
+export async function coachAdvisor(r: AdvisorFunnel, pace: number, focusFacts = ""): Promise<{ text: string; projection: number; ai: boolean }> {
   const diag = diagnoseFunnel(r, pace);
   const projection = projectClose(r, pace);
-  const ai = await callClaude(ADVISOR_SYSTEM, funnelFacts(r, pace) + "\n\nWrite the coaching note.", 400);
+  const prompt = funnelFacts(r, pace) + (focusFacts ? `\n\n${focusFacts}` : "") + "\n\nWrite the coaching note.";
+  const ai = await callClaude(ADVISOR_SYSTEM, prompt, 400);
   return { text: ai ?? diag.msg, projection, ai: !!ai };
 }
 

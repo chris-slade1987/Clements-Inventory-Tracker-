@@ -5,8 +5,9 @@ import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
-import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives } from "@/lib/sales";
-import { advisorPaceSignal } from "@/lib/sales-funnel";
+import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPrefillFromPriorActuals } from "@/lib/sales";
+import { advisorPaceSignal, priorPeriodKey } from "@/lib/sales-funnel";
+import { listFocusItems } from "@/lib/sales-focus";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,15 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
     ? (await prisma.user.findUnique({ where: { id: g.sheet.proposedByUserId }, select: { name: true } }))?.name ?? null
     : null;
   const proposal = { proposedGoal: g.sheet?.proposedGoal ?? null, goalStatus: g.sheet?.goalStatus ?? null, proposedByName };
+
+  // Prefill last month's recap from real actuals — only when the advisor hasn't
+  // entered one yet (never overwrites saved numbers).
+  const recapEntered = (g.recap.leads + g.recap.reis + g.recap.appts + g.recap.proposals + g.recap.pcExposed + g.recap.pcSold + g.recap.tcSold + g.recap.totalExposure + g.recap.tcUnits) > 0;
+  const prefill = recapEntered ? null : await recapPrefillFromPriorActuals(user.employeeId, periodKey);
+
+  // Structured Focus Plan for this month + whether last month had a plan to copy.
+  const focusItems = await listFocusItems(user.employeeId, periodKey);
+  const lastMonthFocus = await prisma.salesFocusItem.count({ where: { advisorEmployeeId: user.employeeId, periodKey: priorPeriodKey(periodKey), voided: false } });
 
   return (
     <>
@@ -73,6 +83,11 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
         viewerRole="advisor"
         paceSignal={paceSignal}
         proposal={proposal}
+        prefill={prefill ? { recap: prefill.recap, source: "actuals" } : null}
+        focusAdvisorId={user.employeeId}
+        focusItems={focusItems}
+        focusHasLastMonth={lastMonthFocus > 0}
+        viewerName={user.name}
       />
     </>
   );

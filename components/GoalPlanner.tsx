@@ -8,6 +8,8 @@ import {
   deriveRates, buildPlan, projectMonthEndClose, paceRatio, paceStatusWord, type GoalSheetInput,
 } from "@/lib/sales-goal";
 import GoalSlider from "@/components/GoalSlider";
+import FocusPlan from "@/components/FocusPlan";
+import type { FocusItemDTO } from "@/lib/sales-focus";
 import { Gauge, ProgressRing, AchievementBar, rampColor, rampTextColor } from "@/components/motivation";
 
 // The Sales Director's Excel goal sheet, rebuilt as an EASY, guided 4-step flow.
@@ -58,9 +60,6 @@ const DOLLAR_FIELDS: Field[] = [
   { key: "tcUnits", label: "Termite jobs sold", help: "Number of termite jobs closed (a count).", kind: "count" },
 ];
 
-// This month's focus — the initiatives an advisor plans to lean on.
-const INITIATIVE_OPTIONS = ["Group networking", "Drop-offs", "Cross-selling lists", "Team ride-alongs"];
-
 const FUNNEL_COLOR: Record<string, string> = {
   leads: "#74A96E", appts: "#4F8A5F", proposals: "#2E6F47", closed: "#15B85C",
 };
@@ -75,6 +74,11 @@ export default function GoalPlanner({
   initialOverrides = { leadsGoal: 0, proposalsGoal: 0, dealsGoal: 0 },
   paceSignal = { closedSoFar: 0, priorClose: 0, paceFrac: 0, hasActuals: false },
   proposal = { proposedGoal: null, goalStatus: null, proposedByName: null },
+  prefill = null,
+  focusAdvisorId,
+  focusItems = [],
+  focusHasLastMonth = false,
+  viewerName = "You",
 }: {
   periodKey: string;
   periodLabelText: string;
@@ -88,11 +92,27 @@ export default function GoalPlanner({
   initialOverrides?: { leadsGoal: number; proposalsGoal: number; dealsGoal: number };
   paceSignal?: PaceSignal;
   proposal?: Proposal;
+  // Prior-month recap prefill (applied only to blank fields; advisor can correct).
+  prefill?: { recap: Partial<GoalSheetInput>; source: "actuals" } | null;
+  // Structured Focus Plan (goal-sheet Step 3).
+  focusAdvisorId?: string;
+  focusItems?: FocusItemDTO[];
+  focusHasLastMonth?: boolean;
+  viewerName?: string;
 }) {
   const router = useRouter();
-  const [v, setV] = useState<GoalSheetInput>(initial);
+  // Apply the prior-month prefill only to recap fields the advisor hasn't filled.
+  const [v, setV] = useState<GoalSheetInput>(() => {
+    if (!prefill) return initial;
+    const merged = { ...initial };
+    for (const [k, val] of Object.entries(prefill.recap)) {
+      const key = k as keyof GoalSheetInput;
+      if ((merged[key] ?? 0) === 0 && typeof val === "number") merged[key] = val;
+    }
+    return merged;
+  });
+  const prefillApplied = !!prefill && Object.keys(prefill.recap).length > 0;
   const [initiatives, setInitiatives] = useState<string[]>(initialInitiatives);
-  const [customInit, setCustomInit] = useState("");
   const [notes, setNotes] = useState<string>(initialNotes);
   const [ov, setOv] = useState(initialOverrides);
   const [ovOpen, setOvOpen] = useState((initialOverrides.leadsGoal || initialOverrides.proposalsGoal || initialOverrides.dealsGoal) > 0);
@@ -147,7 +167,7 @@ export default function GoalPlanner({
   const steps = [
     { n: 1, id: "step-results", label: "Last month", done: funnel.hasData },
     { n: 2, id: "step-goal", label: "This month's goal", done: v.salesGoal > 0 && v.workdays > 0 },
-    { n: 3, id: "step-initiatives", label: "Focus", done: initiatives.length > 0 },
+    { n: 3, id: "step-initiatives", label: "Focus", done: focusItems.length > 0 || initiatives.length > 0 },
     { n: 4, id: "step-notes", label: "Notes", done: notes.trim().length > 0 },
   ];
   const doneCount = steps.filter((s) => s.done).length;
@@ -185,11 +205,6 @@ export default function GoalPlanner({
 
   const toggleInit = (label: string) =>
     setInitiatives((cur) => (cur.includes(label) ? cur.filter((x) => x !== label) : [...cur, label]));
-  const addCustomInit = () => {
-    const t = customInit.trim();
-    if (t && !initiatives.includes(t)) setInitiatives((cur) => [...cur, t]);
-    setCustomInit("");
-  };
 
   const numInput = (k: keyof GoalSheetInput, kind: "count" | "money") => (
     <div className="relative">
@@ -311,7 +326,15 @@ export default function GoalPlanner({
           {stepBadge(1, steps[0].done)}
           <h2 className="text-base font-semibold text-ink">Fill out last month&apos;s results</h2>
         </div>
-        <p className="mb-4 text-xs text-muted">No guessing — enter what actually happened. It builds your funnel and learns your personal close rates. <span className="italic">Once SmarterLaunch is connected, these numbers will fill in for you automatically.</span></p>
+        <p className="mb-2 text-xs text-muted">No guessing — enter what actually happened. It builds your funnel and learns your personal close rates. <span className="italic">Once SmarterLaunch is connected, these numbers will fill in for you automatically.</span></p>
+        {prefillApplied ? (
+          <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 13l4 4L19 7" /></svg>
+            Auto-filled from last month&rsquo;s actuals — edit any number that&rsquo;s off.
+          </p>
+        ) : (
+          <p className="mb-4 text-[11px] text-muted">Enter manually for now — this will auto-fill once SmarterLaunch is connected.</p>
+        )}
 
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Activity</div>
         <div className="mb-5 grid gap-3 sm:grid-cols-2">
@@ -493,45 +516,35 @@ export default function GoalPlanner({
           {stepBadge(3, steps[2].done)}
           <h2 className="text-base font-semibold text-ink">What will you focus on this month?</h2>
         </div>
-        <p className="mb-4 text-xs text-muted">Pick the initiatives you&rsquo;ll lean on to hit your goal. Tap to select — add your own if you have one.</p>
+        <p className="mb-4 text-xs text-muted">Your strategic plan for the month — the specific plays you&rsquo;ll run. For each one, say what you&rsquo;ll do, set a target and a follow-up date, and we&rsquo;ll nudge you to log what came of it. Your Sales Director sees this plan and can coach you right here.</p>
 
-        <div className="flex flex-wrap gap-2">
-          {INITIATIVE_OPTIONS.map((label) => {
-            const on = initiatives.includes(label);
-            return (
-              <button
-                key={label}
-                type="button"
-                disabled={!canEdit}
-                onClick={() => toggleInit(label)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-60 ${on ? "border-brand-400 bg-brand-50 text-brand-800" : "border-line bg-white text-ink hover:bg-black/[0.02]"}`}
-              >
-                <span className={`grid h-4 w-4 place-items-center rounded-full border ${on ? "border-brand-500 bg-brand-500 text-white" : "border-line"}`}>
-                  {on ? <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg> : null}
+        {focusAdvisorId ? (
+          <FocusPlan
+            periodKey={periodKey}
+            advisorEmployeeId={focusAdvisorId}
+            items={focusItems}
+            canEdit={canEdit}
+            canComment={canEdit}
+            viewerName={viewerName}
+            hasLastMonthPlan={focusHasLastMonth}
+          />
+        ) : (
+          <p className="text-sm text-muted">Save the sheet to start documenting focus actions.</p>
+        )}
+
+        {/* Legacy initiative chips (kept editable only when some were saved before
+            the structured Focus Plan replaced them). */}
+        {initiatives.length > 0 ? (
+          <div className="mt-4 border-t border-line pt-3">
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Earlier focus tags</div>
+            <div className="flex flex-wrap gap-2">
+              {initiatives.map((label) => (
+                <span key={label} className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1.5 text-sm text-ink">
+                  {label}
+                  {canEdit ? <button type="button" onClick={() => toggleInit(label)} className="text-muted hover:text-red-600" aria-label={`Remove ${label}`}>×</button> : null}
                 </span>
-                {label}
-              </button>
-            );
-          })}
-          {/* Custom initiatives the advisor added */}
-          {initiatives.filter((i) => !INITIATIVE_OPTIONS.includes(i)).map((label) => (
-            <span key={label} className="inline-flex items-center gap-2 rounded-full border border-brand-400 bg-brand-50 px-3.5 py-2 text-sm font-medium text-brand-800">
-              {label}
-              {canEdit ? <button type="button" onClick={() => toggleInit(label)} className="text-brand-600 hover:text-brand-900" aria-label={`Remove ${label}`}>×</button> : null}
-            </span>
-          ))}
-        </div>
-
-        {canEdit ? (
-          <div className="mt-3 flex gap-2">
-            <input
-              value={customInit}
-              onChange={(e) => setCustomInit(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomInit(); } }}
-              placeholder="Add another focus…"
-              className="w-full max-w-xs rounded-lg border border-line px-3 py-2 text-sm"
-            />
-            <button type="button" onClick={addCustomInit} className={btn.secondary}>Add</button>
+              ))}
+            </div>
           </div>
         ) : null}
       </Card>

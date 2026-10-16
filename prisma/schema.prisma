@@ -1432,6 +1432,63 @@ model SalesOtherEntry {
   @@map("sales_other_entries")
 }
 
+// ---------------------------------------------------------------------------
+// Strategic Focus Plan — the service advisor's documented monthly PLAN of
+// outreach ACTIONS (networking, cross-sell lists, drop-offs, custom), each with
+// a target, a follow-up date, an optional day-before reminder, and — once it
+// happens — a logged OUTCOME. One row per planned action (many per advisor per
+// month). The daily cron nudges the advisor when a follow-up comes due; logging
+// an outcome notifies the Sales Director. Additive + nullable → `prisma db push
+// --accept-data-loss` safe. Never hard-deleted — `voided` reversibly removes a
+// row. `advisorEmployeeId` is a loose Employee.id (same pattern as
+// SalesGoalSheet / SalesPeriodStat — no FK relation).
+model SalesFocusItem {
+  id                String    @id @default(cuid())
+  advisorEmployeeId String    @map("advisor_employee_id") // Employee.id of the advisor
+  branch            String? // snapshot of the advisor's branch for director rollups
+  periodKey         String    @map("period_key") // "YYYY-MM"
+  type              String // "networking" | "dropoffs" | "crosssell" | "other"
+  title             String? // custom label (required for "other"; optional otherwise)
+  plan              String? // the details — which cross-sell LIST / which MEETING / WHERE for drop-offs
+  goalText          String?   @map("goal_text") // free-text goal (e.g. "book 2 inspections")
+  goalCount         Int?      @map("goal_count") // numeric target (e.g. # leads targeted)
+  followUpAt        DateTime? @map("follow_up_at") // when to nudge the advisor to log the outcome
+  remindAt          DateTime? @map("remind_at") // optional day-before pre-meeting reminder
+  status            String    @default("planned") // "planned" | "nudged" | "outcome_logged" | "closed"
+  outcome           String? // what came of it (logged after the fact)
+  outcomeLeads      Int?      @map("outcome_leads") // leads generated (informs the funnel)
+  outcomeClosed     Float?    @map("outcome_closed") // $ closed from it (informs the funnel)
+  nudgedAt          DateTime? @map("nudged_at") // when the follow-up nudge fired
+  remindedAt        DateTime? @map("reminded_at") // when the day-before reminder fired
+  voided            Boolean   @default(false) // reversible soft-delete
+  createdByUserId   String?   @map("created_by_user_id")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  comments SalesFocusComment[]
+
+  @@index([advisorEmployeeId, periodKey])
+  @@index([followUpAt, status])
+  @@map("sales_focus_items")
+}
+
+// A timestamped comment on a Focus Plan action — the permanent, in-portal
+// COACHING LOG between the advisor, the Sales Director, and super admins (no
+// email ping-pong). Append-only; cascades with its item.
+model SalesFocusComment {
+  id           String   @id @default(cuid())
+  focusItemId  String   @map("focus_item_id")
+  authorUserId String?  @map("author_user_id")
+  authorName   String   @map("author_name")
+  body         String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  focusItem SalesFocusItem @relation(fields: [focusItemId], references: [id], onDelete: Cascade)
+
+  @@index([focusItemId, createdAt])
+  @@map("sales_focus_comments")
+}
+
 // An individual sales LEAD — one prospect record. Powers the geographic heat map
 // (where leads cluster, by funnel stage) and the lead-source performance board
 // (which marketing channels + company-provided vs. self-generated leads convert

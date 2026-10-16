@@ -8,6 +8,7 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel, otherSalesSummary, listNonAdvisorEmployees } from "@/lib/sales";
 import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel } from "@/lib/sales-funnel";
+import { focusRollup, focusTypeLabel, type FocusRollupRow } from "@/lib/sales-focus";
 import MyReviewsCard from "@/components/MyReviewsCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
@@ -113,6 +114,11 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   }));
   const showBranchSales = advisorRows.length > 0 || otherEntries.length > 0 || canManage;
 
+  // Focus & follow-ups rollup across advisors (the director's coaching queue).
+  const focusNames = new Map(advisorRows.map((r) => [r.advisor.id, { name: r.advisor.name, branch: r.advisor.branch }]));
+  const rollup = await focusRollup(periodKey, advisorRows.map((r) => r.advisor.id), focusNames);
+  const showFocus = rollup.counts.actions > 0;
+
   return (
     <>
       <PageHeader
@@ -194,6 +200,25 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
               </div>
             </Card>
           ) : null}
+        </div>
+      ) : null}
+
+      {/* ───────── Focus & follow-ups — the director's coaching queue ───────── */}
+      {showFocus ? (
+        <div className="mb-5">
+          <SectionLabel>Focus &amp; follow-ups · {pLabel}</SectionLabel>
+          <Card className="p-4">
+            <div className="mb-3 grid grid-cols-3 gap-2 text-center">
+              <FocusStat n={rollup.counts.actions} label="Planned actions" />
+              <FocusStat n={rollup.counts.overdue} label="Follow-ups due" tone={rollup.counts.overdue > 0 ? "warn" : undefined} />
+              <FocusStat n={rollup.counts.logged} label="Outcomes logged" tone={rollup.counts.logged > 0 ? "good" : undefined} />
+            </div>
+            <div className="grid gap-4 lg:grid-cols-3">
+              <FocusColumn title="Overdue follow-ups" empty="Nothing overdue — nice." rows={rollup.overdue} tone="warn" />
+              <FocusColumn title="Upcoming" empty="No upcoming follow-ups." rows={rollup.upcoming.slice(0, 8)} />
+              <FocusColumn title="Recently logged" empty="No outcomes logged yet." rows={rollup.logged.slice(0, 8)} tone="good" showOutcome />
+            </div>
+          </Card>
         </div>
       ) : null}
 
@@ -434,6 +459,44 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{children}</h2>;
+}
+
+function FocusStat({ n, label, tone }: { n: number; label: string; tone?: "warn" | "good" }) {
+  const color = tone === "warn" ? "text-amber-600" : tone === "good" ? "text-emerald-600" : "text-ink";
+  return (
+    <div className="rounded-lg border border-line bg-white p-2.5">
+      <div className={`text-xl font-semibold tabular-nums ${color}`}>{n}</div>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted">{label}</div>
+    </div>
+  );
+}
+
+function FocusColumn({ title, empty, rows, tone, showOutcome }: { title: string; empty: string; rows: FocusRollupRow[]; tone?: "warn" | "good"; showOutcome?: boolean }) {
+  const dot = tone === "warn" ? "bg-amber-500" : tone === "good" ? "bg-emerald-500" : "bg-brand-500";
+  const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : null);
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink"><span className={`h-2 w-2 rounded-full ${dot}`} />{title}</div>
+      {rows.length === 0 ? (
+        <p className="text-xs text-muted">{empty}</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {rows.map((r) => (
+            <li key={r.id}>
+              <Link href={`/sales/${r.advisorEmployeeId}`} className="block rounded-lg border border-line bg-white px-3 py-2 hover:bg-black/[0.02]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-sm font-medium text-ink">{r.advisorName}</span>
+                  {r.followUpAt ? <span className={`shrink-0 text-[11px] ${tone === "warn" ? "font-medium text-amber-700" : "text-muted"}`}>{fmtDate(r.followUpAt)}</span> : null}
+                </div>
+                <div className="truncate text-[11px] text-muted">{focusTypeLabel(r.type)} · {r.label}</div>
+                {showOutcome && r.outcome ? <div className="mt-0.5 truncate text-[11px] text-emerald-700">{r.outcome}</div> : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 function MiniBoard({ title, icon, rows, fmt }: { title: string; icon: ReactNode; rows: { advisor: { id: string; name: string }; value: number; rank: number }[]; fmt: (n: number) => string }) {
