@@ -439,6 +439,10 @@ export default function AppShell({
                 </Link>
                 {managerName ? (
                   <>
+                    <Link href="/me/pto" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/me/pto"))}>
+                      <Icon path="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1z" className="h-5 w-5 shrink-0" />
+                      My PTO
+                    </Link>
                     <Link href="/account" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/account"))}>
                       <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                       Change password
@@ -521,6 +525,10 @@ export default function AppShell({
               </Link>
               {managerName ? (
                 <>
+                  <Link href="/me/pto" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/me/pto"))}>
+                    <Icon path="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1z" className="h-5 w-5 shrink-0" />
+                    My PTO
+                  </Link>
                   <Link href="/account" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/account"))}>
                     <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                     Change password
