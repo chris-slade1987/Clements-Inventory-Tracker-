@@ -865,6 +865,20 @@ async function main() {
       const r = await ensureLoginsLinked(prisma);
       console.log("deploy-db: login→employee link —", JSON.stringify(r));
     });
+
+    // Leadership super-admins → canonical employee profile. The "super admins
+    // ensure" step above sets their role/accessLevel/branch but NEVER employeeId,
+    // and Chris's split identity ("Christopher Slade" census row vs the email-less
+    // "Chris Slade" org-chart row) can leave c.slade@ unlinked — so PTO, the
+    // Employee Hub profile, and certifications show "no profile linked" for the COO.
+    // This links each leadership login to its profile by work email first (then by
+    // name), creating one only if genuinely missing. Idempotent + non-destructive;
+    // runs LAST so it corrects whatever the generic linkers left. NON-FATAL.
+    await runStep("link leadership logins to employees", async () => {
+      const { ensureLeadershipLinked } = await import("../prisma/link-leadership");
+      const r = await ensureLeadershipLinked(prisma);
+      console.log("deploy-db: leadership login→employee link —", JSON.stringify(r));
+    });
   } finally {
     await prisma.$disconnect();
   }
