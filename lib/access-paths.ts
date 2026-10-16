@@ -14,6 +14,8 @@ const RULES: [RegExp, string][] = [
   [/^\/me\/hiring(\/|$)/, "me-hiring"],
   [/^\/me\/interviews(\/|$)/, "me-hiring"],
   [/^\/me\/pto(\/|$)/, "me-pto"],
+  [/^\/me\/hr(\/|$)/, "me-hr"],
+  [/^\/me\/profile(\/|$)/, "me-profile"],
   [/^\/me\/library(\/|$)/, "me-training"],
   [/^\/me(\/|$)/, "me"],
   [/^\/account(\/|$)/, "account"],

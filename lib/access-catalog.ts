@@ -67,7 +67,7 @@ export const MODULES: AccessModule[] = [
   { id: "settings", name: "Settings & Admin", sub: "Super-admin tools", items: [
     { id: "access-rights", name: "Access Rights" }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
-    { id: "me", name: "My Work" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
+    { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" } ] },
 ];
 
@@ -86,7 +86,7 @@ function allAccess(except: string[] = []): Grants {
   return g;
 }
 
-const SELF_BASIC: Grants = { me: true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true };
+const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true };
 
 /** Each level's access AS IT IS TODAY — the pre-checked state on the admin screen. */
 export const DEFAULT_GRANTS: Record<string, Grants> = {

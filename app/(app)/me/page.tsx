@@ -42,15 +42,42 @@ function RoutineChecklist() {
   );
 }
 
+// The Employee Hub landing: a card grid into every self-service area (profile,
+// time off, HR, handbook, training, inbox) above the viewer's live open items.
+function HubGrid({ ptoLabel, trainingLabel }: { ptoLabel?: string; trainingLabel?: string }) {
+  const cards: { href: string; glyph: string; title: string; sub: string }[] = [
+    { href: "/me/profile", glyph: "star", title: "My profile", sub: "Record, certifications & documents" },
+    { href: "/me/pto", glyph: "calendar", title: "Time off", sub: ptoLabel ?? "Request & track PTO" },
+    { href: "/me/hr", glyph: "shield", title: "HR & support", sub: "Message HR or request a meeting" },
+    { href: "/resources/handbook", glyph: "award", title: "Handbook & policies", sub: "Read & acknowledge" },
+    { href: "/me/training", glyph: "cap", title: "Training & certificates", sub: trainingLabel ?? "Courses & sign-offs" },
+    { href: "/inbox", glyph: "megaphone", title: "Inbox", sub: "Messages & replies" },
+  ];
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+      {cards.map((c) => (
+        <Link key={c.href} href={c.href} className="group surface-light flex items-start gap-3 rounded-xl border border-line bg-card-grad p-4 transition-colors hover:border-brand-300">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-100"><Glyph name={c.glyph} className="h-5 w-5" /></span>
+          <span className="min-w-0">
+            <span className="block text-sm font-medium text-ink">{c.title}</span>
+            <span className="block text-xs text-muted">{c.sub}</span>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default async function MyWorkPage() {
   const user = await requireUser();
   if (!user.employeeId) {
     return (
       <>
-        <PageHeader title="My Work" subtitle="Your assignments & training" />
+        <PageHeader title="Employee Hub" subtitle="Your self-service home" />
         <BulletinBanner />
+        <HubGrid />
         <RoutineChecklist />
-        <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no assigned training to show." />
+        <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no assigned training to show. Your profile, time off, and certifications will appear here once HR links it." />
       </>
     );
   }
@@ -69,11 +96,16 @@ export default async function MyWorkPage() {
   const reviewsToSign = reviews.filter((r) => !r.employeeSignedAt);
   const now = Date.now();
 
+  const ptoLabel = `${pto.remaining} of ${pto.allowance} days left${pto.pending ? ` · ${pto.pending} pending` : ""}`;
+  const trainingLabel = open.length ? `${open.length} open · action needed` : "All caught up";
+
   return (
     <>
-      <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your open items, routine & training" />
+      <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your Employee Hub" />
 
       <BulletinBanner />
+
+      <HubGrid ptoLabel={ptoLabel} trainingLabel={trainingLabel} />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
         <Tile label="Open training" value={String(open.length)} tone={open.length ? "bad" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
@@ -82,20 +114,6 @@ export default async function MyWorkPage() {
       </div>
 
       <RoutineChecklist />
-
-      {/* PTO snapshot — deep-links to the request page. */}
-      <Card className="p-0 overflow-hidden mb-5">
-        <Link href="/me/pto" className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.02]">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600"><Glyph name="calendar" className="h-4 w-4" /></span>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-ink">Paid time off</div>
-            <div className="text-xs text-muted">
-              {pto.remaining} of {pto.allowance} days remaining{pto.pending ? ` · ${pto.pending} pending review` : ""}
-            </div>
-          </div>
-          <span className="shrink-0 text-xs font-medium text-brand-700">Request PTO →</span>
-        </Link>
-      </Card>
 
       {interviews.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">

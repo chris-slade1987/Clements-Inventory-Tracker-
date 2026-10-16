@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, ACCESS_RIGHTS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
+import { EMPLOYEE_NAV, EMPLOYEE_HUB_NAV_ITEM, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, ACCESS_RIGHTS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
 import { matchPathToItem } from "@/lib/access-paths";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
@@ -358,6 +358,17 @@ export default function AppShell({
           </button>
         )}
         <div className="ml-auto flex items-center gap-1">
+          {!isBoardObserver ? (
+            <Link
+              href={EMPLOYEE_HUB_NAV_ITEM.href}
+              className={`mr-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-light transition-colors ${
+                isActive(pathname, "/me") ? "bg-white/10 text-white" : "text-mint hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Icon path={EMPLOYEE_HUB_NAV_ITEM.icon} className="h-5 w-5" />
+              Employee Hub
+            </Link>
+          ) : null}
           <NotificationBell initialCount={unread} />
           <Link href="/help" aria-label="Help" className="rounded-xl p-2 text-mint hover:bg-white/5 hover:text-white">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>
@@ -439,10 +450,6 @@ export default function AppShell({
                 </Link>
                 {managerName ? (
                   <>
-                    <Link href="/me/pto" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/me/pto"))}>
-                      <Icon path="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1z" className="h-5 w-5 shrink-0" />
-                      My PTO
-                    </Link>
                     <Link href="/account" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/account"))}>
                       <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                       Change password
@@ -472,6 +479,15 @@ export default function AppShell({
           <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-7 w-auto" />
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact centers={visibleCenters} /></div> : null}
           <div className="ml-auto flex items-center gap-2">
+          {!isBoardObserver ? (
+            <Link
+              href={EMPLOYEE_HUB_NAV_ITEM.href}
+              aria-label="Employee Hub"
+              className={`p-1 ${isActive(pathname, "/me") ? "text-white" : "text-mint hover:text-white"}`}
+            >
+              <Icon path={EMPLOYEE_HUB_NAV_ITEM.icon} className="h-6 w-6" />
+            </Link>
+          ) : null}
           <NotificationBell initialCount={unread} />
           <Link
             href="/help"
@@ -525,10 +541,6 @@ export default function AppShell({
               </Link>
               {managerName ? (
                 <>
-                  <Link href="/me/pto" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/me/pto"))}>
-                    <Icon path="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1z" className="h-5 w-5 shrink-0" />
-                    My PTO
-                  </Link>
                   <Link href="/account" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/account"))}>
                     <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                     Change password

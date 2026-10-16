@@ -174,3 +174,20 @@ re-acknowledgment by everyone).
 
 *HR/legal: please confirm whether the handbook should state that management-level PTO is
 approved by the Director of HR, and if so, we'll make the inline edit + version bump.*
+
+---
+
+### Employee Hub / self-service navigation (portal mechanic)
+
+Employee self-service now lives in a single **Employee Hub** (a dedicated top-bar button on every
+screen) with a card grid into My profile, Time off, HR & support, Handbook & policies, Training &
+certificates, and the Inbox. The underlying mechanics are unchanged — PTO is still requested on the
+time-off page, the handbook is still read and acknowledged at the same place, training is unchanged
+— only the way employees navigate to them was consolidated.
+
+The handbook's "Using the Clements Portal" section describes finding these areas in the portal. No
+inline edit was made (navigation convenience only; no policy change, and any handbook edit triggers
+a version bump + re-acknowledgment).
+
+*HR/legal: please confirm whether the "Using the Clements Portal" section should be refreshed to
+point employees at the Employee Hub; if so, we'll make the inline edit + version bump.*

@@ -236,13 +236,37 @@ export const BULLETIN_NAV_ITEM: NavItem = {
   icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
 };
 
-// Employee ("My Work") home — their assigned training + lesson library.
+// Employee Hub — the self-service home shared by EVERY login regardless of
+// access level. Surfaced as its own top-bar button (see AppShell) and as the
+// employee shell's home nav. A person/badge glyph, distinct from the house.
+export const EMPLOYEE_HUB_NAV_ITEM: NavItem = {
+  href: "/me",
+  label: "Employee Hub",
+  shortLabel: "Hub",
+  icon: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0",
+};
+
+// Employee Hub home nav — the self-service area: hub landing, profile, time off,
+// HR, lesson library.
 export const EMPLOYEE_NAV: NavItem[] = [
+  EMPLOYEE_HUB_NAV_ITEM,
   {
-    href: "/me",
-    label: "My Work",
-    shortLabel: "Home",
-    icon: "M3 12l9-9 9 9M5 10v10h14V10M9 21v-6h6v6",
+    href: "/me/profile",
+    label: "My Profile",
+    shortLabel: "Profile",
+    icon: "M12 12a4 4 0 100-8 4 4 0 000 8zM6 20a6 6 0 0112 0",
+  },
+  {
+    href: "/me/pto",
+    label: "Time Off",
+    shortLabel: "Time Off",
+    icon: "M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4",
+  },
+  {
+    href: "/me/hr",
+    label: "HR & Support",
+    shortLabel: "HR",
+    icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6zM9 12l2 2 4-4",
   },
   {
     href: "/me/library",
