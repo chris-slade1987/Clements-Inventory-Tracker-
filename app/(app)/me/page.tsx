@@ -6,6 +6,7 @@ import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/
 import { interviewsForUser, hiringResultsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
 import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
 import { ptoBalance } from "@/lib/pto";
+import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import BulletinBanner from "@/components/BulletinBanner";
 import Glyph from "@/components/Glyph";
 
@@ -70,7 +71,8 @@ function HubGrid({ ptoLabel, trainingLabel }: { ptoLabel?: string; trainingLabel
 
 export default async function MyWorkPage() {
   const user = await requireUser();
-  if (!user.employeeId) {
+  const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
+  if (!employeeId) {
     return (
       <>
         <PageHeader title="Employee Hub" subtitle="Your self-service home" />
@@ -83,12 +85,12 @@ export default async function MyWorkPage() {
   }
 
   const [assignments, reviews, conducting, interviews, hiringResults, pto] = await Promise.all([
-    employeeAssignments(user.employeeId),
-    openReviewsForEmployee(user.employeeId),
+    employeeAssignments(employeeId),
+    openReviewsForEmployee(employeeId),
     reviewsForReviewer(user.id),
     interviewsForUser(user.id),
     hiringResultsForUser(user.id),
-    ptoBalance(user.employeeId),
+    ptoBalance(employeeId),
   ]);
   const recentHiringResults = hiringResults.slice(0, 2);
   const open = assignments.filter((a) => a.status !== "completed");

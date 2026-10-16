@@ -2,13 +2,15 @@ import Link from "next/link";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { ptoBalance, requestsForEmployee, PTO_TYPES } from "@/lib/pto";
+import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import MyPtoPanel from "@/components/MyPtoPanel";
 
 export const dynamic = "force-dynamic";
 
 export default async function MyPtoPage() {
   const user = await requireUser();
-  if (!user.employeeId) {
+  const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
+  if (!employeeId) {
     return (
       <>
         <PageHeader title="My PTO" subtitle="Request time off and track your balance" />
@@ -18,8 +20,8 @@ export default async function MyPtoPage() {
   }
 
   const [balance, requests] = await Promise.all([
-    ptoBalance(user.employeeId),
-    requestsForEmployee(user.employeeId),
+    ptoBalance(employeeId),
+    requestsForEmployee(employeeId),
   ]);
 
   return (

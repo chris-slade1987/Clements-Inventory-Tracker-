@@ -7,6 +7,7 @@ import { ptoBalance } from "@/lib/pto";
 import { documentsForEmployee, docCategoryLabel } from "@/lib/branch-hub";
 import { employeeAssignments } from "@/lib/training";
 import { getDocument, HANDBOOK_SLUG, latestAckForUser, latestAckForEmployee } from "@/lib/policy-docs";
+import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import Glyph from "@/components/Glyph";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +21,9 @@ function fmtDate(d: Date | null | undefined): string {
 // acknowledgment. Self-service only (shows the signed-in person's own data).
 export default async function MyProfilePage() {
   const user = await requireUser();
+  const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
 
-  if (!user.employeeId) {
+  if (!employeeId) {
     return (
       <>
         <PageHeader title="My profile" subtitle="Your employee record" />
@@ -33,7 +35,6 @@ export default async function MyProfilePage() {
     );
   }
 
-  const employeeId = user.employeeId;
   const handbookDoc = await getDocument(HANDBOOK_SLUG);
 
   const [employee, pto, awards, docs, assignments, ackUser, ackEmp] = await Promise.all([
