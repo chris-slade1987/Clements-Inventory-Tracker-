@@ -120,7 +120,12 @@ export default async function ChecklistsPage({
 }
 
 function StatusBadge({ completed, overdue }: { completed: boolean; overdue: boolean }) {
-  if (completed) return <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">✓ Done</span>;
+  if (completed) return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+      Done
+    </span>
+  );
   if (overdue) return <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">Overdue</span>;
   return <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">Due</span>;
 }

@@ -116,6 +116,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               target={now.getMonth() + 1}
               size={72}
               stroke={10}
+              ariaLabel={`Inspection cadence ${now.getFullYear()}`}
             />
             <div>
               <div className="text-sm font-medium text-ink">Inspection cadence · {now.getFullYear()}</div>

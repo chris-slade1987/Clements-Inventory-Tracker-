@@ -299,7 +299,14 @@ function Review({ steps, responses, onEdit }: { steps: PacketStep[]; responses: 
                   <div className="space-y-0.5">
                     {step.kind === "acknowledgment" && step.documents
                       ? step.documents.map((d) => (
-                          <div key={d.key}>{r.acknowledged?.[d.key] ? "✓" : "—"} {d.label}</div>
+                          <div key={d.key} className="flex items-center gap-1.5">
+                            {r.acknowledged?.[d.key] ? (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+                            ) : (
+                              <span className="w-4 shrink-0 text-center text-slate-400">—</span>
+                            )}
+                            {d.label}
+                          </div>
                         ))
                       : null}
                     {r.signature?.signedName ? <div className="text-emerald-700">Signed by {r.signature.signedName}</div> : <div className="text-amber-600">Not signed</div>}

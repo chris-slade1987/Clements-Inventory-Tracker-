@@ -9,6 +9,12 @@ import type { ReactNode } from "react";
  * hex; text uses darker ink variants for ≥4.5:1 on the light canvas. These are
  * pure (no hooks) so they render in server components; the interactive slider
  * lives in components/GoalSlider.tsx.
+ *
+ * v2.1 (UI polish): crisper arcs/strokes, calm ~700ms ease-out motion that is
+ * motion-reduce safe, graceful zero/empty states that never flash misleading red
+ * when there is simply no data, consistent tabular numerals, and an ARIA role on
+ * every bar / ring / gauge / stepper. No exported signatures changed — every new
+ * knob is an optional prop.
  */
 
 // ---------------------------------------------------------------------------
@@ -27,6 +33,11 @@ const RAMP_TEXT: [number, [number, number, number]][] = [
   [0.72, [14, 122, 61]], // #0E7A3D
   [1.0, [14, 122, 61]], // #0E7A3D
 ];
+
+// Neutral "no data yet" tones — a calm slate, never the behind-red.
+const NEUTRAL_FILL = "#9BB0A4";
+const NEUTRAL_TEXT = "#5C6B62";
+const TRACK = "rgba(8,37,24,.08)"; // shared empty-track color across the kit
 
 function interp(ramp: [number, [number, number, number]][], pct: number): string {
   const t = Math.max(0, Math.min(1, pct / 100));
@@ -92,11 +103,15 @@ export function AchievementBar({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  const pct = target > 0 ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
-  const fill = tone === "ramp" ? rampColor(pct) : tone === "brand" ? "#2E6F47" : tone;
-  const textColor = tone === "ramp" ? rampTextColor(pct) : tone === "brand" ? "#1F5836" : tone;
-  const done = pct >= 100;
+  const hasTarget = target > 0;
+  const pct = hasTarget ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
+  const rounded = Math.round(pct);
+  const done = hasTarget && pct >= 100;
+  // No target yet → a calm neutral readout, never a misleading behind-red "0%".
+  const fill = !hasTarget ? NEUTRAL_FILL : tone === "ramp" ? rampColor(pct) : tone === "brand" ? "#2E6F47" : tone;
+  const textColor = !hasTarget ? NEUTRAL_TEXT : tone === "ramp" ? rampTextColor(pct) : tone === "brand" ? "#1F5836" : tone;
   const h = size === "sm" ? "h-3" : size === "lg" ? "h-6" : "h-5";
+  const tickH = size === "sm" ? "h-2" : size === "lg" ? "h-3.5" : "h-3";
   return (
     <div className={className}>
       {(label || showPercent) && (
@@ -104,15 +119,16 @@ export function AchievementBar({
           {label ? <span className="text-sm font-light text-ink">{label}</span> : <span />}
           {showPercent && (
             <span className="text-lg font-semibold tabular-nums leading-none" style={{ color: textColor }}>
-              {Math.round(pct)}%
+              {hasTarget ? `${rounded}%` : "—"}
             </span>
           )}
         </div>
       )}
       <div
-        className={`relative ${h} rounded-full bg-black/[0.08] overflow-hidden`}
+        className={`relative ${h} rounded-full overflow-hidden`}
+        style={{ background: TRACK }}
         role="progressbar"
-        aria-valuenow={Math.round(pct)}
+        aria-valuenow={rounded}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={typeof label === "string" ? label : "progress"}
@@ -122,17 +138,17 @@ export function AchievementBar({
           style={{
             width: `${pct}%`,
             background: done ? DONE_FILL : fill,
-            boxShadow: pct > 0 ? `0 0 10px -1px ${fill}66` : undefined,
+            boxShadow: hasTarget && pct > 0 ? `0 0 10px -1px ${fill}66` : undefined,
           }}
         >
-          {/* subtle gloss */}
+          {/* subtle gloss — a single highlight band, never a flashing animation */}
           <div className="h-1/2 rounded-t-full" style={{ background: "linear-gradient(180deg,rgba(255,255,255,.35),transparent)" }} />
         </div>
         {milestones?.map((m) => (
           <span
             key={m.at}
-            className="absolute top-1/2 -translate-y-1/2 h-2.5 w-0.5 rounded"
-            style={{ left: `${Math.min(100, m.at)}%`, background: pct >= m.at ? "rgba(255,255,255,.85)" : "rgba(8,37,24,.22)" }}
+            className={`absolute top-1/2 -translate-x-1/2 -translate-y-1/2 ${tickH} w-0.5 rounded-full`}
+            style={{ left: `${Math.min(100, m.at)}%`, background: pct >= m.at ? "rgba(255,255,255,.9)" : "rgba(8,37,24,.22)" }}
             title={m.label}
           />
         ))}
@@ -152,6 +168,7 @@ export function ProgressRing({
   stroke = 12,
   tone = "ramp",
   label,
+  ariaLabel,
 }: {
   value: number;
   target?: number;
@@ -159,17 +176,28 @@ export function ProgressRing({
   stroke?: number;
   tone?: "ramp" | "brand" | string;
   label?: ReactNode;
+  ariaLabel?: string;
 }) {
-  const pct = target > 0 ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
-  const fill = tone === "ramp" ? rampColor(pct) : tone === "brand" ? "#2E6F47" : tone;
-  const textColor = tone === "ramp" ? rampTextColor(pct) : tone === "brand" ? "#1F5836" : tone;
+  const hasTarget = target > 0;
+  const pct = hasTarget ? Math.max(0, Math.min(100, (value / target) * 100)) : 0;
+  const rounded = Math.round(pct);
+  const fill = !hasTarget ? NEUTRAL_FILL : tone === "ramp" ? rampColor(pct) : tone === "brand" ? "#2E6F47" : tone;
+  const textColor = !hasTarget ? NEUTRAL_TEXT : tone === "ramp" ? rampTextColor(pct) : tone === "brand" ? "#1F5836" : tone;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   return (
-    <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(8,37,24,.08)" strokeWidth={stroke} />
+    <div
+      className="relative inline-grid place-items-center"
+      style={{ width: size, height: size }}
+      role="meter"
+      aria-valuenow={rounded}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={ariaLabel ?? "progress"}
+    >
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={TRACK} strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -177,13 +205,14 @@ export function ProgressRing({
           fill="none"
           stroke={fill}
           strokeWidth={stroke}
-          strokeLinecap="round"
+          // A round cap on a zero-length dash would leave a stray dot, so square it off at 0.
+          strokeLinecap={pct > 0 ? "round" : "butt"}
           strokeDasharray={`${dash} ${circ}`}
           className="transition-[stroke-dasharray] duration-700 ease-out motion-reduce:transition-none"
         />
       </svg>
-      <span className="absolute font-semibold tabular-nums" style={{ color: textColor, fontSize: Math.max(13, size * 0.24) }}>
-        {label ?? `${Math.round(pct)}%`}
+      <span className="absolute font-semibold tabular-nums leading-none" style={{ color: textColor, fontSize: Math.max(13, size * 0.24) }}>
+        {label ?? (hasTarget ? `${rounded}%` : "—")}
       </span>
     </div>
   );
@@ -200,6 +229,7 @@ export function Gauge({
   label,
   format = (n) => `${Math.round(n)}%`,
   showStatus = true,
+  empty = false,
 }: {
   value: number;
   target?: number;
@@ -207,7 +237,11 @@ export function Gauge({
   label?: ReactNode;
   format?: (pct: number) => string;
   showStatus?: boolean;
+  empty?: boolean;
 }) {
+  // "Awaiting" when there is genuinely no data to read — a neutral dial, never
+  // a hard-left red needle that would read as "worst".
+  const isEmpty = empty || target <= 0;
   const pct = target > 0 ? Math.max(0, Math.min(120, (value / target) * 100)) : 0;
   const shown = Math.min(100, pct);
   const w = size;
@@ -227,38 +261,69 @@ export function Gauge({
     const p1 = ((i + 1) / SEGMENTS) * 100;
     const [x0, y0] = pt(p0);
     const [x1, y1] = pt(p1);
-    const lit = shown >= p1 - 0.01;
+    const lit = !isEmpty && shown >= p1 - 0.01;
     arc.push(
       <path
         key={i}
         d={`M ${x0} ${y0} A ${radius} ${radius} 0 0 1 ${x1} ${y1}`}
         fill="none"
-        stroke={lit ? rampColor((p0 + p1) / 2) : "rgba(8,37,24,.08)"}
+        stroke={lit ? rampColor((p0 + p1) / 2) : "rgba(8,37,24,.07)"}
         strokeWidth={stroke}
         strokeLinecap="butt"
       />,
     );
   }
-  const [nx, ny] = pt(shown, radius - stroke);
-  const [tx, ty] = pt(100, radius + stroke * 0.2);
-  const textColor = rampTextColor(Math.min(100, pct));
-  const met = pct >= 100;
+  // A rounded track underneath gives the dial clean, soft ends (the segments stay butt).
+  const [lx, ly] = pt(0);
+  const [rx, ry] = pt(100);
+  const needleLen = radius - stroke * 0.9;
+  const needleAngle = isEmpty ? 0 : -(shown / 100) * 180; // 0° = rest-left, -180° = full-right (over the top)
+  const needleColor = isEmpty ? NEUTRAL_FILL : rampColor(Math.min(100, pct));
+  const textColor = isEmpty ? NEUTRAL_TEXT : rampTextColor(Math.min(100, pct));
+  const met = !isEmpty && pct >= 100;
+  // Target tick: a short radial line crossing the arc at the 100% mark.
+  const [ti0x, ti0y] = pt(100, radius - stroke * 0.7);
+  const [ti1x, ti1y] = pt(100, radius + stroke * 0.7);
+  const rounded = Math.round(pct);
   return (
-    <div className="inline-grid place-items-center" style={{ width: w }}>
-      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+    <div
+      className="inline-grid place-items-center"
+      style={{ width: w }}
+      role="meter"
+      aria-valuenow={isEmpty ? 0 : rounded}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={typeof label === "string" ? label : "gauge"}
+    >
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
+        <path d={`M ${lx} ${ly} A ${radius} ${radius} 0 0 1 ${rx} ${ry}`} fill="none" stroke={TRACK} strokeWidth={stroke} strokeLinecap="round" />
         {arc}
         {/* target tick at 100% */}
-        <circle cx={tx} cy={ty} r={Math.max(2, size * 0.016)} fill="rgba(8,37,24,.55)" />
-        {/* needle */}
-        <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={rampColor(Math.min(100, pct))} strokeWidth={Math.max(3, size * 0.02)} strokeLinecap="round"
-          className="transition-all duration-700 ease-out motion-reduce:transition-none" style={{ transformOrigin: `${cx}px ${cy}px` }} />
+        <line x1={ti0x} y1={ti0y} x2={ti1x} y2={ti1y} stroke="rgba(8,37,24,.55)" strokeWidth={Math.max(2, size * 0.014)} strokeLinecap="round" />
+        {/* needle — rotates smoothly from rest; animates transform, not geometry */}
+        <line
+          x1={cx}
+          y1={cy}
+          x2={cx - needleLen}
+          y2={cy}
+          stroke={needleColor}
+          strokeWidth={Math.max(3, size * 0.02)}
+          strokeLinecap="round"
+          className="transition-transform duration-700 ease-out motion-reduce:transition-none"
+          style={{ transformBox: "view-box", transformOrigin: `${cx}px ${cy}px`, transform: `rotate(${needleAngle}deg)` }}
+        />
         <circle cx={cx} cy={cy} r={Math.max(5, size * 0.045)} fill="#1D2A23" />
+        <circle cx={cx} cy={cy} r={Math.max(2, size * 0.02)} fill="#fff" />
       </svg>
       <div className="-mt-1 text-center">
-        <div className="font-semibold tabular-nums leading-none" style={{ color: textColor, fontSize: size * 0.17 }}>{format(pct)}</div>
+        <div className="font-semibold tabular-nums leading-none" style={{ color: textColor, fontSize: size * 0.17 }}>
+          {isEmpty ? "—" : format(pct)}
+        </div>
         {label && <div className="mt-1 text-xs text-muted">{label}</div>}
         {showStatus && (
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide" style={{ color: met ? "#0E7A3D" : textColor }}>{encouragement(pct)}</div>
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide" style={{ color: isEmpty ? NEUTRAL_TEXT : met ? "#0E7A3D" : textColor }}>
+            {isEmpty ? "Awaiting data" : encouragement(pct)}
+          </div>
         )}
       </div>
     </div>
@@ -271,8 +336,12 @@ export function Gauge({
 export function StreakFlame({ count, label, className = "" }: { count: number; label?: string; className?: string }) {
   const hot = count >= 3;
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-semibold ${className}`}
-      style={{ background: hot ? "rgba(246,179,24,.14)" : "rgba(8,37,24,.05)", color: hot ? "#8F6400" : "#5C6B62" }}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-semibold ${className}`}
+      style={{ background: hot ? "rgba(246,179,24,.14)" : "rgba(8,37,24,.05)", color: hot ? "#8F6400" : "#5C6B62" }}
+      role="img"
+      aria-label={`${count}${label ? ` ${label}` : ""} streak`}
+    >
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill={hot ? "#F6B318" : "#9bb0a4"} aria-hidden>
         <path d="M12 2c2 3 5 5 5 9a5 5 0 01-10 0c0-1 .3-1.8.8-2.6C8 9.8 9 11 10 11c-.5-2 .5-5 2-9z" />
       </svg>
@@ -294,10 +363,10 @@ export function MilestoneStepper({ steps, className = "" }: { steps: Step[]; cla
   const reached = currentIdx === -1 ? doneCount : currentIdx;
   const pct = steps.length > 1 ? (reached / (steps.length - 1)) * 100 : 0;
   return (
-    <div className={className}>
+    <div className={className} role="group" aria-label={`Progress: ${doneCount} of ${steps.length} steps complete`}>
       <div className="relative">
-        <div className="absolute left-0 right-0 top-3 h-0.5 bg-black/[0.08]" />
-        <div className="absolute left-0 top-3 h-0.5 transition-[width] duration-700 ease-out motion-reduce:transition-none" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#86C540,#15B85C)" }} />
+        <div className="absolute left-0 right-0 top-3 h-0.5 rounded-full" style={{ background: TRACK }} />
+        <div className="absolute left-0 top-3 h-0.5 rounded-full transition-[width] duration-700 ease-out motion-reduce:transition-none" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#86C540,#15B85C)" }} />
         <ol className="relative flex justify-between">
           {steps.map((s, i) => {
             const done = s.state === "done";
@@ -305,7 +374,8 @@ export function MilestoneStepper({ steps, className = "" }: { steps: Step[]; cla
             return (
               <li key={i} className="flex flex-col items-center gap-1.5" style={{ flex: "1 1 0" }}>
                 <span
-                  className={`grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold ring-2 ring-[var(--canvas,#f4f6f5)] ${
+                  aria-current={current ? "step" : undefined}
+                  className={`grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold tabular-nums ring-2 ring-[var(--canvas,#f4f6f5)] transition-colors duration-700 ease-out motion-reduce:transition-none ${
                     done ? "text-white" : current ? "text-white" : "text-muted"
                   }`}
                   style={{
@@ -328,6 +398,11 @@ export function MilestoneStepper({ steps, className = "" }: { steps: Step[]; cla
 // ---------------------------------------------------------------------------
 // KpiMeter — a scorecard KPI as actual-vs-target with a clear target marker.
 // ---------------------------------------------------------------------------
+// The track spans 0–140% of target so the fill and the fixed target marker line
+// up: at 100% attainment the fill reaches the marker; beyond it, the fill runs on.
+const KPI_MAX = 140;
+const KPI_TARGET_POS = (100 / KPI_MAX) * 100; // 71.43%
+
 export function KpiMeter({
   label,
   value,
@@ -343,10 +418,11 @@ export function KpiMeter({
   format?: (n: number) => string;
   className?: string;
 }) {
-  const pct = target > 0 ? Math.max(0, Math.min(140, (value / target) * 100)) : 0;
-  const isMet = met ?? value >= target;
-  const fill = isMet ? "#15B85C" : rampColor(pct);
-  const textColor = isMet ? "#0E7A3D" : rampTextColor(pct);
+  const hasTarget = target > 0;
+  const pct = hasTarget ? Math.max(0, Math.min(KPI_MAX, (value / target) * 100)) : 0;
+  const isMet = met ?? (hasTarget && value >= target);
+  const fill = !hasTarget ? NEUTRAL_FILL : isMet ? "#15B85C" : rampColor(pct);
+  const textColor = !hasTarget ? NEUTRAL_TEXT : isMet ? "#0E7A3D" : rampTextColor(pct);
   return (
     <div className={className}>
       <div className="flex items-baseline justify-between gap-2 mb-1.5">
@@ -355,10 +431,21 @@ export function KpiMeter({
           <span className="font-semibold" style={{ color: textColor }}>{format(value)}</span> / {format(target)}
         </span>
       </div>
-      <div className="relative h-3.5 rounded-full bg-black/[0.08] overflow-hidden" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full transition-[width] duration-700 ease-out motion-reduce:transition-none" style={{ width: `${Math.min(100, pct)}%`, background: fill }} />
-        {/* target marker at 100% (71.4% of the 0–140 track) — full opacity, 2px */}
-        <span className="absolute top-0 bottom-0 w-[2px] bg-[#1D2A23]" style={{ left: "71.4%" }} title="target" />
+      <div
+        className="relative h-3.5 rounded-full overflow-hidden"
+        style={{ background: TRACK }}
+        role="progressbar"
+        aria-valuenow={Math.round(pct)}
+        aria-valuemin={0}
+        aria-valuemax={KPI_MAX}
+        aria-label={typeof label === "string" ? label : "KPI"}
+      >
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out motion-reduce:transition-none"
+          style={{ width: `${(pct / KPI_MAX) * 100}%`, background: fill }}
+        />
+        {/* target marker at 100% of target — full opacity, 2px, spans the track height */}
+        <span className="absolute top-0 bottom-0 w-[2px] bg-[#1D2A23]" style={{ left: `${KPI_TARGET_POS}%` }} title="target" />
       </div>
     </div>
   );

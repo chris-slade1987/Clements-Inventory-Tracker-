@@ -187,15 +187,23 @@ rebuild these inline.
   *(This supersedes the prior muted warm-clay ramp / "no traffic light, no neon" rule —
   COO-approved 2026-10.)*
 - **`Gauge` (speedometer):** a semicircular dial with a red→amber→green arc, a needle,
-  and a tick at the 100% target. The default for a single headline KPI the eye should
-  land on first (goal attainment, pace, composite scorecard, team health).
+  and a radial tick crossing the arc at the 100% target. The default for a single headline KPI
+  the eye should land on first (goal attainment, pace, composite scorecard, team health). The
+  needle sweeps over the top on a calm ~700ms transform transition (motion-reduce safe).
+- **Empty / "awaiting" state:** when there is no data yet (`target ≤ 0`, or an explicit
+  `empty`), the ramp components render a **neutral slate** — fill `#9BB0A4`, text `#5C6B62`,
+  value shown as "—" — and the Gauge reads **"Awaiting data"** with the needle at rest. Never
+  show behind-red when the real meaning is "nothing to measure yet."
 - **`AchievementBar`** — bold horizontal attainment (18–24px track, glossy fill + glow,
   a large ≥18px tabular percent, milestone ticks). For dashboards, training, certs, bonus pools.
 - **`ProgressRing`** — 80–120px with an 11–14px stroke and a bold center value; compact (≤64px) only inside dense tables.
 - **`GoalSlider`** — 18px track, 34px thumb. Color may be driven by real on-track **pace**
   (projected vs goal) via `accentColor`, not just thumb position.
 - **`MilestoneStepper`** — a journey as connected nodes (done / current / ahead): HR pipeline, onboarding, certification steps.
-- **`KpiMeter`** — scorecard KPI as actual-vs-target with a clearly visible (≥2px, full-opacity) target marker; met in green, short of target on the Signal ramp.
+- **`KpiMeter`** — scorecard KPI as actual-vs-target on a **0–140%-of-target track** so the
+  fill and the fixed target marker line up: at 100% the fill reaches the marker (≥2px,
+  full-opacity, at 71.4% of the track), beyond it the fill runs on. Met in green, short of
+  target on the Signal ramp.
 - **`StreakFlame`** + **count-ups** — sanctioned motivators. **Buzz** (§8) still marks the *arrival* only.
 
 Rules: calm, purposeful motion (CSS width/stroke transitions, ~700ms ease-out, all

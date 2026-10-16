@@ -298,7 +298,7 @@ export default function ScorecardClient({
       <Card className="p-4 mb-4 print:hidden">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
           <div className="flex items-center gap-4 shrink-0">
-            <ProgressRing value={scoreVal} size={92} stroke={9} />
+            <ProgressRing value={scoreVal} size={92} stroke={9} ariaLabel="Weighted scorecard score" />
             <div>
               <div className="text-xs uppercase tracking-wider text-muted">Weighted score</div>
               <div className="text-sm text-ink">{encouragement(scoreVal)}</div>
@@ -336,10 +336,10 @@ export default function ScorecardClient({
                   <div className="flex items-baseline justify-between gap-2 mb-1.5">
                     <span className="text-sm font-light text-ink">{r.label} <span className="text-[11px] text-muted">(lower is better)</span></span>
                     <span className="text-xs tabular-nums text-muted">
-                      <span className="font-medium" style={{ color: met === false ? "#B5654D" : "#2E6F47" }}>{fmt(r.actual as number)}</span> / {fmt(r.budgetTarget as number)} ceiling
+                      <span className="font-semibold" style={{ color: met === false ? "#C42A2F" : "#0E7A3D" }}>{fmt(r.actual as number)}</span> / {fmt(r.budgetTarget as number)} ceiling
                     </span>
                   </div>
-                  <div className="text-[11px]" style={{ color: met === false ? "#B5654D" : met ? "#2E6F47" : "var(--muted)" }}>
+                  <div className="text-[11px]" style={{ color: met === false ? "#C42A2F" : met ? "#0E7A3D" : "var(--muted)" }}>
                     {met === false ? "Over the ceiling" : met ? "Under the ceiling — on target" : "Awaiting review"}
                   </div>
                 </div>

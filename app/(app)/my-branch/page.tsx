@@ -229,7 +229,7 @@ export default async function MyBranchPage({
               label: "Weekly Oversight Checklist",
               href: `/checklists/weekly?branch=${scBranch}`,
               done: !!weekly?.completed,
-              status: weekly?.completed && weekly.completion ? `✓ Signed by ${weekly.completion.signedName}` : "Not yet signed",
+              status: weekly?.completed && weekly.completion ? `Signed by ${weekly.completion.signedName}` : "Not yet signed",
               cadence: "Weekly" as const,
               due: fridayEndOf(now),
               dueLabel: fridayLabel(now),
@@ -288,7 +288,7 @@ export default async function MyBranchPage({
           </div>
         </div>
         {attention.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up. 🎉</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up.</p>
         ) : (
           <ul className="divide-y divide-line">
             {attention.slice(0, 12).map((r, i) => (
@@ -380,7 +380,13 @@ function ManagerChecklistRow({
   return (
     <li>
       <Link href={href} className={`flex items-center gap-3 px-4 py-3.5 ${urgent ? "bg-red-50 hover:bg-red-100" : "hover:bg-black/[0.02]"}`}>
-        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${done ? "bg-brand-100 text-brand-700" : urgent ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{done ? "✓" : "!"}</span>
+        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${done ? "bg-brand-100 text-brand-700" : urgent ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+          {done ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v5" /><path d="M12 16.5v.5" /></svg>
+          )}
+        </span>
         <span className="flex-1 min-w-0">
           <span className={`block text-sm font-medium ${done ? "text-ink" : "text-red-600"}`}>{label}</span>
           <span className={`block text-xs ${done ? "text-brand-600" : "text-red-600"}`}>{status}</span>
@@ -414,7 +420,7 @@ function BranchPill({ href, label, active }: { href: string; label: string; acti
 function RingStat({ label, value, target }: { label: string; value: number; target: number }) {
   return (
     <div className="flex flex-col items-center gap-1 text-center">
-      <ProgressRing value={value} target={target} size={58} stroke={7} />
+      <ProgressRing value={value} target={target} size={58} stroke={7} ariaLabel={label} />
       <span className="text-[11px] text-muted">{label}</span>
     </div>
   );
