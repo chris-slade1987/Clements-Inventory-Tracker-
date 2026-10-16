@@ -32,12 +32,13 @@ export async function POST(req: Request) {
     const prevKey = priorPeriodKey(periodKey);
 
     if (action === "clear") {
-      const [stat, sheet, leads] = await Promise.all([
+      const [stat, sheet, other, leads] = await Promise.all([
         prisma.salesPeriodStat.deleteMany({ where: { periodKey: { in: [periodKey, prevKey] }, source: "demo" } }),
         prisma.salesGoalSheet.deleteMany({ where: { periodKey, source: "demo" } }),
+        prisma.salesOtherEntry.deleteMany({ where: { periodKey, source: "demo" } }),
         clearDemoLeads(),
       ]);
-      return NextResponse.json({ ok: true, cleared: stat.count + sheet.count + leads });
+      return NextResponse.json({ ok: true, cleared: stat.count + sheet.count + other.count + leads });
     }
 
     const advisors = await listServiceAdvisors(null);
@@ -71,8 +72,20 @@ export async function POST(req: Request) {
       });
       loaded++;
     }
+    // "Other" (non-advisor) branch sales so the All-branch-sales panel is alive too:
+    // a tech + a branch manager per branch, plus a leadership (company) sale on HQ.
+    // Reset demo rows first so a reload stays idempotent (never touches manual rows).
+    await prisma.salesOtherEntry.deleteMany({ where: { periodKey, source: "demo" } });
+    const demoBranches = Array.from(new Set(advisors.map((a) => a.branch).filter((b): b is string => !!b)));
+    const otherRows = demoBranches.flatMap((b) => [
+      { branch: b, periodKey, sellerName: "Branch technician", sellerRole: "Technician", closedAmount: 3200, dealsClosed: 4, source: "demo", note: "Upsells on route" },
+      { branch: b, periodKey, sellerName: "Branch manager", sellerRole: "Branch Manager", closedAmount: 5400, dealsClosed: 3, source: "demo", note: "Walk-in & referral closes" },
+    ]);
+    if (demoBranches[0]) otherRows.push({ branch: demoBranches[0], periodKey, sellerName: "Chris Slade", sellerRole: "Leadership", closedAmount: 9800, dealsClosed: 2, source: "demo", note: "Executive-sourced account" });
+    if (otherRows.length) await prisma.salesOtherEntry.createMany({ data: otherRows });
+
     const leads = await loadDemoLeads();
-    return NextResponse.json({ ok: true, loaded, leads: leads.loaded });
+    return NextResponse.json({ ok: true, loaded, other: otherRows.length, leads: leads.loaded });
   } catch (e) {
     return fail(e);
   }

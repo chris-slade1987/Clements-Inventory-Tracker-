@@ -1403,6 +1403,35 @@ model SalesPeriodStat {
   @@map("sales_period_stats")
 }
 
+// "Other" branch sales — closed $ from NON-advisor sellers (technicians, branch
+// managers, upper management/leadership) attributed to a BRANCH. Service advisors
+// are the Sales Director's tracked team (SalesPeriodStat / goal sheets); everyone
+// else who sells is captured here so the dashboard can show a true TOTAL branch
+// book = Sales Team + Other, clearly differentiated. Kept deliberately SEPARATE
+// from SalesPeriodStat so advisor pacing / leaderboards / goal sheets stay
+// advisor-only. Many rows per branch per month (one per seller / entry). Entries
+// are never hard-deleted — `voided` reversibly excludes a row from totals.
+model SalesOtherEntry {
+  id               String   @id @default(cuid())
+  branch           String // branch key the sale belongs to (required — ties to a branch)
+  periodKey        String   @map("period_key") // "YYYY-MM"
+  sellerEmployeeId String?  @map("seller_employee_id") // optional: the specific non-advisor seller (Employee.id)
+  sellerName       String?  @map("seller_name") // snapshot / free-text when no employee link
+  sellerRole       String?  @map("seller_role") // "Technician" | "Branch Manager" | "Leadership" | "Other"
+  closedAmount     Float    @default(0) @map("closed_amount") // $ closed this month
+  dealsClosed      Int      @default(0) @map("deals_closed") // count of deals (optional)
+  note             String?
+  voided           Boolean  @default(false) // reversible soft-delete; voided rows drop out of totals
+  source           String   @default("manual") // "manual" | "demo" — demo rows cleared at cutover
+  createdByUserId  String?  @map("created_by_user_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([branch, periodKey])
+  @@index([periodKey, source])
+  @@map("sales_other_entries")
+}
+
 // An individual sales LEAD — one prospect record. Powers the geographic heat map
 // (where leads cluster, by funnel stage) and the lead-source performance board
 // (which marketing channels + company-provided vs. self-generated leads convert

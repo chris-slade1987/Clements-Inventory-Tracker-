@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui";
 import { money, qty } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
-import { advisorStanding, teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type StageStatus, type Badge } from "@/lib/sales-funnel";
+import { advisorStanding, teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type StageStatus } from "@/lib/sales-funnel";
 import SalesCoachButton from "@/components/SalesCoachButton";
-import { AchievementBar, encouragement } from "@/components/motivation";
+import { AchievementBar, encouragement, rankMedal } from "@/components/motivation";
 
 const STATUS: Record<StageStatus, { bar: string; pill: string; label: string }> = {
   on: { bar: "bg-emerald-500", pill: "bg-emerald-100 text-emerald-700", label: "On track" },
@@ -41,15 +41,6 @@ const ICONS = {
   checkCircle: <><circle cx="12" cy="12" r="9" /><path d="M8.5 12.5l2.3 2.3 4.7-5" /></>,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4M12 17.5v.5" /></>,
 };
-
-function badgeIcon(b: Badge): ReactNode {
-  const l = b.label.toLowerCase();
-  if (l.includes("closed")) return ICONS.trophy;
-  if (l.includes("lead")) return ICONS.bolt;
-  if (l.includes("proposal")) return ICONS.proposals;
-  if (l.includes("improved")) return ICONS.trendUp;
-  return ICONS.star; // "Goal crushed"
-}
 
 function Stage({ icon, name, actual, goal, fmt, pace }: { icon: ReactNode; name: string; actual: number; goal: number; fmt: (n: number) => string; pace: number }) {
   const s = stageStatus(actual, goal, pace);
@@ -98,14 +89,33 @@ export default async function SalesFunnelCard({ advisorEmployeeId, periodKey }: 
   const branchName = standing.branchKey ? branchLabel(standing.branchKey) : "Company";
   const r = standing.ranks;
 
+  // Sanctioned sales-motivation celebrations (emoji per docs/BRAND_KIT.md §1).
+  const crushed = me.goal > 0 && me.closed >= me.goal;
+  const topClosed = r.company.closed === 1 && me.closed > 0;
+
   return (
     <Card className="mb-5 p-4">
-      {/* badges */}
+      {/* Celebration hero — goal crushed or #1 in the company for closed $ */}
+      {crushed || topClosed ? (
+        <div className="mb-3 flex items-center gap-3 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-brand-50 p-3">
+          <span className="text-2xl leading-none motion-safe:animate-bounce" aria-hidden>{crushed ? "🔥" : "🥇"}</span>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-emerald-800">{crushed ? "Goal crushed! 🎉" : "You're #1 in the company for closed $"}</div>
+            <div className="text-xs text-emerald-700">
+              {crushed
+                ? `${money(me.closed)} closed — ${Math.round(me.goalPct * 100)}% of your ${money(me.goal)} goal. Keep the streak going.`
+                : `${money(me.closed)} closed this month. Out in front — hold the lead.`}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* badges — sanctioned sales emoji ribbons/achievements */}
       {standing.badges.length > 0 ? (
         <div className="mb-3 flex flex-wrap gap-1.5">
           {standing.badges.map((b) => (
             <span key={b.label} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${TONE[b.tone] ?? TONE.brand}`}>
-              <Icon path={badgeIcon(b)} className="h-3.5 w-3.5" /> {b.label}
+              <span className="text-sm leading-none" aria-hidden>{b.emoji}</span> {b.label}
             </span>
           ))}
         </div>
@@ -186,10 +196,11 @@ export default async function SalesFunnelCard({ advisorEmployeeId, periodKey }: 
   );
 }
 
-// A rank chip — top 3 get a subtle medal tint, the rest a plain number.
+// A rank chip — top 3 get a sanctioned sales medal 🥇🥈🥉, the rest a plain number.
 function Rank({ n }: { n: number }) {
-  const tint = n === 1 ? "bg-amber-100 text-amber-800" : n === 2 ? "bg-slate-200 text-slate-700" : n === 3 ? "bg-orange-100 text-orange-800" : "text-muted";
-  return <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums ${tint}`}>{n}</span>;
+  const medal = rankMedal(n);
+  if (medal) return <span className="grid h-6 w-6 shrink-0 place-items-center text-base leading-none" role="img" aria-label={`Rank ${n}`}>{medal}</span>;
+  return <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums text-muted">{n}</span>;
 }
 
 function RC({ icon, k, v }: { icon: ReactNode; k: string; v: string }) {

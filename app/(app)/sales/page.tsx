@@ -6,7 +6,7 @@ import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/a
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
-import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
+import { salesDirectorDashboard, currentPeriodKey, periodLabel, otherSalesSummary, listNonAdvisorEmployees } from "@/lib/sales";
 import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel } from "@/lib/sales-funnel";
 import MyReviewsCard from "@/components/MyReviewsCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
@@ -14,8 +14,9 @@ import { resolveRange } from "@/lib/sales-leads";
 import { smarterLaunchConfigured } from "@/lib/smarterlaunch";
 import FunnelEntryButton from "./FunnelEntryButton";
 import SalesDirectorTools from "./SalesDirectorTools";
+import AllBranchSales from "./AllBranchSales";
 import FunnelHealthBoard, { type HealthRow } from "@/components/FunnelHealthBoard";
-import { AchievementBar, ProgressRing, rampColor, encouragement } from "@/components/motivation";
+import { AchievementBar, ProgressRing, rampColor, encouragement, rankMedal } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,28 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const notSet = advisorRows.filter((r) => !r.hasGoal);
   // Advisors who submitted a goal for the director's sign-off.
   const pendingApproval = advisorRows.filter((r) => r.pendingApproval);
+
+  // ── All branch sales: Sales Team (advisors) + Other (techs/managers/leadership) ──
+  // Service advisors are the only ones tracked for goals/pacing; everyone else's
+  // closed $ rolls up to the branch here so the true total book is visible.
+  const otherSummary = await otherSalesSummary(periodKey, branch);
+  const sellers = canManage ? await listNonAdvisorEmployees(branch) : [];
+  const branchKeys = branch ? [branch] : BRANCHES.map((b) => b.key);
+  const teamByBranch: Record<string, number> = {};
+  for (const r of funnelRows) if (r.advisor.branch) teamByBranch[r.advisor.branch] = (teamByBranch[r.advisor.branch] ?? 0) + r.closed;
+  const branchSalesRows = branchKeys
+    .map((bk) => {
+      const team = teamByBranch[bk] ?? 0;
+      const other = otherSummary.byBranch[bk]?.closed ?? 0;
+      return { branch: bk, label: branchLabel(bk), team, other, total: team + other };
+    })
+    .filter((b) => b.total > 0 || b.branch === branch);
+  const otherEntries = otherSummary.entries.map((e) => ({
+    id: e.id, branch: e.branch, branchLabel: branchLabel(e.branch),
+    sellerName: e.sellerName, sellerRole: e.sellerRole, sellerEmployeeId: e.sellerEmployeeId,
+    closedAmount: e.closedAmount, dealsClosed: e.dealsClosed, note: e.note,
+  }));
+  const showBranchSales = advisorRows.length > 0 || otherEntries.length > 0 || canManage;
 
   return (
     <>
@@ -185,7 +208,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                   <ProgressRing value={funnelTotals.closed} target={funnelTotals.goal} size={76} stroke={8} />
                   <div>
                     <div className="text-xs uppercase tracking-wider text-muted">Team attainment</div>
-                    <div className="text-sm text-ink">{encouragement(teamAttainPct)}</div>
+                    <div className="text-sm text-ink">{encouragement(teamAttainPct)}{teamAttainPct >= 100 ? <span className="motion-safe:animate-pulse"> 🎉</span> : ""}</div>
                   </div>
                 </div>
               ) : null}
@@ -224,6 +247,23 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <Tile label="Open pipeline" value={m(totals.pipeline)} />
       </div>
 
+      {/* ───────── All branch sales — Sales Team + Other, differentiated ───────── */}
+      {showBranchSales ? (
+        <AllBranchSales
+          periodKey={periodKey}
+          periodLabel={pLabel}
+          canManage={canManage}
+          teamClosed={funnelTotals.teamClosed}
+          otherClosed={funnelTotals.otherClosed}
+          grandClosed={funnelTotals.grandClosed}
+          byBranch={branchSalesRows}
+          entries={otherEntries}
+          sellers={sellers}
+          branches={branch ? [{ key: branch, label: branchLabel(branch) }] : BRANCHES.map((b) => ({ key: b.key, label: b.label }))}
+          scopedBranch={branch}
+        />
+      ) : null}
+
       {/* Lead geographic heat map + lead-source performance (company-wide, honors
           the branch filter and the date-range control). */}
       {canManage ? (
@@ -247,8 +287,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
           </div>
           {boards.mostImproved ? (
             <Card className="mb-6 flex items-center gap-3 p-3 ring-1 ring-emerald-200">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-700"><Icon path={ICONS.trendUp} /></span>
-              <div className="text-sm text-ink"><span className="font-semibold">Most improved:</span> {boards.mostImproved.advisor.name} — up {money(boards.mostImproved.delta)} in closed vs last month.</div>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-100 text-lg leading-none" role="img" aria-label="Most improved">📈</span>
+              <div className="text-sm text-ink"><span className="font-semibold">Most improved:</span> {boards.mostImproved.advisor.name} — up {money(boards.mostImproved.delta)} in closed vs last month. Momentum is yours. 🚀</div>
             </Card>
           ) : <div className="mb-6" />}
 
@@ -428,10 +468,11 @@ function MiniBoard({ title, icon, rows, fmt }: { title: string; icon: ReactNode;
   );
 }
 
-// Rank chip — top 3 get a subtle medal tint, the rest a plain number.
+// Rank chip — top 3 get a sanctioned sales medal 🥇🥈🥉, the rest a plain number.
 function Rank({ n }: { n: number }) {
-  const tint = n === 1 ? "bg-amber-100 text-amber-800" : n === 2 ? "bg-slate-200 text-slate-700" : n === 3 ? "bg-orange-100 text-orange-800" : "text-muted";
-  return <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums ${tint}`}>{n}</span>;
+  const medal = rankMedal(n);
+  if (medal) return <span className="grid h-6 w-6 shrink-0 place-items-center text-base leading-none" role="img" aria-label={`Rank ${n}`}>{medal}</span>;
+  return <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums text-muted">{n}</span>;
 }
 
 function Pill({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {

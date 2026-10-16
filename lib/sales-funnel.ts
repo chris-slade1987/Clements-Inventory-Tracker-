@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { listServiceAdvisors, type Advisor } from "@/lib/sales";
+import { listServiceAdvisors, otherSalesSummary, type Advisor } from "@/lib/sales";
 import { computeGoalSheet, EMPTY_RECAP, type RecapInputs } from "@/lib/sales-goal";
 
 // Sales FUNNEL + leaderboard + diagnosis engine. The funnel is a numbers game —
@@ -91,10 +91,11 @@ export async function teamFunnel(periodKey: string, branch?: string | null) {
   const ids = advisors.map((a) => a.id);
   const prevKey = priorPeriodKey(periodKey);
 
-  const [stats, prevStats, sheets] = await Promise.all([
+  const [stats, prevStats, sheets, other] = await Promise.all([
     prisma.salesPeriodStat.findMany({ where: { advisorEmployeeId: { in: ids }, periodKey } }),
     prisma.salesPeriodStat.findMany({ where: { advisorEmployeeId: { in: ids }, periodKey: prevKey }, select: { advisorEmployeeId: true, closedAmount: true } }),
     prisma.salesGoalSheet.findMany({ where: { advisorEmployeeId: { in: ids }, periodKey } }),
+    otherSalesSummary(periodKey, branch),
   ]);
   const statBy = new Map(stats.map((s) => [s.advisorEmployeeId, s]));
   const prevBy = new Map(prevStats.map((s) => [s.advisorEmployeeId, s.closedAmount]));
@@ -124,15 +125,26 @@ export async function teamFunnel(periodKey: string, branch?: string | null) {
     };
   });
 
+  // NOTE: the original totals fields (leads/proposals/deals/closed/goal/…) remain
+  // SALES-TEAM (service-advisor) ONLY — the /management funnel panel and other
+  // callers depend on that meaning. "Other" (non-advisor) sales are exposed as
+  // ADDITIONAL, clearly-named fields so a true branch/company total can be shown.
+  const teamClosed = rows.reduce((s, r) => s + r.closed, 0);
   const totals = {
     advisors: rows.length,
     leads: rows.reduce((s, r) => s + r.leads, 0),
     proposals: rows.reduce((s, r) => s + r.proposals, 0),
     deals: rows.reduce((s, r) => s + r.deals, 0),
-    closed: rows.reduce((s, r) => s + r.closed, 0),
+    closed: teamClosed, // Sales Team (advisor) closed $ — unchanged meaning
     goal: rows.reduce((s, r) => s + r.goal, 0),
     withData: rows.filter((r) => r.hasData).length,
     withGoal: rows.filter((r) => r.hasGoal).length,
+    // Additive: Sales Team vs Other breakdown + grand total (never changes above).
+    teamClosed,                                   // alias of `closed`, explicit
+    otherClosed: other.totalClosed,               // non-advisor sellers (techs/mgrs/leadership)
+    otherDeals: other.totalDeals,
+    otherSellers: other.entries.length,
+    grandClosed: teamClosed + other.totalClosed,  // true total branch/company closed $
   };
   return { rows, totals };
 }

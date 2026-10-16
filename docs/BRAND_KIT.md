@@ -22,8 +22,17 @@ Generous whitespace, one idea per screen. **Never neon, never busy.**
   technician respects. No hype or filler.
 - Ground content in the company's own language where relevant ("The Clements
   Way," the Three Pillars, the "Orange Ice Cube" customer experience).
-- **No emoji anywhere** in product or content. The **one** sanctioned exception
-  is the mascot **Buzz** (§8), used only for celebrations.
+- **No emoji anywhere** in product or content. There are **two** narrowly
+  sanctioned exceptions, and nothing else:
+  1. the mascot **Buzz** (§8), used only for celebrations; and
+  2. the **Sales Motivation module** — COO-approved (Oct 2026), **sales screens
+     only** (`/sales`, `/me/sales`, `SalesFunnelCard`, the sales leaderboards and
+     AI-coach buttons). There, keep the motivational emojis: leaderboard ribbons
+     **🥇 🥈 🥉**, achievement badges (🚀 lead machine, 🎯 top proposals,
+     📈 most improved, 🔥 goal crushed, 🎉 celebration), and the **✨** AI-coach /
+     team-briefing sparkle. These are gamification signals, not decoration — do
+     **not** strip them in a future "no-emoji" pass. Everywhere else outside the
+     sales motivation module, emoji stay banned (use the thin 1.6 line icons).
 - Real units, real product names, real Florida pests — never lorem ipsum or
   generic stock imagery.
 

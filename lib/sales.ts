@@ -220,6 +220,88 @@ export async function getSalesActuals(): Promise<SalesActuals> {
   };
 }
 
+// ───────────────────────────── "Other" branch sales ─────────────────────────
+// Service Advisors are the Sales Director's tracked team (goal sheets + pacing +
+// leaderboard). But technicians, branch managers and leadership also sell, and
+// that revenue belongs to the BRANCH. We capture it in SalesOtherEntry — kept
+// separate from the advisor funnel so advisor views stay advisor-only, while the
+// branch & company TOTALS can show Sales Team + Other together.
+
+/** The seller categories a non-advisor "other" sale can be tagged with. */
+export const OTHER_SELLER_ROLES = ["Technician", "Branch Manager", "Leadership", "Other"] as const;
+export type OtherSellerRole = (typeof OTHER_SELLER_ROLES)[number];
+
+export type NonAdvisorSeller = { id: string; name: string; branch: string | null; email: string | null; role: string | null };
+
+/** Active employees who are NOT service advisors — the pool of "other" sellers
+ *  (techs, branch managers, leadership) a branch sale can be attributed to. */
+export async function listNonAdvisorEmployees(branch?: string | null): Promise<NonAdvisorSeller[]> {
+  const advisors = await listServiceAdvisors(null);
+  const advisorIds = new Set(advisors.map((a) => a.id));
+  const rows = await prisma.employee.findMany({
+    where: { status: "active", ...(branch ? { branch } : {}) },
+    select: { id: true, name: true, branch: true, email: true, role: true },
+    orderBy: [{ branch: "asc" }, { name: "asc" }],
+  });
+  return rows.filter((r) => !advisorIds.has(r.id));
+}
+
+export type OtherSaleEntry = {
+  id: string; branch: string; periodKey: string;
+  sellerEmployeeId: string | null; sellerName: string | null; sellerRole: string | null;
+  closedAmount: number; dealsClosed: number; note: string | null;
+};
+
+/** This month's "other" (non-advisor) sales for the scope, with per-branch rollups. */
+export async function otherSalesSummary(periodKey: string, branch?: string | null) {
+  const rows = await prisma.salesOtherEntry.findMany({
+    where: { periodKey, voided: false, ...(branch ? { branch } : {}) },
+    orderBy: [{ branch: "asc" }, { closedAmount: "desc" }],
+    select: { id: true, branch: true, periodKey: true, sellerEmployeeId: true, sellerName: true, sellerRole: true, closedAmount: true, dealsClosed: true, note: true },
+  });
+  const byBranch: Record<string, { closed: number; deals: number; count: number }> = {};
+  let totalClosed = 0, totalDeals = 0;
+  for (const r of rows) {
+    totalClosed += r.closedAmount; totalDeals += r.dealsClosed;
+    const b = (byBranch[r.branch] ??= { closed: 0, deals: 0, count: 0 });
+    b.closed += r.closedAmount; b.deals += r.dealsClosed; b.count += 1;
+  }
+  return { entries: rows as OtherSaleEntry[], byBranch, totalClosed, totalDeals };
+}
+
+/** Create or update one "other" sale entry. Attribution to a specific employee is
+ *  optional; a branch is always required. Never hard-deletes — see `voidOtherSale`. */
+export async function upsertOtherSale(
+  data: { id?: string | null; branch: string; periodKey: string; sellerEmployeeId?: string | null; sellerName?: string | null; sellerRole?: string | null; closedAmount: number; dealsClosed?: number; note?: string | null },
+  opts: { userId?: string | null; source?: string } = {},
+) {
+  const clean = {
+    branch: data.branch,
+    periodKey: data.periodKey,
+    sellerEmployeeId: data.sellerEmployeeId || null,
+    sellerName: (data.sellerName ?? "").trim().slice(0, 200) || null,
+    sellerRole: data.sellerRole || null,
+    closedAmount: Math.max(0, data.closedAmount || 0),
+    dealsClosed: Math.max(0, Math.round(data.dealsClosed || 0)),
+    note: (data.note ?? "").trim().slice(0, 2000) || null,
+  };
+  if (data.id) {
+    return prisma.salesOtherEntry.update({
+      where: { id: data.id },
+      data: { ...clean, voided: false, ...(opts.source ? { source: opts.source } : {}) },
+    });
+  }
+  return prisma.salesOtherEntry.create({
+    data: { ...clean, source: opts.source ?? "manual", createdByUserId: opts.userId ?? null },
+  });
+}
+
+/** Reversibly remove an "other" sale (soft-delete) so totals drop it but the audit
+ *  trail stays intact. Pass voided=false to restore. */
+export async function voidOtherSale(id: string, voided = true) {
+  return prisma.salesOtherEntry.update({ where: { id }, data: { voided } });
+}
+
 /**
  * The Sales Director dashboard: this month's targets by branch and by advisor,
  * plus closed/pipeline from the sales feed (when connected).

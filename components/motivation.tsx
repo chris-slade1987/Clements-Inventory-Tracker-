@@ -63,6 +63,15 @@ export function rampTextColor(pct: number): string {
 /** Gradient for a completed/100% fill — forest → celebrate finish. */
 const DONE_FILL = "linear-gradient(90deg,#15B85C,#1F9D57)";
 
+/**
+ * Leaderboard medal for a rank — the COO-sanctioned emoji exception for the SALES
+ * MOTIVATION module ONLY (ribbons 🥇🥈🥉). Returns null past 3rd so callers fall
+ * back to a plain number chip. See docs/BRAND_KIT.md §1 (sanctioned emoji).
+ */
+export function rankMedal(n: number): string | null {
+  return n === 1 ? "🥇" : n === 2 ? "🥈" : n === 3 ? "🥉" : null;
+}
+
 /** An encouraging word for a given completion %. */
 export function encouragement(pct: number): string {
   if (pct >= 100) return "Goal reached";
