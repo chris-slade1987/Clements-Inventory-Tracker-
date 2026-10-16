@@ -42,6 +42,7 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
         initial={initial}
         initialInitiatives={parseInitiatives(g.sheet?.initiatives)}
         initialNotes={g.sheet?.notesForDirector ?? ""}
+        initialOverrides={{ leadsGoal: g.sheet?.leadsGoal ?? 0, proposalsGoal: g.sheet?.proposalsGoal ?? 0, dealsGoal: g.sheet?.dealsGoal ?? 0 }}
         canEdit={canManage}
         viewerRole="director"
         paceSignal={paceSignal}

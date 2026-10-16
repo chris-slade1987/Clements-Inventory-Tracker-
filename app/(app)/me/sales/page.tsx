@@ -68,6 +68,7 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
         initial={initial}
         initialInitiatives={parseInitiatives(g.sheet?.initiatives)}
         initialNotes={g.sheet?.notesForDirector ?? ""}
+        initialOverrides={{ leadsGoal: g.sheet?.leadsGoal ?? 0, proposalsGoal: g.sheet?.proposalsGoal ?? 0, dealsGoal: g.sheet?.dealsGoal ?? 0 }}
         canEdit
         viewerRole="advisor"
         paceSignal={paceSignal}

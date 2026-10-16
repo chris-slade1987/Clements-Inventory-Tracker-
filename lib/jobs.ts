@@ -481,6 +481,60 @@ export async function remindScorecardsDue() {
 }
 
 /**
+ * Monthly sales-goal review reminder — the first week of each month, alert the
+ * Sales Director (and admins, who also manage sales) to (1) review & APPROVE
+ * everyone's goals for the new month and (2) review & VERIFY last month's actuals.
+ * In-app Alert is idempotent per month; the email is weekly-guarded by a Setting
+ * stamp (mirrors `remindScorecardsDue`). No-ops after day 7.
+ */
+export async function remindMonthlyGoals() {
+  const now = new Date();
+  const day = now.getUTCDate();
+  if (day > 7) return { skipped: "outside first week", day };
+
+  const periodKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const link = `${base()}/sales`;
+  const message = `New month (${monthLabel}) — review & approve this month's sales goals and verify last month's actuals.`;
+  const DAY = 86_400_000;
+
+  // Standing in-app alert, idempotent per month.
+  await prisma.alert.upsert({
+    where: { dedupeKey: `sales_goals_review:${periodKey}` },
+    create: { type: "sales_goals_review", severity: "warning", status: "open", dedupeKey: `sales_goals_review:${periodKey}`, message },
+    update: { message, status: "open", severity: "warning" },
+  }).catch(() => null);
+
+  // Weekly-guarded email to the Sales Director(s); fall back to admins if none.
+  const key = `sales_goals_review_email:${periodKey}`;
+  const setting = await prisma.setting.findUnique({ where: { key } }).catch(() => null);
+  const last = setting?.value ? new Date(setting.value) : null;
+  const dueForEmail = !last || now.getTime() - last.getTime() >= 7 * DAY;
+  let emailed = false;
+  if (dueForEmail) {
+    const directors = await prisma.user.findMany({ where: { active: true, accessLevel: "sales_director" }, select: { email: true } });
+    let recipients = directors.map((d) => d.email).filter(Boolean);
+    if (recipients.length === 0) {
+      const admins = await prisma.user.findMany({ where: { active: true, role: "admin" }, select: { email: true } });
+      recipients = admins.map((a) => a.email).filter(Boolean);
+    }
+    recipients = [...new Set(recipients)];
+    if (recipients.length) {
+      const r = await sendEmail({
+        to: recipients,
+        subject: `Sales goals — review & approve for ${monthLabel}`,
+        kind: "sales_goals_review", relatedType: "sales_period", relatedId: periodKey,
+        text: `It's a new month. Two things to do in the Sales Team hub:\n\n1. Review & APPROVE each advisor's ${monthLabel} sales goal (approve the ones awaiting you, propose where needed).\n2. Review & VERIFY last month's actuals so everyone's funnel + pace are accurate.\n\nOpen the Sales Team hub: ${link}\n\n— CanopyOS`,
+        html: `<p>It's a new month. Two things to do in the Sales Team hub:</p><ol><li>Review &amp; <strong>approve</strong> each advisor's ${monthLabel} sales goal (approve the ones awaiting you, propose where needed).</li><li>Review &amp; <strong>verify</strong> last month's actuals so everyone's funnel + pace are accurate.</li></ol><p><a href="${link}">Open the Sales Team hub →</a></p><p>— CanopyOS</p>`,
+      }).catch(() => null);
+      emailed = !!r;
+    }
+    await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
+  }
+  return { periodKey, emailed };
+}
+
+/**
  * Daily birthday + work-anniversary celebrations. For every active employee whose
  * birthday or work anniversary (>= 1 year) falls TODAY in Eastern Time, this:
  *   1. Auto-posts a Buzz "shoutout" to the company bulletin (birthday first if

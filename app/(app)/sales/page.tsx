@@ -59,6 +59,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
   // The director's actionable gap: advisors who haven't set this period's goal.
   const notSet = advisorRows.filter((r) => !r.hasGoal);
+  // Advisors who submitted a goal for the director's sign-off.
+  const pendingApproval = advisorRows.filter((r) => r.pendingApproval);
 
   return (
     <>
@@ -124,6 +126,23 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
               </div>
             </Card>
           )}
+          {canManage && pendingApproval.length > 0 ? (
+            <Card className="mt-3 p-4 ring-1 ring-amber-200">
+              <div className="flex items-start gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 text-sm font-semibold tabular-nums">{pendingApproval.length}</span>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-ink">{pendingApproval.length} goal{pendingApproval.length === 1 ? "" : "s"} awaiting your approval</div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {pendingApproval.map((r) => (
+                      <Link key={r.advisor.id} href={`/sales/${r.advisor.id}`} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800 hover:bg-amber-100">
+                        {r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — review &amp; approve
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ) : null}
         </div>
       ) : null}
 

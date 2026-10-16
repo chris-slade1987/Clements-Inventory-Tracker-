@@ -29,11 +29,13 @@ type Proposal = { proposedGoal: number | null; goalStatus: string | null; propos
 
 const STATUS_LABEL: Record<string, string> = {
   advisor_set: "Advisor set",
+  advisor_requested: "Awaiting approval",
   director_proposed: "Director proposed",
   agreed: "Agreed",
 };
 const STATUS_TONE: Record<string, string> = {
   advisor_set: "bg-brand-50 text-brand-700 border-brand-200",
+  advisor_requested: "bg-amber-50 text-amber-800 border-amber-200",
   director_proposed: "bg-amber-50 text-amber-800 border-amber-200",
   agreed: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
@@ -70,6 +72,7 @@ export default function GoalPlanner({
   viewerRole = "advisor",
   initialInitiatives = [],
   initialNotes = "",
+  initialOverrides = { leadsGoal: 0, proposalsGoal: 0, dealsGoal: 0 },
   paceSignal = { closedSoFar: 0, priorClose: 0, paceFrac: 0, hasActuals: false },
   proposal = { proposedGoal: null, goalStatus: null, proposedByName: null },
 }: {
@@ -82,6 +85,7 @@ export default function GoalPlanner({
   viewerRole?: "advisor" | "director";
   initialInitiatives?: string[];
   initialNotes?: string;
+  initialOverrides?: { leadsGoal: number; proposalsGoal: number; dealsGoal: number };
   paceSignal?: PaceSignal;
   proposal?: Proposal;
 }) {
@@ -90,6 +94,8 @@ export default function GoalPlanner({
   const [initiatives, setInitiatives] = useState<string[]>(initialInitiatives);
   const [customInit, setCustomInit] = useState("");
   const [notes, setNotes] = useState<string>(initialNotes);
+  const [ov, setOv] = useState(initialOverrides);
+  const [ovOpen, setOvOpen] = useState((initialOverrides.leadsGoal || initialOverrides.proposalsGoal || initialOverrides.dealsGoal) > 0);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState(false);
@@ -164,6 +170,9 @@ export default function GoalPlanner({
   }
 
   const save = () => post({ ...v, initiatives, notesForDirector: notes }, "Saved.");
+  const requestApproval = () =>
+    post({ ...v, initiatives, notesForDirector: notes, leadsGoal: ov.leadsGoal, proposalsGoal: ov.proposalsGoal, dealsGoal: ov.dealsGoal, action: "request_approval" }, "Sent to your Sales Director for approval.");
+  const approveGoalAction = () => post({ action: "approve" }, "Goal approved.");
   const propose = () => post({ action: "propose", proposedGoal: proposeVal }, "Goal proposed to the advisor.");
   const accept = async () => {
     if (await post({ action: "accept" }, "Proposal accepted — it's now your goal.")) {
@@ -194,6 +203,19 @@ export default function GoalPlanner({
         className={`w-full rounded-lg border border-line py-2.5 text-base sm:text-sm ${kind === "money" ? "pl-7 pr-3" : "px-3"} disabled:bg-slate-50`}
       />
     </div>
+  );
+
+  const ovInput = (label: string, val: number, onChange: (n: number) => void) => (
+    <label className="block text-xs">
+      <span className="mb-1 block font-medium text-ink">{label}</span>
+      <input
+        type="number" inputMode="numeric" min={0}
+        value={val === 0 ? "" : String(val)}
+        onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+        placeholder="0"
+        className="w-full rounded-lg border border-line px-3 py-2 text-base sm:text-sm"
+      />
+    </label>
   );
 
   const fieldLabel = (f: Field) => (
@@ -266,13 +288,30 @@ export default function GoalPlanner({
         </Card>
       ) : null}
 
+      {/* Director: the advisor submitted their goal for approval. */}
+      {viewerRole === "director" && status === "advisor_requested" ? (
+        <Card className="p-4 ring-1 ring-amber-200">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-ink">
+                {advisorName ?? "This advisor"} submitted <span className="font-semibold tabular-nums">{money(v.salesGoal)}</span> for your approval.
+              </div>
+              <div className="mt-0.5 text-xs text-muted">Review their roadmap, targets, and notes below — then approve, or propose a different goal.</div>
+            </div>
+            {canEdit ? (
+              <button onClick={approveGoalAction} disabled={busy} className={`${btn.primary} shrink-0`}>{busy ? "Working…" : "Approve goal"}</button>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
+
       {/* ───────── STEP 1 — Last month's results + the funnel ───────── */}
       <Card className="p-4 sm:p-5" id="step-results">
         <div className="mb-1 flex items-center gap-2">
           {stepBadge(1, steps[0].done)}
           <h2 className="text-base font-semibold text-ink">Fill out last month&apos;s results</h2>
         </div>
-        <p className="mb-4 text-xs text-muted">No guessing — enter what actually happened. It builds your funnel and learns your personal close rates.</p>
+        <p className="mb-4 text-xs text-muted">No guessing — enter what actually happened. It builds your funnel and learns your personal close rates. <span className="italic">Once SmarterLaunch is connected, these numbers will fill in for you automatically.</span></p>
 
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Activity</div>
         <div className="mb-5 grid gap-3 sm:grid-cols-2">
@@ -422,6 +461,30 @@ export default function GoalPlanner({
             </>
           )}
         </div>
+
+        {/* Doesn't look realistic? Hard-code your own targets and ask your director to sign off. */}
+        {canEdit && viewerRole === "advisor" ? (
+          <div className={`mt-4 rounded-xl border p-4 ${stretch ? "border-amber-300 bg-amber-50/60" : "border-line bg-white/60"}`}>
+            <button type="button" onClick={() => setOvOpen((o) => !o)} aria-expanded={ovOpen} className="flex w-full items-center justify-between gap-2 text-left">
+              <span className="text-sm font-medium text-ink">{stretch ? "This plan is a stretch — set your own targets instead?" : "Prefer to set your own targets & get sign-off?"}</span>
+              <svg viewBox="0 0 24 24" className={`h-5 w-5 shrink-0 text-muted transition-transform duration-200 motion-reduce:transition-none ${ovOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+            </button>
+            {ovOpen ? (
+              <div className="mt-3">
+                <p className="mb-3 text-xs text-muted">Enter the monthly numbers you&rsquo;re committing to, then send them to your Sales Director for sign-off. They&rsquo;ll see your goal, roadmap, and notes alongside these targets.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ovInput("Leads / mo", ov.leadsGoal, (n) => setOv((s) => ({ ...s, leadsGoal: n })))}
+                  {ovInput("Proposals / mo", ov.proposalsGoal, (n) => setOv((s) => ({ ...s, proposalsGoal: n })))}
+                  {ovInput("Deals / mo", ov.dealsGoal, (n) => setOv((s) => ({ ...s, dealsGoal: n })))}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <button onClick={requestApproval} disabled={busy} className={btn.primary}>{busy ? "Sending…" : "Request Sales Director approval"}</button>
+                  {status === "advisor_requested" ? <span className="text-xs font-medium text-amber-700">Awaiting your Sales Director&rsquo;s approval.</span> : null}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </Card>
 
       {/* ───────── STEP 3 — This month's focus (initiatives) ───────── */}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { runDailyDigest, remindScorecardsDue, runCelebrations } from "@/lib/jobs";
+import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals } from "@/lib/jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,6 +26,7 @@ async function run(req: Request) {
   const jobs = {
     digest: runDailyDigest,
     scorecardsDue: remindScorecardsDue,
+    monthlyGoals: remindMonthlyGoals,
     celebrations: runCelebrations,
   } as const;
   const names = Object.keys(jobs) as (keyof typeof jobs)[];

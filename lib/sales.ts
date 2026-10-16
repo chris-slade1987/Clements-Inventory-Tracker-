@@ -55,7 +55,14 @@ export async function upsertGoalSheet(
   advisorEmployeeId: string,
   periodKey: string,
   data: GoalSheetInput,
-  opts: { branch?: string | null; userId?: string | null; initiatives?: string[] | null; notesForDirector?: string | null } = {},
+  opts: {
+    branch?: string | null; userId?: string | null; initiatives?: string[] | null; notesForDirector?: string | null;
+    // Hard-coded per-stage targets the advisor set themselves (override the plan).
+    leadsGoal?: number; proposalsGoal?: number; dealsGoal?: number;
+    // When set, forces the goalStatus (e.g. "advisor_requested" when submitting
+    // for Sales-Director approval) instead of the auto advisor_set/agreed logic.
+    statusOverride?: string;
+  } = {},
 ) {
   const clean = {
     leads: Math.max(0, Math.round(data.leads || 0)),
@@ -74,9 +81,16 @@ export async function upsertGoalSheet(
   // proposal, otherwise "advisor_set". Leave status untouched when no goal is set.
   const existing = await getGoalSheet(advisorEmployeeId, periodKey);
   const goalStatus =
-    clean.salesGoal > 0
-      ? (existing?.proposedGoal != null && clean.salesGoal === existing.proposedGoal ? "agreed" : "advisor_set")
-      : (existing?.goalStatus ?? null);
+    opts.statusOverride !== undefined
+      ? opts.statusOverride
+      : clean.salesGoal > 0
+        ? (existing?.proposedGoal != null && clean.salesGoal === existing.proposedGoal ? "agreed" : "advisor_set")
+        : (existing?.goalStatus ?? null);
+  // Hard-coded per-stage targets — only touch when supplied (0 clears the override).
+  const stageGoals: { leadsGoal?: number; proposalsGoal?: number; dealsGoal?: number } = {};
+  if (opts.leadsGoal !== undefined) stageGoals.leadsGoal = Math.max(0, Math.round(opts.leadsGoal || 0));
+  if (opts.proposalsGoal !== undefined) stageGoals.proposalsGoal = Math.max(0, Math.round(opts.proposalsGoal || 0));
+  if (opts.dealsGoal !== undefined) stageGoals.dealsGoal = Math.max(0, Math.round(opts.dealsGoal || 0));
   // This month's focus — only touch these columns when the caller supplied them.
   const extras: { initiatives?: string | null; notesForDirector?: string | null } = {};
   if (opts.initiatives !== undefined) {
@@ -89,8 +103,29 @@ export async function upsertGoalSheet(
   }
   return prisma.salesGoalSheet.upsert({
     where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
-    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, goalStatus, ...clean, ...extras },
-    update: { ...clean, goalStatus, ...extras, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
+    create: { advisorEmployeeId, periodKey, branch: opts.branch ?? null, createdByUserId: opts.userId ?? null, goalStatus, ...clean, ...stageGoals, ...extras },
+    update: { ...clean, ...stageGoals, goalStatus, ...extras, ...(opts.branch !== undefined ? { branch: opts.branch } : {}) },
+  });
+}
+
+/** The advisor submits their goal (optionally with hard-coded stage targets) for
+ *  the Sales Director to approve — goalStatus "advisor_requested". */
+export async function requestGoalApproval(
+  advisorEmployeeId: string,
+  periodKey: string,
+  data: GoalSheetInput,
+  opts: { branch?: string | null; userId?: string | null; initiatives?: string[] | null; notesForDirector?: string | null; leadsGoal?: number; proposalsGoal?: number; dealsGoal?: number } = {},
+) {
+  return upsertGoalSheet(advisorEmployeeId, periodKey, data, { ...opts, statusOverride: "advisor_requested" });
+}
+
+/** The Sales Director approves the advisor's requested goal → "agreed". */
+export async function approveGoal(advisorEmployeeId: string, periodKey: string) {
+  const sheet = await getGoalSheet(advisorEmployeeId, periodKey);
+  if (!sheet) return null;
+  return prisma.salesGoalSheet.update({
+    where: { advisorEmployeeId_periodKey: { advisorEmployeeId, periodKey } },
+    data: { goalStatus: "agreed" },
   });
 }
 
@@ -201,6 +236,8 @@ export async function salesDirectorDashboard(periodKey: string, branch?: string 
         salesPerDay: g.plan.salesPerDay,
         prospectsPerDay: g.plan.prospectsPerDay,
         hasGoal: g.hasGoal,
+        goalStatus: g.sheet?.goalStatus ?? null,
+        pendingApproval: g.sheet?.goalStatus === "advisor_requested",
         closed: actuals.advisorClosed[a.name.trim().toLowerCase()] ?? null,
       };
     }),

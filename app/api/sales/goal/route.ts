@@ -2,7 +2,7 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, canManageSales } from "@/lib/auth";
-import { upsertGoalSheet, proposeGoal, acceptProposal, currentPeriodKey, type GoalSheetInput } from "@/lib/sales";
+import { upsertGoalSheet, proposeGoal, acceptProposal, requestGoalApproval, approveGoal, currentPeriodKey, type GoalSheetInput } from "@/lib/sales";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -50,7 +50,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, id: sheet.id, periodKey, goalStatus: sheet.goalStatus });
     }
 
-    // Default: save the full sheet. Own sheet, or a sales manager editing anyone's.
+    // APPROVE the advisor's requested goal. Director/admin only → "agreed".
+    if (action === "approve") {
+      if (!canManageSales(user))
+        return NextResponse.json({ error: "Only the Sales Director can approve a goal." }, { status: 403 });
+      const sheet = await approveGoal(advisorEmployeeId, periodKey);
+      if (!sheet) return NextResponse.json({ error: "There's no goal sheet to approve." }, { status: 400 });
+      return NextResponse.json({ ok: true, id: sheet.id, periodKey, goalStatus: sheet.goalStatus });
+    }
+
+    // Save (default) OR request approval. Own sheet, or a sales manager editing anyone's.
     if (!isOwn && !canManageSales(user))
       return NextResponse.json({ error: "You can only edit your own goal sheet." }, { status: 403 });
 
@@ -62,11 +71,25 @@ export async function POST(req: Request) {
     };
     const initiatives = Array.isArray(body.initiatives) ? (body.initiatives as unknown[]).map((s) => String(s)) : undefined;
     const notesForDirector = typeof body.notesForDirector === "string" ? body.notesForDirector : undefined;
-    const sheet = await upsertGoalSheet(advisorEmployeeId, periodKey, data, {
+    // Optional hard-coded per-stage targets (the advisor's own roadmap override).
+    const overrides: { leadsGoal?: number; proposalsGoal?: number; dealsGoal?: number } = {};
+    if (body.leadsGoal !== undefined) overrides.leadsGoal = num(body.leadsGoal);
+    if (body.proposalsGoal !== undefined) overrides.proposalsGoal = num(body.proposalsGoal);
+    if (body.dealsGoal !== undefined) overrides.dealsGoal = num(body.dealsGoal);
+    const commonOpts = {
       branch: emp?.branch ?? null, userId: user.id,
       ...(initiatives !== undefined ? { initiatives } : {}),
       ...(notesForDirector !== undefined ? { notesForDirector } : {}),
-    });
+      ...overrides,
+    };
+
+    // Advisor submits for Sales-Director approval (goalStatus "advisor_requested").
+    if (action === "request_approval") {
+      const sheet = await requestGoalApproval(advisorEmployeeId, periodKey, data, commonOpts);
+      return NextResponse.json({ ok: true, id: sheet.id, periodKey, goalStatus: sheet.goalStatus });
+    }
+
+    const sheet = await upsertGoalSheet(advisorEmployeeId, periodKey, data, commonOpts);
     return NextResponse.json({ ok: true, id: sheet.id, periodKey, goalStatus: sheet.goalStatus });
   } catch (e) {
     return fail(e);
