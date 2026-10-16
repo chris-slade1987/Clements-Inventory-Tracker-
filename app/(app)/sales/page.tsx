@@ -7,13 +7,14 @@ import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
 import { salesDirectorDashboard, currentPeriodKey, periodLabel } from "@/lib/sales";
-import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel, type StageStatus } from "@/lib/sales-funnel";
+import { teamFunnel, buildLeaderboards, diagnoseFunnel, salesPace, stageStatus, type AdvisorFunnel } from "@/lib/sales-funnel";
 import MyReviewsCard from "@/components/MyReviewsCard";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
 import { smarterLaunchConfigured } from "@/lib/smarterlaunch";
 import FunnelEntryButton from "./FunnelEntryButton";
 import SalesDirectorTools from "./SalesDirectorTools";
+import FunnelHealthBoard, { type HealthRow } from "@/components/FunnelHealthBoard";
 import { AchievementBar, ProgressRing, rampColor, encouragement } from "@/components/motivation";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,33 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const goalsSetPct = funnelTotals.advisors > 0 ? (funnelTotals.withGoal / funnelTotals.advisors) * 100 : 0;
   const pLabel = periodLabel(periodKey);
   const pace = salesPace(periodKey);
+
+  // Day-of-month framing for the pace board.
+  const nowD = new Date();
+  const [pY, pM] = periodKey.split("-").map(Number);
+  const daysInMonth = new Date(Date.UTC(pY, pM, 0)).getUTCDate();
+  const isCurMonth = periodKey === `${nowD.getUTCFullYear()}-${String(nowD.getUTCMonth() + 1).padStart(2, "0")}`;
+  const dayOfMonth = isCurMonth ? nowD.getUTCDate() : daysInMonth;
+
+  // Pace-aware, serializable rows for the interactive Funnel-health board.
+  const healthRows: HealthRow[] = funnelRows.map((r: AdvisorFunnel) => {
+    const d = diagnoseFunnel(r, pace);
+    const projected = pace > 0 ? r.closed / pace : r.closed;
+    const mk = (actual: number, goal: number) => ({ actual, goal, status: stageStatus(actual, goal, pace), pct: goal > 0 ? Math.min(100, (actual / goal) * 100) : 0 });
+    return {
+      id: r.advisor.id, name: r.advisor.name, branch: r.advisor.branch ? branchLabel(r.advisor.branch) : null,
+      hasGoal: r.hasGoal, hasData: r.hasData,
+      goal: r.goal, closed: r.closed, projected,
+      goalPct: r.goal > 0 ? Math.min(100, (r.closed / r.goal) * 100) : 0,
+      overall: stageStatus(r.closed, r.goal, pace),
+      stages: [
+        { key: "leads", label: "Leads", ...mk(r.leads, r.leadsGoal) },
+        { key: "proposals", label: "Proposals", ...mk(r.proposals, r.propGoal) },
+        { key: "closing", label: "Closing $", money: true, ...mk(r.closed, r.goal) },
+      ],
+      diag: { key: d.key, label: d.label, msg: d.msg },
+    };
+  });
   const demoCount = await prisma.salesPeriodStat.count({ where: { periodKey, source: "demo" } });
   const slLive = smarterLaunchConfigured();
 
@@ -224,38 +252,18 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
             </Card>
           ) : <div className="mb-6" />}
 
-          {/* ───────── 4. Per-advisor funnel ───────── */}
-          <SectionLabel>Funnel health · where each advisor is leaking</SectionLabel>
-          <Card className="mb-6 overflow-hidden p-0">
-            <div className="overflow-x-auto">
-              <table style={{ minWidth: "560px" }} className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-line text-left text-xs text-muted">
-                    <th className="px-4 py-2 font-medium">Advisor</th>
-                    <th className="px-3 py-2 font-medium">Leads</th>
-                    <th className="px-3 py-2 font-medium">Proposals</th>
-                    <th className="px-3 py-2 font-medium">Closing</th>
-                    <th className="px-4 py-2 font-medium">Bottleneck</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {funnelRows.map((r: AdvisorFunnel) => {
-                    const d = diagnoseFunnel(r, pace);
-                    return (
-                      <tr key={r.advisor.id} className="border-b border-line last:border-0">
-                        <td className="px-4 py-2 font-medium">{r.advisor.name}{r.advisor.branch ? <span className="ml-2 text-[11px] text-muted">{branchLabel(r.advisor.branch)}</span> : null}</td>
-                        <td className="px-3 py-2"><HealthDot s={stageStatus(r.leads, r.leadsGoal, pace)} /></td>
-                        <td className="px-3 py-2"><HealthDot s={stageStatus(r.proposals, r.propGoal, pace)} /></td>
-                        <td className="px-3 py-2"><HealthDot s={stageStatus(r.closed, r.goal, pace)} /></td>
-                        <td className="px-4 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${BTL[d.key]}`}>{d.label}</span></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <div className="border-t border-line px-4 py-2 text-[11px] text-muted">Dot = pace status (green on track · amber watch · red behind). Bottleneck is the first stage that breaks the chain.</div>
-          </Card>
+          {/* ───────── 4. Per-advisor funnel — pace-aware, interactive ───────── */}
+          <SectionLabel>Funnel health · pace vs. the calendar</SectionLabel>
+          <div className="mb-6">
+            <FunnelHealthBoard
+              rows={healthRows}
+              pace={pace}
+              monthLabel={pLabel}
+              day={dayOfMonth}
+              daysInMonth={daysInMonth}
+              basePath="/sales"
+            />
+          </div>
 
           {/* This month's funnel (editable) */}
           <SectionLabel>This month&rsquo;s funnel</SectionLabel>
@@ -386,23 +394,6 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{children}</h2>;
-}
-
-const BTL: Record<StageStatus, string> = {
-  on: "bg-emerald-100 text-emerald-700",
-  watch: "bg-amber-100 text-amber-700",
-  behind: "bg-red-100 text-red-700",
-  nogoal: "bg-slate-100 text-slate-500",
-};
-function HealthDot({ s }: { s: StageStatus }) {
-  const map: Record<StageStatus, { c: string; t: string }> = {
-    on: { c: "bg-emerald-500", t: "On track" },
-    watch: { c: "bg-amber-500", t: "Watch" },
-    behind: { c: "bg-red-500", t: "Behind" },
-    nogoal: { c: "bg-slate-300", t: "No goal" },
-  };
-  const m = map[s];
-  return <span className="inline-flex items-center gap-1.5 text-xs text-muted"><span className={`h-2.5 w-2.5 rounded-full ${m.c}`} />{m.t}</span>;
 }
 
 function MiniBoard({ title, icon, rows, fmt }: { title: string; icon: ReactNode; rows: { advisor: { id: string; name: string }; value: number; rank: number }[]; fmt: (n: number) => string }) {
