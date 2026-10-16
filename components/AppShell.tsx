@@ -127,11 +127,11 @@ export default function AppShell({
         ? "manager"
         : pathname.startsWith("/management")
           ? "management"
-          // The Sales Team hub is a management-style cross-branch view for admins
-          // / the Sales Director; for a branch manager it's a read-only slice of
-          // their own branch, so keep it inside their My Branch center.
+          // The Sales Team hub lives in the My Branch / Company center (company-wide
+          // for admins, own-branch read-only for managers). The Sales Director has a
+          // fixed nav, so mode is cosmetic for them.
           : pathname.startsWith("/sales")
-            ? (isAdmin || isSalesDirector ? "management" : "manager")
+            ? "manager"
           : pathname.startsWith("/fleet")
             ? "fleet"
             : "inventory";

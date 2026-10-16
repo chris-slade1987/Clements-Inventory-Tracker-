@@ -298,7 +298,8 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   CHECKLISTS_NAV_ITEM,
-  // Branch managers get a read-only view of their branch's sales team performance.
+  // Sales Team lives in this center (My Branch for managers = "Company" for admins):
+  // company-wide for admins/super admins, own-branch read-only for branch managers.
   SALES_TEAM_NAV_ITEM,
 ];
 
@@ -365,7 +366,8 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Sales",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
-  SALES_TEAM_NAV_ITEM,
+  // NOTE: the Sales Team hub (SALES_TEAM_NAV_ITEM) now lives in the My Branch /
+  // Company center (MANAGER_NAV), not here under Executive — see that array.
   {
     href: "/management/scorecards",
     label: "Scorecards",
