@@ -298,6 +298,8 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   CHECKLISTS_NAV_ITEM,
+  // Branch managers get a read-only view of their branch's sales team performance.
+  SALES_TEAM_NAV_ITEM,
 ];
 
 export const INVENTORY_NAV: NavItem[] = [

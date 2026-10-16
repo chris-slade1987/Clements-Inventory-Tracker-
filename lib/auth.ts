@@ -109,6 +109,14 @@ export function canManageSales(user: Pick<SessionUser, "role" | "accessLevel">):
   return user.role === "admin" || user.accessLevel === "sales_director";
 }
 
+/** Who may VIEW the Sales Team dashboard. The managers above, plus BRANCH
+ *  MANAGERS — read-only and scoped to their own branch's service advisors, so a
+ *  branch manager can see how their sales team is performing (they can't edit
+ *  goals/funnel or use the director tools; that stays `canManageSales`). */
+export function canViewSales(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
+  return canManageSales(user) || user.role === "manager";
+}
+
 /** Who may reset another person's login password from their employee profile:
  *  the CEO/COO (admin), the Chief of Staff (senior leadership), and the Director
  *  of HR (HR access) — i.e. Chris, Julie, and April. Never a branch manager. */

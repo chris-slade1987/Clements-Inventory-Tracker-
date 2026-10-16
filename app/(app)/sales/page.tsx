@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
-import { requireUser, canManageSales } from "@/lib/auth";
+import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
@@ -21,10 +21,14 @@ const m = (n: number | null) => (n == null ? "—" : money(n));
 
 export default async function SalesTeamPage({ searchParams }: { searchParams: Promise<{ branch?: string; range?: string; from?: string; to?: string }> }) {
   const user = await requireUser();
-  if (!canManageSales(user)) redirect("/me");
+  if (!canViewSales(user)) redirect("/me");
+  // Branch managers get a READ-ONLY view scoped to their own branch's advisors;
+  // admins / the Sales Director manage everything cross-branch.
+  const canManage = canManageSales(user);
+  const locked = branchLocked(user);
 
   const sp = await searchParams;
-  const branch = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
+  const branch = locked ? user.branch : (BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
   const range = resolveRange(sp.range, sp.from, sp.to);
   const periodKey = currentPeriodKey();
   const { advisorRows, byBranch, totals, actuals } = await salesDirectorDashboard(periodKey, branch);
@@ -44,13 +48,17 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
     <>
       <PageHeader
         title="Sales Team"
-        subtitle={`Targets, closed & pipeline across all branches — ${periodLabel(periodKey)}`}
-        actions={<Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Sales &amp; Attrition analytics →</Link>}
+        subtitle={
+          locked && branch
+            ? `${branchLabel(branch)} — how your sales team is performing · ${periodLabel(periodKey)}`
+            : `Targets, closed & pipeline across all branches — ${periodLabel(periodKey)}`
+        }
+        actions={canManage ? <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Sales &amp; Attrition analytics →</Link> : undefined}
       />
 
       <MyReviewsCard userId={user.id} />
 
-      <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} live={slLive} />
+      {canManage ? <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} live={slLive} /> : null}
 
       {/* actuals connection state */}
       <div className={`mb-4 rounded-xl border px-4 py-2.5 text-sm ${actuals.connected ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
@@ -93,13 +101,15 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         </div>
       ) : null}
 
-      {/* branch filter */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Pill href="/sales" active={!branch}>All branches</Pill>
-        {BRANCHES.map((b) => (
-          <Pill key={b.key} href={`/sales?branch=${b.key}`} active={branch === b.key}>{b.label}</Pill>
-        ))}
-      </div>
+      {/* branch filter — admins/director only; branch managers are pinned to theirs */}
+      {!locked ? (
+        <div className="mb-4 flex flex-wrap gap-2">
+          <Pill href="/sales" active={!branch}>All branches</Pill>
+          {BRANCHES.map((b) => (
+            <Pill key={b.key} href={`/sales?branch=${b.key}`} active={branch === b.key}>{b.label}</Pill>
+          ))}
+        </div>
+      ) : null}
 
       {/* company summary */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">
@@ -152,13 +162,15 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
       {/* Lead geographic heat map + lead-source performance (company-wide, honors
           the branch filter and the date-range control). */}
-      <LeadInsightsSection
-        scope="team"
-        branch={branch}
-        range={range}
-        mapTitle={`Lead heat map${branch ? ` · ${branchLabel(branch)}` : " · all branches"}`}
-        mapSubtitle="Where leads are coming in and which neighborhoods have the most density and best close rate. Color-coded by funnel stage — filter to a stage to see pending leads by stage."
-      />
+      {canManage ? (
+        <LeadInsightsSection
+          scope="team"
+          branch={branch}
+          range={range}
+          mapTitle={`Lead heat map${branch ? ` · ${branchLabel(branch)}` : " · all branches"}`}
+          mapSubtitle="Where leads are coming in and which neighborhoods have the most density and best close rate. Color-coded by funnel stage — filter to a stage to see pending leads by stage."
+        />
+      ) : null}
 
       {/* Leaderboard — the funnel, ranked. Each stage is its own board so activity
           leaders are recognized alongside dollar closers. */}
@@ -240,7 +252,9 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                       <td className="px-3 py-2 text-right tabular-nums font-medium">{r.closed ? money(r.closed) : "—"}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{r.goal > 0 ? <span className={r.goalPct >= 1 ? "text-emerald-600 font-medium" : "text-muted"}>{Math.round(r.goalPct * 100)}%</span> : "—"}</td>
                       <td className="px-4 py-2 text-right">
-                        <FunnelEntryButton advisorId={r.advisor.id} advisorName={r.advisor.name} periodKey={periodKey} periodLabel={pLabel} current={{ leadsCreated: r.leads, proposalsMade: r.proposals, dealsClosed: r.deals, closedAmount: r.closed }} />
+                        {canManage ? (
+                          <FunnelEntryButton advisorId={r.advisor.id} advisorName={r.advisor.name} periodKey={periodKey} periodLabel={pLabel} current={{ leadsCreated: r.leads, proposalsMade: r.proposals, dealsClosed: r.deals, closedAmount: r.closed }} />
+                        ) : null}
                       </td>
                     </tr>
                   ))}

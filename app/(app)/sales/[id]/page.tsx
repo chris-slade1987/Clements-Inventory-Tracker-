@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { requireUser, canManageSales } from "@/lib/auth";
+import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
 import { advisorGoal, currentPeriodKey, periodLabel } from "@/lib/sales";
@@ -12,11 +12,14 @@ export const dynamic = "force-dynamic";
 
 export default async function AdvisorGoalPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
-  if (!canManageSales(user)) redirect("/me");
+  if (!canViewSales(user)) redirect("/me");
   const { id } = await params;
 
   const emp = await prisma.employee.findUnique({ where: { id }, select: { id: true, name: true, branch: true } });
   if (!emp) notFound();
+  // Branch managers may only open their OWN branch's advisors, read-only.
+  if (branchLocked(user) && emp.branch !== user.branch) redirect("/sales");
+  const canManage = canManageSales(user);
 
   const periodKey = currentPeriodKey();
   const g = await advisorGoal(emp.id, periodKey);
@@ -37,7 +40,7 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
         advisorEmployeeId={emp.id}
         advisorName={emp.name}
         initial={initial}
-        canEdit
+        canEdit={canManage}
         viewerRole="director"
         paceSignal={paceSignal}
         proposal={proposal}
