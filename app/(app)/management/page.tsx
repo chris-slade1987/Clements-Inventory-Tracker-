@@ -2,9 +2,13 @@ import Link from "next/link";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues, cell, type Scope, type Cell } from "@/lib/management";
+import { buildBranchPnlPayload } from "@/lib/branch-pnl";
+import BranchPnlClient from "@/app/(app)/management/branch-pnl/BranchPnlClient";
+import { teamFunnel } from "@/lib/sales-funnel";
 import { Gauge } from "@/components/motivation";
 import { KpiTile } from "@/components/kpi-tiles";
-import { money } from "@/lib/format";
+import { money, qty } from "@/lib/format";
+import { currentPeriodKey } from "@/lib/sales";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
 
@@ -75,6 +79,27 @@ export default async function MyBranchKpisPage({
   ];
   const costTiles = costDefs.filter((t) => t.c.actual != null || t.c.budget != null);
 
+  // Branch view: the FULL budget-vs-actual board — real per-branch fuel (from fuel
+  // transactions), chemical, tech wages, production, net-after-labor/margin, stops,
+  // new sales — with monthly charts. This is the operational expense + performance
+  // detail managers need (company financials/P&L stay on the Executive dashboard).
+  const branchPnl = !isCompany ? await buildBranchPnlPayload(values, scope, locked, { year: period.year, month: period.month }) : null;
+
+  // Sales funnel for this scope — Leads → Proposals → Closed (# and $). Tied to the
+  // current sales month (SalesPeriodStat), not the MBR report period.
+  const funnelKey = currentPeriodKey();
+  const { totals: funnel } = await teamFunnel(funnelKey, branch);
+  const funnelStages = [
+    { label: "Leads", value: qty(funnel.leads), raw: funnel.leads },
+    { label: "Proposals", value: qty(funnel.proposals), raw: funnel.proposals },
+    { label: "Closed deals", value: qty(funnel.deals), raw: funnel.deals },
+    { label: "Closed $", value: money(funnel.closed), raw: funnel.closed },
+  ];
+  const funnelHasData = funnel.leads > 0 || funnel.proposals > 0 || funnel.deals > 0 || funnel.closed > 0;
+  const funnelMax = Math.max(1, funnel.leads, funnel.proposals, funnel.deals);
+  const convLtoP = funnel.leads > 0 ? Math.round((funnel.proposals / funnel.leads) * 100) : null;
+  const convPtoD = funnel.proposals > 0 ? Math.round((funnel.deals / funnel.proposals) * 100) : null;
+
   const selector = !locked ? (
     <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1 w-fit">
       <Link href="/management" className={`rounded-lg px-3 py-1.5 text-xs font-medium ${isCompany ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:text-ink hover:bg-black/[0.04]"}`}>All branches</Link>
@@ -117,8 +142,10 @@ export default async function MyBranchKpisPage({
         </section>
       ) : null}
 
-      {/* Expenses — operational cost lines, each as % of revenue. */}
-      {costTiles.length > 0 ? (
+      {/* Expenses — company cost lines, each as % of revenue (company scope).
+          A single branch gets the FULL budget-vs-actual board below, which carries
+          real per-branch fuel, chemical and tech-wage detail. */}
+      {isCompany && costTiles.length > 0 ? (
         <section className="mb-6">
           <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
             <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> Expenses · YTD
@@ -126,6 +153,18 @@ export default async function MyBranchKpisPage({
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
             {costTiles.map((t) => <KpiTile key={t.label} label={t.label} c={t.c} unit="usd" pctOfRev={pOfRev(t.c)} />)}
           </div>
+        </section>
+      ) : null}
+
+      {/* Branch scope: the FULL budget-vs-actual board — production, net-after-labor
+          / margin, stops, new sales, technician wages, fuel (real per-branch) and
+          chemical, with monthly charts. The expense detail managers need. */}
+      {!isCompany && branchPnl ? (
+        <section className="mb-6">
+          <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
+            <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> Budget vs actual · {scopeLabel}
+          </h2>
+          <BranchPnlClient payload={branchPnl} />
         </section>
       ) : null}
 
@@ -158,7 +197,45 @@ export default async function MyBranchKpisPage({
         </section>
       ) : null}
 
-      {opTiles.length === 0 && costTiles.length === 0 ? (
+      {/* Sales funnel — Leads → Proposals → Closed (# and $) for this scope. */}
+      <section className="mb-6">
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-ink">
+          <span className="inline-block h-4 w-1 rounded bg-emerald-grad" /> Sales funnel · {scopeLabel}
+        </h2>
+        <Card className="p-4 sm:p-5">
+          {funnelHasData ? (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {funnelStages.map((s, i) => (
+                  <div key={s.label} className="rounded-xl border border-line bg-white p-3 text-center">
+                    <div className="text-[11px] uppercase tracking-wide text-muted">{s.label}</div>
+                    <div className="mt-1 text-2xl font-light tabular-nums text-ink">{s.value}</div>
+                    {i < 3 ? (
+                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+                        <div className="h-full rounded-full bg-emerald-grad" style={{ width: `${Math.round((s.raw / funnelMax) * 100)}%` }} />
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-[11px] text-muted">{funnel.goal > 0 ? `${Math.round((funnel.closed / funnel.goal) * 100)}% of goal` : "closed this month"}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+                {convLtoP != null ? <span><span className="font-medium text-ink">{convLtoP}%</span> of leads → proposals</span> : null}
+                {convPtoD != null ? <span><span className="font-medium text-ink">{convPtoD}%</span> of proposals → closed</span> : null}
+                <Link href="/sales" className="font-medium text-brand-700 hover:underline">Open the Sales Team board →</Link>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-start gap-2">
+              <p className="text-sm text-muted">No funnel activity logged for {scopeLabel} this month yet. Leads, proposals and closes appear here as the sales team logs them (or once SmarterLaunch is connected).</p>
+              <Link href="/sales" className="text-xs font-medium text-brand-700 hover:underline">Open the Sales Team board →</Link>
+            </div>
+          )}
+        </Card>
+      </section>
+
+      {opTiles.length === 0 && costTiles.length === 0 && !branchPnl ? (
         <EmptyState title="No KPIs for this scope yet" hint="Operational KPIs populate once a Monthly Board Report is loaded for this period." />
       ) : null}
 
