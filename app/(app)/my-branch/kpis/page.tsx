@@ -50,10 +50,10 @@ export default async function MyBranchKpisPage({
 
   // Branch selector — non-locked users get "All branches" (company) + each branch.
   const selector = !locked ? (
-    <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+    <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1 w-fit">
       <Link
         href="/my-branch/kpis"
-        className={`rounded-lg px-3 py-1.5 text-xs ${isCompany ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:text-white"}`}
+        className={`rounded-lg px-3 py-1.5 text-xs font-medium ${isCompany ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:text-ink hover:bg-black/[0.04]"}`}
       >
         All branches
       </Link>
@@ -61,7 +61,7 @@ export default async function MyBranchKpisPage({
         <Link
           key={b.key}
           href={`/my-branch/kpis?branch=${b.key}`}
-          className={`rounded-lg px-3 py-1.5 text-xs ${branch === b.key ? "bg-emerald-grad text-white shadow-sm" : "text-mint hover:text-white"}`}
+          className={`rounded-lg px-3 py-1.5 text-xs font-medium ${branch === b.key ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:text-ink hover:bg-black/[0.04]"}`}
         >
           {b.label}
         </Link>

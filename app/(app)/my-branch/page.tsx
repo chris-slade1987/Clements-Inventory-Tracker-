@@ -154,7 +154,7 @@ export default async function MyBranchPage({
       </Card>
 
       {locked ? null : (
-        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
+        <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1 w-fit">
           <BranchPill href="/my-branch" label="All branches" active={branch === null} />
           {BRANCHES.map((b) => (
             <BranchPill key={b.key} href={`/my-branch?branch=${b.key}`} label={b.label} active={branch === b.key} />
@@ -405,7 +405,7 @@ function FreqBadge({ children }: { children: React.ReactNode }) {
 
 function BranchPill({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-muted hover:text-ink"}`}>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-emerald-grad text-white shadow" : "text-ink/80 hover:text-ink hover:bg-black/[0.04]"}`}>
       {label}
     </Link>
   );

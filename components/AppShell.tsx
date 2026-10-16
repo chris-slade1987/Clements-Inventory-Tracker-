@@ -240,7 +240,12 @@ export default function AppShell({
   // branch managers get their branch numbers in My Branch → Branch KPIs, so the
   // Executive center is hidden from them (the page guard redirects direct hits).
   const canViewExecCenter = isAdmin || isSeniorLeadership;
-  const visibleCenters = CENTERS.filter((c) => c.m !== "management" || canViewExecCenter);
+  const visibleCenters = CENTERS
+    .filter((c) => c.m !== "management" || canViewExecCenter)
+    // Admins / super admins default the "My Branch" center to a COMPANY-WIDE view
+    // (all-branch to-dos + company KPIs), so label its button "Company" for them.
+    // Branch managers keep "My Branch" / "Branch".
+    .map((c) => (c.m === "manager" && isAdmin ? { ...c, label: "Company", short: "Company" } : c));
   // Resources / document center. Handbook + Company Bulletin are for everyone;
   // the Manager Manual is managers/admin only. Board observers keep their fixed
   // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).
