@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "You can only edit your own goal sheet." }, { status: 403 });
 
     const data: GoalSheetInput = {
-      reis: num(body.reis), appts: num(body.appts), proposals: num(body.proposals),
+      leads: num(body.leads), reis: num(body.reis), appts: num(body.appts), proposals: num(body.proposals),
       pcExposed: num(body.pcExposed), pcSold: num(body.pcSold), tcSold: num(body.tcSold),
       totalExposure: num(body.totalExposure), tcUnits: num(body.tcUnits),
       salesGoal: num(body.salesGoal), workdays: num(body.workdays),

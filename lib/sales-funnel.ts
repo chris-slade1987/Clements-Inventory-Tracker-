@@ -104,7 +104,7 @@ export async function teamFunnel(periodKey: string, branch?: string | null) {
     const s = statBy.get(a.id);
     const sheet = sheetBy.get(a.id);
     const recap: RecapInputs = sheet
-      ? { reis: sheet.reis, appts: sheet.appts, proposals: sheet.proposals, pcExposed: sheet.pcExposed, pcSold: sheet.pcSold, tcSold: sheet.tcSold, totalExposure: sheet.totalExposure, tcUnits: sheet.tcUnits }
+      ? { leads: sheet.leads ?? 0, reis: sheet.reis, appts: sheet.appts, proposals: sheet.proposals, pcExposed: sheet.pcExposed, pcSold: sheet.pcSold, tcSold: sheet.tcSold, totalExposure: sheet.totalExposure, tcUnits: sheet.tcUnits }
       : EMPTY_RECAP;
     const salesGoal = sheet?.salesGoal ?? 0;
     const g = stageGoals(recap, salesGoal, sheet?.workdays ?? 0, { leadsGoal: sheet?.leadsGoal ?? 0, proposalsGoal: sheet?.proposalsGoal ?? 0, dealsGoal: sheet?.dealsGoal ?? 0 });

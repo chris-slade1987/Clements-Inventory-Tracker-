@@ -36,10 +36,10 @@ export async function listServiceAdvisors(branch?: string | null): Promise<Advis
   return rows;
 }
 
-function recapFromSheet(s: { reis: number; appts: number; proposals: number; pcExposed: number; pcSold: number; tcSold: number; totalExposure: number; tcUnits: number } | null): RecapInputs {
+function recapFromSheet(s: { leads?: number; reis: number; appts: number; proposals: number; pcExposed: number; pcSold: number; tcSold: number; totalExposure: number; tcUnits: number } | null): RecapInputs {
   if (!s) return EMPTY_RECAP;
   return {
-    reis: s.reis, appts: s.appts, proposals: s.proposals, pcExposed: s.pcExposed,
+    leads: s.leads ?? 0, reis: s.reis, appts: s.appts, proposals: s.proposals, pcExposed: s.pcExposed,
     pcSold: s.pcSold, tcSold: s.tcSold, totalExposure: s.totalExposure, tcUnits: s.tcUnits,
   };
 }
@@ -58,6 +58,7 @@ export async function upsertGoalSheet(
   opts: { branch?: string | null; userId?: string | null } = {},
 ) {
   const clean = {
+    leads: Math.max(0, Math.round(data.leads || 0)),
     reis: Math.max(0, Math.round(data.reis || 0)),
     appts: Math.max(0, Math.round(data.appts || 0)),
     proposals: Math.max(0, Math.round(data.proposals || 0)),

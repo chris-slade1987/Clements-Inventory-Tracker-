@@ -17,6 +17,7 @@ function div(a: number, b: number): number {
 
 /** Prior-month recap — the light-green input cells (row 10). */
 export type RecapInputs = {
+  leads: number;         // total leads/opportunities worked (top of the funnel)
   reis: number;          // A10 — Total Number of ReIs
   appts: number;         // C10 — Total number of Appts
   proposals: number;     // E10 — Total number of Proposals
@@ -102,7 +103,7 @@ export function computeGoalSheet(recap: RecapInputs, goal: GoalInputs) {
 }
 
 export const EMPTY_RECAP: RecapInputs = {
-  reis: 0, appts: 0, proposals: 0, pcExposed: 0, pcSold: 0, tcSold: 0, totalExposure: 0, tcUnits: 0,
+  leads: 0, reis: 0, appts: 0, proposals: 0, pcExposed: 0, pcSold: 0, tcSold: 0, totalExposure: 0, tcUnits: 0,
 };
 
 // ---------------------------------------------------------------------------

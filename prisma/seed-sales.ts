@@ -54,7 +54,7 @@ export async function seedSalesTeamAccess(prisma: PrismaClient) {
       await prisma.salesGoalSheet.create({
         data: {
           advisorEmployeeId: josh.id, periodKey, branch: josh.branch,
-          reis: 40, appts: 60, proposals: 30, pcExposed: 5000, pcSold: 2000, tcSold: 30000, totalExposure: 125000, tcUnits: 12,
+          leads: 140, reis: 40, appts: 60, proposals: 30, pcExposed: 5000, pcSold: 2000, tcSold: 30000, totalExposure: 125000, tcUnits: 12,
           salesGoal: 50000, workdays: 20,
         },
       });

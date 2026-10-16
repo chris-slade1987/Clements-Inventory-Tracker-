@@ -1341,6 +1341,7 @@ model SalesGoalSheet {
   branch            String? // snapshot of the advisor's branch for director rollups
   periodKey         String   @map("period_key") // "YYYY-MM"
   // Prior-month recap (the light-green inputs)
+  leads             Int      @default(0) // total leads/opportunities worked (top of the funnel)
   reis              Int      @default(0) // real-estate re-inspections
   appts             Int      @default(0) // appointments
   proposals         Int      @default(0)
