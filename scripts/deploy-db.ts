@@ -420,10 +420,24 @@ async function main() {
       console.error("deploy-db: driver-link backfill FAILED (non-fatal):", e);
     }
 
-    // The owner account is a full admin (sees every center + admin tools).
-    await runStep("owner admin ensure", async () => {
-      const owner = await prisma.user.updateMany({ where: { email: "c.slade@clementspestcontrol.com" }, data: { role: "admin" } });
-      console.log(`deploy-db: ensured owner is admin (${owner.count}).`);
+    // Leadership super admins — bulletproof, every deploy. Force each to a TRUE
+    // super admin: role "admin" + accessLevel "super_admin" + NO home branch (so
+    // they're never branch-locked / pinned to one branch) and active. This fixes
+    // an account that drifted to manager/branch-locked (which silently removed the
+    // Sales Team portal and pinned KPIs to one branch). Idempotent, un-guarded.
+    await runStep("super admins ensure", async () => {
+      const SUPER_ADMIN_EMAILS = [
+        "c.slade@clementspestcontrol.com", // Chris — COO
+        "tslade@clementspestcontrol.com", // Tim — President
+        "jglanville@clementspestcontrol.com", // Julie — Chief of Staff
+        "awilliford@clementspestcontrol.com", // April — Director of HR
+        "manager@clementspest.com", // shared admin login
+      ];
+      const r = await prisma.user.updateMany({
+        where: { email: { in: SUPER_ADMIN_EMAILS } },
+        data: { role: "admin", accessLevel: "super_admin", branch: null, warehouseId: null, active: true },
+      });
+      console.log(`deploy-db: ensured ${r.count} leadership super admin(s) (role admin / super_admin / all-branch).`);
     });
 
     // Seed a sample training course only when none exist.
