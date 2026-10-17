@@ -4,8 +4,10 @@ import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { interviewsForUser, hiringResultsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
-import { TECH_ROUTINES, CADENCE_LABEL, type Cadence } from "@/lib/routines";
+import { TECH_ROUTINES, CADENCE_LABEL, isFieldRoutineViewer, type Cadence } from "@/lib/routines";
 import { ptoBalance } from "@/lib/pto";
+import { unreadCount } from "@/lib/threads";
+import { prisma } from "@/lib/prisma";
 import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import BulletinBanner from "@/components/BulletinBanner";
 import Glyph from "@/components/Glyph";
@@ -45,20 +47,26 @@ function RoutineChecklist() {
 
 // The Employee Hub landing: a card grid into every self-service area (profile,
 // time off, HR, handbook, training, inbox) above the viewer's live open items.
-function HubGrid({ ptoLabel, trainingLabel }: { ptoLabel?: string; trainingLabel?: string }) {
-  const cards: { href: string; glyph: string; title: string; sub: string }[] = [
+function HubGrid({ ptoLabel, trainingLabel, inboxUnread }: { ptoLabel?: string; trainingLabel?: string; inboxUnread?: number }) {
+  const inboxSub = inboxUnread && inboxUnread > 0 ? `${inboxUnread} unread · messages & replies` : "Messages & replies";
+  const cards: { href: string; glyph: string; title: string; sub: string; badge?: number }[] = [
     { href: "/me/profile", glyph: "star", title: "My profile", sub: "Record, certifications & documents" },
     { href: "/me/pto", glyph: "calendar", title: "Time off", sub: ptoLabel ?? "Request & track PTO" },
     { href: "/me/hr", glyph: "shield", title: "HR & support", sub: "Message HR or request a meeting" },
     { href: "/resources/handbook", glyph: "award", title: "Handbook & policies", sub: "Read & acknowledge" },
     { href: "/me/training", glyph: "cap", title: "Training & certificates", sub: trainingLabel ?? "Courses & sign-offs" },
-    { href: "/inbox", glyph: "megaphone", title: "Inbox", sub: "Messages & replies" },
+    { href: "/inbox", glyph: "megaphone", title: "Inbox", sub: inboxSub, badge: inboxUnread },
   ];
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
       {cards.map((c) => (
         <Link key={c.href} href={c.href} className="group surface-light flex items-start gap-3 rounded-xl border border-line bg-card-grad p-4 transition-colors hover:border-brand-300">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-100"><Glyph name={c.glyph} className="h-5 w-5" /></span>
+          <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-100">
+            <Glyph name={c.glyph} className="h-5 w-5" />
+            {c.badge && c.badge > 0 ? (
+              <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">{c.badge > 99 ? "99+" : c.badge}</span>
+            ) : null}
+          </span>
           <span className="min-w-0">
             <span className="block text-sm font-medium text-ink">{c.title}</span>
             <span className="block text-xs text-muted">{c.sub}</span>
@@ -72,26 +80,32 @@ function HubGrid({ ptoLabel, trainingLabel }: { ptoLabel?: string; trainingLabel
 export default async function MyWorkPage() {
   const user = await requireUser();
   const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
+  const inboxUnread = await unreadCount(user.id).catch(() => 0);
   if (!employeeId) {
+    // Without a linked profile we can't read a field role; gate on access level
+    // alone so office/sales logins don't see tech routines.
+    const showRoutinesNoProfile = isFieldRoutineViewer({ accessLevel: user.accessLevel });
     return (
       <>
         <PageHeader title="Employee Hub" subtitle="Your self-service home" />
         <BulletinBanner />
-        <HubGrid />
-        <RoutineChecklist />
+        <HubGrid inboxUnread={inboxUnread} />
+        {showRoutinesNoProfile ? <RoutineChecklist /> : null}
         <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no assigned training to show. Your profile, time off, and certifications will appear here once HR links it." />
       </>
     );
   }
 
-  const [assignments, reviews, conducting, interviews, hiringResults, pto] = await Promise.all([
+  const [assignments, reviews, conducting, interviews, hiringResults, pto, empMeta] = await Promise.all([
     employeeAssignments(employeeId),
     openReviewsForEmployee(employeeId),
     reviewsForReviewer(user.id),
     interviewsForUser(user.id),
     hiringResultsForUser(user.id),
     ptoBalance(employeeId),
+    prisma.employee.findUnique({ where: { id: employeeId }, select: { role: true, division: true } }),
   ]);
+  const showRoutines = isFieldRoutineViewer({ accessLevel: user.accessLevel, employeeRole: empMeta?.role, division: empMeta?.division });
   const recentHiringResults = hiringResults.slice(0, 2);
   const open = assignments.filter((a) => a.status !== "completed");
   const completed = assignments.filter((a) => a.status === "completed");
@@ -107,7 +121,7 @@ export default async function MyWorkPage() {
 
       <BulletinBanner />
 
-      <HubGrid ptoLabel={ptoLabel} trainingLabel={trainingLabel} />
+      <HubGrid ptoLabel={ptoLabel} trainingLabel={trainingLabel} inboxUnread={inboxUnread} />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
         <Tile label="Open training" value={String(open.length)} tone={open.length ? "bad" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
@@ -115,7 +129,7 @@ export default async function MyWorkPage() {
         <Tile label="Assigned total" value={String(assignments.length)} />
       </div>
 
-      <RoutineChecklist />
+      {showRoutines ? <RoutineChecklist /> : null}
 
       {interviews.length > 0 ? (
         <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">

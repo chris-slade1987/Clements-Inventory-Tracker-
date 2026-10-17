@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { ptoBalance, requestsForEmployee, PTO_TYPES } from "@/lib/pto";
+import { ptoBalance, requestsForEmployee, PTO_TYPES, isManagerOrAbove } from "@/lib/pto";
 import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import MyPtoPanel from "@/components/MyPtoPanel";
 
@@ -30,6 +30,7 @@ export default async function MyPtoPage() {
       <PageHeader title="My PTO" subtitle="Request time off, see your balance, and track approvals" />
       <MyPtoPanel
         balance={balance}
+        routesToHr={isManagerOrAbove(user)}
         types={PTO_TYPES.map((t) => ({ key: t.key, label: t.label }))}
         requests={requests.map((r) => ({
           id: r.id,

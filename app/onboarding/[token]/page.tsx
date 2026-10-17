@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
-import { PACKET_STEPS, isEditable, type Responses } from "@/lib/prehire";
+import { PACKET_STEPS, isEditable, packetHasPlaceholders, type Responses } from "@/lib/prehire";
 import { getDocument, HANDBOOK_SLUG } from "@/lib/policy-docs";
 import OnboardingWizard from "./OnboardingWizard";
 
@@ -49,6 +49,7 @@ export default async function OnboardingPage({ params }: { params: Promise<{ tok
             initialStep={pre!.currentStep}
             handbookBody={handbook?.body}
             handbookVersion={handbook?.version}
+            showDraftFlags={packetHasPlaceholders()}
           />
         )}
       </div>

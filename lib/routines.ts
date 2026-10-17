@@ -24,6 +24,24 @@ export const CADENCE_LABEL: Record<Cadence, string> = {
   quarterly: "Quarterly",
 };
 
+/**
+ * Whether to show the technician Routine checklist to this person. These are
+ * FIELD to-dos (truck cleaning, vehicle inspection, PPE check), so office, sales,
+ * CSR, managers and admins should not see them. True for the technician access
+ * level, or a login with no office-level access whose employee role/division
+ * reads as field work.
+ */
+export function isFieldRoutineViewer(p: { accessLevel?: string | null; employeeRole?: string | null; division?: string | null }): boolean {
+  if (p.accessLevel === "technician") return true;
+  // Explicit office/leadership levels never see tech routines.
+  if (p.accessLevel && ["super_admin", "admin", "manager", "sales", "sales_director", "csr"].includes(p.accessLevel)) return false;
+  const role = (p.employeeRole ?? "").toLowerCase();
+  if (/tech|applicator|field|fumigat|lawn|turf|\bpest\b/.test(role)) return true;
+  const div = (p.division ?? "").toLowerCase();
+  if (/lawn|turf|service|pest|termite|wdo|ornamental/.test(div)) return true;
+  return false;
+}
+
 export const TECH_ROUTINES: Routine[] = [
   { key: "vehicle_cleaning", label: "Weekly vehicle cleaning", cadence: "weekly", detail: "Wash the exterior and clean out the cab & bed of your assigned truck.", icon: "truck" },
   { key: "monthly_ceu", label: "Monthly CEU course", cadence: "monthly", detail: "Complete this month's continuing-education lesson in your training.", href: "/me/library", icon: "cap" },

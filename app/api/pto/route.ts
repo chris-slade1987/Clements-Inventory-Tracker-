@@ -15,6 +15,7 @@ import {
 import { sendEmail } from "@/lib/email";
 import { hrDirectorEmail } from "@/lib/personnel";
 import { branchLabel } from "@/lib/management";
+import { postSystemThread, employeeRecipient, hrRecipients, branchSupervisorRecipients } from "@/lib/threads";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -78,7 +79,25 @@ ${hrRouteNote}<p>Review it${link ? `: <a href="${link}">${link}</a>` : "."}.${ma
         relatedId: request.id,
       });
 
-      return NextResponse.json({ ok: true, id: request.id });
+      // In-app Inbox notice to whoever approves — the reliable channel even when
+      // email is unconfigured. Manager-and-above → the HR team; everyone else →
+      // their branch supervisor, falling back to HR when the branch has none.
+      let approverRecipients = managerPlus ? await hrRecipients(user.id) : await branchSupervisorRecipients(request.employee.branch, user.id);
+      if (approverRecipients.length === 0) approverRecipients = await hrRecipients(user.id);
+      await postSystemThread({
+        subject: `PTO request${managerPlus ? " (HR approval)" : ""} — ${request.employee.name}`,
+        body: `${request.employee.name}${request.employee.branch ? ` (${branchLabel(request.employee.branch)})` : ""} requested ${request.days} ${ptoTypeLabel(request.type)} day${request.days === 1 ? "" : "s"}: ${range}.${request.note ? `\nNote: ${request.note}` : ""}\n\nReview it to approve or deny.`,
+        recipients: approverRecipients,
+        contextType: "reminder",
+        contextLabel: `PTO — ${request.employee.name}`,
+        contextHref: link,
+        branch: request.employee.branch,
+      }).catch(() => {});
+
+      // Tell the employee who the request routed to (supervisor vs HR director).
+      const routedTo = managerPlus ? "hr" : "supervisor";
+      const routedLabel = managerPlus ? "the Director of HR" : "your branch supervisor";
+      return NextResponse.json({ ok: true, id: request.id, routedTo, routedLabel });
     }
 
     // -- Supervisor / HR / admin approves or denies ------------------------
@@ -114,6 +133,20 @@ ${hrRouteNote}<p>Review it${link ? `: <a href="${link}">${link}</a>` : "."}.${ma
         relatedType: "pto_request",
         relatedId: request.id,
       });
+
+      // In-app Inbox notice to the employee — survives email being unconfigured.
+      const recip = await employeeRecipient(request.employeeId);
+      if (recip) {
+        await postSystemThread({
+          subject: `Your PTO request was ${decision}`,
+          body: `Your paid-time-off request (${ptoTypeLabel(request.type)}, ${request.days} day${request.days === 1 ? "" : "s"}: ${range}) was ${decision} by ${user.name}.${request.decisionNote ? `\nNote: ${request.decisionNote}` : ""}`,
+          recipients: [recip],
+          contextType: "reminder",
+          contextLabel: "Your PTO request",
+          contextHref: "/me/pto",
+          branch: request.employee.branch,
+        }).catch(() => {});
+      }
 
       return NextResponse.json({ ok: true });
     }

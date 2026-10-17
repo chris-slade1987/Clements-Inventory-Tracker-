@@ -1027,6 +1027,12 @@ model Employee {
   phone            String? // WORK phone
   personalPhone    String?    @map("personal_phone") // personal/cell number (separate from work phone)
   personalEmail    String?    @map("personal_email") // personal email (separate from work email)
+  // Emergency contact — employee-maintained via self-service (/me/profile). All
+  // nullable; kept on the Employee record so field safety info stays current
+  // without an HR phone loop.
+  emergencyName         String? @map("emergency_name")
+  emergencyRelationship String? @map("emergency_relationship")
+  emergencyPhone        String? @map("emergency_phone")
   role             String? // "Technician" | "Manager" | "Sales Advisor" | ...
   division         String? // "Lawn" | "Service" | "General Pest" | ...
   branch           String? // "vero" | "stuart" | "orlando" | "naples"

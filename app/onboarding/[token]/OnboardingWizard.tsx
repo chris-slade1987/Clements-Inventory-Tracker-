@@ -14,6 +14,7 @@ export default function OnboardingWizard({
   initialStep,
   handbookBody,
   handbookVersion,
+  showDraftFlags = false,
 }: {
   token: string;
   candidateName: string;
@@ -22,6 +23,7 @@ export default function OnboardingWizard({
   initialStep: number;
   handbookBody?: string;
   handbookVersion?: number;
+  showDraftFlags?: boolean;
 }) {
   const total = steps.length;
   // Clamp entry point: land on the first unfinished step, or the review screen.
@@ -138,7 +140,7 @@ export default function OnboardingWizard({
       {onReview ? (
         <Review steps={steps} responses={responses} onEdit={(i) => { setError(null); setIdx(i); }} />
       ) : (
-        <StepView step={step!} data={responses[step!.key] ?? {}} onChange={(d) => setStepData(step!.key, d)} handbookBody={handbookBody} handbookVersion={handbookVersion} />
+        <StepView step={step!} data={responses[step!.key] ?? {}} onChange={(d) => setStepData(step!.key, d)} handbookBody={handbookBody} handbookVersion={handbookVersion} showDraftFlags={showDraftFlags} />
       )}
 
       {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
@@ -162,11 +164,16 @@ function Panel({ children }: { children: React.ReactNode }) {
 
 // ---- One step --------------------------------------------------------------
 
-function StepView({ step, data, onChange, handbookBody, handbookVersion }: { step: PacketStep; data: StepResponse; onChange: (d: StepResponse) => void; handbookBody?: string; handbookVersion?: number }) {
+function StepView({ step, data, onChange, handbookBody, handbookVersion, showDraftFlags }: { step: PacketStep; data: StepResponse; onChange: (d: StepResponse) => void; handbookBody?: string; handbookVersion?: number; showDraftFlags?: boolean }) {
   return (
     <div>
       <h2 className="text-lg font-semibold text-slate-900">{step.title}{step.handbookDoc && handbookVersion ? <span className="ml-2 text-xs font-normal text-slate-500">v{handbookVersion}</span> : null}</h2>
       {step.intro ? <p className="mt-1 text-sm text-slate-600">{step.intro}</p> : null}
+      {showDraftFlags && step.placeholder ? (
+        <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          <span className="font-semibold">Draft content.</span> The language on this step is a placeholder our HR team is still finalizing. You can complete the step now; HR will confirm the final version with you before anything takes effect.
+        </p>
+      ) : null}
 
       {step.handbookDoc ? (
         handbookBody ? (

@@ -2,20 +2,22 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
+import { ensureSelfEmployeeLink } from "@/lib/self-link";
 
 export const dynamic = "force-dynamic";
 
 export default async function LibraryPage() {
   const user = await requireUser();
-  if (!user.employeeId) {
+  const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
+  if (!employeeId) {
     return (
       <>
         <PageHeader title="Lesson Library" subtitle="Review your training anytime" />
-        <EmptyState title="No profile linked" hint="This login isn't linked to an employee profile." />
+        <EmptyState title="No profile linked" hint="This login isn't linked to an employee profile. Ask HR to link your profile." />
       </>
     );
   }
-  const assignments = await employeeAssignments(user.employeeId);
+  const assignments = await employeeAssignments(employeeId);
 
   return (
     <>

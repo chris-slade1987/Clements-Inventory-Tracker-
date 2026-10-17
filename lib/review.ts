@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { branchLabel } from "@/lib/management";
 import { REVIEW_LABEL } from "@/lib/review-forms";
+import { postSystemThread, employeeRecipient, hrRecipients, type SystemRecipient } from "@/lib/threads";
 
 // New-hire 30 / 60-day reviews — server side. The role-specific FORMS and the
 // pure helpers that both server and client share live in `lib/review-forms.ts`
@@ -51,6 +52,84 @@ export async function notifyReviewAssigned(params: {
       html: `<p>Hi ${params.employeeName.split(" ")[0]},</p><p>Your <strong>${label}</strong> with ${params.reviewerName} is scheduled (target ${params.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.</p><p>— CanopyOS</p>`,
     });
   }
+
+  // In-app Inbox notices (the reliable channel). Resolve the reviewer login + the
+  // subject employee from the review itself so BOTH the HR "send" path and the
+  // auto-assign cron get Inbox delivery without changing their call sites. Best-
+  // effort — a failed notice never blocks assignment.
+  try {
+    const review = await prisma.newHireReview.findUnique({
+      where: { id: params.reviewId },
+      select: { reviewerUserId: true, employeeId: true },
+    });
+    const href = `/reviews/${params.reviewId}`;
+    if (review?.reviewerUserId) {
+      await postSystemThread({
+        subject: `Action needed: ${params.employeeName}'s ${label}`,
+        body: `You've been asked to conduct ${params.employeeName}'s ${label}${b}, due ${params.dueDate.toLocaleDateString()}. Open it, complete it with the employee, and both of you sign.`,
+        recipients: [{ userId: review.reviewerUserId, name: params.reviewerName, email: params.reviewerEmail }],
+        contextType: "reminder",
+        contextLabel: `${label} — ${params.employeeName}`,
+        contextHref: href,
+        branch: params.branch,
+      });
+    }
+    if (review?.employeeId) {
+      const recip = await employeeRecipient(review.employeeId);
+      if (recip) {
+        await postSystemThread({
+          subject: `Your ${label} is scheduled`,
+          body: `Your ${label} with ${params.reviewerName} is scheduled (target ${params.dueDate.toLocaleDateString()}). You'll complete it together and sign it in the portal.`,
+          recipients: [recip],
+          contextType: "reminder",
+          contextLabel: `Your ${label}`,
+          contextHref: href,
+          branch: params.branch,
+        });
+      }
+    }
+  } catch {
+    /* non-fatal */
+  }
+}
+
+/**
+ * In-app Inbox notice that a review now needs someone's signature — the employee
+ * (after the reviewer signs) or HR (once both have signed). Email for these
+ * already goes out from the reviews API; this adds the reliable Inbox channel.
+ */
+export async function notifyReviewSignNeeded(params: {
+  reviewId: string;
+  role: "employee" | "hr";
+  employeeName: string;
+  employeeId: string;
+  label: string;
+  branch: string | null;
+}): Promise<void> {
+  const href = `/reviews/${params.reviewId}`;
+  let recipients: SystemRecipient[] = [];
+  let subject = "";
+  let body = "";
+  if (params.role === "employee") {
+    const recip = await employeeRecipient(params.employeeId);
+    if (!recip) return;
+    recipients = [recip];
+    subject = `Your signature is needed: ${params.label}`;
+    body = `Your reviewer has signed your ${params.label}. Please review it and add your signature.`;
+  } else {
+    recipients = await hrRecipients();
+    subject = `Ready for approval: ${params.employeeName}'s ${params.label}`;
+    body = `${params.employeeName} and their reviewer have both signed the ${params.label}. Please review and give final approval.`;
+  }
+  await postSystemThread({
+    subject,
+    body,
+    recipients,
+    contextType: "reminder",
+    contextLabel: params.role === "employee" ? `Your ${params.label}` : `${params.label} — ${params.employeeName}`,
+    contextHref: href,
+    branch: params.branch,
+  }).catch(() => {});
 }
 
 export async function reviewsForEmployee(employeeId: string) {

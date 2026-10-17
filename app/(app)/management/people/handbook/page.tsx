@@ -6,7 +6,9 @@ import { canViewAllPto } from "@/lib/pto";
 import { isHrDirector } from "@/lib/personnel";
 import { branchLabel } from "@/lib/management";
 import { handbookAckRoster } from "@/lib/policy-docs";
+import Glyph from "@/components/Glyph";
 import RowActions from "./RowActions";
+import RemindAllButton from "./RemindAllButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Handbook acknowledgments — CanopyOS" };
@@ -32,7 +34,12 @@ export default async function HandbookRosterPage() {
       <PageHeader
         title="Handbook acknowledgments"
         subtitle={`Employee Handbook v${version} — who has signed and who still needs to.`}
-        actions={<Link href="/management/people" className="text-sm font-medium text-emerald-700 hover:underline">← People / HR</Link>}
+        actions={
+          <div className="flex flex-col items-end gap-2">
+            <Link href="/management/people" className="text-sm font-medium text-emerald-700 hover:underline">← People / HR</Link>
+            <RemindAllButton outstanding={outstanding.length} />
+          </div>
+        }
       />
 
       <div className="grid grid-cols-3 gap-3 mb-5">
@@ -61,7 +68,7 @@ export default async function HandbookRosterPage() {
                       </div>
                       {r.acknowledged ? (
                         <div className="text-xs">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">✓ Acknowledged v{r.version}</span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700"><Glyph name="check" className="h-3.5 w-3.5" /> Acknowledged v{r.version}</span>
                           <span className="ml-2 text-muted">{D(r.acknowledgedAt)}{r.source ? ` · ${SOURCE[r.source] ?? r.source}` : ""}</span>
                         </div>
                       ) : (

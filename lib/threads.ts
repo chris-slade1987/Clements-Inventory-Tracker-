@@ -269,6 +269,148 @@ export async function notifyThread(opts: {
   });
 }
 
+// ---------------------------------------------------------------------------
+// System (lifecycle) notifications → the in-app Inbox.
+//
+// Every People/HR lifecycle event (PTO decision, review assignment / signature-
+// needed, training assignment, onboarding submit) opens — or appends to — an
+// Inbox thread for the affected person, IN ADDITION to the existing email. The
+// Inbox is the reliable channel: it survives email being unconfigured (a state
+// the app admits to), so nothing silently fails. Author is "CanopyOS" (no login),
+// recipients keep their unread flag until they open it, and `notifyThread` still
+// fans out email to anyone who has an address.
+// ---------------------------------------------------------------------------
+
+/** The system author name shown on lifecycle Inbox notices. */
+export const SYSTEM_AUTHOR = "CanopyOS";
+
+export type SystemRecipient = {
+  userId?: string | null;
+  employeeId?: string | null;
+  name: string;
+  email?: string | null;
+};
+
+const SYSTEM_CONTEXT = new Set(["reminder", "alert", "employee", "vehicle", "general"]);
+
+/** Resolve an employee to a notifiable recipient — their linked login (so it
+ *  lands in their in-app Inbox) plus the best email we have for them. Returns
+ *  null when the employee doesn't exist. */
+export async function employeeRecipient(employeeId: string): Promise<SystemRecipient | null> {
+  const emp = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      personalEmail: true,
+      user: { select: { id: true, email: true } },
+    },
+  });
+  if (!emp) return null;
+  return {
+    userId: emp.user?.id ?? null,
+    employeeId: emp.id,
+    name: emp.name,
+    email: emp.user?.email ?? emp.email ?? emp.personalEmail ?? null,
+  };
+}
+
+/** The People-team recipients for an HR-facing lifecycle notice: active logins
+ *  carrying the HR flag, falling back to admins so an alert is never dropped. */
+export async function hrRecipients(excludeUserId?: string): Promise<SystemRecipient[]> {
+  let users = await prisma.user.findMany({
+    where: { active: true, hrAccess: true },
+    select: { id: true, name: true, email: true, employeeId: true },
+  });
+  if (users.length === 0) {
+    users = await prisma.user.findMany({
+      where: { active: true, role: "admin" },
+      select: { id: true, name: true, email: true, employeeId: true },
+    });
+  }
+  return users
+    .filter((u) => u.id !== excludeUserId)
+    .map((u) => ({ userId: u.id, employeeId: u.employeeId, name: u.name, email: u.email }));
+}
+
+/** The branch-supervisor recipients for a branch: active manager logins whose
+ *  home branch matches. Empty when the branch has no manager on file (callers
+ *  fall back to HR so a request is never orphaned). */
+export async function branchSupervisorRecipients(branch: string | null, excludeUserId?: string): Promise<SystemRecipient[]> {
+  if (!branch) return [];
+  const mgrs = await prisma.user.findMany({
+    where: { active: true, role: "manager", branch },
+    select: { id: true, name: true, email: true, employeeId: true },
+  });
+  return mgrs
+    .filter((u) => u.id !== excludeUserId)
+    .map((u) => ({ userId: u.id, employeeId: u.employeeId, name: u.name, email: u.email }));
+}
+
+/**
+ * Open a system Inbox thread addressed to one or more people for a lifecycle
+ * event, and fan out the email too. Recipients are de-duped (by login, then
+ * employee, then email) and anyone with neither a login nor an email is dropped.
+ * Returns the thread id, or null when there's no one to notify. Always safe to
+ * call best-effort (callers wrap in catch) — a notification must never block the
+ * underlying action.
+ */
+export async function postSystemThread(opts: {
+  subject: string;
+  body: string;
+  recipients: SystemRecipient[];
+  contextType?: string;
+  contextLabel?: string | null;
+  contextHref?: string | null;
+  branch?: string | null;
+  authorName?: string;
+}): Promise<string | null> {
+  const seen = new Set<string>();
+  const parts: { userId: string | null; employeeId: string | null; name: string; email: string | null }[] = [];
+  for (const r of opts.recipients) {
+    if (!r) continue;
+    // Must be reachable somewhere — a login (Inbox) or an email.
+    if (!r.userId && !r.email) continue;
+    const key = r.userId ? `u:${r.userId}` : r.employeeId ? `e:${r.employeeId}` : `m:${(r.email as string).toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    parts.push({ userId: r.userId ?? null, employeeId: r.employeeId ?? null, name: r.name, email: r.email ?? null });
+  }
+  if (parts.length === 0) return null;
+
+  const author = opts.authorName ?? SYSTEM_AUTHOR;
+  const now = new Date();
+  const contextType = SYSTEM_CONTEXT.has(opts.contextType ?? "") ? (opts.contextType as string) : "general";
+
+  const thread = await prisma.thread.create({
+    data: {
+      subject: opts.subject,
+      branch: opts.branch ?? null,
+      contextType,
+      contextLabel: opts.contextLabel ?? null,
+      contextHref: opts.contextHref ?? null,
+      createdByName: author,
+      updatedAt: now,
+      messages: { create: { authorName: author, body: opts.body } },
+      // Recipients keep lastReadAt null → the notice shows unread until opened.
+      participants: { create: parts },
+    },
+  });
+
+  await notifyThread({
+    threadId: thread.id,
+    subject: opts.subject,
+    contextLabel: opts.contextLabel ?? null,
+    authorName: author,
+    authorUserId: null,
+    body: opts.body,
+    isNew: true,
+  }).catch(() => {});
+
+  return thread.id;
+}
+
 export function contextLabelFor(type: string, label: string | null) {
   if (label) return label;
   return type === "general" ? "" : type;

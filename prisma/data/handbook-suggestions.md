@@ -191,3 +191,42 @@ a version bump + re-acknowledgment).
 
 *HR/legal: please confirm whether the "Using the Clements Portal" section should be refreshed to
 point employees at the Employee Hub; if so, we'll make the inline edit + version bump.*
+
+---
+
+### PTO over-balance requests (portal mechanic + policy question)
+
+The portal time-off form now shows the employee's remaining balance and a **non-blocking warning**
+when a request exceeds it — the employee can still submit, and the approver decides how to handle
+the overage. This matches at-will practice but the handbook's Paid Time Off policies do not state
+**how days beyond the allotment are treated** (denied, unpaid, borrowed against next year, etc.).
+
+*HR/legal: please confirm the intended rule for over-balance PTO so the portal warning can point to
+a policy; if the handbook should state it, we'll make the inline edit + version bump.*
+
+---
+
+### Employee self-service contact & emergency-contact edits (portal mechanic)
+
+Employees can now update **their own** personal phone, personal email, and **emergency contact**
+(name / relationship / phone) from My Profile in the portal. Work email, branch, role and pay remain
+HR-managed. This is a convenience mechanic, not a policy change.
+
+*HR/legal: please confirm whether the "Using the Clements Portal" section should note that employees
+keep their own contact/emergency info current in the portal; if so, we'll make the inline edit +
+version bump.*
+
+---
+
+### Onboarding packet legal language is still placeholder (action for HR/counsel)
+
+The online onboarding packet's **drug-screen consent, FCRA background-check disclosure/authorization,
+and policy-acknowledgment** steps currently contain **placeholder language** that a candidate
+e-signs. The portal now flags this (to HR on the invite screen and to the candidate on the step)
+until the packet is marked final, but the underlying text still needs HR/counsel to finalize the
+approved consent/disclosure language (and any state-specific FCRA notices) before the packet is used
+for a real hire. This is onboarding packet content, not the Employee Handbook, but is flagged here so
+it isn't lost.
+
+*HR/legal: please provide the final approved drug-screen, FCRA background, and policy-acknowledgment
+language; engineering will swap it into the packet and set ONBOARDING_PACKET_FINAL to clear the flag.*

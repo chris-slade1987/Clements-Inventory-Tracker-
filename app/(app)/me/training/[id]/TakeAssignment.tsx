@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import Markdown from "@/components/Markdown";
+import Glyph from "@/components/Glyph";
 import type { Question } from "@/lib/training";
 
 export default function TakeAssignment({
@@ -62,7 +63,7 @@ export default function TakeAssignment({
             {!materialFile ? <p className="text-sm text-muted">Review the quiz below.</p> : null}
           </>
         )}
-        {materialFile ? <a href={materialFile} target="_blank" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">📎 Open lesson material{materialName ? ` — ${materialName}` : ""}</a> : null}
+        {materialFile ? <a href={materialFile} target="_blank" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:underline"><Glyph name="paperclip" className="h-4 w-4" />Open lesson material{materialName ? ` — ${materialName}` : ""}</a> : null}
       </Card>
 
       {(result || completed) ? (

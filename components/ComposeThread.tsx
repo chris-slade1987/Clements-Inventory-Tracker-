@@ -26,12 +26,19 @@ export default function ComposeThread({
   context,
   className,
   onSent,
+  presetGroup,
+  presetRecipients,
 }: {
   variant?: "primary" | "secondary" | "link";
   label?: string;
   context?: { type?: string; id?: string; label?: string; href?: string; subject?: string };
   className?: string;
   onSent?: () => void;
+  /** Auto-select everyone in this group (still editable) once the picker loads —
+   *  e.g. "Leadership & HR" for a "Message HR" button. */
+  presetGroup?: string;
+  /** Auto-select these recipient keys (still editable). */
+  presetRecipients?: string[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -50,6 +57,21 @@ export default function ComposeThread({
         .then((d) => setOpts(d.options ?? []))
         .catch(() => setOpts([]));
     }
+  }, [open, opts]);
+
+  // Once the picker has loaded, apply any presets (a group and/or explicit keys)
+  // so e.g. "Message HR" opens with HR/Leadership pre-selected — still editable.
+  useEffect(() => {
+    if (!open || !opts) return;
+    if (!presetGroup && (!presetRecipients || presetRecipients.length === 0)) return;
+    setPicked((prev) => {
+      if (prev.size > 0) return prev; // don't clobber the user's own picks
+      const next = new Set(prev);
+      if (presetGroup) opts.filter((o) => o.group === presetGroup).forEach((o) => next.add(o.key));
+      (presetRecipients ?? []).forEach((k) => next.add(k));
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, opts]);
 
   function toggle(key: string) {

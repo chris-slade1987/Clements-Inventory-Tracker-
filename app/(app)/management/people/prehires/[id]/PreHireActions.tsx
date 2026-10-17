@@ -69,6 +69,14 @@ export default function PreHireActions({
     if (data) router.refresh();
   }
 
+  const [grantLevel, setGrantLevel] = useState("technician");
+  async function grantWelcome() {
+    if (!employeeId) return;
+    if (!confirm("Grant this new hire a portal login and send a welcome? This also (re)assigns the onboarding course set.")) return;
+    const data = await post("grant_welcome", { employeeId, accessLevel: grantLevel });
+    if (data) setMsg(`Login ready for ${data.email}${data.created ? "" : " (existing account)"} — welcome sent by email + Inbox.`);
+  }
+
   if (!showLink && !canReview && !employeeId) return null;
 
   return (
@@ -89,6 +97,24 @@ export default function PreHireActions({
         <div className="flex flex-wrap gap-2 border-t border-line pt-3">
           <button onClick={approve} disabled={busy === "approve"} className={`${btn.primary}`}>{busy === "approve" ? "Converting…" : "Approve & convert to employee"}</button>
           <button onClick={reject} disabled={busy === "reject"} className={btn.danger}>{busy === "reject" ? "…" : "Reject"}</button>
+        </div>
+      ) : null}
+
+      {employeeId ? (
+        <div className="border-t border-line pt-3">
+          <div className="text-sm font-medium text-ink mb-1.5">New-hire handoff</div>
+          <p className="text-xs text-muted mb-2">Give this hire a portal login and send a welcome. Onboarding courses are assigned on conversion; this re-checks them and emails sign-in details.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <select value={grantLevel} onChange={(e) => setGrantLevel(e.target.value)} className="rounded-lg border border-line px-2.5 py-2 text-sm bg-surface">
+              <option value="technician">Technician</option>
+              <option value="csr">CSR</option>
+              <option value="sales">Service Advisor</option>
+              <option value="manager">Manager</option>
+            </select>
+            <button onClick={grantWelcome} disabled={busy === "grant_welcome"} className={btn.secondary}>
+              {busy === "grant_welcome" ? "Setting up…" : "Grant login & send welcome"}
+            </button>
+          </div>
         </div>
       ) : null}
 

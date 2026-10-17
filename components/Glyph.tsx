@@ -16,6 +16,8 @@ export const GLYPHS: Record<string, string> = {
   wrench: "M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2.6 2.6-2-2z",
   shield: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6zM9 12l2 2 4-4",
   trash: "M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13",
+  paperclip: "M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 6",
+  check: "M5 13l4 4L19 7",
 };
 
 export default function Glyph({ name, className = "h-5 w-5", filled = false }: { name: string; className?: string; filled?: boolean }) {

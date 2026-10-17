@@ -8,6 +8,7 @@ import { dateShort } from "@/lib/format";
 import { parseQuestions, STATUS_LABEL } from "@/lib/training";
 import { listEmployees } from "@/lib/people";
 import Markdown from "@/components/Markdown";
+import Glyph from "@/components/Glyph";
 import AssignClient from "./AssignClient";
 import ClearOutstandingButton from "./ClearOutstandingButton";
 
@@ -53,7 +54,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
         ) : (
           <p className="text-sm text-muted">No lesson body.</p>
         )}
-        {course.materialFile ? <a href={course.materialFile} target="_blank" className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline">📎 {course.materialName ?? "Lesson material"}</a> : null}
+        {course.materialFile ? <a href={course.materialFile} target="_blank" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:underline"><Glyph name="paperclip" className="h-4 w-4" />{course.materialName ?? "Lesson material"}</a> : null}
       </Card>
 
       <Card className="p-0 overflow-hidden">

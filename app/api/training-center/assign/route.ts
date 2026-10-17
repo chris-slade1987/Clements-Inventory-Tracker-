@@ -4,6 +4,40 @@ import { getSessionUser } from "@/lib/auth";
 import { canViewCertifications } from "@/lib/certifications";
 import { confirmAssignment, assignNextAdvancementStep } from "@/lib/training-assign";
 import { fail, HttpError } from "@/lib/http";
+import { sendEmail } from "@/lib/email";
+import { postSystemThread, employeeRecipient } from "@/lib/threads";
+
+/** Notify an employee that training was assigned — reliable Inbox notice plus
+ *  email. Best-effort: a failed notice never fails the assignment. */
+async function notifyTrainingAssigned(employeeId: string, what: string, branch: string | null) {
+  try {
+    const recip = await employeeRecipient(employeeId);
+    if (!recip) return;
+    const body = `You've been assigned ${what}. Open My Training to get started — your progress and any sign-offs are tracked there.`;
+    await postSystemThread({
+      subject: "New training assigned",
+      body,
+      recipients: [recip],
+      contextType: "reminder",
+      contextLabel: "Training assigned",
+      contextHref: "/me/training",
+      branch,
+    });
+    if (recip.email) {
+      await sendEmail({
+        to: recip.email,
+        subject: `New training assigned: ${what}`,
+        kind: "training_assigned",
+        relatedType: "module_assignment",
+        relatedId: employeeId,
+        text: `Hi ${recip.name.split(" ")[0]},\n\nYou've been assigned ${what}. Open My Training to get started.\n\n— CanopyOS`,
+        html: `<p>Hi ${recip.name.split(" ")[0]},</p><p>You've been assigned <strong>${what}</strong>. Open My Training to get started.</p><p>— CanopyOS</p>`,
+      });
+    }
+  } catch {
+    /* non-fatal */
+  }
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -49,6 +83,7 @@ export async function POST(req: Request) {
           skipped: result.skipped,
           message: "Every step of this advancement program is already complete.",
         });
+      await notifyTrainingAssigned(employeeId, `the next step of the ${programCode} program (module ${result.assignedModuleCode})`, employee.branch ?? null);
       return NextResponse.json({ ok: true, advancement: true, ...result });
     }
 
@@ -56,6 +91,7 @@ export async function POST(req: Request) {
       throw new HttpError("Pick a module or a single course to assign.");
 
     const result = await confirmAssignment(prisma, { ...common, moduleCode, programCode, standaloneCourseCode });
+    await notifyTrainingAssigned(employeeId, moduleCode ? `the ${moduleCode} training module` : `the ${standaloneCourseCode} course`, employee.branch ?? null);
     return NextResponse.json({ ok: true, advancement: false, assignmentId: result.assignmentId, preview: result.preview });
   } catch (e) {
     return fail(e);

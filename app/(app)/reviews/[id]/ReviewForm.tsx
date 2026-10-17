@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import Glyph from "@/components/Glyph";
 import type { ReviewForm as FormDef, ReviewItem } from "@/lib/review-forms";
 
 type SigState = {
@@ -113,7 +114,7 @@ export default function ReviewForm({
               <div className="font-semibold tabular-nums">{answered}/{totalItems} answered</div>
               <div className="text-xs text-muted capitalize">{status.replace(/_/g, " ")}</div>
             </div>
-            <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : saved ? "Saved ✓" : "Save review"}</button>
+            <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto inline-flex items-center gap-1.5`}>{busy ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save review"}</button>
           </div>
         </div>
       ) : null}
@@ -200,7 +201,7 @@ function SignRow({
       <div className="flex items-center gap-2 flex-wrap">
         <span className="w-44 shrink-0 text-muted">{label}</span>
         {name && at ? (
-          <span className="flex-1 flex items-center gap-2 text-ink">✅ {name} <span className="text-xs text-muted">· {new Date(at).toLocaleDateString()}</span>
+          <span className="flex-1 flex items-center gap-2 text-ink"><Glyph name="check" className="h-4 w-4 text-emerald-600" /> {name} <span className="text-xs text-muted">· {new Date(at).toLocaleDateString()}</span>
             {canReset ? <button onClick={reset} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Reset</button> : null}
           </span>
         ) : locked ? (

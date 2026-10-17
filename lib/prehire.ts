@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { parseJson } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
 import { provisionTechnicianForEmployee } from "@/lib/separation";
+import { postSystemThread, hrRecipients } from "@/lib/threads";
+import { sendEmail } from "@/lib/email";
+import { getHrEmail } from "@/lib/personnel";
+import { appUrl } from "@/lib/app-url";
 import type { SessionUser } from "@/lib/auth";
 
 /** Who may run the pre-hire onboarding portal: admins + granted HR (April). */
@@ -47,7 +51,17 @@ export type PacketStep = {
   // center) for the new hire to read and acknowledge with a typed signature. The
   // acknowledgment is recorded as source "onboarding" on submit.
   handbookDoc?: boolean;
+  // When true, this step's legal body is still PLACEHOLDER language that HR /
+  // counsel must finalize before go-live. Surfaced as a draft flag to HR (invite
+  // UI) and, until the packet is marked final, to the candidate on the step.
+  placeholder?: boolean;
 };
+
+// Flip ONBOARDING_PACKET_FINAL=1 once HR/counsel have replaced the placeholder
+// legal language below (drug screen, FCRA background authorization, policy list).
+// Until then the packet is treated as DRAFT: the invite UI warns HR, and the
+// candidate sees a "draft content" flag on the affected steps.
+export const PACKET_CONTENT_FINAL = process.env.ONBOARDING_PACKET_FINAL === "1";
 
 export const PACKET_STEPS: PacketStep[] = [
   {
@@ -71,6 +85,7 @@ export const PACKET_STEPS: PacketStep[] = [
     title: "Drug test consent",
     kind: "consent",
     requireSignature: true,
+    placeholder: true,
     // HR to finalize — replace with the company's approved drug-screen consent language.
     body: "As a condition of employment, Clements Pest Control requires a pre-employment drug screen. By consenting below, you authorize Clements Pest Control and its designated collection facility to collect a specimen and to release the results to Clements Pest Control for the purpose of evaluating your eligibility for employment. You understand participation is voluntary but that declining may end the hiring process.",
     note: "Where & when: HR will contact you with the collection site and a window to complete your screen (typically within 48 hours of your accepted offer). HR to finalize the facility, hours, and any instructions.",
@@ -81,6 +96,7 @@ export const PACKET_STEPS: PacketStep[] = [
     title: "Background check authorization",
     kind: "consent",
     requireSignature: true,
+    placeholder: true,
     // HR to finalize — replace with counsel-approved FCRA disclosure + authorization.
     body: "DISCLOSURE: In connection with your application for employment, Clements Pest Control may obtain a consumer report and/or investigative consumer report (a background check) about you from a consumer reporting agency. This may include information about your criminal history, driving record, and prior employment, as permitted by law.\n\nAUTHORIZATION: By signing below, you authorize Clements Pest Control to obtain such reports throughout the application process and, if hired, during your employment to the extent permitted by law. You acknowledge you have received the disclosure above.",
     note: "This disclosure and authorization are placeholders. HR to finalize the exact FCRA disclosure/authorization language and any state-specific notices with counsel before go-live.",
@@ -91,6 +107,7 @@ export const PACKET_STEPS: PacketStep[] = [
     title: "Policy acknowledgment",
     kind: "acknowledgment",
     requireSignature: true,
+    placeholder: true,
     intro: "Please review and acknowledge the following. Copies will be provided for your records. HR to finalize / attach the real documents.",
     // HR to finalize — attach the real PDFs and adjust this list. The Employee
     // Handbook is acknowledged on its own step below (rendered from the portal).
@@ -117,6 +134,19 @@ export function stepByKey(key: string): PacketStep | undefined {
 
 export function stepIndex(key: string): number {
   return PACKET_STEPS.findIndex((s) => s.key === key);
+}
+
+/** The packet steps whose legal content is still placeholder (drug/background/
+ *  policy). Empty once ONBOARDING_PACKET_FINAL is set. Drives the HR draft
+ *  warning and the candidate-facing draft flag. */
+export function placeholderPacketSteps(): PacketStep[] {
+  if (PACKET_CONTENT_FINAL) return [];
+  return PACKET_STEPS.filter((s) => s.placeholder);
+}
+
+/** Whether the onboarding packet is still carrying placeholder legal language. */
+export function packetHasPlaceholders(): boolean {
+  return placeholderPacketSteps().length > 0;
 }
 
 export type Signature = { signedName: string; signedAt: string; consented: true };
@@ -240,10 +270,42 @@ export async function submitPreHire(token: string) {
     }
   }
 
-  return prisma.preHire.update({
+  const updated = await prisma.preHire.update({
     where: { token },
     data: { status: "submitted", submittedAt: new Date(), currentStep: PACKET_STEPS.length },
   });
+
+  // Notify HR that a packet is in — reliable Inbox notice plus email. Previously
+  // nothing alerted HR on submit (the packet just sat in "submitted"). Best-effort.
+  try {
+    const reviewHref = `/management/people/prehires/${updated.id}`;
+    await postSystemThread({
+      subject: `Onboarding submitted — ${updated.name}`,
+      body: `${updated.name}${updated.position ? ` (${updated.position})` : ""}${updated.branch ? ` · ${branchLabel(updated.branch)}` : ""} completed their onboarding packet and it's ready for review. Open it to approve and convert them to an employee.`,
+      recipients: await hrRecipients(),
+      contextType: "reminder",
+      contextLabel: `Onboarding — ${updated.name}`,
+      contextHref: reviewHref,
+      branch: updated.branch,
+    });
+  } catch {
+    /* non-fatal */
+  }
+  try {
+    await sendEmail({
+      to: await getHrEmail(),
+      subject: `Onboarding submitted — ${updated.name}`,
+      kind: "prehire_submitted",
+      relatedType: "prehire",
+      relatedId: updated.id,
+      text: `${updated.name} completed their onboarding packet. Review and approve it: ${appUrl()}/management/people/prehires/${updated.id}`,
+      html: `<p><strong>${updated.name}</strong> completed their onboarding packet.</p><p><a href="${appUrl()}/management/people/prehires/${updated.id}">Review &amp; approve →</a></p><p>— CanopyOS</p>`,
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  return updated;
 }
 
 // ---- Conversion ------------------------------------------------------------
@@ -269,6 +331,34 @@ function conversionNotes(pre: { name: string; responses: string }): string {
     }
   }
   return lines.join("\n");
+}
+
+/**
+ * Auto-assign the onboarding course set to a (new) employee: every ACTIVE course
+ * in the "onboarding" category, skipping any already assigned. Returns how many
+ * were newly assigned. Safe to call repeatedly — the unique (course,employee)
+ * constraint plus the skip keep it idempotent. Never throws past its own catch.
+ */
+export async function assignOnboardingCourses(employeeId: string): Promise<number> {
+  try {
+    const emp = await prisma.employee.findUnique({ where: { id: employeeId }, select: { branch: true } });
+    if (!emp) return 0;
+    const courses = await prisma.course.findMany({ where: { active: true, category: "onboarding" }, select: { id: true } });
+    if (courses.length === 0) return 0;
+    const existing = await prisma.trainingAssignment.findMany({
+      where: { employeeId, courseId: { in: courses.map((c) => c.id) } },
+      select: { courseId: true },
+    });
+    const have = new Set(existing.map((e) => e.courseId));
+    const toAdd = courses.filter((c) => !have.has(c.id));
+    if (toAdd.length === 0) return 0;
+    await prisma.trainingAssignment.createMany({
+      data: toAdd.map((c) => ({ courseId: c.id, employeeId, branch: emp.branch })),
+    });
+    return toAdd.length;
+  } catch {
+    return 0;
+  }
 }
 
 /**
@@ -325,6 +415,10 @@ export async function approveAndConvert(id: string, reviewerName: string | null)
       data: { employeeId: employee.id },
     });
   }
+
+  // New-hire handoff: auto-assign the onboarding course set so the Hub's
+  // onboarding checklist is actually populated instead of an empty promise.
+  await assignOnboardingCourses(employee.id);
 
   return employee.id;
 }

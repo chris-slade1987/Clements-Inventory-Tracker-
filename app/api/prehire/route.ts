@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
-import { createPreHire, approveAndConvert, rejectPreHire, canManagePreHire } from "@/lib/prehire";
+import { createPreHire, approveAndConvert, rejectPreHire, canManagePreHire, assignOnboardingCourses } from "@/lib/prehire";
+import { grantLogin } from "@/lib/provision";
+import { postSystemThread, employeeRecipient } from "@/lib/threads";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -67,6 +69,43 @@ export async function POST(req: Request) {
       // If this pre-hire came from a hiring candidate, complete the ATS loop.
       await prisma.candidate.updateMany({ where: { preHireId: id }, data: { stage: "hired" } });
       return NextResponse.json({ ok: true, employeeId });
+    }
+
+    // Optional, guarded new-hire handoff: give the (already-converted) hire a
+    // login at the chosen level, (re)assign the onboarding course set, and send a
+    // welcome by email + in-app Inbox. Reuses the existing grant-login + email.
+    if (action === "grant_welcome") {
+      const employeeId = str(body?.employeeId);
+      if (!employeeId) return NextResponse.json({ error: "Missing employee." }, { status: 400 });
+      const accessLevel = str(body?.accessLevel) ?? "technician";
+      const result = await grantLogin(prisma, employeeId, accessLevel);
+      await assignOnboardingCourses(employeeId);
+
+      const recip = await employeeRecipient(employeeId);
+      const first = (recip?.name ?? "there").split(/\s+/)[0];
+      const loginUrl = `${base()}/login`;
+      // Welcome email to their login address (shared default password to reset).
+      await sendEmail({
+        to: result.email,
+        subject: "Welcome to Clements — your portal login is ready",
+        kind: "welcome_login",
+        relatedType: "employee",
+        relatedId: employeeId,
+        text: `Hi ${first},\n\nWelcome aboard! Your Clements portal login is ready.\n\nSign in at ${loginUrl}\nEmail: ${result.email}\nTemporary password: clements123 (you'll be asked to set your own)\n\nOnce you're in, check "My Training" for your onboarding courses.\n\n— Clements Pest Control`,
+        html: `<p>Hi ${first},</p><p>Welcome aboard! Your Clements portal login is ready.</p><p><a href="${loginUrl}">Sign in →</a><br/>Email: <strong>${result.email}</strong><br/>Temporary password: <strong>clements123</strong> (you'll be asked to set your own)</p><p>Once you're in, check <strong>My Training</strong> for your onboarding courses.</p><p>— Clements Pest Control</p>`,
+      });
+      // Reliable in-app welcome (lands in their Inbox the first time they sign in).
+      if (recip) {
+        await postSystemThread({
+          subject: "Welcome to Clements",
+          body: `Welcome aboard, ${first}! Your onboarding courses are waiting in My Training, and you can manage your profile, time off, and handbook acknowledgment from your Employee Hub.`,
+          recipients: [recip],
+          contextType: "general",
+          contextLabel: "Welcome",
+          contextHref: "/me",
+        }).catch(() => {});
+      }
+      return NextResponse.json({ ok: true, email: result.email, created: result.created });
     }
 
     if (action === "reject") {

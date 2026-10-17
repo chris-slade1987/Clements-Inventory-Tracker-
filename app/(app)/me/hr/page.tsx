@@ -39,19 +39,21 @@ export default async function MyHrPage() {
       <Card className="p-5 mb-5">
         <div className="text-sm font-medium text-ink">Message HR</div>
         <p className="mt-1 text-xs text-muted">
-          Start a private conversation with the People team. In the next step, tap{" "}
-          <span className="font-medium text-ink">“+ HR/Leadership”</span> to address it to HR. Their reply arrives in your{" "}
+          Start a private conversation with the People team — HR/Leadership is{" "}
+          <span className="font-medium text-ink">already selected</span> for you (you can add or remove people). Their reply arrives in your{" "}
           <Link href="/inbox" className="text-brand-700 hover:underline">Inbox</Link>.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <ComposeThread
             variant="primary"
             label="Send HR a message"
+            presetGroup="Leadership & HR"
             context={{ type: "hr", label: "HR request", subject: "Question for HR" }}
           />
           <ComposeThread
             variant="secondary"
             label="Request a meeting with HR"
+            presetGroup="Leadership & HR"
             context={{ type: "hr", label: "Meeting request", subject: "Request: meeting with HR" }}
           />
         </div>

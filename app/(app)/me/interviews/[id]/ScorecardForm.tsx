@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import Glyph from "@/components/Glyph";
 import {
   RECOMMENDATION_ORDER,
   RECOMMENDATION_LABELS,
@@ -239,7 +240,7 @@ export default function ScorecardForm({
               <div className="font-semibold tabular-nums">{ratedCount}/{template.competencies.length} rated</div>
               <div className="text-xs text-muted">All ratings, a recommendation & a summary are required to submit.</div>
             </div>
-            <button onClick={() => post("save")} disabled={busy !== null} className={`${btn.secondary} ml-auto`}>{busy === "save" ? "Saving…" : saved ? "Saved ✓" : "Save draft"}</button>
+            <button onClick={() => post("save")} disabled={busy !== null} className={`${btn.secondary} ml-auto inline-flex items-center gap-1.5`}>{busy === "save" ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save draft"}</button>
             <button onClick={submit} disabled={busy !== null} className={btn.primary}>{busy === "submit" ? "Submitting…" : "Submit scorecard"}</button>
           </div>
         </div>

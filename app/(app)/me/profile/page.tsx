@@ -9,6 +9,7 @@ import { employeeAssignments } from "@/lib/training";
 import { getDocument, HANDBOOK_SLUG, latestAckForUser, latestAckForEmployee } from "@/lib/policy-docs";
 import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import Glyph from "@/components/Glyph";
+import MyContactPanel from "@/components/MyContactPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,17 @@ export default async function MyProfilePage() {
           <Field label="License #" value={employee.licenseNumber ?? "—"} />
         </dl>
       </Card>
+
+      {/* Self-service contact + emergency contact */}
+      <MyContactPanel
+        initial={{
+          personalPhone: employee.personalPhone ?? "",
+          personalEmail: employee.personalEmail ?? "",
+          emergencyName: employee.emergencyName ?? "",
+          emergencyRelationship: employee.emergencyRelationship ?? "",
+          emergencyPhone: employee.emergencyPhone ?? "",
+        }}
+      />
 
       {/* PTO snapshot */}
       <Card className="p-0 overflow-hidden mb-5">

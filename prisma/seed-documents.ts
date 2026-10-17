@@ -53,6 +53,15 @@ const DOCS: DocSeed[] = [
     // the whole shelf (paged, progress tally, scan-to-jump, unsaved-count warning);
     // Reconcile defaults a new adjustment to your own branch and shows current +
     // resulting on-hand in every dialog.
+    // v26: reconciled the People/HR self-service + lifecycle-notification pass —
+    // PTO request form now shows remaining balance, a non-blocking over-balance
+    // warning, and a routed-to (supervisor vs Director of HR) confirmation, and
+    // both request and decision are notified by in-app Inbox as well as email;
+    // onboarding submit now notifies HR (Inbox + email), approve-&-convert
+    // auto-assigns the onboarding course set, a one-click "Grant login & send
+    // welcome" was added, placeholder packet legal content is flagged; and the
+    // Handbook acknowledgments roster gained Email reminder / Copy link / Remind
+    // all outstanding (in-app nudge for logged-in employees, emailed link otherwise).
     // v25: reconciled the Sales Team section for the motivation-kit v2 goal-sheet
     // rework — the My Sales Goals pace speedometer (projected month-end close vs
     // goal, colored by REAL on-track pace so dragging the goal no longer fakes the

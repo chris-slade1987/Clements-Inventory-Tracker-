@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { isHrDirector, getHrEmail } from "@/lib/personnel";
-import { REVIEW_LABEL, isReviewTemplate, notifyReviewAssigned } from "@/lib/review";
+import { REVIEW_LABEL, isReviewTemplate, notifyReviewAssigned, notifyReviewSignNeeded } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { sendEmail } from "@/lib/email";
 
@@ -126,6 +126,10 @@ export async function POST(req: Request) {
       if (role === "reviewer") {
         if (!isReviewer && !hr) return NextResponse.json({ error: "Only the assigned reviewer can sign here." }, { status: 403 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { reviewerSignedName: signerName, reviewerSignedAt: now, status: review.status === "sent" || review.status === "due" ? "in_progress" : review.status } });
+        // It's now the employee's turn to sign — Inbox nudge (email already on file).
+        if (!review.employeeSignedAt) {
+          await notifyReviewSignNeeded({ reviewId: review.id, role: "employee", employeeName: review.employee.name, employeeId: review.employeeId, label, branch: review.branch }).catch(() => {});
+        }
       } else if (role === "employee") {
         if (!isSubjectEmployee && !hr) return NextResponse.json({ error: "Only the employee can sign here." }, { status: 403 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { employeeSignedName: signerName, employeeSignedAt: now } });
@@ -154,6 +158,8 @@ export async function POST(req: Request) {
           text: `${review.employee.name}${b} and their reviewer have both signed the ${label}. Please review and give final approval:\n${link(review.id)}\n\n— CanopyOS`,
           html: `<p><strong>${review.employee.name}</strong>${b} and their reviewer have both signed the <strong>${label}</strong>.</p><p><a href="${link(review.id)}">Review &amp; give final approval →</a></p><p>— CanopyOS</p>`,
         });
+        // Reliable Inbox nudge to the HR team for final approval.
+        await notifyReviewSignNeeded({ reviewId: review.id, role: "hr", employeeName: review.employee.name, employeeId: review.employeeId, label, branch: review.branch }).catch(() => {});
       }
       return NextResponse.json({ ok: true });
     }

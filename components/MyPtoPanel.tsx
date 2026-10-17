@@ -45,22 +45,29 @@ function fmt(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-export default function MyPtoPanel({ balance, requests, types }: { balance: Balance; requests: Req[]; types: Opt[] }) {
+export default function MyPtoPanel({ balance, requests, types, routesToHr = false }: { balance: Balance; requests: Req[]; types: Opt[]; routesToHr?: boolean }) {
   const router = useRouter();
   const today = new Date().toISOString().slice(0, 10);
   const [f, setF] = useState({ start: "", end: "", type: "vacation", note: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState<string | null>(null);
   const preview = useMemo(() => businessDays(f.start, f.end), [f.start, f.end]);
+
+  // Only paid categories draw down the annual allotment; unpaid/other don't.
+  const countsAgainstBalance = f.type === "vacation" || f.type === "personal" || f.type === "sick";
+  const overBalance = countsAgainstBalance && preview > balance.remaining;
 
   async function submit() {
     if (!f.start || !f.end) return setError("Choose a start and end date.");
     if (preview < 1) return setError("That range has no working (Mon–Fri) days.");
-    setBusy(true); setError(null);
+    setBusy(true); setError(null); setSent(null);
     const res = await fetch("/api/pto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "request", ...f }) });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Could not submit.");
+    const to = typeof data.routedLabel === "string" ? data.routedLabel : routesToHr ? "the Director of HR" : "your branch supervisor";
+    setSent(`Request submitted — sent to ${to} for approval. You'll see the decision here and in your Inbox.`);
     setF({ start: "", end: "", type: "vacation", note: "" });
     router.refresh();
   }
@@ -107,10 +114,22 @@ export default function MyPtoPanel({ balance, requests, types }: { balance: Bala
           </label>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm text-muted">
-              {preview > 0 ? <>This request is <span className="font-semibold text-ink">{preview}</span> working day{preview === 1 ? "" : "s"}.</> : "Pick a date range to see the day count."}
+              {preview > 0 ? (
+                <>This request is <span className="font-semibold text-ink">{preview}</span> working day{preview === 1 ? "" : "s"} · <span className="font-semibold text-ink">{balance.remaining}</span> day{balance.remaining === 1 ? "" : "s"} remaining.</>
+              ) : (
+                <>Pick a date range to see the day count. <span className="font-semibold text-ink">{balance.remaining}</span> of {balance.allowance} day{balance.allowance === 1 ? "" : "s"} remaining.</>
+              )}
             </p>
             <button onClick={submit} disabled={busy} className={btn.primary}>{busy ? "Submitting…" : "Submit request"}</button>
           </div>
+          {/* Non-blocking over-balance warning — the request still goes through; HR
+              decides how to handle days beyond the allotment (e.g. unpaid). */}
+          {overBalance ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Heads up: this is {preview} day{preview === 1 ? "" : "s"} but you have {balance.remaining} remaining. You can still submit it — your approver will decide how to handle the {preview - balance.remaining} extra day{preview - balance.remaining === 1 ? "" : "s"}.
+            </p>
+          ) : null}
+          {sent ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{sent}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
         </div>
       </Card>

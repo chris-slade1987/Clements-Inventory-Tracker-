@@ -8,7 +8,7 @@ import { BRANCHES } from "@/lib/management";
 
 const empty = { name: "", email: "", phone: "", position: "", branch: "", targetStart: "" };
 
-export default function NewPreHire() {
+export default function NewPreHire({ packetDraft = false }: { packetDraft?: boolean }) {
   const router = useRouter();
   const [form, setForm] = useState<typeof empty | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,6 +44,11 @@ export default function NewPreHire() {
           <Card className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold">Invite a candidate</h3>
             <p className="text-xs text-muted">They'll get a magic link by email to complete onboarding — no login required.</p>
+            {packetDraft ? (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                Heads up: the onboarding packet still contains <span className="font-semibold">draft legal language</span> (drug screen, background check, policies). For a real hire, finalize it first.
+              </div>
+            ) : null}
             <F label="Candidate name" v={form.name} on={(v) => setForm({ ...form, name: v })} />
             <div className="grid grid-cols-2 gap-3">
               <F label="Personal email" v={form.email} on={(v) => setForm({ ...form, email: v })} placeholder="name@gmail.com" />

@@ -3,6 +3,7 @@ import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
 import { getEmployeeRecord, COURSE_STATUS_LABEL } from "@/lib/training-center";
+import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import { AchievementBar, MilestoneStepper, type Step } from "@/components/motivation";
 import { Buzz } from "@/components/Buzz";
 
@@ -33,18 +34,19 @@ const STATUS_CHIP: Record<string, string> = {
 
 export default async function MyTrainingPage() {
   const user = await requireUser();
-  if (!user.employeeId) {
+  const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
+  if (!employeeId) {
     return (
       <>
         <PageHeader title="My Training" subtitle="Your training courses & certifications" />
-        <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no training to show." />
+        <EmptyState title="No personnel profile linked" hint="This login isn't linked to an employee profile, so there's no training to show. Ask HR to link your profile." />
       </>
     );
   }
 
   const [record, ceu] = await Promise.all([
-    getEmployeeRecord(user.employeeId),
-    employeeAssignments(user.employeeId),
+    getEmployeeRecord(employeeId),
+    employeeAssignments(employeeId),
   ]);
   const ceuOpen = ceu.filter((a) => a.status !== "completed");
   const activeMods = record?.activeAssignments ?? [];
@@ -127,6 +129,11 @@ export default async function MyTrainingPage() {
                   </li>
                 ))}
               </ol>
+              {a.courses.some((c) => c.courseType === "field_signoff") ? (
+                <p className="mt-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                  <span className="font-medium">Field sign-off</span> courses aren&rsquo;t a quiz — you complete the task in the field with a trainer, who records and approves the sign-off. It moves to complete once your supervisor approves it; nothing for you to submit here.
+                </p>
+              ) : null}
             </Card>
           ))}
         </div>
