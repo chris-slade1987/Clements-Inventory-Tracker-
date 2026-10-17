@@ -6,6 +6,7 @@ import { listAudits, openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
 import { openMisses } from "@/lib/checklists";
+import { sopsNeedingAttention } from "@/lib/sop";
 import { pendingRequestsForBranch, canViewAllPto } from "@/lib/pto";
 import { outstandingMedicalNoteCount } from "@/lib/absence";
 import { allReviews } from "@/lib/review";
@@ -369,6 +370,30 @@ const executiveQueuesSource: AttentionSource = {
   },
 };
 
+// SOP runner (Theme 2): a branch's OPEN SOP assignments. Managers see their own
+// branch; admins/leadership (via the executive center) see every branch. SOPs
+// resolve by being run + signed, so they're not individually dismissible.
+const sopSource: AttentionSource = {
+  id: "sop-assignments",
+  audiences: ["branch", "executive"],
+  load: async (ctx) => {
+    const sops = await sopsNeedingAttention(ctx.user, ctx.now);
+    return sops.map((s) => ({
+      key: `sop:${s.id}`,
+      kind: "sop_due",
+      title: s.overdue ? `SOP overdue: ${s.title}` : `SOP to run: ${s.title}`,
+      detail: s.dueDate
+        ? `${s.branchLabel} · due ${s.dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`
+        : s.branchLabel,
+      href: s.href,
+      severity: s.overdue ? "warning" : "info",
+      dismissible: false,
+      branch: s.branch,
+      dueDate: s.dueDate ? s.dueDate.toISOString() : null,
+    }));
+  },
+};
+
 // ── Source registry + EXTENSION POINT ────────────────────────────────────────
 
 const BUILTIN_SOURCES: AttentionSource[] = [
@@ -376,6 +401,7 @@ const BUILTIN_SOURCES: AttentionSource[] = [
   hrQueuesSource,
   fieldOpsQueuesSource,
   executiveQueuesSource,
+  sopSource,
 ];
 
 const EXTRA_SOURCES: AttentionSource[] = [];
