@@ -7,7 +7,10 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 import { listAudits, openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import RhythmRibbon from "@/components/RhythmRibbon";
 import { listVehicles, isDueSoon } from "@/lib/fleet";
+import { collectAttention, severityToTone } from "@/lib/needs-attention";
+import { buildFieldOpsRhythm } from "@/lib/rhythm";
 
 export const dynamic = "force-dynamic";
 
@@ -41,17 +44,32 @@ export default async function FieldOpsHomePage() {
   const whDone = BRANCHES.length - whMissing.length;
 
   const dueSoon = vehicles.filter((v) => isDueSoon(v));
+  const overdueFollowUps = followUps.filter((f) => f.dueDate && f.dueDate.getTime() < now.getTime()).length;
 
-  const actions: ActionItem[] = [
-    { href: "/management/audits", label: `Branches without a Q${quarter} field audit`, count: auditsMissing.length, tone: "red",
-      chips: auditsMissing.map((b) => b.label) },
-    { href: "/management/audits", label: "Open audit follow-ups", count: followUps.length, tone: "amber" },
-    { href: "/management/compliance", label: `Branches missing the ${monthLabel} warehouse inspection`, count: whMissing.length, tone: "amber",
-      chips: whMissing.map((b) => b.label) },
-    { href: "/fleet", label: "Vehicles due for service", count: dueSoon.length, tone: "amber" },
-  ];
-  const needAttention = actions.filter((a) => a.count > 0).sort((a, b) => TONE_RANK[a.tone] - TONE_RANK[b.tone] || b.count - a.count);
+  // The "Needs your attention" queue now comes from the unified needs-attention
+  // model (its field-ops source), so every command center builds its queue the
+  // same way. The per-branch stat tiles + status matrix below keep their own reads.
+  const attention = await collectAttention({ user, audience: "field_ops", now });
+  const needAttention: ActionItem[] = attention.map((a) => ({
+    href: a.href,
+    label: a.title,
+    count: a.count ?? 1,
+    tone: severityToTone(a.severity),
+    chips: a.chips?.map((c) => c.label),
+  }));
   const totalOpen = needAttention.reduce((s, a) => s + a.count, 0);
+
+  // Operating-rhythm ribbon — field-ops cadence from the reads above.
+  const rhythm = buildFieldOpsRhythm({
+    now, quarter,
+    overdueFollowUps,
+    openFollowUps: followUps.length,
+    vehiclesDue: dueSoon.length,
+    warehouseMissing: whMissing.length,
+    warehouseTotal: BRANCHES.length,
+    auditsMissing: auditsMissing.length,
+    auditsTotal: BRANCHES.length,
+  });
 
   return (
     <>
@@ -62,6 +80,8 @@ export default async function FieldOpsHomePage() {
       />
 
       <MyReviewsCard userId={user.id} />
+
+      <RhythmRibbon segments={rhythm} />
 
       {/* Snapshot */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -149,8 +169,6 @@ export default async function FieldOpsHomePage() {
 
 type Tone = "red" | "amber" | "emerald" | "slate";
 type ActionItem = { href: string; label: string; count: number; tone: Tone; chips?: string[] };
-
-const TONE_RANK: Record<Tone, number> = { red: 0, amber: 1, emerald: 2, slate: 3 };
 
 const BADGE_TONE: Record<string, string> = {
   red: "bg-red-100 text-red-700",

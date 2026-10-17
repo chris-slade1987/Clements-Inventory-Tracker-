@@ -19,6 +19,8 @@ import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
 import { DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import RhythmRibbon from "@/components/RhythmRibbon";
+import { buildInventoryRhythm } from "@/lib/rhythm";
 import StartReorder from "./StartReorder";
 
 export const dynamic = "force-dynamic";
@@ -116,6 +118,10 @@ export default async function DashboardPage({
   const rangeBudgetLabel =
     range === "quarter" ? "Quarter-to-date budget" : range === "ytd" ? "YTD budget" : range === "30d" ? "30-day budget" : "Monthly budget";
 
+  // Month spend (fixed to this calendar month) for the operating-rhythm ribbon,
+  // independent of the spend-range toggle above.
+  const monthSpendMap = await purchasedDollarsByWarehouse(rangeStartFor("month", now));
+
   const companyRangeSpend = warehouses.reduce((s, w) => s + (rangeSpend.get(w.id) ?? 0), 0);
   const companyMonthlyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
   const companyRangeBudget = companyMonthlyBudget * monthsInRange;
@@ -135,11 +141,27 @@ export default async function DashboardPage({
     return s ? `/dashboard?${s}` : "/dashboard";
   };
 
+  const monthSpend = scopeId
+    ? monthSpendMap.get(scopeId) ?? 0
+    : warehouses.reduce((s, w) => s + (monthSpendMap.get(w.id) ?? 0), 0);
+  const monthBudget = scopeId && selected ? monthlyBudgetFor(selected.name) : companyMonthlyBudget;
+  const monthBudgetPct = monthBudget > 0 ? Math.round((monthSpend / monthBudget) * 100) : null;
+  const rhythm = buildInventoryRhythm({
+    now,
+    reorderCount: lowStock.length,
+    toConfirm,
+    monthSpendLabel: `${money(monthSpend)}${monthBudgetPct != null ? ` · ${monthBudgetPct}%` : ""}`,
+    monthBudgetPct,
+    openAlerts: openAlerts.length,
+  });
+
   return (
     <>
       <PageHeader title="Dashboard" subtitle={`This month at a glance · ${p.monthLabel}`} />
 
       <MyReviewsCard userId={user.id} />
+
+      <RhythmRibbon segments={rhythm} />
 
       {toConfirm > 0 ? (
         <Link href="/manage/confirm" className="block mb-4">

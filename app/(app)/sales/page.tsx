@@ -18,6 +18,9 @@ import SalesDirectorTools from "./SalesDirectorTools";
 import AllBranchSales from "./AllBranchSales";
 import FunnelHealthBoard, { type HealthRow } from "@/components/FunnelHealthBoard";
 import { AchievementBar, ProgressRing, rampColor, encouragement, rankMedal } from "@/components/motivation";
+import { buildSalesAttention, applyDismissals } from "@/lib/needs-attention";
+import { buildSalesRhythm } from "@/lib/rhythm";
+import RhythmRibbon from "@/components/RhythmRibbon";
 
 export const dynamic = "force-dynamic";
 
@@ -127,8 +130,38 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   // Advisors tracking behind pace this far into the month (needs coaching).
   const behindRows = healthRows.filter((h) => h.hasGoal && h.hasData && h.overall === "behind");
   const overdueCount = rollup.counts.overdue;
-  // Whether anything actionable exists — drives the action-queue layout.
-  const hasActions = notSet.length > 0 || pendingApproval.length > 0 || proposalPending.length > 0 || behindRows.length > 0 || overdueCount > 0 || setNotAgreed.length > 0;
+
+  // ── Unified needs-attention: build the director's action queue through the ONE
+  //    shared model (same normalized items + keys + dismissal filter as every other
+  //    command center), from the funnel/pace/focus states already computed above. ──
+  const advBranch = new Map(advisorRows.map((r) => [r.advisor.id, r.advisor.branch]));
+  const salesItems = await applyDismissals(
+    buildSalesAttention({
+      periodLabel: pLabel,
+      canManage,
+      advisorCount: totals.advisors,
+      notSet: notSet.map((r) => ({ id: r.advisor.id, name: r.advisor.name, branch: r.advisor.branch })),
+      pendingApproval: pendingApproval.map((r) => ({ id: r.advisor.id, name: r.advisor.name, target: r.target })),
+      proposalPending: proposalPending.map((r) => ({ id: r.advisor.id, name: r.advisor.name })),
+      behind: behindRows.map((h) => ({ id: h.id, name: h.name, branch: advBranch.get(h.id) ?? null })),
+      setNotAgreed: setNotAgreed.map((r) => ({ id: r.advisor.id, name: r.advisor.name, target: r.target })),
+      overdueFollowUps: overdueCount,
+    }),
+  );
+  const hasActions = salesItems.length > 0;
+
+  // Operating-rhythm ribbon — sales cadence from the funnel totals + focus states.
+  const salesRhythm = buildSalesRhythm({
+    now: nowD,
+    periodLabel: pLabel,
+    overdueFollowUps: overdueCount,
+    behindPace: behindRows.length,
+    goalsSet: funnelTotals.withGoal,
+    advisors: funnelTotals.advisors,
+    closed: funnelTotals.closed,
+    goal: funnelTotals.goal,
+    awaitingApproval: pendingApproval.length,
+  });
 
   return (
     <>
@@ -143,6 +176,8 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
       />
 
       <MyReviewsCard userId={user.id} />
+
+      <RhythmRibbon segments={salesRhythm} />
 
       {canManage ? <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} live={slLive} /> : null}
 
@@ -182,46 +217,17 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
             </Card>
           ) : (
             <div className="grid gap-3">
-              {notSet.length > 0 ? (
-                <AttnCard n={notSet.length} title={<>{notSet.length} of {totals.advisors} advisor{notSet.length === 1 ? " hasn't" : "s haven't"} set {pLabel} goals</>}>
-                  {notSet.map((r) => (
-                    <Chip key={r.advisor.id} href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.advisor.branch ? ` · ${branchLabel(r.advisor.branch)}` : ""}</Chip>
-                  ))}
-                </AttnCard>
-              ) : null}
-              {canManage && pendingApproval.length > 0 ? (
-                <AttnCard n={pendingApproval.length} title={<>{pendingApproval.length} goal{pendingApproval.length === 1 ? "" : "s"} awaiting your approval</>}>
-                  {pendingApproval.map((r) => (
-                    <Chip key={r.advisor.id} href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — review &amp; approve</Chip>
-                  ))}
-                </AttnCard>
-              ) : null}
-              {canManage && proposalPending.length > 0 ? (
-                <AttnCard tone="info" n={proposalPending.length} title={<>{proposalPending.length} proposal{proposalPending.length === 1 ? "" : "s"} awaiting the advisor</>}>
-                  {proposalPending.map((r) => (
-                    <Chip key={r.advisor.id} tone="info" href={`/sales/${r.advisor.id}`}>{r.advisor.name} — you proposed, pending their accept</Chip>
-                  ))}
-                </AttnCard>
-              ) : null}
-              {behindRows.length > 0 ? (
-                <AttnCard n={behindRows.length} title={<>{behindRows.length} advisor{behindRows.length === 1 ? " is" : "s are"} behind pace this month</>}>
-                  {behindRows.map((h) => (
-                    <Chip key={h.id} href={`/sales/${h.id}`}>{h.name}{h.branch ? ` · ${h.branch}` : ""} — coach</Chip>
-                  ))}
-                </AttnCard>
-              ) : null}
-              {overdueCount > 0 ? (
-                <AttnCard n={overdueCount} title={<>{overdueCount} focus follow-up{overdueCount === 1 ? " is" : "s are"} overdue</>}>
-                  <Chip href="#focus-followups">Review overdue follow-ups ↓</Chip>
-                </AttnCard>
-              ) : null}
-              {canManage && setNotAgreed.length > 0 ? (
-                <AttnCard tone="info" n={setNotAgreed.length} title={<>{setNotAgreed.length} goal{setNotAgreed.length === 1 ? " is" : "s are"} set but not yet agreed</>}>
-                  {setNotAgreed.map((r) => (
-                    <Chip key={r.advisor.id} tone="info" href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — confirm</Chip>
-                  ))}
-                </AttnCard>
-              ) : null}
+              {salesItems.map((item) => {
+                const tone = item.severity === "info" ? "info" : "warn";
+                const chips = item.chips && item.chips.length > 0 ? item.chips : [{ label: "Review →", href: item.href }];
+                return (
+                  <AttnCard key={item.key} n={item.count ?? 1} tone={tone} title={item.title}>
+                    {chips.map((c, i) => (
+                      <Chip key={`${item.key}-${i}`} tone={tone} href={c.href ?? item.href}>{c.label}</Chip>
+                    ))}
+                  </AttnCard>
+                );
+              })}
             </div>
           )}
         </div>

@@ -4,7 +4,9 @@ import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
-import { managerReminders, type Reminder } from "@/lib/reminders";
+import { collectAttention, type AttentionItem } from "@/lib/needs-attention";
+import { buildBranchRhythm } from "@/lib/rhythm";
+import RhythmRibbon from "@/components/RhythmRibbon";
 import { INVENTORY_ALERT_TYPES } from "@/lib/anomaly";
 import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
@@ -43,7 +45,7 @@ export default async function MyBranchPage({
   const quarter = Math.floor((month - 1) / 3) + 1;
 
   const [reminders, insp, openAlerts, followUps, myReviews, ptoPending] = await Promise.all([
-    managerReminders(branch ?? undefined),
+    collectAttention({ user, audience: "branch", branch: branch ?? undefined, now }),
     inspectionStatus(year, month, branch ?? undefined),
     // Company inventory-alert count — only needed for the non-locked (admin)
     // all-branch view; branch-locked managers don't show this tile.
@@ -115,6 +117,20 @@ export default async function MyBranchPage({
   const employeeOpts = remEmployees.map((e) => ({ id: e.id, label: `${e.name}${e.branch ? ` · ${branchLabel(e.branch)}` : ""}` }));
   const vehicleOpts = remVehicles.map((v) => ({ id: v.id, label: `${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}` }));
 
+  // Operating-rhythm ribbon — this branch's cadence, from the duties already read above.
+  const rhythm = buildBranchRhythm({
+    now,
+    quarter,
+    weeklyChecklistDone: !!weekly?.completed,
+    weeklyChecklistHref: `/checklists/weekly?branch=${scBranch}`,
+    inspections: insp.total > 0 ? { completed: insp.completed, total: insp.total } : null,
+    warehouseDone: warehouse.done,
+    qcLogged: false,
+    training: totalTraining > 0 ? { done: totalTraining - openTraining, total: totalTraining } : null,
+    scorecard: { scored: scScored, of: SCORECARD_METRICS.length, pct: scScore },
+    openAttention: attention.length,
+  });
+
   return (
     <>
       <PageHeader
@@ -125,6 +141,8 @@ export default async function MyBranchPage({
       <MyBranchViewToggle view="todos" branchQuery={branch ? `?branch=${branch}` : ""} />
 
       <BulletinBanner />
+
+      <RhythmRibbon segments={rhythm} />
 
       {/* Momentum — this period's compliance at a glance, on the encouragement
           ramp (motivation kit). Built from data already on the page; nothing is
@@ -328,7 +346,7 @@ export default async function MyBranchPage({
   );
 }
 
-function ReminderRow({ r, showBranch }: { r: Reminder; showBranch: boolean }) {
+function ReminderRow({ r, showBranch }: { r: AttentionItem; showBranch: boolean }) {
   const dot = r.severity === "critical" ? "bg-red-500" : r.severity === "warning" ? "bg-amber-500" : "bg-brand-400";
   return (
     <li className="flex items-start gap-2 pr-3">

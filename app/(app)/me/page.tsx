@@ -11,6 +11,8 @@ import { prisma } from "@/lib/prisma";
 import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import BulletinBanner from "@/components/BulletinBanner";
 import Glyph from "@/components/Glyph";
+import RhythmRibbon from "@/components/RhythmRibbon";
+import { buildEmployeeRhythm } from "@/lib/rhythm";
 
 export const dynamic = "force-dynamic";
 
@@ -115,11 +117,24 @@ export default async function MyWorkPage() {
   const ptoLabel = `${pto.remaining} of ${pto.allowance} days left${pto.pending ? ` · ${pto.pending} pending` : ""}`;
   const trainingLabel = open.length ? `${open.length} open · action needed` : "All caught up";
 
+  // Operating-rhythm ribbon — the employee's recurring routines by cadence plus
+  // the personal items due now (unified Theme 3 ribbon).
+  const employeeRhythm = buildEmployeeRhythm({
+    now: new Date(),
+    routines: showRoutines ? TECH_ROUTINES.map((r) => ({ key: r.key, label: r.label, cadence: r.cadence, href: r.href })) : [],
+    openTraining: open.length,
+    trainingOverdue: open.some((a) => a.dueDate != null && a.dueDate.getTime() < now),
+    reviewsToSign: reviewsToSign.length,
+    interviews: interviews.length,
+  });
+
   return (
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your Employee Hub" />
 
       <BulletinBanner />
+
+      <RhythmRibbon segments={employeeRhythm} />
 
       <HubGrid ptoLabel={ptoLabel} trainingLabel={trainingLabel} inboxUnread={inboxUnread} />
 

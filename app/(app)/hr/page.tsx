@@ -7,6 +7,9 @@ import { isHrDirector } from "@/lib/personnel";
 import { allReviews } from "@/lib/review";
 import { employeeRoster } from "@/lib/people";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import RhythmRibbon from "@/components/RhythmRibbon";
+import { collectAttention, severityToTone } from "@/lib/needs-attention";
+import { buildHrRhythm } from "@/lib/rhythm";
 import { formerEmployees } from "@/lib/separation";
 import { canManagePreHire, listPreHires } from "@/lib/prehire";
 import {
@@ -55,20 +58,30 @@ export default async function HrHomePage() {
   const ackDone = ackTotal - ackOutstanding;
   const activeHeadcount = roster.length;
 
-  // Ordered by how time-sensitive each queue is.
-  const actions: ActionItem[] = [
-    canPto ? { href: "/management/people/pto", label: "PTO requests to review", count: ptoPending.length, tone: "amber" } : null,
-    hr ? { href: "/management/people/reviews", label: "New-hire reviews need action", count: reviewsNeedAction, tone: "red" } : null,
-    canAts ? { href: "/management/people/jobs", label: "Candidates awaiting decision", count: candidatesAwaiting.length, tone: "amber" } : null,
-    canAts ? { href: "/management/people/jobs", label: "Overdue interviews", count: overdueInt.length, tone: "red" } : null,
-    canPreHire ? { href: "/management/people/prehires", label: "Pre-hires awaiting approval", count: preHiresToApprove, tone: "amber" } : null,
-    canPto ? { href: "/management/people/callouts", label: "Call-out notes outstanding", count: calloutNotes, tone: "amber" } : null,
-    (canPto || hr) ? { href: "/management/people/handbook", label: "Handbook acks outstanding", count: ackOutstanding, tone: "slate" } : null,
-    canAts ? { href: "/management/people/jobs", label: "Jobs awaiting closeout", count: closeoutJobs.length, tone: "slate" } : null,
-  ].filter((a): a is ActionItem => a !== null);
+  // The "Needs your attention" queue now comes from the unified needs-attention
+  // model (its HR source), so every command center builds its queue the same way.
+  // The snapshot stats + the HR-areas tile badges below keep their own reads.
+  const attention = await collectAttention({ user, audience: "hr", now: new Date() });
+  const needAttention: ActionItem[] = attention.map((a) => ({
+    href: a.href,
+    label: a.title,
+    count: a.count ?? 1,
+    tone: severityToTone(a.severity),
+  }));
+  const totalOpen = needAttention.reduce((s, a) => s + a.count, 0);
 
-  const totalOpen = actions.reduce((s, a) => s + a.count, 0);
-  const needAttention = actions.filter((a) => a.count > 0).sort((a, b) => TONE_RANK[a.tone] - TONE_RANK[b.tone] || b.count - a.count);
+  // Operating-rhythm ribbon — HR cadence from the reads above.
+  const rhythm = buildHrRhythm({
+    now: new Date(),
+    ptoPending: ptoPending.length,
+    overdueInterviews: overdueInt.length,
+    reviewsNeedAction,
+    candidatesAwaiting: candidatesAwaiting.length,
+    preHiresToApprove,
+    calloutNotes,
+    ackOutstanding,
+    ackPct: ackTotal > 0 ? Math.round((ackDone / ackTotal) * 100) : null,
+  });
 
   return (
     <>
@@ -83,6 +96,8 @@ export default async function HrHomePage() {
       />
 
       <MyReviewsCard userId={user.id} />
+
+      <RhythmRibbon segments={rhythm} />
 
       {/* Snapshot stats */}
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -172,8 +187,6 @@ export default async function HrHomePage() {
 
 type Tone = "red" | "amber" | "emerald" | "slate";
 type ActionItem = { href: string; label: string; count: number; tone: Tone };
-
-const TONE_RANK: Record<Tone, number> = { red: 0, amber: 1, emerald: 2, slate: 3 };
 
 const BADGE_TONE: Record<string, string> = {
   red: "bg-red-100 text-red-700",
