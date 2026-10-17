@@ -86,6 +86,7 @@ const RULES: [RegExp, string][] = [
 
   // --- Management & Executive ---
   [/^\/management\/board(\/|$)/, "board"],
+  [/^\/management\/benchmarking(\/|$)/, "benchmarking"],
   [/^\/management\/insights(\/|$)/, "insights"],
   [/^\/management\/sales(\/|$)/, "sales-attrition"],
   [/^\/management\/scorecards(\/|$)/, "scorecards"],

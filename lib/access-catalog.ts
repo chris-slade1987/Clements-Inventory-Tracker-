@@ -53,6 +53,7 @@ export const MODULES: AccessModule[] = [
   { id: "mgmt", name: "Management & Executive", sub: "Company-wide", items: [
     { id: "management", name: "Company KPIs (operational)", ve: true }, { id: "executive", name: "Executive (financials / P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
     { id: "sales-attrition", name: "Sales & Attrition", ve: true }, { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
+    { id: "benchmarking", name: "Branch Benchmarking", note: "Read-only cross-branch league table + pacing" },
     { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance", ve: true }, { id: "insurance", name: "Insurance", ve: true },
     { id: "documents", name: "Documents", ve: true }, { id: "system-map", name: "System Map" }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
     { id: "checklist-oversight", name: "Checklist Oversight" }, { id: "field-ops", name: "Field Ops Center" } ] },
@@ -104,7 +105,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
   },
   senior: {
-    board: "view", management: "view", executive: "view", insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
+    board: "view", management: "view", executive: "view", benchmarking: true, insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
     "checklist-oversight": true, scorecards: "view", audits: "view", insurance: "view", documents: "view", "field-ops": true,
     people: "view", org: true, ...SELF_BASIC,
   },
@@ -124,7 +125,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     people: "view", "people-profile": "edit", ...SELF_BASIC,
   },
   service_advisor: { "me-sales": "edit", ...SELF_BASIC },
-  board: { board: "view", management: "view", executive: "view", "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
+  board: { board: "view", management: "view", executive: "view", benchmarking: true, "sales-attrition": "view", compliance: "view", bulletin: true, account: true },
   employee: { ...SELF_BASIC },
 };
 

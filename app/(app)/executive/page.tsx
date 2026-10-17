@@ -161,6 +161,9 @@ export default async function ManagementPage({
           actions={
             <div className="flex flex-wrap items-center gap-3">
               {canInsights ? <InsightsLink /> : null}
+              <Link href="/management/benchmarking" className="text-sm font-medium text-brand-700 hover:underline">
+                Benchmarking →
+              </Link>
               <Link href={branchLink(BRANCHES[0].key)} className="text-sm font-medium text-brand-700 hover:underline">
                 Branch detail →
               </Link>

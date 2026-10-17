@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, branchLocked } from "@/lib/auth";
+import { requireUser, branchLocked, canViewExec } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues, type Scope } from "@/lib/management";
 import { buildDashboardPayload } from "@/lib/branch-pnl";
 import Controls from "@/app/(app)/management/Controls";
@@ -116,6 +116,12 @@ export default async function BranchKpisPage({
           <p>
             For the leadership operating summary,{" "}
             <Link href="/executive" className="font-medium text-brand-700 hover:underline">open Executive — Operating →</Link>
+          </p>
+        ) : null}
+        {canViewExec(user) ? (
+          <p>
+            Compare the four branches side by side —{" "}
+            <Link href="/management/benchmarking" className="font-medium text-brand-700 hover:underline">open Branch Benchmarking →</Link>
           </p>
         ) : null}
       </div>

@@ -384,6 +384,17 @@ export const INVENTORY_NAV: NavItem[] = [
   },
 ];
 
+// Branch Benchmarking — cross-branch league table + first-slice forecasting
+// (CanopyOS Theme 10). Exec-sensitive cross-branch comparison, gated the same as
+// the Executive operating view (admins / senior leadership / board). A bar-ladder
+// glyph, distinct from the exec bar-chart icon.
+export const BENCHMARKING_NAV_ITEM: NavItem = {
+  href: "/management/benchmarking",
+  label: "Branch Benchmarking",
+  shortLabel: "Bench",
+  icon: "M4 20h16M7 20v-6M12 20V8M17 20v-9M5.5 11l4-4 3 2 5-5",
+};
+
 export const MANAGEMENT_NAV: NavItem[] = [
   {
     href: "/management/board",
@@ -398,6 +409,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
+  BENCHMARKING_NAV_ITEM,
   {
     href: "/management/sales",
     label: "Sales & Attrition",
