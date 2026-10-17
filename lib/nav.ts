@@ -375,14 +375,14 @@ export const INVENTORY_NAV: NavItem[] = [
 export const MANAGEMENT_NAV: NavItem[] = [
   {
     href: "/management/board",
-    label: "Board / Executive",
+    label: "Board — Financial statements",
     shortLabel: "Board",
     icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
   },
   INSIGHTS_NAV_ITEM,
   {
     href: "/executive",
-    label: "Executive",
+    label: "Executive — Operating",
     shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
@@ -464,13 +464,13 @@ export const SALES_DIRECTOR_NAV: NavItem[] = [
 export const BOARD_OBSERVER_NAV: NavItem[] = [
   {
     href: "/management/board",
-    label: "Board / Executive",
+    label: "Board — Financial statements",
     shortLabel: "Board",
     icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
   },
   {
     href: "/executive",
-    label: "Executive",
+    label: "Executive — Operating",
     shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
