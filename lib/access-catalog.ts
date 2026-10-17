@@ -40,7 +40,7 @@ export const MODULES: AccessModule[] = [
   { id: "mybranch", name: "My Branch", sub: "Branch operations", items: [
     { id: "my-branch", name: "Branch Dashboard" }, { id: "team", name: "My Team", ve: true }, { id: "inspections", name: "Vehicle Inspections" },
     { id: "warehouse", name: "Warehouse Inspection", ve: true }, { id: "qc", name: "Quality Control", ve: true }, { id: "branch-hub", name: "Branch Hub / Documents" },
-    { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" }, { id: "checklists", name: "Checklists", ve: true } ] },
+    { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" }, { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
     { id: "dashboard", name: "Inventory Dashboard" }, { id: "check-in", name: "Check-In" }, { id: "check-out", name: "Check-Out" }, { id: "stock", name: "Stock" },
     { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports" }, { id: "alerts", name: "Alerts" },
@@ -56,7 +56,7 @@ export const MODULES: AccessModule[] = [
     { id: "benchmarking", name: "Branch Benchmarking", note: "Read-only cross-branch league table + pacing" },
     { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance", ve: true }, { id: "insurance", name: "Insurance", ve: true },
     { id: "documents", name: "Documents", ve: true }, { id: "system-map", name: "System Map" }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
-    { id: "checklist-oversight", name: "Checklist Oversight" }, { id: "field-ops", name: "Field Ops Center" } ] },
+    { id: "checklist-oversight", name: "Checklist Oversight" }, { id: "field-ops", name: "Field Ops Center" }, { id: "sop-library", name: "SOP Library", ve: true, note: "Edit = publish / assign" } ] },
   { id: "people", name: "People / HR", sub: "Personnel & hiring", items: [
     { id: "hr-home", name: "HR Command Center" }, { id: "people", name: "People Roster", ve: true }, { id: "people-profile", name: "Employee Profile", ve: true },
     { id: "pto-calendar", name: "PTO Calendar" }, { id: "callouts", name: "Call-outs" }, { id: "reviews", name: "New-hire Reviews" }, { id: "hiring", name: "Hiring / ATS" },
@@ -99,7 +99,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   field_ops: allAccess(["connections"]),
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
-    scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit",
+    scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",
     dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
     management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
@@ -107,6 +107,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   senior: {
     board: "view", management: "view", executive: "view", benchmarking: true, insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
     "checklist-oversight": true, scorecards: "view", audits: "view", insurance: "view", documents: "view", "field-ops": true,
+    "sop-library": "edit", sops: "view",
     people: "view", org: true, ...SELF_BASIC,
   },
   hr: {

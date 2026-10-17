@@ -8,20 +8,44 @@ import { BRANCHES, branchLabel } from "@/lib/management";
 // reminders (lib/reminders.ts): we surface "completed vs not-yet" for the
 // CURRENT period, plus a leadership rollup across every branch.
 
+// Step types. Legacy weekly/monthly checklists are all "check" (a tick + note);
+// the generalized SOP runner (CanopyOS Theme 2) adds free-text, numeric, and
+// photo/evidence steps. `type` is OPTIONAL in the stored JSON and defaults to
+// "check" on parse, so every pre-existing checklist template keeps working.
+export type StepType = "check" | "text" | "number" | "photo";
+
 export type ChecklistItem = {
   id: string;
   order: number;
   category: string;
   label: string;
   objective: string;
+  /** Defaults to "check" when absent (back-compat with legacy checklist JSON). */
+  type?: StepType;
+  /** When true, a run can't be signed until this step is answered. Default false. */
+  required?: boolean;
+  /** Optional extra guidance shown under the step. */
+  help?: string;
 };
 
-export type ItemResult = { itemId: string; checked: boolean; note: string };
+// A step result. `checked` carries the tick for "check" steps; `value` carries
+// the text/number answer; `photoRef` carries an evidence reference for a "photo"
+// step. All additive to the legacy {itemId,checked,note} shape.
+export type ItemResult = {
+  itemId: string;
+  checked: boolean;
+  note: string;
+  value?: string;
+  photoRef?: string;
+};
 
 export function parseItems(json: string): ChecklistItem[] {
   try {
     const arr = JSON.parse(json) as ChecklistItem[];
-    return Array.isArray(arr) ? [...arr].sort((a, b) => a.order - b.order) : [];
+    if (!Array.isArray(arr)) return [];
+    return [...arr]
+      .map((it) => ({ ...it, type: it.type ?? "check" }))
+      .sort((a, b) => a.order - b.order);
   } catch {
     return [];
   }
@@ -138,7 +162,13 @@ export function periodLabelFor(cadence: string, date: Date): string {
 // ---- Data access ------------------------------------------------------------
 
 export async function getTemplates() {
-  return prisma.checklistTemplate.findMany({ where: { active: true }, orderBy: { cadence: "asc" } });
+  // Legacy cadence checklists ONLY — SOP templates (kind="sop") live in the SOP
+  // runner (lib/sop.ts) and must never leak into the weekly/monthly checklist
+  // screens or the leadership rollup.
+  return prisma.checklistTemplate.findMany({
+    where: { active: true, kind: "checklist" },
+    orderBy: { cadence: "asc" },
+  });
 }
 
 export async function getTemplateByKey(key: string) {

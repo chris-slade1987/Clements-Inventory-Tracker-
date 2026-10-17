@@ -39,6 +39,8 @@ const RULES: [RegExp, string][] = [
   [/^\/my-branch(\/|$)/, "my-branch"],
   [/^\/checklists\/oversight(\/|$)/, "checklist-oversight"],
   [/^\/checklists(\/|$)/, "checklists"],
+  [/^\/sops\/library(\/|$)/, "sop-library"],
+  [/^\/sops(\/|$)/, "sops"],
 
   // --- Inventory ---
   [/^\/dashboard(\/|$)/, "dashboard"],

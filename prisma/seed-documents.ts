@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 26 · Last updated October 17, 2026",
+    effective: "Version 27 · Last updated October 17, 2026",
+    // v27: added the Standard Operating Procedures (SOPs) section — the checklist
+    // engine generalized into a reusable, guided, signed SOP runner (My Branch →
+    // SOPs) with assigned "Due now" items + run-on-demand, and the leadership SOP
+    // Library (publish/version/assign). CanopyOS vision Theme 2.
     // v26: reconciled the Inventory sections for the 2026-10-17 audit fixes —
     // Check-IN now has a searchable product picker + case→unit helper, blocks/counts
     // unmatched lines before Confirm, guards against duplicate invoices, and offers a
@@ -130,7 +134,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 26,
+    version: 27,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

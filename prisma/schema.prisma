@@ -2338,15 +2338,25 @@ model CalendarEvent {
 // mutate or hard-delete; one signed completion per template/branch/period).
 model ChecklistTemplate {
   id        String   @id @default(cuid())
-  key       String   @unique // "weekly" | "monthly"
+  key       String   @unique // "weekly" | "monthly" | an SOP slug e.g. "branch-open-close"
   title     String
-  cadence   String // "weekly" | "monthly"
+  cadence   String // "weekly" | "monthly" | "none" (ad-hoc SOP)
   intro     String? // short blurb shown atop the run
-  items     String // JSON: [{id,order,category,label,objective}]
+  items     String // JSON: [{id,order,category,label,objective,type?,required?,help?}]
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
 
+  // --- SOP generalization (CanopyOS Theme 2). Additive + defaulted so existing
+  // weekly/monthly checklist rows keep working untouched and `prisma db push` is
+  // safe. A "checklist" is the legacy cadence sign-off; a "sop" is a versioned,
+  // ad-hoc-or-recurring procedure run through the SOP runner. ---
+  kind     String  @default("checklist") // "checklist" | "sop"
+  version  Int     @default(1) // SOP template version; a completion records the version it ran
+  dueRule  String  @default("cadence") // "cadence" (weekly/monthly) | "adhoc" (assigned / run-on-demand)
+  category String? // SOP library grouping, e.g. "Branch operations", "Fleet", "Safety"
+
   completions ChecklistCompletion[]
+  assignments SopAssignment[]
 
   @@map("checklist_templates")
 }
@@ -2354,14 +2364,18 @@ model ChecklistTemplate {
 model ChecklistCompletion {
   id          String   @id @default(cuid())
   templateId  String   @map("template_id")
-  cadence     String // denormalized for easy querying: "weekly" | "monthly"
+  cadence     String // denormalized for easy querying: "weekly" | "monthly" | "none"
   branch      String // "vero" | "stuart" | "orlando" | "naples"
-  periodKey   String   @map("period_key") // weekly: "2026-W29" (ISO week); monthly: "2026-07"
+  periodKey   String   @map("period_key") // cadence: "2026-W29"/"2026-07"; ad-hoc SOP: "asg:<id>" or "run:<id>"
   userId      String?  @map("user_id")
   signedName  String   @map("signed_name") // typed attestation signature
   attestation String // the statement text they signed
-  itemResults String   @map("item_results") // JSON: [{itemId,checked,note}]
+  itemResults String   @map("item_results") // JSON: [{itemId,checked,note,value?,photoRef?}]
   createdAt   DateTime @default(now()) @map("created_at")
+
+  // The SOP template version this completion ran (defaults to 1 for legacy
+  // checklist completions). Additive/defaulted → `prisma db push`-safe.
+  templateVersion Int @default(1) @map("template_version")
 
   template ChecklistTemplate @relation(fields: [templateId], references: [id])
 
@@ -2393,6 +2407,35 @@ model ChecklistMiss {
   @@unique([templateId, branch, periodKey])
   @@index([branch, status])
   @@map("checklist_misses")
+}
+
+// An ad-hoc SOP assignment — "this procedure is due at this branch, by this date"
+// (the flexible, non-cadence due rule of the generalized SOP runner, CanopyOS
+// Theme 2). Admins/leadership assign an SOP template to a branch; a branch
+// manager runs it from the SOP runner and signs the attestation, which creates
+// an append-only ChecklistCompletion and marks the assignment completed (linked
+// by completionId). Ledger discipline: an assignment is never hard-deleted —
+// it is cancelled or completed; the signed completion is the permanent record.
+model SopAssignment {
+  id              String    @id @default(cuid())
+  templateId      String    @map("template_id")
+  templateVersion Int       @default(1) @map("template_version") // version assigned (completion records what was run)
+  branch          String
+  title           String? // optional per-assignment label override
+  dueDate         DateTime? @map("due_date") // the flexible due rule (ad-hoc)
+  status          String    @default("open") // "open" | "completed" | "cancelled"
+  assignedById    String?   @map("assigned_by_id")
+  assignedByName  String?   @map("assigned_by_name")
+  note            String?
+  completionId    String?   @map("completion_id") // the signed ChecklistCompletion that closed it
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  template ChecklistTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([branch, status])
+  @@index([templateId])
+  @@map("sop_assignments")
 }
 
 // Field Quality-Control inspection: a manager rides behind a technician and

@@ -571,6 +571,19 @@ async function main() {
       console.log(`deploy-db: reconciled oversight checklists (weekly=${cl.weekly} items, monthly=${cl.monthly} items).`);
     });
 
+    // SOP library (CanopyOS Theme 2) — upsert the example Standard Operating
+    // Procedures by key (idempotent, never touches signed completions or the
+    // assignment ledger) and seed one open Branch Open/Close assignment per branch
+    // so the "Due now" surface is real on a fresh deploy. NON-FATAL.
+    await runStep("SOP library reconcile", async () => {
+      const { seedSops, seedSopAssignments } = await import("../prisma/seed-sops");
+      const sops = await seedSops(prisma);
+      const asg = await seedSopAssignments(prisma);
+      console.log(
+        `deploy-db: reconciled SOP library (${Object.entries(sops).map(([k, v]) => `${k}=${v} steps`).join(", ")}; ${asg} open assignment(s) created).`,
+      );
+    });
+
     // Document center: upsert the employee handbook + manager manual from the
     // Markdown sources every deploy (idempotent by slug — refreshes body/title
     // without touching acknowledgments, which are append-only, or bumping the

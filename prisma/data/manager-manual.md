@@ -26,6 +26,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - [2. Weekly Responsibilities](#2-weekly-responsibilities)
 - [3. Monthly Responsibilities](#3-monthly-responsibilities)
 - [4. Other Ongoing Responsibilities](#4-other-ongoing-responsibilities)
+- [Standard Operating Procedures (SOPs)](#standard-operating-procedures-sops)
 - [5. Policies, Procedures & Forms](#5-policies-procedures-and-forms)
 - [Hiring / Onboarding](#hiring-onboarding)
 - [Hiring and Onboarding Roadmap](#hiring-and-onboarding-roadmap)
@@ -175,6 +176,14 @@ To help guide you, a checklist and set of procedures follow this section. These 
 - Vehicle & Equipment standards, maintenance (see forms)
 - Hurricane Preparedness Guidelines (see policy)
 - Ordering chemicals, equipment and supplies (in process)
+
+## Standard Operating Procedures (SOPs)
+
+> **Portal — guided, signed SOPs.** Recurring branch procedures that aren't on the weekly checklist now live in the portal as **Standard Operating Procedures** under **My Branch → SOPs**. An SOP is a step-by-step, phone-first walk-through: tap through each step (some are a simple check, others ask for a short note, a number, or a photo), then sign your typed name to file a permanent record. The flow has a progress bar and a stepper you can jump around in, and it **remembers your place** if you get interrupted and come back. Any step marked *required* must be answered before you can sign.
+>
+> **Due now vs. run on demand.** The top of the SOPs screen shows anything **assigned** to your branch with a due date ("Due now"); below that you can **run any published SOP on demand** as many times as you need. Every signed SOP is **filed to your employee profile** (just like a signed checklist) and cannot be edited afterward — if something was recorded wrong, run it again; the history stays intact.
+>
+> **Who sets these up.** Leadership (the COO, the Chief of Staff, and the Director of Field Operations) publishes and assigns SOPs from the **SOP Library** (Management → SOP Library). Branch managers run them; they don't author or assign them. Two examples ship to start — **Branch Open / Close** and **New-Vehicle Onboarding** — and more will be added over time as the Clements Way is codified. *(Verify with the Director of Field Operations which SOPs are required at your branch and how often.)*
 
 ## 5. Policies, Procedures & Forms
 

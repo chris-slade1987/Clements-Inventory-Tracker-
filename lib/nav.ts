@@ -129,6 +129,27 @@ export const CHECKLISTS_NAV_ITEM: NavItem = {
   icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2 2 2 0 01-2 2h-2a2 2 0 01-2-2zm-.5 9l2 2 4-4",
 };
 
+// SOP Runner — the generalized, guided Standard Operating Procedure runner
+// (CanopyOS Theme 2). A My Branch (manager) responsibility like the oversight
+// checklists; managers run their branch's assigned/on-demand SOPs. A play /
+// run-through glyph, distinct from the checklist clipboard.
+export const SOPS_NAV_ITEM: NavItem = {
+  href: "/sops",
+  label: "SOPs",
+  shortLabel: "SOPs",
+  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2 2 2 0 01-2 2h-2a2 2 0 01-2-2zm2 8l2 2 3-4",
+};
+
+// SOP Library — admin/leadership console to publish, version, and assign SOPs.
+// Lives in the Management nav; the page self-guards (canManageSops). A stacked-
+// documents / library glyph.
+export const SOP_LIBRARY_NAV_ITEM: NavItem = {
+  href: "/sops/library",
+  label: "SOP Library",
+  shortLabel: "SOPs",
+  icon: "M4 6h12M4 10h12M4 14h8M18 14l3 3-3 3M4 18h8",
+};
+
 // Checklist oversight rollup — senior-leadership only (admins + senior
 // leadership). Lives alongside the Compliance link.
 export const CHECKLIST_OVERSIGHT_NAV_ITEM: NavItem = {
@@ -336,6 +357,7 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   CHECKLISTS_NAV_ITEM,
+  SOPS_NAV_ITEM,
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):
   // company-wide for admins/super admins, own-branch read-only for branch managers.
   SALES_TEAM_NAV_ITEM,
@@ -452,6 +474,7 @@ export const MANAGEMENT_NAV: NavItem[] = [
   SYSTEM_MAP_NAV_ITEM,
   COMPLIANCE_NAV_ITEM,
   CHECKLIST_OVERSIGHT_NAV_ITEM,
+  SOP_LIBRARY_NAV_ITEM,
 ];
 
 // Sales Director — a focused principal who oversees service advisors and their

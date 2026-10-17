@@ -206,6 +206,12 @@ export default function AppShell({
         ? "management"
         : pathname.startsWith("/checklists")
           ? "manager"
+      // SOPs: the runner is a My Branch (manager) responsibility; the admin SOP
+      // library lives under Management.
+      : pathname.startsWith("/sops/library")
+        ? "management"
+        : pathname.startsWith("/sops")
+          ? "manager"
       : pathname.startsWith("/my-branch")
         ? "manager"
         // Company KPIs live at /management (the Company center); the /management/*
