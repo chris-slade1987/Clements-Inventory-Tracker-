@@ -67,6 +67,7 @@ export default async function CheckInPage({
           name: p.name,
           unit: p.unitOfMeasure,
           distributorSku: p.distributorSku,
+          unitsPerCase: p.unitsPerCase ?? null,
         }))}
         initialDraft={initialDraft}
       />

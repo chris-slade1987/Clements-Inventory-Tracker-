@@ -570,7 +570,14 @@ export default function ScanCheckoutClient({
                   inputMode="numeric"
                   min={1}
                   value={line.quantity}
-                  onChange={(e) => setQty(line.productId, Math.trunc(Number(e.target.value)))}
+                  onChange={(e) => {
+                    // Clearing the field (empty / NaN) must not delete the line —
+                    // keep the current quantity until a real number is typed.
+                    if (e.target.value.trim() === "") return;
+                    const n = Math.trunc(Number(e.target.value));
+                    if (!Number.isFinite(n)) return;
+                    setQty(line.productId, n);
+                  }}
                   className="h-10 w-16 rounded-lg border border-line text-center text-sm"
                 />
                 <button type="button" onClick={() => setQty(line.productId, line.quantity + 1)} className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100">+</button>
@@ -728,12 +735,11 @@ function ManualResults({
   countedFor: (id: string) => boolean;
 }) {
   const q = query.trim().toLowerCase();
-  const results = useMemo(() => {
+  const allMatches = useMemo(() => {
     if (!q) return [];
-    return products
-      .filter((p) => [p.name, p.distributorSku, p.manufacturer, p.category].filter(Boolean).some((s) => s!.toLowerCase().includes(q)))
-      .slice(0, 8);
+    return products.filter((p) => [p.name, p.distributorSku, p.manufacturer, p.category].filter(Boolean).some((s) => s!.toLowerCase().includes(q)));
   }, [products, q]);
+  const results = allMatches.slice(0, 8);
   if (!q || results.length === 0) return null;
   return (
     <ul className="surface-light mt-2 divide-y divide-line rounded-lg border border-line overflow-hidden">
@@ -748,6 +754,11 @@ function ManualResults({
           </button>
         </li>
       ))}
+      {allMatches.length > results.length ? (
+        <li className="px-3 py-2 text-center text-xs text-muted">
+          Showing {results.length} of {allMatches.length} — refine your search
+        </li>
+      ) : null}
     </ul>
   );
 }
@@ -766,7 +777,7 @@ function ConfirmCard({
   onAdd: () => void;
 }) {
   const cap = pending.counted ? pending.onHand : NOT_COUNTED_CAP;
-  const options = Array.from({ length: Math.min(cap, 500) }, (_, i) => i + 1);
+  const clampQty = (n: number) => Math.max(1, Math.min(cap, Math.trunc(Number.isFinite(n) ? n : 1)));
   return (
     <Overlay onClose={onCancel} title="Confirm product">
       <div className="flex items-start gap-3">
@@ -788,23 +799,20 @@ function ConfirmCard({
         <label className="block text-sm font-medium mb-1">Quantity</label>
         {cap <= 0 ? (
           <p className="text-sm text-red-600">Nothing on hand to dispense.</p>
-        ) : cap <= 500 ? (
-          <select
-            value={pending.quantity}
-            onChange={(e) => onQty(Number(e.target.value))}
-            className="w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"
-          >
-            {options.map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
         ) : (
-          <input
-            type="number"
-            min={1}
-            max={cap}
-            value={pending.quantity}
-            onChange={(e) => onQty(Math.max(1, Math.min(cap, Math.trunc(Number(e.target.value)))))}
-            className="w-full rounded-lg border border-line px-3 py-2.5 text-sm"
-          />
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => onQty(clampQty(pending.quantity - 1))} className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100" aria-label="Decrease">−</button>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={cap}
+              value={pending.quantity}
+              onChange={(e) => { if (e.target.value.trim() === "") return; onQty(clampQty(Number(e.target.value))); }}
+              className="h-10 flex-1 rounded-lg border border-line text-center text-sm"
+            />
+            <button type="button" onClick={() => onQty(clampQty(pending.quantity + 1))} className="h-10 w-10 rounded-lg border border-line text-lg font-semibold active:bg-slate-100" aria-label="Increase">+</button>
+          </div>
         )}
         {!pending.counted ? <p className="mt-1 text-xs text-muted">Capped at {NOT_COUNTED_CAP} until this product is counted at {branchName}.</p> : null}
       </div>

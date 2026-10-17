@@ -22,6 +22,8 @@ export type VehicleRow = {
   name: string;
   year: number | null;
   branch: string | null;
+  vin: string | null;
+  plate: string | null;
   assignedTo: string | null; // driver name (kept in sync with the employee link)
   status: string;
   currentMileage: number | null;
@@ -68,6 +70,8 @@ export async function listVehicles(branch?: string, scope: "active" | "inactive"
       name: v.name,
       year: v.year ?? null,
       branch: v.branch,
+      vin: v.vin ?? null,
+      plate: v.plate ?? null,
       assignedTo: v.assignedTo ?? null,
       status: v.status,
       currentMileage: v.currentMileage,

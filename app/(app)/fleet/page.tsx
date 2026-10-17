@@ -26,6 +26,15 @@ export default async function FleetPage({
     listVehicles(branch ?? undefined, "inactive"),
     managerReminders(branch ?? undefined),
   ]);
+  // Roster search across unit #, plate, VIN, driver, and name.
+  const query = (sp.q ?? "").trim();
+  if (query) {
+    const qq = query.toLowerCase();
+    const hit = (s: string | null | undefined) => !!s && s.toLowerCase().includes(qq);
+    const match = (v: (typeof vehicles)[number]) =>
+      hit(v.unitNumber) || hit(v.plate) || hit(v.vin) || hit(v.assignedTo) || hit(v.name);
+    for (let i = vehicles.length - 1; i >= 0; i--) if (!match(vehicles[i])) vehicles.splice(i, 1);
+  }
   const active = vehicles;
   const ytdSpend = vehicles.reduce((s, v) => s + v.ytdCost, 0);
   const cpmVals = vehicles.map((v) => v.costPerMile).filter((n): n is number => n != null);
@@ -87,6 +96,22 @@ export default async function FleetPage({
       />
 
       {user.role === "admin" ? <FleetControls /> : null}
+
+      <form method="GET" action="/fleet" className="mb-3 flex items-center gap-2">
+        {branch ? <input type="hidden" name="branch" value={branch} /> : null}
+        {group !== "branch" ? <input type="hidden" name="group" value={group} /> : null}
+        <input
+          name="q"
+          defaultValue={query}
+          placeholder="Search unit #, plate, VIN, or driver…"
+          className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+        />
+        <button type="submit" className="rounded-lg bg-emerald-grad px-3 py-2 text-sm font-medium text-white shadow">Search</button>
+        {query ? (
+          <Link href={branchHref(branch)} className="rounded-lg border border-line px-3 py-2 text-sm font-medium text-muted hover:text-ink">Clear</Link>
+        ) : null}
+      </form>
+      {query ? <p className="mb-3 text-xs text-muted">{vehicles.length} match{vehicles.length === 1 ? "" : "es"} for &ldquo;{query}&rdquo;</p> : null}
 
       <div className="mb-3 flex items-center gap-2 text-xs">
         <span className="text-muted">View by:</span>

@@ -19,6 +19,7 @@ import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
 import { DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
 import MyReviewsCard from "@/components/MyReviewsCard";
+import StartReorder from "./StartReorder";
 
 export const dynamic = "force-dynamic";
 
@@ -249,6 +250,15 @@ export default async function DashboardPage({
                 {lowStock.length} to reorder
               </span>
             ) : null}
+            <StartReorder
+              items={lowStock.map((f) => ({
+                productName: f.productName,
+                warehouseName: f.warehouseName,
+                onHand: f.onHand,
+                unit: f.unit,
+                reorderQty: f.reorderQty,
+              }))}
+            />
             <Link href="/alerts" className="text-xs font-medium text-brand-700 hover:underline">View alerts</Link>
           </div>
         </div>

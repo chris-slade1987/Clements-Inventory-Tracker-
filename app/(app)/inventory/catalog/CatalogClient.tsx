@@ -42,13 +42,14 @@ export default function CatalogClient({ products }: { products: Product[] }) {
   const [importReport, setImportReport] = useState<ImportReport | null>(null);
   const [importBusy, setImportBusy] = useState(false);
 
-  const filtered = useMemo(() => {
+  const matched = useMemo(() => {
     const s = q.trim().toLowerCase();
-    const list = s
+    return s
       ? products.filter((p) => [p.name, p.distributorSku, p.manufacturer, p.category, ...p.barcodes.map((b) => b.code)].filter(Boolean).some((x) => x!.toLowerCase().includes(s)))
       : products;
-    return list.slice(0, 100);
   }, [products, q]);
+  const CAP = 100;
+  const filtered = matched.slice(0, CAP);
 
   async function runImport(apply: boolean) {
     setImportBusy(true);
@@ -128,6 +129,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
               onChanged={() => router.refresh()}
             />
           ))}
+          {matched.length > filtered.length ? (
+            <p className="py-2 text-center text-xs text-muted">
+              Showing {filtered.length} of {matched.length} — refine your search to see more
+            </p>
+          ) : null}
         </div>
       )}
     </div>

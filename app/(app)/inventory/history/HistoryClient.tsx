@@ -42,6 +42,9 @@ export default function HistoryClient({
   const [to, setTo] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // In-page void confirmation (replaces window.prompt/confirm).
+  const [voidModal, setVoidModal] = useState<{ checkout: Checkout; needReason: boolean } | null>(null);
+  const [voidReason, setVoidReason] = useState("");
 
   const filtered = useMemo(() => {
     const t = tech.trim().toLowerCase();
@@ -65,14 +68,19 @@ export default function HistoryClient({
     return { allowed: isAdmin, needReason: true };
   }
 
-  async function voidCheckout(c: Checkout) {
+  function openVoid(c: Checkout) {
     const { needReason } = canUndo(c);
-    let voidReason: string | undefined;
-    if (needReason) {
-      const r = window.prompt("Reason for voiding this checkout (required after 15 minutes):");
-      if (!r || !r.trim()) return;
-      voidReason = r.trim();
-    } else if (!window.confirm("Undo this checkout? Stock will be returned.")) {
+    setVoidReason("");
+    setError(null);
+    setVoidModal({ checkout: c, needReason });
+  }
+
+  async function confirmVoid() {
+    if (!voidModal) return;
+    const c = voidModal.checkout;
+    const reason = voidReason.trim();
+    if (voidModal.needReason && !reason) {
+      setError("A reason is required to void after 15 minutes.");
       return;
     }
     setBusy(c.id);
@@ -81,7 +89,7 @@ export default function HistoryClient({
       const res = await fetch(`/api/inventory/checkout/${c.id}/void`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ voidReason }),
+        body: JSON.stringify({ voidReason: reason || undefined }),
       });
       const data = await res.json().catch(() => ({}));
       setBusy(null);
@@ -89,6 +97,7 @@ export default function HistoryClient({
         setError(data.error ?? "Could not void.");
         return;
       }
+      setVoidModal(null);
       router.refresh();
     } catch {
       setBusy(null);
@@ -191,7 +200,7 @@ export default function HistoryClient({
                 {voided && c.voidReason ? <p className="mt-2 text-xs text-muted">Reason: {c.voidReason}</p> : null}
                 {allowed ? (
                   <div className="mt-3">
-                    <button className={btn.danger} onClick={() => voidCheckout(c)} disabled={busy === c.id}>
+                    <button className={btn.danger} onClick={() => openVoid(c)} disabled={busy === c.id}>
                       {busy === c.id ? "Voiding…" : "Undo / Void"}
                     </button>
                   </div>
@@ -201,6 +210,34 @@ export default function HistoryClient({
           })}
         </div>
       )}
+
+      {voidModal ? (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => (busy ? undefined : setVoidModal(null))}>
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold">Undo / void checkout</h3>
+            <p className="text-sm text-muted">
+              {voidModal.checkout.technician} · {voidModal.checkout.warehouse}. Stock will be returned with offsetting adjustments — nothing is deleted.
+            </p>
+            <label className="block text-sm font-medium">
+              Reason{voidModal.needReason ? " (required)" : " (optional)"}
+              <input
+                value={voidReason}
+                onChange={(e) => setVoidReason(e.target.value)}
+                placeholder={voidModal.needReason ? "Required after 15 minutes" : "e.g. wrong technician, miscount"}
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+                autoFocus
+              />
+            </label>
+            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+            <div className="flex gap-2 pt-1">
+              <button onClick={() => setVoidModal(null)} className={btn.secondary} disabled={!!busy}>Cancel</button>
+              <button onClick={confirmVoid} disabled={!!busy || (voidModal.needReason && !voidReason.trim())} className={`${btn.danger} flex-1`}>
+                {busy ? "Voiding…" : "Undo / Void"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

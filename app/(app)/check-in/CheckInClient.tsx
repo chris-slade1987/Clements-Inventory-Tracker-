@@ -1,14 +1,16 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import DateInput from "@/components/DateInput";
 import { uomCode } from "@/lib/uom";
+import { money } from "@/lib/format";
 import { matchProduct } from "@/lib/invoice/match";
 import type { ParsedLine } from "@/lib/invoice/types";
 
 type Warehouse = { id: string; name: string };
-type Product = { id: string; name: string; unit: string; distributorSku: string | null };
+type Product = { id: string; name: string; unit: string; distributorSku: string | null; unitsPerCase?: number | null };
 
 // A draft staged by the Document Intake inventory hand-off, loaded via ?draft=.
 export type InitialDraft = {
@@ -60,6 +62,16 @@ type Receipt = {
   invoiceNumber: string;
   itemCount: number;
   lineCount: number;
+  skippedLines?: number;
+};
+
+type DuplicateInfo = {
+  id: string;
+  distributor: string;
+  invoiceNumber: string;
+  warehouse: string;
+  postedAt: string;
+  total: number | null;
 };
 
 let keySeq = 0;
@@ -108,6 +120,16 @@ export default function CheckInClient({
   );
   const [manualMode, setManualMode] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [receiptInvoiceId, setReceiptInvoiceId] = useState<string | null>(null);
+  // Receipt-level undo of the just-posted check-in (reverses its movements).
+  const [undoBusy, setUndoBusy] = useState(false);
+  const [undone, setUndone] = useState(false);
+  const [undoError, setUndoError] = useState<string | null>(null);
+  // Unmatched-line guard: the manager must acknowledge that lines with no product
+  // won't be received before Confirm posts anything.
+  const [ackUnmatched, setAckUnmatched] = useState(false);
+  // Duplicate-invoice guard (distributor + invoice # + warehouse already posted).
+  const [duplicate, setDuplicate] = useState<DuplicateInfo | null>(null);
 
   // ---- Check-In assistant (chat) --------------------------------------
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
@@ -294,8 +316,22 @@ export default function CheckInClient({
     updateLine(key, patch);
   }
 
-  async function confirm() {
+  // Lines the manager gave a quantity but never matched to a product — these are
+  // silently dropped at post, so we block/confirm before Confirm.
+  const unmatchedCount = (lines ?? []).filter(
+    (l) =>
+      Number(l.quantity) > 0 &&
+      (l.productId === "" || (l.productId === "__new__" && !l.newName.trim()))
+  ).length;
+
+  async function confirm(opts?: { allowDuplicate?: boolean }) {
     if (!lines) return;
+    // Block on unmatched lines until the manager acknowledges they'll be skipped.
+    if (unmatchedCount > 0 && !ackUnmatched) {
+      setError(null);
+      setAckUnmatched(false);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -314,6 +350,7 @@ export default function CheckInClient({
         invoiceDate,
         subtotal,
         total,
+        allowDuplicate: opts?.allowDuplicate ?? false,
         lines: lines.map((l) => ({
           productId: l.productId && l.productId !== "__new__" ? l.productId : null,
           newProduct:
@@ -333,12 +370,19 @@ export default function CheckInClient({
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
+      if (res.status === 409 && data.error === "duplicate_invoice") {
+        setDuplicate(data.duplicate as DuplicateInfo);
+        setBusy(false);
+        return;
+      }
       if (!res.ok) {
         setError(data.error ?? "Confirm failed.");
         setBusy(false);
         return;
       }
       setReceipt(data.receipt as Receipt);
+      setReceiptInvoiceId(data.invoiceId ?? null);
+      setDuplicate(null);
       setBusy(false);
     } catch {
       setError("Network error. Try again.");
@@ -346,8 +390,36 @@ export default function CheckInClient({
     }
   }
 
+  async function undoCheckIn() {
+    if (!receiptInvoiceId) return;
+    setUndoBusy(true);
+    setUndoError(null);
+    try {
+      const res = await fetch("/api/check-in/undo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: receiptInvoiceId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setUndoBusy(false);
+      if (!res.ok) {
+        setUndoError(data.error ?? "Could not undo this check-in.");
+        return;
+      }
+      setUndone(true);
+    } catch {
+      setUndoBusy(false);
+      setUndoError("Network error during undo.");
+    }
+  }
+
   function reset() {
     setReceipt(null);
+    setReceiptInvoiceId(null);
+    setUndone(false);
+    setUndoError(null);
+    setAckUnmatched(false);
+    setDuplicate(null);
     setLines(null);
     setManualMode(false);
     setFile(null);
@@ -373,7 +445,7 @@ export default function CheckInClient({
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <h2 className="text-lg font-semibold">Invoice checked in</h2>
+          <h2 className="text-lg font-semibold">{undone ? "Check-in undone" : "Invoice checked in"}</h2>
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-y-2 text-sm">
           <dt className="text-muted">Warehouse</dt>
@@ -382,14 +454,37 @@ export default function CheckInClient({
           <dd className="text-right font-medium">{receipt.distributor}</dd>
           <dt className="text-muted">Invoice #</dt>
           <dd className="text-right font-medium">{receipt.invoiceNumber}</dd>
-          <dt className="text-muted">Lines</dt>
+          <dt className="text-muted">Lines received</dt>
           <dd className="text-right font-medium">{receipt.lineCount}</dd>
           <dt className="text-muted">Items added</dt>
           <dd className="text-right font-medium">{receipt.itemCount}</dd>
+          {receipt.skippedLines ? (
+            <>
+              <dt className="text-amber-600">Lines skipped (no product)</dt>
+              <dd className="text-right font-medium text-amber-600">{receipt.skippedLines}</dd>
+            </>
+          ) : null}
         </dl>
-        <button onClick={reset} className={`${btn.primary} w-full mt-5`}>
+        {undone ? (
+          <p className="mt-4 rounded-lg bg-slate-100 px-3 py-2 text-sm text-muted">
+            This check-in&rsquo;s movements were reversed with offsetting adjustments. On-hand is back to where it was; the audit trail is kept in Reconcile.
+          </p>
+        ) : (
+          <>
+            {undoError ? <p className="mt-3 text-sm text-red-600">{undoError}</p> : null}
+            {receiptInvoiceId ? (
+              <button onClick={undoCheckIn} disabled={undoBusy} className={`${btn.secondary} w-full mt-4`}>
+                {undoBusy ? "Undoing…" : "Undo this check-in"}
+              </button>
+            ) : null}
+          </>
+        )}
+        <button onClick={reset} className={`${btn.primary} w-full mt-3`}>
           Check in another
         </button>
+        <Link href="/reconcile" className="mt-3 block text-center text-sm font-medium text-brand-700 hover:underline">
+          View in Reconcile
+        </Link>
       </Card>
     );
   }
@@ -469,23 +564,14 @@ export default function CheckInClient({
               <Card key={l.key} className="p-3">
                 {/* Product first — the identity of the line. */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <label className="text-xs text-muted">Product</label>
-                    <select
+                    <ProductPicker
                       value={l.productId}
-                      onChange={(e) => pickProduct(l.key, e.target.value)}
-                      className={`mt-0.5 w-full rounded-lg border px-2 py-2 text-sm bg-surface ${
-                        unmatched ? "border-amber-400" : "border-line"
-                      }`}
-                    >
-                      <option value="">— Select a product —</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                      <option value="__new__">+ Create new product…</option>
-                    </select>
+                      products={products}
+                      unmatched={unmatched}
+                      onPick={(id) => pickProduct(l.key, id)}
+                    />
                   </div>
                   <button
                     onClick={() => removeLine(l.key)}
@@ -529,6 +615,20 @@ export default function CheckInClient({
                       }
                       className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
                     />
+                    {(() => {
+                      const per = products.find((p) => p.id === l.productId)?.unitsPerCase;
+                      if (!per || per <= 1) return null;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => updateLine(l.key, { quantity: (Number(l.quantity) || 0) * per })}
+                          className="mt-0.5 block text-[10px] font-medium text-brand-700 hover:underline"
+                          title={`This product ships ${per} units per case`}
+                        >
+                          × case ({per}/case → {(Number(l.quantity) || 0) * per} units)
+                        </button>
+                      );
+                    })()}
                   </label>
                   <label className="text-xs text-muted">
                     Unit
@@ -646,6 +746,26 @@ export default function CheckInClient({
           ) : null}
         </Card>
 
+        {unmatchedCount > 0 ? (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-3">
+            <p className="text-sm font-medium text-amber-800">
+              {unmatchedCount} line{unmatchedCount === 1 ? " has" : "s have"} no product and won&rsquo;t be received.
+            </p>
+            <p className="mt-0.5 text-xs text-amber-700">
+              Pick a product (or &ldquo;Create new product&rdquo;) for each flagged line above, or acknowledge they&rsquo;ll be skipped.
+            </p>
+            <label className="mt-2 flex items-center gap-2 text-sm text-amber-800">
+              <input
+                type="checkbox"
+                checked={ackUnmatched}
+                onChange={(e) => setAckUnmatched(e.target.checked)}
+                className="h-4 w-4 rounded border-amber-400 accent-amber-600"
+              />
+              Skip {unmatchedCount === 1 ? "this line" : `these ${unmatchedCount} lines`} and check in the rest
+            </label>
+          </div>
+        ) : null}
+
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
         <div className="flex gap-2">
@@ -653,13 +773,44 @@ export default function CheckInClient({
             {manualMode ? "Cancel" : "Start over"}
           </button>
           <button
-            onClick={confirm}
-            disabled={busy}
+            onClick={() => confirm()}
+            disabled={busy || (unmatchedCount > 0 && !ackUnmatched)}
             className={`${btn.primary} flex-1`}
           >
             {busy ? "Posting…" : "Confirm check-in"}
           </button>
         </div>
+
+        {/* Duplicate-invoice guard */}
+        {duplicate ? (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDuplicate(null)}>
+            <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold text-amber-700">Possible duplicate invoice</h3>
+              <p className="text-sm text-muted">
+                Invoice <span className="font-medium text-ink">{duplicate.invoiceNumber}</span> from{" "}
+                <span className="font-medium text-ink">{duplicate.distributor}</span> was already checked in to{" "}
+                <span className="font-medium text-ink">{duplicate.warehouse}</span> on{" "}
+                {new Date(duplicate.postedAt).toLocaleString()}
+                {duplicate.total != null ? ` (${money(duplicate.total)})` : ""}. Posting it again would double on-hand.
+              </p>
+              <div className="flex flex-col gap-2 pt-1">
+                <button onClick={() => setDuplicate(null)} className={btn.secondary}>
+                  Cancel — this is the same invoice
+                </button>
+                <button
+                  onClick={() => { setDuplicate(null); confirm({ allowDuplicate: true }); }}
+                  disabled={busy}
+                  className={btn.primary}
+                >
+                  {busy ? "Posting…" : "Post anyway — this is a separate receipt"}
+                </button>
+                <Link href="/reconcile" className="text-center text-sm font-medium text-brand-700 hover:underline">
+                  Review the existing invoice in Reconcile
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -734,6 +885,81 @@ export default function CheckInClient({
       <p className="text-center text-xs text-muted">
         No invoice on hand? Add products and quantities manually — pick existing products or create new ones.
       </p>
+    </div>
+  );
+}
+
+// Searchable product picker for a check-in line — replaces the giant unsearchable
+// <select>. Type to filter the catalog; pick a product, or "Create new product".
+function ProductPicker({
+  value,
+  products,
+  unmatched,
+  onPick,
+}: {
+  value: string;
+  products: Product[];
+  unmatched: boolean;
+  onPick: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const selected = value && value !== "__new__" ? products.find((p) => p.id === value) ?? null : null;
+  const label = value === "__new__" ? "Create new product…" : selected ? selected.name : "";
+
+  const results = (() => {
+    const q = query.trim().toLowerCase();
+    const list = q
+      ? products.filter((p) => [p.name, p.distributorSku].filter(Boolean).some((x) => x!.toLowerCase().includes(q)))
+      : products;
+    return list.slice(0, 50);
+  })();
+
+  function choose(id: string) {
+    onPick(id);
+    setOpen(false);
+    setQuery("");
+  }
+
+  return (
+    <div className="relative mt-0.5">
+      <input
+        value={open ? query : label}
+        placeholder="Search products…"
+        onFocus={() => { setOpen(true); setQuery(""); }}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className={`w-full rounded-lg border px-2 py-2 text-sm bg-surface ${unmatched ? "border-amber-400" : "border-line"}`}
+      />
+      {open ? (
+        <ul className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-line bg-surface shadow-lg">
+          <li>
+            <button
+              type="button"
+              onMouseDown={(e) => { e.preventDefault(); choose("__new__"); }}
+              className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm font-medium text-brand-700 hover:bg-brand-50"
+            >
+              + Create new product…
+            </button>
+          </li>
+          {results.length === 0 ? (
+            <li className="px-3 py-2 text-xs text-muted">No products match &ldquo;{query}&rdquo;.</li>
+          ) : (
+            results.map((p) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); choose(p.id); }}
+                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-brand-50 ${p.id === value ? "bg-brand-50/60" : ""}`}
+                >
+                  <span className="min-w-0 truncate">{p.name}</span>
+                  {p.distributorSku ? <span className="shrink-0 text-xs text-muted">{p.distributorSku}</span> : null}
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      ) : null}
     </div>
   );
 }

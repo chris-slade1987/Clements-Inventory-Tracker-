@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
@@ -73,8 +73,27 @@ export default function InspectionForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
-  const set = (patch: Partial<typeof f>) => setF((s) => ({ ...s, ...patch }));
+  const set = (patch: Partial<typeof f>) => { setDirty(true); setF((s) => ({ ...s, ...patch })); };
+
+  // Warn before leaving with unsaved edits (close/reload/back).
+  useEffect(() => {
+    if (!dirty || done) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty, done]);
+
+  // Odometer sanity: the pre-filled mileage is what's on file for this vehicle.
+  const mileageWarning = (() => {
+    const onFile = parseInt(String(prefill.mileage).replace(/[^0-9]/g, ""), 10);
+    const typed = parseInt(String(f.mileage).replace(/[^0-9]/g, ""), 10);
+    if (!Number.isFinite(typed) || !Number.isFinite(onFile) || !onFile) return null;
+    if (typed < onFile) return `Entered ${typed.toLocaleString()} mi is below the ${onFile.toLocaleString()} mi on file — odometers don't go backward.`;
+    if (typed > onFile + 100000) return `Entered ${typed.toLocaleString()} mi jumps >100k over the ${onFile.toLocaleString()} mi on file — typo?`;
+    return null;
+  })();
 
   const live = useMemo(() => scoreInspection(ratings, checks), [ratings, checks]);
   const critFails = CHECK_ITEMS.filter((it) => it.critical && checks[it.key] === false);
@@ -142,6 +161,7 @@ export default function InspectionForm({
           <DateInput className="mt-1" value={f.date} onChange={(v) => set({ date: v })} />
         </label>
         <Field label="Mileage" v={f.mileage} on={(v) => set({ mileage: v })} hint="Pre-filled from file; updating syncs the vehicle" />
+        {mileageWarning ? <p className="sm:col-span-2 text-xs text-amber-700">{mileageWarning}</p> : null}
       </Card>
 
       {/* Section A — condition ratings */}
@@ -157,7 +177,7 @@ export default function InspectionForm({
                   return (
                     <button
                       key={r.value}
-                      onClick={() => setRatings((s) => ({ ...s, [it.key]: r.value }))}
+                      onClick={() => { setDirty(true); setRatings((s) => ({ ...s, [it.key]: r.value })); }}
                       className={`rounded-lg px-3 py-2 text-xs font-medium min-w-[84px] transition-colors ${
                         sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"
                       }`}
@@ -170,7 +190,7 @@ export default function InspectionForm({
             </div>
             <input
               value={ratingIssues[it.key] ?? ""}
-              onChange={(e) => setRatingIssues((s) => ({ ...s, [it.key]: e.target.value }))}
+              onChange={(e) => { setDirty(true); setRatingIssues((s) => ({ ...s, [it.key]: e.target.value })); }}
               placeholder="Issues to address (optional)"
               className="mt-2 w-full rounded-lg border border-line px-3 py-2 text-sm"
             />
@@ -200,11 +220,11 @@ export default function InspectionForm({
                 </div>
                 <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
                   <button
-                    onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))}
+                    onClick={() => { setDirty(true); setChecks((s) => ({ ...s, [it.key]: true })); }}
                     className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
                   >Pass</button>
                   <button
-                    onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))}
+                    onClick={() => { setDirty(true); setChecks((s) => ({ ...s, [it.key]: false })); }}
                     className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
                   >Fail</button>
                 </div>
@@ -223,9 +243,10 @@ export default function InspectionForm({
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-      {/* Sticky live score / save bar */}
-      <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
+      {/* Sticky live score / save bar — offset to clear the mobile bottom nav
+          (the app's bottom-20 md:bottom-4 floating pattern). */}
+      <div className="fixed bottom-20 md:bottom-4 inset-x-0 sm:left-60 px-4 z-20">
+        <div className="max-w-3xl mx-auto flex items-center gap-4 rounded-xl border border-line bg-surface/95 backdrop-blur px-4 py-3 shadow-lg">
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">

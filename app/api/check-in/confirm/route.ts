@@ -59,11 +59,52 @@ export async function POST(req: Request) {
       Number(l.quantity) > 0 &&
       (l.productId || (l.newProduct && l.newProduct.name?.trim()))
   );
+  // Lines a manager entered a quantity for but never matched to a product — these
+  // would be silently dropped, so we count them and surface the count on the
+  // receipt (the client blocks/confirms before ever getting here).
+  const skippedLines = rawLines.filter(
+    (l) =>
+      Number(l.quantity) > 0 &&
+      !(l.productId || (l.newProduct && l.newProduct.name?.trim()))
+  ).length;
   if (lines.length === 0) {
     return NextResponse.json(
       { error: "Add at least one line with a product and quantity." },
       { status: 400 }
     );
+  }
+
+  // Duplicate-invoice guard: a confirmed invoice with the same distributor +
+  // invoice # + warehouse almost always means someone re-keyed or re-read the
+  // same paper invoice, which would double on-hand. Block unless the manager
+  // explicitly confirms it's a genuinely separate receipt (allowDuplicate).
+  const trimmedInvoiceNo = invoiceNumber.trim();
+  if (trimmedInvoiceNo && body?.allowDuplicate !== true) {
+    const dup = await prisma.invoice.findFirst({
+      where: {
+        warehouseId,
+        distributor,
+        invoiceNumber: trimmedInvoiceNo,
+        status: "confirmed",
+      },
+      select: { id: true, createdAt: true, total: true },
+    });
+    if (dup) {
+      return NextResponse.json(
+        {
+          error: "duplicate_invoice",
+          duplicate: {
+            id: dup.id,
+            distributor,
+            invoiceNumber: trimmedInvoiceNo,
+            warehouse: warehouse.name,
+            postedAt: dup.createdAt.toISOString(),
+            total: dup.total,
+          },
+        },
+        { status: 409 }
+      );
+    }
   }
 
   const invoiceDate = parseDate(invoiceDateRaw);
@@ -162,6 +203,7 @@ export async function POST(req: Request) {
       invoiceNumber: invoiceNumber || "(none)",
       itemCount: result.itemCount,
       lineCount: result.lineCount,
+      skippedLines,
     },
   });
 }

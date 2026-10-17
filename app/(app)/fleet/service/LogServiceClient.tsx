@@ -14,7 +14,7 @@ const TYPES = [
   { key: "other", label: "Other" },
 ];
 
-type Vehicle = { id: string; label: string };
+type Vehicle = { id: string; label: string; currentMileage?: number | null };
 
 type Line = {
   key: string;
@@ -56,15 +56,18 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<{ created: number } | null>(null);
+  // Confirm before discarding costed-but-unassigned lines on save.
+  const [discardConfirm, setDiscardConfirm] = useState<{ count: number } | null>(null);
 
   // ---- derived summary -------------------------------------------------
   const summary = useMemo(() => {
-    const withCost = lines.filter((l) => parseFloat(l.cost) > 0);
-    const total = withCost.reduce((s, l) => s + (parseFloat(l.cost) || 0), 0);
-    const assigned = lines.filter((l) => l.vehicleId);
-    const unassigned = lines.filter((l) => !l.vehicleId && (l.description || l.cost)).length;
-    const vehicleCount = new Set(assigned.map((l) => l.vehicleId)).size;
-    return { total, unassigned, vehicleCount, count: withCost.length };
+    const content = (l: Line) => l.cost.trim() !== "" || l.description.trim() !== "" || l.mileage.trim() !== "";
+    // Chargeable = has a vehicle + any content ($0 lines count now).
+    const chargeable = lines.filter((l) => l.vehicleId && content(l));
+    const total = chargeable.reduce((s, l) => s + (parseFloat(l.cost) || 0), 0);
+    const unassigned = lines.filter((l) => !l.vehicleId && content(l)).length;
+    const vehicleCount = new Set(chargeable.map((l) => l.vehicleId)).size;
+    return { total, unassigned, vehicleCount, count: chargeable.length };
   }, [lines]);
 
   // ---- line ops --------------------------------------------------------
@@ -127,13 +130,42 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
     }
   }
 
+  // A line is "filled in" when it has any content (cost, description, or mileage).
+  const hasContent = (l: Line) => l.cost.trim() !== "" || l.description.trim() !== "" || l.mileage.trim() !== "";
+  // Mileage readings that look wrong vs. the vehicle's current odometer.
+  const mileageWarnings = useMemo(() => {
+    const out: string[] = [];
+    for (const l of lines) {
+      if (!l.vehicleId || l.mileage.trim() === "") continue;
+      const m = parseInt(l.mileage.replace(/[^0-9]/g, ""), 10);
+      if (!Number.isFinite(m)) continue;
+      const v = vehicles.find((x) => x.id === l.vehicleId);
+      const cur = v?.currentMileage ?? null;
+      const label = v?.label ?? "vehicle";
+      if (cur != null && m < cur) out.push(`${label}: ${m.toLocaleString()} mi is below the recorded ${cur.toLocaleString()} mi.`);
+      else if (cur != null && m > cur + 100000) out.push(`${label}: ${m.toLocaleString()} mi jumps >100k over the recorded ${cur.toLocaleString()} mi — typo?`);
+      else if (m > 1_000_000) out.push(`${label}: ${m.toLocaleString()} mi looks implausibly high.`);
+    }
+    return out;
+  }, [lines, vehicles]);
+
   // ---- submit ----------------------------------------------------------
-  async function save() {
-    const items = lines.filter((l) => l.vehicleId && parseFloat(l.cost) > 0);
+  async function save(opts?: { discardUnassigned?: boolean }) {
+    // Allow $0 lines (warranty, comebacks) — a charge needs a vehicle + content.
+    const items = lines
+      .filter((l) => l.vehicleId && hasContent(l))
+      .map((l) => ({ ...l, cost: l.cost.trim() === "" ? "0" : l.cost }));
+    const unassignedWithContent = lines.filter((l) => !l.vehicleId && hasContent(l)).length;
     if (items.length === 0) {
-      setError("Add at least one charge with a vehicle and a cost.");
+      setError("Add at least one charge with a vehicle.");
       return;
     }
+    // Confirm before silently dropping filled-in lines that have no vehicle.
+    if (unassignedWithContent > 0 && !opts?.discardUnassigned) {
+      setDiscardConfirm({ count: unassignedWithContent });
+      return;
+    }
+    setDiscardConfirm(null);
     setBusy(true);
     setError(null);
     const res = await fetch("/api/fleet/service", {
@@ -313,15 +345,42 @@ export default function LogServiceClient({ mode, vehicles }: { mode: "mock" | "c
             <span className="font-semibold tabular-nums">${Math.round(summary.total).toLocaleString("en-US")}</span>
           </Card>
 
+          {mileageWarnings.length > 0 ? (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+              <div className="font-medium">Check these odometer readings:</div>
+              <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                {mileageWarnings.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            </div>
+          ) : null}
+
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
           <div className="flex gap-2">
             <button onClick={reset} className={btn.secondary}>Start over</button>
-            <button onClick={save} disabled={busy} className={`${btn.primary} flex-1`}>
+            <button onClick={() => save()} disabled={busy} className={`${btn.primary} flex-1`}>
               {busy ? "Saving…" : `Save ${summary.count || ""} charge${summary.count === 1 ? "" : "s"}`.trim()}
             </button>
           </div>
         </>
+      ) : null}
+
+      {/* Confirm before discarding costed-but-unassigned lines */}
+      {discardConfirm ? (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDiscardConfirm(null)}>
+          <div className="surface-light w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-amber-700">{discardConfirm.count} charge{discardConfirm.count === 1 ? "" : "s"} not assigned</h3>
+            <p className="text-sm text-muted">
+              {discardConfirm.count === 1 ? "One charge has" : `${discardConfirm.count} charges have`} details or a cost but no vehicle, so {discardConfirm.count === 1 ? "it" : "they"} won&rsquo;t be saved. Assign a vehicle to keep {discardConfirm.count === 1 ? "it" : "them"}, or discard and save the rest.
+            </p>
+            <div className="flex flex-col gap-2 pt-1">
+              <button onClick={() => setDiscardConfirm(null)} className={btn.secondary}>Back — assign a vehicle</button>
+              <button onClick={() => save({ discardUnassigned: true })} disabled={busy} className={btn.primary}>
+                {busy ? "Saving…" : "Discard unassigned & save the rest"}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );

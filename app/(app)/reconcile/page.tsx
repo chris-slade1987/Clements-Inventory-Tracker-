@@ -99,6 +99,7 @@ export default async function ReconcilePage({
         warehouses={warehouses.map((w) => ({ id: w.id, name: w.name }))}
         products={products}
         technicians={technicians}
+        defaultWarehouseId={_obsUser.warehouseId ?? ""}
         initial={sp}
       />
     </>

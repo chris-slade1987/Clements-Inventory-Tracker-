@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { onHand } from "@/lib/inventory";
 
 export const maxDuration = 20;
+
+// GET /api/reconcile?productId=&warehouseId=  → live on-hand for that pair, so the
+// modal can show current on-hand beside the delta (and the resulting on-hand).
+export async function GET(req: Request) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { searchParams } = new URL(req.url);
+  const productId = searchParams.get("productId") ?? "";
+  const warehouseId = searchParams.get("warehouseId") ?? "";
+  if (!productId || !warehouseId) {
+    return NextResponse.json({ error: "productId and warehouseId are required." }, { status: 400 });
+  }
+  const current = await onHand(productId, warehouseId);
+  return NextResponse.json({ onHand: current });
+}
 
 // Reconciliation never hard-deletes. All corrections are new movements:
 //  - reverse:  post an offsetting adjustment linked to the original

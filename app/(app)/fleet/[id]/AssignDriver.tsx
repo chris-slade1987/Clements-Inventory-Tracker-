@@ -10,9 +10,10 @@ type Driver = { id: string; name: string; branch: string | null; meta: string };
 
 // Assign / swap / remove the driver on a vehicle. Picks from the active-employee
 // roster; Save assigns or swaps, Remove clears. The server keeps the assignedTo
-// name string in sync with the structured link. When the new driver's home branch
-// differs from the vehicle's, an admin is offered a one-click "move the vehicle to
-// that branch" (manual — never automatic).
+// name string in sync with the structured link. THE VEHICLE FOLLOWS ITS DRIVER:
+// when the new driver's home branch differs, the server moves the vehicle to that
+// branch in the same write (never a separate manual step) and the confirmation
+// says "moved to {branch}". This matches the compact picker on /fleet/assignments.
 export default function AssignDriver({
   vehicleId,
   currentEmployeeId,
@@ -102,6 +103,7 @@ export default function AssignDriver({
           Currently “{staleName}” — no longer on the active roster. Pick a current driver to reassign.
         </p>
       ) : null}
+      <p className="mt-1 text-[11px] text-muted">Assigning a driver whose home branch differs moves the vehicle to that branch.</p>
       {msg ? <p className="mt-1 text-[11px] text-brand-700">{msg}</p> : null}
     </div>
   );

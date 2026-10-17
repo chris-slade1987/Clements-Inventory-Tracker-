@@ -11,11 +11,13 @@ export default function LabelsClient({ products }: { products: Product[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [size, setSize] = useState<"2x1" | "2x2">("2x1");
 
-  const filtered = useMemo(() => {
+  const matched = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return products.slice(0, 80);
-    return products.filter((p) => [p.name, p.distributorSku, p.category].filter(Boolean).some((x) => x!.toLowerCase().includes(s))).slice(0, 80);
+    if (!s) return products;
+    return products.filter((p) => [p.name, p.distributorSku, p.category].filter(Boolean).some((x) => x!.toLowerCase().includes(s)));
   }, [products, q]);
+  const CAP = 80;
+  const filtered = matched.slice(0, CAP);
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -70,6 +72,11 @@ export default function LabelsClient({ products }: { products: Product[] }) {
               </Card>
             );
           })}
+          {matched.length > filtered.length ? (
+            <p className="py-2 text-center text-xs text-muted">
+              Showing {filtered.length} of {matched.length} — refine your search to see more
+            </p>
+          ) : null}
         </div>
       )}
     </div>

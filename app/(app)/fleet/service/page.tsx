@@ -12,7 +12,7 @@ export default async function LogServicePage() {
   const vehicles = await prisma.vehicle.findMany({
     where: { status: "active" },
     orderBy: [{ branch: "asc" }, { unitNumber: "asc" }],
-    select: { id: true, unitNumber: true, name: true, branch: true },
+    select: { id: true, unitNumber: true, name: true, branch: true, currentMileage: true },
   });
 
   return (
@@ -26,6 +26,7 @@ export default async function LogServicePage() {
           vehicles={vehicles.map((v) => ({
             id: v.id,
             label: `${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}${v.branch ? ` (${branchLabel(v.branch)})` : ""}`,
+            currentMileage: v.currentMileage ?? null,
           }))}
         />
       )}

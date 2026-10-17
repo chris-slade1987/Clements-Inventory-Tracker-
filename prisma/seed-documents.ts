@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 25 · Last updated October 15, 2026",
+    effective: "Version 26 · Last updated October 17, 2026",
+    // v26: reconciled the Inventory sections for the 2026-10-17 audit fixes —
+    // Check-IN now has a searchable product picker + case→unit helper, blocks/counts
+    // unmatched lines before Confirm, guards against duplicate invoices, and offers a
+    // receipt-level Undo (15-min window, reverses as adjustments); Stock Count shows
+    // the whole shelf (paged, progress tally, scan-to-jump, unsaved-count warning);
+    // Reconcile defaults a new adjustment to your own branch and shows current +
+    // resulting on-hand in every dialog.
     // v25: reconciled the Sales Team section for the motivation-kit v2 goal-sheet
     // rework — the My Sales Goals pace speedometer (projected month-end close vs
     // goal, colored by REAL on-track pace so dragging the goal no longer fakes the
@@ -114,7 +121,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 25,
+    version: 26,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

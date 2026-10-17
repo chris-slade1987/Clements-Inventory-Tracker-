@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
 import { qty, money } from "@/lib/format";
@@ -37,6 +37,7 @@ export default function ReconcileClient({
   warehouses,
   products,
   technicians,
+  defaultWarehouseId,
   initial,
 }: {
   rows: Row[];
@@ -46,6 +47,7 @@ export default function ReconcileClient({
   warehouses: Option[];
   products: Option[];
   technicians: Option[];
+  defaultWarehouseId: string;
   initial: Record<string, string | undefined>;
 }) {
   const router = useRouter();
@@ -214,6 +216,7 @@ export default function ReconcileClient({
           modal={modal}
           products={products}
           warehouses={warehouses}
+          defaultWarehouseId={defaultWarehouseId}
           onClose={() => setModal(null)}
           onDone={() => {
             setModal(null);
@@ -239,6 +242,7 @@ function ReconcileModal({
   modal,
   products,
   warehouses,
+  defaultWarehouseId,
   onClose,
   onDone,
 }: {
@@ -248,17 +252,57 @@ function ReconcileModal({
     | { kind: "correct"; row: Row };
   products: Option[];
   warehouses: Option[];
+  defaultWarehouseId: string;
   onClose: () => void;
   onDone: () => void;
 }) {
-  const [productId, setProductId] = useState(products[0]?.id ?? "");
-  const [warehouseId, setWarehouseId] = useState(warehouses[0]?.id ?? "");
+  // For reverse/correct the product+warehouse come from the row being acted on;
+  // for a new adjustment default the warehouse to the user's own branch so
+  // corrections don't silently post to the wrong warehouse.
+  const rowProductId =
+    modal.kind === "adjust" ? null : products.find((p) => p.name === modal.row.productName)?.id ?? null;
+  const rowWarehouseId =
+    modal.kind === "adjust" ? null : warehouses.find((w) => w.name === modal.row.warehouseName)?.id ?? null;
+  const initialWarehouse =
+    rowWarehouseId ??
+    (defaultWarehouseId && warehouses.some((w) => w.id === defaultWarehouseId)
+      ? defaultWarehouseId
+      : warehouses[0]?.id ?? "");
+  const [productId, setProductId] = useState(rowProductId ?? products[0]?.id ?? "");
+  const [warehouseId, setWarehouseId] = useState(initialWarehouse);
   const [quantity, setQuantity] = useState(
     modal.kind === "correct" ? modal.row.quantity : 0
   );
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Live on-hand for the selected product+warehouse, fetched on change.
+  const [liveOnHand, setLiveOnHand] = useState<number | null>(null);
+  const [onHandBusy, setOnHandBusy] = useState(false);
+  useEffect(() => {
+    if (!productId || !warehouseId) {
+      setLiveOnHand(null);
+      return;
+    }
+    let cancelled = false;
+    setOnHandBusy(true);
+    fetch(`/api/reconcile?productId=${encodeURIComponent(productId)}&warehouseId=${encodeURIComponent(warehouseId)}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setLiveOnHand(typeof d.onHand === "number" ? d.onHand : null); })
+      .catch(() => { if (!cancelled) setLiveOnHand(null); })
+      .finally(() => { if (!cancelled) setOnHandBusy(false); });
+    return () => { cancelled = true; };
+  }, [productId, warehouseId]);
+
+  // Resulting on-hand after this action is applied.
+  const resultingOnHand = (() => {
+    if (liveOnHand == null) return null;
+    if (modal.kind === "adjust") return liveOnHand + (Number.isFinite(quantity) ? quantity : 0);
+    if (modal.kind === "reverse") return liveOnHand - modal.row.quantity;
+    // correct: reverse the original then re-post the corrected quantity.
+    return liveOnHand - modal.row.quantity + (Number.isFinite(quantity) ? quantity : 0);
+  })();
 
   async function submit() {
     setBusy(true);
@@ -338,6 +382,25 @@ function ReconcileModal({
             />
           </label>
         ) : null}
+
+        {/* Live on-hand context so corrections post against the real figure. */}
+        <div className="rounded-lg border border-line bg-surface p-3 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-muted">Current on-hand</span>
+            <span className="font-semibold tabular-nums">
+              {onHandBusy ? "…" : liveOnHand == null ? "—" : qty(liveOnHand)}
+            </span>
+          </div>
+          <div className="mt-1 flex items-center justify-between">
+            <span className="text-muted">After this {modal.kind === "reverse" ? "reversal" : modal.kind === "correct" ? "correction" : "adjustment"}</span>
+            <span className={`font-semibold tabular-nums ${resultingOnHand != null && resultingOnHand < 0 ? "text-red-600" : "text-brand-700"}`}>
+              {resultingOnHand == null ? "—" : qty(resultingOnHand)}
+            </span>
+          </div>
+          {resultingOnHand != null && resultingOnHand < 0 ? (
+            <p className="mt-1 text-xs text-red-600">This would drive on-hand negative — double-check the figures.</p>
+          ) : null}
+        </div>
 
         <label className="block text-sm font-medium">Reason (required)
           <input
