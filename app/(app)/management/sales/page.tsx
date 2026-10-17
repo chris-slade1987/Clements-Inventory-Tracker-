@@ -33,7 +33,10 @@ export default async function SalesPage({
   if (!canViewExec(user) && !canManageSales(user)) redirect("/my-branch");
   const sp = await searchParams;
   const snap = await latestSalesSnapshot();
-  const canSync = user.role === "admin" || user.role === "manager";
+  // Sync / data-connection controls are ADMIN-ONLY (audit C7): the manual sync and
+  // connection status belong to a quiet "data connection" affordance, not an
+  // everyday button on an analytics page. Everyone keeps the read-only metrics.
+  const canSync = user.role === "admin";
   const workwaveConfigured = isWorkwaveConfigured();
   const live = (
     <SalesCenterLive
@@ -98,13 +101,24 @@ export default async function SalesPage({
 
       {live}
 
+      {/* Source + window legend (B1/C3): three different "sales" figures sit near each
+          other across the sales screens — spell out what each one is and its window. */}
+      <div className="mb-6 rounded-xl border border-line bg-black/[0.015] px-4 py-3 text-[11px] leading-relaxed text-muted">
+        <div className="mb-1 font-semibold uppercase tracking-wide text-muted">Which number is which</div>
+        <ul className="space-y-0.5">
+          <li><span className="font-medium text-ink">Sales Center &ldquo;sold&rdquo;</span> (card above) = WorkWave/sheet annualized sold value, windowed MTD / QTD / YTD.</li>
+          <li><span className="font-medium text-ink">New sales</span> (below) = MBR-reported new business revenue, windowed {basis === "ytd" ? "year-to-date" : "for the month"} by the period/basis toggle.</li>
+          <li><span className="font-medium text-ink">Closed</span> on the <Link href="/sales" className="text-brand-700 hover:underline">Sales Team</Link> board = per-advisor funnel closes for the current sales month — a different source and window again.</li>
+        </ul>
+      </div>
+
       {/* Branch selector by new-sales */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-6 mt-2">
         <Link href={branchLink("company")} className="block">
           <Card className={`p-4 h-full transition ${isCompany ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
             <div className="text-xs uppercase tracking-wider text-muted">All branches</div>
             <div className="mt-2 text-2xl font-light tabular-nums">{money(cell(values, "new_sales", "company", basis).actual)}</div>
-            <div className="text-[11px] text-muted">new sales · {basisLabel}</div>
+            <div className="text-[11px] text-muted">MBR new sales · {basisLabel}</div>
           </Card>
         </Link>
         {BRANCHES.map((b) => {
@@ -165,19 +179,21 @@ export default async function SalesPage({
 
         {/* New sales by branch — trailing months table */}
         <Card className="p-0 overflow-hidden lg:col-span-2">
-          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">New sales by branch · trailing months</div>
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">New sales by branch · trailing months <span className="font-normal text-muted">(MBR)</span></div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            {/* Mobile: the Branch column stays pinned left and the matrix gets a
+                min-width so the month cells aren't crushed (audit A5). */}
+            <table className="w-full text-sm" style={{ minWidth: `${160 + monthCols.length * 72}px` }}>
               <thead>
                 <tr className="text-left text-xs text-muted border-b border-line">
-                  <th className="px-4 py-2 font-medium">Branch</th>
+                  <th className="sticky left-0 z-10 bg-white px-4 py-2 font-medium">Branch</th>
                   {monthCols.map((m) => <th key={m.key} className="px-3 py-2 font-medium text-right">{m.label}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {salesByBranch.map(({ branch, series }) => (
                   <tr key={branch.key} className="border-b border-line last:border-0">
-                    <td className="px-4 py-2 font-medium">{branch.label}</td>
+                    <td className="sticky left-0 z-10 bg-white px-4 py-2 font-medium">{branch.label}</td>
                     {series.map((s) => (
                       <td key={`${s.year}-${s.month}`} className="px-3 py-2 text-right tabular-nums">{s.actual != null ? money(s.actual) : "—"}</td>
                     ))}

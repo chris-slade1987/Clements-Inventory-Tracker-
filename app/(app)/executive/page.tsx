@@ -24,6 +24,10 @@ import { branchKpiMonthly, BRANCH_KPI_LABEL, BRANCH_KPI_KEYS } from "@/lib/branc
 import { buildBranchPnlPayload } from "@/lib/branch-pnl";
 import BranchPnlClient from "@/app/(app)/management/branch-pnl/BranchPnlClient";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
+import InsightsLink from "@/components/InsightsLink";
+import { KpiTile, VarianceChip } from "@/components/kpi-tiles";
+
+type Unit = "usd" | "pct" | "count";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +41,12 @@ export default async function ManagementPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
-  // The Executive dashboard is the company FINANCIALS (P&L, budget-vs-actual,
-  // branch P&L) — admin / senior-leadership / board only. Everyone else (incl.
-  // branch managers and the Sales Director) uses the operational Company KPIs at
-  // /management. Non-exec hits here bounce to those KPIs.
+  // Executive — OPERATING. This is the leadership operating read: company & branch
+  // budget-vs-actual (headline KPIs, route-contribution, per-branch production, the
+  // branch P&L, FY-forecast lines). It is NOT the financial statements — the full
+  // P&L, balance sheet and cash flow live on the Board dashboard (/management/board).
+  // Admin / senior-leadership / board only; everyone else (branch managers, Sales
+  // Director) uses the operating Company KPIs at /management. Non-exec hits bounce there.
   if (!canViewExec(user)) {
     redirect("/management");
   }
@@ -50,14 +56,17 @@ export default async function ManagementPage({
   if (periods.length === 0) {
     return (
       <>
-        <PageHeader title="Executive" subtitle="Company financials — P&L & budget vs actual" />
+        <PageHeader title="Executive — Operating" subtitle="Company & branch budget vs actual" />
         <EmptyState
           title="No reports uploaded yet"
           hint="Upload a Monthly Board Report (MBR) to populate the dashboard."
         />
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap gap-4">
           <Link href="/management/upload" className="text-sm font-medium text-brand-700 hover:underline">
             → Upload your first MBR
+          </Link>
+          <Link href="/management/board" className="text-sm font-medium text-brand-700 hover:underline">
+            Full financial statements →
           </Link>
         </div>
       </>
@@ -68,6 +77,8 @@ export default async function ManagementPage({
   const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
   const basis: Basis = sp.basis === "ytd" ? "ytd" : "month";
   const locked = branchLocked(user);
+  // Insights (grounded AI Q&A) is admin + senior-leadership only (board observers excluded).
+  const canInsights = user.role === "admin" || user.seniorLeadership;
   const requestedScope = sp.scope === "company" ? "company" : (BRANCHES.find((b) => b.key === sp.scope)?.key ?? null);
   // Branch-locked managers DEFAULT to their own branch, but may toggle to the
   // company or a peer branch for comparison (leadership approved this). Admins/exec
@@ -143,12 +154,18 @@ export default async function ManagementPage({
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
-          title="Executive"
-          subtitle={`Budget vs actual · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
+          title="Executive — Operating"
+          subtitle={`Company & branch budget vs actual · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
           actions={
-            <Link href={branchLink(BRANCHES[0].key)} className="text-sm font-medium text-brand-700 hover:underline">
-              Branch detail →
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              {canInsights ? <InsightsLink /> : null}
+              <Link href={branchLink(BRANCHES[0].key)} className="text-sm font-medium text-brand-700 hover:underline">
+                Branch detail →
+              </Link>
+              <Link href="/management/board" className="text-sm font-medium text-brand-700 hover:underline">
+                Full financial statements →
+              </Link>
+            </div>
           }
         />
         <Controls
@@ -275,7 +292,7 @@ export default async function ManagementPage({
               <div className="mt-1 text-2xl font-light tabular-nums">
                 {h.meta?.unit === "pct" ? pctStr(h.c.actual) : money(h.c.actual)}
               </div>
-              <VarianceChip c={h.c} unit={h.meta?.unit ?? "usd"} />
+              <VarianceChip c={h.c} unit={(h.meta?.unit ?? "usd") as Unit} />
             </Card>
           ))}
           <AttritionRateTile c={get("attrition_rate")} isMonth={basis === "month"} />
@@ -427,17 +444,13 @@ function CompanyBudgetTiles({ values, basis }: { values: Map<string, Cell>; basi
   return (
     <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {tiles.map((t) => (
-        <Card key={t.key} className="p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="text-xs uppercase tracking-wider text-muted">{t.label}</div>
-            {t.kind === "cost" && t.cur.actual != null && revActual ? (
-              <div className="shrink-0 text-[11px] text-muted tabular-nums">{((t.cur.actual / revActual) * 100).toFixed(1)}% of rev</div>
-            ) : null}
-          </div>
-          <div className="mt-1 text-2xl font-light tabular-nums">{money(t.cur.actual)}</div>
-          <VarianceChip c={t.cur} unit="usd" />
-          <BudgetBar c={t.cur} />
-          {t.fc.actual != null ? (
+        <KpiTile
+          key={t.key}
+          label={t.label}
+          c={t.cur}
+          unit="usd"
+          pctOfRev={t.kind === "cost" && t.cur.actual != null && revActual ? (t.cur.actual / revActual) * 100 : null}
+          footer={t.fc.actual != null ? (
             <div className="mt-2 border-t border-line pt-2 text-[11px] text-muted">
               FY forecast <span className="tabular-nums text-ink">{money(t.fc.actual)}</span>
               {t.fc.budget != null ? (
@@ -450,27 +463,12 @@ function CompanyBudgetTiles({ values, basis }: { values: Map<string, Cell>; basi
               ) : null}
             </div>
           ) : null}
-        </Card>
+        />
       ))}
     </div>
   );
 }
 
-// Actual-vs-budget fill bar: the filled portion is the actual (green when
-// favorable, red when not); the vertical tick marks the budget.
-function BudgetBar({ c }: { c: Cell }) {
-  if (c.actual == null || c.budget == null || c.budget === 0) return null;
-  const denom = Math.max(c.actual, c.budget) || 1;
-  const aPct = Math.max(2, Math.min(100, (c.actual / denom) * 100));
-  const bPct = Math.max(0, Math.min(100, (c.budget / denom) * 100));
-  const good = c.favorable === true;
-  return (
-    <div className="relative mt-2 h-1.5 rounded-full bg-black/10">
-      <div className={`absolute inset-y-0 left-0 rounded-full ${good ? "bg-emerald-500" : "bg-red-400"}`} style={{ width: `${aPct}%` }} />
-      <div className="absolute -inset-y-[2px] w-px bg-black/50" style={{ left: `${bPct}%` }} title="budget" />
-    </div>
-  );
-}
 function PanelHead({ children }: { children: React.ReactNode }) {
   return <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">{children}</div>;
 }
@@ -495,23 +493,7 @@ function fmt(v: number | null, unit: string) {
   return unit === "pct" ? `${v.toFixed(1)}%` : money(v);
 }
 
-// A compact favorable/unfavorable variance chip.
-function VarianceChip({ c, unit }: { c: Cell; unit: string }) {
-  if (c.variance == null || c.budget == null) {
-    return <div className="mt-1 text-[11px] text-muted">no budget</div>;
-  }
-  const good = c.favorable === true;
-  const sign = c.variance >= 0 ? "+" : "";
-  const val = unit === "pct" ? `${sign}${c.variance.toFixed(1)} pts` : `${sign}${money(c.variance)}`;
-  return (
-    <div className="mt-1 flex items-center gap-1 text-[11px]">
-      <span className={`font-medium ${good ? "text-emerald-700" : "text-red-600"}`}>{val}</span>
-      <span className="text-muted">vs {fmt(c.budget, unit)} bdgt</span>
-    </div>
-  );
-}
-
-function BudgetLine({ c, unit, big }: { c: Cell; unit: string; big?: boolean }) {
+function BudgetLine({ c, unit, big }: { c: Cell; unit: Unit; big?: boolean }) {
   return (
     <div>
       <div className={`${big ? "text-3xl" : "text-2xl"} font-light tabular-nums mt-1`}>{fmt(c.actual, unit)}</div>

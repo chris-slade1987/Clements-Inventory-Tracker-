@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
+import SalesFunnelCard from "@/components/SalesFunnelCard";
 import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPrefillFromPriorActuals } from "@/lib/sales";
 import { advisorPaceSignal, priorPeriodKey } from "@/lib/sales-funnel";
 import { listFocusItems } from "@/lib/sales-focus";
@@ -40,6 +41,12 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
     <>
       <div className="mb-2"><Link href="/sales" className="text-xs font-medium text-brand-700 hover:underline">← Sales Team</Link></div>
       <PageHeader title={emp.name} subtitle={`${emp.branch ? branchLabel(emp.branch) + " · " : ""}Monthly goal sheet — ${periodLabel(periodKey)}`} />
+
+      {/* Coaching parity with the advisor's own view (/me/sales): the visual,
+          goal-aware funnel + pace diagnosis + on-demand AI coach, so the director
+          sees exactly what the advisor sees before coaching on the sheet below. */}
+      <SalesFunnelCard advisorEmployeeId={emp.id} periodKey={periodKey} />
+
       <GoalPlanner
         periodKey={periodKey}
         periodLabelText={periodLabel(periodKey)}

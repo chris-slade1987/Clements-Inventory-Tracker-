@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { btn } from "@/components/ui";
 import { money } from "@/lib/format";
@@ -14,13 +15,30 @@ import type { FocusItemDTO, FocusType } from "@/lib/sales-focus";
 // inline coaching log the advisor, director and super admins share. Rendered on
 // BOTH the advisor view (/me/sales) and the director view (/sales/[id]).
 
-const TYPES: { key: FocusType; label: string; emoji: string; blurb: string }[] = [
-  { key: "crosssell", label: "Cross-sell", emoji: "🎯", blurb: "Work a list of existing customers for an added service." },
-  { key: "networking", label: "Networking", emoji: "🤝", blurb: "A group or meeting you'll attend to build referrals." },
-  { key: "dropoffs", label: "Drop-offs", emoji: "📍", blurb: "Door-hangers / flyers in a target neighborhood." },
-  { key: "other", label: "Other", emoji: "✨", blurb: "Any other play you want to run this month." },
+// Thin line icons (brand kit §6: 24×24, stroke 1.6, round caps, no fill, currentColor).
+// These replace the former functional type emoji (🎯🤝📍✨) per the brand kit; the
+// only sanctioned emoji in sales are motivation ribbons/badges, not UI affordances.
+function Icon({ path, className = "h-4 w-4" }: { path: ReactNode; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {path}
+    </svg>
+  );
+}
+const TYPE_ICON: Record<FocusType, ReactNode> = {
+  crosssell: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /></>,              // target
+  networking: <path d="M16 11a3 3 0 10-2.7-4.3M8 11a3 3 0 110-6 3 3 0 010 6zM2 20v-1a4 4 0 014-4h4a4 4 0 014 4v1M16 15h2a4 4 0 014 4v1" />, // people
+  dropoffs: <><path d="M12 21s-7-5.2-7-11a7 7 0 1114 0c0 5.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></>, // map pin
+  other: <path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4L12 3z" />,                 // spark
+};
+
+const TYPES: { key: FocusType; label: string; blurb: string }[] = [
+  { key: "crosssell", label: "Cross-sell", blurb: "Work a list of existing customers for an added service." },
+  { key: "networking", label: "Networking", blurb: "A group or meeting you'll attend to build referrals." },
+  { key: "dropoffs", label: "Drop-offs", blurb: "Door-hangers / flyers in a target neighborhood." },
+  { key: "other", label: "Other", blurb: "Any other play you want to run this month." },
 ];
-const TYPE_META: Record<string, { label: string; emoji: string }> = Object.fromEntries(TYPES.map((t) => [t.key, { label: t.label, emoji: t.emoji }]));
+const TYPE_META: Record<string, { label: string }> = Object.fromEntries(TYPES.map((t) => [t.key, { label: t.label }]));
 
 const STATUS: Record<string, { label: string; cls: string }> = {
   planned: { label: "Planned", cls: "bg-brand-50 text-brand-700 border-brand-200" },
@@ -110,7 +128,7 @@ export default function FocusPlan({
                 onClick={() => startAdd(t.key)}
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-black/[0.02]"
               >
-                <span aria-hidden>{t.emoji}</span>
+                <span className="text-brand-600"><Icon path={TYPE_ICON[t.key]} /></span>
                 Add {t.label.toLowerCase()}
               </button>
             ))}
@@ -164,7 +182,7 @@ function DraftForm({ draft, setDraft, onSave, onCancel, busy }: { draft: Draft; 
   return (
     <div className="rounded-xl border border-brand-200 bg-brand-50/40 p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
-        <span aria-hidden>{meta?.emoji}</span>{draft.id ? "Edit" : "New"} {meta?.label.toLowerCase()} action
+        <span className="text-brand-600"><Icon path={TYPE_ICON[draft.type]} /></span>{draft.id ? "Edit" : "New"} {meta?.label.toLowerCase()} action
       </div>
       <div className="grid gap-3">
         {draft.type === "other" ? (
@@ -238,7 +256,7 @@ function FocusCard({ it, canEdit, canComment, viewerName, onEdit, post, busy }: 
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span aria-hidden>{meta?.emoji}</span>
+            <span className="text-brand-600"><Icon path={TYPE_ICON[it.type]} /></span>
             <span className="text-sm font-semibold text-ink">{it.title?.trim() || meta?.label}</span>
             <span className="text-[11px] text-muted">{meta?.label}</span>
           </div>

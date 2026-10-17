@@ -19,6 +19,7 @@ import {
 } from "@/lib/management";
 import Controls from "../Controls";
 import { AreaTrend, Donut, ForecastTrend, Waterfall } from "@/components/charts";
+import InsightsLink from "@/components/InsightsLink";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export default async function BoardPage({
   if (periods.length === 0) {
     return (
       <>
-        <PageHeader title="Board / Executive" subtitle="Company financials" />
+        <PageHeader title="Board — Financial statements" subtitle="Full P&L, balance sheet & cash flow" />
         <EmptyState title="No reports uploaded yet" hint="Upload a Monthly Board Report to populate this dashboard." />
       </>
     );
@@ -186,20 +187,15 @@ export default async function BoardPage({
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
-          title="Board / Executive"
-          subtitle={`Company financials · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
+          title="Board — Financial statements"
+          subtitle={`Full P&L, balance sheet & cash flow · ${period.label}${basis === "ytd" ? " · YTD" : ""}`}
           actions={
-            isObserver ? null : (
-            <Link
-              href="/management/insights"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-ink hover:bg-[#eef5f0] transition-colors"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5z" />
-              </svg>
-              Ask Insights
-            </Link>
-            )
+            <div className="flex flex-wrap items-center gap-3">
+              {isObserver ? null : <InsightsLink />}
+              <Link href="/management" className="text-sm font-medium text-brand-700 hover:underline">
+                Branch operations →
+              </Link>
+            </div>
           }
         />
         <Controls
@@ -481,8 +477,8 @@ export default async function BoardPage({
       </div>
 
       <p className="mt-4 text-xs text-muted">
-        Branch-level operational detail lives in{" "}
-        <Link href={`/management?p=${periodKey}`} className="text-brand-700 hover:underline">Management</Link>.
+        These are the financial statements. Branch-level operating detail (budget vs actual, production, expenses) lives in{" "}
+        <Link href={`/management?p=${periodKey}`} className="text-brand-700 hover:underline">Company KPIs</Link>.
       </p>
     </>
   );

@@ -119,6 +119,17 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   const rollup = await focusRollup(periodKey, advisorRows.map((r) => r.advisor.id), focusNames);
   const showFocus = rollup.counts.actions > 0;
 
+  // ── Goal-negotiation states (C5): the roster now flags ALL four, not just one ──
+  //  not set · awaiting approval (advisor_requested) · proposal awaiting advisor
+  //  (director_proposed) · set but not agreed (advisor_set). "agreed" is the done state.
+  const proposalPending = advisorRows.filter((r) => r.goalStatus === "director_proposed");
+  const setNotAgreed = advisorRows.filter((r) => r.hasGoal && r.goalStatus === "advisor_set");
+  // Advisors tracking behind pace this far into the month (needs coaching).
+  const behindRows = healthRows.filter((h) => h.hasGoal && h.hasData && h.overall === "behind");
+  const overdueCount = rollup.counts.overdue;
+  // Whether anything actionable exists — drives the action-queue layout.
+  const hasActions = notSet.length > 0 || pendingApproval.length > 0 || proposalPending.length > 0 || behindRows.length > 0 || overdueCount > 0 || setNotAgreed.length > 0;
+
   return (
     <>
       <PageHeader
@@ -128,7 +139,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
             ? `${branchLabel(branch)} — how your sales team is performing · ${periodLabel(periodKey)}`
             : `Targets, closed & pipeline across all branches — ${periodLabel(periodKey)}`
         }
-        actions={canManage ? <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Sales &amp; Attrition analytics →</Link> : undefined}
+        actions={canManage ? <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Company sales &amp; cancellations →</Link> : undefined}
       />
 
       <MyReviewsCard userId={user.id} />
@@ -152,60 +163,73 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         </div>
       ) : null}
 
-      {/* ───────── 1. Needs your attention — the actionable goal-setting gap ───────── */}
+      {/* ───────── 1. Action queue — everything that needs the director, first ─────────
+          Leads with the actionable states (C2/C5): goals not set · pending approvals ·
+          overdue follow-ups · behind pace, plus the two goal-negotiation states the
+          roster used to miss — proposal awaiting the advisor, and set-but-not-agreed. */}
       {advisorRows.length > 0 ? (
         <div className="mb-5">
           <SectionLabel>Needs your attention</SectionLabel>
-          {notSet.length === 0 ? (
+          {!hasActions ? (
             <Card className="flex items-center gap-3 p-4">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
                 <Icon path={<path d="M20 6L9 17l-5-5" />} className="h-5 w-5" />
               </span>
               <div>
-                <div className="text-sm font-medium text-ink">All {totals.advisors} advisors have set their {pLabel} goals.</div>
-                <div className="text-xs text-muted">You&rsquo;re set for the month — track pace below.</div>
+                <div className="text-sm font-medium text-ink">Nothing needs you right now.</div>
+                <div className="text-xs text-muted">All {totals.advisors} advisors&rsquo; {pLabel} goals are set and agreed, follow-ups are current, and everyone is on pace. Track the team below.</div>
               </div>
             </Card>
           ) : (
-            <Card className="p-4 ring-1 ring-amber-200">
-              <div className="flex items-start gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 text-sm font-semibold tabular-nums">{notSet.length}</span>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-ink">{notSet.length} of {totals.advisors} advisor{notSet.length === 1 ? " hasn't" : "s haven't"} set {pLabel} goals</div>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {notSet.map((r) => (
-                      <Link key={r.advisor.id} href={`/sales/${r.advisor.id}`} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800 hover:bg-amber-100">
-                        {r.advisor.name}{r.advisor.branch ? ` · ${branchLabel(r.advisor.branch)}` : ""}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <div className="grid gap-3">
+              {notSet.length > 0 ? (
+                <AttnCard n={notSet.length} title={<>{notSet.length} of {totals.advisors} advisor{notSet.length === 1 ? " hasn't" : "s haven't"} set {pLabel} goals</>}>
+                  {notSet.map((r) => (
+                    <Chip key={r.advisor.id} href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.advisor.branch ? ` · ${branchLabel(r.advisor.branch)}` : ""}</Chip>
+                  ))}
+                </AttnCard>
+              ) : null}
+              {canManage && pendingApproval.length > 0 ? (
+                <AttnCard n={pendingApproval.length} title={<>{pendingApproval.length} goal{pendingApproval.length === 1 ? "" : "s"} awaiting your approval</>}>
+                  {pendingApproval.map((r) => (
+                    <Chip key={r.advisor.id} href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — review &amp; approve</Chip>
+                  ))}
+                </AttnCard>
+              ) : null}
+              {canManage && proposalPending.length > 0 ? (
+                <AttnCard tone="info" n={proposalPending.length} title={<>{proposalPending.length} proposal{proposalPending.length === 1 ? "" : "s"} awaiting the advisor</>}>
+                  {proposalPending.map((r) => (
+                    <Chip key={r.advisor.id} tone="info" href={`/sales/${r.advisor.id}`}>{r.advisor.name} — you proposed, pending their accept</Chip>
+                  ))}
+                </AttnCard>
+              ) : null}
+              {behindRows.length > 0 ? (
+                <AttnCard n={behindRows.length} title={<>{behindRows.length} advisor{behindRows.length === 1 ? " is" : "s are"} behind pace this month</>}>
+                  {behindRows.map((h) => (
+                    <Chip key={h.id} href={`/sales/${h.id}`}>{h.name}{h.branch ? ` · ${h.branch}` : ""} — coach</Chip>
+                  ))}
+                </AttnCard>
+              ) : null}
+              {overdueCount > 0 ? (
+                <AttnCard n={overdueCount} title={<>{overdueCount} focus follow-up{overdueCount === 1 ? " is" : "s are"} overdue</>}>
+                  <Chip href="#focus-followups">Review overdue follow-ups ↓</Chip>
+                </AttnCard>
+              ) : null}
+              {canManage && setNotAgreed.length > 0 ? (
+                <AttnCard tone="info" n={setNotAgreed.length} title={<>{setNotAgreed.length} goal{setNotAgreed.length === 1 ? " is" : "s are"} set but not yet agreed</>}>
+                  {setNotAgreed.map((r) => (
+                    <Chip key={r.advisor.id} tone="info" href={`/sales/${r.advisor.id}`}>{r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — confirm</Chip>
+                  ))}
+                </AttnCard>
+              ) : null}
+            </div>
           )}
-          {canManage && pendingApproval.length > 0 ? (
-            <Card className="mt-3 p-4 ring-1 ring-amber-200">
-              <div className="flex items-start gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 text-sm font-semibold tabular-nums">{pendingApproval.length}</span>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-ink">{pendingApproval.length} goal{pendingApproval.length === 1 ? "" : "s"} awaiting your approval</div>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {pendingApproval.map((r) => (
-                      <Link key={r.advisor.id} href={`/sales/${r.advisor.id}`} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800 hover:bg-amber-100">
-                        {r.advisor.name}{r.target > 0 ? ` · ${money(r.target)}` : ""} — review &amp; approve
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ) : null}
         </div>
       ) : null}
 
       {/* ───────── Focus & follow-ups — the director's coaching queue ───────── */}
       {showFocus ? (
-        <div className="mb-5">
+        <div className="mb-5 scroll-mt-20" id="focus-followups">
           <SectionLabel>Focus &amp; follow-ups · {pLabel}</SectionLabel>
           <Card className="p-4">
             <div className="mb-3 grid grid-cols-3 gap-2 text-center">
@@ -264,12 +288,23 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         </div>
       ) : null}
 
-      {/* company summary */}
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Tile label="Combined target (month)" value={money(totals.target)} />
-        <Tile label="Goals set" value={`${totals.withGoal} / ${totals.advisors}`} tone={totals.withGoal < totals.advisors ? "warn" : "good"} />
-        <Tile label="Closed (YTD)" value={m(totals.closed)} />
+      {/* company summary — windowed & de-duplicated (goals-set lives in Team attainment).
+          Closed is shown at TWO windows with explicit labels so the month figure in
+          Team attainment / All branch sales can't be confused with the YTD figure. */}
+      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Tile label="Combined target · month" value={money(totals.target)} />
+        <Tile label="Closed · YTD" value={m(totals.closed)} />
         <Tile label="Open pipeline" value={m(totals.pipeline)} />
+      </div>
+      {/* Reconciliation legend (B1/C3): the three "sales/closed" numbers across the
+          sales screens measure different things — spell out source + window. */}
+      <div className="mb-6 rounded-xl border border-line bg-black/[0.015] px-4 py-3 text-[11px] leading-relaxed text-muted">
+        <div className="mb-1 font-semibold uppercase tracking-wide text-muted">How the closed numbers line up</div>
+        <ul className="space-y-0.5">
+          <li><span className="font-medium text-ink">Closed · this month</span> (Team attainment, All branch sales, leaderboard) = advisor funnel closes for {pLabel}, from the sales feed / manual funnel entry.</li>
+          <li><span className="font-medium text-ink">Closed · YTD</span> (above) = year-to-date won revenue from the sales feed ({actuals.connected ? "live" : "awaiting connection"}).</li>
+          <li><span className="font-medium text-ink">New sales</span> on <Link href="/management/sales" className="text-brand-700 hover:underline">Company sales &amp; cancellations</Link> is the MBR-reported figure (month or YTD per that page&rsquo;s toggle) and <span className="font-medium text-ink">Sales Center &ldquo;sold&rdquo;</span> there is WorkWave annualized value — neither equals the advisor closes here.</li>
+        </ul>
       </div>
 
       {/* ───────── All branch sales — Sales Team + Other, differentiated ───────── */}
@@ -383,6 +418,14 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <EmptyState title="No service advisors yet" hint="Assign the Service Advisor access level to your sales reps in People, and they'll appear here." />
       ) : (
         <>
+          {/* Detailed roster tables tucked behind a toggle so the page leads with the
+              action queue + attainment, not four stacked tables (C2/C5). */}
+          <details className="group mb-6">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden hover:bg-black/[0.02]">
+              <span>Roster detail — by branch &amp; by service advisor</span>
+              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <div className="mt-4">
           {/* by branch */}
           <SectionLabel>By branch</SectionLabel>
           <Card className="mb-6 overflow-hidden p-0">
@@ -446,9 +489,11 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
               </table>
             </div>
           </Card>
+            </div>
+          </details>
 
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted">
-            <Link href="/management/sales" className="font-medium text-brand-700 hover:underline">Open Sales &amp; Attrition analytics →</Link>
+            <Link href="/management/sales" className="font-medium text-brand-700 hover:underline">Open Company sales &amp; cancellations →</Link>
             <span>Closed = year-to-date won revenue from the sales feed. Per-branch and per-advisor pipeline detail arrives with the full sales API.</span>
           </div>
         </>
@@ -459,6 +504,31 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{children}</h2>;
+}
+
+// One action-queue card: a count badge, a title, and a row of chips. `warn` = needs
+// action now (amber); `info` = in-flight negotiation state (brand).
+function AttnCard({ n, title, children, tone = "warn" }: { n: number | string; title: ReactNode; children: ReactNode; tone?: "warn" | "info" }) {
+  const ring = tone === "info" ? "ring-brand-200" : "ring-amber-200";
+  const badge = tone === "info" ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700";
+  return (
+    <Card className={`p-4 ring-1 ${ring}`}>
+      <div className="flex items-start gap-3">
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-semibold tabular-nums ${badge}`}>{n}</span>
+        <div className="min-w-0">
+          <div className="text-sm font-medium text-ink">{title}</div>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">{children}</div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function Chip({ href, children, tone = "warn" }: { href: string; children: ReactNode; tone?: "warn" | "info" }) {
+  const cls = tone === "info"
+    ? "border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100"
+    : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100";
+  return <Link href={href} className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${cls}`}>{children}</Link>;
 }
 
 function FocusStat({ n, label, tone }: { n: number; label: string; tone?: "warn" | "good" }) {

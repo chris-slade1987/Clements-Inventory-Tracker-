@@ -19,11 +19,16 @@ export default function KpiSummaryButton({
   p,
   basis = "month",
   label = "AI summary",
+  forecastBasis = false,
 }: {
   scope: string;
   p?: string;
   basis?: "month" | "ytd";
   label?: string;
+  // True when the dashboard's on-screen basis is Full-Year Forecast. The AI
+  // read-out can only speak month/YTD, so we relabel + note that it summarizes
+  // year-to-date actuals rather than silently returning YTD under a forecast view.
+  forecastBasis?: boolean;
 }) {
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
   const [text, setText] = useState<string | null>(null);
@@ -56,14 +61,19 @@ export default function KpiSummaryButton({
   return (
     <div className="mb-5">
       {text == null && !err ? (
-        <button
-          onClick={run}
-          disabled={state === "loading"}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50"
-        >
-          <Spark />
-          {state === "loading" ? "Reading the numbers…" : label}
-        </button>
+        <>
+          <button
+            onClick={run}
+            disabled={state === "loading"}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+          >
+            <Spark />
+            {state === "loading" ? "Reading the numbers…" : forecastBasis ? `${label} (year-to-date)` : label}
+          </button>
+          {forecastBasis ? (
+            <p className="mt-1 text-[11px] text-muted">The Full-Year Forecast view isn&rsquo;t summarized — this reads year-to-date actuals.</p>
+          ) : null}
+        </>
       ) : null}
       {err ? <p className="text-sm text-red-600">{err}</p> : null}
       {text != null ? (

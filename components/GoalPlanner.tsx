@@ -283,6 +283,22 @@ export default function GoalPlanner({
             </button>
           ))}
         </div>
+
+        {/* Director coaching actions — pinned at the top so Approve / Propose /
+            Accept-on-behalf never require scrolling the full sheet. */}
+        {viewerRole === "director" && canEdit ? (
+          <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-line pt-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">Director</span>
+            {status === "advisor_requested" ? (
+              <button type="button" onClick={approveGoalAction} disabled={busy} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">{busy ? "Working…" : "Approve goal"}</button>
+            ) : null}
+            <button type="button" onClick={() => scrollTo("step-propose")} className="rounded-lg border border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50">Propose a goal</button>
+            {proposal.proposedGoal != null && status !== "agreed" ? (
+              <button type="button" onClick={accept} disabled={busy} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">{busy ? "Working…" : "Accept on their behalf"}</button>
+            ) : null}
+            {msg ? <span className={`text-[11px] ${err ? "text-red-600" : "text-brand-700"}`}>{msg}</span> : null}
+          </div>
+        ) : null}
       </div>
 
       {/* Advisor: the director proposed a goal — accept it, or set your own below. */}
@@ -568,7 +584,7 @@ export default function GoalPlanner({
 
       {/* ───────── Director co-goal-setting ───────── */}
       {viewerRole === "director" && canEdit ? (
-        <Card className="p-4 ring-1 ring-brand-200 sm:p-5">
+        <Card className="p-4 ring-1 ring-brand-200 sm:p-5" id="step-propose">
           <div className="mb-1 flex items-center gap-2">
             {/* target glyph (not a cross) */}
             <svg viewBox="0 0 24 24" className="h-5 w-5 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /></svg>

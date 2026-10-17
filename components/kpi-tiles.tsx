@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import type { Cell } from "@/lib/management";
@@ -47,8 +48,9 @@ export function BudgetBar({ c }: { c: Cell }) {
   );
 }
 
-/** One KPI tile: label, big value, variance chip, budget bar, optional % of revenue. */
-export function KpiTile({ label, c, unit, pctOfRev }: { label: string; c: Cell; unit: Unit; pctOfRev?: number | null }) {
+/** One KPI tile: label, big value, variance chip, budget bar, optional % of revenue
+ *  and an optional footer slot (e.g. a full-year-forecast line). */
+export function KpiTile({ label, c, unit, pctOfRev, footer }: { label: string; c: Cell; unit: Unit; pctOfRev?: number | null; footer?: ReactNode }) {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
@@ -60,6 +62,7 @@ export function KpiTile({ label, c, unit, pctOfRev }: { label: string; c: Cell; 
       <div className="mt-1 text-2xl font-light tabular-nums">{fmtKpi(c.actual, unit)}</div>
       <VarianceChip c={c} unit={unit} />
       <BudgetBar c={c} />
+      {footer}
     </Card>
   );
 }

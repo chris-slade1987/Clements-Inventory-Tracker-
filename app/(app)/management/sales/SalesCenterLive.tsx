@@ -46,28 +46,43 @@ export default function SalesCenterLive({ metrics, syncedAt, lastError, canSync,
 
   return (
     <Card className="p-4 mb-6">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-ink">Sales Center — live</div>
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${onWorkwave ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-black/[0.04] text-muted border border-line"}`}
-              title={onWorkwave ? "Pulling live from the WorkWave Sales Center API" : "Reading the shared Google-Sheet export (WorkWave API not configured)"}
-            >
-              <span className={`inline-block h-1.5 w-1.5 rounded-full ${onWorkwave ? "bg-emerald-500" : "bg-black/25"}`} aria-hidden />
-              {onWorkwave ? "WorkWave API" : "Google Sheet"}
-            </span>
-          </div>
+          <div className="text-sm font-semibold text-ink">Sales Center — live</div>
           <div className="text-[11px] text-muted">
-            {syncedAt ? `Synced ${new Date(syncedAt).toLocaleString()} · ${metrics?.totalRows.toLocaleString()} opportunities` : "Not synced yet"}
-            {snapshotSource && snapshotSource !== (onWorkwave ? "workwave" : "sheet") ? ` · via ${snapshotSource === "workwave" ? "WorkWave" : "sheet"}` : ""}
-            {lastError ? " · last sync failed" : ""}
+            {metrics?.totalRows != null ? `${metrics.totalRows.toLocaleString()} opportunities` : "Pipeline overview"}
           </div>
         </div>
-        {canSync ? <button onClick={sync} disabled={busy} className={btn.secondary}>{busy ? "Syncing…" : "Sync now"}</button> : null}
+        {/* Data-connection affordance — ADMIN-ONLY (audit C7). The source badge,
+            last-sync time, any error and the manual Sync live in a quiet expander,
+            not as everyday controls on an analytics page. */}
+        {canSync ? (
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-line bg-white px-2.5 py-1.5 text-[11px] font-medium text-muted hover:bg-black/[0.02] [&::-webkit-details-marker]:hidden">
+              <span className={`inline-block h-1.5 w-1.5 rounded-full ${onWorkwave ? "bg-emerald-500" : "bg-black/25"}`} aria-hidden />
+              Data connection{lastError ? " · check" : ""}
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <div className="mt-2 w-64 rounded-lg border border-line bg-white p-3 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${onWorkwave ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-black/[0.04] text-muted border border-line"}`}
+                  title={onWorkwave ? "Pulling live from the WorkWave Sales Center API" : "Reading the shared Google-Sheet export (WorkWave API not configured)"}
+                >
+                  <span className={`inline-block h-1.5 w-1.5 rounded-full ${onWorkwave ? "bg-emerald-500" : "bg-black/25"}`} aria-hidden />
+                  {onWorkwave ? "WorkWave API" : "Google Sheet"}
+                </span>
+                <button onClick={sync} disabled={busy} className={btn.secondary}>{busy ? "Syncing…" : "Sync now"}</button>
+              </div>
+              <div className="mt-2 text-[11px] text-muted">
+                {syncedAt ? `Synced ${new Date(syncedAt).toLocaleString()}` : "Not synced yet"}
+                {snapshotSource && snapshotSource !== (onWorkwave ? "workwave" : "sheet") ? ` · via ${snapshotSource === "workwave" ? "WorkWave" : "sheet"}` : ""}
+              </div>
+              {lastError ? <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-800">{onWorkwave ? "WorkWave" : "Sheet"} sync error: {lastError}</div> : null}
+            </div>
+          </details>
+        ) : null}
       </div>
-
-      {lastError ? <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{onWorkwave ? "WorkWave" : "Sheet"} sync error: {lastError}</div> : null}
 
       {!metrics ? (
         <p className="py-6 text-center text-sm text-muted">

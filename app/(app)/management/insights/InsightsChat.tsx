@@ -5,11 +5,14 @@ import { Card, btn } from "@/components/ui";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+// Seeded, scope-aware starters (audit B3) — one per lens: company profitability,
+// branch comparison, a trend over time, and a cost-variance drill-down. Grounded
+// in the same MBR data the assistant answers from, so none dead-ends.
 const STARTERS = [
-  "Why is EBITDA margin down in June?",
-  "Which branch is over budget on chemical?",
-  "How is attrition trending vs budget?",
-  "What's driving the SG&A variance?",
+  "How is company EBITDA margin tracking vs budget this year?",
+  "Which branch is furthest over budget, and on what?",
+  "How is attrition trending month over month vs budget?",
+  "What's the biggest driver of the SG&A variance?",
 ];
 
 export default function InsightsChat({ configured }: { configured: boolean }) {

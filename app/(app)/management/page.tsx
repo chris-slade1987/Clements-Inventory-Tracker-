@@ -9,6 +9,7 @@ import { teamFunnel } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
+import InsightsLink from "@/components/InsightsLink";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,11 @@ export const dynamic = "force-dynamic";
 // branch; admins / super admins / exec default COMPANY-WIDE with a branch
 // drill-down. Period + basis (Month · YTD · Full-Year Forecast) are URL-driven
 // (`?p=`, `?basis=`) so the whole board re-scopes; section tabs live in the
-// client. Financial statement reporting (full P&L, balance sheet, cash flow)
-// stays on the Executive dashboard. Prisma is server-only: the page computes a
-// serializable payload and hands it to the client renderer.
+// client. This is the canonical OPERATING view. Financial statement reporting
+// (full P&L, balance sheet, cash flow) lives on the Board — Financial statements
+// dashboard (/management/board); the leaner Executive — Operating summary is at
+// /executive. Prisma is server-only: the page computes a serializable payload and
+// hands it to the client renderer.
 export default async function BranchKpisPage({
   searchParams,
 }: {
@@ -29,6 +32,9 @@ export default async function BranchKpisPage({
   const user = await requireUser();
   const sp = await searchParams;
   const locked = branchLocked(user);
+  // Insights (grounded AI Q&A) is admin + senior-leadership only — same gate as
+  // /management/insights. Surfaced consistently from each leadership dashboard.
+  const canInsights = user.role === "admin" || user.seniorLeadership;
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = locked ? (user.branch ?? BRANCHES[0].key) : requested;
   const isCompany = branch === null;
@@ -84,6 +90,7 @@ export default async function BranchKpisPage({
         <PageHeader
           title={isCompany ? "Company KPIs" : "Branch KPIs"}
           subtitle={`${scopeLabel} · ${period.label} · budget vs actual vs forecast`}
+          actions={canInsights ? <InsightsLink /> : undefined}
         />
         <Controls
           periods={periods.map((p) => ({ key: `${p.year}-${String(p.month).padStart(2, "0")}`, label: p.label }))}
@@ -96,14 +103,22 @@ export default async function BranchKpisPage({
       <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
       {selector}
 
-      <KpiSummaryButton scope={scope} p={periodKey} basis={basisParam === "month" ? "month" : "ytd"} label={isCompany ? "AI company summary" : "AI branch summary"} />
+      <KpiSummaryButton scope={scope} p={periodKey} basis={basisParam === "month" ? "month" : "ytd"} forecastBasis={basisParam === "cy_forecast"} label={isCompany ? "AI company summary" : "AI branch summary"} />
 
       <BranchDashboard payload={payload} />
 
-      <p className="mt-6 text-xs text-muted">
-        Looking for the company financials — full P&amp;L, margins and the board view?{" "}
-        {branchLocked(user) ? "Those live in the Executive dashboard (leadership access)." : <Link href="/executive" className="font-medium text-brand-700 hover:underline">Open the Executive dashboard →</Link>}
-      </p>
+      <div className="mt-6 flex flex-col gap-1 text-xs text-muted">
+        <p>
+          Looking for the company financial statements — full P&amp;L, balance sheet and cash flow?{" "}
+          {branchLocked(user) ? "Those live on the Board — Financial statements dashboard (leadership access)." : <Link href="/management/board" className="font-medium text-brand-700 hover:underline">Open Board — Financial statements →</Link>}
+        </p>
+        {!branchLocked(user) ? (
+          <p>
+            For the leadership operating summary,{" "}
+            <Link href="/executive" className="font-medium text-brand-700 hover:underline">open Executive — Operating →</Link>
+          </p>
+        ) : null}
+      </div>
     </>
   );
 }

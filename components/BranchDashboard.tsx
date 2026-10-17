@@ -420,7 +420,9 @@ function CostRatio({ cost, basis, payload }: { cost: DMetric[]; basis: DBasis; p
     })
     .filter((r): r is { label: string; act: number; tgt: number | null } => r != null);
   if (rows.length === 0) return null;
-  const W = 640, rh = 44, pt = 10, pl = 180, pr = 50, iw = W - pl - pr;
+  // Tighter label gutter + a min-width so the bars aren't crushed on phones (A5):
+  // long labels are truncated to fit the gutter and the SVG scrolls instead.
+  const W = 640, rh = 44, pt = 10, pl = 132, pr = 50, iw = W - pl - pr;
   const H = pt * 2 + rows.length * rh;
   const max = Math.max(...rows.flatMap((r) => [r.act, r.tgt ?? 0]), 1) * 1.18;
   const sc = (v: number) => (v / max) * iw;
@@ -432,7 +434,7 @@ function CostRatio({ cost, basis, payload }: { cost: DMetric[]; basis: DBasis; p
           <span className="flex items-center gap-1.5"><span style={{ background: INK }} className="inline-block h-3 w-0.5" /> Target %</span>
         </div>
         <div className="overflow-x-auto">
-          <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 460 }} role="img" aria-label="Cost as percent of revenue">
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 560 }} role="img" aria-label="Cost as percent of revenue">
             {rows.map((r, i) => {
               const cy = pt + i * rh + rh / 2;
               const w = sc(r.act);
@@ -441,7 +443,7 @@ function CostRatio({ cost, basis, payload }: { cost: DMetric[]; basis: DBasis; p
               const col = over ? UNFAV : FAV;
               return (
                 <g key={r.label}>
-                  <text x={pl - 12} y={cy + 4} textAnchor="end" fontSize={11.5} fill={INK}>{r.label}</text>
+                  <text x={pl - 10} y={cy + 4} textAnchor="end" fontSize={11} fill={INK}>{r.label.length > 18 ? r.label.slice(0, 17) + "…" : r.label}</text>
                   <rect x={pl} y={cy - 9} width={iw} height={18} rx={5} fill={MIST} />
                   <rect x={pl} y={cy - 9} width={Math.max(2, w)} height={18} rx={5} fill={col} />
                   {tx != null ? <line x1={tx} x2={tx} y1={cy - 13} y2={cy + 13} stroke={INK} strokeWidth={2} /> : null}
@@ -516,7 +518,8 @@ function PaceSection({ metrics }: { metrics: DMetric[] }) {
     })
     .filter((r): r is { label: string; pct: number; cost: boolean } => r != null);
   if (rows.length === 0) return null;
-  const W = 620, rh = 32, pt = 16, pl = 180, pr = 44, iw = W - pl - pr;
+  // Tighter label gutter + min-width so bars keep real width on phones (A5).
+  const W = 620, rh = 32, pt = 16, pl = 132, pr = 44, iw = W - pl - pr;
   const H = pt * 2 + rows.length * rh;
   const sc = (v: number) => (Math.min(v, 100) / 100) * iw;
   const benchX = pl + sc(50);
@@ -524,7 +527,7 @@ function PaceSection({ metrics }: { metrics: DMetric[] }) {
     <Section title="Pace vs the full-year budget" hint="YTD actual as % of the full-year budget — the 50% line is a rough mid-year marker">
       <Card className="p-4">
         <div className="overflow-x-auto">
-          <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 460 }} role="img" aria-label="Pace vs full-year budget">
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 540 }} role="img" aria-label="Pace vs full-year budget">
             <line x1={benchX} x2={benchX} y1={pt - 8} y2={H - pt} stroke={INK} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.6} />
             <text x={benchX} y={pt - 10} textAnchor="middle" fontSize={9} fill={MUTED}>50%</text>
             {rows.map((r, i) => {
@@ -534,7 +537,7 @@ function PaceSection({ metrics }: { metrics: DMetric[] }) {
               const col = over ? UNFAV : FAV;
               return (
                 <g key={r.label}>
-                  <text x={pl - 10} y={cy + 4} textAnchor="end" fontSize={11} fill={INK}>{r.label}</text>
+                  <text x={pl - 10} y={cy + 4} textAnchor="end" fontSize={11} fill={INK}>{r.label.length > 18 ? r.label.slice(0, 17) + "…" : r.label}</text>
                   <rect x={pl} y={cy - 8} width={iw} height={16} rx={4} fill={MIST} />
                   <rect x={pl} y={cy - 8} width={Math.max(2, w)} height={16} rx={4} fill={col} />
                   <text x={pl + w + 6} y={cy + 4} fontSize={10.5} fontWeight={600} fill={col}>{r.pct.toFixed(0)}%</text>
