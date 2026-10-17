@@ -93,6 +93,8 @@ Each theme names the opportunity, concrete capabilities, the modules/files it bu
 
 **Payoff.** Efficiency and truth — a number entered once is correct everywhere, the precondition for Theme 1's "one number" governance.
 
+**Planned migration (sales source-of-record): WorkWave Sales Center → SmarterLaunch.** Sales is moving off WorkWave Sales Center onto SmarterLaunch (API) as the system of record. The exact cutover is TBD, but it resolves to a point-in-time boundary: before the cutover date, WorkWave sales become **locked historical** (a frozen, append-only snapshot — never re-pulled or overwritten, treated like the inventory ledger); from the cutover date forward, SmarterLaunch is the source. Design hooks already in place so this is a contained change: (1) the canonical `sales_center_sold` entry in `lib/metrics-registry.ts` is the single place its `source` flips (or becomes a stitched historical-WorkWave + live-SmarterLaunch series joined at the boundary, with no double-count across it); (2) the Data Connections board (`lib/connections-health.ts`) must show post-cutover WorkWave as *archived / read-only historical*, not stale/error; (3) guardrail — be the spine, not a second CRM; don't rebuild SmarterLaunch. *(Noted 2026-10-17 per COO; mechanism to be defined.)*
+
 ### Theme 9 — Mobile-First Field Execution & the Customer Bridge
 **Ambition: Moderate → Ambitious (customer bridge)**
 

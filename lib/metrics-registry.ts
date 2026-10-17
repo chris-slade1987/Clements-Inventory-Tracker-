@@ -18,6 +18,24 @@
 // in lib/management.ts, lib/branch-pnl.ts, lib/reporting.ts, lib/sales-funnel.ts,
 // lib/sales-sync.ts/workwave, lib/fuel.ts, lib/qc.ts or lib/checklists.ts, update
 // the matching entry here in the SAME change (see docs/WORKFLOWS.md).
+//
+// ---------------------------------------------------------------------------
+// PLANNED (back-pocket): Sales source migration — WorkWave Sales Center → SmarterLaunch
+// ---------------------------------------------------------------------------
+// Sales is transitioning OFF WorkWave Sales Center and ONTO SmarterLaunch (API) as
+// the system of record. The exact cutover mechanism is not decided yet, but it will
+// resolve to a point-in-time boundary: BEFORE date X → WorkWave (locked historical,
+// frozen snapshot, append-only, never re-pulled or overwritten); ON/AFTER date X →
+// SmarterLaunch. When that happens:
+//   - `sales_center_sold` below is the entry to change: its `source` flips to
+//     SmarterLaunch (or the canonical "sold" metric becomes a stitched series —
+//     frozen WorkWave history + live SmarterLaunch — joined at the boundary WITHOUT
+//     double-counting across it). Do it here in one place, in the same change as the
+//     computation move in lib/sales-sync.ts.
+//   - The Data Connections health board (lib/connections-health.ts) should then show
+//     post-cutover WorkWave as "archived / read-only historical", NOT stale/error.
+//   - Guardrail: be the spine, not a second CRM — don't rebuild SmarterLaunch; lock
+//     history like the inventory ledger (immutable, reconcile by reversal only).
 // ===========================================================================
 
 export type MetricUnit = "usd" | "pct" | "count" | "ratio" | "days";
