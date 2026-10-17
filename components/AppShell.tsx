@@ -1,10 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { EMPLOYEE_NAV, EMPLOYEE_HUB_NAV_ITEM, MANAGER_NAV, INVENTORY_NAV, MANAGEMENT_NAV, FLEET_NAV, BOARD_OBSERVER_NAV, SALES_DIRECTOR_NAV, COMPLIANCE_NAV_ITEM, CHECKLIST_OVERSIGHT_NAV_ITEM, SYSTEM_MAP_NAV_ITEM, CERTIFICATIONS_NAV_ITEM, TRAINING_CENTER_NAV_ITEM, PREHIRE_NAV_ITEM, HR_HOME_NAV_ITEM, FIELD_OPS_HOME_NAV_ITEM, HIRING_NAV_ITEM, MY_HIRING_NAV_ITEM, PTO_NAV_ITEM, MY_SALES_NAV_ITEM, BULLETIN_NAV_ITEM, HANDBOOK_NAV_ITEM, MANUAL_NAV_ITEM, CATALOG_ADMIN_NAV_ITEM, USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM, ACCESS_RIGHTS_NAV_ITEM, type Mode, type NavItem } from "@/lib/nav";
-import { matchPathToItem } from "@/lib/access-paths";
+import {
+  EMPLOYEE_HUB_NAV_ITEM,
+  ACCESS_RIGHTS_NAV_ITEM,
+  USERS_ACCESS_NAV_ITEM,
+  EMAIL_LOG_NAV_ITEM,
+  buildNavForMode,
+  buildResources,
+  homeMode,
+  type Mode,
+  type NavItem,
+  type NavPrincipal,
+} from "@/lib/nav";
+import { ToastProvider } from "@/components/ui";
 import NotificationBell from "@/components/NotificationBell";
 import InsightsWidget from "@/components/InsightsWidget";
 
@@ -48,7 +59,7 @@ function ModeToggle({ mode, compact = false, centers = CENTERS }: { mode: Mode; 
     return (
       <div className="flex gap-1 rounded-xl bg-black/20 p-1">
         {centers.map((c) => (
-          <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
+          <Link key={c.m} href={c.href} aria-current={mode === c.m ? "page" : undefined} className={cell(mode === c.m)}>
             {c.short}
           </Link>
         ))}
@@ -58,7 +69,7 @@ function ModeToggle({ mode, compact = false, centers = CENTERS }: { mode: Mode; 
   return (
     <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/20 p-1">
       {centers.map((c) => (
-        <Link key={c.m} href={c.href} className={cell(mode === c.m)}>
+        <Link key={c.m} href={c.href} aria-current={mode === c.m ? "page" : undefined} className={cell(mode === c.m)}>
           {c.label}
         </Link>
       ))}
@@ -76,6 +87,58 @@ function navClass(active: boolean) {
 }
 
 const HELP = "M9.5 9a2.5 2.5 0 013.9-1.9c1.2.8 1.1 2.3 0 3.1-.7.5-1.4.9-1.4 1.8M12 17h.01";
+
+/**
+ * Dialog behavior for the nav pop-ups: Escape-to-close, a Tab focus trap inside
+ * the dialog, and focus restore to the trigger on close. Call once per dialog.
+ */
+function useNavDialog(open: boolean, onClose: () => void, ref: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const node = ref.current;
+    const restoreTo = document.activeElement as HTMLElement | null;
+    const focusablesIn = () =>
+      node
+        ? Array.from(
+            node.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement)
+        : [];
+    // Move focus into the dialog so keyboard users land inside it.
+    const initial = focusablesIn();
+    (initial[0] ?? node)?.focus?.();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Tab") {
+        const f = focusablesIn();
+        if (f.length === 0) {
+          e.preventDefault();
+          node?.focus?.();
+          return;
+        }
+        const first = f[0];
+        const last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      restoreTo?.focus?.();
+    };
+  }, [open, onClose, ref]);
+}
 
 export default function AppShell({
   children,
@@ -111,6 +174,25 @@ export default function AppShell({
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<Mode | "menu" | null>(null); // desktop/tablet launcher
+  const [denied, setDenied] = useState<string | null>(null);
+
+  const principal: NavPrincipal = {
+    isAdmin,
+    isEmployee,
+    isSeniorLeadership,
+    isHrAccess,
+    isInterviewer,
+    isBoardObserver,
+    isSalesDirector,
+    isServiceAdvisor,
+    isFieldOpsDirector,
+    grantedKeys,
+  };
+
+  // Which center the current route belongs to. "Homeless" shared routes
+  // (/inbox, /account, /help) and anything unmatched fall back to the viewer's
+  // HOME center (role-aware) — never a blanket Inventory nav that is empty for
+  // employees.
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
     : pathname.startsWith("/bulletin")
@@ -139,107 +221,23 @@ export default function AppShell({
             ? "manager"
           : pathname.startsWith("/fleet")
             ? "fleet"
-            : "inventory";
-  // Access Rights nav filtering: hide links a user's saved grants turn off.
-  // Admins are never filtered; an empty grant set disables filtering entirely
-  // (fail-open); unmapped hrefs are always shown. Hiding a link never locks
-  // anyone out — the (app) layout guard handles direct-URL access.
-  const enforceNav = !isAdmin && grantedKeys.length > 0;
-  const navAllowed = (href: string) => {
-    if (!enforceNav) return true;
-    const k = matchPathToItem(href);
-    return !k || grantedKeys.includes(k);
-  };
-  // Access grants (admins always qualify). Compliance = senior leadership;
-  // Pre-hires = HR. An employee-shell user with any grant keeps their stripped
-  // self-service shell and may reach ONLY their granted management pages.
-  const canViewCompliance = isAdmin || isSeniorLeadership;
-  // Certifications console — admins + HR + senior leadership (read-only).
-  const canViewCertifications = isAdmin || isHrAccess || isSeniorLeadership;
-  const canManagePreHire = isAdmin || isHrAccess;
-  const canManageAts = isAdmin || isHrAccess;
-  const canViewAllPto = isAdmin || isHrAccess;
-  const grantedMgmt: NavItem[] = [];
-  // HR grantees land on the HR Command Center — give them the link first.
-  if (isHrAccess) grantedMgmt.push(HR_HOME_NAV_ITEM);
-  if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
-  if (canViewCompliance) grantedMgmt.push(CHECKLIST_OVERSIGHT_NAV_ITEM);
-  // Certifications folded into the Training Center hub. Non-admin HR / senior-
-  // leadership grantees land on the Assign tab (the Courses landing is admin-only).
-  if (canViewCertifications)
-    grantedMgmt.push(
-      isAdmin ? TRAINING_CENTER_NAV_ITEM : { ...TRAINING_CENTER_NAV_ITEM, href: "/management/training-center/assign" },
-    );
-  if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
-  if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
-  if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
-  // Interviewers (non-HR) get a scoped "My Hiring" link. HR already has the full
-  // Hiring nav, so don't double it up for them.
-  const showMyHiring = isInterviewer && !canManageAts;
-  const homeExtras: NavItem[] = [...grantedMgmt, ...(showMyHiring ? [MY_HIRING_NAV_ITEM] : [])].filter((i) => navAllowed(i.href));
-  const privilegedEmployee = isEmployee && homeExtras.length > 0;
+          : pathname.startsWith("/dashboard") ||
+              pathname.startsWith("/check-in") ||
+              pathname.startsWith("/check-out") ||
+              pathname.startsWith("/inventory") ||
+              pathname.startsWith("/reconcile") ||
+              pathname.startsWith("/reports") ||
+              pathname.startsWith("/alerts") ||
+              pathname.startsWith("/manage")
+            ? "inventory"
+            // Homeless routes (/inbox, /account, /help, /hr, /field-ops, …) resolve
+            // to the viewer's home center.
+            : homeMode(principal);
 
-  const rawItems =
-    mode === "employee" ? EMPLOYEE_NAV
-      : mode === "manager" ? MANAGER_NAV
-        : mode === "management" ? MANAGEMENT_NAV
-          : mode === "fleet" ? FLEET_NAV
-            : INVENTORY_NAV;
+  // The SINGLE nav builder drives both the active nav and the launcher preview.
+  const items = buildNavForMode(mode, principal);
+  const resources: NavItem[] = buildResources(principal);
 
-  let items: NavItem[];
-  if (isBoardObserver) {
-    // A board observer is a distinct read-only principal: they get their own
-    // minimal exec nav on EVERY route, never the full management/inventory nav.
-    items = BOARD_OBSERVER_NAV;
-  } else if (isSalesDirector) {
-    // The Sales Director is a focused principal: a fixed Sales nav on every
-    // route (admins/super-admins instead get Sales Team inside their full nav).
-    items = SALES_DIRECTOR_NAV;
-  } else if (mode === "management" && privilegedEmployee) {
-    // Never expose the full management nav to an employee-shell grantee (incl. a
-    // tech interviewer on a job-container page) — only their allowed links.
-    items = homeExtras;
-  } else {
-    // The Compliance Command Center + checklist oversight are senior-leadership only.
-    let list = rawItems.filter((i) => (i.href !== COMPLIANCE_NAV_ITEM.href && i.href !== CHECKLIST_OVERSIGHT_NAV_ITEM.href && i.href !== SYSTEM_MAP_NAV_ITEM.href) || canViewCompliance);
-    // Certifications console is admin / HR / senior-leadership only.
-    list = list.filter((i) => i.href !== CERTIFICATIONS_NAV_ITEM.href || canViewCertifications);
-    // Surface granted management links + My Hiring on the grantee's employee home
-    // nav (inserted just before the company bulletin).
-    if (mode === "employee" && privilegedEmployee) {
-      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
-      const at = idx === -1 ? list.length : idx;
-      list = [...list.slice(0, at), ...homeExtras, ...list.slice(at)];
-    } else if (showMyHiring && mode !== "employee") {
-      // Manager/other non-employee interviewer: add a My Hiring link before the
-      // bulletin without stripping their normal nav.
-      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
-      const at = idx === -1 ? list.length : idx;
-      list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
-    }
-    // Service advisors get a "My Sales Goals" link right after their home.
-    if (isServiceAdvisor && mode === "employee" && !list.some((i) => i.href === MY_SALES_NAV_ITEM.href)) {
-      const homeIdx = list.findIndex((i) => i.href === "/me");
-      const at = homeIdx === -1 ? 0 : homeIdx + 1;
-      list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
-    }
-    items = list;
-  }
-  // The Director of Field Ops gets a "Field Ops" home link at the top of every
-  // center's nav (he's a full admin, so he keeps the full nav but can always get
-  // back to his command center).
-  if (isFieldOpsDirector && !isBoardObserver && mode !== "employee" && !items.some((i) => i.href === FIELD_OPS_HOME_NAV_ITEM.href)) {
-    items = [FIELD_OPS_HOME_NAV_ITEM, ...items];
-  }
-  // Catalog administration (the former standalone "Manage" area) now lives in
-  // the Inventory center. Admins and HR grantees get a single entry into it;
-  // /manage redirects each to their allowed landing. Board observers never do.
-  if (mode === "inventory" && !isBoardObserver && (isAdmin || isHrAccess)) {
-    items = [...items, CATALOG_ADMIN_NAV_ITEM];
-  }
-  // Hide any remaining links the viewer's saved grants turn off (admins/empty
-  // grants are unaffected; see navAllowed).
-  items = items.filter((i) => navAllowed(i.href));
   // Employees have a single self-service area — no center switcher, no admin.
   // Board observers likewise get no center switcher — their nav is fixed.
   const showCenters = !isEmployee && !isBoardObserver && !isSalesDirector;
@@ -253,22 +251,18 @@ export default function AppShell({
     // (all-branch to-dos + company KPIs), so label its button "Company" for them.
     // Branch managers keep "My Branch" / "Branch".
     .map((c) => (c.m === "manager" && isAdmin ? { ...c, label: "Company", short: "Company" } : c));
-  // Resources / document center. Handbook + Company Bulletin are for everyone;
-  // the Manager Manual is managers/admin only. Board observers keep their fixed
-  // nav untouched (the bulletin lives directly in BOARD_OBSERVER_NAV for them).
-  const resources: NavItem[] = isBoardObserver
-    ? []
-    : [HANDBOOK_NAV_ITEM, ...(!isEmployee ? [MANUAL_NAV_ITEM] : []), BULLETIN_NAV_ITEM].filter((i) => navAllowed(i.href));
+
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
   const activeHref = [...items, ...resources]
     .map((i) => i.href)
     .filter((h) => pathname === h || pathname.startsWith(h + "/"))
     .sort((a, b) => b.length - a.length)[0];
+
   // Mobile bottom bar: show only the CURRENT module's primary actions (first few),
-  // and tuck the rest — extra module items, cross-module resources, and admin/
-  // account links — behind a single "More" sheet. The top module switcher already
-  // lets the user change centers, so the bar stays uncluttered and thumb-friendly.
-  const MAX_PRIMARY = 4;
+  // and tuck the rest behind a single "More" sheet. Board observers keep ALL their
+  // fixed-nav items visible (incl. the company bulletin) since they have no "More"
+  // overflow of their own.
+  const MAX_PRIMARY = isBoardObserver ? items.length : 4;
   const mobileExtras: NavItem[] = [
     ...resources,
     ...(canManageAccessRights ? [ACCESS_RIGHTS_NAV_ITEM] : []),
@@ -284,47 +278,54 @@ export default function AppShell({
     ? managerName.split(" ").map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase()
     : "";
 
-  // Build the page list for ANY center (so clicking a center opens its grid in
-  // place, without navigating there first). Mirrors the `items` derivation above
-  // for the non-special principals who get a center switcher. The active center
-  // reuses the already-computed `items` so its behavior is unchanged.
-  function itemsForMode(m: Mode): NavItem[] {
-    if (m === mode) return items;
-    const raw =
-      m === "manager" ? MANAGER_NAV
-        : m === "management" ? MANAGEMENT_NAV
-          : m === "fleet" ? FLEET_NAV
-            : INVENTORY_NAV;
-    let list = raw.filter((i) => (i.href !== COMPLIANCE_NAV_ITEM.href && i.href !== CHECKLIST_OVERSIGHT_NAV_ITEM.href && i.href !== SYSTEM_MAP_NAV_ITEM.href) || canViewCompliance);
-    list = list.filter((i) => i.href !== CERTIFICATIONS_NAV_ITEM.href || canViewCertifications);
-    if (showMyHiring) {
-      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
-      const at = idx === -1 ? list.length : idx;
-      list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
-    }
-    if (isFieldOpsDirector && !list.some((i) => i.href === FIELD_OPS_HOME_NAV_ITEM.href)) {
-      list = [FIELD_OPS_HOME_NAV_ITEM, ...list];
-    }
-    if (m === "inventory" && (isAdmin || isHrAccess)) {
-      list = [...list, CATALOG_ADMIN_NAV_ITEM];
-    }
-    return list.filter((i) => navAllowed(i.href));
-  }
-
-  const panelItems = openPanel && openPanel !== "menu" ? itemsForMode(openPanel) : items;
+  // The launcher preview reuses the SAME builder as the active nav — they cannot
+  // drift. The active center reuses the already-computed `items`.
+  const panelItems = openPanel && openPanel !== "menu" ? buildNavForMode(openPanel, principal) : items;
   const panelLabel =
     openPanel === "menu" || openPanel === null
       ? "Menu"
       : (visibleCenters.find((c) => c.m === openPanel)?.label ?? "Menu");
 
+  // Access-denied flash: the (app) layout redirects a missing-grant hit to a home
+  // page with ?denied=<item>. Read it client-side (layouts don't see searchParams),
+  // show a dismissible notice, and strip the param so a refresh doesn't repeat it.
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const d = sp.get("denied");
+      if (d) {
+        setDenied(d);
+        sp.delete("denied");
+        const qs = sp.toString();
+        window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [pathname]);
+
+  // Close the pop-ups on navigation.
+  useEffect(() => {
+    setOpenPanel(null);
+    setMoreOpen(false);
+  }, [pathname]);
+
+  const closePanel = useCallback(() => setOpenPanel(null), []);
+  const closeMore = useCallback(() => setMoreOpen(false), []);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const moreRef = useRef<HTMLDivElement | null>(null);
+  useNavDialog(openPanel !== null, closePanel, panelRef);
+  useNavDialog(moreOpen, closeMore, moreRef);
+
   return (
+    <ToastProvider>
     <div className="flex min-h-screen flex-col">
-      {/* Desktop / tablet top bar — center switcher + launcher trigger. The old
-          scrolling sidebar is replaced by an on-demand icon grid (same tiles as
-          the mobile "More" sheet), so the page gets the full width. */}
+      {/* Desktop / tablet top bar — center switcher + launcher trigger. */}
       <header className="hidden md:flex sticky top-0 z-30 items-center gap-3 h-16 px-5 bg-forest-grad border-b border-white/10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-8 w-auto" />
+        <Link href="/" aria-label="CanopyOS home" className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-8 w-auto" />
+        </Link>
         {showCenters ? (
           <nav className="ml-3 flex items-center gap-1">
             {visibleCenters.map((c) => {
@@ -336,6 +337,7 @@ export default function AppShell({
                   type="button"
                   onClick={() => setOpenPanel((v) => (v === c.m ? null : c.m))}
                   aria-expanded={open}
+                  aria-current={current ? "page" : undefined}
                   className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-light transition-colors ${
                     open ? "bg-white/10 text-white" : current ? "bg-white/5 text-white hover:bg-white/10" : "text-mint hover:bg-white/5 hover:text-white"
                   }`}
@@ -358,9 +360,10 @@ export default function AppShell({
           </button>
         )}
         <div className="ml-auto flex items-center gap-1">
-          {!isBoardObserver ? (
+          {!isBoardObserver && mode !== "employee" ? (
             <Link
               href={EMPLOYEE_HUB_NAV_ITEM.href}
+              aria-current={isActive(pathname, "/me") ? "page" : undefined}
               className={`mr-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-light transition-colors ${
                 isActive(pathname, "/me") ? "bg-white/10 text-white" : "text-mint hover:bg-white/5 hover:text-white"
               }`}
@@ -370,7 +373,7 @@ export default function AppShell({
             </Link>
           ) : null}
           <NotificationBell initialCount={unread} />
-          <Link href="/help" aria-label="Help" className="rounded-xl p-2 text-mint hover:bg-white/5 hover:text-white">
+          <Link href="/help" aria-label="Help" aria-current={isActive(pathname, "/help") ? "page" : undefined} className="flex h-9 w-9 items-center justify-center rounded-xl text-mint hover:bg-white/5 hover:text-white">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>
           </Link>
           {managerName ? (
@@ -378,6 +381,7 @@ export default function AppShell({
               type="button"
               onClick={() => setOpenPanel((v) => (v ? null : showCenters ? mode : "menu"))}
               aria-label="Menu"
+              aria-expanded={openPanel !== null}
               className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-brand-400 text-[12px] font-semibold text-forest-ink"
             >
               {initials}
@@ -389,12 +393,12 @@ export default function AppShell({
       {/* Desktop / tablet launcher pop-up — the current center's pages as an icon grid. */}
       {openPanel ? (
         <div className="hidden md:block fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={`${panelLabel} menu`}>
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpenPanel(null)} />
-          <div className="absolute inset-x-0 top-0 max-h-screen overflow-y-auto bg-forest-grad border-b border-white/10 shadow-2xl">
+          <div className="absolute inset-0 bg-black/40" onClick={closePanel} />
+          <div ref={panelRef} tabIndex={-1} className="absolute inset-x-0 top-0 max-h-screen overflow-y-auto bg-forest-grad border-b border-white/10 shadow-2xl outline-none">
             <div className="mx-auto w-full max-w-6xl px-6 pt-4 pb-6">
               <div className="flex items-center justify-between h-10 mb-2">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-mint/70">{panelLabel}</div>
-                <button type="button" onClick={() => setOpenPanel(null)} aria-label="Close menu" className="rounded-lg p-2 text-mint hover:bg-white/5 hover:text-white">
+                <button type="button" onClick={closePanel} aria-label="Close menu" className="rounded-lg p-2 text-mint hover:bg-white/5 hover:text-white">
                   <Icon path="M6 6l12 12M18 6L6 18" className="h-5 w-5" />
                 </button>
               </div>
@@ -402,7 +406,7 @@ export default function AppShell({
                 {panelItems.map((item) => {
                   const active = item.href === activeHref;
                   return (
-                    <Link key={item.href} href={item.href} onClick={() => setOpenPanel(null)} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
+                    <Link key={item.href} href={item.href} onClick={closePanel} aria-current={active ? "page" : undefined} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
                       <Icon path={item.icon} className="h-6 w-6" />
                       {item.label}
                     </Link>
@@ -416,7 +420,7 @@ export default function AppShell({
                     {resources.map((item) => {
                       const active = item.href === activeHref;
                       return (
-                        <Link key={item.href} href={item.href} onClick={() => setOpenPanel(null)} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
+                        <Link key={item.href} href={item.href} onClick={closePanel} aria-current={active ? "page" : undefined} className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-4 px-1 text-center text-[11px] font-light ${active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5 hover:text-white"}`}>
                           <Icon path={item.icon} className="h-6 w-6" />
                           {item.label}
                         </Link>
@@ -427,30 +431,30 @@ export default function AppShell({
               ) : null}
               <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-1">
                 {canManageAccessRights ? (
-                  <Link href={ACCESS_RIGHTS_NAV_ITEM.href} onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, ACCESS_RIGHTS_NAV_ITEM.href))}>
+                  <Link href={ACCESS_RIGHTS_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, ACCESS_RIGHTS_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, ACCESS_RIGHTS_NAV_ITEM.href))}>
                     <Icon path={ACCESS_RIGHTS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
                     {ACCESS_RIGHTS_NAV_ITEM.label}
                   </Link>
                 ) : null}
                 {isAdmin ? (
                   <>
-                    <Link href={USERS_ACCESS_NAV_ITEM.href} onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
+                    <Link href={USERS_ACCESS_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, USERS_ACCESS_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, USERS_ACCESS_NAV_ITEM.href))}>
                       <Icon path={USERS_ACCESS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
                       {USERS_ACCESS_NAV_ITEM.label}
                     </Link>
-                    <Link href={EMAIL_LOG_NAV_ITEM.href} onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, EMAIL_LOG_NAV_ITEM.href))}>
+                    <Link href={EMAIL_LOG_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, EMAIL_LOG_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, EMAIL_LOG_NAV_ITEM.href))}>
                       <Icon path={EMAIL_LOG_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
                       {EMAIL_LOG_NAV_ITEM.label}
                     </Link>
                   </>
                 ) : null}
-                <Link href="/help" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/help"))}>
+                <Link href="/help" onClick={closePanel} aria-current={isActive(pathname, "/help") ? "page" : undefined} className={navClass(isActive(pathname, "/help"))}>
                   <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>
                   Help
                 </Link>
                 {managerName ? (
                   <>
-                    <Link href="/account" onClick={() => setOpenPanel(null)} className={navClass(isActive(pathname, "/account"))}>
+                    <Link href="/account" onClick={closePanel} aria-current={isActive(pathname, "/account") ? "page" : undefined} className={navClass(isActive(pathname, "/account"))}>
                       <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                       Change password
                     </Link>
@@ -475,15 +479,18 @@ export default function AppShell({
       <div className="flex-1 flex flex-col app-canvas">
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 flex items-center gap-2 h-14 px-4 bg-forest-grad border-b border-white/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-7 w-auto" />
+          <Link href="/" aria-label="CanopyOS home" className="flex h-11 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/canopyos-wordmark.png" alt="CanopyOS" className="h-7 w-auto" />
+          </Link>
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact centers={visibleCenters} /></div> : null}
-          <div className="ml-auto flex items-center gap-2">
-          {!isBoardObserver ? (
+          <div className="ml-auto flex items-center">
+          {!isBoardObserver && mode !== "employee" ? (
             <Link
               href={EMPLOYEE_HUB_NAV_ITEM.href}
               aria-label="Employee Hub"
-              className={`p-1 ${isActive(pathname, "/me") ? "text-white" : "text-mint hover:text-white"}`}
+              aria-current={isActive(pathname, "/me") ? "page" : undefined}
+              className={`flex h-11 w-11 items-center justify-center rounded-xl ${isActive(pathname, "/me") ? "text-white" : "text-mint hover:text-white hover:bg-white/5"}`}
             >
               <Icon path={EMPLOYEE_HUB_NAV_ITEM.icon} className="h-6 w-6" />
             </Link>
@@ -492,7 +499,8 @@ export default function AppShell({
           <Link
             href="/help"
             aria-label="Help"
-            className="p-1 text-mint hover:text-white"
+            aria-current={isActive(pathname, "/help") ? "page" : undefined}
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-mint hover:text-white hover:bg-white/5"
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6}>
               <circle cx="12" cy="12" r="9" />
@@ -503,15 +511,40 @@ export default function AppShell({
         </header>
 
         <main className="flex-1 px-4 py-5 md:px-8 md:py-8 pb-24 md:pb-8 max-w-5xl w-full mx-auto">
+          {denied ? (
+            <div
+              role="status"
+              className="mb-4 flex flex-wrap items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+            >
+              <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5m0 3h.01" />
+              </svg>
+              <span className="min-w-0 flex-1">
+                You don&apos;t have access to that page, so we brought you here instead. Ask an
+                administrator if you need it.
+              </span>
+              <button
+                type="button"
+                onClick={() => setDenied(null)}
+                aria-label="Dismiss"
+                className="shrink-0 rounded-lg p-1 text-amber-900/70 hover:bg-amber-100 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+          ) : null}
           {children}
         </main>
       </div>
 
       {/* Mobile "More" sheet — overflow nav + resources + account actions. */}
       {moreOpen ? (
-        <div className="md:hidden fixed inset-0 z-30" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMoreOpen(false)} />
-          <div className="absolute bottom-0 inset-x-0 bg-forest-grad border-t border-white/10 rounded-t-2xl p-3 pb-6 max-h-[75vh] overflow-y-auto">
+        <div className="md:hidden fixed inset-0 z-30" role="dialog" aria-modal="true" aria-label="More menu">
+          <div className="absolute inset-0 bg-black/50" onClick={closeMore} />
+          <div ref={moreRef} tabIndex={-1} className="absolute bottom-0 inset-x-0 bg-forest-grad border-t border-white/10 rounded-t-2xl p-3 pb-6 max-h-[75vh] overflow-y-auto outline-none">
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/25" />
             <div className="grid grid-cols-3 gap-2">
               {moreItems.map((item) => {
@@ -520,7 +553,8 @@ export default function AppShell({
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setMoreOpen(false)}
+                    onClick={closeMore}
+                    aria-current={active ? "page" : undefined}
                     className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-1 text-center text-[11px] font-light ${
                       active ? "bg-white/10 text-brand-300" : "text-mint hover:bg-white/5"
                     }`}
@@ -532,7 +566,7 @@ export default function AppShell({
               })}
             </div>
             <div className="mt-3 border-t border-white/10 pt-3 space-y-1">
-              <Link href="/help" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/help"))}>
+              <Link href="/help" onClick={closeMore} aria-current={isActive(pathname, "/help") ? "page" : undefined} className={navClass(isActive(pathname, "/help"))}>
                 <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}>
                   <circle cx="12" cy="12" r="9" />
                   <path d={HELP} strokeLinecap="round" />
@@ -541,7 +575,7 @@ export default function AppShell({
               </Link>
               {managerName ? (
                 <>
-                  <Link href="/account" onClick={() => setMoreOpen(false)} className={navClass(isActive(pathname, "/account"))}>
+                  <Link href="/account" onClick={closeMore} aria-current={isActive(pathname, "/account") ? "page" : undefined} className={navClass(isActive(pathname, "/account"))}>
                     <Icon path="M12 15a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0" className="h-5 w-5 shrink-0" />
                     Change password
                   </Link>
@@ -569,6 +603,7 @@ export default function AppShell({
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={`relative flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-light ${
                 active ? "text-brand-300" : "text-mint"
               }`}
@@ -585,6 +620,7 @@ export default function AppShell({
             type="button"
             onClick={() => setMoreOpen(true)}
             aria-label="More"
+            aria-expanded={moreOpen}
             className={`relative flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-light ${
               moreActive ? "text-brand-300" : "text-mint"
             }`}
@@ -598,5 +634,6 @@ export default function AppShell({
       {/* Floating grounded-Q&A assistant — leadership only. */}
       {isAdmin || isSeniorLeadership ? <InsightsWidget /> : null}
     </div>
+    </ToastProvider>
   );
 }

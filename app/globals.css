@@ -114,6 +114,33 @@ textarea::placeholder { color: #94a3b8 !important; }
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ---- Keyboard focus (WCAG 2.4.7) ------------------------------------- *
+   A visible focus ring for keyboard users on every interactive element,
+   without showing it on mouse clicks (:focus-visible only). Components that
+   style their own ring (buttons via `btn`, nav links, the goal slider) opt
+   out with a .ring-brand token or their own focus-visible rules. The ring is
+   the brand green and sits on a 2px offset so it reads on both the forest
+   chrome and the light canvas. */
+:where(a, button, [role="button"], [role="tab"], [role="menuitem"], summary,
+  input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-400, #74a96e);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Native form controls already carry a border; keep a tighter ring on them. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: #2e6f47;
+  outline-offset: 1px;
+}
+
+/* Toast enter animation (components/Toast.tsx). Motion-safe only. */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Date fields with a custom calendar button hide the default browser icon so
    there aren't two calendar affordances. The whole field opens the picker. */
 input[type="date"].date-clean::-webkit-calendar-picker-indicator {

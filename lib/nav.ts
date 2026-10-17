@@ -1,6 +1,8 @@
 // Central navigation config used by both the desktop sidebar and the mobile
 // bottom bar. Icons are inline SVG path data (single-color, currentColor).
 
+import { matchPathToItem } from "@/lib/access-paths";
+
 export type NavItem = {
   href: string;
   label: string;
@@ -502,3 +504,156 @@ export const FLEET_NAV: NavItem[] = [
     icon: "M14 20V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14m0 0h10M4 20H3m11-9h2.5a1.5 1.5 0 011.5 1.5V16a1.5 1.5 0 003 0V8l-3-3M7 8h4",
   },
 ];
+
+// ---- Shared nav assembly ------------------------------------------------- //
+// The SINGLE source of truth for which pages a principal sees in a given center.
+// Both the active shell nav AND the desktop launcher's per-center preview call
+// `buildNavForMode`, so the two can never drift (previously AppShell had a second
+// `itemsForMode` that duplicated — and could diverge from — the main derivation).
+
+/** The viewer's flags, lifted from the (app) layout. All optional so a partial
+ *  principal (e.g. a quick preview) still resolves. */
+export type NavPrincipal = {
+  isAdmin?: boolean;
+  isEmployee?: boolean;
+  isSeniorLeadership?: boolean;
+  isHrAccess?: boolean;
+  isInterviewer?: boolean;
+  isBoardObserver?: boolean;
+  isSalesDirector?: boolean;
+  isServiceAdvisor?: boolean;
+  isFieldOpsDirector?: boolean;
+  /** Saved Access-Rights grant keys; empty disables nav filtering (fail-open). */
+  grantedKeys?: string[];
+};
+
+/**
+ * The viewer's HOME center — used as the mode fallback for "homeless" shared
+ * routes (`/inbox`, `/account`, `/help`) so an employee never falls through to
+ * the empty Inventory nav. Mirrors `homePath` in lib/auth: employees → their
+ * self-service hub, admins → the Inventory dashboard, branch managers → My Branch.
+ * (Board observers / the Sales Director have a fixed nav, so mode is cosmetic.)
+ */
+export function homeMode(p: NavPrincipal): Mode {
+  if (p.isEmployee) return "employee";
+  if (p.isAdmin) return "inventory";
+  return "manager";
+}
+
+/**
+ * Build the nav item list for ANY center for a given principal, applying every
+ * gate and insertion exactly once. Board observers and the Sales Director have a
+ * fixed nav on every route; everyone else gets the per-mode list (with granted
+ * management links folded onto an employee home, the Field Ops / My Hiring /
+ * Catalog Admin / My Sales insertions, and the compliance / certifications /
+ * saved-grant filters). This is what both the shell and the launcher render.
+ */
+export function buildNavForMode(mode: Mode, p: NavPrincipal): NavItem[] {
+  const isAdmin = !!p.isAdmin;
+  const grantedKeys = p.grantedKeys ?? [];
+  const enforceNav = !isAdmin && grantedKeys.length > 0;
+  const navAllowed = (href: string) => {
+    if (!enforceNav) return true;
+    const k = matchPathToItem(href);
+    return !k || grantedKeys.includes(k);
+  };
+
+  // Fixed-nav principals: the same minimal nav on every route, never a center's.
+  if (p.isBoardObserver) return BOARD_OBSERVER_NAV.filter((i) => navAllowed(i.href));
+  if (p.isSalesDirector) return SALES_DIRECTOR_NAV.filter((i) => navAllowed(i.href));
+
+  const canViewCompliance = isAdmin || !!p.isSeniorLeadership;
+  const canViewCertifications = isAdmin || !!p.isHrAccess || !!p.isSeniorLeadership;
+  const canManageAts = isAdmin || !!p.isHrAccess;
+  const canManagePreHire = isAdmin || !!p.isHrAccess;
+  const canViewAllPto = isAdmin || !!p.isHrAccess;
+
+  // Granted management links an employee-shell grantee carries onto their home.
+  const grantedMgmt: NavItem[] = [];
+  if (p.isHrAccess) grantedMgmt.push(HR_HOME_NAV_ITEM);
+  if (canViewCompliance) grantedMgmt.push(COMPLIANCE_NAV_ITEM);
+  if (canViewCompliance) grantedMgmt.push(CHECKLIST_OVERSIGHT_NAV_ITEM);
+  if (canViewCertifications)
+    grantedMgmt.push(
+      isAdmin ? TRAINING_CENTER_NAV_ITEM : { ...TRAINING_CENTER_NAV_ITEM, href: "/management/training-center/assign" },
+    );
+  if (canManageAts) grantedMgmt.push(HIRING_NAV_ITEM);
+  if (canManagePreHire) grantedMgmt.push(PREHIRE_NAV_ITEM);
+  if (canViewAllPto) grantedMgmt.push(PTO_NAV_ITEM);
+
+  const showMyHiring = !!p.isInterviewer && !canManageAts;
+  const homeExtras: NavItem[] = [...grantedMgmt, ...(showMyHiring ? [MY_HIRING_NAV_ITEM] : [])].filter((i) =>
+    navAllowed(i.href),
+  );
+  const privilegedEmployee = !!p.isEmployee && homeExtras.length > 0;
+
+  const rawItems =
+    mode === "employee" ? EMPLOYEE_NAV
+      : mode === "manager" ? MANAGER_NAV
+        : mode === "management" ? MANAGEMENT_NAV
+          : mode === "fleet" ? FLEET_NAV
+            : INVENTORY_NAV;
+
+  let items: NavItem[];
+  if (mode === "management" && privilegedEmployee) {
+    // Never expose the full management nav to an employee-shell grantee — only
+    // their allowed links.
+    items = homeExtras;
+  } else {
+    // The Compliance Command Center + checklist oversight + system map are
+    // senior-leadership only.
+    let list = rawItems.filter(
+      (i) =>
+        (i.href !== COMPLIANCE_NAV_ITEM.href &&
+          i.href !== CHECKLIST_OVERSIGHT_NAV_ITEM.href &&
+          i.href !== SYSTEM_MAP_NAV_ITEM.href) ||
+        canViewCompliance,
+    );
+    // Certifications console is admin / HR / senior-leadership only.
+    list = list.filter((i) => i.href !== CERTIFICATIONS_NAV_ITEM.href || canViewCertifications);
+    if (mode === "employee" && privilegedEmployee) {
+      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
+      const at = idx === -1 ? list.length : idx;
+      list = [...list.slice(0, at), ...homeExtras, ...list.slice(at)];
+    } else if (showMyHiring && mode !== "employee") {
+      const idx = list.findIndex((i) => i.href === BULLETIN_NAV_ITEM.href);
+      const at = idx === -1 ? list.length : idx;
+      list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
+    }
+    // Service advisors get a "My Sales Goals" link right after their home.
+    if (p.isServiceAdvisor && mode === "employee" && !list.some((i) => i.href === MY_SALES_NAV_ITEM.href)) {
+      const homeIdx = list.findIndex((i) => i.href === "/me");
+      const at = homeIdx === -1 ? 0 : homeIdx + 1;
+      list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
+    }
+    items = list;
+  }
+  // Director of Field Ops: a "Field Ops" home link at the top of every center.
+  if (p.isFieldOpsDirector && mode !== "employee" && !items.some((i) => i.href === FIELD_OPS_HOME_NAV_ITEM.href)) {
+    items = [FIELD_OPS_HOME_NAV_ITEM, ...items];
+  }
+  // Catalog administration lives in the Inventory center (admin + HR only).
+  if (mode === "inventory" && (isAdmin || !!p.isHrAccess)) {
+    items = [...items, CATALOG_ADMIN_NAV_ITEM];
+  }
+  // Hide any remaining links the viewer's saved grants turn off.
+  return items.filter((i) => navAllowed(i.href));
+}
+
+/** The cross-center Resources group (Handbook + Manual + Bulletin), gated by the
+ *  same saved-grant filter. Board observers get none (their bulletin is in their
+ *  fixed nav). Shared so the shell and launcher render the same list. */
+export function buildResources(p: NavPrincipal): NavItem[] {
+  if (p.isBoardObserver) return [];
+  const isAdmin = !!p.isAdmin;
+  const grantedKeys = p.grantedKeys ?? [];
+  const enforceNav = !isAdmin && grantedKeys.length > 0;
+  const navAllowed = (href: string) => {
+    if (!enforceNav) return true;
+    const k = matchPathToItem(href);
+    return !k || grantedKeys.includes(k);
+  };
+  return [HANDBOOK_NAV_ITEM, ...(!p.isEmployee ? [MANUAL_NAV_ITEM] : []), BULLETIN_NAV_ITEM].filter((i) =>
+    navAllowed(i.href),
+  );
+}

@@ -79,14 +79,16 @@ export default function NotificationBell({
     <Link
       href="/inbox"
       aria-label={count > 0 ? `Messages — ${count} unread` : "Messages"}
-      className={`relative inline-flex items-center justify-center h-6 w-6 text-mint hover:text-white ${className}`}
+      className={`relative inline-flex items-center justify-center h-11 w-11 md:h-9 md:w-9 rounded-xl text-mint hover:text-white hover:bg-white/5 ${className}`}
     >
-      {icon}
-      {count > 0 ? (
-        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 grid place-items-center rounded-full bg-red-500 text-[10px] font-semibold text-white tabular-nums">
-          {count > 9 ? "9+" : count}
-        </span>
-      ) : null}
+      <span className="relative inline-flex">
+        {icon}
+        {count > 0 ? (
+          <span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 grid place-items-center rounded-full bg-red-500 text-[10px] font-semibold text-white tabular-nums">
+            {count > 9 ? "9+" : count}
+          </span>
+        ) : null}
+      </span>
     </Link>
   );
 }

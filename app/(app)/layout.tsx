@@ -60,7 +60,10 @@ export default async function AppGroupLayout({
       let target = homePath(user);
       const targetItem = matchPathToItem(target);
       if (targetItem && !(grants as Record<string, unknown>)[targetItem]) target = "/account";
-      if (path !== target) redirect(target);
+      // Carry a flash so the shell can explain the redirect instead of silently
+      // dropping the user on a different page (AppShell reads ?denied client-side
+      // and strips it). The target is a clean path, so just append the param.
+      if (path !== target) redirect(`${target}?denied=${encodeURIComponent(item)}`);
     }
   }
   return (

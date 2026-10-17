@@ -6,7 +6,10 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "CanopyOS",
     description:
       "Inventory and management reporting portal for Clements Pest Control.",
-    start_url: "/dashboard",
+    // "/" resolves to each role's real home (app/page.tsx redirects via homePath),
+    // so the installed PWA never dumps a non-admin on /dashboard (which the guard
+    // then redirects away from).
+    start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
