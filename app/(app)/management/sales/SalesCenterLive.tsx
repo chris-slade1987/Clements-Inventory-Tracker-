@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import { branchLabel } from "@/lib/management";
+import MetricInfo from "@/components/MetricInfo";
 
 type Period = { leads: number; won: number; lost: number; closeRate: number | null; soldAnnual: number; soldTotal: number };
 type Metrics = {
@@ -97,7 +98,10 @@ export default function SalesCenterLive({ metrics, syncedAt, lastError, canSync,
           <div className="grid gap-3 sm:grid-cols-3 mb-4">
             {([["This month", metrics.mtd], ["This quarter", metrics.qtd], ["Year to date", metrics.ytd]] as const).map(([label, p]) => (
               <div key={label} className="rounded-xl border border-line p-3">
-                <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+                <div className="flex items-start gap-1">
+                  <span className="text-[11px] uppercase tracking-wider text-muted">{label}</span>
+                  <MetricInfo metricKey="sales_center_sold" srHint={`Sales Center sold · ${label}`} />
+                </div>
                 <div className="mt-1 text-2xl font-light tabular-nums text-ink">{money(p.soldAnnual)}<span className="text-xs text-muted"> sold</span></div>
                 <div className="mt-1 flex gap-3 text-xs text-muted tabular-nums">
                   <span><span className="text-ink">{p.won}</span> won</span>

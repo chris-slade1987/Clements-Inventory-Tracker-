@@ -26,6 +26,8 @@ import BranchPnlClient from "@/app/(app)/management/branch-pnl/BranchPnlClient";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
 import InsightsLink from "@/components/InsightsLink";
 import { KpiTile, VarianceChip } from "@/components/kpi-tiles";
+import MetricInfo from "@/components/MetricInfo";
+import { hasMetric } from "@/lib/metrics-registry";
 
 type Unit = "usd" | "pct" | "count";
 
@@ -288,7 +290,10 @@ export default async function ManagementPage({
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-6 mb-5">
           {headline.map((h) => (
             <Card key={h.key} className="p-4">
-              <div className="text-xs uppercase tracking-wider text-muted">{h.meta?.label ?? h.key}</div>
+              <div className="flex items-start gap-1">
+                <span className="text-xs uppercase tracking-wider text-muted">{h.meta?.label ?? h.key}</span>
+                {hasMetric(h.key) ? <MetricInfo metricKey={h.key} srHint={h.meta?.label ?? h.key} className="-mt-0.5" /> : null}
+              </div>
               <div className="mt-1 text-2xl font-light tabular-nums">
                 {h.meta?.unit === "pct" ? pctStr(h.c.actual) : money(h.c.actual)}
               </div>
@@ -447,6 +452,7 @@ function CompanyBudgetTiles({ values, basis }: { values: Map<string, Cell>; basi
         <KpiTile
           key={t.key}
           label={t.label}
+          metricKey={t.key}
           c={t.cur}
           unit="usd"
           pctOfRev={t.kind === "cost" && t.cur.actual != null && revActual ? (t.cur.actual / revActual) * 100 : null}

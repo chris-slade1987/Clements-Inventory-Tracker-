@@ -20,6 +20,8 @@ import { LineChart, Donut } from "@/components/charts";
 import { latestSalesSnapshot } from "@/lib/sales-sync";
 import { isConfigured as isWorkwaveConfigured } from "@/lib/workwave";
 import SalesCenterLive from "./SalesCenterLive";
+import MetricInfo from "@/components/MetricInfo";
+import { hasMetric } from "@/lib/metrics-registry";
 
 export const dynamic = "force-dynamic";
 
@@ -116,7 +118,10 @@ export default async function SalesPage({
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-6 mt-2">
         <Link href={branchLink("company")} className="block">
           <Card className={`p-4 h-full transition ${isCompany ? "ring-2 ring-brand-500" : "hover:ring-1 hover:ring-brand-300"}`}>
-            <div className="text-xs uppercase tracking-wider text-muted">All branches</div>
+            <div className="flex items-start gap-1">
+              <span className="text-xs uppercase tracking-wider text-muted">All branches</span>
+              <MetricInfo metricKey="new_sales" srHint="MBR new sales" className="-mt-0.5" />
+            </div>
             <div className="mt-2 text-2xl font-light tabular-nums">{money(cell(values, "new_sales", "company", basis).actual)}</div>
             <div className="text-[11px] text-muted">MBR new sales · {basisLabel}</div>
           </Card>
@@ -152,8 +157,8 @@ export default async function SalesPage({
 
       {/* Headline */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-5">
-        <Stat label="New Sales" value={money(newSales.actual)} c={newSales} unit="usd" />
-        <Stat label="Cancellations" value={money(attrition.actual)} c={attrition} unit="usd" invertNote />
+        <Stat label="New Sales" value={money(newSales.actual)} c={newSales} unit="usd" metricKey="new_sales" />
+        <Stat label="Cancellations" value={money(attrition.actual)} c={attrition} unit="usd" invertNote metricKey="attrition" />
         <Card className="p-4">
           <div className="text-xs uppercase tracking-wider text-muted">Net Book Change</div>
           <div className={`mt-1 text-2xl font-light tabular-nums ${netBook != null && netBook < 0 ? "text-red-600" : ""}`}>
@@ -161,7 +166,7 @@ export default async function SalesPage({
           </div>
           <div className="mt-1 text-[11px] text-muted">new sales − cancellations</div>
         </Card>
-        <Stat label="Attrition Rate" value={get("attrition_rate").actual != null ? `${get("attrition_rate").actual}%` : "—"} c={get("attrition_rate")} unit="pct" />
+        <Stat label="Attrition Rate" value={get("attrition_rate").actual != null ? `${get("attrition_rate").actual}%` : "—"} c={get("attrition_rate")} unit="pct" metricKey="attrition_rate" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -280,17 +285,21 @@ export default async function SalesPage({
 }
 
 function Stat({
-  label, value, c, unit, invertNote,
+  label, value, c, unit, invertNote, metricKey,
 }: {
   label: string;
   value: string;
   c: { budget: number | null; variance: number | null; favorable: boolean | null };
   unit: string;
   invertNote?: boolean;
+  metricKey?: string;
 }) {
   return (
     <Card className="p-4">
-      <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
+      <div className="flex items-start gap-1">
+        <span className="text-xs uppercase tracking-wider text-muted">{label}</span>
+        {hasMetric(metricKey) ? <MetricInfo metricKey={metricKey} srHint={label} className="-mt-0.5" /> : null}
+      </div>
       <div className="mt-1 text-2xl font-light tabular-nums">{value}</div>
       {c.variance != null && c.budget != null ? (
         <div className="mt-1 text-[11px]">

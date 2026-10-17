@@ -15,6 +15,8 @@ import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import { Gauge } from "@/components/motivation";
 import { BudgetVsForecast, Donut, DivergingBars } from "@/components/charts";
+import MetricInfo from "@/components/MetricInfo";
+import { hasMetric } from "@/lib/metrics-registry";
 
 // ---- Types (mirror the server payload — all serializable) -----------------
 export type DCell = { actual: number | null; budget: number | null };
@@ -360,7 +362,10 @@ function Tile({ m, basis, payload }: { m: DMetric; basis: DBasis; payload: Dashb
   return (
     <Card className="flex flex-col gap-2.5 p-4">
       <div className="flex items-start justify-between gap-2">
-        <div className="text-[12.5px] font-semibold text-ink">{m.label}</div>
+        <div className="flex items-start gap-1">
+          <span className="text-[12.5px] font-semibold text-ink">{m.label}</span>
+          {hasMetric(m.key) ? <MetricInfo metricKey={m.key} srHint={m.label} /> : null}
+        </div>
         {m.companyWide ? <CoTag /> : null}
       </div>
       <div className="text-2xl font-light leading-none tabular-nums text-ink">{fmt(c.actual, m.unit)}</div>
@@ -655,7 +660,10 @@ function FunnelPanel({ f, scopeLabel }: { f: NonNullable<FunnelSummary>; scopeLa
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {stages.map((s, i) => (
                 <div key={s.label} className="rounded-xl border border-line bg-white p-3 text-center">
-                  <div className="text-[11px] uppercase tracking-wide text-muted">{s.label}</div>
+                  <div className="flex items-center justify-center gap-1 text-[11px] uppercase tracking-wide text-muted">
+                    <span>{s.label}</span>
+                    {i === 3 ? <MetricInfo metricKey="funnel_closed" srHint="sales funnel closed dollars" /> : null}
+                  </div>
                   <div className="mt-1 text-2xl font-light tabular-nums text-ink">{s.value}</div>
                   {i < 3 ? (
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">

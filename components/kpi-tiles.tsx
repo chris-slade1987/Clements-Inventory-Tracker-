@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import type { Cell } from "@/lib/management";
+import MetricInfo from "@/components/MetricInfo";
+import { hasMetric } from "@/lib/metrics-registry";
 
 // Shared, presentational KPI tiles (actual vs budget, variance chip, budget bar)
 // used by both the Executive dashboard and the My Branch → Company KPIs view, so
@@ -49,12 +51,17 @@ export function BudgetBar({ c }: { c: Cell }) {
 }
 
 /** One KPI tile: label, big value, variance chip, budget bar, optional % of revenue
- *  and an optional footer slot (e.g. a full-year-forecast line). */
-export function KpiTile({ label, c, unit, pctOfRev, footer }: { label: string; c: Cell; unit: Unit; pctOfRev?: number | null; footer?: ReactNode }) {
+ *  and an optional footer slot (e.g. a full-year-forecast line). Pass `metricKey`
+ *  to attach the "What is this number?" affordance from the canonical metric
+ *  registry (opt-in; omitted = unchanged for existing callers). */
+export function KpiTile({ label, c, unit, pctOfRev, footer, metricKey }: { label: string; c: Cell; unit: Unit; pctOfRev?: number | null; footer?: ReactNode; metricKey?: string }) {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
-        <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
+        <div className="flex items-start gap-1">
+          <span className="text-xs uppercase tracking-wider text-muted">{label}</span>
+          {hasMetric(metricKey) ? <MetricInfo metricKey={metricKey} srHint={label} className="-mt-0.5" /> : null}
+        </div>
         {pctOfRev != null && Number.isFinite(pctOfRev) ? (
           <div className="shrink-0 text-[11px] text-muted tabular-nums">{pctOfRev.toFixed(1)}% of rev</div>
         ) : null}
