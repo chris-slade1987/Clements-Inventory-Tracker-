@@ -2,6 +2,7 @@ import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, matchBranchManagerEmployee, serializeScorecardReview } from "@/lib/scorecard";
+import { listScorecardComments, canAccessScorecardCoaching } from "@/lib/scorecard-coaching";
 import ScorecardClient from "@/app/(app)/management/scorecards/ScorecardClient";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +38,11 @@ export default async function MyScorecardPage({
     );
   }
 
-  const [rows, review, mgr] = await Promise.all([
+  const [rows, review, mgr, comments] = await Promise.all([
     buildScorecardRows(year, quarter, branch),
     getScorecardReview(year, quarter, branch),
     matchBranchManagerEmployee(branch),
+    listScorecardComments(year, quarter, branch),
   ]);
 
   return (
@@ -61,6 +63,9 @@ export default async function MyScorecardPage({
         review={serializeScorecardReview(review)}
         suggestedManagerName={mgr?.name ?? ""}
         basePath="/my-branch/scorecard"
+        comments={comments}
+        canCoach={canAccessScorecardCoaching(user, branch)}
+        coachViewerName={user.name}
       />
     </>
   );

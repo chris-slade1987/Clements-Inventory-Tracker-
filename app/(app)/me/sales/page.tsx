@@ -3,6 +3,8 @@ import { PageHeader, Card } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
+import AdvisorScorecard from "@/components/AdvisorScorecard";
+import { buildAdvisorScorecard } from "@/lib/scorecard-advisor";
 import LeadInsightsSection from "@/components/LeadInsightsSection";
 import { resolveRange } from "@/lib/sales-leads";
 import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPrefillFromPriorActuals } from "@/lib/sales";
@@ -43,12 +45,17 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
   const focusItems = await listFocusItems(user.employeeId, periodKey);
   const lastMonthFocus = await prisma.salesFocusItem.count({ where: { advisorEmployeeId: user.employeeId, periodKey: priorPeriodKey(periodKey), voided: false } });
 
+  // Your accountability scorecard (Theme 6) — computed from the live sales ledger.
+  const scorecard = await buildAdvisorScorecard(user.employeeId, periodKey);
+
   return (
     <>
       <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link></div>
       <PageHeader title="My Sales Goals" subtitle={`Monthly goal planner — ${periodLabel(periodKey)}`} />
 
       <SalesFunnelCard advisorEmployeeId={user.employeeId} periodKey={periodKey} />
+
+      <AdvisorScorecard data={scorecard} heading="Your scorecard" />
 
       {/* Your personal lead heat map + lead-source performance — the areas and
           sources that work best for you, so you can target them more often. */}

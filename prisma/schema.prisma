@@ -576,10 +576,33 @@ model ScorecardReview {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   signatures ScorecardSignature[]
+  comments   ScorecardComment[]
 
   @@unique([year, quarter, branch])
   @@index([branch, status])
   @@map("scorecard_reviews")
+}
+
+// A timestamped COACHING comment on a manager's quarterly scorecard review — the
+// permanent, in-portal coaching log between the reviewer/coach, the scored branch
+// manager, and super admins (no email ping-pong). Mirrors SalesFocusComment:
+// append-only, author id/name + body + timestamp, cascades with its review. The
+// coaching thread is anchored to the ScorecardReview (the per-period scorecard
+// document — one thread per scorecard), not to a single per-metric
+// ScorecardResult row, so the log survives before any metric is scored and reads
+// as one coaching conversation on the whole scorecard.
+model ScorecardComment {
+  id           String   @id @default(cuid())
+  reviewId     String   @map("review_id")
+  authorUserId String?  @map("author_user_id")
+  authorName   String   @map("author_name")
+  body         String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  review ScorecardReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId, createdAt])
+  @@map("scorecard_comments")
 }
 
 // One typed-signature attestation on a ScorecardReview. Three signers finalize a

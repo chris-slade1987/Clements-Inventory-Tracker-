@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import ScorecardSignatures, { type SigLite } from "./ScorecardSignatures";
+import ScorecardCoachingThread from "@/components/ScorecardCoachingThread";
+import type { ScorecardCommentDTO } from "@/lib/scorecard-coaching";
 import { AchievementBar, ProgressRing, KpiMeter, encouragement } from "@/components/motivation";
 
 // The quarterly manager bonus pool a 100% scorecard pays out — mirrors
@@ -75,6 +77,7 @@ const NARRATIVE: { key: "overallNotes" | "strengths" | "areas" | "goals"; label:
 export default function ScorecardClient({
   year, quarter, branch, branchLabel, years, branches, rows, canEdit, canSign = false, canFinalize = false,
   review, archived: archivedList = [], suggestedManagerName = "", basePath = "/management/scorecards", signInfo = null,
+  comments = [], canCoach = false, coachViewerName = "",
 }: {
   year: number;
   quarter: number;
@@ -91,6 +94,9 @@ export default function ScorecardClient({
   suggestedManagerName?: string;
   basePath?: string;
   signInfo?: SignInfo | null;
+  comments?: ScorecardCommentDTO[];
+  canCoach?: boolean;
+  coachViewerName?: string;
 }) {
   const router = useRouter();
   const status = review?.status ?? "draft";
@@ -494,6 +500,11 @@ export default function ScorecardClient({
 
       {/* Part 4 — Signatures (supervisor at publish, manager via email or in-app) */}
       <ScorecardSignatures year={year} quarter={quarter} branch={branch} signatures={sigs} canSign={canSign && !isDraft} locked={isArchived} />
+
+      {/* Part 5 — Inline coaching thread (CanopyOS Theme 6). A durable coaching
+          log between the reviewer/coach and the scored manager; readable on the
+          manager's own view and a new note notifies the other party's Inbox. */}
+      <ScorecardCoachingThread year={year} quarter={quarter} branch={branch} comments={comments} canComment={canCoach} viewerName={coachViewerName} />
 
       {banner ? <p className="mt-3 text-xs text-red-600">{banner}</p> : null}
 

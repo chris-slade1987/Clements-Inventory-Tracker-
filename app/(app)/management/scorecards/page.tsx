@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail, serializeScorecardReview } from "@/lib/scorecard";
+import { listScorecardComments, canAccessScorecardCoaching } from "@/lib/scorecard-coaching";
 import { listPeriods } from "@/lib/management";
 import ScorecardClient, { type ArchivedLite } from "./ScorecardClient";
 
@@ -37,11 +38,12 @@ export default async function ScorecardsPage({
   // Branch managers only see their own branch in the selector.
   const visibleBranches = locked ? BRANCHES.filter((b) => b.key === branch) : BRANCHES;
 
-  const [rows, review, archivedRows, mgr] = await Promise.all([
+  const [rows, review, archivedRows, mgr, comments] = await Promise.all([
     buildScorecardRows(year, quarter, branch),
     getScorecardReview(year, quarter, branch),
     listArchivedReviews(visibleBranches.map((b) => b.key)),
     matchBranchManagerEmployee(branch),
+    listScorecardComments(year, quarter, branch),
   ]);
 
   const archived: ArchivedLite[] = archivedRows.map((a) => ({
@@ -96,6 +98,9 @@ export default async function ScorecardsPage({
         archived={archived}
         suggestedManagerName={mgr?.name ?? ""}
         signInfo={signInfo}
+        comments={comments}
+        canCoach={canAccessScorecardCoaching(user, branch)}
+        coachViewerName={user.name}
       />
     </>
   );

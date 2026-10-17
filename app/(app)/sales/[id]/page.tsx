@@ -5,6 +5,8 @@ import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/a
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
+import AdvisorScorecard from "@/components/AdvisorScorecard";
+import { buildAdvisorScorecard } from "@/lib/scorecard-advisor";
 import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPrefillFromPriorActuals } from "@/lib/sales";
 import { advisorPaceSignal, priorPeriodKey } from "@/lib/sales-funnel";
 import { listFocusItems } from "@/lib/sales-focus";
@@ -36,6 +38,7 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
   const prefill = recapEntered ? null : await recapPrefillFromPriorActuals(emp.id, periodKey);
   const focusItems = await listFocusItems(emp.id, periodKey);
   const lastMonthFocus = await prisma.salesFocusItem.count({ where: { advisorEmployeeId: emp.id, periodKey: priorPeriodKey(periodKey), voided: false } });
+  const scorecard = await buildAdvisorScorecard(emp.id, periodKey);
 
   return (
     <>
@@ -46,6 +49,8 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
           goal-aware funnel + pace diagnosis + on-demand AI coach, so the director
           sees exactly what the advisor sees before coaching on the sheet below. */}
       <SalesFunnelCard advisorEmployeeId={emp.id} periodKey={periodKey} />
+
+      <AdvisorScorecard data={scorecard} heading={`${emp.name} — advisor scorecard`} />
 
       <GoalPlanner
         periodKey={periodKey}
