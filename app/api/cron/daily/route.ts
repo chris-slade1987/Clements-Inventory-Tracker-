@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals, remindAdvisorGoalSheets, remindSalesFocusFollowUps } from "@/lib/jobs";
+import { runNudges } from "@/lib/nudges";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -29,6 +30,9 @@ async function run(req: Request) {
     monthlyGoals: remindMonthlyGoals,
     advisorGoalSheets: remindAdvisorGoalSheets,
     salesFocusFollowUps: remindSalesFocusFollowUps,
+    // Theme 4 detect-then-offer-action nudges routed through the Inbox:
+    // low-stock → draft reorder, and vehicle service/registration → open the record.
+    nudges: runNudges,
     celebrations: runCelebrations,
   } as const;
   const names = Object.keys(jobs) as (keyof typeof jobs)[];

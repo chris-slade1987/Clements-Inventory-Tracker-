@@ -7,7 +7,7 @@ import { dueFromStart, REVIEW_LABEL, templateForEmployee, notifyReviewAssigned }
 import { randomBytes } from "node:crypto";
 import { branchLabel, BRANCHES } from "@/lib/management";
 import { etParts } from "@/lib/date";
-import { notifyThread } from "@/lib/threads";
+import { notifyThread, postSystemThread } from "@/lib/threads";
 import { focusTypeLabel } from "@/lib/sales-focus";
 import { listServiceAdvisors } from "@/lib/sales";
 import { DigestCollector, sendDigests, dueForDigest } from "@/lib/email-digest";
@@ -579,10 +579,11 @@ export async function remindAdvisorGoalSheets() {
   const ids = advisors.map((a) => a.id);
   const [sheets, logins] = await Promise.all([
     prisma.salesGoalSheet.findMany({ where: { advisorEmployeeId: { in: ids }, periodKey }, select: { advisorEmployeeId: true, salesGoal: true } }),
-    prisma.user.findMany({ where: { active: true, employeeId: { in: ids } }, select: { id: true, employeeId: true } }),
+    prisma.user.findMany({ where: { active: true, employeeId: { in: ids } }, select: { id: true, name: true, email: true, employeeId: true } }),
   ]);
   const goalBy = new Map(sheets.map((s) => [s.advisorEmployeeId, s.salesGoal]));
   const hasLogin = new Set(logins.map((u) => u.employeeId as string));
+  const loginByEmp = new Map(logins.map((u) => [u.employeeId as string, u]));
 
   // Escalating wording across the first three business days.
   const headline = ordinal <= 1
@@ -591,7 +592,7 @@ export async function remindAdvisorGoalSheets() {
       ? `Set your ${monthLabel} sales goal & gameplan`
       : `Due today — complete your ${monthLabel} goal sheet`;
 
-  let alerted = 0, emailed = 0;
+  let alerted = 0, emailed = 0, nudged = 0;
   for (const a of advisors) {
     // Complete = this month's goal is set (salesGoal > 0). Skip once done.
     if ((goalBy.get(a.id) ?? 0) > 0) continue;
@@ -606,6 +607,35 @@ export async function remindAdvisorGoalSheets() {
         update: { message: alertMsg, status: "open", severity: ordinal >= 3 ? "critical" : "warning" },
       }).catch(() => null);
       alerted++;
+    }
+
+    // Inbox nudge (Theme 4 detect-then-offer-action) — route the goal-not-set
+    // reminder through the advisor's in-app Inbox with a deep link to the goal
+    // planner, so it's a one-click "start your goal sheet", not email-only.
+    // Idempotent per advisor+period via a Setting stamp (one open thread for the
+    // month); the advisor drops off the loop the moment their goal is set.
+    const login = loginByEmp.get(a.id);
+    if (login) {
+      const stampKey = `nudge_goal_sheet:${periodKey}:${a.id}`;
+      const already = await prisma.setting.findUnique({ where: { key: stampKey } }).catch(() => null);
+      if (!already) {
+        const first = a.name.split(" ")[0] || a.name;
+        const body = `${first}, your ${monthLabel} goal sheet isn't set yet. Open your goal planner to set this month's sales goal, map your daily plan, and document your focus actions. Last month's results prefill from your actuals, so you start from a plan — not a blank page.\n\nStart your goal sheet: ${link}`;
+        const threadId = await postSystemThread({
+          subject: headline,
+          body,
+          recipients: [{ userId: login.id, employeeId: a.id, name: a.name, email: a.email ?? login.email }],
+          contextType: "reminder",
+          contextLabel: `${monthLabel} goal sheet`,
+          contextHref: "/me/sales",
+          branch: a.branch,
+          authorName: "Buzz",
+        }).catch(() => null);
+        if (threadId) {
+          await prisma.setting.create({ data: { key: stampKey, value: now.toISOString() } }).catch(() => {});
+          nudged++;
+        }
+      }
     }
 
     // Email — once per advisor+period+business-day (Setting-stamp idempotency).
@@ -631,7 +661,7 @@ export async function remindAdvisorGoalSheets() {
       }
     }
   }
-  return { periodKey, ordinal, advisors: advisors.length, alerted, emailed };
+  return { periodKey, ordinal, advisors: advisors.length, alerted, emailed, nudged };
 }
 
 /**
