@@ -219,6 +219,18 @@ export const ACCESS_RIGHTS_NAV_ITEM: NavItem = {
   icon: "M12 2l8 3v6c0 4-3 7.5-8 9-5-1.5-8-5-8-9V5z M9 12l2 2 4-4",
 };
 
+// Data Connections — super-admin-only, read-only health board for every external
+// connector (SmarterLaunch, Coast, WorkWave/PestPac, Paychex): status, last sync,
+// budget/quota, mode. Lives in the Settings & Admin footer links beside Access
+// Rights and is gated the same way (canManageAccessRights: Chris, Julie, April).
+// A linked-nodes / plug glyph, distinct from the Access Rights shield.
+export const CONNECTIONS_NAV_ITEM: NavItem = {
+  href: "/settings/connections",
+  label: "Data Connections",
+  shortLabel: "Connections",
+  icon: "M9 15l6-6M8.5 10.5l-1.6 1.6a3 3 0 004.2 4.2l1.6-1.6m-1.4-7.4l1.6-1.6a3 3 0 014.2 4.2l-1.6 1.6",
+};
+
 // Email delivery log — admin-only audit of every outbound notification (sent /
 // skipped / errored). Surfaced as a de-emphasized settings link in the shell
 // footer, alongside Users & Access. An envelope-with-check glyph.
