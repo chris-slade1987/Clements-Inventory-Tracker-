@@ -599,6 +599,23 @@ async function main() {
       );
     });
 
+    // Canopy Copilot knowledge base (Theme 5, Wave A): rebuild the retrieval
+    // index from the core documents. Runs AFTER the SOP, checklist, and document
+    // center reconciles above so every corpus source (manual, handbook, SOPs,
+    // checklists) is present + current, and from the build workspace so the
+    // docs/*.md sources (brand kit, etc.) are on disk. Idempotent (upserts by
+    // content hash; a re-run is zero-change) and soft-retires stale chunks —
+    // never hard-deletes. NON-FATAL via runStep. Only a real Production deploy
+    // reaches here (previews return above), mirroring the other seed guards.
+    await runStep("copilot knowledge reindex", async () => {
+      const { reindexKnowledge } = await import("../lib/copilot/ingest");
+      const r = await reindexKnowledge();
+      console.log(
+        `deploy-db: copilot knowledge reindex — ${r.scanned} chunks across ${r.sources} sources ` +
+          `(${r.created} created, ${r.updated} updated, ${r.unchanged} unchanged, ${r.retired} retired).`,
+      );
+    });
+
     // Training Center catalog — seed the Program → Module → Course reference data
     // (10 certifications, 5 programs, 17 modules, 91 courses, 40 program-module +
     // 357 module-course links) from prisma/data/training-catalog.json. All upserts

@@ -2498,6 +2498,45 @@ model PolicyDocument {
   @@map("policy_documents")
 }
 
+// ---------------------------------------------------------------------------
+// Canopy Copilot knowledge base (CanopyOS vision Theme 5, Wave A). One row per
+// retrieval passage ("chunk") split out of a company source document (manager
+// manual, employee handbook, SOP / checklist template, brand kit / operational
+// doc). The knowledge base is rebuilt by `reindexKnowledge()` (lib/copilot/
+// ingest.ts): chunks are upserted by (sourceType, sourceId, contentHash) and a
+// chunk a re-load no longer produces is SOFT-removed (`retired = true`) — never
+// hard-deleted, so the record of what the index held is preserved (ledger
+// discipline). Personnel data is deliberately NEVER indexed here; it is reached
+// through live, permission-checked tools (Wave B).
+//
+// PORTABILITY: this slice is FTS-only — relevance is scored in application code
+// (lib/copilot/retrieve.ts, BM25 over the access-filtered set), so there is NO
+// DB-engine-specific column here (no `tsvector`, no `Unsupported("vector")`).
+// `content` (plain text) is kept and tokenized in-app. Semantic embeddings are
+// a LATER, additive migration (a nullable vector/text column + an ANN index)
+// that the `retrieve()` / ranker seam can adopt WITHOUT changing callers.
+// Additive + nullable → `prisma db push`-safe (SQLite local / Postgres prod,
+// same shape).
+model KnowledgeChunk {
+  id           String   @id @default(cuid())
+  sourceType   String   @map("source_type") // "manual" | "handbook" | "sop" | "checklist" | "doc"
+  sourceId     String   @map("source_id") // slug / template key / doc filename
+  title        String // the source document's title
+  sectionTitle String?  @map("section_title") // the heading this chunk lives under
+  href         String // deep link to the real page/section (e.g. /resources/manual#...)
+  accessTag    String   @map("access_tag") // audience key: "all" | "manager" | "exec" | "internal" | "superadmin" | "branch:<key>"
+  content      String // the passage text
+  contentHash  String   @map("content_hash") // stable hash of (title|sectionTitle|content) — upsert/skip-unchanged key
+  tokens       Int? // approximate token count (chars/4)
+  retired      Boolean  @default(false) // soft-removed: a reindex no longer produced this chunk
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([sourceType, sourceId, contentHash])
+  @@index([sourceType, sourceId])
+  @@index([accessTag])
+  @@map("knowledge_chunks")
+}
+
 model DocumentAcknowledgment {
   id             String   @id @default(cuid())
   documentId     String   @map("document_id")

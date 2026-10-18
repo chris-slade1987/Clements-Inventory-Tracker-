@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals, remindAdvisorGoalSheets, remindSalesFocusFollowUps } from "@/lib/jobs";
 import { runNudges } from "@/lib/nudges";
+import { reindexKnowledge } from "@/lib/copilot/ingest";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -34,6 +35,10 @@ async function run(req: Request) {
     // low-stock → draft reorder, and vehicle service/registration → open the record.
     nudges: runNudges,
     celebrations: runCelebrations,
+    // Canopy Copilot (Theme 5, Wave A): nightly reindex of the knowledge base so
+    // any manual/handbook/SOP/checklist change is picked up without a deploy.
+    // Best-effort — allSettled below means a failure here can't abort the batch.
+    copilotReindex: reindexKnowledge,
   } as const;
   const names = Object.keys(jobs) as (keyof typeof jobs)[];
   const settled = await Promise.allSettled(names.map((n) => jobs[n]()));
