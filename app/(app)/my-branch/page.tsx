@@ -23,6 +23,7 @@ import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard"
 import FollowUps from "./FollowUps";
 import MyBranchViewToggle from "./MyBranchViewToggle";
 import { AchievementBar, ProgressRing, encouragement } from "@/components/motivation";
+import AskCanopy from "@/components/AskCanopy";
 
 export const dynamic = "force-dynamic";
 
@@ -237,9 +238,17 @@ export default async function MyBranchPage({
           flagged Weekly/Monthly with its due date + a live countdown. Anything
           outstanding is red; anything due within a day turns the row light-red. */}
       <Card className="p-0 overflow-hidden mb-5" data-testid="manager-checklist">
-        <div className="px-4 py-3 border-b border-line">
-          <div className="text-sm font-medium text-ink">Manager Checklist</div>
-          <p className="text-xs text-muted mt-0.5">Every recurring duty in one place — stay ahead of each due date. Outstanding items are flagged in red.</p>
+        <div className="px-4 py-3 border-b border-line flex items-start justify-between gap-2">
+          <div>
+            <div className="text-sm font-medium text-ink">Manager Checklist</div>
+            <p className="text-xs text-muted mt-0.5">Every recurring duty in one place — stay ahead of each due date. Outstanding items are flagged in red.</p>
+          </div>
+          <AskCanopy
+            task="Help me complete my weekly checklist"
+            label="Ask Canopy"
+            context={`${scopeLabel} — ${MONTHS[month]} ${year} manager checklist`}
+            className="shrink-0"
+          />
         </div>
         <ul className="divide-y divide-line">
           {[

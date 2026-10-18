@@ -81,6 +81,7 @@ export default async function AppGroupLayout({
       canManageAccessRights={canManageAccessRights(user)}
       grantedKeys={grantedKeys}
       unread={unread}
+      branch={user.branch}
     >
       {demoMode ? <DemoModeBanner isAdmin={user.role === "admin"} /> : null}
       {passwordReminderHours !== null && !onAccount ? (

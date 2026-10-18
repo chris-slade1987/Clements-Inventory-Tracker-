@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
+import AskCanopy from "@/components/AskCanopy";
 import {
   RECORD_TYPES, WRITEUP_CATEGORIES, WRITEUP_FIELDS,
   ACCIDENT_SEVERITY, ACCIDENT_FIELDS, ACCIDENT_CHECKLIST_GROUPS, ACCIDENT_NOTES,
@@ -64,7 +65,15 @@ export default function RecordForm({ employeeId, employeeName }: { employeeId: s
   if (!type) {
     return (
       <Card className="p-4">
-        <div className="text-sm font-medium text-ink mb-1">File a record for {employeeName.split(" ")[0]}</div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="text-sm font-medium text-ink mb-1">File a record for {employeeName.split(" ")[0]}</div>
+          <AskCanopy
+            task="Need help addressing a personnel issue?"
+            label="Ask Canopy"
+            context={`Documenting a record for ${employeeName}`}
+            className="shrink-0"
+          />
+        </div>
         <p className="text-xs text-muted mb-3">Filed to this profile and emailed to HR (April Williford). Write-ups &amp; accident reports also notify Graham Foster, Chris Slade, and Tim Slade.</p>
         <div className="flex flex-wrap gap-2">
           {RECORD_TYPES.map((t) => (

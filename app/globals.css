@@ -141,6 +141,13 @@ textarea:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Canopy Copilot panel enter — slides in from the right. Applied motion-safe
+   only in components/CanopyCopilot.tsx, so prefers-reduced-motion skips it. */
+@keyframes canopy-slide {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* Date fields with a custom calendar button hide the default browser icon so
    there aren't two calendar affordances. The whole field opens the picker. */
 input[type="date"].date-clean::-webkit-calendar-picker-indicator {

@@ -18,7 +18,8 @@ import {
 } from "@/lib/nav";
 import { ToastProvider } from "@/components/ui";
 import NotificationBell from "@/components/NotificationBell";
-import InsightsWidget from "@/components/InsightsWidget";
+import CanopyCopilot from "@/components/CanopyCopilot";
+import type { CopilotRole } from "@/lib/copilot/prompts";
 
 function Icon({ path, className }: { path: string; className?: string }) {
   return (
@@ -156,6 +157,7 @@ export default function AppShell({
   canManageAccessRights = false,
   grantedKeys = [],
   unread = 0,
+  branch = null,
 }: {
   children: React.ReactNode;
   managerName?: string;
@@ -171,6 +173,8 @@ export default function AppShell({
   canManageAccessRights?: boolean;
   grantedKeys?: string[];
   unread?: number;
+  /** The viewer's home branch (for the Copilot's suggested prompts). */
+  branch?: string | null;
 }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -189,6 +193,26 @@ export default function AppShell({
     isFieldOpsDirector,
     grantedKeys,
   };
+
+  // The Copilot's suggested-prompt picker resolves a single coarse role from the
+  // same principal flags (most-specific first), plus the viewer's home branch.
+  const copilotRole: CopilotRole = isBoardObserver
+    ? "board"
+    : isSalesDirector
+      ? "sales_director"
+      : isFieldOpsDirector
+        ? "field_ops"
+        : isAdmin
+          ? "admin"
+          : isSeniorLeadership
+            ? "senior"
+            : isHrAccess
+              ? "hr"
+              : isServiceAdvisor
+                ? "service_advisor"
+                : isEmployee
+                  ? "employee"
+                  : "manager";
 
   // Which center the current route belongs to. "Homeless" shared routes
   // (/inbox, /account, /help) and anything unmatched fall back to the viewer's
@@ -644,8 +668,11 @@ export default function AppShell({
         ) : null}
       </nav>
 
-      {/* Floating grounded-Q&A assistant — leadership only. */}
-      {isAdmin || isSeniorLeadership ? <InsightsWidget /> : null}
+      {/* Canopy Copilot — the docked, grounded assistant for EVERY authenticated
+          user. Content is access-scoped server-side by the /api/copilot route;
+          the panel just resolves role/branch for its suggested prompts. Replaces
+          the retired, leadership-only InsightsWidget. */}
+      <CanopyCopilot user={{ name: managerName ?? null, role: copilotRole, branch }} />
     </div>
     </ToastProvider>
   );

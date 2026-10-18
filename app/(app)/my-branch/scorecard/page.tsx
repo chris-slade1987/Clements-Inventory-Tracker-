@@ -1,4 +1,5 @@
 import { PageHeader, EmptyState } from "@/components/ui";
+import AskCanopy from "@/components/AskCanopy";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, matchBranchManagerEmployee, serializeScorecardReview } from "@/lib/scorecard";
@@ -47,7 +48,18 @@ export default async function MyScorecardPage({
 
   return (
     <>
-      <PageHeader title="My Scorecard" subtitle={`${branchLabel(branch)} · Q${quarter} ${year} — binary Met / Not-Met, weighted to 100%`} />
+      <PageHeader
+        title="My Scorecard"
+        subtitle={`${branchLabel(branch)} · Q${quarter} ${year} — binary Met / Not-Met, weighted to 100%`}
+        actions={
+          <AskCanopy
+            task="How is my scorecard tracking this quarter?"
+            label="Ask Canopy"
+            variant="button"
+            context={`${branchLabel(branch)} · Q${quarter} ${year} scorecard`}
+          />
+        }
+      />
       <ScorecardClient
         key={`${year}-${quarter}-${branch}`}
         year={year}
