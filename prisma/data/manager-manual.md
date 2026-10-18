@@ -1424,3 +1424,71 @@ This is especially helpful in weeks with bad weather or downtime. It’s proacti
 To help you stay consistent and accountable, follow this monthly checklist:
 
 Let’s lead by example, stay consistent, and approach every outreach effort with a service mindset. When we show up prepared, professional, and genuinely invested in helping people, it pays off — in referrals, in trust, and in long-term business.
+
+---
+
+## Groundwork — your work home
+
+**Groundwork** is where your work lives in the portal. It is the same home for everyone
+at Clements, and you reach it from the **Groundwork** button in the top bar on any
+screen. It keeps four simple things in one calm place — no separate apps, no clutter:
+
+- **My Work** — everything on your plate.
+- **Huddles** — your meetings, with a live agenda and follow-ups.
+- **The Greenhouse** — ideas you want to keep but not act on yet.
+- **Projects** — work that is bigger than one task, shared with people.
+
+### My Work (your default view)
+
+My Work opens first. It shows every open **To-Do** you own or that was assigned to you
+(including follow-ups handed to you in a Huddle), grouped **Overdue · Today · This week ·
+Upcoming** and sorted so the most important thing is on top. Priority is shown as a quiet
+chip — only **High** and **Urgent** stand out, so the list stays calm.
+
+- **Add a To-Do** with the box at the top: a title is all you need. Open the extra fields
+  to set a **due date**, **priority**, a **horizon** (Now / This week / Someday), and — if
+  you manage people — who it is **for**.
+- **Check it off** with the circle on the left. When you clear everything **due today**,
+  Buzz drops by to celebrate — a small, earned moment.
+- You create your own To-Dos freely. **Assigning work to someone else** is scoped: a branch
+  manager can assign within their own branch team; senior leadership and HR can assign to
+  anyone. When you assign a To-Do to another person, they are notified in their Inbox.
+
+### The Greenhouse (so good ideas don't get lost)
+
+Not every idea is ready to be a task. Capture it in **The Greenhouse** and it waits there,
+out of your daily list, until you are ready. When the time comes, **grow** it into a To-Do
+(give it a horizon and a due date) or into a **Project** when it is bigger than one task.
+
+### Huddles (meetings that actually drive action)
+
+A **Huddle** is a meeting with an agenda, live notes, and follow-ups that go straight onto
+people's plates.
+
+1. **Create one** from the Huddles section: give it a name and kind, **draw down an agenda
+   template** (Sales Director Weekly, Marketing, Branch / Ops, 1:1) so you are not starting
+   from a blank page, and add attendees.
+2. **Pick a time.** Choose a length and a starting day and the portal **suggests times**. If
+   Google Calendar is connected, it reads everyone's free/busy and offers conflict-free
+   slots; if it is not connected yet, it suggests sensible business-hour times and gives you
+   an **.ics file / "Add to Google Calendar"** link so invites still go out. The screen always
+   tells you honestly which mode you are in.
+3. **Run it.** In the Huddle, check off agenda items as you cover them, keep **live notes** as
+   a running log, and assign **follow-ups** — each one goes to an attendee with a due date and
+   **appears on their My Work immediately** (and notifies them). When the last follow-up is
+   closed out, Buzz celebrates.
+
+A completed Huddle keeps its notes and each person's follow-ups, so you can look back at what
+was decided and who owns what.
+
+### Projects (group work and send it to people)
+
+Use a **Project** when work is bigger than a single To-Do. A project has an owner, members, a
+due date, its tasks, and a simple **progress bar**. **"Send to people"** adds a member and
+assigns their tasks in one step — they are notified and see the project in their own
+Groundwork. Projects stay lightweight on purpose: tasks, people, and progress, not Gantt
+charts.
+
+> Everything in Groundwork is kept, never deleted — To-Dos and Huddles are completed or
+> archived, and notes and comments are append-only, so there is always a trail of what
+> happened.

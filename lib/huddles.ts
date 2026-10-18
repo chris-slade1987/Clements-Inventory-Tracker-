@@ -354,6 +354,20 @@ export async function cancelMeeting(user: SessionUser, meetingId: string): Promi
   return getMeeting(user, meetingId) as Promise<MeetingDTO>;
 }
 
+// ── Agenda templates (for the create picker) ──────────────────────────────────
+
+export type AgendaTemplateDTO = { key: string; name: string; kind: string | null; itemCount: number };
+
+/** Active agenda templates, for the "draw down a template" step in Huddle create. */
+export async function listAgendaTemplates(): Promise<AgendaTemplateDTO[]> {
+  const rows = await prisma.agendaTemplate.findMany({ where: { active: true }, orderBy: { name: "asc" } });
+  return rows.map((t) => {
+    let count = 0;
+    try { const p = JSON.parse(t.items); if (Array.isArray(p)) count = p.length; } catch { /* ignore */ }
+    return { key: t.key, name: t.name, kind: t.kind, itemCount: count };
+  });
+}
+
 // ── Reads ─────────────────────────────────────────────────────────────────────
 
 const MEETING_INCLUDE = {

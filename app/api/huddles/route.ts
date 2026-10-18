@@ -4,7 +4,7 @@ import { fail } from "@/lib/http";
 import {
   createMeeting, updateMeeting, completeMeeting, cancelMeeting,
   addAttendees, removeAttendee, applyAgendaTemplate, addAgendaItem, updateAgendaItem,
-  addNote, createFollowUp, getMeeting, listMyHuddles, huddlesForUser,
+  addNote, createFollowUp, getMeeting, listMyHuddles, huddlesForUser, listAgendaTemplates,
 } from "@/lib/huddles";
 
 export const runtime = "nodejs";
@@ -22,6 +22,10 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
     const forUser = url.searchParams.get("forUser");
+    if (url.searchParams.get("view") === "templates") {
+      const templates = await listAgendaTemplates();
+      return NextResponse.json({ templates });
+    }
     if (id) {
       const meeting = await getMeeting(user, id);
       if (!meeting) return NextResponse.json({ error: "Not found." }, { status: 404 });

@@ -534,6 +534,46 @@ export async function attentionTodosForUser(user: SessionUser, now: Date = new D
   });
 }
 
+// ── Assignable people (for the UI pickers) ─────────────────────────────────────
+
+export type AssignablePerson = { id: string; name: string; email: string; branch: string | null; branchLabel: string | null };
+
+/**
+ * People `user` may assign a To-Do / follow-up to, add as a Huddle attendee, or
+ * send a project to — scoped exactly like the server-side assignment guards:
+ *   - Leadership → every active login.
+ *   - A branch manager → their own branch's active team.
+ *   - Everyone else → just themselves.
+ * The caller themselves is always first. Used only to populate the pickers; the
+ * real guard still runs on every write (canAssignToPerson / canAssignToBranch).
+ */
+export async function assignablePeople(user: SessionUser): Promise<AssignablePerson[]> {
+  const toDTO = (u: { id: string; name: string; email: string; branch: string | null }): AssignablePerson => ({
+    id: u.id, name: u.name, email: u.email, branch: u.branch, branchLabel: u.branch ? branchLabel(u.branch) : null,
+  });
+
+  const me = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, name: true, email: true, branch: true } });
+  const self = me ? [toDTO(me)] : [];
+
+  let others: AssignablePerson[] = [];
+  if (isGroundworkLeadership(user)) {
+    const rows = await prisma.user.findMany({
+      where: { active: true, id: { not: user.id } },
+      select: { id: true, name: true, email: true, branch: true },
+      orderBy: [{ name: "asc" }],
+    });
+    others = rows.map(toDTO);
+  } else if (user.role === "manager" && user.branch) {
+    const rows = await prisma.user.findMany({
+      where: { active: true, branch: user.branch, id: { not: user.id } },
+      select: { id: true, name: true, email: true, branch: true },
+      orderBy: [{ name: "asc" }],
+    });
+    others = rows.map(toDTO);
+  }
+  return [...self, ...others];
+}
+
 // ── Projects ──────────────────────────────────────────────────────────────────
 
 export type ProjectDTO = {

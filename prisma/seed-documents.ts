@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 27 · Last updated October 17, 2026",
+    effective: "Version 28 · Last updated October 18, 2026",
+    // v28: added the Groundwork section — the universal work home (My Work To-Dos,
+    // Huddles with agenda templates + live notes + real-time follow-ups, The
+    // Greenhouse for someday ideas, and Projects), plus how calendar sync shows
+    // live Google free/busy vs. the .ics fallback. CanopyOS Round 2-C UI.
     // v27: added the Standard Operating Procedures (SOPs) section — the checklist
     // engine generalized into a reusable, guided, signed SOP runner (My Branch →
     // SOPs) with assigned "Due now" items + run-on-demand, and the leadership SOP
@@ -134,7 +138,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 27,
+    version: 28,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

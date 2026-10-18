@@ -282,6 +282,17 @@ export const BULLETIN_NAV_ITEM: NavItem = {
   icon: "M3 10v4a1 1 0 001 1h3l6 4V5L7 9H4a1 1 0 00-1 1zM17 8a4 4 0 010 8",
 };
 
+// Groundwork — the universal work home shared by EVERY login regardless of access
+// level (like the Employee Hub / Ask Canopy): My Work (To-Dos + follow-ups),
+// Huddles, The Greenhouse (someday ideas), and Projects. Surfaced as its own
+// top-bar button (see AppShell). A sprouting-seedling glyph — things that grow.
+export const GROUNDWORK_NAV_ITEM: NavItem = {
+  href: "/groundwork",
+  label: "Groundwork",
+  shortLabel: "Work",
+  icon: "M12 22V12m0 0c0-2.8-2.2-5-5-5H4v1.5A4.5 4.5 0 008.5 13H12zm0-2c0-3 2.5-5.5 5.5-5.5H20v1A5 5 0 0115 10.5h-3",
+};
+
 // Employee Hub — the self-service home shared by EVERY login regardless of
 // access level. Surfaced as its own top-bar button (see AppShell) and as the
 // employee shell's home nav. A person/badge glyph, distinct from the house.

@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { fail } from "@/lib/http";
 import {
   createWorkItem, updateWorkItem, completeWorkItem, cancelWorkItem, addWorkItemComment,
-  getWorkItem, listMyWork,
+  getWorkItem, listMyWork, assignablePeople,
 } from "@/lib/groundwork";
 
 export const runtime = "nodejs";
@@ -24,6 +24,10 @@ export async function GET(req: Request) {
       const item = await getWorkItem(user, id);
       if (!item) return NextResponse.json({ error: "Not found." }, { status: 404 });
       return NextResponse.json({ item });
+    }
+    if (view === "people") {
+      const people = await assignablePeople(user);
+      return NextResponse.json({ people });
     }
     const myWork = await listMyWork(user);
     return NextResponse.json({ myWork });

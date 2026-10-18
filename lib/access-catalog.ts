@@ -70,6 +70,7 @@ export const MODULES: AccessModule[] = [
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
     { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
+    { id: "groundwork", name: "Groundwork", note: "Universal work home: My Work (To-Dos + follow-ups), Huddles, The Greenhouse, Projects. Assigning to others is role-scoped server-side." },
     { id: "ask-canopy", name: "Ask Canopy (Copilot)", note: "Universal docked assistant; answers are access-scoped server-side" } ] },
 ];
 
@@ -88,7 +89,7 @@ function allAccess(except: string[] = []): Grants {
   return g;
 }
 
-const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true, "ask-canopy": true };
+const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true, groundwork: true, "ask-canopy": true };
 
 /** Each level's access AS IT IS TODAY — the pre-checked state on the admin screen. */
 export const DEFAULT_GRANTS: Record<string, Grants> = {
@@ -127,7 +128,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     people: "view", "people-profile": "edit", ...SELF_BASIC,
   },
   service_advisor: { "me-sales": "edit", ...SELF_BASIC },
-  board: { board: "view", management: "view", executive: "view", benchmarking: true, "sales-attrition": "view", compliance: "view", bulletin: true, account: true, "ask-canopy": true },
+  board: { board: "view", management: "view", executive: "view", benchmarking: true, "sales-attrition": "view", compliance: "view", bulletin: true, account: true, groundwork: true, "ask-canopy": true },
   employee: { ...SELF_BASIC },
 };
 
