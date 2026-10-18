@@ -148,6 +148,22 @@ textarea:focus-visible {
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* Canopy Copilot docked sidebar: when open on desktop it reserves space on the
+   right so the panel sits beside the page instead of covering it. Gated to >=768px
+   so the mobile full-screen sheet is unaffected. */
+.app-canvas { transition: padding-right 180ms ease; }
+@media (min-width: 768px) {
+  html[data-copilot-open="1"] .app-canvas { padding-right: 420px; }
+}
+/* Gentle "come use me" pulse on the collapsed launcher bubble. */
+@keyframes canopy-invite {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-canvas { transition: none; }
+}
+
 /* Date fields with a custom calendar button hide the default browser icon so
    there aren't two calendar affordances. The whole field opens the picker. */
 input[type="date"].date-clean::-webkit-calendar-picker-indicator {

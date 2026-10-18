@@ -47,7 +47,15 @@ type Msg = {
 type Conversation = { id: string; title: string; messages: Msg[]; updatedAt: number };
 
 const RECENT_KEY = "canopy-copilot:recent:v1";
+const OPEN_KEY = "canopy-copilot:open:v1";
 const MAX_RECENT = 8;
+
+// Warm, time-of-day greeting so the open panel feels like a colleague, not a form.
+function greeting(name: string): string {
+  const h = new Date().getHours();
+  const part = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return `${part}, ${name}`;
+}
 
 function uid(): string {
   try {
@@ -59,54 +67,23 @@ function uid(): string {
 }
 
 /**
- * Dialog behavior: Escape-to-close, a Tab focus trap inside the panel, and focus
- * restore to the previously focused element on close. Mirrors AppShell's dialog hook.
+ * The Copilot is a PERSISTENT docked sidebar, not a blocking modal — it defaults
+ * open and coexists with the page, so it must not trap focus or steal it on load.
+ * We only bind Escape-to-collapse (and only when the viewer is on a phone, where
+ * the panel is a full-screen sheet, does the backdrop also close it — see render).
  */
-function usePanelDialog(open: boolean, onClose: () => void, ref: React.RefObject<HTMLDivElement | null>) {
+function usePanelDialog(open: boolean, onClose: () => void, _ref: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     if (!open) return;
-    const node = ref.current;
-    const restoreTo = document.activeElement as HTMLElement | null;
-    const focusablesIn = () =>
-      node
-        ? Array.from(
-            node.querySelectorAll<HTMLElement>(
-              'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-            ),
-          ).filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement)
-        : [];
-    const initial = focusablesIn();
-    (initial[0] ?? node)?.focus?.();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         onClose();
-        return;
-      }
-      if (e.key === "Tab") {
-        const f = focusablesIn();
-        if (f.length === 0) {
-          e.preventDefault();
-          node?.focus?.();
-          return;
-        }
-        const first = f[0];
-        const last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
       }
     };
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      restoreTo?.focus?.();
-    };
-  }, [open, onClose, ref]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 }
 
 export default function CanopyCopilot({ user }: { user: CopilotUser }) {
@@ -114,6 +91,7 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [recent, setRecent] = useState<Conversation[]>([]);
   const [showRecent, setShowRecent] = useState(false);
@@ -144,6 +122,35 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
     }
   }, []);
 
+  // Default the sidebar OPEN on desktop (to nudge daily use) and remember the
+  // viewer's choice across pages + reloads. On phones it stays collapsed to the
+  // bubble by default so it never covers the screen uninvited.
+  useEffect(() => {
+    setMounted(true);
+    let pref: string | null = null;
+    try {
+      pref = localStorage.getItem(OPEN_KEY);
+    } catch {
+      /* ignore */
+    }
+    const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+    setOpen(pref === null ? isDesktop : pref === "1");
+  }, []);
+
+  // Persist the open/collapsed choice and reserve page space while docked (desktop).
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(OPEN_KEY, open ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+    const de = document.documentElement;
+    if (open) de.setAttribute("data-copilot-open", "1");
+    else de.removeAttribute("data-copilot-open");
+    return () => de.removeAttribute("data-copilot-open");
+  }, [open, mounted]);
+
   const persistRecent = useCallback((list: Conversation[]) => {
     setRecent(list);
     try {
@@ -159,6 +166,10 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
   }, [messages, loading, open, showRecent]);
 
   const close = useCallback(() => setOpen(false), []);
+  const openPanel = useCallback(() => {
+    setOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 60);
+  }, []);
   usePanelDialog(open, close, panelRef);
 
   // Archive the live thread (if any) into recent.
@@ -284,23 +295,29 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
 
   return (
     <>
-      {/* Persistent launcher */}
+      {/* Persistent launcher (collapsed state) — inviting, always labeled, gentle pulse */}
       {!open ? (
         <button
           type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Ask Canopy"
-          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center gap-2 rounded-full bg-emerald-grad px-4 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 hover:brightness-105 transition-[filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3d20]"
+          onClick={openPanel}
+          aria-label="Open Ask Canopy"
+          className="group fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center gap-2 rounded-full bg-emerald-grad px-4 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 hover:brightness-105 hover:-translate-y-0.5 transition-[filter,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3d20]"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/canopyos-icon.png" alt="" className="h-5 w-5" />
-          <span className="hidden sm:inline">Ask Canopy</span>
+          <span className="relative flex h-5 w-5 items-center justify-center">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full bg-mint motion-safe:[animation:canopy-invite_2.8s_ease-in-out_infinite]"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/canopyos-icon.png" alt="" className="relative h-5 w-5" />
+          </span>
+          <span>Ask Canopy</span>
         </button>
       ) : null}
 
       {/* Docked panel (desktop) / full-screen sheet (mobile) */}
       {open ? (
-        <div className="fixed inset-0 z-50 md:inset-auto md:top-0 md:right-0 md:h-full md:w-[420px]" role="dialog" aria-modal="true" aria-label="Canopy Copilot">
+        <div className="fixed inset-0 z-50 md:inset-auto md:top-0 md:right-0 md:h-full md:w-[420px]" role="complementary" aria-label="Canopy Copilot">
           {/* Backdrop — phones only (the docked desktop panel coexists with the page). */}
           <div className="absolute inset-0 bg-black/40 md:hidden" onClick={close} aria-hidden="true" />
 
@@ -344,10 +361,12 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
                 <button
                   type="button"
                   onClick={close}
-                  aria-label="Close"
+                  aria-label="Collapse to bubble"
+                  title="Collapse"
                   className="rounded-lg p-1.5 text-mint hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  {/* Collapse: a chevrons-right that reads as "tuck the sidebar away" */}
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 6l6 6-6 6M14 6l6 6-6 6" /></svg>
                 </button>
               </div>
             </div>
@@ -392,24 +411,49 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
               <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-3 py-3">
                 {empty ? (
                   <div className="px-1 py-4">
-                    <p className="text-[15px] font-light text-ink">Hi {firstName} — how can I help?</p>
-                    <p className="mt-1 text-[13px] text-muted">
-                      I&rsquo;m grounded in the Clements manual, handbook, SOPs, and your live branch data. I cite my sources, and I&rsquo;ll always ask before anything is filed.
+                    <div className="flex items-center gap-2.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-forest-grad">
+                        <img src="/canopyos-icon.png" alt="" className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <p className="text-[15px] font-light text-ink">{greeting(firstName)}</p>
+                        <p className="text-[12px] text-muted">What can I help you get done?</p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[13px] leading-relaxed text-muted">
+                      Ask me about any workflow, policy, or your branch&rsquo;s numbers — I&rsquo;m grounded in the Clements manual, handbook, SOPs, and your live data.
                     </p>
-                    <div className="mt-4 space-y-1.5">
+                    <div className="mt-4 mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">Try one of these</div>
+                    <div className="space-y-2">
                       {prompts.map((s) => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => send(s)}
-                          className="flex w-full items-center gap-2 rounded-xl border border-line bg-white px-3 py-2.5 text-left text-[13px] text-ink hover:bg-[#eef5f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                          className="group flex w-full items-center gap-3 rounded-xl border border-line bg-gradient-to-b from-white to-[#f7faf8] px-3 py-3 text-left text-[13px] text-ink shadow-sm transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                         >
-                          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M12 3l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 13.9 7.8 16l.8-4.7L5.2 8l4.7-.7z" />
+                            </svg>
+                          </span>
+                          <span className="flex-1 leading-snug">{s}</span>
+                          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-brand-300 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-500" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M5 12h14M13 6l6 6-6 6" />
                           </svg>
-                          <span className="flex-1">{s}</span>
                         </button>
                       ))}
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f5f2] px-2 py-0.5 text-[10.5px] text-muted">
+                        <svg viewBox="0 0 24 24" className="h-3 w-3 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2z" /></svg>
+                        Cites its sources
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f5f2] px-2 py-0.5 text-[10.5px] text-muted">
+                        <svg viewBox="0 0 24 24" className="h-3 w-3 text-brand-600" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7" /></svg>
+                        You approve before anything is saved
+                      </span>
                     </div>
                   </div>
                 ) : (
