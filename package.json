@@ -25,6 +25,8 @@
     "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
     "fflate": "^0.8.3",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^144.0.0",
     "leaflet": "^1.9.4",
     "mermaid": "^11.16.0",
     "next": "16.2.10",

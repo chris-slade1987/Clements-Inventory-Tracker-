@@ -31,12 +31,12 @@ hard-deleted — corrections are reversals/adjustments (`lib/inventory.ts`).
 | Branch | 4 | 0 | 0 | 1 | 5 |
 | Checklists & SOPs | 5 | 0 | 0 | 0 | 5 |
 | Management | 15 | 2 | 0 | 1 | 18 |
-| Comms | 0 | 0 | 0 | 2 | 2 |
+| Comms | 1 | 0 | 0 | 2 | 3 |
 | Document Center | 3 | 0 | 0 | 0 | 3 |
 | Auth / Access | 3 | 0 | 0 | 1 | 4 |
 | Copilot / Knowledge | 8 | 0 | 0 | 0 | 8 |
-| Groundwork | 4 | 0 | 0 | 0 | 4 |
-| **Total** | **95** | **3** | **0** | **8** | **106** |
+| Groundwork | 5 | 0 | 0 | 0 | 5 |
+| **Total** | **97** | **3** | **0** | **8** | **108** |
 
 All ❌ contradictions found at the start of this pass were fixed inline (see
 `docs/DOC-RECONCILIATION.md`). The 3 ⚠️ and 8 🆕 remaining are the launch-gate open items.
@@ -212,6 +212,7 @@ All ❌ contradictions found at the start of this pass were fixed inline (see
 |---|---|---|---|---|---|
 | Internal messages / threads | Start/reply to threads with recipients; **Discuss** buttons across the app seed context (alerts, reminders, escalations). (`/inbox`, `/api/threads`) | — | — | 🆕 | Not in the manual. The inventory escalation thread is documented under Check-Out. **Open:** decide if threads warrant a manual note. |
 | Company Bulletin | Authors post stories/announcements/shoutouts/events (+ optional required acknowledgment); everyone reads; company calendar. (`/bulletin`, `/api/bulletin/*`) | — | — | 🆕 | Not in the manual. **Open:** decide if it belongs. |
+| Calendar sync + time suggestions (Huddles) | Google Workspace calendar sync + scheduling service, **env-gated with a graceful fallback**. `lib/google-calendar.ts` is a service-account (domain-wide delegation) client — `createEvent` / `updateEvent` / `cancelEvent` on an impersonated organizer's calendar (optional Google Meet link) and `getFreeBusy` for availability; `isCalendarConfigured()` gates it, and every call throws a typed `CalendarNotConfiguredError` when the secret is absent so callers fall back. `lib/scheduling.ts` (`suggestTimes`) ranks candidate slots inside a window that avoid everyone's busy time, preferring business hours + the soonest common opening; deterministic, pure aside from the free/busy read. `lib/huddle-ics.ts` builds the `.ics` + "Add to Google Calendar" fallback (mirrors `lib/calendar.ts`, interview flow untouched). `POST /api/scheduling/suggest` (auth-required) returns ranked slots + `availabilityKnown`; **privacy: free/busy only — busy start/end + conflicting emails, never event titles/details.** With no credentials the service builds + runs in **fallback mode** (business-hour suggestions, `availabilityKnown:false`). Env: `GOOGLE_WORKSPACE_SA_JSON` (+ `_BASE64`), `GOOGLE_WORKSPACE_CUSTOMER_DOMAIN`; scopes `calendar.events` + `calendar.freebusy` via Admin domain-wide delegation. (`lib/google-calendar.ts`, `lib/scheduling.ts`, `lib/huddle-ics.ts`, `/api/scheduling/suggest`) | — | — | ✅ | **New (Groundwork 1-B).** Standalone service + API, independent of the Meeting model (Round 1-A) — plain email/time inputs. No schema/UI/nav/access changes. Google Admin finishes setup by creating the SA, enabling domain-wide delegation with the two scopes, and setting the env secret (steps documented in `lib/google-calendar.ts`). |
 
 ## Document Center
 
