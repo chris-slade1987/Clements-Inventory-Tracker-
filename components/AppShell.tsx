@@ -7,6 +7,7 @@ import {
   EMPLOYEE_HUB_NAV_ITEM,
   ACCESS_RIGHTS_NAV_ITEM,
   CONNECTIONS_NAV_ITEM,
+  COPILOT_INSIGHTS_NAV_ITEM,
   USERS_ACCESS_NAV_ITEM,
   EMAIL_LOG_NAV_ITEM,
   buildNavForMode,
@@ -296,7 +297,7 @@ export default function AppShell({
   const MAX_PRIMARY = isBoardObserver ? items.length : 4;
   const mobileExtras: NavItem[] = [
     ...resources,
-    ...(canManageAccessRights ? [ACCESS_RIGHTS_NAV_ITEM, CONNECTIONS_NAV_ITEM] : []),
+    ...(canManageAccessRights ? [ACCESS_RIGHTS_NAV_ITEM, CONNECTIONS_NAV_ITEM, COPILOT_INSIGHTS_NAV_ITEM] : []),
     ...(isAdmin ? [USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM] : []),
   ];
   const needMore = items.length > MAX_PRIMARY || mobileExtras.length > 0;
@@ -470,6 +471,10 @@ export default function AppShell({
                     <Link href={CONNECTIONS_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, CONNECTIONS_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, CONNECTIONS_NAV_ITEM.href))}>
                       <Icon path={CONNECTIONS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
                       {CONNECTIONS_NAV_ITEM.label}
+                    </Link>
+                    <Link href={COPILOT_INSIGHTS_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, COPILOT_INSIGHTS_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, COPILOT_INSIGHTS_NAV_ITEM.href))}>
+                      <Icon path={COPILOT_INSIGHTS_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                      {COPILOT_INSIGHTS_NAV_ITEM.label}
                     </Link>
                   </>
                 ) : null}

@@ -66,7 +66,7 @@ export const MODULES: AccessModule[] = [
     { id: "training-courses", name: "Course Authoring" }, { id: "training-assign", name: "Assign Training" }, { id: "training-record", name: "Employee Cert Record", ve: true, note: "Edit = mark complete" },
     { id: "training-reports", name: "Training Reports" }, { id: "certifications", name: "Certifications Catalog", ve: true } ] },
   { id: "settings", name: "Settings & Admin", sub: "Super-admin tools", items: [
-    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
+    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "copilot-insights", name: "Copilot Insights", note: "Read-only Copilot usage + knowledge-gaps report; self-guarded (super admins)" }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
     { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
@@ -93,11 +93,11 @@ const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-tr
 /** Each level's access AS IT IS TODAY — the pre-checked state on the admin screen. */
 export const DEFAULT_GRANTS: Record<string, Grants> = {
   super_admin: allAccess(),
-  // Data Connections (like Access Rights) is a super-admin-only surface; exclude it
-  // from the team-scoped admin's otherwise-full reach. The page itself self-guards
-  // with canManageAccessRights (Chris, Julie, April).
-  admin: allAccess(["access-rights", "connections"]),
-  field_ops: allAccess(["connections"]),
+  // Data Connections and Copilot Insights (like Access Rights) are super-admin-only
+  // surfaces; exclude them from the team-scoped admin's otherwise-full reach. The
+  // pages self-guard with canManageAccessRights (Chris, Julie, April).
+  admin: allAccess(["access-rights", "connections", "copilot-insights"]),
+  field_ops: allAccess(["connections", "copilot-insights"]),
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",

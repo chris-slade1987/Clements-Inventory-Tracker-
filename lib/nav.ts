@@ -252,6 +252,17 @@ export const CONNECTIONS_NAV_ITEM: NavItem = {
   icon: "M9 15l6-6M8.5 10.5l-1.6 1.6a3 3 0 004.2 4.2l1.6-1.6m-1.4-7.4l1.6-1.6a3 3 0 014.2 4.2l-1.6 1.6",
 };
 
+// Copilot Insights — super-admin-only, read-only Copilot usage + knowledge-gaps
+// report (Theme 5, Wave D). Lives in the Settings & Admin footer links beside
+// Access Rights and Data Connections and is gated the same way
+// (canManageAccessRights: Chris, Julie, April). A spark/insight glyph.
+export const COPILOT_INSIGHTS_NAV_ITEM: NavItem = {
+  href: "/settings/copilot",
+  label: "Copilot Insights",
+  shortLabel: "Copilot",
+  icon: "M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5zM19 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1z",
+};
+
 // Email delivery log — admin-only audit of every outbound notification (sent /
 // skipped / errored). Surfaced as a de-emphasized settings link in the shell
 // footer, alongside Users & Access. An envelope-with-check glyph.

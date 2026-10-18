@@ -3,12 +3,13 @@
 // so both server and client import it.
 //
 // SAFETY: anything not matched here returns null and is NEVER blocked (fail
-// open). Self-guarded super-admin pages (Access Rights, Data Connections, Users &
-// Access, Email Log) are intentionally left unmapped so their own guards decide —
-// they gate on canManageAccessRights (Chris, Julie, April), who are NOT all
-// role=admin, so a strict grant-mapped block in the (app) layout would lock the
-// senior/HR super-admins out before their page guard runs. Catalog item:
-// "connections" under the Settings & Admin module (super-admin-only default).
+// open). Self-guarded super-admin pages (Access Rights, Data Connections, Copilot
+// Insights, Users & Access, Email Log) are intentionally left unmapped so their own
+// guards decide — they gate on canManageAccessRights (Chris, Julie, April), who are
+// NOT all role=admin, so a strict grant-mapped block in the (app) layout would lock
+// the senior/HR super-admins out before their page guard runs. Catalog items:
+// "connections" and "copilot-insights" under the Settings & Admin module
+// (super-admin-only defaults), both unmapped for this reason.
 // Keep the most specific prefixes first — first match wins.
 
 const RULES: [RegExp, string][] = [

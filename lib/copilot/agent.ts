@@ -36,6 +36,10 @@ export type CopilotResult = {
   citations: CopilotCitation[];
   actions: CopilotAction[];
   grounded: boolean;
+  // Wave D (governance): the live-data tool names the model actually invoked this
+  // turn. Internal only — the route logs it to CopilotMessage.toolsJson but does
+  // NOT add it to the API response (the contract gains only messageId/conversationId).
+  toolsUsed?: string[];
 };
 
 export type CopilotMessage = { role: "user" | "assistant"; content: string };
@@ -199,6 +203,7 @@ export async function runCopilotAgent(inp: CopilotInput): Promise<CopilotResult>
   const system = buildSystemPrompt(inp.user, inp.screen);
 
   const actions: CopilotAction[] = [];
+  const toolsUsed = new Set<string>(); // data-tool names invoked this turn (for governance logging)
   let toolUsed = false;
   let finalText = "";
 
@@ -229,7 +234,10 @@ export async function runCopilotAgent(inp: CopilotInput): Promise<CopilotResult>
       try {
         const out = await tool.handler(tu.input ?? {}, ctx);
         // A tool that returned real data (not an access/empty error) counts as grounding.
-        if (!out || typeof out !== "object" || !("error" in (out as Record<string, unknown>))) toolUsed = true;
+        if (!out || typeof out !== "object" || !("error" in (out as Record<string, unknown>))) {
+          toolUsed = true;
+          toolsUsed.add(tu.name);
+        }
         results.push({ type: "tool_result", tool_use_id: tu.id, content: JSON.stringify(out) });
       } catch (e) {
         results.push({ type: "tool_result", tool_use_id: tu.id, content: JSON.stringify({ error: (e as Error).message || "tool failed" }), is_error: true });
@@ -244,6 +252,7 @@ export async function runCopilotAgent(inp: CopilotInput): Promise<CopilotResult>
     citations: toCitations(retrieved),
     actions,
     grounded,
+    toolsUsed: [...toolsUsed],
   };
 }
 
@@ -266,6 +275,7 @@ export async function deterministicCopilotReply(inp: CopilotInput): Promise<Copi
       citations: [],
       actions: [],
       grounded: false,
+      toolsUsed: [],
     };
   }
 
@@ -284,5 +294,6 @@ export async function deterministicCopilotReply(inp: CopilotInput): Promise<Copi
     citations: toCitations(retrieved),
     actions: [{ kind: "link", label: `Open ${top.citation.title}`, href: top.citation.href }],
     grounded: true,
+    toolsUsed: [],
   };
 }

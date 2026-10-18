@@ -2537,6 +2537,65 @@ model KnowledgeChunk {
   @@map("knowledge_chunks")
 }
 
+// ---------------------------------------------------------------------------
+// Canopy Copilot governance ledger (CanopyOS Theme 5, Wave D, plan §10/§11).
+// The improvement loop: every Copilot turn is logged (conversation + the user
+// question + the assistant answer with its citations, tools used, and grounded
+// flag) and each answer can carry thumbs up/down feedback. These feed the
+// super-admin knowledge-gaps report (lib/copilot/gaps.ts).
+//
+// LEDGER DISCIPLINE: append-only. Rows are NEVER hard-deleted. Logging is
+// best-effort (a logging failure never breaks a reply). Only what already flowed
+// through the user's own scoped answer is stored — personnel data is never
+// indexed or logged here (it is reached live via permission-checked tools).
+// All additive / nullable → `prisma db push`-safe (SQLite local / Postgres prod,
+// same shape); no existing table touched.
+// ---------------------------------------------------------------------------
+model CopilotConversation {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id") // the asking user (nullable — never FK-cascaded away)
+  userName  String?  @map("user_name") // display name at the time
+  role      String? // the viewer's role at the time ("employee" | "manager" | "admin")
+  branch    String? // home branch at the time (null = all-branch / exec)
+  screen    String? // the screen path the conversation started on
+  startedAt DateTime @default(now()) @map("started_at")
+
+  messages CopilotMessage[]
+
+  @@index([startedAt])
+  @@map("copilot_conversations")
+}
+
+model CopilotMessage {
+  id             String   @id @default(cuid())
+  conversationId String   @map("conversation_id")
+  role           String // "user" | "assistant"
+  content        String
+  sourcesJson    String?  @map("sources_json") // assistant: JSON array of citations ({title,section?,href})
+  toolsJson      String?  @map("tools_json") // assistant: JSON array of tool names used this turn
+  grounded       Boolean? // assistant: whether retrieval/a tool supported the answer
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation CopilotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  feedback     CopilotFeedback[]
+
+  @@index([conversationId, createdAt])
+  @@map("copilot_messages")
+}
+
+model CopilotFeedback {
+  id        String   @id @default(cuid())
+  messageId String   @map("message_id")
+  rating    String // "up" | "down"
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  message CopilotMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([rating, createdAt])
+  @@map("copilot_feedback")
+}
+
 model DocumentAcknowledgment {
   id             String   @id @default(cuid())
   documentId     String   @map("document_id")

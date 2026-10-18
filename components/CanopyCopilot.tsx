@@ -226,7 +226,10 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
           setMessages((m) => [
             ...m,
             {
-              id: uid(),
+              // Wave D: adopt the server's assistant messageId as this message's id so
+              // thumbs feedback can be attached to it; fall back to a local id if logging
+              // was unavailable (the feedback endpoint tolerates an unanchored id).
+              id: (typeof data?.messageId === "string" && data.messageId) || uid(),
               role: "assistant",
               content: typeof data?.reply === "string" && data.reply ? data.reply : "I don't have an answer for that yet.",
               citations: Array.isArray(data?.citations) ? data.citations : [],
@@ -275,7 +278,7 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
       await fetch("/api/copilot/feedback", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ rating, question, answer: msg.content, screen: { path: pathname } }),
+        body: JSON.stringify({ messageId: msg.id, rating, question, answer: msg.content, screen: { path: pathname } }),
       });
     } catch {
       /* fail silently */
