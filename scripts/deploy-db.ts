@@ -584,6 +584,15 @@ async function main() {
       );
     });
 
+    // Groundwork (Round 1-A): upsert the Huddle agenda templates (Sales Director
+    // Weekly, Marketing, Branch/Ops, 1:1) every deploy. Idempotent by key —
+    // refreshes name/items without duplicating. NON-FATAL.
+    await runStep("agenda templates reconcile", async () => {
+      const { seedAgendaTemplates } = await import("../prisma/seed-agenda-templates");
+      const at = await seedAgendaTemplates(prisma);
+      console.log(`deploy-db: reconciled Huddle agenda templates (${at.upserted} templates).`);
+    });
+
     // Document center: upsert the employee handbook + manager manual from the
     // Markdown sources every deploy (idempotent by slug — refreshes body/title
     // without touching acknowledgments, which are append-only, or bumping the

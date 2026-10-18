@@ -227,14 +227,103 @@ export async function nudgeVehicleServiceDue(): Promise<{ posted: number }> {
   return { posted };
 }
 
+// ---------------------------------------------------------------------------
+// Nudge 4 — Groundwork To-Do / Huddle follow-up due-soon + overdue → "Open My Work".
+//
+// Detection: open WorkItems (not done/cancelled, not Greenhouse/someday) with a
+// due date that is DUE SOON (within 2 days) or OVERDUE. Recipient: the assignee's
+// login for a person-assigned item; the branch supervisors (fallback admins) for
+// a branch-assigned one. Action: deep-link to My Work / the source Huddle. NO
+// write — the person acts in-portal.
+//
+// Dedup / no-double-notify: the one-time ASSIGNMENT notice fires at assignment
+// (see lib/groundwork.notifyAssignment); THIS nudge is the deadline reminder, a
+// separate purpose. Idempotent per item + due-date cycle + phase:
+// `nudge_todo_due:<id>:<dueDate>:<soon|overdue>` — so re-running the cron never
+// re-posts, moving the due date posts a fresh soon/overdue nudge, and soon then
+// overdue each fire once per cycle. All best-effort/try-catch.
+// ---------------------------------------------------------------------------
+const TODO_SOON_DAYS = 2;
+
+export async function nudgeWorkItemsDue(): Promise<{ candidates: number; posted: number }> {
+  const now = Date.now();
+  const soonEnd = new Date(now + (TODO_SOON_DAYS + 1) * DAY); // through end of the +2d window
+
+  const items = await prisma.workItem.findMany({
+    where: {
+      status: { notIn: ["done", "cancelled"] },
+      horizon: { not: "someday" },
+      dueDate: { not: null, lt: soonEnd },
+    },
+    select: {
+      id: true, title: true, dueDate: true, assigneeType: true, assigneeId: true, branch: true,
+      meetingId: true, creatorId: true,
+    },
+  });
+
+  let posted = 0;
+  for (const it of items) {
+    const due = it.dueDate!;
+    const days = Math.round((due.getTime() - now) / DAY);
+    const phase = due.getTime() < now ? "overdue" : "soon";
+    const key = `nudge_todo_due:${it.id}:${dkey(due)}:${phase}`;
+    try {
+      if (await stampExists(key)) continue;
+
+      // Resolve the recipient(s).
+      let recipients: SystemRecipient[] = [];
+      if (it.assigneeType === "person" && it.assigneeId) {
+        const u = await prisma.user.findUnique({
+          where: { id: it.assigneeId },
+          select: { id: true, name: true, email: true, employeeId: true, active: true },
+        });
+        if (u?.active) recipients = [{ userId: u.id, employeeId: u.employeeId, name: u.name, email: u.email }];
+      } else if (it.assigneeType === "branch" && it.branch) {
+        recipients = await branchOwnersOrAdmins(it.branch);
+      }
+      if (recipients.length === 0) continue;
+
+      const kindWord = it.meetingId ? "follow-up" : "To-Do";
+      const when = phase === "overdue"
+        ? `is overdue (was due ${due.toLocaleDateString()})`
+        : days <= 0
+          ? `is due today (${due.toLocaleDateString()})`
+          : `is due in ${days} day${days === 1 ? "" : "s"} (${due.toLocaleDateString()})`;
+      const subject = phase === "overdue" ? `Overdue ${kindWord}: ${it.title}` : `${kindWord} due soon: ${it.title}`;
+      const body =
+        `Your Groundwork ${kindWord} "${it.title}"${it.branch ? ` (${branchLabel(it.branch)})` : ""} ${when}. ` +
+        `Open My Work to update or close it out.`;
+      const id = await postSystemThread({
+        subject,
+        body,
+        recipients,
+        contextType: "reminder",
+        contextLabel: it.title,
+        contextHref: it.meetingId ? `/huddles/${it.meetingId}` : "/groundwork",
+        branch: it.branch,
+        authorName: "Buzz",
+      });
+      if (id) { await setStamp(key, id); posted++; }
+    } catch (err) {
+      console.error(`[nudgeWorkItemsDue] ${key} failed:`, err);
+    }
+  }
+  return { candidates: items.length, posted };
+}
+
 /** Run every detect-then-offer-action nudge that isn't already wired into another
  *  job. (The goal-sheet nudge lives in `remindAdvisorGoalSheets`, which already
  *  owns the business-day detection.) Best-effort: one failing nudge can't abort
- *  the other. */
+ *  the others. */
 export async function runNudges() {
-  const [lowStock, vehicles] = await Promise.allSettled([nudgeLowStockReorder(), nudgeVehicleServiceDue()]);
+  const [lowStock, vehicles, workItems] = await Promise.allSettled([
+    nudgeLowStockReorder(),
+    nudgeVehicleServiceDue(),
+    nudgeWorkItemsDue(),
+  ]);
   return {
     lowStock: lowStock.status === "fulfilled" ? lowStock.value : { error: "failed — see logs" },
     vehicles: vehicles.status === "fulfilled" ? vehicles.value : { error: "failed — see logs" },
+    workItems: workItems.status === "fulfilled" ? workItems.value : { error: "failed — see logs" },
   };
 }

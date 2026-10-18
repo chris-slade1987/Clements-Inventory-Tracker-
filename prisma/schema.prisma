@@ -2930,3 +2930,223 @@ model CertAward {
   @@index([certificationId])
   @@map("cert_awards")
 }
+
+// ---------------------------------------------------------------------------
+// GROUNDWORK (Round 1-A) — the universal To-Do/task primitive, Projects that
+// group tasks, and Huddles (meetings) with live agendas, notes, and real-time
+// follow-ups. One primitive everything can be (a personal To-Do, a project
+// task, a Huddle follow-up, or an item spun off a record), so assignment, due
+// dates, status, and priority behave the same everywhere — the "My Work"
+// payoff. Additive + `prisma db push`-safe (SQLite-local / Postgres-prod);
+// nothing is hard-deleted (status cancelled/archived, Huddles completed).
+//
+// Module name: Groundwork · Meetings: Huddles · Someday list: The Greenhouse
+// (= WorkItem.horizon "someday") · personal tasks: To-Dos.
+//
+// References to people (creatorId/assigneeId/ownerId/organizerId/userId/
+// authorId) are plain scalar ids — NO cross-model relation into User/Employee —
+// to keep this slice fully additive (no existing model is touched). Relations
+// are defined only AMONG these new models.
+// ---------------------------------------------------------------------------
+
+// The universal To-Do / task. "What's on my plate" = the WorkItems a user owns
+// or is assigned. The Greenhouse (someday/ideas) = horizon "someday".
+model WorkItem {
+  id       String  @id @default(cuid())
+  title    String
+  notes    String?
+  status   String  @default("todo") // "todo" | "in_progress" | "blocked" | "done" | "cancelled"
+  priority String  @default("normal") // "low" | "normal" | "high" | "urgent"
+  horizon  String  @default("now") // "now" | "week" | "someday" (someday = The Greenhouse)
+
+  creatorId   String  @map("creator_id") // User.id of who created it
+  creatorName String? @map("creator_name") // snapshot for display
+
+  // Assignee — a person (default) or a whole branch's team. assigneeId is a
+  // User.id when assigneeType="person"; a branch key when assigneeType="branch".
+  assigneeType String  @default("person") @map("assignee_type") // "person" | "branch"
+  assigneeId   String? @map("assignee_id")
+  assigneeName String? @map("assignee_name") // snapshot for display
+  branch       String? // branch the item belongs to (for branch assignment + scoping)
+
+  startDate DateTime? @map("start_date")
+  dueDate   DateTime? @map("due_date")
+
+  projectId String? @map("project_id") // grouped under a Project
+  meetingId String? @map("meeting_id") // spun out of a Huddle (a follow-up)
+
+  // What this spun off from (an audit finding, a record, …) — generic capture.
+  sourceType String? @map("source_type")
+  sourceId   String? @map("source_id")
+
+  order       Int? // manual sort within a list (lower = higher)
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  project  Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  meeting  Meeting?          @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  comments WorkItemComment[]
+
+  @@index([assigneeId, status])
+  @@index([creatorId, status])
+  @@index([projectId])
+  @@index([meetingId])
+  @@index([dueDate])
+  @@index([horizon, status])
+  @@map("work_items")
+}
+
+// A timestamped comment / work note on a To-Do — the append-only activity log
+// (mirrors SalesFocusComment). Cascades with its item.
+model WorkItemComment {
+  id         String   @id @default(cuid())
+  workItemId String   @map("work_item_id")
+  authorId   String?  @map("author_id")
+  authorName String?  @map("author_name")
+  body       String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  workItem WorkItem @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+
+  @@index([workItemId, createdAt])
+  @@map("work_item_comments")
+}
+
+// A lightweight Project that groups To-Dos, with an owner, members, a due date,
+// and a progress roll-up (computed from its WorkItems). Cancelled/done, never
+// hard-deleted.
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String    @map("owner_id") // User.id of the owner
+  ownerName   String?   @map("owner_name")
+  status      String    @default("active") // "active" | "on_hold" | "done" | "cancelled"
+  dueDate     DateTime? @map("due_date")
+  branch      String?
+  color       String? // brand-token accent for the project card
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  members   ProjectMember[]
+  workItems WorkItem[]
+
+  @@index([ownerId, status])
+  @@index([status])
+  @@map("projects")
+}
+
+// A person on a project (owner / member / viewer). "Send to people" = add
+// members + assign their tasks, which notifies them.
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  role      String   @default("member") // "owner" | "member" | "viewer"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+// A Huddle (meeting): scheduled/in-progress/completed/cancelled, with a working
+// agenda (seeded from a template, editable live), live notes, and real-time
+// follow-ups (WorkItems with meetingId set). Calendar is OUT of scope for this
+// round — `calendarEventIds` is a nullable JSON map (email→eventId) the calendar
+// service fills later; nothing here calls it.
+model Meeting {
+  id               String    @id @default(cuid())
+  title            String
+  kind             String? // "sales" | "marketing" | "ops" | "one_on_one" | "custom"
+  organizerId      String    @map("organizer_id") // User.id
+  organizerName    String?   @map("organizer_name")
+  scheduledStart   DateTime? @map("scheduled_start")
+  scheduledEnd     DateTime? @map("scheduled_end")
+  location         String?
+  meetingLink      String?   @map("meeting_link")
+  agendaTemplateId String?   @map("agenda_template_id")
+  status           String    @default("scheduled") // "scheduled" | "in_progress" | "completed" | "cancelled"
+  recurrence       String? // free-form recurrence hint (e.g. "weekly"); scheduling owned by Round 1-B
+  calendarEventIds String?   @map("calendar_event_ids") // JSON map email→eventId, filled later by the calendar service
+  branch           String?
+  completedAt      DateTime? @map("completed_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  attendees   MeetingAttendee[]
+  agendaItems MeetingAgendaItem[]
+  notes       MeetingNote[]
+  followUps   WorkItem[]
+
+  @@index([organizerId, status])
+  @@index([status, scheduledStart])
+  @@map("meetings")
+}
+
+// A Huddle attendee. userId is set when they have a login (so the Huddle shows
+// on their profile + follow-ups land in their My Work); email is always kept.
+model MeetingAttendee {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  userId    String?  @map("user_id")
+  email     String
+  name      String?
+  role      String   @default("attendee") // "organizer" | "attendee"
+  response  String?  @default("none") // "accepted" | "declined" | "tentative" | "none"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, email])
+  @@index([userId])
+  @@map("meeting_attendees")
+}
+
+// A working agenda item — seeded from an AgendaTemplate, editable live, checked
+// off as the Huddle runs.
+model MeetingAgendaItem {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  order     Int      @default(0)
+  title     String
+  prompt    String?
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId, order])
+  @@map("meeting_agenda_items")
+}
+
+// A live note captured during a Huddle. Append-only.
+model MeetingNote {
+  id         String   @id @default(cuid())
+  meetingId  String   @map("meeting_id")
+  authorId   String?  @map("author_id")
+  authorName String?  @map("author_name")
+  body       String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId, createdAt])
+  @@map("meeting_notes")
+}
+
+// A reusable Huddle agenda template (Sales Director Weekly, Marketing,
+// Branch/Ops, 1:1). `items` is a JSON array [{order,title,prompt?}] copied into
+// MeetingAgendaItem on apply. Seeded idempotently by key.
+model AgendaTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  kind      String? // "sales" | "marketing" | "ops" | "one_on_one" | "custom"
+  items     String   @default("[]") // JSON [{order,title,prompt?}]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("agenda_templates")
+}

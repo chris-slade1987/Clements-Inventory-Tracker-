@@ -12,6 +12,7 @@ import { seedApprovedProducts } from "./seed-products-approved";
 import { seedEpaNumbers } from "./seed-epa-numbers";
 import { seedOnHandCount } from "./seed-onhand-count";
 import { seedTrainingCatalog } from "./seed-training-catalog";
+import { seedAgendaTemplates } from "./seed-agenda-templates";
 
 const prisma = new PrismaClient();
 
@@ -40,6 +41,8 @@ seedDatabase(prisma, { reset: true })
     const onhand = await seedOnHandCount(prisma);
     // Training Center catalog — Program → Module → Course reference data.
     const cert = await seedTrainingCatalog(prisma);
+    // Groundwork — Huddle agenda templates.
+    const agenda = await seedAgendaTemplates(prisma);
     console.log("Seed complete.");
     console.log(
       `  Warehouses: ${counts.warehouses}   Technicians: ${counts.technicians}   Products: ${counts.products}`
@@ -51,6 +54,7 @@ seedDatabase(prisma, { reset: true })
     console.log(`  Hiring templates: ${hiring.templatesCreated} created (${hiring.templatesTotal} off-the-shelf), ${hiring.bankUpserted} bank items`);
     console.log(`  On-hand count 7/27/2026: applied=${onhand.applied}, ${onhand.adjustmentsCreated} adjustments, ${onhand.productsZeroed} zeroed, ${onhand.unmatched.length} unmatched`);
     console.log(`  Training catalog: ${cert.certifications} certifications, ${cert.programs} programs, ${cert.modules} modules, ${cert.courses} courses, ${cert.programModules}+${cert.moduleCourses} links`);
+    console.log(`  Groundwork: ${agenda.upserted} Huddle agenda templates`);
     console.log(`  Manager login:  ${MANAGER_EMAIL}  /  ${MANAGER_PASSWORD}`);
     await prisma.$disconnect();
   })

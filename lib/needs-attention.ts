@@ -16,6 +16,8 @@ import {
 import { canManagePreHire, listPreHires } from "@/lib/prehire";
 import { handbookAckRoster } from "@/lib/policy-docs";
 import { isHrDirector } from "@/lib/personnel";
+import { attentionTodosForUser } from "@/lib/groundwork";
+import { attentionHuddlesForUser } from "@/lib/huddles";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Unified "Needs attention" model (CanopyOS Theme 3).
@@ -394,6 +396,77 @@ const sopSource: AttentionSource = {
   },
 };
 
+// Groundwork (Round 1-A): the user's own/assigned To-Dos due soon/overdue/today,
+// today's Huddles, and open Huddle follow-ups — normalized into the unified queue
+// so they appear in the role command centers + rhythm ribbon. These are personal
+// work items that resolve by being done, so they're not individually dismissible.
+// Served to every audience, since To-Dos/Huddles are universal.
+const groundworkSource: AttentionSource = {
+  id: "groundwork",
+  audiences: ["branch", "inventory", "field_ops", "hr", "sales", "executive", "employee"],
+  load: async (ctx) => {
+    const [todos, huddles] = await Promise.all([
+      attentionTodosForUser(ctx.user, ctx.now),
+      attentionHuddlesForUser(ctx.user, ctx.now),
+    ]);
+    const items: AttentionItem[] = [];
+
+    for (const t of todos) {
+      const due = t.dueDate
+        ? ` · due ${t.dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`
+        : "";
+      items.push({
+        key: `gw_todo:${t.id}:${t.bucket}`,
+        kind: "todo_due",
+        title:
+          t.bucket === "overdue" ? `To-Do overdue: ${t.title}` :
+          t.bucket === "today" ? `To-Do due today: ${t.title}` :
+          `To-Do due soon: ${t.title}`,
+        detail: `${t.priority !== "normal" ? `${t.priority} priority` : "On your plate"}${due}`,
+        href: "/groundwork",
+        severity: t.bucket === "overdue" ? "critical" : t.bucket === "today" ? "warning" : "info",
+        dismissible: false,
+        branch: t.branch,
+        dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+      });
+    }
+
+    for (const h of huddles) {
+      if (h.type === "huddle_today") {
+        const when = h.start
+          ? ` · ${h.start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "UTC" })}`
+          : "";
+        items.push({
+          key: `gw_huddle:${h.id}:${ctx.now.toISOString().slice(0, 10)}`,
+          kind: "huddle_today",
+          title: `Huddle today: ${h.title}`,
+          detail: `Your meeting is today${when}`,
+          href: `/huddles/${h.id}`,
+          severity: "info",
+          dismissible: false,
+          branch: h.branch,
+          dueDate: h.start ? h.start.toISOString() : null,
+        });
+      } else {
+        items.push({
+          key: `gw_followup:${h.id}`,
+          kind: "meeting_followup",
+          title: h.overdue ? `Follow-up overdue: ${h.title}` : `Huddle follow-up: ${h.title}`,
+          detail: h.dueDate
+            ? `Due ${h.dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`
+            : "From a Huddle",
+          href: `/huddles/${h.meetingId}`,
+          severity: h.overdue ? "warning" : "info",
+          dismissible: false,
+          branch: h.branch,
+          dueDate: h.dueDate ? h.dueDate.toISOString() : null,
+        });
+      }
+    }
+    return items;
+  },
+};
+
 // ── Source registry + EXTENSION POINT ────────────────────────────────────────
 
 const BUILTIN_SOURCES: AttentionSource[] = [
@@ -402,6 +475,7 @@ const BUILTIN_SOURCES: AttentionSource[] = [
   fieldOpsQueuesSource,
   executiveQueuesSource,
   sopSource,
+  groundworkSource,
 ];
 
 const EXTRA_SOURCES: AttentionSource[] = [];
