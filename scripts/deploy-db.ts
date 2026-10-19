@@ -211,6 +211,21 @@ async function main() {
       console.error("deploy-db: dispersement roster reconcile FAILED (non-fatal):", e);
     }
 
+    // Load technician/field route numbers onto Employee records from the COO's
+    // phone-list (prisma/data/tech-numbers.json). Idempotent, name-matched,
+    // never creates people; unmatched/ambiguous names are logged for cleanup.
+    // NON-FATAL.
+    try {
+      const { importTechNumbers } = await import("../prisma/seed-tech-numbers");
+      const t = await importTechNumbers(prisma);
+      console.log(
+        `deploy-db: tech route-numbers — ${t.updated} set, ${t.alreadySet} already current, of ${t.total}; ` +
+          `unmatched: ${t.unmatched.join(", ") || "none"}; ambiguous: ${t.ambiguous.join(", ") || "none"}.`
+      );
+    } catch (e) {
+      console.error("deploy-db: tech route-number import FAILED (non-fatal):", e);
+    }
+
     // Load the 4-branch historical purchase data (PestPac transfer histories) as
     // CONFIRMED, analysis-only Invoice + InvoiceLine records. Idempotent (skips
     // invoices whose "HIST-…" number already exists) and — critically — creates
