@@ -30,6 +30,8 @@ import {
 import { buildAdvisorScorecard } from "@/lib/scorecard-advisor";
 import { currentPeriodKey } from "@/lib/sales";
 import { employeeRoster, matchEmployeeByName } from "@/lib/people";
+import { orgTileData, searchOrg } from "@/lib/org-chart";
+import { isServiceTag } from "@/lib/service-catalog";
 
 // ===========================================================================
 // Canopy Copilot — live-data tools (CanopyOS Theme 5, Wave B, plan §7).
@@ -468,6 +470,81 @@ const lookupEmployee: CopilotTool = {
   },
 };
 
+// ===========================================================================
+// 9. find_people — company-readable org directory lookup (Org Chart, Round 3)
+// ===========================================================================
+//
+// The org directory/chart (Round 1: lib/org-chart.ts) is COMPANY-READABLE: every
+// authenticated user may see the reporting structure plus these OPERATIONAL fields
+// (role/title, branch, route number, earned certs, approved services, and the
+// service/personal scheduling rules). This tool is how the Copilot answers "who
+// does bees in Naples?" or "who is route 310?". It returns ONLY the tile fields —
+// never pay, discipline, PTO, employee notes, or any personnel-file data — so no
+// extra grant is required beyond being signed in (the route authenticates the
+// caller before any tool runs). Read-only. Results are capped and compact.
+
+const FIND_PEOPLE_LIMIT = 12;
+
+const findPeople: CopilotTool = {
+  schema: {
+    name: "find_people",
+    description:
+      "Search the COMPANY-READABLE org directory for people by name, title, role, branch, service specialty, or route number — e.g. 'who does bees in Naples?', 'who is route 310?', 'what is route 42?'. Returns each match's role/title, branch, route number, earned certifications, approved services, who they report to, and their SCHEDULING RULES (service + personal scheduling notes — relay these when relevant, e.g. 'book bee jobs 3–5 PM'). Visible to all signed-in staff; returns NO pay, discipline, PTO, or personnel-file data. Service tags: bees, wasps, rodents, wildlife, termites, lawn, mosquito, general, consultations.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Free-text search over name, title, role, branch, route number, and service specialty (e.g. 'Ronnie', 'bees', 'route 42'). Optional." },
+        branch: { type: "string", description: "Narrow to a branch (vero|stuart|orlando|naples)." },
+        service: { type: "string", description: "Narrow to a service specialty tag (bees|wasps|rodents|wildlife|termites|lawn|mosquito|general|consultations)." },
+        routeNumber: { type: "string", description: "Find the person who runs an EXACT route number, e.g. '42' or '310'." },
+      },
+    },
+  },
+  handler: async (input) => {
+    const query = str(input.query) ?? "";
+
+    // Normalize filters to known keys/tags; ignore anything unrecognized.
+    const rawBranch = str(input.branch)?.toLowerCase();
+    const branch = rawBranch && BRANCH_KEYS.has(rawBranch) ? rawBranch : null;
+    const rawService = str(input.service)?.toLowerCase();
+    const service = rawService && isServiceTag(rawService) ? rawService : null;
+
+    const tiles = await orgTileData();
+    const byId = new Map(tiles.map((t) => [t.id, t]));
+    let results = searchOrg(tiles, query, { branch, service });
+
+    // Exact route-number lookup (strip a leading #/route/rte the model may include).
+    const route = str(input.routeNumber);
+    if (route) {
+      const r = route.replace(/^#/, "").replace(/^(route|rte)\s+/i, "").trim().toLowerCase();
+      results = results.filter((t) => !!t.routeNumber && t.routeNumber.toLowerCase() === r);
+    }
+
+    const total = results.length;
+    const people = results.slice(0, FIND_PEOPLE_LIMIT).map((t) => ({
+      name: t.name,
+      title: t.title,
+      role: t.role,
+      branch: t.branchLabel,
+      routeNumber: t.routeNumber,
+      certifications: t.certifications.map((c) => c.name),
+      approvedServices: t.approvedServices.map((s) => s.label),
+      serviceNotes: t.serviceNotes,
+      serviceSchedulingNote: t.serviceSchedulingNote,
+      personalSchedulingNote: t.personalSchedulingNote,
+      reportsTo: t.reportsToId ? byId.get(t.reportsToId)?.name ?? null : null,
+    }));
+
+    return {
+      total,
+      returned: people.length,
+      truncated: total > people.length,
+      note: "Company-readable org directory — operational fields only (no pay, discipline, PTO, or personnel-file data). When relevant, relay each person's scheduling rules (serviceSchedulingNote / personalSchedulingNote).",
+      people,
+    };
+  },
+};
+
 // ---- registry ---------------------------------------------------------------
 
 export const COPILOT_TOOLS: CopilotTool[] = [
@@ -479,6 +556,7 @@ export const COPILOT_TOOLS: CopilotTool[] = [
   getSopStatus,
   getScorecard,
   lookupEmployee,
+  findPeople,
 ];
 
 export const COPILOT_TOOL_MAP: Map<string, CopilotTool> = new Map(COPILOT_TOOLS.map((t) => [t.schema.name, t]));

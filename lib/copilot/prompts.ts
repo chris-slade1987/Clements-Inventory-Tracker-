@@ -58,6 +58,7 @@ export function suggestedPrompts(user: CopilotUser, screenPath: string): string[
   if (at("/my-branch/scorecard") || at("/management/scorecards") || at("/my-branch/team")) {
     if (at("/my-branch/team") || at("/management/people")) {
       return [
+        "Who handles bees in my area?",
         "Need help addressing a personnel issue?",
         "How do I document a verbal write-up?",
         "What's the progressive discipline policy?",
