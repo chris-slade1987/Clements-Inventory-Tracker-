@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 28 · Last updated October 18, 2026",
+    effective: "Version 29 · Last updated October 19, 2026",
+    // v29: added the Org Chart & Directory section — the universal company Org Chart
+    // (square tiles nested under their manager, search by name/route/service/branch,
+    // collapsible teams), the scoped tile editor (approved services, scheduling
+    // rules, route number — HR/leadership anyone, branch managers own branch), and
+    // the attributed Employee Notes log on the profile. CanopyOS Org Chart Round 2.
     // v28: added the Groundwork section — the universal work home (My Work To-Dos,
     // Huddles with agenda templates + live notes + real-time follow-ups, The
     // Greenhouse for someday ideas, and Projects), plus how calendar sync shows
@@ -138,7 +143,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 28,
+    version: 29,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -293,6 +293,17 @@ export const GROUNDWORK_NAV_ITEM: NavItem = {
   icon: "M12 22V12m0 0c0-2.8-2.2-5-5-5H4v1.5A4.5 4.5 0 008.5 13H12zm0-2c0-3 2.5-5.5 5.5-5.5H20v1A5 5 0 0115 10.5h-3",
 };
 
+// Org Chart — the universal Company reporting chart + directory, shared by EVERY
+// login regardless of access level (like Groundwork / the Employee Hub). Surfaced
+// as its own top-bar button (see AppShell). Read-only tiles + search for all;
+// tile editing is role/branch-scoped server-side. A hierarchy/org-tree glyph.
+export const ORG_CHART_NAV_ITEM: NavItem = {
+  href: "/org",
+  label: "Org Chart",
+  shortLabel: "Org",
+  icon: "M9 3h6v4H9z M4 17h6v4H4z M14 17h6v4h-6z M12 7v7 M7 14h10 M7 17v-3 M17 17v-3",
+};
+
 // Employee Hub — the self-service home shared by EVERY login regardless of
 // access level. Surfaced as its own top-bar button (see AppShell) and as the
 // employee shell's home nav. A person/badge glyph, distinct from the house.

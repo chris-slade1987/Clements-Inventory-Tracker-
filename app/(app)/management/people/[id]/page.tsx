@@ -24,7 +24,10 @@ import EmployeeContact from "./EmployeeContact";
 import PasswordResetCard from "./PasswordResetCard";
 import AccessRightsCard from "./AccessRightsCard";
 import Offboarding from "./Offboarding";
+import EmployeeNotes from "./EmployeeNotes";
 import SignatureBlock from "@/app/(app)/my-branch/team/[id]/SignatureBlock";
+import { listEmployeeNotes, canAddEmployeeNote } from "@/lib/employee-notes";
+import { parseApprovedServices } from "@/lib/service-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +81,13 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const canEdit = user.role === "admin" || hr;
   const canReset = canResetPasswords(user);
   const canEditAccess = canEditAccessLevels(user);
+
+  // Org-chart operational fields + the attributed Employee Notes log (Round 2).
+  const employeeNotes = await listEmployeeNotes(e.id);
+  const canAddNote = canAddEmployeeNote(user);
+  const approvedServices = parseApprovedServices(e.approvedServices);
+  const hasOperational =
+    !!e.routeNumber || approvedServices.length > 0 || !!e.serviceNotes || !!e.serviceSchedulingNote || !!e.personalSchedulingNote;
 
   // Call-outs linked to an accident report — surfaced on the accident record so
   // the injury → time-off connection is visible with the report.
@@ -150,6 +160,51 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           ) : null}
         </Card>
       </div>
+
+      {/* Operational profile (org chart) — route number, approved services, and
+          scheduling rules. Editing lives on the Org Chart tile (scoped). */}
+      <Card className="p-4 mb-5">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="text-sm font-medium text-ink">Operational profile</div>
+          <Link href="/management/people/org" className="text-xs font-medium text-brand-700 hover:underline">Edit on org chart →</Link>
+        </div>
+        {hasOperational ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Route number</div>
+              <div className="mt-0.5 text-sm text-ink">{e.routeNumber || "—"}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Approved to do</div>
+              {approvedServices.length ? (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {approvedServices.map((s) => (
+                    <span key={s.key} className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">{s.label}</span>
+                  ))}
+                </div>
+              ) : <div className="mt-0.5 text-sm text-muted">—</div>}
+            </div>
+            {e.serviceNotes ? (
+              <div className="sm:col-span-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Service notes</div>
+                <div className="mt-0.5 text-sm text-ink whitespace-pre-line">{e.serviceNotes}</div>
+              </div>
+            ) : null}
+            {e.serviceSchedulingNote || e.personalSchedulingNote ? (
+              <div className="sm:col-span-2 rounded-lg border-l-[3px] border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                {e.serviceSchedulingNote ? (
+                  <div><span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 mr-1">Service scheduling</span>{e.serviceSchedulingNote}</div>
+                ) : null}
+                {e.personalSchedulingNote ? (
+                  <div className={e.serviceSchedulingNote ? "mt-1" : ""}><span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 mr-1">Personal</span>{e.personalSchedulingNote}</div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-muted">No route, approved services, or scheduling rules set yet. Add them on the <Link href="/management/people/org" className="text-brand-700 hover:underline">org chart</Link>.</p>
+        )}
+      </Card>
 
       {/* Access rights — super admins only. Set the access level, or grant a
           sign-in to a login-less employee (same controls as the org chart). */}
@@ -328,6 +383,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           </ul>
         )}
       </Card>
+
+      {/* Employee notes — attributed, timestamped, append-only log (org chart) */}
+      <EmployeeNotes employeeId={e.id} initialNotes={employeeNotes} canAdd={canAddNote} />
 
       {/* Training record (personnel folder) */}
       <Card className="p-0 overflow-hidden mb-5">

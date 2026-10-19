@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   EMPLOYEE_HUB_NAV_ITEM,
   GROUNDWORK_NAV_ITEM,
+  ORG_CHART_NAV_ITEM,
   ACCESS_RIGHTS_NAV_ITEM,
   CONNECTIONS_NAV_ITEM,
   COPILOT_INSIGHTS_NAV_ITEM,
@@ -394,6 +395,16 @@ export default function AppShell({
         )}
         <div className="ml-auto flex items-center gap-1">
           <Link
+            href={ORG_CHART_NAV_ITEM.href}
+            aria-current={isActive(pathname, ORG_CHART_NAV_ITEM.href) ? "page" : undefined}
+            className={`mr-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-light transition-colors ${
+              isActive(pathname, ORG_CHART_NAV_ITEM.href) ? "bg-white/10 text-white" : "text-mint hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            <Icon path={ORG_CHART_NAV_ITEM.icon} className="h-5 w-5" />
+            Org Chart
+          </Link>
+          <Link
             href={GROUNDWORK_NAV_ITEM.href}
             aria-current={isActive(pathname, GROUNDWORK_NAV_ITEM.href) ? "page" : undefined}
             className={`mr-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-light transition-colors ${
@@ -538,6 +549,14 @@ export default function AppShell({
           </Link>
           {showCenters ? <div className="ml-1"><ModeToggle mode={mode} compact centers={visibleCenters} /></div> : null}
           <div className="ml-auto flex items-center">
+          <Link
+            href={ORG_CHART_NAV_ITEM.href}
+            aria-label="Org Chart"
+            aria-current={isActive(pathname, ORG_CHART_NAV_ITEM.href) ? "page" : undefined}
+            className={`flex h-11 w-11 items-center justify-center rounded-xl ${isActive(pathname, ORG_CHART_NAV_ITEM.href) ? "text-white" : "text-mint hover:text-white hover:bg-white/5"}`}
+          >
+            <Icon path={ORG_CHART_NAV_ITEM.icon} className="h-6 w-6" />
+          </Link>
           <Link
             href={GROUNDWORK_NAV_ITEM.href}
             aria-label="Groundwork"
