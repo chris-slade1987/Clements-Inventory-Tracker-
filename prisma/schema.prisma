@@ -1073,6 +1073,13 @@ model Employee {
   reportsToId      String?    @map("reports_to_id")
   reportsTo        Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
   reports          Employee[] @relation("OrgChart")
+  // Org Chart (Round 1) — operational tile fields. All nullable; company-readable
+  // (structure + these fields), NOT sensitive personnel data. See lib/org-chart.ts.
+  routeNumber            String? @map("route_number") // technician/field route number (searchable; loaded from photos later)
+  approvedServices       String? @map("approved_services") // JSON array of service tags (see lib/service-catalog.ts)
+  serviceNotes           String? @map("service_notes") // short free text ("Handles all bee jobs in Naples")
+  serviceSchedulingNote  String? @map("service_scheduling_note") // per-service scheduling rule ("Bee jobs: 3–5 PM only")
+  personalSchedulingNote String? @map("personal_scheduling_note") // personal scheduling rule ("No first appt before 8:30 AM")
   ptoAllowanceDays Int?       @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
   notes            String?
   createdAt        DateTime   @default(now()) @map("created_at")
@@ -1094,10 +1101,29 @@ model Employee {
   courseProgress    CourseProgress[]
   fieldSignoffs     FieldSignoff[]
   certAwards        CertAward[]
+  employeeNotes     EmployeeNote[]
 
   @@index([branch])
   @@index([name])
   @@map("employees")
+}
+
+// Org Chart (Round 1) — an attributed, timestamped note on an employee's org-chart
+// tile / profile (mirrors SalesFocusComment / WorkItemComment). APPEND-ONLY: never
+// edited or deleted in this slice; corrections are new notes so the log stays intact.
+// Cascades with the employee.
+model EmployeeNote {
+  id         String   @id @default(cuid())
+  employeeId String   @map("employee_id")
+  authorId   String?  @map("author_id") // User.id of who wrote it (null if unresolved)
+  authorName String   @map("author_name") // snapshot for display
+  body       String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, createdAt])
+  @@map("employee_notes")
 }
 
 // Paid-time-off request. An employee submits a date range to their branch
