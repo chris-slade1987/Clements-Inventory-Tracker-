@@ -115,6 +115,44 @@ export async function branchQuarterAll(
   return out;
 }
 
+/**
+ * Quarterly target + actual for all three KPIs at a SCOPE: a single branch key,
+ * or "company" = Σ of the four branches. Powers the quarter view on the Branch /
+ * Company KPIs dashboard.
+ */
+export async function scopeQuarterAll(
+  scope: string,
+  year: number,
+  quarter: number,
+): Promise<Record<BranchKpiKey, QuarterCell>> {
+  const [wb, app] = await Promise.all([loadWorkbook(year), loadAppActuals(year)]);
+  const scopes = scope === "company" ? BRANCH_KEYS : [scope];
+  const out = {} as Record<BranchKpiKey, QuarterCell>;
+  for (const kpi of BRANCH_KPI_KEYS) {
+    let target: number | null = null;
+    let actual: number | null = null;
+    for (const b of scopes) {
+      const c = sumQuarter(b, year, quarter, kpi, wb, app);
+      if (c.target != null) target = (target ?? 0) + c.target;
+      if (c.actual != null) actual = (actual ?? 0) + c.actual;
+    }
+    out[kpi] = { target, actual };
+  }
+  return out;
+}
+
+/**
+ * The quarters of `year` that are fully elapsed as of `asOf` (so they have
+ * complete actuals) — the "previous quarters" offered on the dashboard. A past
+ * year returns all four; a future year, none.
+ */
+export function completedQuarters(year: number, asOf: Date = new Date()): number[] {
+  if (year < asOf.getFullYear()) return [1, 2, 3, 4];
+  if (year > asOf.getFullYear()) return [];
+  const month = asOf.getMonth() + 1;
+  return [1, 2, 3, 4].filter((q) => QUARTER_MONTHS[q][2] < month);
+}
+
 function sumQuarter(
   branch: string,
   _year: number,

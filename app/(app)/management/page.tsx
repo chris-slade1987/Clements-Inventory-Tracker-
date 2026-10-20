@@ -3,8 +3,10 @@ import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, branchLocked, canViewExec } from "@/lib/auth";
 import { BRANCHES, branchLabel, listPeriods, resolvePeriod, periodValues, type Scope } from "@/lib/management";
 import { buildDashboardPayload } from "@/lib/branch-pnl";
+import { completedQuarters, scopeQuarterAll } from "@/lib/branch-kpis";
 import Controls from "@/app/(app)/management/Controls";
 import BranchDashboard, { type DBasis } from "@/components/BranchDashboard";
+import BranchQuarters from "@/components/BranchQuarters";
 import { teamFunnel } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
@@ -55,25 +57,42 @@ export default async function BranchKpisPage({
 
   const period = (await resolvePeriod(sp.p))!;
   const periodKey = `${period.year}-${String(period.month).padStart(2, "0")}`;
-  // Basis is URL-driven (Month · YTD · Full-Year Forecast). cy_forecast maps to
-  // the dashboard's "fy" basis; the AI summary only speaks month/ytd.
-  const basisParam = sp.basis === "month" ? "month" : sp.basis === "cy_forecast" ? "cy_forecast" : "ytd";
+  // Basis is URL-driven (Month · YTD · Full-Year Forecast · a completed quarter).
+  // cy_forecast maps to the dashboard's "fy" basis; a "qN" basis opens the quarter
+  // view (Production / New Sales / Cancellations only — the metrics with real
+  // monthly history). The AI summary only speaks month/ytd.
+  const availableQuarters = completedQuarters(period.year);
+  const qMatch = /^q([1-4])$/.exec(sp.basis ?? "");
+  const quarterSel = qMatch && availableQuarters.includes(Number(qMatch[1])) ? Number(qMatch[1]) : null;
+  const basisParam = quarterSel
+    ? `q${quarterSel}`
+    : sp.basis === "month"
+      ? "month"
+      : sp.basis === "cy_forecast"
+        ? "cy_forecast"
+        : "ytd";
   const basis: DBasis = basisParam === "month" ? "month" : basisParam === "cy_forecast" ? "fy" : "ytd";
 
-  const values = await periodValues(period.id);
+  // Quarter view: the three KPIs with true monthly history, summed over the quarter.
+  const quarterCells = quarterSel ? await scopeQuarterAll(scope, period.year, quarterSel) : null;
+
+  const values = quarterSel ? null : await periodValues(period.id);
 
   // Sales funnel for this scope — Leads → Proposals → Closed (# and $). Tied to
   // the current sales month, not the MBR report period. Folded into the board.
-  const { totals: funnel } = await teamFunnel(currentPeriodKey(), branch);
-
-  const payload = await buildDashboardPayload(
-    values,
-    scope,
-    locked,
-    { id: period.id, year: period.year, month: period.month, label: period.label },
-    basis,
-    { leads: funnel.leads, proposals: funnel.proposals, deals: funnel.deals, closed: funnel.closed, goal: funnel.goal },
-  );
+  const payload = quarterSel
+    ? null
+    : await (async () => {
+        const { totals: funnel } = await teamFunnel(currentPeriodKey(), branch);
+        return buildDashboardPayload(
+          values!,
+          scope,
+          locked,
+          { id: period.id, year: period.year, month: period.month, label: period.label },
+          basis,
+          { leads: funnel.leads, proposals: funnel.proposals, deals: funnel.deals, closed: funnel.closed, goal: funnel.goal },
+        );
+      })();
 
   const selector = !locked ? (
     <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1 w-fit">
@@ -97,6 +116,7 @@ export default async function BranchKpisPage({
           period={periodKey}
           basis={basisParam}
           forecast
+          quarters={availableQuarters.map((q) => ({ key: `q${q}`, label: `Q${q}` }))}
         />
       </div>
 
@@ -105,7 +125,11 @@ export default async function BranchKpisPage({
 
       <KpiSummaryButton scope={scope} p={periodKey} basis={basisParam === "month" ? "month" : "ytd"} forecastBasis={basisParam === "cy_forecast"} label={isCompany ? "AI company summary" : "AI branch summary"} />
 
-      <BranchDashboard payload={payload} />
+      {quarterSel ? (
+        <BranchQuarters scopeLabel={scopeLabel} quarterLabel={`Q${quarterSel} ${period.year}`} cells={quarterCells!} />
+      ) : (
+        <BranchDashboard payload={payload!} />
+      )}
 
       <div className="mt-6 flex flex-col gap-1 text-xs text-muted">
         <p>

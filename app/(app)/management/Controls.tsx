@@ -12,12 +12,15 @@ export default function Controls({
   basis,
   basePath = "/management",
   forecast = false,
+  quarters = [],
 }: {
   periods: { key: string; label: string }[];
   period: string;
   basis: string;
   basePath?: string;
   forecast?: boolean;
+  /** Completed-quarter options (e.g. [{key:"q1",label:"Q1"}]) for the KPI dashboard. */
+  quarters?: { key: string; label: string }[];
 }) {
   const router = useRouter();
   const sp = useSearchParams();
@@ -32,6 +35,7 @@ export default function Controls({
     { key: "month", label: "This month" },
     { key: "ytd", label: "Year to date" },
     ...(forecast ? [{ key: "cy_forecast", label: "Full-year forecast" }] : []),
+    ...quarters,
   ];
 
   return (
