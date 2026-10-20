@@ -107,6 +107,15 @@ export async function POST(req: Request) {
       if (employee.user) await prisma.user.update({ where: { id: employee.user.id }, data: { active: false } });
       // Remove them from the check-out (chemical dispersement) roster.
       await syncTechnicianActiveForEmployee(employee.name, false);
+      // Alert supervisor + HR + the CSR Coordinator about any SERVICE COVERAGE
+      // this departure leaves thin/uncovered in the branch (e.g. the only bee
+      // tech leaving). Best-effort — never block the offboard.
+      try {
+        const { notifyDepartureCoverageGaps } = await import("@/lib/coverage-alert");
+        await notifyDepartureCoverageGaps({ employeeId, separationType, lastDay, actorName: user.name });
+      } catch (e) {
+        console.error("coverage-gap alert failed (non-fatal):", e);
+      }
       return NextResponse.json({ ok: true });
     }
 

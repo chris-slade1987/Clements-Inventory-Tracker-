@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 30 · Last updated October 20, 2026",
+    effective: "Version 31 · Last updated October 20, 2026",
+    // v31: Termination Policy now notes offboarding auto-sends a service coverage-gap
+    // alert (supervisor + HR + CSR Coordinator) flagging any service a departure would
+    // leave with no/one backup in the branch, so interim coverage is arranged.
     // v30: reconciled the Hiring/Onboarding new-hire-review passage — each party must
     // answer their own questions before signing; the new hire can fill + e-sign via a
     // secure emailed link; and HR reopening a review now auto-re-invites both the
@@ -147,7 +150,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 30,
+    version: 31,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
