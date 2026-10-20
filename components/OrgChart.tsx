@@ -101,6 +101,32 @@ function collectInners(nodes: OrgTreeNode[], out: Set<string>) {
   }
 }
 
+// Scope the tree to a single branch: keep nodes whose branch matches, nesting
+// their kept reports beneath them. A matching node whose manager is NOT in the
+// branch (e.g. a branch manager reporting up to Vero leadership) surfaces as a
+// root of the pruned forest — so selecting "Stuart" shows Adam on top with his
+// techs and advisors flowing beneath, rather than the whole company.
+function pruneBranch(nodes: OrgTreeNode[], branch: string): OrgTreeNode[] {
+  const out: OrgTreeNode[] = [];
+  for (const n of nodes) {
+    const keptKids = pruneBranch(n.reports, branch);
+    if (n.branch === branch) {
+      out.push({ ...n, reports: keptKids });
+    } else {
+      // Not in the branch — promote any in-branch descendants up a level.
+      out.push(...keptKids);
+    }
+  }
+  return out;
+}
+
+// Count people in a (possibly pruned) forest.
+function countPeople(nodes: OrgTreeNode[]): number {
+  let n = 0;
+  for (const node of nodes) n += 1 + countPeople(node.reports);
+  return n;
+}
+
 export default function OrgChart({
   roots,
   tiles,
@@ -157,10 +183,14 @@ export default function OrgChart({
   const [searchError, setSearchError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const searchActive = query.trim().length > 0 || !!branch || !!service;
+  // Free-text or service filter → a cross-cutting results grid fetched from
+  // /api/org (branch, if also set, narrows it). A branch-ONLY selection stays
+  // in tree mode, scoped to that branch's subtree.
+  const textSearch = query.trim().length > 0 || !!service;
+  const branchOnly = !textSearch && !!branch;
 
   useEffect(() => {
-    if (!searchActive) {
+    if (!textSearch) {
       abortRef.current?.abort();
       setResults(null);
       setSearching(false);
@@ -196,7 +226,7 @@ export default function OrgChart({
     // tilesById intentionally excluded — a tile edit shouldn't re-run the fetch;
     // the live map is read at render time so results stay fresh regardless.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, branch, service, searchActive]);
+  }, [query, branch, service, textSearch]);
 
   const clearSearch = () => {
     setQuery("");
@@ -208,6 +238,12 @@ export default function OrgChart({
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const totalPeople = tiles.length;
+
+  // The tree to render: the full company, or — when a branch alone is picked —
+  // that branch's subtree (its manager on top, reports flowing beneath).
+  const visibleRoots = branchOnly ? pruneBranch(roots, branch) : roots;
+  const visibleCount = branchOnly ? countPeople(visibleRoots) : totalPeople;
+  const branchLabel = branchOnly ? branches.find((b) => b.key === branch)?.label ?? null : null;
 
   return (
     <div>
@@ -230,7 +266,11 @@ export default function OrgChart({
         </label>
         <select
           value={branch}
-          onChange={(e) => setBranch(e.target.value)}
+          onChange={(e) => {
+            setBranch(e.target.value);
+            // Open the chosen branch fully so its whole team is visible at once.
+            setCollapsed(new Set());
+          }}
           aria-label="Filter by branch"
           className="rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
@@ -250,16 +290,16 @@ export default function OrgChart({
             <option key={s.key} value={s.key}>{s.label}</option>
           ))}
         </select>
-        {searchActive ? (
+        {textSearch || branch ? (
           <button type="button" onClick={clearSearch} className={`${btn.secondary} py-2.5`}>Clear</button>
         ) : null}
       </div>
 
       {/* Chart controls (tree only) */}
-      {!searchActive ? (
+      {!textSearch ? (
         <div className="mb-3 flex items-center justify-between gap-2">
           <p className="text-[11px] text-muted">
-            {totalPeople} {totalPeople === 1 ? "person" : "people"} · tap a lead&apos;s <span className="font-medium">+N</span> to open their team.
+            {branchLabel ? `${branchLabel} — ` : ""}{visibleCount} {visibleCount === 1 ? "person" : "people"} · tap a lead&apos;s <span className="font-medium">report</span> toggle to open their team.
           </p>
           <div className="flex items-center gap-1">
             <button type="button" onClick={expandAll} className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
@@ -273,7 +313,7 @@ export default function OrgChart({
       ) : null}
 
       {/* Search results OR the tree */}
-      {searchActive ? (
+      {textSearch ? (
         <div aria-live="polite">
           {searching && results === null ? (
             <div className="py-10 text-center"><Spinner label="Searching…" /></div>
@@ -308,16 +348,16 @@ export default function OrgChart({
             </>
           )}
         </div>
-      ) : roots.length === 0 ? (
+      ) : visibleRoots.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface px-4 py-12 text-center">
-          <div className="font-medium text-ink">No one to chart yet</div>
+          <div className="font-medium text-ink">{branchLabel ? `No one in ${branchLabel} yet` : "No one to chart yet"}</div>
           <div className="mt-1 text-sm text-muted">Employees appear here once they&apos;re added with a reporting line.</div>
         </div>
       ) : (
         <div className="octree-scroll overflow-x-auto pb-4">
           <div className="octree">
             <ul>
-              {roots.map((r) => (
+              {visibleRoots.map((r) => (
                 <TreeNode
                   key={r.id}
                   node={r}
@@ -666,24 +706,34 @@ function TileEditor({
   );
 }
 
-// Pure-CSS top-down connector tree + the square tile styling. Namespaced `oct`/
-// `octree` so it never collides with the legacy OrgChartClient's `.orgtree`.
+// Pure-CSS VERTICAL indented connector tree + the square tile styling. The tree
+// flows top-down (manager on top, reports beneath, indented one step) so it
+// reads like an outline and never sprawls sideways — no left/right sliding.
+// Namespaced `oct`/`octree` so it never collides with the legacy
+// OrgChartClient's `.orgtree`.
 const CSS = `
-.octree { display: inline-block; min-width: 100%; }
-.octree ul { position: relative; padding: 24px 0 0 0; display: flex; justify-content: center; margin: 0; list-style: none; }
-.octree li { display: flex; flex-direction: column; align-items: center; list-style: none; position: relative; padding: 24px 12px 0 12px; }
-.octree li::before, .octree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid #C3DAC9; width: 50%; height: 24px; }
-.octree li::after { right: auto; left: 50%; border-left: 2px solid #C3DAC9; }
-.octree li:only-child::after, .octree li:only-child::before { display: none; }
-.octree li:only-child { padding-top: 24px; }
-.octree li:first-child::before, .octree li:last-child::after { border: 0 none; }
-.octree li:last-child::before { border-right: 2px solid #C3DAC9; border-radius: 0 8px 0 0; }
-.octree li:first-child::after { border-radius: 8px 0 0 0; }
-.octree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid #C3DAC9; width: 0; height: 24px; }
-.octree > ul { padding-top: 0; }
-.octree > ul > li { padding-top: 0; }
-.octree > ul > li::before, .octree > ul > li::after { display: none; }
-.octree-node { display: flex; flex-direction: column; align-items: stretch; }
+.octree { display: block; width: 100%; }
+.octree ul { list-style: none; margin: 0; padding: 0; }
+.octree li { position: relative; list-style: none; }
+
+/* A root stacks vertically with a little breathing room between branches. */
+.octree > ul > li { margin-bottom: 18px; }
+
+/* Nested reports: indent one step under the manager and draw the rail + elbow
+   on each child so siblings share one continuous vertical line. */
+.octree ul ul { margin: 0 0 0 20px; }
+.octree ul ul > li { padding-left: 26px; }
+.octree ul ul > li::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: #C3DAC9; }
+.octree ul ul > li:last-child::before { height: 30px; }
+.octree ul ul > li::after { content: ''; position: absolute; left: 0; top: 30px; width: 22px; height: 2px; background: #C3DAC9; }
+
+.octree-node { padding: 8px 0; }
+
+@media (max-width: 640px) {
+  .octree ul ul { margin-left: 10px; }
+  .octree ul ul > li { padding-left: 18px; }
+  .octree ul ul > li::after { width: 14px; }
+}
 
 .oct-tile {
   display: flex; flex-direction: column; width: 240px; max-width: 86vw;
