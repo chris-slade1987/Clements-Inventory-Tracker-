@@ -7,6 +7,7 @@ import { dateShort } from "@/lib/format";
 import { recordTypeLabel } from "@/lib/personnel";
 import { parseJson } from "@/lib/inspection";
 import { employeeDetail } from "@/lib/people";
+import { routeNumberFor } from "@/lib/route-numbers";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
 import { remindersForEmployee } from "@/lib/manual-reminders";
 import { documentsForEmployee } from "@/lib/branch-hub";
@@ -46,6 +47,7 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
   const detail = await employeeDetail(id);
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
+  const routeNumber = e.routeNumber ?? routeNumberFor({ name: e.name, nickname: e.nickname, branch: e.branch });
 
   // Branch-scoped: a branch manager may only open profiles of their own team.
   if (branchLocked(user) && e.branch !== user.branch) redirect("/my-branch/team");
@@ -87,7 +89,7 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
   return (
     <>
       <div className="mb-2"><Link href="/my-branch/team" className="text-xs font-medium text-brand-700 hover:underline">← My Team</Link></div>
-      <PageHeader title={e.name} subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · ") || "Team member"} />
+      <PageHeader title={e.name} subtitle={[routeNumber ? `Route ${routeNumber}` : null, e.role, e.division, e.branch ? branchLabel(e.branch) : null].filter(Boolean).join(" · ") || "Team member"} />
 
       {isBirthdayToday ? <CelebrationBanner kind="birthday" name={e.name} /> : null}
       {isAnniversaryToday ? <CelebrationBanner kind="anniversary" name={e.name} years={anniversaryYears} /> : null}

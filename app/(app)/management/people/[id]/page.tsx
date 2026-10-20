@@ -28,6 +28,7 @@ import EmployeeNotes from "./EmployeeNotes";
 import SignatureBlock from "@/app/(app)/my-branch/team/[id]/SignatureBlock";
 import { listEmployeeNotes, canAddEmployeeNote } from "@/lib/employee-notes";
 import { parseApprovedServices } from "@/lib/service-catalog";
+import { routeNumberFor } from "@/lib/route-numbers";
 
 export const dynamic = "force-dynamic";
 
@@ -86,8 +87,11 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   const employeeNotes = await listEmployeeNotes(e.id);
   const canAddNote = canAddEmployeeNote(user);
   const approvedServices = parseApprovedServices(e.approvedServices);
+  // Stored route number wins; otherwise resolve from the COO's phone-list so it
+  // always shows, even if the deploy-time DB backfill hasn't matched this person.
+  const routeNumber = e.routeNumber ?? routeNumberFor({ name: e.name, nickname: e.nickname, branch: e.branch });
   const hasOperational =
-    !!e.routeNumber || approvedServices.length > 0 || !!e.serviceNotes || !!e.serviceSchedulingNote || !!e.personalSchedulingNote;
+    !!routeNumber || approvedServices.length > 0 || !!e.serviceNotes || !!e.serviceSchedulingNote || !!e.personalSchedulingNote;
 
   // Call-outs linked to an accident report — surfaced on the accident record so
   // the injury → time-off connection is visible with the report.
@@ -123,7 +127,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
       </div>
       <PageHeader
         title={e.name}
-        subtitle={[e.role, e.division, e.branch ? branchLabel(e.branch) : null, login ? `Access: ${accessLevelLabel(login.accessLevel)}` : null].filter(Boolean).join(" · ") || "Employee"}
+        subtitle={[routeNumber ? `Route ${routeNumber}` : null, e.role, e.division, e.branch ? branchLabel(e.branch) : null, login ? `Access: ${accessLevelLabel(login.accessLevel)}` : null].filter(Boolean).join(" · ") || "Employee"}
       />
 
       {isBirthdayToday ? <CelebrationBanner kind="birthday" name={e.name} /> : null}
@@ -172,7 +176,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Route number</div>
-              <div className="mt-0.5 text-sm text-ink">{e.routeNumber || "—"}</div>
+              <div className="mt-0.5 text-sm text-ink">{routeNumber || "—"}</div>
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">Approved to do</div>

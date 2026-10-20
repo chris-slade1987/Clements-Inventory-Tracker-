@@ -8,6 +8,7 @@ import {
   serializeApprovedServices,
   isServiceTag,
 } from "@/lib/service-catalog";
+import { routeNumberFor } from "@/lib/route-numbers";
 import type { SessionUser } from "@/lib/auth";
 
 // Org Chart (Round 1) — data + services layer for the real reporting org chart of
@@ -54,6 +55,7 @@ export async function orgTileData(): Promise<OrgTile[]> {
     select: {
       id: true,
       name: true,
+      nickname: true,
       title: true,
       role: true,
       branch: true,
@@ -84,7 +86,9 @@ export async function orgTileData(): Promise<OrgTile[]> {
     branch: e.branch,
     branchLabel: e.branch ? branchLabel(e.branch) : null,
     reportsToId: e.reportsToId,
-    routeNumber: e.routeNumber,
+    // Stored value wins (manual edits persist); otherwise resolve from the COO's
+    // phone-list so the number shows + is searchable regardless of deploy-time match.
+    routeNumber: e.routeNumber ?? routeNumberFor({ name: e.name, nickname: e.nickname, branch: e.branch }),
     certifications: e.certAwards.map((a) => ({
       code: a.certification.code,
       name: a.certification.name,

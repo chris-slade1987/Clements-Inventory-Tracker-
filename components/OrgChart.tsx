@@ -487,9 +487,9 @@ function TileCard({
 
   return (
     <div className="oct-tile">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
+      {/* Header — name with the route number right beside it */}
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {profileHref ? (
             <Link href={profileHref} className="oct-name hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded">
               {tile.name}
@@ -497,13 +497,13 @@ function TileCard({
           ) : (
             <span className="oct-name">{tile.name}</span>
           )}
-          <div className="oct-sub">{[tile.title || tile.role, tile.branchLabel].filter(Boolean).join(" · ") || "—"}</div>
+          {tile.routeNumber ? (
+            <span className="oct-route" title="Route number">
+              <Icon path={ICON.route} className="h-3 w-3" /> Route {tile.routeNumber}
+            </span>
+          ) : null}
         </div>
-        {tile.routeNumber ? (
-          <span className="oct-route" title="Route number">
-            <Icon path={ICON.route} className="h-3 w-3" /> {tile.routeNumber}
-          </span>
-        ) : null}
+        <div className="oct-sub">{[tile.title || tile.role, tile.branchLabel].filter(Boolean).join(" · ") || "—"}</div>
       </div>
 
       {/* Certifications */}
