@@ -165,9 +165,10 @@ export function homePath(user: SessionUser): string {
   // (even though he's a full admin — his day-to-day home is field oversight).
   if (isFieldOpsDirector(user)) return "/field-ops";
   if (user.role === "employee") return "/me";
-  // Managers land on their branch dashboard; admins on the inventory dashboard.
-  if (user.role === "manager") return "/my-branch";
-  return branchLocked(user) ? "/my-branch" : "/dashboard";
+  // Managers AND admins land on the Company → My Dashboard home (`/my-branch`),
+  // which renders company-wide for a no-branch admin (branch ⇄ all-branches
+  // toggle) — not the Inventory dashboard, which is just one tool among many.
+  return "/my-branch";
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
