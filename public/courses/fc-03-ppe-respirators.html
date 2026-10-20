@@ -1,0 +1,924 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-03 PPE &amp; Respirators</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band on top, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. Single committed light look per the brand kit. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">FC-03 · PPE &amp; Respirators</span></div>
+  </header>
+
+  <main class="stage" id="stage">
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-03</span>
+        <h1 class="display a" style="--i:1">Personal Protective Equipment &amp; Respirators</h1>
+        <p class="lead a" style="--i:2">What the label requires, how to wear it, how to keep it working, and exactly what to do when something gets past it.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">7 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 260" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M70 110c25-45 135-45 160 0l-12 70c-10 35-45 55-68 55s-58-20-68-55z"/>
+        <circle cx="105" cy="170" r="24"/><circle cx="195" cy="170" r="24"/>
+        <path d="M105 156v28M195 156v28"/>
+        <path d="M70 110L36 80M230 110l34-30"/>
+        <path d="M130 205h40"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-book"/></svg><span>Read the PPE section of any pesticide label and gear up to it</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-hand"/></svg><span>Choose the right gloves, eyewear, footwear and body protection for the task</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-mask"/></svg><span>Wear a respirator correctly: fit, seal check, cartridges and change schedule</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span>Inspect, put on, take off, clean and store PPE without contaminating yourself</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-thermo"/></svg><span>Work safely in full PPE in Florida heat</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-phone"/></svg><span>Respond to skin, eye, inhalation and ingestion exposure, and report it</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why PPE matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why PPE matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">PPE is your <span class="em">last line</span> of defense.</h2>
+        <p class="lead a" style="--i:2">Safe handling and good application technique come first. PPE is what protects you when a splash, a drift or a leak gets past them. Years on the job don't change the chemistry: one splash or one forgotten glove can do serious harm.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is the law</h3><p>The PPE listed on the label is the legal minimum under federal law (FIFRA) and Florida Chapter 482, enforced by FDACS. Wearing less is a violation, even for one quick job.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>OSHA covers the workplace</h3><p>OSHA requires Clements to assess job hazards, provide the right PPE, and train you to use it (29 CFR 1910.132). Respirators fall under their own standard (1910.134).</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-user"/></svg></div><div><h3>You make it work</h3><p>The best gear in the truck protects no one. It only works if you wear it, wear it correctly, and keep it in good condition.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 ROUTES -->
+  <section class="slide" data-label="Routes of exposure">
+    <span class="eyebrow a">The risk</span>
+    <h2 class="a" style="--i:1">Four ways a pesticide gets into your body</h2>
+    <p class="lead a" style="--i:2">Every piece of PPE blocks one or more of these routes. Select each to see what it looks like on the job.</p>
+    <div class="grid g4" id="routes"></div>
+    <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-hand"/></svg><span><b>Skin is the most common route for applicators</b>, and your hands and forearms take most of it, especially when mixing and loading concentrate.</span></div>
+  </section>
+
+  <!-- 5 CHECKPOINT 1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 6 LABEL -->
+  <section class="slide" data-label="Reading the label">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">Reading the label</span>
+        <h2 class="a" style="--i:1">Find the PPE statement before you mix anything.</h2>
+        <p class="a" style="--i:2">It sits under <b>Precautionary Statements</b>, usually titled "Personal Protective Equipment (PPE)." Read three things:</p>
+        <ol class="steps a" style="--i:3">
+          <li><span class="num">1</span><span><b>Who it applies to.</b> "Applicators and other handlers" means you. Some labels add extra items for mixers and loaders only.</span></li>
+          <li><span class="num">2</span><span><b>Each item listed.</b> Every item is required, not suggested.</span></li>
+          <li><span class="num">3</span><span><b>The signal word.</b> CAUTION, WARNING, then DANGER: the higher the hazard, the more PPE the label usually requires.</span></li>
+        </ol>
+      </div>
+      <div class="label a" style="--i:2" aria-label="Example label PPE statement">
+        <div class="lt">Example label · Precautionary statements</div>
+        <p style="margin-bottom:10px"><span class="sig">CAUTION</span></p>
+        <p style="margin-bottom:8px"><b>Hazards to Humans and Domestic Animals.</b> Harmful if absorbed through skin. Causes moderate eye irritation. Avoid contact with skin, eyes or clothing.</p>
+        <p style="margin-bottom:8px"><b>Personal Protective Equipment (PPE).</b> <span class="hl">Applicators and other handlers must wear:</span> <span class="hl d2">long-sleeved shirt and long pants, shoes plus socks, and chemical-resistant gloves.</span> <span class="hl d3">Mixers and loaders must also wear protective eyewear.</span></p>
+        <p class="muted small">Follow manufacturer's instructions for cleaning and maintaining PPE. If no such instructions for washables exist, use detergent and hot water. Keep and wash PPE separately from other laundry.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 BASE KIT -->
+  <section class="slide" data-label="Base kit">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr">
+      <div class="figbox a">
+        <svg viewBox="0 0 200 320" role="img" aria-label="Technician figure showing the PPE selected">
+          <g fill="#EEF4F0" stroke="#A3C6AB" stroke-width="2">
+            <rect x="66" y="80" width="68" height="94" rx="16"/>
+            <circle cx="100" cy="45" r="24"/>
+            <circle cx="46" cy="204" r="9"/><circle cx="154" cy="204" r="9"/>
+            <ellipse cx="80" cy="302" rx="14" ry="7"/><ellipse cx="120" cy="302" rx="14" ry="7"/>
+          </g>
+          <g stroke="#C3DAC9" stroke-width="16" stroke-linecap="round"><path d="M70 92L47 194"/><path d="M130 92L153 194"/></g>
+          <g stroke="#C3DAC9" stroke-width="20" stroke-linecap="round"><path d="M86 176L82 292"/><path d="M114 176L118 292"/></g>
+          <g class="wear" data-w="pants"><g stroke="#1F5836" stroke-width="21" stroke-linecap="round"><path d="M86 172L82 288"/><path d="M114 172L118 288"/></g><rect x="66" y="160" width="68" height="18" rx="6" fill="#1F5836"/></g>
+          <g class="wear" data-w="shirt"><rect x="66" y="80" width="68" height="88" rx="16" fill="#2E6F47"/><g stroke="#2E6F47" stroke-width="17" stroke-linecap="round"><path d="M70 92L48 190"/><path d="M130 92L152 190"/></g></g>
+          <g class="wear" data-w="gloves" fill="#74A96E" stroke="#144229" stroke-width="1.6"><path d="M38 192h17l-1 16a8 8 0 01-15 0z"/><path d="M145 192h17l-1 16a8 8 0 01-15 0z"/></g>
+          <g class="wear" data-w="boots" fill="#144229"><path d="M70 278h22v18h6v10H64v-10h6z"/><path d="M108 278h22v18h6v10h-34v-10h6z"/></g>
+          <g class="wear" data-w="glasses" stroke="#0B3D20" stroke-width="2" fill="rgba(167,189,176,.45)"><rect x="80" y="37" width="17" height="10" rx="3"/><rect x="103" y="37" width="17" height="10" rx="3"/><path d="M97 42h6" fill="none"/></g>
+          <g class="wear" data-w="resp"><path d="M84 52c8-6 24-6 32 0l-3 14c-3 6-8 8-13 8s-10-2-13-8z" fill="#DCE9DF" stroke="#0B3D20" stroke-width="2"/><circle cx="84" cy="62" r="7" fill="#1D2A23"/><circle cx="116" cy="62" r="7" fill="#1D2A23"/></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">Gear up · every technician</span>
+        <h2 class="a" style="--i:1">The Clements base kit</h2>
+        <p class="a muted" style="--i:2">Worn on every service, GHP and L&amp;O alike, before the label adds anything. Select each item to put it on.</p>
+        <div class="kit a" style="--i:3" id="kit"></div>
+        <p class="small muted a" style="--i:4" id="kitMsg">0 of 5 base items on. The respirator is added only when the label or the task calls for it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 GLOVES -->
+  <section class="slide" data-label="Gloves">
+    <span class="eyebrow a">Hands</span>
+    <h2 class="a" style="--i:1">Gloves: the right material, worn the right way</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Use</h3><p>Unlined chemical-resistant gloves: nitrile, neoprene or butyl. When a label lists glove materials it often specifies 14 mil or thicker. Thin disposable nitrile is for baiting and light work, not for handling concentrate unless the label allows it.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox" style="color:var(--danger);background:#FDEEEE"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Never use</h3><p>Cotton, leather, canvas or fabric-lined gloves. They soak up pesticide and hold it against your skin all day, which is worse than wearing nothing.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Sleeves and cuffs</h3><p>Spraying at or below waist height: sleeves <b>over</b> the gloves, so liquid runs off. Spraying overhead: glove cuffs <b>over</b> the sleeves, folded back, so nothing runs down your arm.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-hand"/></svg><span>Before you take reusable gloves off, wash the outside with soap and water. Then remove them, and wash your hands before you eat, drink, smoke, use your phone or use the restroom.</span></div>
+  </section>
+
+  <!-- 9 EYES & BODY -->
+  <section class="slide" data-label="Eyes, feet and body">
+    <span class="eyebrow a">Eyes, feet and body</span>
+    <h2 class="a" style="--i:1">Match the protection to the splash risk</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-glasses"/></svg></div><h3>Eyes and face</h3><p><b>Safety glasses with side shields</b> for routine work. <b>Splash goggles</b> when pouring or mixing concentrate, or when the label says "goggles." A <b>face shield</b> adds face protection but is never a substitute for glasses or goggles underneath.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-boot"/></svg></div><h3>Feet</h3><p>Slip-resistant, closed-toe footwear with socks, always. When the label says "chemical-resistant footwear," wear rubber boots, with <b>pant legs outside the boots</b> so spray can't run inside. Leather and canvas absorb pesticide.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-shirt"/></svg></div><h3>Body</h3><p>Long-sleeved shirt and long pants. A <b>chemical-resistant apron</b> for mixing, loading and cleaning equipment. <b>Coveralls</b> for attics, crawl spaces and heavy L&amp;O spraying. A wide-brimmed hat helps keep drift and sun off your skin.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 MATRIX -->
+  <section class="slide" data-label="PPE by task">
+    <span class="eyebrow a">By task · always confirm on the label</span>
+    <h2 class="a" style="--i:1">Higher exposure calls for more PPE</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table>
+        <thead><tr><th>Task</th><th>Base kit</th><th>Splash goggles</th><th>Apron</th><th>Chem. boots</th><th>Coveralls</th><th>Respirator</th></tr></thead>
+        <tbody>
+          <tr><td>Mixing and loading concentrate</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="l">If label</td><td>—</td><td class="l">If label</td></tr>
+          <tr><td>Exterior perimeter liquid (backpack)</td><td class="y">Yes</td><td>—</td><td>—</td><td class="l">If label</td><td>—</td><td class="l">If label</td></tr>
+          <tr><td>Interior crack &amp; crevice, aerosol, gel bait</td><td class="y">Yes</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="l">If label</td></tr>
+          <tr><td>Attic or crawl space: dust or spray</td><td class="y">Yes</td><td class="y">Yes</td><td>—</td><td>—</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+          <tr><td>Lawn boom or hose-reel spraying</td><td class="y">Yes</td><td class="l">If label</td><td>—</td><td class="y">Yes</td><td class="l">Recommended</td><td class="l">If label</td></tr>
+          <tr><td>Granular broadcast</td><td class="y">Yes</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="l">If label (dust)</td></tr>
+          <tr><td>Cleaning spray equipment</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="l">If label</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>This table is the Clements minimum by task. <b>The label always wins.</b> If the label asks for more, wear more. Never wear less than the label lists.</span></div>
+  </section>
+
+  <!-- 11 PRACTICE: PICKER -->
+  <section class="slide" data-label="Practice: gear up to the label">
+    <span class="eyebrow a">Practice · read it, then gear up</span>
+    <h2 class="a" style="--i:1">Select everything this job requires</h2>
+    <div class="scen-tabs a" style="--i:2" id="pickTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="pickBox"></div>
+  </section>
+
+  <!-- 12 CHECKPOINT 2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 13 RESPIRATORS -->
+  <section class="slide" data-label="Respirators">
+    <span class="eyebrow a">Respirators</span>
+    <h2 class="a" style="--i:1">Know which respirator, and what it stops</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>Particulate (N95 or P100 filters)</h3><p>Stops dusts, mists and particles: attic dusting, granular dust, rodent-contaminated areas. <b>Does not stop vapors.</b> An N95 alone will not protect you from solvent fumes.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>Half-face with organic vapor cartridges</h3><p>Stops pesticide vapors, usually paired with a particulate pre-filter for spray mists. Use it whenever the label calls for an organic vapor (OV) respirator.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>NIOSH-approved only</b>, and the type the label names. The approval is printed on the mask and cartridges.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-target"/></svg><span><b>Color tells you the cartridge.</b> Black band = organic vapor. Magenta = P100 particulate.</span></div>
+      <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never share a respirator.</b> Yours is fitted to your face.</span></div>
+    </div>
+  </section>
+
+  <!-- 14 RESPIRATOR PROGRAM + SEAL -->
+  <section class="slide" data-label="Fit and seal">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">Before you can wear one</span>
+        <h2 class="a" style="--i:1">Cleared, fitted, sealed</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Medical clearance</b> before your first respirator use. Breathing through a filter puts extra load on your heart and lungs.</span></li>
+          <li><span class="num">2</span><span><b>Fit test</b> before first use and <b>every year</b> after, on the exact make, model and size you'll wear.</span></li>
+          <li><span class="num">3</span><span><b>Clean-shaven where the mask seals.</b> Beard stubble breaks the seal. If facial hair touches the sealing surface, you can't wear a tight-fitting respirator.</span></li>
+          <li><span class="num">4</span><span><b>User seal check every time</b> you put it on. Try both checks on the right.</span></li>
+        </ol>
+      </div>
+      <div class="card a seal pos" style="--i:3;display:grid;gap:14px;justify-items:center" id="sealCard">
+        <div class="seg" role="group" aria-label="Seal check type"><button type="button" aria-pressed="true" data-s="pos">Positive pressure</button><button type="button" aria-pressed="false" data-s="neg">Negative pressure</button></div>
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <path class="mask-body" d="M90 70c30-30 90-30 120 0l-10 70c-8 30-35 45-50 45s-42-15-50-45z"/>
+          <circle class="cart" cx="95" cy="125" r="28"/><circle class="cart" cx="205" cy="125" r="28"/>
+          <circle class="cart-band" cx="95" cy="125" r="20"/><circle class="cart-band" cx="205" cy="125" r="20"/>
+          <rect x="135" y="150" width="30" height="20" rx="6" fill="#C3DAC9" stroke="#1F5836" stroke-width="2"/>
+          <path class="puff" d="M232 70c6-4 12-4 18 0M236 80c6-4 12-4 18 0"/>
+        </svg>
+        <p class="small" id="sealTxt" style="text-align:center"><b>Positive:</b> cover the exhalation valve with your palm and breathe out gently. The mask should bulge slightly with no air leaking at the edges.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CARTRIDGES -->
+  <section class="slide" data-label="Cartridge change">
+    <span class="eyebrow a">Cartridges and filters</span>
+    <h2 class="a" style="--i:1">Vapor cartridges give no warning. Change them on schedule.</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-clock"/></svg></div><h3>Organic vapor cartridges</h3><p>They don't get harder to breathe through as they fill up. Follow the label and the manufacturer's change schedule. When neither gives one, replace them <b>at the end of each day of use</b>. If you smell or taste chemical, or feel irritation, leave the area and replace them immediately.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Particulate filters</h3><p>These do load up. Replace them when breathing gets harder, or when they're wet, damaged or visibly dirty.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-box"/></svg><span>Cartridges keep absorbing from the air even when you're not wearing the mask. Store the respirator in a <b>sealed bag</b> between uses.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-drop"/></svg><span>After each use, remove the cartridges, wash the facepiece with mild soap and water, rinse and air-dry before bagging.</span></div>
+    </div>
+  </section>
+
+  <!-- 16 CHECKPOINT 3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 17 INSPECT + DON -->
+  <section class="slide" data-label="Inspect and put on">
+    <span class="eyebrow a">Inspect before every use</span>
+    <h2 class="a" style="--i:1">Damaged PPE is no PPE</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>Gloves</h3><p>Trap air inside and squeeze. Any leak, crack, swelling or stiffness: replace.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>Respirator</h3><p>Cracked facepiece, stretched straps, missing valve flaps, cartridges past schedule.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-glasses"/></svg></div><h3>Eyewear</h3><p>Scratched or cracked lenses, broken side shields, loose straps.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-boot"/></svg></div><h3>Boots, apron, coveralls</h3><p>Cracks, tears, holes or soaked-in stains.</p></div>
+    </div>
+    <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Putting it on:</b> coveralls or apron, then boots, then respirator (with a seal check), then eyewear, then gloves last, so your gloves stay clean while you dress.</span></div>
+  </section>
+
+  <!-- 18 PRACTICE: DOFF ORDER -->
+  <section class="slide" data-label="Practice: taking it off">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">Practice · taking it off</span>
+        <h2 class="a" style="--i:1">Remove PPE without contaminating yourself</h2>
+        <p class="a muted" style="--i:2">Most exposure from PPE happens when you take it off. Select the steps in the order you'd do them.</p>
+        <div id="doffFb" class="a" style="--i:3"></div>
+      </div>
+      <div class="order a" style="--i:2" id="doff"></div>
+    </div>
+  </section>
+
+  <!-- 19 CHECKPOINT 4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 20 CLEAN & STORE -->
+  <section class="slide" data-label="Clean and store">
+    <span class="eyebrow a">Cleaning and storage</span>
+    <h2 class="a" style="--i:1">Clean it every day. Keep it away from the chemicals.</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Laundry</h3><p>Wash work clothes and reusable coveralls <b>separately</b> from family laundry, in hot water with heavy-duty detergent. Then run an empty cycle to rinse the machine.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox" style="color:var(--danger);background:#FDEEEE"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Soaked with concentrate?</h3><p>Don't wash it. Clothing drenched with concentrate can't be decontaminated reliably. Bag it, tell your supervisor, and discard it. Disposable coveralls and gloves are single use.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-glasses"/></svg></div><h3>Hard goods</h3><p>Wash gloves, boots, goggles, face shields and the respirator facepiece with soap and water after each day of use. Air-dry before storing.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-truck"/></svg><span><b>On the truck:</b> keep clean PPE in a dedicated, closed container in the cab, never in the chemical compartment or next to pesticide containers.</span></div>
+      <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-sun"/></svg><span><b>Heat and sun break gear down.</b> Never leave a respirator or goggles on the dashboard. Bring the respirator in at the end of the day.</span></div>
+    </div>
+  </section>
+
+  <!-- 21 HEAT -->
+  <section class="slide" data-label="Florida heat">
+    <span class="eyebrow a">Working in Florida heat</span>
+    <h2 class="a" style="--i:1">PPE traps heat. Plan for it. Don't take it off.</h2>
+    <div class="heat">
+      <div class="card a" style="--i:2"><h3>Heat exhaustion</h3><p>Heavy sweating, cool clammy skin, headache, dizziness, nausea, weakness. <b>Stop.</b> Move to shade or the cab with the AC on, remove PPE safely, sip water. If it doesn't improve within an hour, get medical care.</p></div>
+      <div class="card stroke a" style="--i:3"><h3>Heat stroke · emergency</h3><p>Confusion, slurred speech, fainting, seizures, very high body temperature. <b>Call 911.</b> Cool the person immediately with water and shade while you wait.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-drop"/></svg><span>Drink water about every 15 to 20 minutes on hot days, even before you feel thirsty.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span>Schedule attics and heavy-PPE jobs early in the day when you can.</span></div>
+      <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span>Never remove required PPE to cool off mid-application. Stop the job and take a break instead.</span></div>
+    </div>
+  </section>
+
+  <!-- 22 CHECKPOINT 5 -->
+  <section class="slide" data-label="Checkpoint 5" data-cp="5"></section>
+
+  <!-- 23 PART TWO -->
+  <section class="slide forest" data-label="Emergency procedures">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Emergency procedures</h1>
+        <p class="lead a" style="--i:2">Even with PPE, accidents happen. The first minutes decide how serious an exposure becomes. Always check the label's <b>First Aid</b> section; it overrides general steps.</p>
+      </div>
+      <ol class="toc a" style="--i:3">
+        <li><span>01</span>Skin exposure</li><li><span>02</span>Chemical in eyes</li><li><span>03</span>Inhalation</li><li><span>04</span>Ingestion</li><li><span>05</span>Who to call and what to report</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 24 SKIN -->
+  <section class="slide" data-label="Skin exposure" data-alert="1">
+    <div class="split">
+      <div class="grid" style="gap:14px"><span class="eyebrow a">Emergency · 01 of 04</span><h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,58px)">Skin and clothing</h2><div class="icobox a" style="--i:2;width:64px;height:64px"><svg class="ico" style="width:32px;height:32px"><use href="#i-hand"/></svg></div></div>
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li><span class="num">1</span><span>Stop work. Remove contaminated clothing, gloves and boots immediately.</span></li>
+        <li><span class="num">2</span><span>Rinse skin with plenty of water for <b class="em">15 to 20 minutes</b>, then wash with soap and water. Use the water on the truck or the nearest hose.</span></li>
+        <li><span class="num">3</span><span>Follow the label's First Aid section and call Poison Control for treatment advice.</span></li>
+        <li><span class="num">4</span><span>Bag contaminated clothing in a sealed plastic bag. Don't take it into your house or wash it with other laundry.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 25 EYES -->
+  <section class="slide" data-label="Chemical in eyes" data-alert="1">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">Emergency · 02 of 04</span>
+        <h2 class="a" style="--i:1;font-size:clamp(30px,4vw,48px)">Chemical in eyes</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span>Hold the eye open and rinse gently with clean water for <b class="em">15 to 20 minutes</b>.</span></li>
+          <li><span class="num">2</span><span>Contact lenses: remove them after the first 5 minutes, then keep rinsing.</span></li>
+          <li><span class="num red">3</span><span>Do <b class="red">not</b> rub your eyes.</span></li>
+          <li><span class="num">4</span><span>Get medical attention, even if it feels better. Take the label.</span></li>
+        </ol>
+      </div>
+      <div class="card timer a" style="--i:3">
+        <svg class="ring" viewBox="0 0 220 220" role="timer" aria-label="Rinse timer"><circle class="bg" cx="110" cy="110" r="96"/><circle class="fg" id="ringFg" cx="110" cy="110" r="96" stroke-dasharray="603.2" stroke-dashoffset="0"/><text x="110" y="122" text-anchor="middle" id="ringTxt">15:00</text><text class="sub" x="110" y="150" text-anchor="middle">MINIMUM RINSE</text></svg>
+        <div style="display:flex;gap:8px"><button type="button" class="btn primary" id="tStart">Start rinse timer</button><button type="button" class="btn" id="tReset">Reset</button></div>
+        <p class="small muted" style="text-align:center">Fifteen minutes feels much longer than you expect. Keep rinsing the whole time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 INHALATION + INGESTION -->
+  <section class="slide" data-label="Inhalation and ingestion" data-alert="1">
+    <div class="grid g2">
+      <div class="card a"><span class="eyebrow">Emergency · 03 of 04</span><h2 style="margin:6px 0 10px">Inhalation</h2><ol class="steps">
+        <li><span class="num">1</span><span>Get to fresh air right away. Help a coworker out only if you won't be exposed too.</span></li>
+        <li><span class="num">2</span><span>Loosen tight clothing and stay calm.</span></li>
+        <li><span class="num red">3</span><span>Not breathing or struggling to breathe: <b class="red">call 911</b>.</span></li>
+        <li><span class="num">4</span><span>Call Poison Control for treatment advice, then report it.</span></li>
+      </ol></div>
+      <div class="card a" style="--i:1"><span class="eyebrow">Emergency · 04 of 04</span><h2 style="margin:6px 0 10px">Ingestion</h2><ol class="steps">
+        <li><span class="num">1</span><span><b>Call Poison Control or a doctor immediately.</b> Have the label in hand.</span></li>
+        <li><span class="num red">2</span><span>Do <b class="red">not</b> induce vomiting unless Poison Control or a doctor tells you to.</span></li>
+        <li><span class="num">3</span><span>Give water only if they instruct it and the person can swallow.</span></li>
+        <li><span class="num red">4</span><span>Never give anything by mouth to an unconscious person. <b class="red">Call 911.</b></span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 27 WHO TO CALL -->
+  <section class="slide" data-label="Who to call">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">Emergency · 05 of 05</span>
+        <h2 class="a" style="--i:1">Who to call, and what to report</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span>Get care first: 911 for anything life-threatening, Poison Control for treatment advice.</span></li>
+          <li><span class="num">2</span><span>Tell your <b>direct supervisor</b> right away, then your branch manager.</span></li>
+          <li><span class="num">3</span><span>Complete an <b>incident report the same day</b>, even if you feel fine. Pesticide symptoms can show up hours later.</span></li>
+        </ol>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clip"/></svg><span>When you call, have the label or SDS ready: product name, EPA registration number, active ingredient, how the exposure happened and how long ago.</span></div>
+      </div>
+      <div class="phone a" style="--i:2">
+        <svg class="ico" style="width:32px;height:32px;color:#A7BDB0"><use href="#i-phone"/></svg>
+        <div class="row"><span class="lbl">Life-threatening emergency</span><span class="num-big">911</span></div>
+        <div class="row"><span class="lbl">Poison Control · 24/7</span><span class="num-big">1-800-222-1222</span></div>
+        <div class="row"><span class="lbl">National Pesticide Information Center</span><span class="num-big" style="font-size:clamp(20px,2.2vw,28px)">1-800-858-7378</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 PRACTICE: EMERGENCY + CHECKPOINT 6 -->
+  <section class="slide" data-label="Checkpoint 6" data-cp="6"></section>
+
+  <!-- 29 FIELD SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="7">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on the truck</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before FC-03 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Find and read aloud the PPE section of two products on your truck</label></li>
+      <li><label><input type="checkbox" id="f2"> Inspect gloves, eyewear and respirator, and spot a defect</label></li>
+      <li><label><input type="checkbox" id="f3"> Put on PPE for mixing concentrate, in the correct order</label></li>
+      <li><label><input type="checkbox" id="f4"> Perform positive and negative pressure seal checks</label></li>
+      <li><label><input type="checkbox" id="f5"> Take off PPE without touching your skin with a dirty glove</label></li>
+      <li><label><input type="checkbox" id="f6"> Clean the respirator and store it in a sealed bag</label></li>
+      <li><label><input type="checkbox" id="f7"> Show where the eyewash water and spill kit are on the truck</label></li>
+      <li><label><input type="checkbox" id="f8"> State the Poison Control number and the reporting steps</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc03:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc03:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+
+  /* ---------- routes ---------- */
+  var routes=[
+    {i:'i-hand',t:'Skin (dermal)',d:'Splashes while mixing, drift on bare arms, wet sleeves, a glove with a pinhole.'},
+    {i:'i-eye',t:'Eyes',d:'Splash while pouring concentrate, overhead spraying, rubbing eyes with a dirty glove.'},
+    {i:'i-wind',t:'Inhalation',d:'Spray mist, dust in attics and crawl spaces, vapors in closed rooms or the truck cab.'},
+    {i:'i-cup',t:'Ingestion',d:'Eating, drinking or smoking without washing hands. Chemicals in unmarked containers.'}
+  ];
+  var rbox=$('#routes');
+  routes.forEach(function(r,n){
+    var b=document.createElement('button');b.type='button';b.className='card a';b.style.setProperty('--i',3+n);b.style.textAlign='left';b.id='route'+n;
+    b.innerHTML='<div class="icobox"><svg class="ico"><use href="#'+r.i+'"/></svg></div><h3>'+r.t+'</h3><p class="rd" hidden>'+r.d+'</p><p class="rt small" style="color:var(--brand-600)">Select to see examples</p>';
+    b.addEventListener('click',function(){$('.rd',b).hidden=false;$('.rt',b).hidden=true;b.style.borderColor='var(--brand-600)';});
+    rbox.appendChild(b);
+  });
+
+  /* ---------- base kit ---------- */
+  var kit=[
+    {w:'shirt',i:'i-shirt',t:'Long-sleeved shirt',s:'Clements standard, and required by most labels'},
+    {w:'pants',i:'i-shirt',t:'Long pants',s:'Outside your boots'},
+    {w:'boots',i:'i-boot',t:'Closed-toe, slip-resistant boots with socks',s:'Chemical-resistant when the label says so'},
+    {w:'gloves',i:'i-hand',t:'Chemical-resistant gloves',s:'Nitrile or neoprene, unlined'},
+    {w:'glasses',i:'i-glasses',t:'Safety glasses or goggles',s:'Goggles for concentrate'},
+    {w:'resp',i:'i-mask',t:'Respirator',s:'Only when the label or task requires it',opt:true}
+  ];
+  var kb=$('#kit');
+  kit.forEach(function(k){
+    var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed','false');b.id='kit-'+k.w;
+    b.innerHTML='<svg class="ico"><use href="#'+k.i+'"/></svg><span>'+k.t+'<small>'+k.s+'</small></span>';
+    b.addEventListener('click',function(){
+      var on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);
+      $('[data-w="'+k.w+'"]').classList.toggle('on',on);
+      var n=kit.filter(function(x){return !x.opt&&$('#kit-'+x.w).getAttribute('aria-pressed')==='true'}).length;
+      $('#kitMsg').textContent=n===5?'Base kit complete. Now check the label for anything it adds.':n+' of 5 base items on. The respirator is added only when the label or the task calls for it.';
+    });
+    kb.appendChild(b);
+  });
+
+  /* ---------- picker ---------- */
+  var items=['Long-sleeved shirt','Long pants','Shoes plus socks','Chemical-resistant gloves','Safety glasses','Splash goggles','Face shield','Chemical-resistant apron','Chemical-resistant boots','Coveralls','Particulate respirator (N95)','Organic vapor respirator'];
+  var scen=[
+    {n:'Mixing concentrate',task:'You are filling a backpack sprayer from a liquid insecticide concentrate at the truck.',label:'Applicators and other handlers must wear long-sleeved shirt and long pants, shoes plus socks, and chemical-resistant gloves. Mixers and loaders must also wear protective eyewear (goggles) and a chemical-resistant apron.',req:['Long-sleeved shirt','Long pants','Shoes plus socks','Chemical-resistant gloves','Splash goggles','Chemical-resistant apron']},
+    {n:'Attic dusting',task:'You are applying an insecticide dust in a hot attic to treat a roof rat runway area.',label:'Applicators must wear long-sleeved shirt and long pants, shoes plus socks, chemical-resistant gloves, protective eyewear, and a NIOSH-approved particulate filtering respirator (N95 or better) when applying in attics or other enclosed spaces.',req:['Long-sleeved shirt','Long pants','Shoes plus socks','Chemical-resistant gloves','Splash goggles','Coveralls','Particulate respirator (N95)'],note:'Coveralls are the Clements standard for attics, and goggles seal out dust better than glasses.'},
+    {n:'Lawn spraying',task:'You are spraying a herbicide from the hose reel on a St. Augustine lawn.',label:'Applicators and other handlers must wear long-sleeved shirt and long pants, chemical-resistant gloves, and chemical-resistant footwear plus socks.',req:['Long-sleeved shirt','Long pants','Chemical-resistant gloves','Chemical-resistant boots','Safety glasses'],note:'"Chemical-resistant footwear plus socks" replaces ordinary shoes. Safety glasses are part of the Clements base kit on every job.'}
+  ];
+  var pt=$('#pickTabs'), pbox=$('#pickBox'), pdone=store.get('pick')||{};
+  function showPick(n){
+    $$('button',pt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!pdone[j])});
+    var s=scen[n];
+    pbox.innerHTML='<div class="card" style="display:grid;gap:8px"><span class="eyebrow">The job</span><p>'+s.task+'</p><span class="eyebrow" style="margin-top:4px">The label says</span><p class="small" style="font-style:italic">"'+s.label+'"</p></div><div class="pick">'+items.map(function(it,i){return '<button type="button" aria-pressed="false" id="pk'+n+'_'+i+'">'+it+'</button>'}).join('')+'</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="pkCheck">Check my gear</button><span id="pkFb"></span></div>';
+    $$('.pick button',pbox).forEach(function(b){b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');b.classList.remove('miss','extra')})});
+    $('#pkCheck').addEventListener('click',function(){
+      var sel=$$('.pick button',pbox).filter(function(b){return b.getAttribute('aria-pressed')==='true'}).map(function(b){return b.textContent});
+      var miss=s.req.filter(function(r){return sel.indexOf(r)<0}), extra=sel.filter(function(x){return s.req.indexOf(x)<0});
+      $$('.pick button',pbox).forEach(function(b){var t=b.textContent;b.classList.toggle('miss',miss.indexOf(t)>=0);b.classList.toggle('extra',extra.indexOf(t)>=0)});
+      var fb=$('#pkFb');
+      if(!miss.length){pdone[n]=1;store.set('pick',pdone);$$('button',pt)[n].classList.add('done');
+        fb.innerHTML='<span class="fb" style="display:inline-block">Correct.'+(extra.length?' Extra items are fine; more protection is never a violation.':'')+(s.note?' '+s.note:'')+'</span>';}
+      else fb.innerHTML='<span class="fb no" style="display:inline-block">Missing (outlined in red): '+miss.join(', ')+'. Reread the label.</span>';
+    });
+  }
+  scen.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.textContent=(i+1)+'. '+s.n;b.id='pt'+i;b.addEventListener('click',function(){showPick(i)});pt.appendChild(b)});
+  showPick(0);
+
+  /* ---------- seal ---------- */
+  var sealCard=$('#sealCard');
+  $$('.seg button',sealCard).forEach(function(b){b.addEventListener('click',function(){
+    $$('.seg button',sealCard).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    var s=b.dataset.s; sealCard.classList.remove('pos','neg'); sealCard.classList.add(s);
+    $('#sealTxt').innerHTML=s==='pos'?'<b>Positive:</b> cover the exhalation valve with your palm and breathe out gently. The mask should bulge slightly with no air leaking at the edges.':'<b>Negative:</b> cover the cartridge inlets with your palms and breathe in gently. The mask should pull in against your face and stay collapsed for a few seconds. If you feel air leaking, adjust the straps and check again.';
+  })});
+
+  /* ---------- doff ---------- */
+  var doffSteps=['Wash the outside of your gloves with soap and water while still wearing them','Remove apron or coveralls, rolling them inside out away from your body','Remove boots','Remove eyewear by the strap or arms, not the lenses','Remove respirator by the straps; remove and bag the cartridges','Remove gloves, peeling them off inside out','Wash your hands and face with soap and water'];
+  var order=[2,5,0,6,3,1,4], dbox=$('#doff'), dn=0;
+  function renderDoff(){
+    dbox.innerHTML='';dn=0;$('#doffFb').innerHTML='';
+    order.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='doff'+ix;b.innerHTML='<span class="num">·</span><span>'+doffSteps[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===dn){b.classList.add('placed');$('.num',b).textContent=dn+1;dn++;
+          if(dn===doffSteps.length)$('#doffFb').innerHTML='<div class="fb">Correct order. Dirty gloves come off last so they never touch clean skin, then you wash. <button type="button" class="btn" id="doffAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>',$('#doffAgain').addEventListener('click',renderDoff);}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#doffFb').innerHTML='<div class="fb no">Not yet. Think about what would touch your skin with a dirty glove.</div>';}
+      });dbox.appendChild(b);});
+  }
+  renderDoff();
+
+  /* ---------- timer ---------- */
+  var tSec=900,tLeft=900,tInt=null,C=603.2;
+  function tRender(){var m=Math.floor(tLeft/60),s=tLeft%60;$('#ringTxt').textContent=m+':'+(s<10?'0':'')+s;$('#ringFg').setAttribute('stroke-dashoffset',(C*(1-tLeft/tSec)).toFixed(1));}
+  $('#tStart').addEventListener('click',function(){
+    if(tInt){clearInterval(tInt);tInt=null;this.textContent='Resume';return;}
+    this.textContent='Pause';var self=this;
+    tInt=setInterval(function(){tLeft=Math.max(0,tLeft-1);tRender();if(!tLeft){clearInterval(tInt);tInt=null;self.textContent='Done';}},1000);
+  });
+  $('#tReset').addEventListener('click',function(){clearInterval(tInt);tInt=null;tLeft=tSec;tRender();$('#tStart').textContent='Start rinse timer';});
+
+  /* ---------- checkpoints ---------- */
+  var CP={
+    1:{t:'Checkpoint 1 · The risk',q:'A technician mixes concentrate without gloves "just this once" because the job is quick. Which statement is correct?',o:['It is fine if the label signal word is CAUTION','It violates the label, and hands are where most applicator exposure happens','It is fine if he washes his hands within an hour','Gloves only matter for lawn products'],a:1,e:'Label PPE is the legal minimum every time, and the hands take most of the exposure during mixing and loading.'},
+    2:{t:'Checkpoint 2 · Gear up',q:'You are spraying a perimeter at waist height. Where do your sleeves go?',o:['Tucked inside the gloves','Over the gloves, so liquid runs off','Rolled up above the elbow','It doesn\'t matter if the gloves are nitrile'],a:1,e:'At or below waist height, sleeves go over the gloves. Overhead, glove cuffs go over the sleeves.'},
+    3:{t:'Checkpoint 3 · Respirators',q:'How do you know when to replace organic vapor cartridges?',o:['When it gets harder to breathe','Once a month','Follow the label and manufacturer schedule; if none, end of each day of use, or immediately if you smell or taste chemical','Only when they look dirty'],a:2,e:'Vapor cartridges don\'t clog. They stop working without warning, so you change them on a schedule.'},
+    4:{t:'Checkpoint 4 · Inspect and remove',q:'Which item comes off last when you remove PPE?',o:['Respirator','Gloves, followed by washing your hands and face','Boots','Eyewear'],a:1,e:'Gloves come off last so a contaminated glove never touches clean skin. Then wash.'},
+    5:{t:'Checkpoint 5 · Care, storage and heat',q:'Your work pants were soaked with concentrate during a spill. What do you do?',o:['Wash them twice in hot water','Rinse them with the hose and keep working','Bag them, tell your supervisor, and discard them','Wash them with your family laundry on the heavy cycle'],a:2,e:'Clothing drenched with concentrate can\'t be reliably cleaned. Bag it and discard it.'},
+    6:{t:'Checkpoint 6 · Emergency',q:'Concentrate splashes in a coworker\'s eye. What is the first thing you do?',o:['Drive them to urgent care','Call the office','Start rinsing the eye with clean water, holding it open, for 15 to 20 minutes','Have them rub it with a clean towel'],a:2,e:'Rinse immediately and keep going for 15 to 20 minutes. Medical care and reporting come next.'},
+    7:{t:'Checkpoint 7',q:'',o:[],a:-1}
+  };
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(id==='7')return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  // field sign-off checkpoint: all boxes ticked
+  var fboxes=$$('[data-cp="7"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[7]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[7]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  var Q=[
+    {k:'True or false',q:'PPE is only required when handling concentrated pesticides, not during routine applications.',o:['True','False'],a:1,e:'PPE listed on the label applies to all handlers whenever there is a risk of exposure, including routine applications.'},
+    {k:'Multiple choice',q:'Who sets the minimum PPE for a pesticide application?',o:['The customer','The pesticide label','The technician\'s judgment','The truck inventory'],a:1,e:'The label is the law. It sets the legal minimum.'},
+    {k:'Multiple choice',q:'What is the most common route of pesticide exposure for applicators?',o:['Ingestion','Inhalation','Skin','Eyes'],a:2,e:'Skin, especially hands and forearms during mixing and loading.'},
+    {k:'Multiple choice',q:'A label says "Mixers and loaders must also wear protective eyewear." You are only applying, not mixing. What applies to you?',o:['Nothing on the label','Only the items listed for applicators and other handlers','Only eyewear','Everything listed, plus a respirator'],a:1,e:'Read who each line applies to. Extra items for mixers and loaders apply when you mix or load.'},
+    {k:'Multiple choice',q:'Which glove is acceptable for handling concentrate?',o:['Leather work gloves','Cotton-lined rubber gloves','Unlined nitrile gloves, 14 mil or thicker when the label specifies it','Canvas gloves'],a:2,e:'Unlined chemical-resistant gloves. Leather, cotton, canvas and lined gloves absorb pesticide.'},
+    {k:'Scenario',q:'You are treating eaves overhead with a wand. How do you wear your gloves?',o:['Sleeves over the gloves','Glove cuffs over the sleeves, folded back','No gloves needed overhead','Sleeves rolled up'],a:1,e:'Overhead, cuffs go over the sleeves so liquid can\'t run down your arm.'},
+    {k:'True or false',q:'A face shield can be worn instead of safety glasses or goggles.',o:['True','False'],a:1,e:'A face shield is added protection. Glasses or goggles are still worn underneath.'},
+    {k:'Multiple choice',q:'When the label requires chemical-resistant footwear, where do your pant legs go?',o:['Tucked into the boots','Outside the boots','Rolled up','It doesn\'t matter'],a:1,e:'Outside the boots, so spray runs off instead of into the boot.'},
+    {k:'Multiple choice',q:'What does an N95 respirator protect against?',o:['Pesticide vapors','Dusts, mists and particles','Everything','Only mold'],a:1,e:'N95 is particulate only. Vapors require organic vapor cartridges.'},
+    {k:'Multiple choice',q:'What must happen before you wear a tight-fitting respirator for the first time?',o:['Nothing; just put it on','Medical clearance and a fit test on that make, model and size','A supervisor watches you once','You read the box'],a:1,e:'Medical clearance and a fit test, then a fit test every year.'},
+    {k:'True or false',q:'A short beard is fine under a half-face respirator as long as the straps are tight.',o:['True','False'],a:1,e:'Facial hair where the mask seals breaks the seal. You must be clean-shaven at the sealing surface.'},
+    {k:'Multiple choice',q:'In a negative pressure seal check, what should happen when you cover the cartridges and breathe in?',o:['Air rushes in at the chin','The mask pulls in against your face and stays collapsed briefly','The valve clicks open','Nothing'],a:1,e:'The facepiece should collapse slightly and hold. Any leak means adjust and recheck.'},
+    {k:'Scenario',q:'Halfway through a job you start to smell the product through your organic vapor respirator. What do you do?',o:['Finish quickly','Tighten the straps and continue','Leave the area and replace the cartridges, then do a seal check','Switch to an N95'],a:2,e:'Odor means breakthrough or a bad seal. Leave, replace cartridges, recheck the seal.'},
+    {k:'Multiple choice',q:'How should a respirator be stored between uses?',o:['On the dashboard for easy access','Loose in the toolbox','Cartridges off, facepiece cleaned, in a sealed bag away from chemicals and heat','Hanging from the mirror'],a:2,e:'Cartridges keep absorbing from the air. Clean, dry and sealed.'},
+    {k:'Multiple choice',q:'How do you test a reusable glove for leaks?',o:['Look at it','Trap air inside and squeeze','Run water over the outside','Smell it'],a:1,e:'Trap air and squeeze. Any leak means replace it.'},
+    {k:'Multiple choice',q:'Where should clean PPE be kept on the truck?',o:['In the chemical compartment','In a dedicated closed container in the cab, away from pesticides','On the passenger seat','Wherever there\'s room'],a:1,e:'Separate from pesticide containers, closed, out of direct sun.'},
+    {k:'Scenario',q:'A coworker in full PPE in a hot attic becomes confused and slurs his words. What do you do?',o:['Give him a sports drink and keep working','Call 911 and start cooling him immediately','Tell him to take a 5-minute break','Remove his respirator and continue the job'],a:1,e:'Confusion and slurred speech are signs of heat stroke. Call 911 and cool him right away.'},
+    {k:'Multiple choice',q:'Pesticide splashes on your forearm. How long should you rinse?',o:['30 seconds','2 minutes','15 to 20 minutes','Until it stops stinging'],a:2,e:'Rinse with plenty of water for 15 to 20 minutes, then wash with soap.'},
+    {k:'Scenario',q:'Someone swallows a pesticide. What comes first?',o:['Make them vomit','Give them milk','Call Poison Control or a doctor with the label in hand','Wait for symptoms'],a:2,e:'Call Poison Control (1-800-222-1222). Don\'t induce vomiting unless they tell you to.'},
+    {k:'True or false',q:'If you feel fine after an exposure, you don\'t need to file an incident report.',o:['True','False'],a:1,e:'Report every exposure the same day. Symptoms can appear hours later.'}
+  ];
+  var qbox=$('#quiz'), qi=0, ans=[], started=false;
+  function allCP(){return [1,2,3,4,5,6,7].every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=[1,2,3,4,5,6,7].filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===7?'Field sign-off checklist':'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed FC-03.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?'Your field sign-off with your supervisor completes the course.':'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">FC-03 · PPE &amp; Respirators</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>Supervisor field sign-off</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=slides[cur].dataset.cp==='7'?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    // can't skip past an unpassed checkpoint
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+})();
+</script>
+
+</body></html>
