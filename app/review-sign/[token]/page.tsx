@@ -45,30 +45,38 @@ export default async function ReviewSignPage({ params }: { params: Promise<{ tok
                   {review.reviewerName ? ` · reviewer ${review.reviewerName}` : ""} · due {D(review.dueDate)}
                 </p>
 
-                <div className="mt-4 space-y-3 max-h-[46vh] overflow-y-auto pr-1">
-                  {form?.sections.map((section) => {
-                    const rows = section.items.filter((it) => (responses[it.key] ?? "").trim());
-                    if (rows.length === 0) return null;
-                    return (
-                      <div key={section.title}>
-                        <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{section.title}</div>
-                        <dl className="mt-1 space-y-1">
-                          {rows.map((it) => (
-                            <div key={it.key} className="text-sm">
-                              <dt className="text-slate-500">{it.label}</dt>
-                              <dd className="text-slate-800 whitespace-pre-line">{responses[it.key]}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    );
-                  })}
-                  {Object.keys(responses).length === 0 ? (
-                    <p className="text-sm text-slate-500">Your reviewer will go over the details with you. Please sign below to acknowledge participation.</p>
-                  ) : null}
-                </div>
+                {(() => {
+                  // Read-only context: what the reviewer recorded (manager-owned
+                  // items). The reviewee's OWN questions are editable below in the
+                  // client so they can complete them before signing.
+                  const reviewerRows = form.sections
+                    .map((section) => ({
+                      title: section.title,
+                      rows: section.items.filter((it) => it.who !== "employee" && (responses[it.key] ?? "").trim()),
+                    }))
+                    .filter((s) => s.rows.length > 0);
+                  if (reviewerRows.length === 0) return null;
+                  return (
+                    <div className="mt-4 space-y-3 max-h-[32vh] overflow-y-auto pr-1">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">What your reviewer recorded</div>
+                      {reviewerRows.map((section) => (
+                        <div key={section.title}>
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{section.title}</div>
+                          <dl className="mt-1 space-y-1">
+                            {section.rows.map((it) => (
+                              <div key={it.key} className="text-sm">
+                                <dt className="text-slate-500">{it.label}</dt>
+                                <dd className="text-slate-800 whitespace-pre-line">{responses[it.key]}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
-                <ReviewSignClient token={token} defaultName={review.employee.name} />
+                <ReviewSignClient token={token} defaultName={review.employee.name} form={form} initialResponses={responses} />
               </Panel>
             );
           })()

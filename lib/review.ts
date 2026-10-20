@@ -1,8 +1,9 @@
+import { randomBytes } from "node:crypto";
 import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { branchLabel } from "@/lib/management";
-import { REVIEW_LABEL } from "@/lib/review-forms";
+import { REVIEW_LABEL, type SignRole } from "@/lib/review-forms";
 import { postSystemThread, employeeRecipient, hrRecipients, type SystemRecipient } from "@/lib/threads";
 
 // New-hire 30 / 60-day reviews — server side. The role-specific FORMS and the
@@ -130,6 +131,104 @@ export async function notifyReviewSignNeeded(params: {
     contextHref: href,
     branch: params.branch,
   }).catch(() => {});
+}
+
+/**
+ * Re-invite the people whose signatures were just cleared on a reopen/reset, each
+ * through the channel they actually use. This is the fix for a reopened review
+ * stranding the reviewee: the reopen branch previously cleared signatures and
+ * recomputed status but notified NO ONE.
+ *
+ *  - **Reviewee (employee)**: the reliable channel is the EMAILED one-time token
+ *    link (`/review-sign/<token>`), because the reviewee may have no linked login
+ *    (e.g. a field advisor). We reuse the existing `employeeToken`, minting one if
+ *    missing (exactly like the assign path), email it to their work email (falling
+ *    back to personal email), and ALSO post an Inbox nudge for a reviewee who does
+ *    have a login.
+ *  - **Reviewer**: notified in-app (Inbox) and by email to their user address,
+ *    linking back to the in-app review at `/reviews/<id>`.
+ *
+ * Every send is best-effort (wrapped in `.catch`) so a notification failure can
+ * never break the reopen itself.
+ */
+export async function notifyReviewReopened(params: {
+  reviewId: string;
+  roles: SignRole[];
+}): Promise<void> {
+  const review = await prisma.newHireReview.findUnique({
+    where: { id: params.reviewId },
+    include: { employee: { select: { id: true, name: true, email: true, personalEmail: true, branch: true } } },
+  });
+  if (!review) return;
+  const label = REVIEW_LABEL[review.type] ?? "review";
+  const b = review.branch ? ` (${branchLabel(review.branch)})` : "";
+  const reviewLink = `${appUrl()}/reviews/${review.id}`;
+
+  // ---- Reviewee: emailed token link (works with NO login) + Inbox nudge -------
+  if (params.roles.includes("employee")) {
+    let token = review.employeeToken;
+    if (!token) {
+      token = randomBytes(24).toString("hex");
+      await prisma.newHireReview
+        .update({ where: { id: review.id }, data: { employeeToken: token } })
+        .catch(() => {});
+    }
+    const signLink = `${appUrl()}/review-sign/${token}`;
+    const first = review.employee.name.split(" ")[0];
+    const to = review.employee.email ?? review.employee.personalEmail ?? null;
+    await sendEmail({
+      to,
+      subject: `Action needed: your ${label} was reopened`,
+      kind: "review_reopened_employee",
+      relatedType: "newhire_review",
+      relatedId: review.id,
+      text: `Hi ${first},\n\nYour ${label}${b} was reopened and needs your answers and signature again. Open your secure link to finish your questions and e-sign:\n${signLink}\n\n— CanopyOS`,
+      html: `<p>Hi ${first},</p><p>Your <strong>${label}</strong>${b} was reopened and needs your answers and signature again.</p><p><a href="${signLink}">Finish your questions &amp; e-sign →</a></p><p>— CanopyOS</p>`,
+    }).catch(() => {});
+    try {
+      const recip = await employeeRecipient(review.employee.id);
+      if (recip) {
+        await postSystemThread({
+          subject: `Your ${label} was reopened`,
+          body: `Your ${label} was reopened and needs your answers and signature again. Open it to finish your questions and e-sign.`,
+          recipients: [recip],
+          contextType: "reminder",
+          contextLabel: `Your ${label}`,
+          contextHref: `/review-sign/${token}`,
+          branch: review.branch,
+        }).catch(() => {});
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }
+
+  // ---- Reviewer: in-app Inbox + email to their user address --------------------
+  if (params.roles.includes("reviewer") && review.reviewerUserId) {
+    const reviewer = await prisma.user
+      .findUnique({ where: { id: review.reviewerUserId }, select: { id: true, name: true, email: true } })
+      .catch(() => null);
+    if (reviewer) {
+      await sendEmail({
+        to: reviewer.email,
+        subject: `Action needed: ${review.employee.name}'s ${label} was reopened`,
+        kind: "review_reopened_reviewer",
+        relatedType: "newhire_review",
+        relatedId: review.id,
+        text: `${review.employee.name}'s ${label}${b} was reopened and needs your review and signature again:\n${reviewLink}\n\n— CanopyOS`,
+        html: `<p><strong>${review.employee.name}</strong>'s <strong>${label}</strong>${b} was reopened and needs your review and signature again.</p><p><a href="${reviewLink}">Open the review →</a></p><p>— CanopyOS</p>`,
+      }).catch(() => {});
+      await postSystemThread({
+        subject: `${review.employee.name}'s ${label} was reopened`,
+        body: `${review.employee.name}'s ${label} was reopened and needs your review and signature again.`,
+        recipients: [{ userId: reviewer.id, name: reviewer.name, email: reviewer.email }],
+        contextType: "reminder",
+        contextLabel: `${label} — ${review.employee.name}`,
+        contextHref: `/reviews/${review.id}`,
+        branch: review.branch,
+      }).catch(() => {});
+    }
+  }
 }
 
 export async function reviewsForEmployee(employeeId: string) {

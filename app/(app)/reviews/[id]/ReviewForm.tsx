@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import Glyph from "@/components/Glyph";
 import type { ReviewForm as FormDef, ReviewItem } from "@/lib/review-forms";
+import { incompleteQuestionsForRole } from "@/lib/review-forms";
+
+const INCOMPLETE_HINT = "Finish all your questions before you can sign";
 
 type SigState = {
   reviewerSignedName: string | null;
@@ -62,15 +65,30 @@ export default function ReviewForm({
   }, [r, form]);
   const totalItems = form.sections.flatMap((s) => s.items).length;
 
-  async function save() {
-    setBusy(true); setError(null);
+  // The same completeness rule the server enforces, so the Sign control's enabled
+  // state matches exactly whether a sign would be accepted.
+  const reviewerIncomplete = useMemo(() => incompleteQuestionsForRole(form, r, "reviewer").length > 0, [form, r]);
+  const employeeIncomplete = useMemo(() => incompleteQuestionsForRole(form, r, "employee").length > 0, [form, r]);
+
+  // Persist the current answers (no refresh). Returned to the Sign flow so a
+  // reviewer/HR signer's unsaved edits are written before the server completeness
+  // check runs — otherwise they could pass the local gate but be rejected server-
+  // side on stale responses.
+  async function persist(): Promise<boolean> {
     const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "save", reviewId, responses: r, overallRating: r.overall_rating ?? null, nextSteps: r.next_steps ?? null }),
     });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); setError(d.error ?? "Save failed."); return false; }
+    return true;
+  }
+
+  async function save() {
+    setBusy(true); setError(null);
+    const ok = await persist();
     setBusy(false);
-    if (!res.ok) { const d = await res.json().catch(() => ({})); return setError(d.error ?? "Save failed."); }
+    if (!ok) return;
     setSaved(true); router.refresh();
   }
 
@@ -93,9 +111,11 @@ export default function ReviewForm({
         <p className="text-xs text-muted mb-3">Three signatures finalize this review: the reviewer, the employee, then HR approval.</p>
         <div className="space-y-2">
           <SignRow label={`Reviewer${reviewerName ? ` · ${reviewerName}` : ""}`} name={sig.reviewerSignedName} at={sig.reviewerSignedAt}
-            canSign={canSignReviewer} canReset={canReset} reviewId={reviewId} role="reviewer" statement={ACK.reviewer} defaultName={reviewerName ?? ""} onDone={() => router.refresh()} />
+            canSign={canSignReviewer} canReset={canReset} reviewId={reviewId} role="reviewer" statement={ACK.reviewer} defaultName={reviewerName ?? ""} onDone={() => router.refresh()}
+            incomplete={reviewerIncomplete} incompleteHint={INCOMPLETE_HINT} onBeforeSign={canEdit ? persist : undefined} />
           <SignRow label={`Employee · ${employeeName}`} name={sig.employeeSignedName} at={sig.employeeSignedAt}
-            canSign={canSignEmployee} canReset={canReset} reviewId={reviewId} role="employee" statement={ACK.employee} defaultName={employeeName} onDone={() => router.refresh()} />
+            canSign={canSignEmployee} canReset={canReset} reviewId={reviewId} role="employee" statement={ACK.employee} defaultName={employeeName} onDone={() => router.refresh()}
+            incomplete={employeeIncomplete} incompleteHint={INCOMPLETE_HINT} onBeforeSign={canEdit ? persist : undefined} />
           <SignRow label="HR final approval" name={sig.hrSignedName} at={sig.hrSignedAt}
             canSign={canApproveHr} canReset={canReset} locked={!sig.reviewerSignedAt || !sig.employeeSignedAt} lockedHint="Awaiting reviewer & employee signatures"
             reviewId={reviewId} role="hr" statement={ACK.hr} defaultName="" onDone={() => router.refresh()} />
@@ -167,9 +187,14 @@ function ItemRow({ it, value, onChange, readOnly }: { it: ReviewItem; value: str
 
 function SignRow({
   label, name, at, canSign, canReset, locked, lockedHint, reviewId, role, statement, defaultName, onDone,
+  incomplete, incompleteHint, onBeforeSign,
 }: {
   label: string; name: string | null; at: string | null; canSign: boolean; canReset?: boolean; locked?: boolean; lockedHint?: string;
   reviewId: string; role: string; statement: string; defaultName: string; onDone: () => void;
+  /** This role still has unanswered questions — the Sign control is disabled. */
+  incomplete?: boolean; incompleteHint?: string;
+  /** Persist in-progress answers before signing (for a signer who can also edit). */
+  onBeforeSign?: () => Promise<boolean>;
 }) {
   const [open, setOpen] = useState(false);
   const [nm, setNm] = useState(defaultName);
@@ -181,6 +206,10 @@ function SignRow({
     if (!nm.trim()) return setError("Type your full name to sign.");
     if (!ack) return setError("Confirm the acknowledgment to sign.");
     setBusy(true); setError(null);
+    if (onBeforeSign) {
+      const ok = await onBeforeSign();
+      if (!ok) { setBusy(false); return setError("Couldn't save your answers — try again before signing."); }
+    }
     const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "sign", reviewId, role, signerName: nm, agree: true }) });
     setBusy(false);
     if (!res.ok) { const d = await res.json().catch(() => ({})); return setError(d.error ?? "Sign failed."); }
@@ -206,13 +235,15 @@ function SignRow({
           </span>
         ) : locked ? (
           <span className="flex-1 text-xs text-muted italic">{lockedHint ?? "Not yet available"}</span>
+        ) : canSign && incomplete ? (
+          <span className="flex-1 text-xs text-amber-700 italic">{incompleteHint ?? "Finish all your questions before you can sign"}</span>
         ) : canSign ? (
           <button onClick={() => { setOpen(!open); setError(null); }} className="text-xs font-medium text-brand-700 hover:underline">{open ? "Cancel" : "Sign here"}</button>
         ) : (
           <span className="flex-1 text-xs text-muted italic">Awaiting signature</span>
         )}
       </div>
-      {open && canSign && !locked ? (
+      {open && canSign && !locked && !incomplete ? (
         <div className="mt-1.5 ml-0 sm:ml-44 rounded-lg bg-black/[0.02] p-2 space-y-2">
           <p className="text-[11px] text-muted italic">&ldquo;{statement}&rdquo;</p>
           <input value={nm} onChange={(e) => setNm(e.target.value)} placeholder="Type full name to sign" className="w-full rounded-lg border border-line px-2 py-1.5 text-sm" />

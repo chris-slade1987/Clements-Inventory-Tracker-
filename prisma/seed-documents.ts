@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 29 · Last updated October 19, 2026",
+    effective: "Version 30 · Last updated October 20, 2026",
+    // v30: reconciled the Hiring/Onboarding new-hire-review passage — each party must
+    // answer their own questions before signing; the new hire can fill + e-sign via a
+    // secure emailed link; and HR reopening a review now auto-re-invites both the
+    // reviewer (in-app + email) and the new hire (fresh emailed token link) to re-sign.
     // v29: added the Org Chart & Directory section — the universal company Org Chart
     // (square tiles nested under their manager, search by name/route/service/branch,
     // collapsible teams), the scoped tile editor (approved services, scheduling
@@ -143,7 +147,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 29,
+    version: 30,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

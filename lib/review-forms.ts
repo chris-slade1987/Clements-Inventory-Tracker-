@@ -972,3 +972,73 @@ export function parseResponses(s: string | null | undefined): Record<string, str
     return {};
   }
 }
+
+// ---------------------------------------------------------------------------
+// Signature completeness — the single, shared rule for "has this signing role
+// answered their questions?" Used by the reviews API (`sign`), the token-sign API,
+// the in-app reviewer UI, and the token reviewee UI so the gate is identical
+// everywhere. Forms tag each item with `who` ("manager" = reviewer's question,
+// "employee" = reviewee's question); an item with no `who` is treated as the
+// reviewer's.
+// ---------------------------------------------------------------------------
+
+/** The signing roles whose questions are gated. HR approval is gated separately
+ *  (it already requires the other two signatures). */
+export type SignRole = "reviewer" | "employee";
+
+/** The form's question-owner perspective a signing role is responsible for:
+ *  the reviewer owns the "manager" items; the reviewee owns the "employee" items. */
+export function roleOwner(role: SignRole): "manager" | "employee" {
+  return role === "reviewer" ? "manager" : "employee";
+}
+
+/** Conditional follow-ups ("If not, …", "If yes, please explain") are only filled
+ *  when their trigger applies, so they never count toward completeness — otherwise
+ *  answering "Yes" to the parent would make it impossible to ever finish. */
+function isConditionalItem(it: ReviewItem): boolean {
+  return /^if\b/i.test(it.label.trim());
+}
+
+/** Does `responses` hold a non-empty answer for this key? */
+function isAnswered(responses: Record<string, string>, key: string): boolean {
+  const v = responses?.[key];
+  if (v == null) return false;
+  return (typeof v === "string" ? v : String(v)).trim().length > 0;
+}
+
+/** Every item the given signing role owns (reviewer → manager items, employee →
+ *  employee items), in form order. */
+export function itemsForRole(form: ReviewForm, role: SignRole): ReviewItem[] {
+  const owner = roleOwner(role);
+  return form.sections
+    .flatMap((s) => s.items)
+    .filter((it) => (it.who === "employee" ? "employee" : "manager") === owner);
+}
+
+/** The response keys a given role owns — used to scope what a signer may save
+ *  (e.g. the token reviewee can only write their own questions, never the
+ *  reviewer's answers). */
+export function ownedKeys(form: ReviewForm, role: SignRole): string[] {
+  return itemsForRole(form, role).map((it) => it.key);
+}
+
+/**
+ * The substantive questions a signing role still has to answer before they may
+ * sign. Conditional follow-ups ("If not, …") are skipped. An empty result means
+ * the role is complete and may sign. Shared by the reviews API, the token-sign
+ * API, and both signer UIs so the rule can never drift between them.
+ */
+export function incompleteQuestionsForRole(
+  form: ReviewForm,
+  responses: Record<string, string>,
+  role: SignRole,
+): ReviewItem[] {
+  return itemsForRole(form, role)
+    .filter((it) => !isConditionalItem(it))
+    .filter((it) => !isAnswered(responses, it.key));
+}
+
+/** Convenience: is this signing role complete enough to sign? */
+export function roleMaySign(form: ReviewForm, responses: Record<string, string>, role: SignRole): boolean {
+  return incompleteQuestionsForRole(form, responses, role).length === 0;
+}

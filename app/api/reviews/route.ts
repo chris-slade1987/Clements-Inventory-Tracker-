@@ -5,7 +5,17 @@ import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { isHrDirector, getHrEmail } from "@/lib/personnel";
-import { REVIEW_LABEL, isReviewTemplate, notifyReviewAssigned, notifyReviewSignNeeded } from "@/lib/review";
+import {
+  REVIEW_LABEL,
+  isReviewTemplate,
+  notifyReviewAssigned,
+  notifyReviewSignNeeded,
+  notifyReviewReopened,
+  getReviewForm,
+  templateForEmployee,
+  parseResponses,
+  incompleteQuestionsForRole,
+} from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { sendEmail } from "@/lib/email";
 
@@ -33,7 +43,20 @@ export async function POST(req: Request) {
 
   const review = await prisma.newHireReview.findUnique({
     where: { id: reviewId },
-    include: { employee: { select: { id: true, name: true, email: true, branch: true } } },
+    include: {
+      employee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          personalEmail: true,
+          branch: true,
+          role: true,
+          title: true,
+          user: { select: { accessLevel: true } },
+        },
+      },
+    },
   });
   if (!review) return NextResponse.json({ error: "Review not found." }, { status: 404 });
 
@@ -123,8 +146,17 @@ export async function POST(req: Request) {
       if (body?.agree !== true) return NextResponse.json({ error: "You must confirm the acknowledgment to sign." }, { status: 400 });
       const now = new Date();
 
+      // A role may only sign once it has answered all of its own questions — the
+      // authoritative check, mirrored in both signer UIs. (HR final approval is
+      // gated separately below on the two prior signatures.)
+      const resolvedTemplate = review.template ?? templateForEmployee(review.employee) ?? "technician";
+      const form = getReviewForm(resolvedTemplate, review.type);
+      const responses = parseResponses(review.responses);
+
       if (role === "reviewer") {
         if (!isReviewer && !hr) return NextResponse.json({ error: "Only the assigned reviewer can sign here." }, { status: 403 });
+        if (incompleteQuestionsForRole(form, responses, "reviewer").length > 0)
+          return NextResponse.json({ error: "Answer all of your questions before signing." }, { status: 400 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { reviewerSignedName: signerName, reviewerSignedAt: now, status: review.status === "sent" || review.status === "due" ? "in_progress" : review.status } });
         // It's now the employee's turn to sign — Inbox nudge (email already on file).
         if (!review.employeeSignedAt) {
@@ -132,6 +164,8 @@ export async function POST(req: Request) {
         }
       } else if (role === "employee") {
         if (!isSubjectEmployee && !hr) return NextResponse.json({ error: "Only the employee can sign here." }, { status: 403 });
+        if (incompleteQuestionsForRole(form, responses, "employee").length > 0)
+          return NextResponse.json({ error: "Answer all of your questions before signing." }, { status: 400 });
         await prisma.newHireReview.update({ where: { id: review.id }, data: { employeeSignedName: signerName, employeeSignedAt: now } });
       } else if (role === "hr") {
         if (!hr) return NextResponse.json({ error: "Only HR can give final approval." }, { status: 403 });
@@ -200,6 +234,19 @@ export async function POST(req: Request) {
         else status = fresh.reviewerUserId ? "sent" : "due";
       }
       await prisma.newHireReview.update({ where: { id: review.id }, data: { status } });
+
+      // Re-invite everyone whose signature was just cleared, through the channel
+      // they actually use: the reviewee gets an EMAILED token link (reliable even
+      // with no login) + an Inbox nudge; the reviewer gets Inbox + email. For a
+      // single-role reset, only that role; for a full reopen/recreate, both. HR
+      // re-signs in-app and is the one performing the reset, so it needs no notice.
+      const reinvite: ("reviewer" | "employee")[] =
+        action === "reset_signature"
+          ? ((r) => (r === "reviewer" || r === "employee" ? [r] : []))(str(body?.role))
+          : ["reviewer", "employee"];
+      if (reinvite.length) {
+        await notifyReviewReopened({ reviewId: review.id, roles: reinvite }).catch(() => {});
+      }
       return NextResponse.json({ ok: true, status });
     }
 

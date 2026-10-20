@@ -223,6 +223,10 @@ export default function AppShell({
   // employees.
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
+    // New-hire review pages live under People/HR (the Management center), so light
+    // that section rather than falling through to the admin's Inventory home.
+    : pathname.startsWith("/reviews")
+      ? "management"
     : pathname.startsWith("/bulletin")
       // The company bulletin is shared by everyone; show it inside whichever
       // home nav fits the viewer (employees keep their self-service shell).
