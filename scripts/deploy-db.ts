@@ -437,6 +437,18 @@ async function main() {
       console.error("deploy-db: roster leader reconcile FAILED (non-fatal):", e);
     }
 
+    // Self-healing org-chart catch-all: after the authoritative roster + branch
+    // bootstrap, attach any employee STILL missing a reporting line to their
+    // branch manager (or the company top) so nobody renders as a stray root.
+    // Fill-if-null only; runs last among the org steps. Idempotent; non-fatal.
+    try {
+      const { attachRemainingReports } = await import("../prisma/seed-org-chart");
+      const ar = await attachRemainingReports(prisma);
+      console.log(`deploy-db: org chart — attached ${ar.linked} remaining report(s) to a manager.`);
+    } catch (e) {
+      console.error("deploy-db: org chart catch-all FAILED (non-fatal):", e);
+    }
+
     // Link each vehicle's existing driver NAME (assignedTo, from the fleet import)
     // to the matching employee record (assignedEmployeeId). Runs after BOTH the
     // fleet and people seeds so both sides exist. Idempotent — only fills vehicles

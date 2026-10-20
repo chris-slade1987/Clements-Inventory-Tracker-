@@ -33,3 +33,83 @@ export async function seedOrgChart(prisma: PrismaClient) {
   }
   return { linked };
 }
+
+// Self-healing catch-all: after the authoritative roster + branch bootstrap have
+// run, attach ANY remaining active employee who still has a blank reportsToId so
+// nobody floats as a stray root on the org chart. Fill-if-null ONLY (never
+// clobbers a roster line or a hand edit), idempotent, non-destructive:
+//   1) a person with a branch   → that branch's manager,
+//   2) a branch manager         → the Field-Operations director (Graham) or top,
+//   3) anyone still unattached   → the single company top (President/owner),
+// guaranteeing one connected tree with exactly one root. This closes the gap
+// where someone added after the one-time bootstrap (e.g. a late advisor/tech)
+// had no reporting line and rendered as an orphan tile.
+export async function attachRemainingReports(prisma: PrismaClient) {
+  const branches = ["vero", "stuart", "orlando", "naples"];
+
+  // The single company root: the President (Tim Slade) if present, else the
+  // owner/COO login's profile — so the President never gets re-parented below.
+  const tim = await prisma.employee.findFirst({
+    where: { status: "active", name: { contains: "Tim Slade" } },
+    select: { id: true },
+  });
+  const owner = await prisma.user.findFirst({
+    where: { email: "c.slade@clementspestcontrol.com" },
+    select: { employeeId: true },
+  });
+  const topId = tim?.id ?? owner?.employeeId ?? null;
+
+  // Field-Operations director — the branch managers' parent.
+  const graham = await prisma.employee.findFirst({
+    where: { status: "active", OR: [{ name: { contains: "Graham Foster" } }, { title: { contains: "Field Operations" } }] },
+    select: { id: true },
+  });
+
+  // Resolve one branch manager per branch: prefer an explicit "Branch Manager"
+  // title/role, else the branch's sole "Manager"-role employee.
+  const bmByBranch = new Map<string, string>();
+  for (const b of branches) {
+    let bm = await prisma.employee.findFirst({
+      where: { status: "active", branch: b, OR: [{ title: { contains: "Branch Manager" } }, { role: { contains: "Branch Manager" } }] },
+      select: { id: true },
+    });
+    if (!bm) {
+      const mgrs = await prisma.employee.findMany({
+        where: { status: "active", branch: b, role: { contains: "Manager" } },
+        select: { id: true },
+      });
+      if (mgrs.length === 1) bm = mgrs[0];
+    }
+    if (bm) bmByBranch.set(b, bm.id);
+  }
+
+  let linked = 0;
+
+  // 1) Branch managers still unlinked → Field-Ops director (or the top).
+  for (const mgrId of bmByBranch.values()) {
+    const parent = graham?.id && graham.id !== mgrId ? graham.id : topId && topId !== mgrId ? topId : null;
+    if (!parent) continue;
+    linked += (await prisma.employee.updateMany({ where: { id: mgrId, reportsToId: null }, data: { reportsToId: parent } })).count;
+  }
+
+  // 2) Any remaining branch orphan → that branch's manager.
+  for (const b of branches) {
+    const mgrId = bmByBranch.get(b);
+    if (!mgrId) continue;
+    linked += (await prisma.employee.updateMany({
+      where: { status: "active", branch: b, reportsToId: null, id: { not: mgrId } },
+      data: { reportsToId: mgrId },
+    })).count;
+  }
+
+  // 3) Everyone else still unattached (no branch, or no resolvable manager) →
+  //    the single company top, except the top itself.
+  if (topId) {
+    linked += (await prisma.employee.updateMany({
+      where: { status: "active", reportsToId: null, id: { not: topId } },
+      data: { reportsToId: topId },
+    })).count;
+  }
+
+  return { linked };
+}
