@@ -58,3 +58,6 @@ next-env.d.ts
 
 # Local scratch / working files
 /scratchpad/
+
+# Training source originals (large Drive download); converted md is committed
+training-sources/raw/
