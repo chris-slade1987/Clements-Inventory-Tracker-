@@ -30,11 +30,27 @@ export async function applyProductResearch(prisma: PrismaClient): Promise<{ matc
   });
   const byNorm = new Map(products.map((p) => [normalizeProductName(p.name), p]));
 
+  // Research names differ from the owner's catalog names only by trailing size /
+  // packaging (e.g. research "Crosscheck Plus Liquid 1 gal." vs catalog "… 1 gal.
+  // Tip & Pour Container"). Match exact first, then a UNIQUE two-way prefix — which
+  // stays safe across genuinely-distinct products because different NPK / rates /
+  // forms diverge early in the normalized name, so one never prefixes another.
+  const resolveProduct = (name: string): (typeof products)[number] | null => {
+    const n = normalizeProductName(name);
+    const exact = byNorm.get(n);
+    if (exact) return exact;
+    const hits = products.filter((p) => {
+      const pn = normalizeProductName(p.name);
+      return pn.startsWith(n) || n.startsWith(pn);
+    });
+    return hits.length === 1 ? hits[0] : null;
+  };
+
   let matched = 0, updated = 0;
   const unmatched: string[] = [];
   for (const r of rows) {
     if (!r.name) continue;
-    const p = byNorm.get(normalizeProductName(r.name));
+    const p = resolveProduct(r.name);
     if (!p) { unmatched.push(r.name); continue; }
     matched++;
     const data: Record<string, string> = {};

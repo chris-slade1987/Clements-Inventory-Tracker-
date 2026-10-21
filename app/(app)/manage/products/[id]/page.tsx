@@ -17,7 +17,7 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) notFound();
 
-  const [warehouses, grouped, movements] = await Promise.all([
+  const [warehouses, grouped, movements, labelPhoto] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.stockMovement.groupBy({ by: ["warehouseId"], where: { productId: id }, _sum: { quantity: true } }),
     prisma.stockMovement.findMany({
@@ -26,15 +26,18 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
       take: 25,
       include: { warehouse: { select: { name: true } }, technician: { select: { name: true } } },
     }),
+    prisma.productPhoto.findFirst({ where: { productId: id, status: "assigned" }, orderBy: [{ primary: "desc" }, { assignedAt: "desc" }] }),
   ]);
   const onHandByWh = new Map(grouped.map((g) => [g.warehouseId, g._sum.quantity ?? 0]));
   const totalOnHand = [...onHandByWh.values()].reduce((s, v) => s + v, 0);
   const unit = uomLabel(product.unitOfMeasure);
 
+  const formLabel = product.form ? product.form.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "—";
   const facts: { label: string; value: React.ReactNode }[] = [
     { label: "Line of service", value: product.division ? divisionLabel(product.division) : "—" },
     { label: "Subcategory", value: product.subdivision ?? "—" },
     { label: "Category", value: product.category ?? "—" },
+    { label: "Form", value: formLabel },
     { label: "Manufacturer", value: product.manufacturer ?? "—" },
     { label: "Active ingredient", value: product.activeIngredient ?? "—" },
     { label: "Target pest", value: product.targetPest ?? "—" },
@@ -68,6 +71,28 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
           </div>
         }
       />
+
+      {/* Product profile — label photo + what it is / used for (research-enriched). */}
+      {product.usedFor || labelPhoto ? (
+        <Card className="mb-4 p-4">
+          <div className="flex flex-wrap gap-4 sm:flex-nowrap">
+            {labelPhoto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={labelPhoto.photoUrl} alt={`${product.name} label`} className="h-28 w-28 shrink-0 rounded-lg border border-line object-cover" />
+            ) : null}
+            <div className="min-w-0">
+              <div className="text-xs font-medium text-muted">What it is / used for</div>
+              <p className="mt-1 text-sm text-ink">{product.usedFor ?? "No description on file yet."}</p>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                {product.activeIngredient ? <span><span className="font-medium text-ink">Active:</span> {product.activeIngredient}</span> : null}
+                {product.form ? <span><span className="font-medium text-ink">Form:</span> {formLabel}</span> : null}
+                {product.manufacturer ? <span><span className="font-medium text-ink">Maker:</span> {product.manufacturer}</span> : null}
+              </div>
+              {!labelPhoto ? <div className="mt-2 text-[11px] text-muted">No label photo yet — add one in Inventory → Photo Catalog.</div> : null}
+            </div>
+          </div>
+        </Card>
+      ) : null}
 
       {/* Safety Data Sheet — prominent, opens the manufacturer SDS PDF. */}
       <Card className="mb-4 p-4">
