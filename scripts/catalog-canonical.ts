@@ -29,16 +29,29 @@ import { normalizeProductName, PRODUCT_ALIASES } from "../lib/product-aliases";
 import { isUomCode } from "../lib/uom";
 
 const CSV_PATH = join(process.cwd(), "prisma", "data", "inventory-reset", "01_product_catalog.csv");
+const OVERRIDES_PATH = join(process.cwd(), "prisma", "data", "catalog-overrides.json");
 export const MERGED_MARK = "Merged into";
 
-// All-caps junk rows in the master (july short name "Other Product") → their real
-// canonical row. A handful the owner flagged but didn't fully reconcile.
-const JUNK_OVERRIDE: Record<string, string> = {
-  "LESCO 25-0-10 GRANULAR FERT 50lb bag": "LESCO 25-0-10 Turf Granular Fertilizer",
-  "LESCO L&O PALM 8-0-10 GRANULAR 50LB BAG": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
-  "PT PI PRESSURIZED CONTACT INSECTICIDE 14 OZ CAN": "PT PI Pressurized Contact Insecticide 14 oz",
-  "LESCO CROSSCHECK PL Granular insecticide": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.",
-};
+// Human-editable consolidation overrides (prisma/data/catalog-overrides.json).
+// forceMerge: name/item# -> canonical name to fold it into (incl. the owner's
+// all-caps junk rows). keepSeparate: pairs that must never merge. rename: canonical
+// display-name overrides. Edited directly, or by Claude from docs/CATALOG-NOTES.md.
+type Overrides = { forceMerge: Record<string, string>; keepSeparate: [string, string][]; rename: Record<string, string> };
+function loadOverrides(): Overrides {
+  try {
+    const raw = JSON.parse(readFileSync(OVERRIDES_PATH, "utf8")) as Record<string, unknown>;
+    const fm = (raw.forceMerge ?? {}) as Record<string, string>;
+    const forceMerge: Record<string, string> = {};
+    for (const [k, v] of Object.entries(fm)) if (!k.startsWith("_") && typeof v === "string") forceMerge[k] = v;
+    const ks = (raw.keepSeparate ?? {}) as { pairs?: [string, string][] };
+    const rn = (raw.rename ?? {}) as Record<string, string>;
+    const rename: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rn)) if (!k.startsWith("_") && !k.startsWith("example") && typeof v === "string") rename[k] = v;
+    return { forceMerge, keepSeparate: Array.isArray(ks.pairs) ? ks.pairs : [], rename };
+  } catch {
+    return { forceMerge: {}, keepSeparate: [], rename: {} };
+  }
+}
 
 type CsvRow = Record<string, string>;
 function parseCsv(text: string): CsvRow[] {
@@ -86,11 +99,16 @@ export async function reconcileCanonicalCatalog(prisma: PrismaClient, opts: { ap
   const apply = opts.apply;
   const result = { canonical: 0, created: 0, merged: 0, demoted: 0, log: [] as string[] };
   const csv = parseCsv(readFileSync(CSV_PATH, "utf8"));
+  const overrides = loadOverrides();
+  const renameFor = (name: string) => overrides.rename[name] ?? name;
+  // keepSeparate as a set of normalized unordered pairs.
+  const keepSep = new Set(overrides.keepSeparate.map(([a, b]) => [normalizeProductName(a), normalizeProductName(b)].sort().join("||")));
+  const isSeparated = (a: string, b: string) => keepSep.has([normalizeProductName(a), normalizeProductName(b)].sort().join("||"));
 
-  // Canonical rows = every master row EXCEPT the handful of flagged junk/dup rows
-  // (handled via JUNK_OVERRIDE). Rows missing an item # or cost are still real
-  // products (e.g. Certainty, Termidor SC) — they just resolve by name/short-name.
-  const canonRows = csv.filter((r) => r.inventory_product && !(r.inventory_product in JUNK_OVERRIDE));
+  // Canonical rows = every master row EXCEPT the flagged junk/dup rows (handled via
+  // overrides.forceMerge). Rows missing an item # or cost are still real products
+  // (e.g. Certainty, Termidor SC) — they just resolve by name/short-name.
+  const canonRows = csv.filter((r) => r.inventory_product && !(r.inventory_product in overrides.forceMerge));
   const itemsOf = (r: CsvRow) => (r.siteone_item_numbers || "").split(",").map((s) => s.trim()).filter(Boolean);
 
   const existing = await prisma.product.findMany({
@@ -109,11 +127,13 @@ export async function reconcileCanonicalCatalog(prisma: PrismaClient, opts: { ap
   const survivorByCanonName = new Map<string, Survivor>();
   for (const r of canonRows) {
     result.canonical++;
-    const name = r.inventory_product;
+    const canonName = r.inventory_product;
+    const name = renameFor(canonName); // display name (rename override applied)
     const items = itemsOf(r);
     const short = r.july_count_short_name?.trim();
     let found =
       items.map((it) => byItem.get(it)).find(Boolean) ||
+      byNorm.get(normalizeProductName(canonName)) ||
       byNorm.get(normalizeProductName(name)) ||
       (short && short !== "Other Product" ? byNorm.get(normalizeProductName(short)) : undefined);
 
@@ -138,7 +158,9 @@ export async function reconcileCanonicalCatalog(prisma: PrismaClient, opts: { ap
         survivorId = created.id;
       } else survivorId = `preview:${name}`;
     }
-    survivorByCanonName.set(normalizeProductName(name), { id: survivorId, name });
+    const survivor = { id: survivorId, name };
+    survivorByCanonName.set(normalizeProductName(canonName), survivor);
+    if (normalizeProductName(name) !== normalizeProductName(canonName)) survivorByCanonName.set(normalizeProductName(name), survivor);
   }
 
   // ── Build the resolver: any key → canonical survivor ────────────────────────
@@ -152,10 +174,10 @@ export async function reconcileCanonicalCatalog(prisma: PrismaClient, opts: { ap
     const short = r.july_count_short_name?.trim();
     if (short && short !== "Other Product") put(short, s);
   }
-  // Junk-row overrides → canonical survivor.
-  for (const [junk, canon] of Object.entries(JUNK_OVERRIDE)) {
-    const s = survivorByCanonName.get(normalizeProductName(canon));
-    if (s) put(junk, s);
+  // Human overrides: forceMerge maps a name OR item # → the canonical it folds into.
+  for (const [key, canon] of Object.entries(overrides.forceMerge)) {
+    const s = survivorByCanonName.get(normalizeProductName(canon)) ?? resolve.get(`n:${normalizeProductName(canon)}`);
+    if (s) put(key, s); // registers both the raw key (e.g. an item #) and its normalized name
   }
   // PestPac aliases: alias value is a short/approved name → map to its canonical survivor.
   for (const [aliasKey, aliasVal] of Object.entries(PRODUCT_ALIASES)) {
@@ -178,6 +200,8 @@ export async function reconcileCanonicalCatalog(prisma: PrismaClient, opts: { ap
     if ((p.notes ?? "").includes(MERGED_MARK)) continue;
     const s = resolveProduct(p);
     if (!s || s.id === p.id || s.id.startsWith("preview:")) continue;
+    // Honor keep-separate: never fold a row into a product it's explicitly kept apart from.
+    if (isSeparated(p.name, s.name)) { result.log.push(`SKIP (keep-separate) "${p.name}" ✗ "${s.name}"`); continue; }
     result.merged++;
     result.log.push(`"${p.name}" (${p.id}) → "${s.name}"`);
     if (!apply) continue;

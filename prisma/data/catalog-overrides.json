@@ -1,0 +1,22 @@
+{
+  "_README": "Human-editable catalog consolidation overrides. The canonical catalog reconcile (scripts/catalog-canonical.ts) reads this every deploy. Edit it (or tell Claude in docs/CATALOG-NOTES.md and Claude edits it for you), then redeploy. Three kinds of override, all keyed by the product/catalog NAME exactly as it appears, or by a SiteOne item number. Names are matched case-insensitively and ignoring punctuation.",
+  "forceMerge": {
+    "_doc": "Map a duplicate name OR item number -> the canonical product name to fold it into. Use for duplicates the automatic item-number/alias matching misses. The all-caps junk rows from the owner master live here.",
+    "LESCO 25-0-10 GRANULAR FERT 50lb bag": "LESCO 25-0-10 Turf Granular Fertilizer 50 lb.",
+    "LESCO L&O PALM 8-0-10 GRANULAR 50LB BAG": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
+    "PT PI PRESSURIZED CONTACT INSECTICIDE 14 OZ CAN": "PT PI Pressurized Contact Insecticide 14 oz",
+    "LESCO CROSSCHECK PL Granular insecticide": "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb."
+  },
+  "keepSeparate": {
+    "_doc": "Pairs of canonical names that must NEVER be merged, even if something tries. Belt-and-suspenders for genuinely-different look-alikes.",
+    "pairs": [
+      ["LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.", "LESCO Crosscheck 0.096% 21-0-10 Insecticide Plus Fertilizer 50 lb."],
+      ["LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.", "LESCO Crosscheck Plus Liquid Insecticide 1 gal."],
+      ["LESCO Crosscheck 0.096% 21-0-10 Insecticide Plus Fertilizer 50 lb.", "LESCO Crosscheck Plus Liquid Insecticide 1 gal."]
+    ]
+  },
+  "rename": {
+    "_doc": "Override the display name of a canonical product. Key = current canonical name, value = the name you want shown.",
+    "example LESCO Crosscheck Plus Liquid Insecticide 1 gal. Tip & Pour Container": "LESCO Crosscheck Plus Liquid Insecticide 1 gal."
+  }
+}
