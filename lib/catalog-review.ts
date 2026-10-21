@@ -27,6 +27,9 @@ export type ReviewProduct = {
   onHand: number;
   allCaps: boolean;
   notes: string | null;
+  /** True when the product is backed by invoice data (has invoice lines OR a
+   *  SiteOne item number from the owner master) — the "keep it" signal. */
+  inInvoices: boolean;
 };
 
 export type DuplicateCluster = { key: string; products: ReviewProduct[] };
@@ -48,35 +51,50 @@ const isAllCaps = (name: string) => /[A-Z]/.test(name) && name === name.toUpperC
 
 function toReview(p: {
   id: string; name: string; approved: boolean; confirmed: boolean; unitOfMeasure: string;
-  division: string | null; distributorSku: string | null; manufacturer: string | null; notes: string | null;
-}, onHand: Map<string, number>): ReviewProduct {
+  division: string | null; distributorSku: string | null; vendorItemNumbers: string | null; manufacturer: string | null; notes: string | null;
+}, onHand: Map<string, number>, invoiced: Set<string>): ReviewProduct {
   return {
     id: p.id, name: p.name, approved: p.approved, confirmed: p.confirmed,
     unitOfMeasure: p.unitOfMeasure, unitLabel: uomLabel(p.unitOfMeasure),
     division: p.division, divisionLabel: divisionLabel(p.division),
     distributorSku: p.distributorSku, manufacturer: p.manufacturer,
     onHand: onHand.get(p.id) ?? 0, allCaps: isAllCaps(p.name), notes: p.notes,
+    inInvoices: invoiced.has(p.id) || !!p.distributorSku || !!p.vendorItemNumbers,
   };
 }
 
 export async function catalogReview(): Promise<{
+  all: ReviewProduct[];
   pending: ReviewProduct[];
   offCatalog: ReviewProduct[];
   clusters: DuplicateCluster[];
   confirmedProducts: { id: string; name: string }[];
 }> {
-  const [active, movements] = await Promise.all([
+  const [active, movements, invLines] = await Promise.all([
     prisma.product.findMany({
       where: { active: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, approved: true, confirmed: true, unitOfMeasure: true, division: true, distributorSku: true, manufacturer: true, notes: true },
+      select: { id: true, name: true, approved: true, confirmed: true, unitOfMeasure: true, division: true, distributorSku: true, vendorItemNumbers: true, manufacturer: true, notes: true },
     }),
     prisma.stockMovement.groupBy({ by: ["productId"], _sum: { quantity: true } }),
+    prisma.invoiceLine.groupBy({ by: ["productId"], _count: { _all: true } }),
   ]);
   const onHand = new Map<string, number>();
   for (const m of movements) onHand.set(m.productId, m._sum.quantity ?? 0);
+  const invoiced = new Set<string>();
+  for (const l of invLines) if (l.productId) invoiced.add(l.productId);
 
-  const rows = active.map((p) => toReview(p, onHand));
+  const rows = active.map((p) => toReview(p, onHand, invoiced));
+
+  // The flat approve/reject list: everything still needing a decision first
+  // (not yet approved+confirmed), invoice-backed items above non-invoice ones,
+  // then alphabetical.
+  const all = [...rows].sort((a, b) => {
+    const ad = a.approved && a.confirmed ? 1 : 0, bd = b.approved && b.confirmed ? 1 : 0;
+    if (ad !== bd) return ad - bd;
+    if (a.inInvoices !== b.inInvoices) return a.inInvoices ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
 
   const pending = rows.filter((r) => !r.confirmed);
   const offCatalog = rows.filter((r) => r.confirmed && !r.approved);
@@ -95,5 +113,5 @@ export async function catalogReview(): Promise<{
     .sort((a, b) => b.products.length - a.products.length || a.key.localeCompare(b.key));
 
   const confirmedProducts = rows.filter((r) => r.confirmed && r.approved).map((r) => ({ id: r.id, name: r.name }));
-  return { pending, offCatalog, clusters, confirmedProducts };
+  return { all, pending, offCatalog, clusters, confirmedProducts };
 }

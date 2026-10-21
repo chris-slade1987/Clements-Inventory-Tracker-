@@ -7,6 +7,7 @@ import { catalogReview } from "@/lib/catalog-review";
 import ConfirmQueue from "./ConfirmQueue";
 import OffCatalogList from "./OffCatalogList";
 import DuplicateClusters from "./DuplicateClusters";
+import ReviewAll from "./ReviewAll";
 import ReviewTabs from "./ReviewTabs";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export default async function CatalogReviewPage() {
   return (
     <ReviewTabs
       tabs={[
+        { key: "all", label: "Approve / Reject", count: review.all.filter((p) => !(p.approved && p.confirmed)).length, node: <ReviewAll products={review.all} /> },
         { key: "duplicates", label: "Duplicates", count: review.clusters.length, node: <DuplicateClusters clusters={review.clusters} confirmedProducts={review.confirmedProducts} /> },
         { key: "offcatalog", label: "Off-catalog", count: review.offCatalog.length, node: <OffCatalogList products={review.offCatalog} confirmedProducts={review.confirmedProducts} /> },
         { key: "pending", label: "New products", count: pendingRaw.length, node: pendingNode },
