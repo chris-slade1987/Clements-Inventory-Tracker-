@@ -12,7 +12,6 @@ import { listEmployees } from "@/lib/people";
 import DeleteDocButton from "./DeleteDocButton";
 import DocumentsTabs from "./DocumentsTabs";
 import IntakeWorkbench from "@/app/(app)/management/intake/IntakeWorkbench";
-import FuelStatementUpload from "@/components/FuelStatementUpload";
 import { EditDocButton } from "@/app/(app)/my-branch/documents/BranchHubClient";
 
 export const dynamic = "force-dynamic";
@@ -105,14 +104,6 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     const empOpts = employees.map((e) => ({ id: e.id, name: e.name }));
     filedNode = (
       <>
-        <div className="mb-5">
-          <div className="mb-1.5 flex items-center justify-between">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted">Fuel statements (Coast)</div>
-            <Link href="/fleet/fuel" className="text-xs font-medium text-brand-700 hover:underline">Fuel dashboard →</Link>
-          </div>
-          <FuelStatementUpload />
-        </div>
-
         {expiring.length > 0 ? (
           <Card className="p-0 overflow-hidden mb-5 ring-1 ring-amber-200">
             <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Renewals due soon</div>
