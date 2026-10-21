@@ -394,6 +394,15 @@ export const MANAGER_NAV: NavItem[] = [
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):
   // company-wide for admins/super admins, own-branch read-only for branch managers.
   SALES_TEAM_NAV_ITEM,
+  // Document Center — company licensing / leases / vehicle docs. Lives in the
+  // Company center (moved here from Executive). Still grant-gated via the
+  // `documents` access key, so branch managers without it don't see the link.
+  {
+    href: "/management/documents",
+    label: "Documents",
+    shortLabel: "Docs",
+    icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
+  },
 ];
 
 export const INVENTORY_NAV: NavItem[] = [
@@ -492,12 +501,8 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "People",
     icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
   },
-  {
-    href: "/management/documents",
-    label: "Documents",
-    shortLabel: "Docs",
-    icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
-  },
+  // NOTE: the Document Center (DOCUMENTS_NAV_ITEM) now lives in the My Branch /
+  // Company center (MANAGER_NAV), not here under Executive — see that array.
   {
     href: "/management/insurance",
     label: "Insurance",

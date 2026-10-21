@@ -247,9 +247,12 @@ export default function AppShell({
         ? "manager"
         // Company KPIs live at /management (the Company center); the /management/*
         // subpages + the Executive financial dashboard (/executive) are the
-        // Executive center.
+        // Executive center. The Document Center is an exception — it lives in the
+        // Company center (moved there from Executive).
         : pathname === "/management"
           ? "manager"
+          : pathname.startsWith("/management/documents")
+            ? "manager"
           : (pathname.startsWith("/management") || pathname.startsWith("/executive"))
             ? "management"
           // The Sales Team hub lives in the My Branch / Company center (company-wide
