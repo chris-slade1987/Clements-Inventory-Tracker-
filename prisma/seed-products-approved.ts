@@ -332,9 +332,12 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
       // in-app the note is rewritten, so we keep the stored value.
       const pristine = (found.notes ?? "").includes(ADD_NOTE);
       const confirmed = row.confirmed ? true : (pristine ? false : found.confirmed);
-      // A product an admin DISCARDED from the confirm queue stays off — don't
-      // resurrect it (active/approved) on the next deploy.
+      // A product an admin DISCARDED from the confirm queue — or a duplicate the
+      // canonical-catalog reconcile MERGED into its owner-master product — stays off:
+      // don't resurrect it (active/approved) on the next deploy.
       const discarded = (found.notes ?? "").includes(DISCARD_MARK);
+      const merged = (found.notes ?? "").includes("Merged into");
+      if (merged) { updated++; continue; } // leave the merged duplicate inactive
       await prisma.product.update({
         where: { id: found.id },
         data: {

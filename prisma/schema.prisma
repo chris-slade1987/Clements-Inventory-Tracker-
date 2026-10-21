@@ -142,6 +142,11 @@ model Product {
   // --- Reconciled-import fields (inventory reset) ---
   vendorItemNumbers String? @map("vendor_item_numbers")
   lastUnitCost      Float?  @map("last_unit_cost")
+  // --- Product profile (research-enriched; powers the profile card) ---
+  // Physical form (liquid | granular | aerosol | dust | bait_gel | bait_station |
+  // device | fertilizer_granular | …) and a one-line "what it's used / approved for".
+  form              String? @map("form")
+  usedFor           String? @map("used_for")
 
   invoiceLines  InvoiceLine[]
   movements     StockMovement[]

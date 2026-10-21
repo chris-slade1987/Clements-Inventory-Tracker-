@@ -953,6 +953,36 @@ async function main() {
       if (r.log.length) for (const m of r.log) console.log("deploy-db: alias merge —", m);
     });
 
+    // CANONICAL CATALOG RECONCILE — the owner-reconciled master
+    // (prisma/data/inventory-reset/01_product_catalog.csv), keyed by SiteOne item
+    // number, is the single approved source of truth. Ensures one survivor product
+    // per master row (approved + confirmed, owner's name + item #s + cost), merges
+    // every duplicate that resolves to the same item #/name/short-name/alias into it
+    // (on-hand consolidates), and demotes leftover non-canonical rows to off-catalog
+    // for review. Runs AFTER the inventory-reset import (so item-keyed rows exist) and
+    // after the alias merge. Idempotent + non-fatal. This supersedes the earlier
+    // conservative cleanup for consolidation — look-alikes with different item numbers
+    // (the three Cross-Checks, each distinct-NPK fertilizer) correctly stay separate.
+    await runStep("canonical catalog reconcile (SSOT)", async () => {
+      const { reconcileCanonicalCatalog } = await import("./catalog-canonical");
+      const r = await reconcileCanonicalCatalog(prisma, { apply: true });
+      console.log(
+        `deploy-db: canonical catalog — ${r.canonical} master products (${r.created} created), ` +
+          `${r.merged} duplicate(s) merged into their canonical row, ${r.demoted} demoted to off-catalog.`,
+      );
+      if (r.log.length) for (const m of r.log) console.log("deploy-db: canonical merge —", m);
+    });
+
+    // Apply research-enriched product profiles (manufacturer / active ingredient /
+    // EPA # / form / what-it's-used-for) onto the catalog. Fill-if-null; idempotent;
+    // no-ops if prisma/data/product-research.json is absent. Runs after the canonical
+    // reconcile so the survivor rows exist to enrich. NON-FATAL.
+    await runStep("product research enrichment", async () => {
+      const { applyProductResearch } = await import("./apply-product-research");
+      const r = await applyProductResearch(prisma);
+      console.log(`deploy-db: product research — matched ${r.matched}, updated ${r.updated}${r.unmatched.length ? `, unmatched: ${r.unmatched.length}` : ""}.`);
+    });
+
     // PHASE 4 — clear existing product-linked photos so the fresh scanning pass
     // starts clean (owner authorized; photos will be re-captured + reassigned to
     // the SSOT product list). Runs ONCE, guarded by `product_photos_cleared_v1`.
