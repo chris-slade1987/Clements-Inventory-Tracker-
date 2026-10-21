@@ -1,4 +1,70 @@
 import { prisma } from "@/lib/prisma";
+import { branchLabel } from "@/lib/management";
+
+// Unified "filed documents" row for the Documents → Filed archive — spans the
+// branch document library (leases/licenses) AND the vehicle document library,
+// so the Filed tab shows EVERYTHING that's been filed through intake, not just
+// vehicle docs. `edit` carries the fields the branch Edit modal needs.
+export type FiledDoc = {
+  source: "branch" | "vehicle";
+  id: string;
+  title: string;
+  category: string;
+  context: string; // "Orlando" or "#12 · Truck"
+  vehicleId: string | null;
+  branch: string | null;
+  openHref: string | null;
+  expiration: Date | null;
+  createdAt: Date;
+  edit: {
+    id: string; branch: string; category: string; title: string;
+    employeeId: string; holderName: string; licenseType: string; licenseNumber: string; categories: string;
+    issueDate: string; expirationDate: string; landlord: string; monthlyRent: number | null;
+    leaseStart: string; leaseEnd: string; notes: string;
+  } | null; // only branch docs are editable inline
+};
+
+const isoDate = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
+
+/** Everything filed through the Document Center: branch docs (all branches) +
+ *  filed vehicle docs, newest first. Powers the unified Filed archive. */
+export async function allFiledDocuments(limit = 40): Promise<FiledDoc[]> {
+  const [branchDocs, vehDocs] = await Promise.all([
+    prisma.branchDocument.findMany({ orderBy: { createdAt: "desc" }, take: limit }),
+    prisma.vehicleDocument.findMany({
+      where: { status: "filed" },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: { vehicle: { select: { unitNumber: true, name: true } } },
+    }),
+  ]);
+  const rows: FiledDoc[] = [];
+  for (const d of branchDocs) {
+    rows.push({
+      source: "branch", id: d.id, title: d.title, category: d.category,
+      context: d.branch ? branchLabel(d.branch) : "—", vehicleId: null, branch: d.branch,
+      openHref: d.filePath ? `/api/branch/document/${d.id}/file` : null,
+      expiration: d.expirationDate ?? d.leaseEnd, createdAt: d.createdAt,
+      edit: {
+        id: d.id, branch: d.branch, category: d.category, title: d.title,
+        employeeId: d.employeeId ?? "", holderName: d.holderName ?? "", licenseType: d.licenseType ?? "",
+        licenseNumber: d.licenseNumber ?? "", categories: d.categories ?? "",
+        issueDate: isoDate(d.issueDate), expirationDate: isoDate(d.expirationDate),
+        landlord: d.landlord ?? "", monthlyRent: d.monthlyRent, leaseStart: isoDate(d.leaseStart), leaseEnd: isoDate(d.leaseEnd), notes: d.notes ?? "",
+      },
+    });
+  }
+  for (const d of vehDocs) {
+    rows.push({
+      source: "vehicle", id: d.id, title: d.title, category: d.category,
+      context: d.vehicle ? `${d.vehicle.unitNumber ? `#${d.vehicle.unitNumber} · ` : ""}${d.vehicle.name}` : "Vehicle",
+      vehicleId: d.vehicleId, branch: null, openHref: d.filePath,
+      expiration: d.expirationDate, createdAt: d.createdAt, edit: null,
+    });
+  }
+  rows.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  return rows.slice(0, limit);
+}
 
 // Vehicle document center: upload insurance / registration / title docs, let
 // the AI read them and propose where they belong (which vehicle + category),

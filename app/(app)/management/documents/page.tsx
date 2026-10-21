@@ -5,12 +5,15 @@ import { requireUser, isBoardObserver } from "@/lib/auth";
 import { dateShort } from "@/lib/format";
 import { branchLabel } from "@/lib/management";
 import { listVehicles } from "@/lib/fleet";
-import { pendingDocs, recentFiledDocs, expiringDocs, categoryLabel } from "@/lib/documents";
+import { pendingDocs, expiringDocs, allFiledDocuments, categoryLabel } from "@/lib/documents";
 import { recentIntake, destinationLabel, intakeReaderMode } from "@/lib/intake";
+import { BRANCH_DOC_CATEGORIES, LICENSE_TYPES } from "@/lib/branch-hub";
+import { listEmployees } from "@/lib/people";
 import DeleteDocButton from "./DeleteDocButton";
 import DocumentsTabs from "./DocumentsTabs";
 import IntakeWorkbench from "@/app/(app)/management/intake/IntakeWorkbench";
 import FuelStatementUpload from "@/components/FuelStatementUpload";
+import { EditDocButton } from "@/app/(app)/my-branch/documents/BranchHubClient";
 
 export const dynamic = "force-dynamic";
 
@@ -90,10 +93,16 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
     </>
   );
 
+  const canManageDocs = user.role === "admin" || user.role === "manager";
+  const canMoveBranch = user.role === "admin";
+  const docCats = BRANCH_DOC_CATEGORIES.map((c) => ({ key: c.key as string, label: c.label }));
+  const licenseTypeOpts = LICENSE_TYPES.map((c) => ({ key: c.key as string, label: c.label }));
+
   let filedNode: React.ReactNode = null;
   if (canSeeFiled) {
     const now = Date.now();
-    const [pending, filed, expiring] = await Promise.all([pendingDocs(), recentFiledDocs(20), expiringDocs(45)]);
+    const [pending, filed, expiring, employees] = await Promise.all([pendingDocs(), allFiledDocuments(40), expiringDocs(45), listEmployees()]);
+    const empOpts = employees.map((e) => ({ id: e.id, name: e.name }));
     filedNode = (
       <>
         <div className="mb-5">
@@ -141,34 +150,46 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
         ) : null}
 
         <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Recently filed</div>
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Filed documents <span className="font-normal text-muted">· branch + vehicle</span></div>
           {filed.length === 0 ? (
-            <EmptyState title="No documents yet" hint="Add an insurance policy or registration in the Add tab to get started." />
+            <EmptyState title="No documents filed yet" hint="Add a document in the Add tab — once you approve where it goes, it shows here." />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-muted border-b border-line">
                     <th className="px-4 py-2 font-medium">Document</th>
-                    <th className="px-3 py-2 font-medium">Category</th>
-                    <th className="px-3 py-2 font-medium">Vehicle</th>
+                    <th className="px-3 py-2 font-medium">Type</th>
+                    <th className="px-3 py-2 font-medium">Where</th>
                     <th className="px-3 py-2 font-medium">Renewal</th>
                     <th className="px-3 py-2 font-medium text-right">Filed</th>
-                    <th className="px-4 py-2 font-medium text-right"></th>
+                    <th className="px-4 py-2 font-medium text-right">Manage</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filed.map((d) => (
-                    <tr key={d.id} className="border-b border-line last:border-0">
+                    <tr key={`${d.source}-${d.id}`} className="border-b border-line last:border-0">
                       <td className="px-4 py-2">
-                        {d.filePath ? <a href={d.filePath} target="_blank" className="font-medium text-brand-700 hover:underline">{d.title}</a> : <span className="font-medium">{d.title}</span>}
-                        {d.insurer ? <div className="text-[11px] text-muted">{d.insurer}{d.policyNumber ? ` · ${d.policyNumber}` : ""}</div> : null}
+                        {d.openHref ? <a href={d.openHref} target="_blank" className="font-medium text-brand-700 hover:underline">{d.title}</a> : <span className="font-medium">{d.title}</span>}
                       </td>
-                      <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${CAT_STYLE[d.category]}`}>{categoryLabel(d.category)}</span></td>
-                      <td className="px-3 py-2">{d.vehicle ? <Link href={`/fleet/${d.vehicleId}`} className="text-brand-700 hover:underline">{d.vehicle.unitNumber ? `#${d.vehicle.unitNumber} · ` : ""}{d.vehicle.name}</Link> : "—"}</td>
-                      <td className="px-3 py-2 text-muted">{d.expirationDate ? dateShort(d.expirationDate) : "—"}</td>
+                      <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${CAT_STYLE[d.category] ?? "bg-slate-100 text-slate-600"}`}>{d.source === "branch" ? d.category.charAt(0).toUpperCase() + d.category.slice(1) : categoryLabel(d.category)}</span></td>
+                      <td className="px-3 py-2">
+                        {d.source === "vehicle" && d.vehicleId ? <Link href={`/fleet/${d.vehicleId}`} className="text-brand-700 hover:underline">{d.context}</Link> : <span className="text-muted">{d.context}</span>}
+                      </td>
+                      <td className="px-3 py-2 text-muted">{d.expiration ? dateShort(d.expiration) : "—"}</td>
                       <td className="px-3 py-2 text-right text-muted">{dateShort(d.createdAt)}</td>
-                      <td className="px-4 py-2 text-right"><DeleteDocButton id={d.id} /></td>
+                      <td className="px-4 py-2 text-right">
+                        {canManageDocs ? (
+                          <span className="inline-flex items-center gap-3">
+                            {d.source === "branch" && d.edit ? (
+                              <EditDocButton doc={d.edit} branches={BRANCH_OPTS} docCats={docCats} licenseTypes={licenseTypeOpts} employees={empOpts} canMove={canMoveBranch} />
+                            ) : d.source === "vehicle" && d.vehicleId ? (
+                              <Link href={`/fleet/${d.vehicleId}`} className="text-xs font-medium text-brand-700 hover:underline">Edit</Link>
+                            ) : null}
+                            <DeleteDocButton id={d.id} kind={d.source === "branch" ? "branch" : "vehicle"} />
+                          </span>
+                        ) : null}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
