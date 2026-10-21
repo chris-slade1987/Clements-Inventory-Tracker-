@@ -45,7 +45,7 @@ export default async function CatalogReviewPage() {
   return (
     <ReviewTabs
       tabs={[
-        { key: "duplicates", label: "Duplicates", count: review.clusters.length, node: <DuplicateClusters clusters={review.clusters} /> },
+        { key: "duplicates", label: "Duplicates", count: review.clusters.length, node: <DuplicateClusters clusters={review.clusters} confirmedProducts={review.confirmedProducts} /> },
         { key: "offcatalog", label: "Off-catalog", count: review.offCatalog.length, node: <OffCatalogList products={review.offCatalog} confirmedProducts={review.confirmedProducts} /> },
         { key: "pending", label: "New products", count: pendingRaw.length, node: pendingNode },
       ]}

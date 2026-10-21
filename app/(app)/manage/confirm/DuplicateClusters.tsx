@@ -11,101 +11,144 @@ type ReviewProduct = {
 };
 type Cluster = { key: string; products: ReviewProduct[] };
 
-// Likely-duplicate clusters (same base name ignoring brand/size/case). The human
-// picks the survivor and merges the rest in — or dismisses a cluster whose members
-// are genuinely different products (e.g. the three distinct Cross-Checks).
-export default function DuplicateClusters({ clusters }: { clusters: Cluster[] }) {
+// Look-alike groups. Each product has its OWN action — there is NO "pick one
+// winner". Confirm every product that is genuinely its own thing (e.g. the three
+// different Cross-Checks, each distinct-NPK fertilizer), and only Merge the ones
+// that are true duplicates into whichever product they belong to. "Keep all"
+// dismisses a group you've finished (or that was never duplicated).
+export default function DuplicateClusters({
+  clusters,
+  confirmedProducts,
+}: {
+  clusters: Cluster[];
+  confirmedProducts: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-  const [survivor, setSurvivor] = useState<Record<string, string>>(() =>
-    Object.fromEntries(clusters.map((c) => [c.key, c.products[0]?.id ?? ""])),
-  );
-  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mergeTarget, setMergeTarget] = useState<Record<string, string>>({});
 
   const visible = clusters.filter((c) => !dismissed.has(c.key));
 
-  async function mergeCluster(c: Cluster) {
-    const keepId = survivor[c.key];
-    if (!keepId) { setError("Pick which one to keep."); return; }
-    const losers = c.products.filter((p) => p.id !== keepId);
-    if (losers.length === 0) { setDismissed((s) => new Set(s).add(c.key)); return; }
-    if (!window.confirm(`Merge ${losers.length} product(s) into "${c.products.find((p) => p.id === keepId)?.name}"? On-hand and history move to the kept product; the others are deactivated.`)) return;
-    setBusyKey(c.key);
+  async function post(body: Record<string, unknown>, id: string) {
+    setBusyId(id);
     setError(null);
     try {
-      for (const l of losers) {
-        const res = await fetch("/api/products/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "merge", id: l.id, targetId: keepId }),
-        });
-        if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? "Merge failed."); }
-      }
-      setBusyKey(null);
+      const res = await fetch("/api/products/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.error ?? "Action failed."); setBusyId(null); return; }
       router.refresh();
-    } catch (e) {
-      setBusyKey(null);
-      setError((e as Error).message);
+    } catch {
+      setError("Network error. Try again."); setBusyId(null);
     }
   }
 
+  // Approve every not-yet-cataloged product in a group at once (they're all distinct).
+  async function approveAll(c: Cluster) {
+    const todo = c.products.filter((p) => !(p.approved && p.confirmed));
+    if (todo.length === 0) { setDismissed((s) => new Set(s).add(c.key)); return; }
+    setBusyId(c.key);
+    setError(null);
+    try {
+      for (const p of todo) {
+        const res = await fetch("/api/products/confirm", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "approve", id: p.id }),
+        });
+        if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? "Approve failed."); }
+      }
+      setBusyId(null);
+      router.refresh();
+    } catch (e) { setError((e as Error).message); setBusyId(null); }
+  }
+
   if (visible.length === 0) {
-    return <p className="text-sm text-muted">No duplicate clusters detected. Nicely consolidated.</p>;
+    return <p className="text-sm text-muted">No look-alike groups left to review. Nicely consolidated.</p>;
   }
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted">
-        Products whose names look alike are grouped below. Pick the one to <strong>keep</strong> (the clean, approved,
-        mixed-case name is pre-selected), then merge the rest in — their on-hand and history move onto the kept product.
-        If a group is actually different products (e.g. a liquid vs. a granular), hit <em>Keep all</em>.
+        Products whose names look alike are grouped below. These are <strong>not</strong> assumed to be the same thing —
+        <strong> Approve</strong> each one that is its own real product (different size, NPK, or formula), and only
+        <strong> Merge</strong> the ones that are true duplicates into the product they belong to. Use <em>Keep all</em>
+        once a group is sorted.
       </p>
       {error ? <p className="text-sm text-red-600" role="alert">{error}</p> : null}
-      {visible.map((c) => {
-        const busy = busyKey === c.key;
-        return (
-          <Card key={c.key} className="p-4">
-            <div className="mb-2 text-xs font-medium text-muted">{c.products.length} look-alikes</div>
-            <ul className="divide-y divide-line">
-              {c.products.map((p) => (
-                <li key={p.id} className="flex items-start gap-3 py-2">
-                  <input
-                    type="radio"
-                    name={`survivor-${c.key}`}
-                    checked={survivor[c.key] === p.id}
-                    onChange={() => setSurvivor((m) => ({ ...m, [c.key]: p.id }))}
-                    className="mt-1"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-sm font-medium">{p.name}</span>
-                      {p.approved ? (
-                        <span className="rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">Approved</span>
-                      ) : (
-                        <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">Off-catalog</span>
-                      )}
-                      {!p.confirmed ? <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">Unconfirmed</span> : null}
-                      {p.allCaps ? <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">ALL-CAPS</span> : null}
-                    </div>
-                    <div className="text-[11px] text-muted">
-                      {p.unitLabel}{p.divisionLabel && p.divisionLabel !== "—" ? ` · ${p.divisionLabel}` : ""}{p.distributorSku ? ` · SKU ${p.distributorSku}` : ""} · {p.onHand} on hand
+      {visible.map((c) => (
+        <Card key={c.key} className="p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="text-xs font-medium text-muted">{c.products.length} look-alikes — confirm each real one, merge duplicates</div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => approveAll(c)} disabled={busyId === c.key} className="text-xs font-semibold text-brand-700 hover:underline">
+                {busyId === c.key ? "Approving…" : "Approve all as distinct"}
+              </button>
+              <button onClick={() => setDismissed((s) => new Set(s).add(c.key))} className="text-xs font-medium text-muted hover:text-ink">Keep all / done</button>
+            </div>
+          </div>
+          <ul className="divide-y divide-line">
+            {c.products.map((p) => {
+              const busy = busyId === p.id;
+              const cataloged = p.approved && p.confirmed;
+              // Merge targets: the OTHER members of this group + the approved catalog.
+              const others = c.products.filter((x) => x.id !== p.id);
+              return (
+                <li key={p.id} className="py-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-sm font-medium">{p.name}</span>
+                    {cataloged ? (
+                      <span className="rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">Approved</span>
+                    ) : p.approved ? (
+                      <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">Unconfirmed</span>
+                    ) : (
+                      <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">Off-catalog</span>
+                    )}
+                    {p.allCaps ? <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">ALL-CAPS</span> : null}
+                  </div>
+                  <div className="text-[11px] text-muted">
+                    {p.unitLabel}{p.divisionLabel && p.divisionLabel !== "—" ? ` · ${p.divisionLabel}` : ""}{p.distributorSku ? ` · SKU ${p.distributorSku}` : ""} · {p.onHand} on hand
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {!cataloged ? (
+                      <button onClick={() => post({ action: "approve", id: p.id }, p.id)} disabled={busy} className={btn.primary}>
+                        {busy ? "…" : "Approve (it's its own product)"}
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-brand-700">✓ on the approved catalog</span>
+                    )}
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <select
+                        value={mergeTarget[p.id] ?? ""}
+                        onChange={(e) => setMergeTarget((m) => ({ ...m, [p.id]: e.target.value }))}
+                        className="max-w-[12rem] rounded-lg border border-line px-2 py-1.5 text-sm bg-surface"
+                      >
+                        <option value="">Merge into…</option>
+                        {others.length > 0 ? (
+                          <optgroup label="In this group">
+                            {others.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                          </optgroup>
+                        ) : null}
+                        <optgroup label="Approved catalog">
+                          {confirmedProducts.filter((cp) => cp.id !== p.id).map((cp) => <option key={cp.id} value={cp.id}>{cp.name}</option>)}
+                        </optgroup>
+                      </select>
+                      <button onClick={() => mergeTarget[p.id] && post({ action: "merge", id: p.id, targetId: mergeTarget[p.id] }, p.id)} disabled={busy || !mergeTarget[p.id]} className={btn.secondary}>
+                        Merge
+                      </button>
+                      <button onClick={() => post({ action: "discard", id: p.id }, p.id)} disabled={busy} className="text-xs font-medium text-muted hover:text-red-600">Discard</button>
                     </div>
                   </div>
                 </li>
-              ))}
-            </ul>
-            <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
-              <button onClick={() => mergeCluster(c)} disabled={busy} className={btn.primary}>
-                {busy ? "Merging…" : "Merge into the kept product"}
-              </button>
-              <button onClick={() => setDismissed((s) => new Set(s).add(c.key))} disabled={busy} className="ml-auto text-sm font-medium text-muted hover:text-ink">
-                Keep all (different products)
-              </button>
-            </div>
-          </Card>
-        );
-      })}
+              );
+            })}
+          </ul>
+        </Card>
+      ))}
     </div>
   );
 }
