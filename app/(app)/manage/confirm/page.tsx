@@ -1,65 +1,54 @@
 import { redirect } from "next/navigation";
-import { EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
+import { catalogReview } from "@/lib/catalog-review";
 import ConfirmQueue from "./ConfirmQueue";
+import OffCatalogList from "./OffCatalogList";
+import DuplicateClusters from "./DuplicateClusters";
+import ReviewTabs from "./ReviewTabs";
 
 export const dynamic = "force-dynamic";
 
-export default async function ConfirmQueuePage() {
-  // Admin + HR only (data-quality gate). The layout already gates access; this
-  // is an explicit belt-and-braces guard.
+// Catalog Review — one place to consolidate the catalog into a single source of
+// truth: merge duplicate look-alikes, approve/merge/discard off-catalog items, and
+// confirm auto-added products. Admin + HR only (data-quality gate).
+export default async function CatalogReviewPage() {
   const user = await requireUser();
   if (user.role !== "admin" && !user.hrAccess) redirect("/dashboard");
 
-  const [pending, confirmedProducts] = await Promise.all([
-    prisma.product.findMany({
-      where: { confirmed: false, active: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.product.findMany({
-      where: { confirmed: true, active: true },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+  const [pendingRaw, review] = await Promise.all([
+    prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
+    catalogReview(),
   ]);
 
-  if (pending.length === 0) {
-    return (
-      <EmptyState
-        title="Nothing to confirm"
-        hint="Every catalog product has been reviewed. Auto-added products (from invoices or history) will appear here for a manager to confirm before they can be checked out."
-      />
-    );
-  }
-
-  return (
+  const pendingNode = pendingRaw.length === 0 ? (
+    <p className="text-sm text-muted">No auto-added products waiting to be confirmed.</p>
+  ) : (
     <>
-      <p className="mb-4 text-sm text-muted">
-        {pending.length} product{pending.length === 1 ? "" : "s"} auto-added from invoices or
-        transfer history need a manager to confirm the details before they can be dispersed at
-        check-out. Review each row, fix the name / classification / unit, then confirm — or merge a
-        naming variant into an existing product.
+      <p className="mb-3 text-sm text-muted">
+        Products auto-added from invoices or transfer history. Review each, fix the name / classification / unit, then
+        confirm — or merge a naming variant into an existing product.
       </p>
       <ConfirmQueue
-        products={pending.map((p) => ({
-          id: p.id,
-          name: p.name,
-          division: p.division,
-          subdivision: p.subdivision,
-          divisionLabel: divisionLabel(p.division),
-          unitOfMeasure: p.unitOfMeasure,
-          unitLabel: uomLabel(p.unitOfMeasure),
-          unitsPerCase: p.unitsPerCase,
-          category: p.category,
-          manufacturer: p.manufacturer,
-          notes: p.notes,
-          distributorSku: p.distributorSku,
+        products={pendingRaw.map((p) => ({
+          id: p.id, name: p.name, division: p.division, subdivision: p.subdivision,
+          divisionLabel: divisionLabel(p.division), unitOfMeasure: p.unitOfMeasure, unitLabel: uomLabel(p.unitOfMeasure),
+          unitsPerCase: p.unitsPerCase, category: p.category, manufacturer: p.manufacturer, notes: p.notes, distributorSku: p.distributorSku,
         }))}
-        confirmedProducts={confirmedProducts}
+        confirmedProducts={review.confirmedProducts}
       />
     </>
+  );
+
+  return (
+    <ReviewTabs
+      tabs={[
+        { key: "duplicates", label: "Duplicates", count: review.clusters.length, node: <DuplicateClusters clusters={review.clusters} /> },
+        { key: "offcatalog", label: "Off-catalog", count: review.offCatalog.length, node: <OffCatalogList products={review.offCatalog} confirmedProducts={review.confirmedProducts} /> },
+        { key: "pending", label: "New products", count: pendingRaw.length, node: pendingNode },
+      ]}
+    />
   );
 }

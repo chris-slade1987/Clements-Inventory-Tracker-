@@ -210,6 +210,60 @@ export async function cleanupCatalog(prisma: PrismaClient, opts: { apply: boolea
 }
 
 /**
+ * Alias-driven SAFE merge — collapses the all-caps / long-form duplicate rows into
+ * their canonical catalog product using the HUMAN-CURATED PestPac alias map
+ * (`lib/product-aliases.ts`). These are verified 1:1 mappings (e.g. "LESCO
+ * CROSSCHECK PLUS LIQUID INSECTICIDE 1 GAL" → "CrossCheck Plus"), so merging them
+ * automatically is safe — unlike the risky look-alikes (the three different
+ * Cross-Checks), which are left for the human Catalog Review screen. PestPac
+ * truncates material names to ~30 chars, so a product whose normalized name starts
+ * with a (≥12-char) alias key is treated as that alias. Repoints ALL history onto
+ * the canonical product so on-hand consolidates; never hard-deletes.
+ */
+export async function aliasMergeCatalog(prisma: PrismaClient, opts: { apply: boolean }): Promise<{ merged: number; log: string[] }> {
+  const { PRODUCT_ALIASES, normalizeProductName } = await import("../lib/product-aliases");
+  const products = await prisma.product.findMany({
+    where: { active: true },
+    select: { id: true, name: true, approved: true, confirmed: true, notes: true },
+  });
+  const rank = (p: { approved: boolean; confirmed: boolean; name: string }) =>
+    (p.approved && p.confirmed ? 4 : p.approved ? 2 : 0) + (p.name === p.name.toUpperCase() ? 0 : 1);
+
+  // Canonical product per normalized name (best-ranked wins).
+  const canonByNorm = new Map<string, typeof products[number]>();
+  for (const p of products) {
+    const n = normalizeProductName(p.name);
+    const cur = canonByNorm.get(n);
+    if (!cur || rank(p) > rank(cur)) canonByNorm.set(n, p);
+  }
+  const aliasEntries = Object.entries(PRODUCT_ALIASES);
+  const result = { merged: 0, log: [] as string[] };
+
+  for (const p of products) {
+    const norm = normalizeProductName(p.name);
+    let canonName: string | undefined = PRODUCT_ALIASES[norm];
+    if (!canonName) {
+      for (const [k, v] of aliasEntries) { if (k.length >= 12 && norm.startsWith(k)) { canonName = v; break; } }
+    }
+    if (!canonName) continue;
+    const target = canonByNorm.get(normalizeProductName(canonName));
+    if (!target || target.id === p.id) continue;
+    if (normalizeProductName(p.name) === normalizeProductName(target.name)) continue; // same name — v1 handled it
+    result.merged++;
+    result.log.push(`"${p.name}" (${p.id}) → "${target.name}" (${target.id})`);
+    if (!opts.apply) continue;
+    await prisma.$transaction([
+      prisma.invoiceLine.updateMany({ where: { productId: p.id }, data: { productId: target.id } }),
+      prisma.stockMovement.updateMany({ where: { productId: p.id }, data: { productId: target.id } }),
+      prisma.productBarcode.updateMany({ where: { productId: p.id }, data: { productId: target.id } }),
+      prisma.checkoutLine.updateMany({ where: { productId: p.id }, data: { productId: target.id } }),
+      prisma.product.update({ where: { id: p.id }, data: { active: false, confirmed: true, notes: [p.notes, `Merged into "${target.name}" (${target.id}) by alias cleanup.`].filter(Boolean).join(" ") } }),
+    ]);
+  }
+  return result;
+}
+
+/**
  * Phase 4 — clear every product-linked photo so the fresh scanning pass starts
  * from a clean slate. Today the only product-linked photos are the AI/scan photos
  * captured on checkout lines (CheckoutLine.photoUrl); this nulls those references.

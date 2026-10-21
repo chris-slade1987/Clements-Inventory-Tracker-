@@ -51,6 +51,9 @@ export default function ManageProducts({ products }: { products: Product[] }) {
   const [q, setQ] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [mfrFilter, setMfrFilter] = useState("");
+  // Approval status — default to the APPROVED CATALOG (the single source of truth);
+  // switch to Off-catalog to see items still awaiting a review decision.
+  const [statusFilter, setStatusFilter] = useState<"approved" | "off" | "all">("approved");
 
   const manufacturers = Array.from(
     new Set(products.map((p) => p.manufacturer?.trim()).filter((m): m is string => !!m))
@@ -59,6 +62,8 @@ export default function ManageProducts({ products }: { products: Product[] }) {
   const needle = q.trim().toLowerCase();
   const visible = products.filter((p) => {
     if (!showInactive && !p.active) return false;
+    if (statusFilter === "approved" && !p.approved) return false;
+    if (statusFilter === "off" && p.approved) return false;
     if (catFilter && (p.category ?? "") !== catFilter) return false;
     if (mfrFilter && (p.manufacturer ?? "") !== mfrFilter) return false;
     if (needle) {
@@ -70,7 +75,7 @@ export default function ManageProducts({ products }: { products: Product[] }) {
     }
     return true;
   });
-  const filtered = catFilter || mfrFilter || needle;
+  const filtered = catFilter || mfrFilter || needle || statusFilter !== "approved";
 
   async function save() {
     if (!form) return;
@@ -170,9 +175,19 @@ export default function ManageProducts({ products }: { products: Product[] }) {
           <option value="">All manufacturers</option>
           {manufacturers.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as "approved" | "off" | "all")}
+          className="rounded-lg border border-line px-3 py-2 text-sm bg-surface"
+          title="Approved catalog is your single source of truth; off-catalog items await a review decision"
+        >
+          <option value="approved">Approved catalog</option>
+          <option value="off">Off-catalog (review)</option>
+          <option value="all">All</option>
+        </select>
         {filtered ? (
           <button
-            onClick={() => { setQ(""); setCatFilter(""); setMfrFilter(""); }}
+            onClick={() => { setQ(""); setCatFilter(""); setMfrFilter(""); setStatusFilter("approved"); }}
             className="text-xs font-medium text-brand-200 hover:underline"
           >
             Clear

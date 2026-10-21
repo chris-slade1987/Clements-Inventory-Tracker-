@@ -78,11 +78,16 @@ export async function POST(req: Request) {
       ]);
       if (!src || !target) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
-      // Repoint the variant's purchase-history lines onto the canonical product,
-      // then deactivate the variant. Stock movements are NEVER touched (on-hand is
-      // preserved); nothing is hard-deleted.
+      // Repoint ALL of the variant's history — purchase lines, stock movements,
+      // barcodes, and checkout lines — onto the canonical product so ON-HAND
+      // CONSOLIDATES onto one row, then deactivate the variant. Nothing is
+      // hard-deleted; repointing a movement's productId keeps the full audit trail,
+      // just attributed to the canonical product (the core data rule is preserved).
       await prisma.$transaction([
         prisma.invoiceLine.updateMany({ where: { productId: id }, data: { productId: targetId } }),
+        prisma.stockMovement.updateMany({ where: { productId: id }, data: { productId: targetId } }),
+        prisma.productBarcode.updateMany({ where: { productId: id }, data: { productId: targetId } }),
+        prisma.checkoutLine.updateMany({ where: { productId: id }, data: { productId: targetId } }),
         prisma.product.update({
           where: { id },
           data: {
@@ -93,6 +98,30 @@ export async function POST(req: Request) {
         }),
       ]);
       return NextResponse.json({ ok: true, mergedInto: target.id });
+    }
+
+    // Approve an off-catalog product onto the approved catalog. Saves any edited
+    // name/classification/unit (same fields as confirm) and sets approved+confirmed
+    // so it becomes checkout-eligible and leaves the review queue.
+    if (action === "approve") {
+      const id = String(body?.id ?? "");
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      const existing = await prisma.product.findUnique({ where: { id } });
+      if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+      const name = clean(body?.name) ?? existing.name;
+      const unitOfMeasure = clean(body?.unitOfMeasure) ?? existing.unitOfMeasure;
+      if (!isUomCode(unitOfMeasure)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
+      const { division, subdivision } = normalizeClassification(body?.division, body?.subdivision);
+      const notes = clean((existing.notes ?? "").replace(/Flagged for review by catalog cleanup[^.]*\.\s*/i, "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
+      await prisma.product.update({
+        where: { id },
+        data: {
+          name, unitOfMeasure,
+          division: division ?? existing.division, subdivision: subdivision ?? existing.subdivision,
+          approved: true, confirmed: true, active: true, notes,
+        },
+      });
+      return NextResponse.json({ ok: true });
     }
 
     if (action === "discard") {

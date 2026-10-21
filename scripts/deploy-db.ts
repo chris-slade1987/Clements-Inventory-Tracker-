@@ -941,6 +941,18 @@ async function main() {
       if (r.mergeLog.length) for (const m of r.mergeLog) console.log("deploy-db: catalog cleanup merge —", m);
     });
 
+    // ALIAS MERGE — collapse all-caps / long-form duplicate product rows into their
+    // canonical catalog product using the curated PestPac alias map (safe 1:1
+    // mappings only; the risky look-alikes go to the human Catalog Review screen).
+    // Runs EVERY deploy (idempotent — once a variant is merged it's inactive and
+    // won't re-match) so newly-imported duplicates keep getting folded in. NON-FATAL.
+    await runStep("alias catalog merge", async () => {
+      const { aliasMergeCatalog } = await import("./catalog-cleanup");
+      const r = await aliasMergeCatalog(prisma, { apply: true });
+      console.log(`deploy-db: alias catalog merge — ${r.merged} duplicate row(s) folded into their canonical product.`);
+      if (r.log.length) for (const m of r.log) console.log("deploy-db: alias merge —", m);
+    });
+
     // PHASE 4 — clear existing product-linked photos so the fresh scanning pass
     // starts clean (owner authorized; photos will be re-captured + reassigned to
     // the SSOT product list). Runs ONCE, guarded by `product_photos_cleared_v1`.

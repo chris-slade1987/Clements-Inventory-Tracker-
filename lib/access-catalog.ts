@@ -47,7 +47,7 @@ export const MODULES: AccessModule[] = [
     { id: "photo-catalog", name: "Photo Catalog", note: "Capture + match product label photos (human-in-the-loop); managers + admins" },
     { id: "catalog", name: "Catalog" }, { id: "labels", name: "Labels" } ] },
   { id: "catadmin", name: "Catalog & Inventory Admin", sub: "The /manage area", items: [
-    { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Confirm Queue" },
+    { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Catalog Review", note: "Duplicates + off-catalog + new-product confirm queue" },
     { id: "product-requests", name: "Product Requests", note: "New-product approval queue — super-admin-only (Chris, Julie, April); self-guarded with isSuperAdmin" },
     { id: "technicians", name: "Technicians" } ] },
   { id: "fleet", name: "Fleet", sub: "Vehicles & fuel", items: [
