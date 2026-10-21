@@ -202,6 +202,7 @@ export default function IntakeWorkbench({ vehicles, branches }: { vehicles: Vehi
                   <span className="ml-auto rounded-full border border-brand-100 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-600">{proposal.handoff ? "Hand-off" : "Agentic"}</span>
                 </div>
                 <div className="space-y-2.5 p-3.5">
+                  <p className="text-[11px] text-muted">Reading a file doesn&apos;t file it. Confirm where it should live below — change the destination or branch if Canopy guessed wrong — then <b>Approve &amp; file</b>.</p>
                   <label className="block text-xs font-medium text-ink">Destination
                     <select value={proposal.destination} onChange={(e) => applyProposal({ ...proposal, destination: e.target.value, params })}
                       className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm">

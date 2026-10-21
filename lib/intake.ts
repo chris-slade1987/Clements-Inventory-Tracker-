@@ -49,7 +49,7 @@ const BRANCHES = ["vero", "stuart", "orlando", "naples"] as const;
 const READ_PROMPT = `You are the intake reader for a pest-control company's back-office portal. A manager just dropped in a file. Read it and return JSON with EXACTLY this shape and nothing else:
 
 {
-  "kind": "vehicle_insurance" | "vehicle_registration" | "vehicle_title" | "vehicle_inspection" | "mbr" | "invoice" | "handbook" | "scorecard" | "other",
+  "kind": "vehicle_insurance" | "vehicle_registration" | "vehicle_title" | "vehicle_inspection" | "lease" | "license" | "mbr" | "invoice" | "handbook" | "scorecard" | "other",
   "title": string,            // short human title, e.g. "Progressive Commercial Auto Policy"
   "summary": string,          // 1-2 plain sentences a manager reads to confirm where it belongs
   "fields": {                 // include only the keys you actually find; omit the rest
@@ -66,7 +66,7 @@ const READ_PROMPT = `You are the intake reader for a pest-control company's back
 }
 
 Rules:
-- Pick the single best "kind".
+- Pick the single best "kind". A property/office LEASE or rental agreement → "lease". A business, occupational or pest-control LICENSE or permit → "license". Both of these belong to a BRANCH, so always try to fill "branch_hint" for them.
 - Dates as ISO yyyy-mm-dd. Omit any field you cannot find.
 - Respond with ONLY the JSON object — no prose, no code fences.`;
 
@@ -174,6 +174,23 @@ export async function suggestDestination(a: IntakeAnalysis): Promise<Suggestion>
         effectiveDate: f.effective_date ?? null,
         expirationDate: f.expiration_date ?? null,
         remindHr: true,
+      },
+    };
+  }
+  // Leases, licenses and other branch paperwork → the branch Document hub (so
+  // they show on that branch's Branch Hub page), with the branch pre-selected
+  // from the hint when we found one (else the user picks it on the proposal card).
+  if (a.kind === "lease" || a.kind === "license" || a.kind === "licensing") {
+    const category = a.kind === "lease" ? "lease" : "licensing";
+    return {
+      destination: "branch_document",
+      params: {
+        branch: branchKeyFromHint(f.branch_hint),
+        category,
+        title: a.title,
+        effectiveDate: f.effective_date ?? null,
+        expirationDate: f.expiration_date ?? null,
+        notes: null,
       },
     };
   }
