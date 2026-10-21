@@ -11,6 +11,7 @@ const TABS: { href: string; label: string; adminOnly?: boolean }[] = [
   { href: "/inventory/history", label: "History" },
   { href: "/inventory/stock", label: "Stock" },
   { href: "/inventory/stock-count", label: "Stock Count" },
+  { href: "/inventory/photos", label: "Photo Catalog" },
   { href: "/inventory/labels", label: "Labels", adminOnly: true },
   { href: "/inventory/catalog", label: "Catalog", adminOnly: true },
 ];

@@ -148,6 +148,7 @@ model Product {
   alerts        Alert[]
   barcodes      ProductBarcode[]
   checkoutLines CheckoutLine[]
+  photos        ProductPhoto[]
 
   @@map("products")
 }
@@ -304,6 +305,40 @@ model ProductRequest {
 
   @@index([status])
   @@map("product_requests")
+}
+
+// A photo of a product's LABEL / barcode, captured in the Photo Catalog scanning
+// flow (Phase 6). HUMAN-IN-THE-LOOP: the photo is saved as `unassigned`, the AI
+// only proposes a match, and a person must assign it to a product (or discard it).
+// A photo can be re-assigned to a different product or deleted at any time, so a
+// wrong match is always correctable. `primary` marks the product's canonical label
+// photo (at most one per product); the product profile surfaces it. Not an audit
+// record — deleting one is a true delete (unlike stock movements).
+model ProductPhoto {
+  id                   String    @id @default(cuid())
+  productId            String?   @map("product_id") // null while unassigned / discarded
+  photoUrl             String    @map("photo_url")
+  status               String    @default("unassigned") // "unassigned" | "assigned" | "discarded"
+  kind                 String    @default("label") // "label" | "barcode" | "other"
+  primary              Boolean   @default(false) // the product's canonical label photo
+  aiSuggestedProductId String?   @map("ai_suggested_product_id")
+  aiConfidence         Float?    @map("ai_confidence")
+  labelText            String?   @map("label_text")
+  capturedByUserId     String?   @map("captured_by_user_id")
+  capturedByName       String?   @map("captured_by_name")
+  warehouseId          String?   @map("warehouse_id")
+  branch               String?
+  assignedByUserId     String?   @map("assigned_by_user_id")
+  assignedByName       String?   @map("assigned_by_name")
+  assignedAt           DateTime? @map("assigned_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([status])
+  @@map("product_photos")
 }
 
 // Every stock change is a movement. On-hand = SUM(quantity) per product+warehouse.

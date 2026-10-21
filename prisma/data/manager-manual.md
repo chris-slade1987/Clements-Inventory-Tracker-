@@ -1057,6 +1057,14 @@ If a check-out would drive on-hand **negative**, the portal **blocks it** with a
 
 If you need to dispense something that isn't on the approved catalog yet — a **rep sample**, or anything that never came in on an invoice — you can't check it out directly (the cataloged hard stop above). Instead, tap **Request approval** on the blocked item (in the product search or on the block pop-up). Give it a name and, optionally, why you need it, and send it. The request goes to **all of the super admins (Chris, Julie, April)** as an **email and a "Needs attention" alert on their dashboard**. Any one of them can approve it in **Inventory Administration → Requests**. The moment it's approved the product is cataloged, **you're notified**, and you can go back to Check-Out and dispense it. If it's denied you'll get a note explaining why.
 
+### Photo Catalog (matching product photos to the catalog)
+
+**Inventory → Photo Catalog** is where product **label photos** are captured and matched to the approved catalog. It is deliberately **human-in-the-loop**:
+
+- **Take the photo**, then **review the shot** on screen. Nothing is sent anywhere until you choose — **Submit for AI reading**, or **Delete / retake** if it's blurry or you grabbed the wrong thing.
+- After reading, the portal **suggests** the most likely products — it never assigns on its own. **Tap a suggestion to assign it**, use **"choose other product"** to search the catalog and override a wrong guess, or **"Not a product — discard"** if you photographed something that isn't inventory.
+- The assigned photo becomes that product's **primary label photo**. Everything lives in the **gallery**, where any photo can be **re-assigned to a different product or deleted** — so a mistake is always a quick fix, never permanent.
+
 **Stock count.** A product shows "Not yet counted" until you do a physical count of it at your branch. From **Inventory → Stock Count**, enter the counted quantity for each product and save; the portal writes the **adjustment** needed to match and marks the product counted (after that its check-out quantity is capped at the real on-hand, not 40). The screen shows the **whole shelf** — it lists every product (paged, with a "Showing X–Y of N" footer and a tally of how many have never been counted at your branch), so nothing is hidden. **Scan to jump** lets you scan a product's barcode to jump straight to its row. If you switch branch or leave with **unsaved counts**, the portal warns you first. Current on-hand by product is on **Inventory → Stock**.
 
 ### Month-end physical reconciliation

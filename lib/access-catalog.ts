@@ -44,6 +44,7 @@ export const MODULES: AccessModule[] = [
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
     { id: "dashboard", name: "Inventory Dashboard" }, { id: "check-in", name: "Check-In" }, { id: "check-out", name: "Check-Out" }, { id: "stock", name: "Stock" },
     { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports" }, { id: "alerts", name: "Alerts" },
+    { id: "photo-catalog", name: "Photo Catalog", note: "Capture + match product label photos (human-in-the-loop); managers + admins" },
     { id: "catalog", name: "Catalog" }, { id: "labels", name: "Labels" } ] },
   { id: "catadmin", name: "Catalog & Inventory Admin", sub: "The /manage area", items: [
     { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Confirm Queue" },
@@ -105,7 +106,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",
-    dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true,
+    dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true, "photo-catalog": true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
     management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
   },

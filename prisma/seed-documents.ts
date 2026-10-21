@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 32 · Last updated October 21, 2026",
+    effective: "Version 33 · Last updated October 21, 2026",
+    // v33: added the "Photo Catalog" section — human-in-the-loop capture (review
+    // before submit), AI suggests but never auto-assigns, choose-other-product
+    // override, discard, and a re-assignable/deletable gallery.
     // v32: Check-OUT reconciled to the "properly cataloged" hard stop (nothing
     // dispenses unless it's on the approved catalog + confirmed + active) and the new
     // self-service "Requesting a new product" flow (sample/off-catalog → super-admin
@@ -154,7 +157,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 32,
+    version: 33,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
