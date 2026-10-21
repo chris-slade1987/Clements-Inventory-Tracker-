@@ -46,7 +46,9 @@ export const MODULES: AccessModule[] = [
     { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports" }, { id: "alerts", name: "Alerts" },
     { id: "catalog", name: "Catalog" }, { id: "labels", name: "Labels" } ] },
   { id: "catadmin", name: "Catalog & Inventory Admin", sub: "The /manage area", items: [
-    { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Confirm Queue" }, { id: "technicians", name: "Technicians" } ] },
+    { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Confirm Queue" },
+    { id: "product-requests", name: "Product Requests", note: "New-product approval queue — super-admin-only (Chris, Julie, April); self-guarded with isSuperAdmin" },
+    { id: "technicians", name: "Technicians" } ] },
   { id: "fleet", name: "Fleet", sub: "Vehicles & fuel", items: [
     { id: "fleet", name: "Fleet Overview" }, { id: "fleet-detail", name: "Vehicle Detail" }, { id: "fleet-inspect", name: "Inspect Vehicle" },
     { id: "fleet-assign", name: "Driver Assignments" }, { id: "fleet-fuel", name: "Fuel" }, { id: "fleet-service", name: "Log Service" }, { id: "fleet-retired", name: "Retired Vehicles" } ] },
@@ -98,8 +100,8 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   // Data Connections and Copilot Insights (like Access Rights) are super-admin-only
   // surfaces; exclude them from the team-scoped admin's otherwise-full reach. The
   // pages self-guard with canManageAccessRights (Chris, Julie, April).
-  admin: allAccess(["access-rights", "connections", "copilot-insights"]),
-  field_ops: allAccess(["connections", "copilot-insights"]),
+  admin: allAccess(["access-rights", "connections", "copilot-insights", "product-requests"]),
+  field_ops: allAccess(["connections", "copilot-insights", "product-requests"]),
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",

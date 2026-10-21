@@ -275,6 +275,37 @@ model InvoiceLine {
   @@map("invoice_lines")
 }
 
+// A manager's request to catalog a product that isn't on the approved catalog yet
+// (e.g. a rep sample or anything that never came in on an invoice). Raised from
+// Check-Out when a product fails the "properly cataloged" gate. Goes to the super
+// admins (Chris, Julie, April) who approve or deny; on approval the product becomes
+// checkout-eligible and the requester is notified. `productId` is a SOFT reference
+// to an existing uncataloged product the request is about (null for a brand-new one).
+model ProductRequest {
+  id                String    @id @default(cuid())
+  status            String    @default("pending") // "pending" | "approved" | "denied"
+  productId         String?   @map("product_id") // soft ref to an existing (uncataloged) product
+  proposedName      String    @map("proposed_name")
+  description       String?
+  manufacturer      String?
+  distributorSku    String?   @map("distributor_sku")
+  reason            String?
+  photoUrl          String?   @map("photo_url")
+  warehouseId       String?   @map("warehouse_id")
+  branch            String?
+  requestedByUserId String    @map("requested_by_user_id")
+  requestedByName   String    @map("requested_by_name")
+  decidedByUserId   String?   @map("decided_by_user_id")
+  decidedByName     String?   @map("decided_by_name")
+  decidedAt         DateTime? @map("decided_at")
+  decisionNote      String?   @map("decision_note")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("product_requests")
+}
+
 // Every stock change is a movement. On-hand = SUM(quantity) per product+warehouse.
 // check_in => positive, check_out => negative, adjustment => either sign.
 model StockMovement {

@@ -68,15 +68,25 @@ export async function POST(req: Request) {
 
   const productById = new Map(products.map((p) => [p.id, p]));
 
-  // Unconfirmed-product hard stop (data-quality gate — no override).
-  const seenUnc = new Set<string>();
-  const unconfirmed = lines
-    .map((l) => productById.get(l.productId))
-    .filter((p): p is NonNullable<typeof p> => !!p && p.confirmed === false)
-    .filter((p) => (seenUnc.has(p.id) ? false : (seenUnc.add(p.id), true)))
-    .map((p) => ({ productId: p.id, name: p.name }));
-  if (unconfirmed.length > 0) {
-    return NextResponse.json({ error: "unconfirmed_product", offending: unconfirmed }, { status: 409 });
+  // "Properly cataloged" hard stop (data-quality gate — NO override for anyone).
+  // Nothing may be checked out unless its product is on the approved catalog,
+  // human-confirmed, and active. A sample / off-catalog item routes to the
+  // super-admin approval request instead (see /api/inventory/product-request).
+  // Reasons: "missing" (no such product), "inactive" (retired/merged away),
+  // "unapproved" (not on the CEO catalog), "unconfirmed" (details not reviewed).
+  const seenUncat = new Set<string>();
+  const uncataloged: { productId: string; name: string; reason: string }[] = [];
+  for (const l of lines) {
+    if (seenUncat.has(l.productId)) continue;
+    const p = productById.get(l.productId);
+    const reason = !p ? "missing" : !p.active ? "inactive" : !p.approved ? "unapproved" : p.confirmed === false ? "unconfirmed" : null;
+    if (reason) {
+      seenUncat.add(l.productId);
+      uncataloged.push({ productId: l.productId, name: p?.name ?? "Unknown product", reason });
+    }
+  }
+  if (uncataloged.length > 0) {
+    return NextResponse.json({ error: "uncataloged_product", offending: uncataloged }, { status: 409 });
   }
 
   // Negative-stock guard — EXEMPT products that have never been counted (their

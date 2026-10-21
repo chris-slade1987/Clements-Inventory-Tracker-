@@ -61,20 +61,24 @@ export async function POST(req: Request) {
 
   const productById = new Map(products.map((p) => [p.id, p]));
 
-  // Unconfirmed-product hard stop. Products auto-added from invoices/history that
-  // an admin hasn't confirmed are a DATA-QUALITY gate, not a permission — no
-  // manager or admin may override; an admin must confirm them first (Manage →
-  // Confirm queue). Blocked with a 409 shaped like the negative-stock stop.
-  const unconfirmed = lines
-    .map((l) => productById.get(l.productId))
-    .filter((p): p is NonNullable<typeof p> => !!p && p.confirmed === false);
-  if (unconfirmed.length > 0) {
-    // De-dupe by product id (a product may appear on multiple lines).
-    const seen = new Set<string>();
-    const offending = unconfirmed
-      .filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)))
-      .map((p) => ({ productId: p.id, name: p.name }));
-    return NextResponse.json({ error: "unconfirmed_product", offending }, { status: 409 });
+  // "Properly cataloged" hard stop. A product may be dispensed ONLY when it is on
+  // the approved catalog, human-confirmed, and active — a DATA-QUALITY gate, not a
+  // permission, that no manager or admin may override. Off-catalog / sample items
+  // route to the super-admin approval request instead. Blocked with a 409 shaped
+  // like the negative-stock stop. (Mirrors /api/inventory/checkout.)
+  const seenUncat = new Set<string>();
+  const offending: { productId: string; name: string; reason: string }[] = [];
+  for (const l of lines) {
+    if (seenUncat.has(l.productId)) continue;
+    const p = productById.get(l.productId);
+    const reason = !p ? "missing" : !p.active ? "inactive" : !p.approved ? "unapproved" : p.confirmed === false ? "unconfirmed" : null;
+    if (reason) {
+      seenUncat.add(l.productId);
+      offending.push({ productId: l.productId, name: p?.name ?? "Unknown product", reason });
+    }
+  }
+  if (offending.length > 0) {
+    return NextResponse.json({ error: "uncataloged_product", offending }, { status: 409 });
   }
 
   // Negative-stock guard.

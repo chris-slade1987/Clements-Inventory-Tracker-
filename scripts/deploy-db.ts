@@ -915,6 +915,49 @@ async function main() {
       if (v.mismatches > 0) console.error("deploy-db: inventory reset — ON-HAND MISMATCHES:", v.mismatchRows.join(" | "));
     });
 
+    // CATALOG CLEANUP (one source of truth per product) — runs ONCE, guarded by
+    // the `catalog_cleanup_v1` Setting. Canonicalizes each product from its invoice
+    // history (fill-null SKU / vendor items / last cost), merges high-confidence
+    // duplicates (shared SKU or identical normalized name) by repointing ALL history
+    // onto one survivor so on-hand consolidates then deactivating the loser (never
+    // hard-deletes a product that carries stock history), and flags off-catalog
+    // products with no invoice backing into the Confirm Queue. Runs AFTER the
+    // inventory reset so invoice lines + products exist to reconcile. NON-FATAL.
+    await runStep("catalog cleanup (SSOT)", async () => {
+      const marker = await prisma.setting.findUnique({ where: { key: "catalog_cleanup_v1" } });
+      if (marker) {
+        console.log("deploy-db: catalog cleanup already applied — left as-is.");
+        return;
+      }
+      const { cleanupCatalog } = await import("./catalog-cleanup");
+      const r = await cleanupCatalog(prisma, { apply: true });
+      await prisma.setting.create({ data: { key: "catalog_cleanup_v1", value: new Date().toISOString() } });
+      console.log(
+        `deploy-db: catalog cleanup — scanned ${r.productsScanned}; canonicalized ${r.canonicalized.skuSet} SKU / ` +
+          `${r.canonicalized.vendorItemsSet} vendor-items / ${r.canonicalized.costSet} cost; ` +
+          `${r.clusters} duplicate cluster(s) → ${r.merged} merged (${r.hardDeleted} hard-deleted); ` +
+          `${r.routedToQueue} off-catalog product(s) routed to the Confirm Queue.`,
+      );
+      if (r.mergeLog.length) for (const m of r.mergeLog) console.log("deploy-db: catalog cleanup merge —", m);
+    });
+
+    // PHASE 4 — clear existing product-linked photos so the fresh scanning pass
+    // starts clean (owner authorized; photos will be re-captured + reassigned to
+    // the SSOT product list). Runs ONCE, guarded by `product_photos_cleared_v1`.
+    // Nulls CheckoutLine.photoUrl (the current product-linked photos); the checkout
+    // records themselves are preserved. NON-FATAL.
+    await runStep("clear product photos", async () => {
+      const marker = await prisma.setting.findUnique({ where: { key: "product_photos_cleared_v1" } });
+      if (marker) {
+        console.log("deploy-db: product photos already cleared — left as-is.");
+        return;
+      }
+      const { clearProductPhotos } = await import("./catalog-cleanup");
+      const r = await clearProductPhotos(prisma, { apply: true });
+      await prisma.setting.create({ data: { key: "product_photos_cleared_v1", value: new Date().toISOString() } });
+      console.log(`deploy-db: cleared ${r.cleared} product-linked photo reference(s).`);
+    });
+
     // Load each employee's birthday from the HR "Employee Listings" export
     // (prisma/data/employee-birthdays.json) onto their profile. Matches active
     // employees by exact name / formal-name alias (no fuzzy guessing); unmatched

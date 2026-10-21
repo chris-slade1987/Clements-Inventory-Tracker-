@@ -18,6 +18,8 @@ import { handbookAckRoster } from "@/lib/policy-docs";
 import { isHrDirector } from "@/lib/personnel";
 import { attentionTodosForUser } from "@/lib/groundwork";
 import { attentionHuddlesForUser } from "@/lib/huddles";
+import { isSuperAdmin } from "@/lib/auth";
+import { pendingProductRequestCount } from "@/lib/product-requests";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Unified "Needs attention" model (CanopyOS Theme 3).
@@ -467,6 +469,30 @@ const groundworkSource: AttentionSource = {
   },
 };
 
+// New-product approval requests (Phase 5): pending requests raised at Check-Out
+// for sample / off-catalog products. SUPER-ADMIN-ONLY (Chris, Julie, April) — the
+// only people who may approve them — so the item is gated inside load(). Surfaced
+// on every command center they land on so it's a true "dashboard alert".
+const productRequestSource: AttentionSource = {
+  id: "product-requests",
+  audiences: ["executive", "inventory", "branch"],
+  load: async (ctx) => {
+    if (!isSuperAdmin(ctx.user)) return [];
+    const count = await pendingProductRequestCount();
+    if (count === 0) return [];
+    return [{
+      key: "product_requests_pending",
+      kind: "product_request",
+      title: `${count} new-product request${count === 1 ? "" : "s"} awaiting approval`,
+      detail: "A manager asked to catalog a sample / off-catalog product so it can be checked out.",
+      href: "/manage/product-requests",
+      severity: "warning",
+      dismissible: false,
+      count,
+    }];
+  },
+};
+
 // ── Source registry + EXTENSION POINT ────────────────────────────────────────
 
 const BUILTIN_SOURCES: AttentionSource[] = [
@@ -476,6 +502,7 @@ const BUILTIN_SOURCES: AttentionSource[] = [
   executiveQueuesSource,
   sopSource,
   groundworkSource,
+  productRequestSource,
 ];
 
 const EXTRA_SOURCES: AttentionSource[] = [];

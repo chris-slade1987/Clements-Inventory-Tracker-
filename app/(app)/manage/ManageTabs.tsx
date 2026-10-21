@@ -8,6 +8,7 @@ const CATALOG_TABS = [
   { href: "/manage/products", label: "Products" },
   { href: "/manage/inventory", label: "Stock Import" },
   { href: "/manage/confirm", label: "Confirm Queue" },
+  { href: "/manage/product-requests", label: "Requests" },
   { href: "/manage/technicians", label: "Technicians" },
 ];
 // User & role administration — de-emphasized settings link, not a catalog tab.
@@ -15,21 +16,27 @@ const USERS_ACCESS = { href: "/manage/managers", label: "Users & Access" };
 
 export default function ManageTabs({
   isAdmin = true,
+  superAdmin = false,
   toConfirm = 0,
+  toRequests = 0,
 }: {
   isAdmin?: boolean;
+  superAdmin?: boolean;
   toConfirm?: number;
+  toRequests?: number;
 }) {
   const pathname = usePathname();
-  // Admins get every catalog tab; HR-only users see just the confirm queue.
-  const tabs = isAdmin
-    ? CATALOG_TABS
-    : CATALOG_TABS.filter((t) => t.href === "/manage/confirm");
+  // Admins get every catalog tab; HR-only users see just the confirm queue. The
+  // Requests tab (new-product approvals) is super-admin-only.
+  const tabs = (isAdmin ? CATALOG_TABS : CATALOG_TABS.filter((t) => t.href === "/manage/confirm"))
+    .filter((t) => t.href !== "/manage/product-requests" || superAdmin);
   return (
     <div className="mb-4 flex items-center gap-1 border-b border-line overflow-x-auto">
       {tabs.map((t) => {
         const active = pathname.startsWith(t.href);
         const isConfirm = t.href === "/manage/confirm";
+        const isRequests = t.href === "/manage/product-requests";
+        const badge = isConfirm ? toConfirm : isRequests ? toRequests : 0;
         return (
           <Link
             key={t.href}
@@ -41,9 +48,9 @@ export default function ManageTabs({
             }`}
           >
             {t.label}
-            {isConfirm && toConfirm > 0 ? (
+            {badge > 0 ? (
               <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
-                {toConfirm}
+                {badge}
               </span>
             ) : null}
           </Link>

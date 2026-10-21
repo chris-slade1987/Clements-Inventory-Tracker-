@@ -101,7 +101,11 @@ export default function ScanCheckoutClient({
   // Submit / receipt.
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [blocked, setBlocked] = useState<{ productId?: string; name: string; onHand: number; requested: number; after?: number }[] | null>(null);
-  const [blockedUnconfirmed, setBlockedUnconfirmed] = useState<{ name: string }[] | null>(null);
+  const [blockedUncataloged, setBlockedUncataloged] = useState<{ productId?: string; name: string; reason: string }[] | null>(null);
+
+  // New-product approval request (Phase 5): a sample / off-catalog item can't be
+  // checked out, but the manager can ask a super admin to catalog it.
+  const [requestFor, setRequestFor] = useState<{ productId?: string; name: string } | null>(null);
 
   // Over-on-hand escalation (carried from the legacy Check-Out flow): the manager
   // can't override the hard stop, but they can one-click message senior management
@@ -223,6 +227,13 @@ export default function ScanCheckoutClient({
 
   function pickManual(p: Product) {
     setSearch("");
+    // A product must be properly cataloged (on the approved catalog + confirmed)
+    // before it can be dispensed. An off-catalog / unconfirmed item routes to the
+    // super-admin approval request instead of the add-to-cart confirm card.
+    if (!p.approved || !p.confirmed) {
+      setRequestFor({ productId: p.id, name: p.name });
+      return;
+    }
     openConfirm({
       productId: p.id,
       name: p.name,
@@ -231,6 +242,29 @@ export default function ScanCheckoutClient({
       counted: countedFor(p.id),
       identifiedBy: "MANUAL_SEARCH",
     });
+  }
+
+  // Submit a new-product approval request to the super admins. Resolves to an
+  // error string on failure, or null on success (caller closes the modal).
+  async function submitRequest(input: { name: string; reason: string }): Promise<string | null> {
+    try {
+      const res = await fetch("/api/inventory/product-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create",
+          productId: requestFor?.productId ?? null,
+          proposedName: input.name,
+          reason: input.reason,
+          warehouseId,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return data.error ?? "Could not send the request.";
+      return null;
+    } catch {
+      return "Network error. Try again.";
+    }
   }
 
   async function linkAndContinue(p: Product) {
@@ -321,8 +355,8 @@ export default function ScanCheckoutClient({
         body: JSON.stringify({ warehouseId, technicianId, lines: cart, signatureImage }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.status === 409 && data.error === "unconfirmed_product") {
-        setBlockedUnconfirmed(data.offending ?? []);
+      if (res.status === 409 && (data.error === "uncataloged_product" || data.error === "unconfirmed_product")) {
+        setBlockedUncataloged(data.offending ?? []);
         setBusy(false);
         return;
       }
@@ -703,16 +737,113 @@ export default function ScanCheckoutClient({
           </div>
         </Overlay>
       ) : null}
-      {blockedUnconfirmed ? (
-        <Overlay onClose={() => setBlockedUnconfirmed(null)} title="Unconfirmed product">
-          <p className="text-sm text-muted mb-2">These products must be confirmed by an admin before they can be dispensed:</p>
+      {blockedUncataloged ? (
+        <Overlay onClose={() => setBlockedUncataloged(null)} title="Not cataloged — can't be checked out">
+          <p className="text-sm text-muted mb-2">
+            A product must be on the approved catalog before it can be dispensed. These can&apos;t be checked out yet —
+            send a super admin a request to catalog them:
+          </p>
           <ul className="divide-y divide-line text-sm">
-            {blockedUnconfirmed.map((o, i) => <li key={i} className="py-2">{o.name}</li>)}
+            {blockedUncataloged.map((o, i) => (
+              <li key={o.productId ?? i} className="flex items-center justify-between gap-2 py-2">
+                <span className="min-w-0">
+                  <span className="block truncate">{o.name}</span>
+                  <span className="block text-[11px] text-amber-700">{reasonLabel(o.reason)}</span>
+                </span>
+                <button
+                  className="shrink-0 text-xs font-medium text-brand-700 hover:underline"
+                  onClick={() => { setRequestFor({ productId: o.productId, name: o.name }); setBlockedUncataloged(null); }}
+                >
+                  Request approval
+                </button>
+              </li>
+            ))}
           </ul>
-          <button className={`${btn.secondary} mt-3 w-full`} onClick={() => setBlockedUnconfirmed(null)}>Back to cart</button>
+          <button className={`${btn.secondary} mt-3 w-full`} onClick={() => setBlockedUncataloged(null)}>Back to cart</button>
         </Overlay>
       ) : null}
+
+      {/* New-product approval request modal */}
+      {requestFor ? (
+        <RequestApprovalModal
+          productName={requestFor.name}
+          onCancel={() => setRequestFor(null)}
+          onSubmit={submitRequest}
+          onDone={() => { setRequestFor(null); flash("Request sent to the super admins. You'll be notified when it's approved."); }}
+        />
+      ) : null}
     </div>
+  );
+}
+
+function reasonLabel(reason: string): string {
+  switch (reason) {
+    case "unapproved": return "Not on the approved catalog";
+    case "unconfirmed": return "Details not yet confirmed";
+    case "inactive": return "Retired / merged product";
+    case "missing": return "No such product";
+    default: return "Not cataloged";
+  }
+}
+
+// A short form for requesting that a sample / off-catalog product be cataloged.
+// Goes to the super admins; the requester is notified on approval.
+function RequestApprovalModal({
+  productName,
+  onCancel,
+  onSubmit,
+  onDone,
+}: {
+  productName: string;
+  onCancel: () => void;
+  onSubmit: (input: { name: string; reason: string }) => Promise<string | null>;
+  onDone: () => void;
+}) {
+  const [name, setName] = useState(productName);
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function go() {
+    if (!name.trim()) { setError("Give the product a name."); return; }
+    setBusy(true);
+    setError(null);
+    const err = await onSubmit({ name: name.trim(), reason: reason.trim() });
+    setBusy(false);
+    if (err) { setError(err); return; }
+    onDone();
+  }
+
+  return (
+    <Overlay onClose={onCancel} title="Request a new product">
+      <p className="text-sm text-muted mb-3">
+        This product isn&apos;t cataloged yet, so it can&apos;t be checked out. Send the super admins a request —
+        any of them can approve it, and you&apos;ll be notified when it&apos;s ready to dispense.
+      </p>
+      <label className="block text-sm font-medium">
+        Product name
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+        />
+      </label>
+      <label className="mt-3 block text-sm font-medium">
+        Why do you need it? (optional)
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={3}
+          placeholder="e.g. rep left a sample of a new ant bait we want to trial at Naples"
+          className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+        />
+      </label>
+      {error ? <p className="mt-2 text-sm text-red-600" role="alert">{error}</p> : null}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button className={btn.secondary} onClick={onCancel} disabled={busy}>Cancel</button>
+        <button className={btn.primary} onClick={go} disabled={busy}>{busy ? "Sending…" : "Send request"}</button>
+      </div>
+    </Overlay>
   );
 }
 
@@ -743,17 +874,24 @@ function ManualResults({
   if (!q || results.length === 0) return null;
   return (
     <ul className="surface-light mt-2 divide-y divide-line rounded-lg border border-line overflow-hidden">
-      {results.map((p) => (
+      {results.map((p) => {
+        const cataloged = p.approved && p.confirmed;
+        return (
         <li key={p.id}>
           <button type="button" onClick={() => onPick(p)} className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left hover:bg-[#eef5f0]">
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">{p.name}</span>
-              <span className="block text-xs text-muted">{p.distributorSku ?? p.manufacturer ?? uomLabel(p.unit)}{p.approved ? "" : " · off-catalog"}</span>
+              <span className="block text-xs text-muted">{p.distributorSku ?? p.manufacturer ?? uomLabel(p.unit)}</span>
             </span>
-            <span className="shrink-0 text-xs text-muted">{countedFor(p.id) ? `${onHandFor(p.id)} on hand` : "not counted"}</span>
+            {cataloged ? (
+              <span className="shrink-0 text-xs text-muted">{countedFor(p.id) ? `${onHandFor(p.id)} on hand` : "not counted"}</span>
+            ) : (
+              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Not cataloged · request</span>
+            )}
           </button>
         </li>
-      ))}
+        );
+      })}
       {allMatches.length > results.length ? (
         <li className="px-3 py-2 text-center text-xs text-muted">
           Showing {results.length} of {allMatches.length} — refine your search
