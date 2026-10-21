@@ -3176,3 +3176,19 @@ model AgendaTemplate {
 
   @@map("agenda_templates")
 }
+
+// Durable, in-database file storage — the fallback for uploads when Vercel Blob
+// isn't configured, so documents (leases, licenses, insurance, etc.) are always
+// stored and served even without an external blob store. `data` holds the raw
+// bytes; files are served (auth-gated) by GET /api/file/[id]. See lib/storage.ts.
+model StoredFile {
+  id          String   @id @default(cuid())
+  name        String
+  contentType String   @map("content_type")
+  size        Int
+  data        Bytes
+  prefix      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("stored_files")
+}

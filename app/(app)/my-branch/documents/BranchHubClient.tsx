@@ -172,14 +172,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 // Small client action buttons used by the server page (add doc / contact / delete).
-export function AddDocButton({ category, docCats, licenseTypes, employees, branch }: { category: string; docCats: Opt[]; licenseTypes: Opt[]; employees: EmpOpt[]; branch: string }) {
+// Documents are now added ONLY through the AI Document Center (one way in, so the
+// agent proposes where each file lives and the user approves). The branch hub's
+// "+ Add" keeps its place but routes there instead of opening a direct-upload
+// modal that bypassed the intake.
+export function AddDocButton(props: { category?: string; docCats?: Opt[]; licenseTypes?: Opt[]; employees?: EmpOpt[]; branch: string }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   return (
-    <>
-      <button onClick={() => setOpen(true)} className="text-xs font-medium text-brand-700 hover:underline">+ Add</button>
-      {open ? <DocModal branch={branch} preset={{ category }} docCats={docCats} licenseTypes={licenseTypes} employees={employees} onClose={() => setOpen(false)} onDone={() => { setOpen(false); router.refresh(); }} /> : null}
-    </>
+    <button
+      onClick={() => router.push(`/management/documents?tab=add&branch=${props.branch}`)}
+      className="text-xs font-medium text-brand-700 hover:underline"
+    >
+      + Add
+    </button>
   );
 }
 export function AddContactButton({ category, contactCats, branch, label = "+ Add" }: { category: string; contactCats: Opt[]; branch: string; label?: string }) {

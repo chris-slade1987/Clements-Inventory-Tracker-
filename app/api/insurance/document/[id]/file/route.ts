@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { readUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -23,19 +24,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     "cache-control": "private, no-store",
   };
 
-  try {
-    if (/^https?:\/\//.test(doc.filePath)) {
-      // Durable storage (Blob) — proxy the bytes so the public URL stays server-side.
-      const res = await fetch(doc.filePath);
-      if (!res.ok) return NextResponse.json({ error: "Unavailable" }, { status: 502 });
-      return new NextResponse(res.body, { headers });
-    }
-    // Local dev fallback (public/uploads).
-    const { readFile } = await import("node:fs/promises");
-    const { join } = await import("node:path");
-    const bytes = await readFile(join(process.cwd(), "public", doc.filePath.replace(/^\//, "")));
-    return new NextResponse(new Uint8Array(bytes), { headers });
-  } catch {
-    return NextResponse.json({ error: "Unavailable" }, { status: 502 });
-  }
+  const bytes = await readUpload(doc.filePath);
+  if (!bytes) return NextResponse.json({ error: "Unavailable" }, { status: 502 });
+  return new NextResponse(new Uint8Array(bytes), { headers });
 }

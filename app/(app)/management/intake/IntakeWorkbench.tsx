@@ -198,7 +198,7 @@ export default function IntakeWorkbench({ vehicles, branches }: { vehicles: Vehi
               <div className="ml-10 overflow-hidden rounded-2xl border border-brand-600 bg-surface">
                 <div className="flex items-center gap-2 border-b border-brand-100 bg-brand-50 px-3.5 py-2.5">
                   <Icon d={I.spark} className="h-3.5 w-3.5 text-brand-600" fill />
-                  <span className="text-[12.5px] font-medium text-brand-700">Claude wants to route this</span>
+                  <span className="text-[12.5px] font-medium text-brand-700">Where should this live? (you can change it)</span>
                   <span className="ml-auto rounded-full border border-brand-100 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-600">{proposal.handoff ? "Hand-off" : "Agentic"}</span>
                 </div>
                 <div className="space-y-2.5 p-3.5">
