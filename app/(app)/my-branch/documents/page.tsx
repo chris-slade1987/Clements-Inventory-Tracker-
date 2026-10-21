@@ -7,7 +7,7 @@ import {
   BRANCH_DOC_CATEGORIES, CONTACT_CATEGORIES, LICENSE_TYPES,
   branchDocuments, branchContacts, certifiedOperators, contactCategoryLabel, rentIncreasePct,
 } from "@/lib/branch-hub";
-import { AddDocButton, AddContactButton, DeleteX, RepairButton } from "./BranchHubClient";
+import { AddDocButton, AddContactButton, EditDocButton, DeleteX, RepairButton } from "./BranchHubClient";
 import { listArchivedReviews } from "@/lib/scorecard";
 import { listQcInspections, qcTypeShort } from "@/lib/qc";
 
@@ -34,6 +34,8 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
   const contactCatOpts = CONTACT_CATEGORIES.map((c) => ({ key: c.key as string, label: c.label }));
   const licenseTypes = LICENSE_TYPES.map((c) => ({ key: c.key as string, label: c.label }));
   const empOpts = employees.map((e) => ({ id: e.id, name: e.name }));
+  const brOpts = BRANCHES.map((b) => ({ key: b.key as string, label: b.label }));
+  const toIsoDate = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 
   return (
     <>
@@ -159,7 +161,21 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
                       </div>
                       <div className="text-right shrink-0">
                         {expIso ? <div className={`text-xs font-medium ${days != null && days <= 0 ? "text-red-600" : days != null && days <= (g.key === "lease" ? 270 : 90) ? "text-amber-600" : "text-muted"}`}>{g.key === "lease" ? "lease ends" : "expires"} {fmt(expIso)}{days != null && days > 0 ? ` · ${days}d` : days != null && days <= 0 ? " · expired" : ""}</div> : null}
-                        {(user.role === "admin" || user.role === "manager") ? <div className="mt-1"><DeleteX kind="document" id={d.id} /></div> : null}
+                        {(user.role === "admin" || user.role === "manager") ? (
+                          <div className="mt-1 flex items-center justify-end gap-3">
+                            <EditDocButton
+                              doc={{
+                                id: d.id, branch: d.branch, category: d.category, title: d.title,
+                                employeeId: d.employeeId ?? "", holderName: d.holderName ?? "",
+                                licenseType: d.licenseType ?? "", licenseNumber: d.licenseNumber ?? "", categories: d.categories ?? "",
+                                issueDate: toIsoDate(d.issueDate), expirationDate: toIsoDate(d.expirationDate),
+                                landlord: d.landlord ?? "", monthlyRent: d.monthlyRent, leaseStart: toIsoDate(d.leaseStart), leaseEnd: toIsoDate(d.leaseEnd), notes: d.notes ?? "",
+                              }}
+                              branches={brOpts} docCats={docCats} licenseTypes={licenseTypes} employees={empOpts} canMove={!locked}
+                            />
+                            <DeleteX kind="document" id={d.id} />
+                          </div>
+                        ) : null}
                       </div>
                     </li>
                   );

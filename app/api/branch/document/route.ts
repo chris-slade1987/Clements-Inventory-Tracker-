@@ -82,9 +82,15 @@ export async function POST(req: Request) {
     if (action === "update") {
       const newRent = numOf(body?.monthlyRent);
       const rentChanged = newRent != null && newRent !== existing.monthlyRent;
+      // Optional MOVE to another branch (admins / non-branch-locked only — a
+      // branch-locked manager can't reach another branch, so scopeOk blocks it).
+      const BR = new Set(["vero", "stuart", "orlando", "naples"]);
+      const reqBranch = s(body?.branch);
+      const moveBranch = reqBranch && BR.has(reqBranch) && reqBranch !== existing.branch && scopeOk(reqBranch) ? reqBranch : null;
       await prisma.branchDocument.update({
         where: { id },
         data: {
+          ...(moveBranch ? { branch: moveBranch } : {}),
           title: s(body?.title) ?? existing.title, category: CATS.has(String(body?.category)) ? String(body?.category) : existing.category,
           employeeId: s(body?.employeeId), holderName: s(body?.holderName),
           licenseType: s(body?.licenseType), licenseNumber: s(body?.licenseNumber), categories: s(body?.categories),

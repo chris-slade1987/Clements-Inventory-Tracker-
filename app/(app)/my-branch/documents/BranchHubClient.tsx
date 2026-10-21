@@ -18,16 +18,24 @@ const inp = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surf
 const money = (n: number | null) => (n == null ? "—" : n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }));
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "—");
 
-// ---- Add-document modal ----
-function DocModal({ branch, preset, docCats, licenseTypes, employees, onClose, onDone }: {
-  branch: string; preset: { category: string }; docCats: Opt[]; licenseTypes: Opt[]; employees: EmpOpt[]; onClose: () => void; onDone: () => void;
+// ---- Edit-document modal (rename / edit fields / MOVE to another branch) ----
+export type DocEdit = {
+  id: string; branch: string; category: string; title: string;
+  employeeId: string; holderName: string; licenseType: string; licenseNumber: string; categories: string;
+  issueDate: string; expirationDate: string;
+  landlord: string; monthlyRent: number | null; leaseStart: string; leaseEnd: string; notes: string;
+};
+function EditDocModal({ doc, branches, docCats, licenseTypes, employees, canMove, onClose, onDone }: {
+  doc: DocEdit; branches: Opt[]; docCats: Opt[]; licenseTypes: Opt[]; employees: EmpOpt[]; canMove: boolean; onClose: () => void; onDone: () => void;
 }) {
   const [f, setF] = useState({
-    category: preset.category, title: "", employeeId: "", holderName: "",
-    licenseType: "cpo", licenseNumber: "", categories: "", issueDate: "", expirationDate: "",
-    landlord: "", monthlyRent: "", leaseStart: "", leaseEnd: "", notes: "",
+    branch: doc.branch, category: doc.category, title: doc.title ?? "",
+    employeeId: doc.employeeId ?? "", holderName: doc.holderName ?? "",
+    licenseType: doc.licenseType || "cpo", licenseNumber: doc.licenseNumber ?? "", categories: doc.categories ?? "",
+    issueDate: doc.issueDate ?? "", expirationDate: doc.expirationDate ?? "",
+    landlord: doc.landlord ?? "", monthlyRent: doc.monthlyRent != null ? String(doc.monthlyRent) : "",
+    leaseStart: doc.leaseStart ?? "", leaseEnd: doc.leaseEnd ?? "", notes: doc.notes ?? "",
   });
-  const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
@@ -35,11 +43,10 @@ function DocModal({ branch, preset, docCats, licenseTypes, employees, onClose, o
   async function save() {
     if (!f.title.trim()) return setError("Give the document a title.");
     setBusy(true); setError(null);
-    const fd = new FormData();
-    fd.append("branch", branch);
-    Object.entries(f).forEach(([k, v]) => v && fd.append(k, v));
-    if (file) fd.append("file", file);
-    const res = await fetch("/api/branch/document", { method: "POST", body: fd });
+    const res = await fetch("/api/branch/document", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "update", id: doc.id, ...f }),
+    });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setError(data.error ?? "Could not save.");
@@ -50,15 +57,23 @@ function DocModal({ branch, preset, docCats, licenseTypes, employees, onClose, o
   const isLease = f.category === "lease";
 
   return (
-    <Modal title="Add document" onClose={onClose}>
+    <Modal title="Edit document" onClose={onClose}>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Type">
           <select value={f.category} onChange={(e) => set("category", e.target.value)} className={inp}>
             {docCats.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
           </select>
         </Field>
-        <Field label="Title"><input value={f.title} onChange={(e) => set("title", e.target.value)} placeholder={isLic ? "e.g. CPO License — Chris Slade" : isLease ? "e.g. Vero Warehouse Lease" : "Document title"} className={inp} /></Field>
+        <Field label="Title"><input value={f.title} onChange={(e) => set("title", e.target.value)} className={inp} /></Field>
       </div>
+
+      {canMove ? (
+        <Field label="Branch (move to…)">
+          <select value={f.branch} onChange={(e) => set("branch", e.target.value)} className={inp}>
+            {branches.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
+          </select>
+        </Field>
+      ) : null}
 
       {isLic ? (
         <>
@@ -97,13 +112,11 @@ function DocModal({ branch, preset, docCats, licenseTypes, employees, onClose, o
         </>
       ) : null}
 
-      <Field label="File (PDF / image, optional)">
-        <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-1 w-full text-sm" />
-      </Field>
       <Field label="Notes"><textarea value={f.notes} onChange={(e) => set("notes", e.target.value)} rows={2} className={inp} /></Field>
+      <p className="text-[11px] text-muted">To move this to a different kind of record (e.g. a vehicle), delete it here and re-add it through the Document Center so the agent can re-file it.</p>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <ModalActions busy={busy} onClose={onClose} onSave={save} label="Save document" />
+      <ModalActions busy={busy} onClose={onClose} onSave={save} label="Save changes" />
     </Modal>
   );
 }
@@ -185,6 +198,16 @@ export function AddDocButton(props: { category?: string; docCats?: Opt[]; licens
     >
       + Add
     </button>
+  );
+}
+export function EditDocButton({ doc, branches, docCats, licenseTypes, employees, canMove }: { doc: DocEdit; branches: Opt[]; docCats: Opt[]; licenseTypes: Opt[]; employees: EmpOpt[]; canMove: boolean }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="text-xs font-medium text-brand-700 hover:underline">Edit</button>
+      {open ? <EditDocModal doc={doc} branches={branches} docCats={docCats} licenseTypes={licenseTypes} employees={employees} canMove={canMove} onClose={() => setOpen(false)} onDone={() => { setOpen(false); router.refresh(); }} /> : null}
+    </>
   );
 }
 export function AddContactButton({ category, contactCats, branch, label = "+ Add" }: { category: string; contactCats: Opt[]; branch: string; label?: string }) {
