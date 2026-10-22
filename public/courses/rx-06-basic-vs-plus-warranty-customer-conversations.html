@@ -1,0 +1,1182 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-06 Basic vs. Plus, Warranty &amp; Customer Conversations</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-06 components */
+.hbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.ok3,.no3{display:flex;gap:8px;align-items:center}
+.ok3 .ico{color:var(--positive)}.no3 .ico{color:var(--danger)}
+.dl{list-style:none;display:grid;gap:6px;font-size:14.5px;margin-top:6px}
+.dl li{position:relative;padding-left:16px;line-height:1.45}
+.dl li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.steps.tight li{padding:9px 0;font-size:15px;line-height:1.45}
+.steps.tight .num{flex-basis:30px;height:30px}
+.say{font-size:16px;line-height:1.5;color:var(--ink)!important;margin-top:8px;border-left:3px solid var(--brand-300);padding-left:14px;max-width:none}
+.sayline{display:flex;gap:10px;align-items:flex-start;background:var(--brand-50);border-radius:10px;padding:10px 12px;font-size:14.5px;line-height:1.45;margin-top:10px}
+.sayline .ico{color:var(--brand-600);width:20px;height:20px;margin-top:1px}
+.sayline.big{font-size:16px;margin-top:0}
+.rc{animation:rise .2s ease-in-out both}
+.rc h3{font-size:21px;margin:4px 0 6px}
+.rc p{color:var(--muted);font-size:15px}
+.rc.no{border-left:3px solid var(--danger);padding-left:14px}
+.rc.ok{border-left:3px solid var(--positive);padding-left:14px}
+
+/* tier explorer */
+.tiers{display:grid;gap:4px}
+.trow{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:14px;font-weight:300;line-height:1.3;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.trow.th{background:none;border:0;padding:0 12px 2px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+button.trow:hover{border-color:var(--brand-300)}
+.trow > span:first-child{font-weight:400}
+.trow .cb,.trow .cp{border-radius:6px;padding:2px 6px;transition:background .18s ease-in-out,opacity .18s ease-in-out}
+.trow .no{color:var(--muted)}
+.trow.seen{border-color:var(--brand-200)}
+.trow.sel{border-color:var(--brand-600);background:var(--brand-50)}
+.z-b .trow:not(.th) .cb,.z-p .trow:not(.th) .cp{background:var(--brand-100);color:var(--brand-800)}
+.z-b .trow .cp,.z-p .trow .cb{opacity:.35}
+.z-b .trow.th .cb,.z-p .trow.th .cp{color:var(--brand-700)}
+.tdet{min-height:260px}
+
+/* 3-way sorter */
+.sort.cov{grid-template-columns:1fr 1fr;gap:7px}
+.sort.cov .row{padding:6px 12px;font-size:14px;line-height:1.35}
+.sort.cov .opts{flex-direction:column;gap:3px}
+.sort.cov .opts button{padding:1px 10px;font-size:12px;line-height:1.5;min-width:112px}
+#tfFb .fb,#covFb .fb{display:inline-block;padding:6px 12px;font-size:14px}
+.why2{font-size:13.5px}
+.why2 b{color:var(--danger)}
+
+/* warranty path */
+.wpath{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+.ws{position:relative;display:grid;gap:6px;align-content:start;padding:0 10px;animation:rise .22s ease-in-out both;animation-delay:calc(var(--k) * 90ms)}
+.ws .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.ws::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0);animation:grow .45s ease-in-out forwards;animation-delay:calc(var(--k) * 180ms + .2s)}
+.ws:last-child::after{display:none}
+.ws h3{font-size:16px}
+.ws p{font-size:14px;color:var(--muted);line-height:1.45}
+.ws:first-child .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+
+/* rules */
+.rules .card{padding:14px 16px}
+.rules .icobox{width:34px;height:34px;margin-bottom:8px}
+.rules .card h3{font-size:16px}
+.rules .card p{font-size:14px;line-height:1.45}
+
+/* attic diagram */
+.attic svg{max-width:440px}
+.ground2{stroke:var(--brand-300);stroke-width:1.4;fill:none}
+.hs{fill:none;stroke:var(--brand-400);stroke-width:1.4}
+.liv{fill:var(--brand-50)}
+.rf{fill:none;stroke:var(--brand-600);stroke-width:2;stroke-linejoin:round}
+.ceil{stroke:var(--brand-400);stroke-width:1.4}
+.lbl2{font-family:var(--font);font-size:9px;letter-spacing:.16em;fill:var(--muted)}
+.gapline{stroke:var(--danger);stroke-width:2.4;stroke-dasharray:3 3;fill:none}
+.patch{stroke:var(--forest);stroke-width:6;stroke-linecap:round;opacity:0;transition:opacity .2s ease-in-out}
+.run{fill:none;stroke:var(--brand-200);stroke-width:1.2;stroke-dasharray:2 5}
+.trap{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4;transition:opacity .2s ease-in-out}
+.rd{fill:var(--ink)}
+.rd.r1{transform:translate(120px,114px)}.rd.r2{transform:translate(172px,114px)}.rd.r3{transform:translate(214px,108px)}
+.rd.dead{fill:var(--muted)}
+.smell{fill:none;stroke:var(--danger);stroke-width:1.4;stroke-linecap:round;opacity:.7}
+#wallr{opacity:0;transition:opacity .2s ease-in-out}
+.m-s .patch,.m-st .patch{opacity:1}
+.m-s .gapline,.m-st .gapline{opacity:.25}
+.m-s #traps{opacity:0}
+.m-s #wallr{opacity:1}
+.m-t #traps .trap:first-child{opacity:.5}
+.slide.on .m-t #rods .rd{animation:inrun 3.6s linear infinite}
+.slide.on .m-s #rods .rd{animation:pace 2.6s ease-in-out infinite}
+.slide.on .m-st #rods .rd{animation:outrun 3.6s ease-in-out infinite}
+.slide.on .attic .r2{animation-delay:1.2s!important}.slide.on .attic .r3{animation-delay:2.4s!important}
+.slide.on .m-s .smell{animation:rise2 2.4s ease-in-out infinite}
+.slide.on .m-st .trap:first-child{animation:snap 3.6s ease-in-out infinite}
+@keyframes inrun{0%{transform:translate(330px,60px);opacity:0}10%{opacity:1}35%{transform:translate(268px,76px)}62%{transform:translate(215px,108px)}92%{opacity:1}100%{transform:translate(90px,114px);opacity:0}}
+@keyframes pace{0%,100%{transform:translate(190px,114px)}50%{transform:translate(252px,90px)}}
+@keyframes outrun{0%{transform:translate(90px,114px);opacity:0}12%{opacity:1}80%{transform:translate(236px,114px);opacity:1}100%{transform:translate(240px,114px);opacity:0}}
+@keyframes rise2{0%{transform:translateY(4px);opacity:0}50%{opacity:.8}100%{transform:translateY(-6px);opacity:0}}
+@keyframes snap{0%,76%,100%{fill:var(--surface)}82%,94%{fill:var(--brand-200)}}
+
+/* objections */
+.flip.obj button{min-height:178px}
+.flip.obj .front h3{font-size:19px;line-height:1.25}
+.flip.obj .back{font-size:14.5px;line-height:1.5;justify-content:center}
+.flip.obj .face{padding:18px}
+
+@media (max-width:860px){
+  .sort.cov{grid-template-columns:1fr}
+  .wpath{grid-template-columns:1fr;gap:12px}
+  .ws::after{display:none}
+  .trow{grid-template-columns:1fr 1fr 1fr;font-size:13px;padding:6px 8px}
+  .flip.obj button{min-height:170px}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 28</span><span class="code-chip">RX-06 · Tiers, Warranty &amp; Conversations</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M8 17h2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-seal" viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M5 20V9h14v11"/><path d="M9 13h6M9 16h6"/><path d="M12 4v3"/></symbol>
+    <symbol id="i-ear" viewBox="0 0 24 24"><path d="M7 10a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-6 0"/><path d="M10 10a2 2 0 0 1 4 0"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.4fr 1fr;gap:32px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-06</span>
+        <h1 class="display a" style="--i:1;font-size:clamp(30px,3.8vw,46px)">Basic vs. Plus, Warranty &amp; Customer Conversations</h1>
+        <p class="lead a" style="--i:2">The two Rodent Shield tiers as the program defines them, what the Plus warranty covers, how to set honest expectations, and how to answer the questions every rodent customer asks.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 240" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M40 120L160 40l120 80"/><path d="M62 106v94h196v-94"/><path d="M40 200h240"/>
+          <path d="M146 200v-42h28v42"/>
+          <rect x="226" y="98" width="18" height="10"/>
+          <path d="M224 96l22 14M246 96l-22 14"/>
+          <path d="M84 150c0-14 11-22 25-22 8 0 16 5 19 13l-8 3"/><path d="M84 150h32"/><circle cx="98" cy="138" r="4"/><path d="M116 150c6 0 11 3 11 9"/>
+          <path d="M196 154c12 6 24 7 30 7v18c0 15-14 23-30 29-16-6-30-14-30-29v-18c6 0 18-1 30-7z" transform="translate(0,-30)"/>
+          <path d="M186 146l7 7 14-14"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-rodent"/></svg><span>State exactly what Rodent Shield Basic and Plus include, and when each one fits</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span>Explain the 1-year and 3-year Plus warranties, renewal, transfer and the 30-day grace period</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span>Tell what the warranty covers and what it doesn't, and route every claim to the branch manager</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span>Set honest expectations: the follow-up schedule, noises after sealing, and why we trap after we seal</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span>Answer common objections honestly, without quoting prices or promising results</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-doc"/></svg><span>Close a job well: walk the customer through the documentation, warranty and renewal</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">The job is half the work. <span class="em">The conversation is the other half.</span></h2>
+        <p class="a muted" style="--i:2">A perfect seal still turns into a complaint if the customer expected silence on night one, or thought "warranty" meant "rodent-free forever." What you say at the kitchen table decides whether a Plus job ends in a renewal or a refund request.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>Your words become the promise</h3><p>The written service agreement controls what's covered. A verbal "you're guaranteed" that goes past it can be a deceptive claim under Florida's consumer protection law, and it lands on the company.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-refresh"/></svg></div><div><h3>Renewals are built on trust</h3><p>Rodent Shield is designed around Plus warranties that renew every year. Customers renew when what we told them on day one turned out to be true.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Calm customers stay customers</h3><p>Rodents in the attic are stressful. A clear plan, "here's what happens next and when I'm back," prevents panicked calls to the office.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the two tiers">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Two tiers, one standard</h1>
+        <p class="lead a" style="--i:2">If you mix up what Basic and Plus include, the customer gets sold one thing and receives another. Knowing the tiers exactly is the foundation for every other conversation in this course.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Tier comparison explorer</li><li><span>02</span>Choosing the right tier</li><li><span>03</span>Practice: which tier fits?</li><li><span>04</span>Explaining each tier</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 TIER EXPLORER -->
+  <section class="slide" data-label="Tier comparison explorer" style="gap:14px">
+    <span class="eyebrow a">01 · Tier comparison explorer</span>
+    <div class="hbar a" style="--i:1"><h2>Select any row to see how to explain it</h2>
+      <div class="seg" role="group" aria-label="Highlight a tier"><button type="button" id="tzB" aria-pressed="false">Basic</button><button type="button" id="tzBoth" aria-pressed="true">Compare</button><button type="button" id="tzP" aria-pressed="false">Plus</button></div></div>
+    <div class="split a" style="--i:2;grid-template-columns:1.45fr 1fr;gap:20px;align-items:start">
+      <div class="tiers" id="tiers"></div>
+      <div class="card tdet" id="tdet"></div>
+    </div>
+  </section>
+
+  <!-- 6 CHOOSING -->
+  <section class="slide" data-label="Choosing the right tier">
+    <span class="eyebrow a">02 · Choosing the right tier</span>
+    <h2 class="a" style="--i:1">The inspection decides, not the budget alone</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><span class="eyebrow">Recommend Basic when</span><ul class="dl" style="margin-top:8px">
+        <li>There's active rodent activity but <b>no confirmed structural entry points</b></li>
+        <li>The customer wants to <b>start with elimination</b> before committing to exclusion</li>
+        <li>Activity looks <b>outdoor or perimeter-based</b>, with no evidence of interior entry</li></ul></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Recommend Plus when</span><ul class="dl" style="margin-top:8px">
+        <li><b>Entry points were found</b> and the customer wants a lasting fix</li>
+        <li>The customer <b>asks about a guarantee or warranty</b>. Only Plus has one</li>
+        <li>The problem keeps <b>coming back</b> after other services</li></ul></div>
+    </div>
+    <div class="grid g2">
+      <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>Basic inspection finds entry points?</b> You must present the Plus upgrade before you leave the property. Same visit, every time.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-building"/></svg><span><b>Duplex, quad or any multi-unit home:</b> flag it for manager review. Sealing one unit doesn't work without a concrete firewall between units.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 PRACTICE: WHICH TIER -->
+  <section class="slide" data-label="Practice: which tier fits" style="gap:12px">
+    <span class="eyebrow a">03 · Practice · which tier fits?</span>
+    <div class="hbar a" style="--i:1"><h2>Sort each inspection result</h2><button type="button" class="btn primary" id="tfCheck">Check my answers</button></div>
+    <div id="tfFb" class="a" style="--i:2"></div>
+    <div class="sort cov a" style="--i:3" id="tfit"></div>
+  </section>
+
+  <!-- 8 EXPLAINING -->
+  <section class="slide" data-label="Explaining each tier">
+    <span class="eyebrow a">04 · Explaining each tier</span>
+    <h2 class="a" style="--i:1">Plain language, no prices, no promises</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><span class="eyebrow">Basic, in your words</span>
+        <p class="say">"Basic is elimination. I inspect inside and out, set traps where the activity is, and come back five times to check and remove what we catch. You'll get a written summary of what I found. Basic doesn't seal any openings and doesn't carry a warranty."</p></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Plus, in your words</span>
+        <p class="say">"Plus is elimination and exclusion. I photograph and document every opening half an inch or larger, seal the ones in your agreement with cement-first materials, and trap right at those points. Five follow-up visits, a documentation package, and your choice of a 1-year or 3-year warranty on the sealed points."</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-x"/></svg><span><b>Don't quote a price,</b> even a ballpark. The service advisor quotes after the inspection.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-check"/></svg><span><b>Do explain the difference:</b> Basic removes the rodents inside; Plus also closes the way in.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-users"/></svg><span><b>Pricing questions</b> go to the service advisor or the branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: the Plus warranty">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The Plus warranty</h1>
+        <p class="lead a" style="--i:2">"Warranty" is the most powerful word in a rodent sale and the easiest to overstate. Get the terms exactly right, and let the branch manager make every coverage call.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>1-year or 3-year</li><li><span>02</span>What keeps it in force</li><li><span>03</span>What it covers, and doesn't</li><li><span>04</span>Practice: is it covered?</li><li><span>05</span>The claims process</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 WARRANTY OPTIONS -->
+  <section class="slide" data-label="1-year or 3-year" style="gap:14px">
+    <span class="eyebrow a">01 · 1-year or 3-year</span>
+    <div class="hbar a" style="--i:1"><h2>The choice is made once, at the original service</h2>
+      <div class="seg" role="group" aria-label="Warranty path"><button type="button" id="wp1" aria-pressed="true">1-year path</button><button type="button" id="wp3" aria-pressed="false">3-year path</button></div></div>
+    <div class="wpath a" style="--i:2" id="wpath"></div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-lock"/></svg><span><b>The 3-year can't be added later.</b> Present both options at the original service and document the choice.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>Both paths get a yearly inspection.</b> The 3-year adds a booster service at the end of year 3.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Basic has no warranty and no renewal.</b> No exceptions, no "partial" warranty.</span></div>
+    </div>
+  </section>
+
+  <!-- 12 IN FORCE -->
+  <section class="slide" data-label="What keeps it in force">
+    <span class="eyebrow a">02 · What keeps it in force</span>
+    <h2 class="a" style="--i:1">Six rules that keep a warranty alive</h2>
+    <div class="grid g3 rules">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-cal"/></svg></div><h3>Renew on the anniversary</h3><p>The office starts renewal outreach 30 days before each anniversary. Nobody waits for the customer to call.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-clock"/></svg></div><h3>30-day grace period</h3><p>Coverage stays in force for 30 days past the anniversary. After that it lapses, and a returning customer starts over at new-customer pricing with no warranty.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>Exterior bait boxes at renewal</h3><p>Every Plus renewal, 1-year or 3-year, must include exterior rodent bait boxes. Present them as part of the package from day one.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Price locked</h3><p>The warranty price is tied to the original contracted price. No year-over-year increases while it stays current.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Transfers with the home</h3><p>If the home sells, the new owner calls within 30 days of the sale. No fee. Bait boxes are required, and the office opens a new account for them.</p></div>
+      <div class="card a" style="--i:7"><div class="icobox"><svg class="ico"><use href="#i-doc"/></svg></div><h3>Documented at the start</h3><p>The entry point PDF and photos from the original job are the warranty record. Undocumented work can't be backed. RX-07 covers this.</p></div>
+    </div>
+  </section>
+
+  <!-- 13 COVERS / DOESN'T -->
+  <section class="slide" data-label="What it covers">
+    <span class="eyebrow a">03 · What it covers, and what it doesn't</span>
+    <h2 class="a" style="--i:1">The warranty follows the documented scope</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><h3 class="ok3"><svg class="ico"><use href="#i-check"/></svg>Triggers a warranty review</h3><ul class="dl">
+        <li>Activity continues in the areas we treated</li>
+        <li>A documented, sealed entry point has failed or been reopened</li>
+        <li>A missed entry point is found inside the original documented scope</li>
+        <li>New activity that matches the original service area</li></ul>
+        <p class="small muted" style="margin-top:10px">The branch manager decides, based on the documented scope, site conditions and whether the account is current.</p></div>
+      <div class="card a" style="--i:3"><h3 class="no3"><svg class="ico"><use href="#i-x"/></svg>Not covered</h3><ul class="dl">
+        <li>Entry points the homeowner <b>declined</b>, documented on the service agreement</li>
+        <li>Courtesy foam on gaps under ½ inch. Foam is not exclusion</li>
+        <li>Dryer, bath and kitchen exhaust vents. We never seal vents</li>
+        <li>Any Basic account, and any lapsed Plus account</li>
+        <li>Missed home-sale transfers (past 30 days)</li></ul>
+        <p class="small muted" style="margin-top:10px">Out-of-scope work found at a warranty or renewal visit is offered at a discount off standard pricing.</p></div>
+    </div>
+  </section>
+
+  <!-- 14 IS IT COVERED -->
+  <section class="slide" data-label="Practice: is it covered" style="gap:10px;padding-top:26px;padding-bottom:26px">
+    <span class="eyebrow a">04 · Practice · is it covered?</span>
+    <div class="hbar a" style="--i:1"><h2>Sort each situation</h2><button type="button" class="btn primary" id="covCheck">Check my answers</button></div>
+    <div id="covFb" class="a" style="--i:2"></div>
+    <div class="sort cov a" style="--i:3" id="cov"></div>
+  </section>
+
+  <!-- 15 CLAIMS -->
+  <section class="slide" data-label="The claims process">
+    <span class="eyebrow a">05 · The claims process</span>
+    <h2 class="a" style="--i:1">Document it. The branch manager decides it.</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2"><ol class="steps tight" id="claimSteps">
+        <li><span class="num">1</span><span><b>Listen and record:</b> what they hear or see, where, and since when. Don't say "covered" or "not covered."</span></li>
+        <li><span class="num">2</span><span><b>Inspect and photograph</b> the area, and compare it with the original entry point PDF and photos.</span></li>
+        <li><span class="num">3</span><span><b>Call your branch manager the same day</b> and send the details to technotes@clementspestcontrol.com so the office logs it.</span></li>
+        <li><span class="num">4</span><span><b>Tell the customer who calls next:</b> "Your branch manager will review your agreement and call you."</span></li>
+        <li><span class="num">5</span><span><b>The branch manager decides</b> warranty service or an out-of-scope offer, and the office schedules it.</span></li>
+      </ol></div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-headset"/></svg><span><b>Customer calls the office first?</b> The CSR records the details and routes it to the branch manager. Recurring-customer callbacks are scheduled within 24 hours.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-chat"/></svg><span><b>PestPac Mobile notes print on the customer's report.</b> Write what you found, factually. Coverage opinions don't go in customer-facing notes.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never change a date, a photo or a note</b> to make a claim fit. Record exactly what you found.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: setting expectations">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Setting honest expectations</h1>
+        <p class="lead a" style="--i:2">Most rodent complaints aren't about the work. They're about a surprise: noises after sealing, a quiet trap, a follow-up the customer didn't expect. Tell them up front and the surprise goes away.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The expectation timeline</li><li><span>02</span>Why we trap after we seal</li><li><span>03</span>Words to use and never say</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 TIMELINE -->
+  <section class="slide" data-label="Expectation timeline">
+    <span class="eyebrow a">01 · The expectation timeline</span>
+    <h2 class="a" style="--i:1">What the customer should hear, at every stage</h2>
+    <p class="a muted" style="--i:2">Select each point on the timeline.</p>
+    <div class="tl a" style="--i:3" id="tl"><span class="fill" id="tlFill"></span></div>
+    <div class="tldetail a" style="--i:4" id="tlDetail"></div>
+  </section>
+
+  <!-- 19 SEAL + TRAP -->
+  <section class="slide" data-label="Why we trap after we seal" style="gap:16px">
+    <span class="eyebrow a">02 · Why we trap after we seal</span>
+    <div class="hbar a" style="--i:1"><h2>Compare the three approaches</h2>
+      <div class="seg" role="group" aria-label="Approach"><button type="button" id="apT" aria-pressed="false">Trap only</button><button type="button" id="apS" aria-pressed="false">Seal only</button><button type="button" id="apST" aria-pressed="true">Seal, then trap</button></div></div>
+    <div class="split a" style="--i:2;grid-template-columns:1.1fr 1fr;gap:24px">
+      <div class="figbox attic" id="attic">
+        <svg viewBox="0 0 340 210" role="img" aria-label="Cross-section of a home's attic with a roofline entry point, rodents inside, and traps placed at the entry point">
+          <path class="ground2" d="M10 196H330"/>
+          <rect class="liv" x="40" y="120" width="260" height="76"/>
+          <path class="hs" d="M40 196V95M300 196V95"/>
+          <path class="rf" d="M24 104L170 20l146 84"/>
+          <path class="ceil" d="M40 120h260"/>
+          <text class="lbl2" x="170" y="164" text-anchor="middle">LIVING SPACE</text>
+          <text class="lbl2" x="150" y="78" text-anchor="middle">ATTIC</text>
+          <g id="gap"><path class="gapline" d="M258 70.6L278 82.1"/><text class="lbl2" x="286" y="68">ENTRY</text></g>
+          <path class="patch" id="patch" d="M255 69L281 84"/>
+          <path class="run" id="runPath" d="M330 60 L268 76 L215 108 L80 114"/>
+          <g id="traps"><rect class="trap" x="232" y="112" width="16" height="7"/><rect class="trap" x="186" y="112" width="16" height="7"/><rect class="trap" x="140" y="112" width="16" height="7"/></g>
+          <g id="rods"><circle class="rd r1" r="4"/><circle class="rd r2" r="4"/><circle class="rd r3" r="4"/></g>
+          <g id="wallr"><circle class="rd dead" cx="52" cy="186" r="4"/><path class="smell" d="M52 176c-4-6 4-8 0-14M61 178c-4-6 4-8 0-14"/></g>
+        </svg>
+      </div>
+      <div class="card apcard" id="apcard"></div>
+    </div>
+  </section>
+
+  <!-- 20 WORDS -->
+  <section class="slide" data-label="Words to use and never say">
+    <span class="eyebrow a">03 · Words to use and never say</span>
+    <h2 class="a" style="--i:1">Describe the program. Don't improve on it.</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><h3 class="ok3"><svg class="ico"><use href="#i-check"/></svg>Say</h3><ul class="dl">
+        <li>"Your warranty covers the entry points we documented and sealed. Here are the photos."</li>
+        <li>"You may hear them for a few nights. The ones inside are looking for the way out, and that's where the traps are."</li>
+        <li>"Activity should drop visit to visit. If it doesn't, I'll tell you and we'll adjust."</li>
+        <li>"Keeping the boxes outside and the renewal current is how we catch new pressure early."</li></ul></div>
+      <div class="card a" style="--i:3"><h3 class="no3"><svg class="ico"><use href="#i-x"/></svg>Never say</h3><ul class="dl">
+        <li>"You'll be rodent-free forever," "guaranteed," or "they'll never come back"</li>
+        <li>"It'll be quiet tonight" or any fixed date for the last rodent</li>
+        <li>"Don't worry, that's covered," before the branch manager reviews it</li>
+        <li>Any price, starting price or renewal amount. And never call a bait "safe" or "non-toxic"</li></ul></div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Why "never forever":</b> rodent pressure outside the home never goes away. New damage, storms, renovations and landscaping can open new ways in. We close the ones we find and document, and we keep watching.</span></div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: customer conversations">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Customer conversations</h1>
+        <p class="lead a" style="--i:2">Objections are questions in disguise. An honest, biology-based answer builds more trust than a clever comeback, and it's the answer that still holds up at the renewal visit.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Common objections, honest answers</li><li><span>02</span>Practice: conversation picker</li><li><span>03</span>Closing the job well</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 OBJECTIONS -->
+  <section class="slide" data-label="Common objections" style="gap:14px">
+    <span class="eyebrow a">01 · Common objections, honest answers</span>
+    <h2 class="a" style="--i:1">Select each objection to see the honest answer</h2>
+    <div class="flip obj a" style="--i:2" id="flip"></div>
+  </section>
+
+  <!-- 24 CONVERSATION PICKER -->
+  <section class="slide" data-label="Practice: conversation picker" style="gap:14px">
+    <span class="eyebrow a">02 · Practice · customer conversation picker</span>
+    <h2 class="a" style="--i:1">Pick the best reply</h2>
+    <div class="scen-tabs a" style="--i:2" id="vTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="vBox"></div>
+  </section>
+
+  <!-- 25 CLOSING THE JOB -->
+  <section class="slide" data-label="Closing the job well">
+    <span class="eyebrow a">03 · Closing the job well</span>
+    <h2 class="a" style="--i:1">The walkthrough at the end of a Plus job</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2"><ol class="steps tight">
+        <li><span class="num">1</span><span><b>Show the work.</b> Walk through the entry point documentation and the before-and-after photos.</span></li>
+        <li><span class="num">2</span><span><b>Name what wasn't done.</b> Declined points are on the service agreement and aren't covered. Vents are never sealed.</span></li>
+        <li><span class="num">3</span><span><b>Set the schedule.</b> When you're back, what they may hear, and what to call about.</span></li>
+        <li><span class="num">4</span><span><b>Explain the warranty they chose</b> and how renewal works, bait boxes included.</span></li>
+        <li><span class="num">5</span><span><b>Leave the summary</b> and confirm the next visit date.</span></li>
+      </ol></div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-star"/></svg><span><b>At the final follow-up,</b> when the customer can see the problem is resolved, is the natural time to mention deodorization if there's odor. RX-05 covers add-ons.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-home"/></svg><span><b>Mention the transfer.</b> If they sell, the new owner can take over the warranty within 30 days at no fee.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span><b>Don't know an answer?</b> "Let me confirm that and get back to you." Then ask your branch manager. Never guess.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 27 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it with real customers</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each item before RX-06 is complete. Tick each one as it's signed off.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Explain Basic and Plus to a homeowner without quoting a price or promising results</label></li>
+      <li><label><input type="checkbox" id="f2"> Present a Plus upgrade on a Basic job where entry points were found</label></li>
+      <li><label><input type="checkbox" id="f3"> Present both warranty options at an original Plus service and document the choice</label></li>
+      <li><label><input type="checkbox" id="f4"> Document a declined entry point on the service agreement and explain that it isn't covered</label></li>
+      <li><label><input type="checkbox" id="f5"> Set expectations on day one: follow-up schedule, noises after sealing and why we trap</label></li>
+      <li><label><input type="checkbox" id="f6"> Handle a role-played warranty claim: document, escalate to the branch manager the same day, tell the customer who calls</label></li>
+      <li><label><input type="checkbox" id="f7"> Answer three common objections honestly in a role-play</label></li>
+      <li><label><input type="checkbox" id="f8"> Complete the end-of-job walkthrough on a Plus job, including renewal and bait boxes</label></li>
+    </ul>
+  </section>
+
+  <!-- 28 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-06", "titleHtml": "Basic vs. Plus, Warranty &amp; Customer Conversations", "nextHtml": "RX-07 \u00b7 Documentation &amp; Return Visits", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The two tiers',q:'On a Rodent Shield Basic inspection you find two open gaps at the soffit and a gnawed gable vent screen. The customer says, "Just do what I paid for." What do you do?',o:['Seal the gaps with foam as a courtesy so the Basic job works','Present the Plus upgrade before leaving: show the entry points, explain that Plus seals and documents them and carries a warranty, and let the customer decide. Then set the Basic traps as scheduled if they decline','Skip the conversation. Basic customers have already chosen','Tell the customer Basic won\'t work and cancel the job'],a:1,e:'A Basic inspection that reveals entry points always prompts a same-visit Plus conversation. The customer decides; you never seal on Basic, and foam is not exclusion.'},
+    2:{t:'Checkpoint 2 · The Plus warranty',q:'A Plus customer, eight months into a 1-year warranty, says the scratching is back and asks, "This is covered, right?" What is the best response?',o:['"Yes, everything is covered for a year."','"No, warranties only cover the first 90 days."','"Let me inspect and photograph the area and compare it with your original entry point record. I\'ll call your branch manager today; they\'ll review your agreement and call you about next steps."','"Buy the 3-year warranty and you\'ll be covered."'],a:2,e:'Document, compare with the original scope, escalate the same day. The branch manager decides coverage. And the 3-year can only be chosen at the original service.'},
+    3:{t:'Checkpoint 3 · Setting expectations',q:'The day after you sealed five entry points and set traps, a Plus customer calls upset: "I heard them all night. You said you sealed the house." What is accurate?',o:['The sealing failed and must be redone today','Noises for a few nights after sealing are expected: rodents sealed inside are looking for their old way out, and the traps at the entry points are set to catch them. Activity should drop visit to visit','Tell her to put out over-the-counter bait in the attic','Promise it will be quiet by tonight'],a:1,e:'Trapping after sealing removes the rodents that were inside when we closed the openings. Explain it, give the next visit date, and never promise a fixed quiet date.'},
+    4:{t:'Checkpoint 4 · Customer conversations',q:'A homeowner signing for Plus asks, "Can you guarantee I\'ll never have rats again?" Which answer is best?',o:['"Absolutely. That\'s what Plus is for."','"I can\'t promise you\'ll never see a rodent again. What I can tell you is that we document every entry point we find, seal the ones in your agreement, trap the ones inside, and your warranty covers those sealed points. Keeping the renewal and the bait boxes in place helps us catch new pressure early."','"Nobody can guarantee anything, so it\'s up to you."','"Get the 3-year and I\'ll make sure of it."'],a:1,e:'Honest and specific: what we do, what the warranty covers, what keeps it working. Never "rodent-free forever."'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which Rodent Shield tier includes exclusion (sealing) work?',o:['Basic','Plus','Both','Neither'],a:1,e:'Only Plus seals entry points. Basic is inspection, trapping and follow-ups, with no sealing and no warranty.'},
+    {k:'Multiple choice',q:'How many follow-up visits do Basic and Plus each include?',o:['Three for Basic, five for Plus','Five for each','Two for each','Unlimited for Plus'],a:1,e:'Both tiers include five follow-up visits. Additional visits are available as an added service.'},
+    {k:'True or false',q:'Rodent Shield Basic carries a 90-day warranty.',o:['True','False'],a:1,e:'False. Basic has no warranty and no renewal.'},
+    {k:'Multiple choice',q:'What size entry points does Plus document as the warranty reference record?',o:['Any visible gap','¼ inch or larger','½ inch or larger','2 inches or larger'],a:2,e:'Plus identifies and documents every entry point ½ inch or larger. That record is the foundation of every future warranty visit.'},
+    {k:'Scenario',q:'A customer chose the 1-year warranty at the original Plus service. At month ten she asks to switch to the 3-year. What is accurate?',o:['She can switch at any renewal','She can switch if she pays the difference','The 3-year option is only available at the time of the original service, so she can\'t add it now','The branch manager can backdate it'],a:2,e:'The 3-year warranty must be chosen at the original service and can\'t be added later. That\'s why both options are presented up front.'},
+    {k:'Multiple choice',q:'What does the 3-year warranty include beyond the 1-year?',o:['A booster service at the end of year 3, with annual inspections during the term','Free deodorization','Coverage for declined entry points','Coverage for dryer vents'],a:0,e:'The 3-year replaces the 1-year and includes annual inspections plus a booster service at the end of year 3.'},
+    {k:'True or false',q:'Exterior rodent bait boxes are required for every Plus warranty renewal.',o:['True','False'],a:0,e:'True. Bait boxes are mandatory at all Plus renewals, 1-year or 3-year, and when a warranty transfers to a new owner.'},
+    {k:'Scenario',q:'A Plus customer\'s anniversary passed 45 days ago and he never renewed. He now hears activity. What applies?',o:['He is still in the grace period','Coverage lapsed after the 30-day grace period; if he returns, he starts at new-customer pricing with no warranty. Route it to the branch manager','He can renew today and the activity is covered','Lapsed accounts get one free warranty visit'],a:1,e:'The grace period is 30 days past the anniversary. After that, coverage ends and a returning customer reverts to new-customer pricing.'},
+    {k:'Multiple choice',q:'A home with a current Plus warranty sells. What has to happen for the warranty to transfer?',o:['The seller cancels and the buyer signs up new','The new owner calls within 30 days of the sale; there is no fee, bait boxes are required, and the office opens a new account for them','Transfers aren\'t allowed','The buyer pays a transfer fee'],a:1,e:'The Plus warranty transfers at no fee if the new owner calls within 30 days of the sale and includes bait boxes. The office creates a new account; it doesn\'t edit the old owner\'s.'},
+    {k:'Scenario',q:'At the original Plus service a homeowner declines sealing one gap behind a porch. Months later rodents use that gap. Is it covered?',o:['Yes, everything on the property is covered','Yes, if the technician saw it','No. Declined entry points are documented on the service agreement and aren\'t covered; out-of-scope work can be offered','Only on the 3-year warranty'],a:2,e:'Declined points must be documented with the homeowner\'s acknowledgment, and they are not covered. That documentation protects everyone.'},
+    {k:'True or false',q:'Foam sealant is an approved primary exclusion material for openings ½ inch and larger.',o:['True','False'],a:1,e:'False. Cement is the primary material. Foam is a courtesy fix for gaps under ½ inch only, it\'s not warranted, and rodents chew through it.'},
+    {k:'Multiple choice',q:'Who decides whether a Rodent Shield warranty claim is covered?',o:['The technician on site','The CSR who takes the call','The branch manager','The customer'],a:2,e:'The branch manager reviews the documented scope, site conditions and account status, and decides. Technicians and CSRs document and route.'},
+    {k:'Scenario',q:'A Plus customer reports new activity. What do you do first?',o:['Tell her it\'s covered','Inspect and photograph the area, compare it with the original entry point record, then call the branch manager the same day and send the details to technotes','Reseal everything and bill her','Tell her to call back after the next renewal'],a:1,e:'Document first, compare with the original scope, then escalate the same day. Don\'t promise an outcome either way.'},
+    {k:'Multiple choice',q:'Why do we keep trapping after the entry points are sealed?',o:['To use up trap inventory','Rodents that were inside when we sealed are still there; trapping at the entry points removes them before they chew a new way out or die inside the walls','Sealing doesn\'t work without traps nearby','State law requires it'],a:1,e:'Sealing stops new rodents getting in. Trapping removes the ones already inside. That\'s why traps go at or near the entry points.'},
+    {k:'True or false',q:'It is fine to tell a Plus customer "it should be quiet by tonight" to reassure them.',o:['True','False'],a:1,e:'False. Rodents sealed inside are often more active for a few nights. Give the follow-up schedule and explain what they may hear instead of a fixed date.'},
+    {k:'Multiple choice',q:'How often are traps checked in the first week of a Rodent Shield job?',o:['Once, at the end of the week','Every other day','Twice a day','Only when the customer calls'],a:1,e:'The first week is the high-activity window, so traps are checked every other day. Tell the customer the schedule up front.'},
+    {k:'Scenario',q:'A caller pushes: "Just give me a ballpark for Plus." What do you say?',o:['A number from memory','"It depends on what the inspection finds: how many entry points and what they need. Our service advisor gives you an exact quote after the inspection, and I can get that scheduled."','"It\'s cheap, don\'t worry."','"Plus costs about double Basic."'],a:1,e:'Never quote prices, even a ballpark. Explain why the inspection drives the quote and offer the next step.'},
+    {k:'Multiple choice',q:'Which phrase should never be used with a rodent customer?',o:['"Your warranty covers the entry points we documented and sealed."','"You\'ll be rodent-free forever."','"Activity should drop visit to visit."','"I\'ll confirm that with your branch manager."'],a:1,e:'Never promise "rodent-free forever" or "guaranteed." Outside pressure never goes away, and new openings can form.'},
+    {k:'Scenario',q:'A duplex owner wants Plus sealing on her unit only. What should happen?',o:['Seal her unit and sell the warranty','Flag it for manager review; partial exclusion isn\'t effective without a concrete firewall between units','Offer Basic only, with a warranty','Refuse the job'],a:1,e:'Multi-unit dwellings go to manager review. Sealing one unit doesn\'t keep rodents out if they can travel between units.'},
+    {k:'Multiple choice',q:'A homeowner asks you to seal the dryer vent while you\'re sealing entry points. What do you do?',o:['Seal it with hardware cloth','Seal it with foam','Explain that we never seal dryer or exhaust vents because of fire and moisture risk, and note the request for the branch manager if she has concerns','Seal it and leave a gap'],a:2,e:'Dryer, bath and kitchen exhaust vents are never sealed under any Rodent Shield tier. Blocking them creates fire, carbon monoxide and moisture risks.'}
+  ];
+  /* place the correct answer at varied positions (4-option items only) */
+  (function(){
+    function mv(q,t){if(q.o.length!==4||q.a===t)return;var c=q.o.splice(q.a,1)[0];q.o.splice(t,0,c);q.a=t}
+    var QT=[3,0,-1,2,1,0,-1,3,2,3,-1,2,0,3,-1,1,3,1,0,2];
+    Q.forEach(function(q,i){if(QT[i]>=0)mv(q,QT[i])});
+    mv(CP[1],3);mv(CP[2],2);mv(CP[3],0);mv(CP[4],1);
+  })();
+
+  function ico(n){return '<svg class="ico"><use href="#'+n+'"/></svg>'}
+
+  /* ---------- tier comparison explorer ---------- */
+  var TR=[
+    {f:'Inspection',b:'Inside and out',p:'Inside and out',bv:1,pv:1,
+     m:'Both tiers start with the same full inspection to find activity, entry points and harborage.',s:'"Either way, I start by inspecting inside and out so we know exactly what we\'re dealing with."'},
+    {f:'Traps and stations',b:'Up to 6, activity areas',p:'Targeted at entry points',bv:1,pv:1,
+     m:'Basic places up to six snap traps and/or enclosed bait stations where activity is found. Plus targets traps at or near each documented entry point. RX-03 covers placement.',s:'"On Plus, I put the traps right where they\'ve been getting in, because that\'s where they travel."'},
+    {f:'Follow-up visits',b:'5 included',p:'5 included',bv:1,pv:1,
+     m:'Five follow-ups on both tiers to check traps, remove rodents and assess activity. Extra visits beyond five are available as an added service.',s:'"I\'ll be back five times to check traps and remove what we catch. I\'ll give you the dates."'},
+    {f:'Entry points sealed',b:'None',p:'Documented points',bv:0,pv:1,
+     m:'Plus seals the documented entry points ½ inch and larger with approved, cement-first materials. Plus includes a set number of openings; additional openings are quoted. Basic seals nothing.',s:'"Basic removes what\'s inside. Plus also closes the way in."'},
+    {f:'Documentation',b:'Written summary',p:'Photo record package',bv:1,pv:1,
+     m:'Basic customers get a post-service summary of findings and next steps. Plus customers get the documentation package with the entry point record and photos, which is also the warranty record.',s:'"You\'ll have photos of every opening we sealed, before and after."'},
+    {f:'Warranty',b:'None',p:'1-year or 3-year',bv:0,pv:1,
+     m:'Only Plus carries a warranty, on the documented sealed entry points. The customer chooses 1-year or 3-year at the original service.',s:'"If you want a warranty, that\'s Plus. You choose one or three years today."'},
+    {f:'Renewal',b:'None',p:'Yearly, with inspection',bv:0,pv:1,
+     m:'Plus renews with a yearly inspection. Exterior bait boxes are required at every renewal. Basic has no renewal.',s:'"Each year we come back, reinspect, and renew your coverage."'},
+    {f:'Transfer on home sale',b:'Not applicable',p:'Yes, within 30 days',bv:0,pv:1,
+     m:'The new owner calls within 30 days of the sale. No fee. Bait boxes required.',s:'"If you sell, the new owner can take over the warranty."'},
+    {f:'Residential deposit',b:'Required',p:'Required',bv:1,pv:1,
+     m:'Every residential Rodent Shield account, Basic or Plus, needs a credit card deposit before scheduling. Commercial accounts don\'t. CSRs handle it; it\'s a system requirement, not negotiable.',s:'"Our system needs a card on file for the deposit before we can schedule."'}
+  ];
+  var tz='both', tsel=0, tseen=store.get('tz')||{};
+  function drawTiers(){
+    $('#tiers').innerHTML='<div class="trow th"><span>Feature</span><span class="cb">Basic</span><span class="cp">Plus</span></div>'+TR.map(function(r,i){
+      return '<button type="button" class="trow'+(i===tsel?' sel':'')+(tseen[i]?' seen':'')+'" id="tr'+i+'" aria-pressed="'+(i===tsel)+'"><span>'+r.f+'</span><span class="cb'+(r.bv?'':' no')+'">'+r.b+'</span><span class="cp'+(r.pv?'':' no')+'">'+r.p+'</span></button>'}).join('');
+    $('#tiers').className='tiers z-'+tz;
+    $$('#tiers button').forEach(function(b,i){b.addEventListener('click',function(){tsel=i;tseen[i]=1;store.set('tz',tseen);drawTiers()})});
+    var r=TR[tsel];
+    $('#tdet').innerHTML='<div class="rc"><span class="eyebrow">'+r.f+'</span><h3>'+(tz==='b'?'Basic: '+r.b:tz==='p'?'Plus: '+r.p:(r.b===r.p?'Both: '+r.b:r.b+' <span class="muted">vs</span> '+r.p))+'</h3><p>'+r.m+'</p><div class="sayline">'+ico('i-chat')+'<span>'+r.s+'</span></div><p class="small muted" style="margin-top:8px">'+Object.keys(tseen).length+' of '+TR.length+' rows explored</p></div>';
+  }
+  function setTz(v){tz=v;$('#tzB').setAttribute('aria-pressed',v==='b');$('#tzBoth').setAttribute('aria-pressed',v==='both');$('#tzP').setAttribute('aria-pressed',v==='p');drawTiers()}
+  $('#tzB').addEventListener('click',function(){setTz('b')});$('#tzBoth').addEventListener('click',function(){setTz('both')});$('#tzP').addEventListener('click',function(){setTz('p')});
+  tseen[0]=1;drawTiers();
+
+  /* ---------- generic 3-way sorter ---------- */
+  function sorter(box,btn,fb,items,opts,doneMsg){
+    var sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=box+i;
+      r.innerHTML='<span class="cq">'+s.q+'</span><span class="opts">'+opts.map(function(o){return '<button type="button" aria-pressed="false" data-v="'+o[0]+'" id="'+box+i+o[1]+'">'+o[0]+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');$('.cq',r).innerHTML=s.q})});
+      $('#'+box).appendChild(r)});
+    $('#'+btn).addEventListener('click',function(){var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+box+i);$('.cq',r).innerHTML=s.q;if(!sel[i]){blank++;r.classList.remove('ok','no');return}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){$('.cq',r).innerHTML='<span class="why2"><b>'+s.a+'.</b> '+s.w+'</span>'}});
+      $('#'+fb).innerHTML=blank?'<span class="fb no">Sort all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb">All '+items.length+' correct. '+doneMsg+'</span>':'<span class="fb no">'+right+' of '+items.length+'. Red rows now show the right answer and why. Change your pick to see the situation again.</span>')});
+  }
+  sorter('tfit','tfCheck','tfFb',[
+    {q:'Mouse droppings in the garage; no structural entry points found; customer wants to start with elimination',a:'Basic',w:'Activity without confirmed entry points, and a customer who wants to start with elimination, fits Basic.'},
+    {q:'Roof rats in the attic; three open gaps at the soffit and gable vent',a:'Plus',w:'Entry points were found. Plus documents and seals them, and traps at those points.'},
+    {q:'"Is there any kind of guarantee?" is the customer\'s first question',a:'Plus',w:'Only Plus carries a warranty.'},
+    {q:'Duplex owner wants only her side sealed',a:'Manager review',w:'Multi-unit homes go to manager review. Partial exclusion doesn\'t work without a concrete firewall between units.'},
+    {q:'Rodents for two years; two other companies tried trapping without lasting results',a:'Plus',w:'A recurring problem after other services points to entry points that were never closed.'},
+    {q:'Activity only around the hedges and woodpile; no evidence inside',a:'Basic',w:'Outdoor or perimeter-based activity with no evidence of interior entry fits Basic. Exterior bait boxes are always offered too.'},
+    {q:'Mobile home with activity under the floor and no attic access',a:'Manager review',w:'With no attic access we can\'t place traps there. Escalate so the branch manager can decide what we can offer.'},
+    {q:'Active rodents, no confirmed entry points; customer is budget-conscious',a:'Basic',w:'Budget-conscious with no confirmed entry points fits Basic. If entry points turn up later, present Plus.'}
+  ],[['Basic','b'],['Plus','p'],['Manager review','m']],'If a Basic job turns up entry points, the Plus conversation happens before you leave.');
+
+  /* ---------- warranty path ---------- */
+  var WP={1:[
+      ['i-seal','Original Plus service','Entry points documented and sealed; 1-year warranty starts on the service date.'],
+      ['i-cal','Month 11','The office starts renewal outreach 30 days before the anniversary.'],
+      ['i-search','Each anniversary','Yearly inspection. Renew for another year, bait boxes required.'],
+      ['i-clock','30-day grace','Coverage holds 30 days past the anniversary, then lapses.'],
+      ['i-refresh','Every year after','Renew year by year at the locked price. The 3-year can\'t be added later.']],
+    3:[
+      ['i-seal','Original Plus service','Customer chooses the 3-year at this visit only. It replaces the 1-year.'],
+      ['i-search','End of years 1 and 2','Annual inspections during the term.'],
+      ['i-star','End of year 3','Booster service.'],
+      ['i-refresh','Decision point','Renew another 3-year term at the same locked terms, switch to 1-year, or end coverage.'],
+      ['i-box','At any renewal','Exterior bait boxes required. Past the 30-day grace, coverage ends.']]};
+  function showWP(k){$('#wp1').setAttribute('aria-pressed',k===1);$('#wp3').setAttribute('aria-pressed',k===3);
+    $('#wpath').innerHTML=WP[k].map(function(s,i){return '<div class="ws" style="--k:'+i+'"><span class="n">'+ico(s[0])+'</span><h3>'+s[1]+'</h3><p>'+s[2]+'</p></div>'}).join('')}
+  $('#wp1').addEventListener('click',function(){showWP(1)});$('#wp3').addEventListener('click',function(){showWP(3)});showWP(1);
+
+  /* ---------- is it covered? ---------- */
+  sorter('cov','covCheck','covFb',[
+    {q:'Plus 1-year, month 8: a documented, sealed soffit gap has been pulled open and activity is back',a:'Warranty claim',w:'A failed documented entry point is exactly what the warranty is for. Document, compare with the original record, escalate.'},
+    {q:'Plus, month 5: rodents are using a gap the homeowner declined at the original service, noted on the agreement',a:'Not covered',w:'Declined points are documented and excluded. Sealing it now is out-of-scope work, offered at a discount.'},
+    {q:'Basic customer, two months after the last follow-up: rodents are back',a:'Not covered',w:'Basic has no warranty. Offer a Plus inspection through the office.'},
+    {q:'Plus anniversary passed 45 days ago, never renewed; new noises in the attic',a:'Not covered',w:'Past the 30-day grace period, coverage has lapsed. A return starts at new-customer pricing.'},
+    {q:'Plus anniversary passed 20 days ago; customer renews today with bait boxes and reports scratching',a:'Warranty claim',w:'Still inside the 30-day grace period with the renewal and bait boxes in place. Document and escalate; the branch manager confirms.'},
+    {q:'Plus 3-year, year 2: a storm tore off part of the soffit and rats got in through the new opening',a:'Manager review',w:'A new opening caused by storm damage isn\'t a documented point, and roof damage may need a contractor first. The branch manager decides.'},
+    {q:'Plus, month 4: a missed entry point is found inside the original documented area',a:'Warranty claim',w:'A missed point within the original scope triggers warranty review.'},
+    {q:'New owner calls: the house closed two months ago and the seller had Plus',a:'Not covered',w:'Transfers must start within 30 days of the sale. Route the new owner to an inspection.'},
+    {q:'Plus, month 6: activity in a detached workshop that was never part of the inspection',a:'Manager review',w:'Activity outside the original service area isn\'t automatically covered. The branch manager reviews the agreement.'},
+    {q:'Plus, month 3: rodents are getting in around the dryer vent',a:'Not covered',w:'We never seal dryer or exhaust vents, and the terms say so. Document it and let the branch manager discuss options.'}
+  ],[['Warranty claim','w'],['Not covered','n'],['Manager review','m']],'Even when you know the answer, the branch manager confirms coverage with the customer.');
+
+  /* ---------- expectation timeline ---------- */
+  var TL=[
+    {yr:'Day 0',tg:'Service day',i:'i-seal',h:'Inspection, sealing (Plus) and traps set',p:'Before you leave, tell the customer what you did, where the traps are, when you\'re back, and that noises for a few nights are normal.',say:'"The ones already inside are now looking for a way out. That\'s exactly where I set the traps."'},
+    {yr:'Days 1–3',tg:'Wary of traps',i:'i-ear',h:'Noises can increase; traps may sit untouched',p:'Rodents are cautious of new objects. Traps in active runways often take two to three days to produce, and Norway rats can take longer. The first follow-up ideally happens the next day.',say:'"A quiet trap the first couple of days is normal. They\'re cautious of anything new."'},
+    {yr:'Week 1',tg:'Every other day',i:'i-cal',h:'High-activity window: traps checked every other day',p:'Fresh placements and freshly sealed rodents trying other routes. Check, remove, reset, and tell the customer what you found every visit.',say:'"I caught two today. I\'ll be back Thursday."'},
+    {yr:'Follow-ups',tg:'Five in total',i:'i-trend',h:'Captures should decline visit to visit',p:'Success looks like fewer noises, fewer captures, and exclusion work still intact. If captures stay flat or climb, tell your branch manager. Extra visits beyond five are available.',say:'"We\'re down to one this week. That\'s the trend we want."'},
+    {yr:'Year 1+',tg:'Plus only',i:'i-refresh',h:'Yearly inspection and renewal',p:'The office reaches out 30 days before the anniversary. Bait boxes are part of every renewal. Any new activity in between goes through the claims process.',say:'"Each year we reinspect and renew. Call us any time you hear something new."'}
+  ];
+  var tl=$('#tl'),seen=store.get('tl')||{};
+  TL.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tlb'+i;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="dot">'+ico(t.i)+'</span><span class="yr">'+t.yr+'</span><span class="tg">'+t.tg+'</span>';
+    b.addEventListener('click',function(){showTL(i)});tl.appendChild(b)});
+  function showTL(i){seen[i]=1;store.set('tl',seen);
+    $$('button',tl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!seen[j])});
+    $('#tlFill').style.width=(i/(TL.length-1)*80)+'%';var t=TL[i];
+    $('#tlDetail').innerHTML='<div class="card"><div class="grid g2" style="gap:18px;align-items:start"><div><span class="eyebrow">'+t.yr+' · '+t.tg+'</span><h3 style="margin:6px 0">'+t.h+'</h3><p>'+t.p+'</p></div><div class="sayline big">'+ico('i-chat')+'<span>'+t.say+'</span></div></div></div>'}
+  showTL(0);
+
+  /* ---------- seal, then trap ---------- */
+  var AP={
+    t:{h:'Trap only',tone:'no',p:'Traps catch some of the rodents inside, but the entry point is still open. New rodents keep arriving, and the customer keeps hearing them.',r:'This is Basic\'s limit. When entry points are found, present Plus.'},
+    s:{h:'Seal only',tone:'no',p:'No new rodents get in, but the ones inside are trapped with no way out. They chew a new opening or die inside a wall or the attic: odor, flies and a very unhappy customer.',r:'Never seal and walk away.'},
+    st:{h:'Seal, then trap',tone:'ok',p:'Sealing stops new rodents getting in. Traps at the entry points catch the ones inside as they look for their old route. Captures decline visit to visit until activity stops.',r:'This is Rodent Shield Plus. It\'s also why the customer may hear more for a few nights.'}};
+  function showAP(k){['T','S','ST'].forEach(function(x){$('#ap'+x).setAttribute('aria-pressed',x.toLowerCase()===k)});
+    $('#attic').className='figbox attic m-'+k;var a=AP[k];
+    $('#apcard').innerHTML='<div class="rc '+a.tone+'"><span class="eyebrow">Outcome</span><h3>'+a.h+'</h3><p>'+a.p+'</p><div class="sayline">'+ico(a.tone==='ok'?'i-check':'i-alert')+'<span>'+a.r+'</span></div></div>'}
+  $('#apT').addEventListener('click',function(){showAP('t')});$('#apS').addEventListener('click',function(){showAP('s')});$('#apST').addEventListener('click',function(){showAP('st')});showAP('st');
+
+  /* ---------- objections (flip) ---------- */
+  var OB=[
+    {t:'"Just put bait out. Why all this sealing?"',b:'If we bait while openings are still there, a rodent can eat the bait, go back inside and die in a wall. <b>We seal first, then trap and bait.</b>'},
+    {t:'"My last company used spray foam. Do that."',b:'Rodents chew through foam, often within a year. <b>We use cement-first materials</b> because they hold, and that\'s why Plus can carry a warranty.'},
+    {t:'"Skip that hole by the porch. I\'ll handle it."',b:'That\'s your choice. <b>I\'ll note it on your agreement</b>, and that point won\'t be covered by the warranty. Don\'t argue; document and move on.'},
+    {t:'"Seal the dryer vent while you\'re up there."',b:'<b>We never seal dryer or exhaust vents.</b> Blocking them is a fire, carbon monoxide and moisture risk. Your branch manager can talk through options.'},
+    {t:'"Is that bait safe for my dog?"',b:'Never call a bait "safe." <b>The stations are tamper-resistant and locked</b> where pets and children could reach, and I can give you the product name, active ingredient and label safety information.'},
+    {t:'"Why do I need a card on file?"',b:'For residential accounts, <b>our system requires a card on file for the deposit</b> before we can schedule. Keep it simple and matter-of-fact. Commercial accounts don\'t need one.'}
+  ];
+  var fl=$('#flip'),fseen=store.get('ob')||{};
+  OB.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='ob'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t.replace(/"/g,'')+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="eyebrow">Objection '+(i+1)+'</span><h3>'+v.t+'</h3><span class="hint">'+(fseen[i]?'Seen · select to flip':'Select to see the answer')+'</span></span><span class="face back"><span>'+v.b+'</span></span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');fseen[i]=1;store.set('ob',fseen)});fl.appendChild(b)});
+
+  /* ---------- conversation picker ---------- */
+  var VS=[
+    {n:'"Guarantee it?"',s:'"If I pay for Plus, can you guarantee I\'ll never have rats again?"',o:['"Yes. Plus means rodent-free for life."','"I can\'t promise you\'ll never see a rodent again. We document every entry point we find, seal the ones in your agreement, trap the ones inside, and your warranty covers those sealed points. The renewal and outside bait boxes help us catch new pressure early."','"Only with the 3-year warranty."','"Nobody can guarantee anything with rats."'],a:1,e:'Specific and honest: what we do, what the warranty covers, what keeps it working. No "forever," and no shrugging it off either.'},
+    {n:'"Still hearing them"',s:'Day two after sealing: "I heard them all night. Did you even seal anything?"',o:['"That shouldn\'t happen. I\'ll redo the sealing."','"Try earplugs for a week."','"Put some store-bought bait in the attic tonight."','"I understand, that\'s frustrating. The ones inside when we sealed are looking for their old way out, and that\'s where the traps are. It\'s normal for a few nights. I\'ll be back on Thursday to check and I\'ll tell you what we caught."'],a:3,e:'Acknowledge, explain the biology, give the next visit. Don\'t imply the work failed, and never suggest the customer bait the attic.'},
+    {n:'"Ballpark?"',s:'"Just give me a ballpark for Plus. I won\'t hold you to it."',o:['"It depends on how many entry points the inspection finds and what each one needs. The service advisor gives you an exact quote after the inspection. Want me to get that scheduled?"','"Roughly a thousand."','"Less than Basic, usually."','"I\'m not allowed to talk about Plus."'],a:0,e:'No prices, not even a ballpark. Explain what drives the quote and offer the next step.'},
+    {n:'"Add 3-year later"',s:'"I\'ll take the 1-year now and add the 3-year next year if I like you."',o:['"Sure, just call the office next year."','"No problem, any renewal works."','"I want to be upfront: the 3-year option is only available today, at the original service. After today, renewals are year to year. Here\'s how each one works so you can decide."','"The 3-year isn\'t worth it."'],a:2,e:'The 3-year can\'t be added later. Present both options clearly now and document the choice.'},
+    {n:'"Why bait boxes?"',s:'At renewal: "Why do I have to buy bait boxes just to renew my warranty?"',o:['"It\'s just company policy, sorry."','"Bait boxes are part of every Plus renewal. They keep monitoring the outside of your home so we catch new rodent pressure before it finds a way in, which protects the work we did."','"You don\'t, I\'ll waive it."','"Because the warranty is void without them, forever."'],a:1,e:'Explain what the boxes do and why they\'re required. Don\'t waive program rules.'},
+    {n:'"It\'s covered, right?"',s:'Plus, month seven: "The noise is back. This is covered, right?"',o:['"Definitely. We\'ll fix it free."','"Probably not, it\'s been seven months."','"Let me take a look and photograph it, and compare it with the record from your original service. I\'ll call your branch manager today, and they\'ll review your agreement and call you."','"Call the office and ask them."'],a:2,e:'Document, compare with the original scope, escalate the same day, and tell the customer who calls next. The branch manager decides.'}
+  ];
+  var vt=$('#vTabs'),vb=$('#vBox'),vDone=store.get('vs')||{};
+  function showV(n){
+    $$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!vDone[j])});
+    var s=VS[n];
+    vb.innerHTML='<div class="card"><span class="eyebrow">The customer says</span><p style="margin-top:6px;font-size:17px">'+s.s+'</p></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="v'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="vFb"></div>';
+    $$('.choice',vb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',vb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',vb).forEach(function(x){x.disabled=true});vDone[n]=1;store.set('vs',vDone);$$('button',vt)[n].classList.add('done');
+        $('#vFb').innerHTML='<div class="fb">'+s.e+(n<VS.length-1?' <button type="button" class="btn" id="vNext" style="margin-left:8px;padding:4px 12px">Next customer</button>':'')+'</div>';var nx=$('#vNext');if(nx)nx.addEventListener('click',function(){showV(n+1)})}
+      else{b.classList.add('wrong');$('#vFb').innerHTML='<div class="fb no">Would that hold up at the renewal visit, or against the written agreement? Try again.</div>'}
+    })});
+  }
+  VS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showV(i)});vt.appendChild(b)});
+  showV(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

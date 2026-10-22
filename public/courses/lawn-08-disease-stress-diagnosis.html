@@ -1,0 +1,1383 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-08 Disease &amp; Stress Diagnosis</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-08 Disease & Stress Diagnosis: 6-step path, pattern picker, drought slider, irrigation map, catch-can calculator, disease calendar, flip cards, case files */
+.path.p6{grid-template-columns:repeat(6,1fr)}
+.path.p6 .st{padding:0 6px}
+.path.p6 .st::after{left:52px;right:-6px}
+.path.p6 .st h3{font-size:15px}
+.path.p6 .st p{font-size:13px;line-height:1.45}
+
+/* pattern picker */
+.patfig svg{max-width:340px}
+.patfig .lawn,.irfig .lawn{fill:var(--brand-100);stroke:var(--brand-300);stroke-width:1.2}
+.patfig .house,.irfig .house{fill:var(--surface);stroke:var(--line)}
+.patfig .drive{fill:#E6E8E6;stroke:var(--line)}
+.lbl{font-family:var(--font);font-size:8px;fill:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.dmg{fill:#B9A27C}
+.dmg2{fill:#A88B62}
+.dmg3{fill:#8C6F4C}
+.edge{fill:none;stroke:#C47E45;stroke-width:4;opacity:.85}
+.head,.hd{fill:var(--forest);stroke:#fff;stroke-width:1}
+.arc{stroke:var(--brand-600);stroke-width:1;stroke-dasharray:3 3;fill:none;opacity:.6}
+.bugs{fill:var(--ink)}
+.ring1{fill:none;stroke:var(--brand-700);stroke-width:8}
+.ring2{fill:none;stroke:#B9A27C;stroke-width:6}
+.mush{fill:#F4F1EA;stroke:var(--ink);stroke-width:1}
+.dots2 circle{fill:#C9B590;stroke:#A88B62;stroke-width:.8}
+#patG.pop{animation:popin .22s ease-in-out both}
+@keyframes popin{from{opacity:0}to{opacity:1}}
+.patlist button{padding:8px 12px;font-size:15px}
+.patlist button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+
+/* drought slider */
+#dsFig{max-width:320px}
+.bl{fill:none;stroke-linecap:round;transition:d .4s ease-in-out,stroke .4s ease-in-out,stroke-width .4s ease-in-out}
+.soilb{transition:fill .4s ease-in-out}
+.sdr{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;transition:d .4s ease-in-out}
+.sdh{fill:var(--forest)}
+.rng{width:100%;accent-color:var(--brand-600);margin-top:6px}
+.rngl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.seg{flex-wrap:wrap}
+.seg button{padding:6px 12px;font-size:13px}
+dl.ds{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;margin:8px 0 0;font-size:14px}
+dl.ds dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+dl.ds dd{margin:0}
+
+/* screwdriver mini */
+.sdv svg{width:100%;max-width:220px;margin-top:10px;display:block}
+.sdv .soil{fill:#8A7A63}.sdv .dry{fill:#C2AE8C}
+.sdv .sd1,.sdv .sd2{stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-dasharray:90;stroke-dashoffset:90}
+.slide.on .sdv .sd1{animation:sdin 1.2s ease-in-out .5s forwards}
+.slide.on .sdv .sd2{animation:sdin 1.6s ease-in-out .9s forwards}
+@keyframes sdin{to{stroke-dashoffset:0}}
+.sdv text{font-family:var(--font);font-size:10px;fill:var(--ink)}
+
+/* irrigation */
+.irfig svg{max-width:440px}
+.walk{stroke:#E0E2E0;stroke-width:8}
+.ctl{fill:var(--brand-50);stroke:var(--brand-600)}
+.cov{fill:rgba(79,138,95,.10);stroke:var(--brand-500);stroke-width:1;stroke-dasharray:3 3}
+.slide.on .cov{animation:covp 3.2s ease-in-out infinite}
+@keyframes covp{50%{fill:rgba(79,138,95,.2)}}
+.drywedge{fill:#B9A27C;opacity:.8}
+.shrub{fill:var(--brand-600);opacity:.85}
+.wet{fill:#7FA7A0;opacity:.55}
+.hot{cursor:pointer}
+.hot .dotc{fill:var(--surface);stroke:var(--forest);stroke-width:1.6;transition:fill .18s ease-in-out}
+.hot text{font-family:var(--font);font-size:10px;fill:var(--forest);font-weight:500;pointer-events:none}
+.hot.sel .dotc,.hot:hover .dotc{fill:var(--forest)}
+.hot.sel text,.hot:hover text{fill:#fff}
+.hot.seen:not(.sel) .dotc{fill:var(--brand-100)}
+.hot .halo2{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hot:not(.seen) .halo2{animation:halo 2.6s ease-out infinite}
+
+/* catch can */
+.cans{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.can{display:grid;grid-template-columns:24px 1fr;grid-template-rows:auto auto;gap:0 8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.can svg{grid-row:1/3;width:24px;height:32px}
+.can .cb{fill:none;stroke:var(--ink);stroke-width:1.4}
+.can .cf{fill:var(--brand-400);transition:y .3s ease-in-out,height .3s ease-in-out}
+.can span{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.can input,.ccrow input{font:inherit;font-size:14px;width:100%;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);min-width:0}
+.ccrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.ccrow input{width:70px}
+.ccres{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.ccres div{background:var(--brand-50);border-radius:10px;padding:8px 10px}
+.ccres b{display:block;font-size:20px;font-weight:300;font-variant-numeric:tabular-nums;color:var(--brand-700)}
+.ccres small{font-size:12px;color:var(--muted)}
+.du{display:inline-block;border-radius:var(--pill);padding:1px 8px;margin-right:6px;font-weight:500;border:1px solid var(--line)}
+.du.ok{color:var(--positive);border-color:#B9DCC6;background:#EAF5EE}
+.du.mid{color:var(--ink);border-color:var(--ink)}
+.du.bad{color:var(--danger);border-color:var(--danger);background:#FDEEEE}
+
+/* triangle + calendar */
+.tri svg{max-width:220px}
+.trip{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:440;stroke-dashoffset:440}
+.slide.on .trip{animation:draw 1.6s ease-in-out .2s forwards}
+.tric{fill:var(--forest)}
+.tri text{font-family:var(--font);font-size:10px;fill:var(--ink)}
+.tri .trit{font-size:14px;fill:var(--brand-700)}
+.cal{display:grid;gap:5px}
+.crow{display:grid;grid-template-columns:190px repeat(12,1fr);gap:3px;align-items:center}
+.crow span{font-size:13px;line-height:1.2}
+.crow span small{display:block;font-size:11px;color:var(--muted)}
+.crow i{height:22px;border-radius:4px;background:var(--brand-50)}
+.crow i.on{background:var(--brand-600);transform-origin:left;transform:scaleX(0)}
+.crow i.on.lite{background:var(--brand-300)}
+.slide.on .crow i.on{animation:cgrow .22s ease-in-out forwards;animation-delay:calc(var(--d) * 22ms + .3s)}
+@keyframes cgrow{to{transform:scaleX(1)}}
+.chead i{height:auto;background:none;text-align:center;font-style:normal;font-size:11px;color:var(--muted);letter-spacing:.06em}
+
+/* flip 6 */
+.flip.f6{grid-template-columns:repeat(3,1fr);gap:12px}
+.flip.f6 button{min-height:176px}
+.flip.f6 .face{padding:16px 18px;gap:6px}
+.flip.f6 h3{font-size:21px}
+.flip.f6 .fs{font-size:14px;line-height:1.45}
+.flip.f6 .back{font-size:14px;line-height:1.5}
+.flip.f6 .hint{font-size:12px}
+
+/* big three table */
+.b3{min-width:0;font-size:13px}
+.b3 td,.b3 th{padding:6px 10px;line-height:1.38}
+.b3 td:first-child{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.b3 th{text-transform:none;letter-spacing:.02em;font-size:13px;color:var(--brand-700)}
+
+/* cards */
+ul.mini{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:14px;color:var(--muted)}
+ul.mini li{display:flex;gap:10px}
+ul.mini li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:8px}
+.card.sm{padding:14px 16px}
+.card.sm h3{display:flex;gap:8px;align-items:center;font-size:16px}
+.card.sm h3 .ico{color:var(--brand-600);width:20px;height:20px}
+.card.sm p{font-size:13.5px;line-height:1.5}
+table.mow{min-width:0;font-size:14px;margin-top:6px}
+table.mow td{padding:6px 4px}
+table.mow td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--brand-700)}
+.heat .card p{font-size:14.5px}
+
+/* case files */
+.casebox .card.cf2{padding:16px 18px}
+.clues{list-style:none;display:grid;gap:6px;margin:10px 0}
+.clues li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.clues li .num{flex-basis:26px;height:26px;font-size:12px}
+.clues li div{display:grid}
+.clues li b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.clues li:not(.rev) span:last-child{color:var(--line)}
+.clues li.rev{animation:rise .22s ease-in-out both}
+.clues li.rev .num{background:var(--brand-600);color:#fff;border-color:var(--brand-600)}
+.cch .choice,.cu2 .choice{padding:10px 14px;font-size:15px}
+.cu2{grid-template-columns:1fr 1fr}
+#custBox .fb,#caseBox .fb{font-size:14px}
+
+@media (max-width:860px){
+  .path.p6,.cu2{grid-template-columns:1fr}
+  .flip.f6{grid-template-columns:1fr}
+  .cans{grid-template-columns:repeat(2,1fr)}
+  .ccres{grid-template-columns:repeat(2,1fr)}
+  .crow{grid-template-columns:96px repeat(12,1fr)}
+  .crow span{font-size:11px}
+  dl.ds{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.crow i.on{transform:none}.trip{stroke-dashoffset:0}.sdv .sd1,.sdv .sd2{stroke-dashoffset:0}}
+/* fit */
+.slide > *{flex-shrink:0}
+.slide.tight{padding:26px 44px}
+.slide.tight.on{gap:14px}
+.slide.tight h2{font-size:clamp(22px,2.6vw,30px)}
+[data-cp].on{gap:16px}
+[data-cp] h2{font-size:clamp(20px,2.3vw,26px)}
+[data-cp] .choice{padding:10px 14px;font-size:15px}
+.order{gap:6px}
+.order button{padding:6px 12px;font-size:14.5px}
+.tight .card{padding:16px 18px}
+.tight .card p{font-size:14px;line-height:1.5}
+@media (max-width:860px){.slide.tight{padding:28px 20px}}
+.sdv .sdh2{fill:var(--forest)}
+.patlist button{display:grid;gap:0}
+.trip{stroke-dasharray:520;stroke-dashoffset:520}
+.hot:focus{outline:none}
+.hot:focus-visible .dotc{stroke-width:3}
+.flip.f6 .back > span{display:block}
+.patlist{gap:6px}.patlist button{padding:6px 12px;font-size:14.5px;line-height:1.35}.patlist button small{font-size:12.5px}
+@media (max-width:860px){.split{grid-template-columns:1fr!important}.patfig svg{max-width:100%}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">LAWN-08 · Disease &amp; Stress</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 11 11 5 20 5c0 9-6 15-14 15"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-grass" viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M6 20c0-5-2-8-3-9M10 20c0-6 1-10 3-12M14 20c0-4 2-7 4-8M18 20c0-3 1-5 3-6"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-can" viewBox="0 0 24 24"><path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/><path d="M5 6h14"/><path d="M6 13h12"/></symbol>
+    <symbol id="i-probe" viewBox="0 0 24 24"><path d="M14 3l7 7"/><path d="M16 5l-4 4 3 3 4-4"/><path d="M12 9L4 17l-1 4 4-1 8-8"/></symbol>
+    <symbol id="i-mower" viewBox="0 0 24 24"><path d="M3 15h14l2-5"/><path d="M19 10l2-6"/><circle cx="6" cy="18" r="2"/><circle cx="15" cy="18" r="2"/><path d="M5 15v-3h9v3"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
+    <symbol id="i-sprk" viewBox="0 0 24 24"><path d="M12 21v-7"/><path d="M9 14h6"/><path d="M12 10c-3-1-6-3-8-6M12 10c3-1 6-3 8-6M12 10V3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.3fr .9fr">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-08</span>
+        <h1 class="display a" style="--i:1">Disease &amp; Stress Diagnosis</h1>
+        <p class="lead a" style="--i:2">How to read a lawn that's going brown, find the real cause (water, insects, fungus, chemicals or the site) and explain it so the customer trusts you.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 300 200" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M10 170H290"/>
+          <path d="M30 170c0-30-6-50-14-60M48 170c0-40 4-66 14-80M66 170c0-26 8-44 18-52M86 170c0-36-2-58-10-72M104 170c0-22 6-38 16-44"/>
+          <path d="M196 170c0-30 6-50 14-60M214 170c0-40-4-66-14-80M232 170c0-26-8-44-18-52M252 170c0-36 2-58 10-72M272 170c0-22-6-38-16-44"/>
+          <circle cx="150" cy="92" r="40"/><path d="M178 120l34 34"/><path d="M206 148l10 10"/>
+          <path d="M150 70c-8 12-12 20-12 26a12 12 0 0 0 24 0c0-6-4-14-12-26z"/>
+          <path d="M120 180c6 6 14 6 20 0M160 180c6 6 14 6 20 0"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-search"/></svg><span>Run the diagnosis: pattern, timing, weather, irrigation and recent applications, then the plant itself</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span>Recognize the stages of drought stress and confirm it with the screwdriver and footprint tests</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-can"/></svg><span>Spot common irrigation problems and run a catch-can test to work out run time</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-leaf"/></svg><span>Identify Florida's main turf and ornamental diseases and the conditions that drive each one</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span>Tell disease apart from chinch bugs, chemical or fertilizer burn and site stress</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span>Explain what you found to the customer without blame, and document the next step</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">A guess is a callback. <span class="em">A diagnosis is a result.</span></h2>
+        <p class="a muted" style="--i:2">A brown spot is one of the most common reasons a lawn customer calls upset, and the first thing they often suspect is that we burned it. Many "fungus" calls turn out to be water, insects or chemical injury. The tech who finds the real cause keeps the account.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-target"/></svg></div><div><h3>The wrong product fixes nothing</h3><p>Fungicide on a chinch bug problem, or insecticide on a watering gap, wastes product and a visit. The lawn keeps declining while the customer keeps paying.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is the law</h3><p>Under FIFRA and Florida Chapter 482 you may only apply a product to a site and pest its label allows. Treating a problem you haven't identified can't meet that standard. FC-02 covers the rules.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Trust is built at the brown spot</h3><p>Showing a customer exactly what you found, and what will fix it, turns a complaint into a renewal. Getting defensive or guessing does the opposite.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the diagnosis">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Diagnose before you spray</h1>
+        <p class="lead a" style="--i:2">Most diagnostic mistakes happen because a tech stopped at first impression. A two-minute routine, done the same way every time, settles most brown spots before you open the tank.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The diagnosis routine</li><li><span>02</span>Reading the pattern</li><li><span>03</span>Above and below ground</li><li><span>04</span>Practice: put it in order</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 ROUTINE -->
+  <section class="slide tight" data-label="The diagnosis routine">
+    <span class="eyebrow a">01 · The diagnosis routine</span>
+    <h2 class="a" style="--i:1">Five questions, then the plant</h2>
+    <p class="a muted" style="--i:2">The symptoms and the conditions have to agree. If the pattern says one thing and the weather says another, keep looking.</p>
+    <div class="path p6 a" style="--i:3">
+      <div class="st" style="--i:0"><div class="n"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Pattern</h3><p>Walk the whole lawn first. Shape, size, edges, sun or shade, where it sits.</p></div>
+      <div class="st" style="--i:1"><div class="n"><svg class="ico"><use href="#i-clock"/></svg></div><h3>Timing</h3><p>When did it start? How fast is it moving? What month is it?</p></div>
+      <div class="st" style="--i:2"><div class="n"><svg class="ico"><use href="#i-thermo"/></svg></div><h3>Weather</h3><p>Hot and dry, cool and wet, a rainy stretch, or a cold snap?</p></div>
+      <div class="st" style="--i:3"><div class="n"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Irrigation</h3><p>Is water reaching this spot? When does the zone run, and for how long?</p></div>
+      <div class="st" style="--i:4"><div class="n"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Recent applications</h3><p>Check service history: what went down, when, at what rate. Ask about the customer's own products too.</p></div>
+      <div class="st top" style="--i:5"><div class="n"><svg class="ico"><use href="#i-hand"/></svg></div><h3>The plant</h3><p>Pull blades, sheath and roots at the active edge. That's where you confirm.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span>Ask the customer two things on every brown-spot call: <b>"When did you first notice it?"</b> and <b>"Has anything changed: watering, mowing, a product you put down?"</b> Their answers often point straight at the cause.</span></div>
+  </section>
+
+  <!-- 6 PATTERN -->
+  <section class="slide tight" data-label="Reading the pattern">
+    <span class="eyebrow a">02 · Reading the pattern</span>
+    <h2 class="a" style="--i:1">The shape of the damage is your first clue</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="figbox patfig a" style="--i:2" id="patFig"></div>
+        <div class="callout a" style="--i:3" id="patDet"><svg class="ico"><use href="#i-search"/></svg><span>Select a pattern to see what it usually means and how to confirm it.</span></div>
+      </div>
+      <div class="blist patlist a" style="--i:2" id="patList"></div>
+    </div>
+  </section>
+
+  <!-- 7 ABOVE AND BELOW -->
+  <section class="slide tight" data-label="Above and below ground">
+    <span class="eyebrow a">03 · Above and below ground</span>
+    <h2 class="a" style="--i:1">Diagnosis happens with grass in your hand</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-leaf"/></svg></div><h3>The blade</h3><p>Pull blades from the <b>edge</b> of the damage, where it's moving into healthy turf. The center is usually too far gone to read. Look for lesion shape, color and border.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-grass"/></svg></div><h3>The sheath and runner</h3><p>Tug a blade. If it slides out of a dark, soft, rotted base while the runner stays firm, think large patch. Black lesions on runners point to take-all.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-probe"/></svg></div><h3>The roots and soil</h3><p>Cut a small section with a soil knife. Healthy roots are white and fibrous. Short, black and rotted means take-all. Thin and discolored, not black, fits Pythium root rot. Check soil moisture while you're there.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-box"/></svg><span><b>Carry it on the truck:</b> soil knife or hori-hori, a long screwdriver, a hand lens, an open-ended can for the flotation test (LAWN-07), and your phone camera.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-bug"/></svg><span><b>Rule out insects every time.</b> Part the turf at the yellow-to-green margin, or run a flotation test. Chinch bugs, grubs and webworms all mimic disease.</span></div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE ORDER -->
+  <section class="slide tight" data-label="Practice: put it in order">
+    <span class="eyebrow a">04 · Practice · put it in order</span>
+    <h2 class="a" style="--i:1">"Fungus is killing my lawn." Put your steps in order.</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:28px;align-items:start">
+      <div class="order a" style="--i:2" id="ordBox"></div>
+      <div class="grid" style="gap:12px">
+        <p class="a muted" style="--i:3">Select the steps in the order you'd do them. A wrong pick shakes; try again.</p>
+        <div class="callout a" style="--i:4" id="ordFb"><svg class="ico"><use href="#i-check"/></svg><span>0 of 8 placed.</span></div>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: water">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Water: drought stress and irrigation</h1>
+        <p class="lead a" style="--i:2">A large brown patch in an otherwise healthy lawn is very often a watering gap. It isn't damage we caused, and it isn't the customer's fault. It's a condition you can prove and explain.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Stages of drought stress</li><li><span>02</span>Screwdriver and footprint tests</li><li><span>03</span>Irrigation problems</li><li><span>04</span>Catch-can test</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 STAGES SLIDER -->
+  <section class="slide tight" data-label="Stages of drought stress">
+    <span class="eyebrow a">01 · Stages of drought stress</span>
+    <h2 class="a" style="--i:1">Catch it early and the fix is easy</h2>
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="figbox a" style="--i:2"><svg id="dsFig" viewBox="0 0 260 150" role="img" aria-label="Grass blades changing as drought stress increases"></svg></div>
+        <div class="a" style="--i:3"><label for="dsRange" class="eyebrow">Drag to change the stage</label><input type="range" id="dsRange" min="0" max="3" step="1" value="0" class="rng"><div class="rngl"><span>Healthy</span><span>Early wilt</span><span>Moderate</span><span>Severe</span></div></div>
+        <div class="seg a" style="--i:4" id="dsTurf" role="group" aria-label="Turf type"></div>
+      </div>
+      <div class="card a" style="--i:3" id="dsDet"></div>
+    </div>
+  </section>
+
+  <!-- 12 TESTS -->
+  <section class="slide tight" data-label="Screwdriver and footprint tests">
+    <span class="eyebrow a">02 · Field tests</span>
+    <h2 class="a" style="--i:1">Prove it in under a minute</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-probe"/></svg></div><h3>Screwdriver test</h3><p>Push a long screwdriver into the brown spot, then into green turf nearby. If it stops after an inch or two in the patch but sinks several inches in the green, the root zone isn't getting water.</p><div class="sdv" aria-hidden="true"><svg viewBox="0 0 200 74"><rect x="0" y="26" width="200" height="48" class="soil"/><rect x="0" y="26" width="98" height="48" class="dry"/><rect class="sdh2" x="42" y="2" width="10" height="12" rx="2"/><rect class="sdh2" x="142" y="2" width="10" height="12" rx="2"/><path class="sd1" d="M47 14v22"/><path class="sd2" d="M147 14v54"/><text x="8" y="68">dry: stops</text><text x="160" y="20">moist: sinks</text></svg></div></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-boot"/></svg></div><h3>Footprint test</h3><p>Walk across the area. Hydrated grass springs back within moments. Drought-stressed blades stay flat, so footprints and tire tracks are still visible minutes later. Look for a blue-gray cast and folded blades too.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-bug"/></svg></div><h3>Rule out chinch bugs</h3><p>Chinch damage looks like drought, in the same sunny spots and hot weather. Drought follows the sprinkler pattern and greens up with water. Chinch damage is patchier, spreads outward and doesn't respond to water. Check the margin (LAWN-07).</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-sun"/></svg><span><b>What dries out first:</b> full sun, slopes, sandy spots, strips along hot driveways and sidewalks, and thin coverage at zone edges. A wedge, half-circle or strip between heads means suspect irrigation first.</span></div>
+  </section>
+
+  <!-- 13 IRRIGATION -->
+  <section class="slide tight" data-label="Irrigation problems">
+    <span class="eyebrow a">03 · Irrigation problems</span>
+    <h2 class="a" style="--i:1">Run the zone and watch it</h2>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:26px;align-items:start">
+      <div class="figbox irfig a" style="--i:2"><svg id="irFig" viewBox="0 0 320 210" role="img" aria-label="Top view of an irrigation zone with six problem spots to select"></svg></div>
+      <div class="grid" style="gap:12px">
+        <p class="a muted small" style="--i:2">Select each numbered spot. A head aimed a few degrees off can leave a dry gap.</p>
+        <div class="card a" style="--i:3" id="irDet"><span class="eyebrow">Select a spot</span><p style="margin-top:6px">Six common problems you'll find when you run a zone through a full cycle.</p></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-hand"/></svg><span>Your job is to <b>find and document</b> the likely cause and recommend the next step, not to repair the system. Don't change a customer's controller unless they ask you to and your manager allows it.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CATCH CAN -->
+  <section class="slide tight" data-label="Catch-can test">
+    <span class="eyebrow a">04 · Catch-can test</span>
+    <h2 class="a" style="--i:1">Measure the zone instead of guessing run time</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <p class="a muted small" style="--i:2">Set 5 to 10 straight-sided cans around one zone, run it 15 minutes, and measure the water in each (UF/IFAS method). Edit the depths below, or use the sample numbers.</p>
+        <div class="cans a" style="--i:3" id="ccCans"></div>
+        <div class="ccrow a" style="--i:4"><label for="ccMin">Run time tested (minutes)</label><input id="ccMin" type="number" min="1" max="60" step="1" value="15" inputmode="numeric"><button type="button" class="btn primary" id="ccGo">Calculate</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3" id="ccOut"><span class="eyebrow">Results</span><p style="margin-top:6px">Enter the depths in inches and select Calculate.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-drop"/></svg><span>UF/IFAS: most Florida lawns need <b>1/2 to 3/4 inch per watering</b>, applied when the grass shows wilt, ideally early morning (about 2 to 8 a.m.). Watering days and hours are set by the water management district and local government.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: disease">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Turf and ornamental disease</h1>
+        <p class="lead a" style="--i:2">Florida disease is mostly a weather and water story. Name the disease correctly and you know which product the label allows, what cultural change it needs, and how long recovery will take.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The disease calendar</li><li><span>02</span>Six turf diseases</li><li><span>03</span>The big three side by side</li><li><span>04</span>Fungicide fundamentals</li><li><span>05</span>Ornamental diseases</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 CALENDAR -->
+  <section class="slide tight" data-label="The disease calendar">
+    <span class="eyebrow a">01 · The disease calendar</span>
+    <h2 class="a" style="--i:1">Disease needs a host, a pathogen and the right weather</h2>
+    <div class="split" style="grid-template-columns:.55fr 1.45fr;gap:26px;align-items:center">
+      <div class="figbox tri a" style="--i:2">
+        <svg viewBox="-30 0 260 186" role="img" aria-label="Disease triangle: susceptible host, pathogen and favorable environment">
+          <path class="trip" d="M100 20L180 160H20Z"/>
+          <circle class="tric" cx="100" cy="20" r="6"/><circle class="tric" cx="180" cy="160" r="6"/><circle class="tric" cx="20" cy="160" r="6"/>
+          <text x="100" y="98" text-anchor="middle" class="trit">Disease</text>
+          <text x="100" y="10" text-anchor="middle">Susceptible turf</text>
+          <text x="20" y="178" text-anchor="middle">Pathogen</text>
+          <text x="178" y="178" text-anchor="middle">Weather + water</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:8px">
+        <div class="cal a" style="--i:3" id="cal"></div>
+        <p class="small muted a" style="--i:4">Typical Florida timing (UF/IFAS). Pythium root rot follows wet soil at any time of year. Fungal pathogens are present all year; weather and water decide when they strike, so take away the wet conditions and you take away the disease.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 FLIP CARDS -->
+  <section class="slide tight" data-label="Six turf diseases">
+    <span class="eyebrow a">02 · Six turf diseases</span>
+    <h2 class="a" style="--i:1">Know the pattern, then confirm the sign</h2>
+    <p class="a muted small" style="--i:2">Select each card to see how to confirm it and what fixes the conditions.</p>
+    <div class="flip f6 a" style="--i:3" id="dzFlip"></div>
+  </section>
+
+  <!-- 19 BIG THREE -->
+  <section class="slide tight" data-label="The big three">
+    <span class="eyebrow a">03 · The big three side by side</span>
+    <h2 class="a" style="--i:1">Brown patch, gray leaf spot and take-all</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="b3">
+        <thead><tr><th></th><th>Brown patch (large patch)</th><th>Gray leaf spot</th><th>Take-all root rot</th></tr></thead>
+        <tbody>
+          <tr><td>When</td><td>November to May, below about 80°F</td><td>May to September, 80 to 90°F</td><td>Summer and early fall rainy season</td></tr>
+          <tr><td>Trigger</td><td>Leaves wet 48 hours or more: rain, evening irrigation, humidity</td><td>12+ hours of leaf wetness, humid still air, lush new growth</td><td>Prolonged rain plus any stress: scalping, compaction, poor nutrition</td></tr>
+          <tr><td>Grass</td><td>St. Augustine and zoysia most often; any warm-season turf</td><td>St. Augustine (the only Florida warm-season turf affected)</td><td>St. Augustine, bermuda, centipede and others</td></tr>
+          <tr><td>Pattern</td><td>Circles from about 1 ft to several feet; yellow-orange or dark wilted edge</td><td>Scattered yellowing and thinning; worst in new sod and heavily fed lawns</td><td>Irregular yellow or light green patches, a few inches to a few feet, thinning slowly</td></tr>
+          <tr><td>Confirm</td><td>Blade pulls out of a dark, soft, rotted base. Roots unaffected.</td><td>Oval spots: tan to gray center, dark brown border</td><td>Roots short, black, rotted. Black lesions on runners.</td></tr>
+          <tr><td>Cultural fix</td><td>Water only early morning; no quick-release nitrogen in season; mow it last and clean the mower</td><td>Water early morning only; don't push nitrogen; time atrazine carefully above 85°F</td><td>Correct mowing height; equal N and K, slow-release N; no lime; manganese sulfate foliar</td></tr>
+          <tr><td>Recovery</td><td>Slow: new leaves must grow out in cool weather</td><td>Stops spreading quickly once controlled and drier weather returns</td><td>Slowest. Roots were infected weeks before you saw it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted a" style="--i:3">Source: UF/IFAS EDIS fact sheets on large patch, gray leaf spot and take-all root rot (revised 2025–2026).</p>
+  </section>
+
+  <!-- 20 FUNGICIDE -->
+  <section class="slide tight" data-label="Fungicide fundamentals">
+    <span class="eyebrow a">04 · Fungicide fundamentals</span>
+    <h2 class="a" style="--i:1">Fungicide stops spread. It doesn't grow grass.</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="card a" style="--i:2">
+        <span class="eyebrow">Before you mix, the label must say</span>
+        <ul class="steps tight" style="margin-top:4px">
+          <li><span class="num">1</span><span>The <b>site</b>: your turf type and residential lawns (some aren't allowed on home lawns)</span></li>
+          <li><span class="num">2</span><span>The <b>disease</b> you confirmed, by name</span></li>
+          <li><span class="num">3</span><span>The <b>rate</b> and interval, from the current label and the Clements approved list, never from memory</span></li>
+          <li><span class="num">4</span><span><b>Turf tolerance</b>: some DMI fungicides can injure bermudagrass</span></li>
+          <li><span class="num">5</span><span><b>Placement</b>: root diseases (take-all, Pythium) are lightly watered in; leaf diseases stay on the leaf</span></li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><h3>Rotate modes of action</h3><p>Resistance builds when one group is used over and over; strobilurin-resistant gray leaf spot is already known in the Midwest. Rotate FRAC groups (strobilurins 11, DMIs 3, SDHIs 7) and follow the label's resistance section.</p></div>
+        <div class="card a" style="--i:4"><h3>Preventive beats curative</h3><p>On lawns with a history, apply before the season starts. Take-all programs start about a month before symptoms usually appear. Once a lawn shows symptoms, the cultural fix matters more than the spray.</p></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-arrow"/></svg><span>Calibration and mix rates are covered in LAWN-09.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 ORNAMENTALS -->
+  <section class="slide tight" data-label="Ornamental diseases">
+    <span class="eyebrow a">05 · Ornamental diseases</span>
+    <h2 class="a" style="--i:1">Shrubs and beds: four you'll see on every route</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-leaf"/></svg></div><div><h3>Powdery mildew</h3><p>White to gray powdery coating on upper leaves and new growth, often with curling or distortion. Favors shade, crowded plants, humid nights and dry days. Improve airflow and sun; prune for spacing; labeled fungicide if it's severe.</p></div></div></div>
+      <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-bug"/></svg></div><div><h3>Sooty mold</h3><p>Black film that wipes off the leaf. It's not attacking the plant: it grows on honeydew from whiteflies, scale, aphids or mealybugs. Look above the black leaves for the insect. <b>Treat the insect, not the mold.</b> It flakes off once the honeydew stops.</p></div></div></div>
+      <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-search"/></svg></div><div><h3>Leaf spot</h3><p>Round or angular spots, often with a dark or yellow border, from fungi or bacteria. Spread by splashing water. Remove and bag fallen leaves, keep irrigation off foliage, and use a labeled product only on plants with a repeat history.</p></div></div></div>
+      <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wind"/></svg></div><div><h3>Anthracnose</h3><p>Irregular tan to dark brown blotches along veins and leaf edges, sometimes twig dieback, after warm wet weather. Prune out infected wood with clean tools, rake up debris, avoid overhead watering.</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: look-alikes and the customer">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Look-alikes, the customer and the follow-up</h1>
+        <p class="lead a" style="--i:2">Chemical burn, fertilizer burn and a stressed site can all pass for disease. This is also where the customer is most likely to think we caused it, so the way you handle it matters as much as the diagnosis.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Chemical and fertilizer burn</li><li><span>02</span>Environmental stress</li><li><span>03</span>Practice: diagnose this lawn</li><li><span>04</span>Practice: what do you tell the customer?</li><li><span>05</span>Close the loop</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 BURN -->
+  <section class="slide tight" data-label="Chemical and fertilizer burn">
+    <span class="eyebrow a">01 · Chemical and fertilizer burn</span>
+    <h2 class="a" style="--i:1">Sharp edges and a date on the calendar</h2>
+    <div class="heat">
+      <div class="card a" style="--i:2"><h3>Herbicide or chemical injury</h3><p>Sharp, geometric edges that match a spray path, a drift line or a property boundary. No leaf lesions, no rotted sheath, healthy roots. Blades may look scorched, bleached or twisted.</p><ul class="mini"><li>Some herbicides injure St. Augustine and centipede, and many labels limit use above certain temperatures. Read the label (LAWN-06).</li><li>Check for the customer's own weed-and-feed, a neighbor's spray, gas or oil spills, or pool water.</li></ul></div>
+      <div class="card a" style="--i:3"><h3>Fertilizer burn</h3><p>Stripes or spots that line up with spreader passes, overlaps at turns, or a spill where a bag was set down or a hopper was filled. Shows within days of an application.</p><ul class="mini"><li>Worse on drought-stressed turf, wet foliage, and with quick-release nitrogen in heat.</li><li>Fertilizer timing and summer restrictions are covered in LAWN-05.</li></ul></div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>If it might be ours:</b> don't deny it and don't admit fault. Pull the service history (product, date, rate, who applied). Tell your supervisor right away, document what you saw with photos, and send anything the office must act on to technotes@clementspestcontrol.com. Your branch manager decides the next step with the customer.</span></div>
+  </section>
+
+  <!-- 25 ENVIRONMENT -->
+  <section class="slide tight" data-label="Environmental stress">
+    <span class="eyebrow a">02 · Environmental stress</span>
+    <h2 class="a" style="--i:1">Sometimes the site is the problem</h2>
+    <div class="split" style="grid-template-columns:1.3fr .9fr;gap:24px;align-items:start">
+      <div class="grid g2" style="gap:10px">
+        <div class="card sm a" style="--i:2"><h3><svg class="ico"><use href="#i-sun"/></svg>Shade</h3><p>Thin, spindly turf under trees and on north sides. St. Augustine and zoysia cope best but still need some direct sun. Raise the mowing height, cut back nitrogen and water. Beds or groundcover may be the honest answer.</p></div>
+        <div class="card sm a" style="--i:3"><h3><svg class="ico"><use href="#i-boot"/></svg>Compaction</h3><p>Thin, weak turf along paths, parking spots and play areas. The screwdriver won't go in even when soil is moist. Water runs off. Recommend core aeration and redirecting traffic.</p></div>
+        <div class="card sm a" style="--i:4"><h3><svg class="ico"><use href="#i-mower"/></svg>Mowing too low</h3><p>Scalped, brown, stemmy turf after mowing, worst on high spots. Low mowing invites weeds, insects, take-all and drought stress. Never remove more than one-third of the blade at a time.</p></div>
+        <div class="card sm a" style="--i:5"><h3><svg class="ico"><use href="#i-wave"/></svg>Salt</h3><p>Browning on the ocean or road side after wind events, storm surge, or salty well water. Tip burn and white crust on soil. Seashore paspalum tolerates salt best; centipede and bahia poorly. Heavy fresh water flushes salt.</p></div>
+      </div>
+      <div class="card a" style="--i:4">
+        <span class="eyebrow">UF/IFAS mowing heights</span>
+        <table class="mow">
+          <tbody>
+            <tr><td>St. Augustine</td><td>3.5–4 in</td></tr>
+            <tr><td>St. Augustine, dwarf</td><td>2–2.5 in</td></tr>
+            <tr><td>Bahia</td><td>3–4 in</td></tr>
+            <tr><td>Zoysia (Empire)</td><td>1.75–2.5 in</td></tr>
+            <tr><td>Centipede</td><td>1.5–2 in</td></tr>
+            <tr><td>Bermuda</td><td>0.5–1.5 in</td></tr>
+          </tbody>
+        </table>
+        <p class="small muted" style="margin-top:8px">Mowing isn't our service, but explaining it is. Name the height for their grass.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 CASE FILES -->
+  <section class="slide tight" data-label="Practice: diagnose this lawn">
+    <span class="eyebrow a">03 · Practice · diagnose this lawn</span>
+    <h2 class="a" style="--i:1">Case files: gather the clues, then make the call</h2>
+    <div class="scen-tabs a" style="--i:2" id="caseTabs"></div>
+    <div class="split casebox a" style="--i:3;grid-template-columns:1.05fr 1fr;gap:24px;align-items:start" id="caseBox"></div>
+  </section>
+
+  <!-- 27 CUSTOMER PICKER -->
+  <section class="slide tight" data-label="Practice: what do you tell the customer?">
+    <span class="eyebrow a">04 · Practice · what do you tell the customer?</span>
+    <h2 class="a" style="--i:1">Lead with what you found. End with the next step.</h2>
+    <div class="scen-tabs a" style="--i:2" id="custTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="custBox"></div>
+  </section>
+
+  <!-- 28 CLOSE THE LOOP -->
+  <section class="slide tight" data-label="Close the loop">
+    <span class="eyebrow a">05 · Close the loop</span>
+    <h2 class="a" style="--i:1">A diagnosis nobody wrote down didn't happen</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <ul class="steps tight a" style="--i:2">
+        <li><span class="num">1</span><span><b>PestPac Mobile notes</b> print on the customer's report: what you found, applied and recommend, in plain, blame-free words.</span></li>
+        <li><span class="num">2</span><span><b>Office action</b> (a follow-up visit, an irrigation referral note, possible company-caused damage) goes to technotes@clementspestcontrol.com.</span></li>
+        <li><span class="num">3</span><span><b>Recheck it first next visit.</b> Did it respond, spread or change? Confirm or revise the diagnosis. That's how you get sharper.</span></li>
+        <li><span class="num">4</span><span><b>Set the timeline honestly.</b> Drought: green-up in 1 to 2 weeks once water is fixed. Disease: it stops spreading first, then fills in as the grass grows.</span></li>
+      </ul>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><h3>When you're not sure</h3><p>Say "let me confirm before I treat." Photograph the blade, sheath and roots, and call a senior tech or your branch manager. For something unusual, a sample can go through the county Extension office to the UF/IFAS Plant Diagnostic Center.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-chat"/></svg><span>Never call a product "safe" or promise a result. If the customer asks, give the product name, active ingredient and label precautions (482.2265).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a real property</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each of these in the field before LAWN-08 is complete. Tick each one as it's signed off.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Walk a property and describe the damage pattern, timing and weather before touching the turf</label></li>
+      <li><label><input type="checkbox" id="s2"> Run the screwdriver and footprint tests and explain what the results mean</label></li>
+      <li><label><input type="checkbox" id="s3"> Run one irrigation zone through a full cycle and identify any coverage problem</label></li>
+      <li><label><input type="checkbox" id="s4"> Complete a catch-can test and calculate the run time for 1/2 to 3/4 inch</label></li>
+      <li><label><input type="checkbox" id="s5"> Pull blades and a turf section at an active edge and show the sheath and roots</label></li>
+      <li><label><input type="checkbox" id="s6"> Rule out chinch bugs at a damage margin with a flotation test or by parting the turf</label></li>
+      <li><label><input type="checkbox" id="s7"> Identify one ornamental disease or sooty mold and name its cause</label></li>
+      <li><label><input type="checkbox" id="s8"> Explain a diagnosis to a customer and write the PestPac Mobile note and any technotes email</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn08:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn08:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-08", "titleHtml": "Disease &amp; Stress Diagnosis", "nextHtml": "LAWN-09 \u00b7 L&amp;O Calibration &amp; Mix Rates", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The diagnosis',q:'July, St. Augustine. Irregular straw-colored patches in full sun along the driveway, spreading at the edges. The customer says, "It\'s fungus, just spray it." What do you do first?',o:['Apply a fungicide to the patches and a buffer around them','Check the yellow-to-green margin for chinch bugs (flotation test or part the turf), check soil moisture, and pull a few blades before choosing a treatment','Tell the customer it\'s drought and leave','Spray an insecticide and a fungicide together to cover both'],a:1,e:'Hot, dry, sunny and spreading outward is classic chinch bug country, and drought looks the same. Confirm at the margin and check the soil before any product goes down. Treating a problem you haven\'t identified wastes product and can\'t meet the label.'},
+    2:{t:'Checkpoint 2 · Water',q:'A customer says last week\'s fertilizer burned a wedge-shaped brown area by the pool. The edge fades gradually into green, the blades are folded and gray-green, and your screwdriver stops at about an inch in the patch but sinks easily in the green. What is the best response?',o:['"That\'s not from us, that\'s your sprinklers."','Turn up the run time on the controller yourself so it gets fixed today','Check the service history, show the customer how the patch matches the sprinkler arc and the dry soil, recommend a zone check or run-time adjustment, and note it on the account','Apply fungicide in case it\'s disease'],a:2,e:'Gradual edge, sprinkler-shaped, dry root zone and folded blades all say irrigation gap. Lead with what you found, confirm the application record, recommend the specific next step and document it. Don\'t change the customer\'s controller on your own.'},
+    3:{t:'Checkpoint 3 · Disease',q:'December, St. Augustine. Circular patches about 4 feet across with a yellow-orange edge. The irrigation runs at 6 p.m. daily. At the edge, blades slide out of a dark, soft, rotted base. What\'s the right plan?',o:['Gray leaf spot: back off nitrogen and wait for summer to end','Take-all root rot: apply lime to raise the soil pH','Chinch bugs: apply a labeled insecticide','Brown patch (large patch): a fungicide labeled for it, move irrigation to early morning, no quick-release nitrogen, and tell the customer recovery is slow until the grass is actively growing'],a:3,e:'Cool season, circular patches, an orange margin and a rotted leaf base are large patch. Evening watering keeps leaves wet overnight. Fungicide stops spread, but new leaves have to grow out, and growth is slow in winter.'},
+    4:{t:'Checkpoint 4 · Look-alikes and the customer',q:'Five days after a granular fertilizer application, you find narrow brown stripes that line up with spreader passes, with darker spots where the spreader turned. The customer is upset. What do you do?',o:['Tell the customer it\'s drought stress','Stay calm, tell the customer what you see without denying or admitting fault, pull the service record, notify your supervisor right away, photograph and document it, and email technotes so the office can follow up','Promise a free lawn replacement','Say nothing and leave a generic note'],a:1,e:'Stripes matching application passes point to possible fertilizer burn. Be honest and calm, get the record, and escalate to your supervisor the same day. Your branch manager decides the remedy with the customer.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which list best describes the five questions to answer before you pull the plant?',o:['Price, product, rate, route and weather','Grass type, lot size, sun, shade and HOA rules','Color, smell, height, thatch and edging','Pattern, timing, weather, irrigation and recent applications'],a:3,e:'Pattern, timing, weather, irrigation and recent applications. Then confirm at the plant: blade, sheath and roots.'},
+    {k:'True or false',q:'When you pull blades to diagnose a disease, the center of the dead patch is the best place to sample.',o:['True','False'],a:1,e:'False. Sample at the active edge, where disease is moving into healthy turf. The center is usually too far gone to read.'},
+    {k:'Multiple choice',q:'A brown area is shaped like a half-circle between two sprinkler heads and fades gradually into green. What does that point to first?',o:['Herbicide injury','Fairy ring','An irrigation coverage gap','Dollar spot'],a:2,e:'Sprinkler-shaped damage with a gradual edge is one of the strongest signs of a watering gap. Chemical injury tends to have sharp, geometric edges.'},
+    {k:'Multiple choice',q:'Which set of symptoms describes early-stage drought stress?',o:['Black, rotted roots and runners','Orange powder that rubs off on your shoes','A ring of mushrooms','A blue-gray cast, blades folded lengthwise, and footprints that stay visible'],a:3,e:'Blue-gray color, leaf folding and footprinting are the early wilt signs. Caught here, turf recovers within days of proper watering.'},
+    {k:'Scenario',q:'Your screwdriver slides about 5 inches into the green lawn but stops at about 1 inch in the brown patch. What does that tell you?',o:['The patch is overwatered','It confirms gray leaf spot','The patch has compacted, dry soil and the root zone there isn\'t getting water','Nothing; the test only works on clay'],a:2,e:'Resistance in the patch but not in the green turf means the root zone in the patch is dry. Confirm by running the zone and checking the head that should cover it.'},
+    {k:'True or false',q:'Chinch bug damage greens back up once irrigation coverage is corrected, just like drought stress.',o:['True','False'],a:1,e:'False. Drought-stressed turf responds to water. Chinch bug damage doesn\'t, because of the toxin injected during feeding (LAWN-07). Check the margin for bugs.'},
+    {k:'Multiple choice',q:'In a catch-can test, the cans average 0.25 inch after 15 minutes. About how long should that zone run to apply 3/4 inch?',o:['15 minutes','30 minutes','45 minutes','90 minutes'],a:2,e:'0.25 inch per 15 minutes is 1 inch per hour. 0.75 inch at 1 inch per hour takes 45 minutes.'},
+    {k:'Multiple choice',q:'According to UF/IFAS, how much water do most Florida lawns need per watering?',o:['1/2 to 3/4 inch','1/8 to 1/4 inch','1 1/2 to 2 inches','Whatever the controller is set to'],a:0,e:'1/2 to 3/4 inch, applied when the grass shows signs of wilt. Sandy soils lean toward 3/4 inch.'},
+    {k:'Multiple choice',q:'What does Florida law (Fla. Stat. 373.62) require of anyone who installs an automatic lawn irrigation system?',o:['A permit renewed every year','A licensed pest control operator to inspect it','Watering every day','Technology such as a rain sensor that stops the system when there is enough moisture, properly installed, maintained and operated'],a:3,e:'Automatic systems must have a working device, such as a rain or soil moisture sensor, that interrupts irrigation during periods of sufficient moisture.'},
+    {k:'Multiple choice',q:'When is brown patch (large patch) most likely in Florida?',o:['November through May, when temperatures are below about 80°F and leaves stay wet','June through August in the hottest weather','Only after a hurricane','Any time the lawn is mowed short'],a:0,e:'UF/IFAS: November through May, below about 80°F, triggered by rain, irrigation or humidity that keeps leaves wet for 48 hours or more.'},
+    {k:'Multiple choice',q:'You pull a St. Augustine blade from the edge of a patch and see oval spots with tan to gray centers and dark brown borders. It\'s August. What is it?',o:['Take-all root rot','Brown patch (large patch)','Gray leaf spot','Fertilizer burn'],a:2,e:'Oval lesions with gray centers and dark borders on St. Augustine in hot, wet weather are gray leaf spot. It\'s confirmed on the leaf blade.'},
+    {k:'Scenario',q:'Slow, irregular yellowing in September after weeks of rain. No clear leaf spots. Which step confirms take-all root rot?',o:['A flotation test','Checking the controller','Looking for orange powder','Pulling a turf section and finding short, black, rotted roots'],a:3,e:'Take-all is confirmed below ground. Healthy roots are white and fibrous; take-all roots are short, black and rotted, often with black lesions on runners.'},
+    {k:'True or false',q:'Applying lime is part of the cultural fix for take-all root rot on St. Augustine.',o:['True','False'],a:1,e:'False. UF/IFAS says do not apply lime. Use slow-release nitrogen with equal potassium, avoid nitrate nitrogen and quick-release urea, apply manganese sulfate as a foliar spray, and mow at the correct height.'},
+    {k:'Multiple choice',q:'What is the best irrigation timing to reduce leaf disease?',o:['Late evening, so water soaks in overnight','Midday, when it evaporates fastest','Early morning, roughly 2 to 8 a.m., when dew is already on the grass','Several short runs every afternoon'],a:2,e:'Early morning watering adds little extra leaf-wet time and lets the leaves dry during the day. Evening watering keeps leaves wet all night, which feeds brown patch and gray leaf spot.'},
+    {k:'Multiple choice',q:'A dark green ring in the lawn with a band of dead grass inside it and mushrooms after rain is most likely:',o:['Fairy ring','Dollar spot','Chinch bugs','Salt damage'],a:0,e:'Fairy ring fungi grow on buried organic matter. Some make the soil water-repellent, so the dead band is really localized drought. Aerate, use a wetting agent, and water the ring.'},
+    {k:'Multiple choice',q:'Black film covers the leaves of a hedge and wipes off with your finger. What should you do?',o:['Apply a fungicide to the black film','Tell the customer the hedge is dying','Look for whiteflies, scale, aphids or mealybugs producing honeydew, and treat the insect','Pressure-wash the hedge'],a:2,e:'Sooty mold grows on honeydew from sap-feeding insects. Control the insect and the mold flakes off over time.'},
+    {k:'True or false',q:'A fungicide will make diseased turf grow back faster.',o:['True','False'],a:1,e:'False. Fungicides stop the disease from spreading but don\'t stimulate growth. Recovery depends on the grass actively growing, which is why the cultural fix matters.'},
+    {k:'Multiple choice',q:'Why rotate fungicides from different FRAC groups?',o:['To use up older products first','Because the label requires a new product every visit','To slow the development of resistance','To make the lawn greener'],a:2,e:'Repeated use of one mode of action selects for resistance. Strobilurin-resistant gray leaf spot has already been found in the Midwest.'},
+    {k:'Scenario',q:'A customer asks, "Is my lawn dead?" about a moderate drought-stressed area. The crowns are still green. What\'s the best answer?',o:['"Yes, you\'ll need new sod."','"It\'s stressed, not dead. Once this zone gets enough water, you should see green-up in a week or two. If it stays this dry much longer, that could change, so it\'s worth fixing soon."','"I don\'t know, maybe."','"That\'s your sprinkler company\'s problem."'],a:1,e:'Be honest and specific: name the condition, the fix and a realistic timeline, and explain why acting soon matters.'},
+    {k:'Multiple choice',q:'Where does a note go that the office must act on, such as a needed follow-up visit or possible company-caused damage?',o:['technotes@clementspestcontrol.com, plus telling your supervisor','Only in the PestPac Mobile notes','A text to the customer','Nowhere; mention it next visit'],a:0,e:'PestPac Mobile notes are customer-facing and print on the report. Anything the office must act on goes to technotes, and possible company-caused damage goes to your supervisor right away.'}
+  ];
+
+  /* ---------- helpers ---------- */
+  function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+  function fmt(n,d){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+  var SVGNS='http://www.w3.org/2000/svg';
+
+  /* ---------- pattern picker ---------- */
+  var BASE='<defs><filter id="pb" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter></defs>'+
+    '<rect x="4" y="4" width="232" height="142" rx="8" class="lawn"/><rect x="4" y="4" width="232" height="18" class="house"/><text x="12" y="17" class="lbl">house</text>'+
+    '<rect x="196" y="22" width="40" height="124" class="drive"/><text x="200" y="140" class="lbl">drive</text>';
+  var PAT=[
+    {n:'Sprinkler-shaped, gradual edge',s:'Wedge, half-circle or strip between heads',g:'<g filter="url(#pb)"><path class="dmg" d="M60 140 L18 74 A78 78 0 0 1 104 70 Z"/></g><circle class="head" cx="60" cy="140" r="4"/><path class="arc" d="M60 140 L140 110"/><path class="arc" d="M60 140 L150 140"/>',
+     d:'<b>Usually water.</b> Damage that matches a spray pattern and fades into green turf points to an irrigation gap. Confirm with the screwdriver test and by running the zone.'},
+    {n:'Straight lines, sharp edges',s:'Stripes, wheel tracks, a hard boundary',g:'<rect class="dmg2" x="24" y="44" width="160" height="7"/><rect class="dmg2" x="24" y="72" width="160" height="7"/><rect class="dmg2" x="24" y="100" width="160" height="7"/><circle class="dmg3" cx="182" cy="76" r="9"/>',
+     d:'<b>Think application.</b> Geometric patterns that match spreader passes, spray paths, drift or a boundary point to fertilizer burn or chemical injury. Check the service history and the customer\'s own products.'},
+    {n:'Circles, a foot to several feet',s:'Yellow-orange or dark wilted edge, cool months',g:'<circle class="dmg" cx="78" cy="86" r="30"/><circle class="edge" cx="78" cy="86" r="30"/><circle class="dmg" cx="152" cy="104" r="20"/><circle class="edge" cx="152" cy="104" r="20"/>',
+     d:'<b>Brown patch (large patch)</b> from November to May. Tug a blade at the edge: it slides out of a dark, soft, rotted base. Check when the irrigation runs.'},
+    {n:'Irregular, sunny, spreading out',s:'Along drives and walks in hot, dry weather',g:'<g filter="url(#pb)"><path class="dmg" d="M196 40 C170 44 150 60 158 82 C164 100 150 116 172 128 C184 134 192 120 196 112 Z"/></g><circle class="bugs" cx="160" cy="70" r="2"/><circle class="bugs" cx="154" cy="96" r="2"/><circle class="bugs" cx="166" cy="120" r="2"/>',
+     d:'<b>Suspect chinch bugs</b> on St. Augustine, as well as drought. Damage spreads outward from the hot edges and doesn\'t respond to water. Check the yellow-to-green margin (LAWN-07).'},
+    {n:'Ring or arc of dark green',s:'Sometimes a dead band and mushrooms',g:'<circle class="ring1" cx="104" cy="86" r="42"/><circle class="ring2" cx="104" cy="86" r="34"/><path class="mush" d="M70 54a5 5 0 0 1 10 0zM136 60a5 5 0 0 1 10 0zM96 130a5 5 0 0 1 10 0z"/>',
+     d:'<b>Fairy ring.</b> Fungi feeding on buried organic matter. A dead band often means the soil has turned water-repellent: dry under the ring, moist next to it.'},
+    {n:'Many small spots',s:'Silver-dollar size, some up to about 6 inches',g:'<g class="dots2"><circle cx="40" cy="50" r="4"/><circle cx="66" cy="62" r="3"/><circle cx="52" cy="90" r="4"/><circle cx="90" cy="44" r="3"/><circle cx="104" cy="80" r="4"/><circle cx="126" cy="56" r="3"/><circle cx="140" cy="96" r="4"/><circle cx="82" cy="116" r="3"/><circle cx="160" cy="70" r="3"/><circle cx="118" cy="124" r="4"/><circle cx="36" cy="124" r="3"/><circle cx="170" cy="120" r="3"/></g>',
+     d:'<b>Dollar spot.</b> Straw-colored spots with tan lesions on the blades. Often a sign the lawn is short on nitrogen. Can show up on any grass.'},
+    {n:'General thinning, no clear shape',s:'Scattered yellowing, slow decline',g:'<g filter="url(#pb)" opacity=".7"><ellipse class="dmg" cx="56" cy="60" rx="26" ry="14"/><ellipse class="dmg" cx="130" cy="92" rx="34" ry="18"/><ellipse class="dmg" cx="70" cy="118" rx="22" ry="12"/></g>',
+     d:'<b>Go to the roots.</b> Take-all (short, black roots), Pythium root rot (thin, discolored roots) or nematodes. Also check shade, compaction and mowing height.'}
+  ];
+  var pf=$('#patFig'), pl=$('#patList');
+  if(pf&&pl){
+    pf.innerHTML='<svg viewBox="0 0 240 150" role="img" aria-label="Lawn sketch showing the selected damage pattern">'+BASE+'<g id="patG"></g></svg>';
+    PAT.forEach(function(p,i){var b=el('button','',p.n+'<small>'+p.s+'</small>');b.type='button';b.id='pat'+i;b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',function(){$$('button',pl).forEach(function(x){x.setAttribute('aria-pressed',x===b)});b.classList.add('seen');
+        var g=$('#patG');g.innerHTML=p.g;g.classList.remove('pop');void g.getBBox();g.classList.add('pop');
+        $('#patDet').innerHTML='<svg class="ico"><use href="#i-search"/></svg><span>'+p.d+'</span>';});
+      pl.appendChild(b)});
+  }
+
+  /* ---------- order exercise ---------- */
+  var ORD=['Ask when it started and what has changed','Walk the whole lawn and read the pattern','Check the season and recent weather','Run the zone and test soil moisture','Pull the service history for recent applications','Pull blades, sheath and roots at the active edge','Rule out insects at the margin','Decide, treat per the label, fix the cause and document'];
+  var ob=$('#ordBox'), oNext=0;
+  function ordBuild(){
+    if(!ob)return; ob.innerHTML='';oNext=0;
+    var idx=ORD.map(function(_,i){return i});
+    var mix=[3,6,0,5,2,7,1,4];
+    mix.forEach(function(i){var b=el('button','','<span class="num">·</span><span>'+ORD[i]+'</span>');b.type='button';b.id='ord'+i;b.dataset.i=i;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.i===oNext){b.classList.add('placed');$('.num',b).textContent=oNext+1;oNext++;
+          $('#ordFb').innerHTML='<svg class="ico"><use href="#i-check"/></svg><span>'+(oNext<ORD.length?oNext+' of '+ORD.length+' placed.':'<b>All eight in order.</b> Gather the clues first, confirm at the plant, rule out insects, and only then choose a product and a cultural fix.')+'</span>';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');}});
+      ob.appendChild(b)});
+    $('#ordFb').innerHTML='<svg class="ico"><use href="#i-check"/></svg><span>0 of '+ORD.length+' placed.</span>';
+  }
+  ordBuild(); if($('#ordReset'))$('#ordReset').addEventListener('click',ordBuild);
+
+  /* ---------- drought stage slider ---------- */
+  var DS=[
+    {t:'Healthy',c:'#4F8A5F',w:7,dx:2,h:1,dep:62,see:'Bright green, blades flat and open, footprints spring back right away.',test:'Screwdriver slides in several inches.',out:'No action needed. Keep the zone on the right schedule.',say:'"Your lawn has good moisture here."'},
+    {t:'Early wilt',c:'#6F8F86',w:5,dx:8,h:.92,dep:40,see:'Blue-gray or dull cast, blades folding lengthwise but still flexible, footprints stay visible.',test:'Screwdriver slows after a couple of inches in the patch.',out:'Recovers within days once watering is corrected.',say:'"This part of the lawn is starting to run short on water. Let\'s fix the coverage now and it should bounce back within days."'},
+    {t:'Moderate',c:'#A99A72',w:4,dx:16,h:.8,dep:22,see:'Blades turning tan or straw, canopy thinning, the patch edge now easy to see. Fades into green rather than stopping at a hard line.',test:'Screwdriver stops at an inch or two. Neighboring zone is moist.',out:'Recovers in about 2 to 3 weeks with consistent watering.',say:'"This area hasn\'t been getting enough water from the sprinklers. Once that\'s corrected, expect green-up in a week or two and full recovery over a few weeks."'},
+    {t:'Severe',c:'#8C7458',w:3,dx:24,h:.62,dep:10,see:'Blades fully brown, dry and crunchy underfoot. Check the crown at the base of the plant: green or white and firm means it can recover.',test:'Soil hard and dry top to bottom.',out:'A living crown can recover in 4 to 6+ weeks. If the crown has died, the area needs plugs or sod.',say:'"It\'s stressed badly. Where the crowns are still alive it can come back over several weeks; any dead areas may need to be replaced."'}
+  ];
+  var TURF={
+    'St. Augustine':'St. Augustine wilts and discolors fastest, often within days of a coverage gap. Expect 2 to 3 weeks of recovery once watering is consistent.',
+    'Bermuda':'Bermuda has deep roots and tolerates dry spells well. It goes dormant (straw-brown) rather than dying, and often greens up in 1 to 2 weeks once water returns.',
+    'Zoysia':'Zoysia is slower to show stress; it thins and dulls gradually rather than browning suddenly. Recovery is slower but steady, about 2 to 4 weeks.',
+    'Centipede':'Centipede is shallow-rooted and sensitive to both over- and under-watering. It tends to yellow before it browns, and recovery of 3 to 4 weeks can stall if watering stays inconsistent.',
+    'Bahia':'Bahia is one of the most drought-tolerant lawn grasses. It may go dormant in a long dry spell and recovers when rain returns. Overwatering weakens it.'
+  };
+  var dsT='St. Augustine', dsR=$('#dsRange'), dsF=$('#dsFig');
+  function dsDraw(){
+    if(!dsR)return; var s=DS[+dsR.value];
+    var html='<rect x="0" y="110" width="260" height="40" class="soilb" style="fill:'+(+dsR.value<2?'#8A7A63':'#C2AE8C')+'"/>';
+    for(var i=0;i<11;i++){var x=18+i*22,h=(56+((i*37)%28))*s.h,dir=.7+((i*13)%5)/10;
+      html+='<path class="bl" style="stroke:'+s.c+';stroke-width:'+s.w+'" d="M'+x+' 110 Q'+(x+dir*s.dx*.4)+' '+(110-h*.6)+' '+(x+dir*s.dx)+' '+(110-h)+'"/>';}
+    html+='<path class="sdr" d="M236 70 V'+(110+s.dep*0.5)+'"/><path class="sdh" d="M231 58h10v12h-10z"/><text x="180" y="54" class="lbl">screwdriver</text>';
+    dsF.innerHTML=html;
+    $('#dsDet').innerHTML='<span class="eyebrow">Stage · '+s.t+'</span><dl class="ds"><dt>What you see</dt><dd>'+s.see+'</dd><dt>Field test</dt><dd>'+s.test+'</dd><dt>Outlook</dt><dd>'+s.out+'</dd><dt>Tell the customer</dt><dd>'+s.say+'</dd><dt>'+dsT+'</dt><dd>'+TURF[dsT]+'</dd></dl>';
+    dsR.setAttribute('aria-valuetext',s.t);
+  }
+  if(dsR){
+    var seg=$('#dsTurf');Object.keys(TURF).forEach(function(k,i){var b=el('button','',k);b.type='button';b.id='dst'+i;b.setAttribute('aria-pressed',k===dsT);
+      b.addEventListener('click',function(){dsT=k;$$('button',seg).forEach(function(x){x.setAttribute('aria-pressed',x===b)});dsDraw()});seg.appendChild(b)});
+    dsR.addEventListener('input',dsDraw);dsDraw();
+  }
+
+  /* ---------- irrigation diagram ---------- */
+  var IR=[
+    {x:58,y:58,t:'Clogged or damaged nozzle',see:'Sputtering, short or uneven spray; a dry wedge just past where the water stops. Low pressure looks similar: misting or fogging instead of droplets.',rec:'Note the head location. Recommend the customer or their irrigation company clean or replace the nozzle and check pressure.'},
+    {x:160,y:40,t:'Sunk or tilted head',see:'Head sits below the grass or leans, so the spray hits the turf right next to it or shoots onto the sidewalk.',rec:'Recommend raising and straightening the head. Show the customer where the water is landing.'},
+    {x:268,y:66,t:'Blocked by plants',see:'A shrub, groundcover or tall grass in front of the head creates a dry "shadow" behind it. Common as beds fill in.',rec:'Recommend trimming back, or raising the head on a taller riser.'},
+    {x:72,y:160,t:'Mixed heads on one zone',see:'Rotors and spray heads share a valve. Rotors put down far less water per hour, so their area stays dry while the spray area is soggy.',rec:'Recommend the irrigation company match heads within each zone. A catch-can test shows the difference clearly.'},
+    {x:170,y:150,t:'Too much water',see:'Soggy, spongy turf, algae, a low spot that never dries, or a leak. Extra water and evening runs feed large patch, gray leaf spot and Pythium.',rec:'Recommend fixing the leak or cutting run time, and moving watering to early morning.'},
+    {x:290,y:20,t:'Controller and rain sensor',see:'Run times never adjusted for the season, watering in the evening, or a missing or bypassed rain sensor. Florida law (373.62) requires a working device that shuts off automatic systems when there\'s enough moisture.',rec:'Point out the schedule. Recommend early-morning runs that deliver 1/2 to 3/4 inch, on the days the local watering rule allows.'}
+  ];
+  var irF=$('#irFig');
+  if(irF){
+    var s='<defs><clipPath id="lc"><rect x="4" y="4" width="312" height="202" rx="10"/></clipPath></defs><rect x="4" y="4" width="312" height="202" rx="10" class="lawn"/><g clip-path="url(#lc)"><rect x="4" y="4" width="312" height="26" class="house"/><text x="12" y="21" class="lbl">house</text>'+
+      '<rect x="270" y="10" width="26" height="16" rx="3" class="ctl"/>'+
+      '<path class="walk" d="M4 104H316"/><text x="10" y="100" class="lbl">sidewalk</text>'+
+      '<circle class="cov" cx="40" cy="44" r="44"/><path class="drywedge" d="M40 44 L96 66 A60 60 0 0 1 70 96 Z"/>'+
+      '<circle class="cov" cx="160" cy="58" r="44"/>'+
+      '<circle class="shrub" cx="262" cy="60" r="13"/><circle class="cov" cx="292" cy="76" r="44"/><path class="drywedge" d="M250 52 L226 38 A50 50 0 0 0 234 78 Z"/>'+
+      '<circle class="cov" cx="40" cy="168" r="60"/><circle class="cov sm2" cx="110" cy="176" r="30"/>'+
+      '<path class="wet" d="M150 140c14-8 34-4 38 8s-10 22-26 20-24-20-12-28z"/>'+
+      '<circle class="cov" cx="270" cy="168" r="44"/></g>'+
+      '<circle class="hd" cx="40" cy="44" r="3"/><circle class="hd" cx="160" cy="58" r="3"/><circle class="hd" cx="292" cy="76" r="3"/><circle class="hd" cx="40" cy="168" r="3"/><circle class="hd" cx="110" cy="176" r="3"/><circle class="hd" cx="270" cy="168" r="3"/>';
+    IR.forEach(function(p,i){s+='<g class="hot" id="ir'+i+'" data-i="'+i+'" tabindex="0" role="button" aria-label="'+p.t+'"><circle class="halo2" cx="'+p.x+'" cy="'+p.y+'" r="11"/><circle class="dotc" cx="'+p.x+'" cy="'+p.y+'" r="9"/><text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle">'+(i+1)+'</text></g>'});
+    irF.innerHTML=s;
+    $$('.hot',irF).forEach(function(g){function go(){var p=IR[+g.dataset.i];$$('.hot',irF).forEach(function(x){x.classList.toggle('sel',x===g)});g.classList.add('seen');
+      $('#irDet').innerHTML='<span class="eyebrow">'+(+g.dataset.i+1)+' · '+p.t+'</span><dl class="ds"><dt>What you see</dt><dd>'+p.see+'</dd><dt>Recommend</dt><dd>'+p.rec+'</dd></dl>';}
+      g.addEventListener('click',go);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
+  }
+
+  /* ---------- catch-can calculator ---------- */
+  var CC=[0.22,0.25,0.28,0.18,0.26,0.12,0.24,0.27], ccb=$('#ccCans');
+  if(ccb){
+    CC.forEach(function(v,i){var d=el('label','can','<svg viewBox="0 0 30 40" aria-hidden="true"><path class="cb" d="M4 4v32h22V4"/><rect class="cf" x="5" y="36" width="20" height="0"/></svg><span>Can '+(i+1)+'</span><input type="number" step="0.01" min="0" max="2" inputmode="decimal" id="cc'+i+'" value="'+v+'" aria-label="Can '+(i+1)+' depth in inches">');ccb.appendChild(d)});
+    function ccFill(){$$('.can',ccb).forEach(function(c){var v=parseFloat($('input',c).value)||0,h=Math.min(30,v/0.5*30);var r=$('.cf',c);r.setAttribute('y',36-h);r.setAttribute('height',h)})}
+    $$('input',ccb).forEach(function(x){x.addEventListener('input',ccFill)});ccFill();
+    $('#ccGo').addEventListener('click',function(){
+      var v=$$('input',ccb).map(function(x){return parseFloat(x.value)}).filter(function(n){return !isNaN(n)&&n>=0});
+      var m=parseFloat($('#ccMin').value);
+      if(v.length<5||!(m>0)){$('#ccOut').innerHTML='<span class="eyebrow">Results</span><p style="margin-top:6px">Enter at least five can depths and a run time.</p>';return}
+      var avg=v.reduce(function(a,b){return a+b},0)/v.length;
+      if(avg<=0){$('#ccOut').innerHTML='<span class="eyebrow">Results</span><p style="margin-top:6px">The cans are empty. Check that the zone actually ran.</p>';return}
+      var rate=avg*60/m, s=v.slice().sort(function(a,b){return a-b}), q=Math.max(1,Math.round(v.length/4));
+      var low=s.slice(0,q).reduce(function(a,b){return a+b},0)/q, du=Math.round(low/avg*100);
+      var grade=du>=75?['Even coverage','ok']:(du>=55?['Uneven: some spots get much less','mid']:['Poor: find the dry spots before adjusting time','bad']);
+      $('#ccOut').innerHTML='<span class="eyebrow">Results · '+v.length+' cans, '+m+' min</span>'+
+        '<div class="ccres"><div><b>'+fmt(avg,2)+'"</b><small>average depth</small></div><div><b>'+fmt(rate,2)+'"</b><small>per hour</small></div><div><b>'+Math.round(0.5/rate*60)+' min</b><small>for 1/2 inch</small></div><div><b>'+Math.round(0.75/rate*60)+' min</b><small>for 3/4 inch</small></div></div>'+
+        '<p class="small"><span class="du '+grade[1]+'">'+du+'%</span> Uniformity (lowest quarter of cans vs. the average): '+grade[0]+'. If the run time is set for the average, the driest spots still go short, and they brown first.</p>';
+    });
+  }
+
+  /* ---------- disease calendar ---------- */
+  var CAL=[
+    {n:'Brown patch (large patch)',m:[1,2,3,4,5,11,12]},
+    {n:'Gray leaf spot',m:[5,6,7,8,9]},
+    {n:'Take-all root rot',m:[6,7,8,9,10]},
+    {n:'Fairy ring',m:[6,7,8,9]},
+    {n:'Dollar spot',m:[3,4,5,10,11],note:'low nitrogen'},
+    {n:'Pythium root rot',m:[1,2,3,4,5,6,7,8,9,10,11,12],lite:1,note:'after wet periods'}
+  ];
+  var cal=$('#cal');
+  if(cal){
+    var h='<div class="crow chead"><span></span>'+'JFMAMJJASOND'.split('').map(function(c){return '<i>'+c+'</i>'}).join('')+'</div>';
+    CAL.forEach(function(r,ri){h+='<div class="crow"><span>'+r.n+(r.note?' <small>'+r.note+'</small>':'')+'</span>'+
+      [1,2,3,4,5,6,7,8,9,10,11,12].map(function(mo){return '<i class="'+(r.m.indexOf(mo)>-1?(r.lite?'on lite':'on'):'')+'" style="--d:'+(ri*5+mo)+'"></i>'}).join('')+'</div>'});
+    cal.innerHTML=h;
+  }
+
+  /* ---------- disease flip cards ---------- */
+  var DZ=[
+    {t:'Brown patch',sub:'(large patch)',f:'Circles a foot to several feet, yellow-orange edge. November to May.',b:'<b>Confirm:</b> blade slides out of a dark, soft, rotted base; roots fine.<br><b>Fix:</b> early-morning water only, no quick-release N in season, mow it last.'},
+    {t:'Gray leaf spot',sub:'St. Augustine',f:'Scattered yellowing in hot, rainy summer weather. Worst on new sod and lush growth.',b:'<b>Confirm:</b> oval spots, tan to gray center, dark brown border.<br><b>Fix:</b> water 2 to 8 a.m., don\'t push nitrogen, care with atrazine above 85°F.'},
+    {t:'Take-all root rot',sub:'Root disease',f:'Irregular yellow patches that thin slowly in the summer and fall rains.',b:'<b>Confirm:</b> short, black, rotted roots; black lesions on runners.<br><b>Fix:</b> correct mowing height, slow-release N with equal K, no lime, manganese sulfate.'},
+    {t:'Fairy ring',sub:'Soil fungi',f:'Ring or arc of dark green grass, sometimes a dead band and mushrooms. Summer.',b:'<b>Confirm:</b> soil under a dead band is dry and repels water.<br><b>Fix:</b> aerate, wetting agent, water the ring; nitrogen masks green rings.'},
+    {t:'Dollar spot',sub:'Any turf',f:'Lots of small straw-colored spots that start silver-dollar size and can reach about 6 inches.',b:'<b>Confirm:</b> tan lesions on the blades, light tan to straw centers.<br><b>Fix:</b> check fertility (often low nitrogen); water early morning.'},
+    {t:'Pythium root rot',sub:'Wet soil',f:'General yellowing and thinning after heavy rain or overwatering. Rarely distinct patches.',b:'<b>Confirm:</b> roots thin and discolored, few root hairs, not black.<br><b>Fix:</b> improve drainage, cut irrigation, raise mowing height, balance N and K.'}
+  ];
+  var dzf=$('#dzFlip');
+  if(dzf)DZ.forEach(function(v,i){var b=el('button');b.type='button';b.id='dz'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="eyebrow">'+v.sub+'</span><h3>'+v.t+'</h3><span class="muted fs">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back"><span>'+v.b+'</span></span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});dzf.appendChild(b)});
+
+  /* ---------- case files ---------- */
+  var CASES=[
+    {n:'The pool deck',m:'St. Augustine · August',c:'"Your fertilizer burned my lawn."',cl:[
+      ['Pattern','A wedge-shaped brown area beside the pool deck, fading gradually into green.'],
+      ['Timing and weather','Appeared over the last ten days. No rain for two weeks, highs in the mid-90s.'],
+      ['Irrigation','The head that should cover it is buried behind a ginger plant that has grown over it.'],
+      ['Recent applications','Granular fertilizer six weeks ago across the whole lawn. The rest of the lawn is green.'],
+      ['The plant','Blades folded and gray-green, not scorched. Screwdriver stops at an inch. No insects at the margin.']],
+     o:['Fertilizer burn','Chinch bugs','Irrigation gap from a blocked head','Gray leaf spot'],a:2,
+     e:'Sprinkler-shaped, gradual edge, dry soil, folded blades and a blocked head. The fertilizer went down everywhere six weeks ago and the rest of the lawn is fine. Show the customer the head and recommend trimming the ginger or raising the head.'},
+    {n:'The corner lot',m:'St. Augustine · January',c:'"There are brown circles all over the front yard."',cl:[
+      ['Pattern','Three roughly circular patches, 3 to 6 feet across, with a yellow-orange outer edge.'],
+      ['Timing and weather','A week of fog and drizzle. Lows in the 50s, highs in the low 70s.'],
+      ['Irrigation','The system runs three evenings a week at 7 p.m.'],
+      ['Recent applications','Nothing since the November visit.'],
+      ['The plant','At the edge, blades slide out of a dark, soft, rotted base. Runners and roots look healthy.']],
+     o:['Take-all root rot','Brown patch (large patch)','Fairy ring','Drought stress'],a:1,
+     e:'Cool, wet season, circles with an orange margin and a rotted leaf base: large patch. Treat with a fungicide labeled for it and recommend moving irrigation to early morning. Set the expectation that recovery is slow until spring growth.'},
+    {n:'The sunny strip',m:'Floratam St. Augustine · June',c:'"It\'s dying along the driveway and getting bigger."',cl:[
+      ['Pattern','Irregular straw-colored patches along the driveway and sidewalk, spreading outward.'],
+      ['Timing and weather','Hot and dry for three weeks.'],
+      ['Irrigation','Zone runs correctly. The screwdriver sinks four inches in the patch.'],
+      ['Recent applications','Last insecticide application was ten weeks ago.'],
+      ['The plant','No leaf lesions. In a flotation test at the margin, small black insects with white wing patches float up.']],
+     o:['Drought stress','Dollar spot','Chinch bugs','Herbicide injury'],a:2,
+     e:'Moist soil rules out drought. Hot, sunny edges spreading outward, and bugs in the flotation test, confirm chinch bugs. Treat with a product labeled for them, including a buffer, and recheck first next visit (LAWN-07).'},
+    {n:'The rainy season',m:'St. Augustine · September',c:'"It\'s been getting thinner all summer."',cl:[
+      ['Pattern','Irregular yellow patches 1 to 2 feet across, slowly thinning since July.'],
+      ['Timing and weather','Heavy afternoon rain most days for eight weeks.'],
+      ['Irrigation','Rain sensor working; the system hasn\'t run in weeks.'],
+      ['Recent applications','Spring fertilizer only. The customer\'s mowing crew cuts at about 2.5 inches.'],
+      ['The plant','No leaf spots. Roots are short and black, and the runners have black lesions.']],
+     o:['Take-all root rot','Gray leaf spot','Pythium root rot','Chinch bugs'],a:0,
+     e:'Short, black, rotted roots and black lesions on runners after a long rainy stretch: take-all. The low mowing (standard St. Augustine should be 3.5 to 4 inches) adds stress. Fungicide plus the cultural fixes, and an honest, slow timeline.'},
+    {n:'The stripes',m:'Zoysia · April',c:'"Something is wrong with my lawn."',cl:[
+      ['Pattern','Narrow parallel brown stripes about a spreader-width apart, with darker spots where the passes turn.'],
+      ['Timing and weather','Showed up four days after a granular application. Highs near 90°F.'],
+      ['Irrigation','Zone working; soil moist.'],
+      ['Recent applications','Granular fertilizer applied while the turf was still wet from morning irrigation.'],
+      ['The plant','Blade tips scorched. No lesions, healthy roots, no insects.']],
+     o:['Dollar spot','Drought stress','Brown patch (large patch)','Possible fertilizer burn'],a:3,
+     e:'Geometric stripes matching spreader passes, darker at the turns, days after an application on wet foliage. Don\'t deny or admit fault: pull the record, notify your supervisor right away, photograph it and email technotes.'}
+  ];
+  var ct=$('#caseTabs'), cbx=$('#caseBox'), cDone=store.get('case')||{}, cRev={}, cCur=0;
+  function caseShow(k){
+    cCur=k; var c=CASES[k], r=cRev[k]||0;
+    $$('button',ct).forEach(function(b,j){b.setAttribute('aria-pressed',j===k)});
+    var clues=c.cl.map(function(x,j){return '<li class="'+(j<r?'rev':'')+'"><span class="num">'+(j+1)+'</span><div><b>'+x[0]+'</b><span>'+(j<r?x[1]:'Hidden')+'</span></div></li>'}).join('');
+    cbx.innerHTML='<div class="card cf2"><span class="eyebrow">Case file '+(k+1)+' · '+c.m+'</span><h3 style="margin:4px 0 2px">'+c.n+'</h3><p class="small">Customer: '+c.c+'</p><ul class="clues">'+clues+'</ul>'+
+      (r<c.cl.length?'<button type="button" class="btn" id="cRev">Reveal next clue</button>':'')+'</div>'+
+      '<div class="grid" style="gap:10px"><span class="eyebrow">Your diagnosis</span><div class="choices cch">'+c.o.map(function(o,j){return '<button type="button" class="choice" id="cs'+k+'_'+j+'" data-i="'+j+'"'+(r<3?' disabled':'')+'><span class="k">'+'ABCD'[j]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="cFb">'+(r<3?'<p class="small muted">Reveal at least three clues before you decide.</p>':'')+'</div></div>';
+    var rb=$('#cRev');if(rb)rb.addEventListener('click',function(){cRev[k]=(cRev[k]||0)+1;caseShow(k);var nb=$('#cRev');if(nb)nb.focus({preventScroll:true})});
+    $$('.choice',cbx).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+      $$('.choice',cbx).forEach(function(x){x.classList.remove('wrong')});
+      if(i===c.a){$$('.choice',cbx).forEach(function(x){x.disabled=true});b.classList.add('right');cDone[k]=1;store.set('case',cDone);$$('button',ct)[k].classList.add('done');
+        $('#cFb').innerHTML='<div class="fb"><b>Correct. </b>'+c.e+'</div>';}
+      else{b.classList.add('wrong');$('#cFb').innerHTML='<div class="fb no">Not quite. Look again at the clues'+(r<c.cl.length?', or reveal another one':'')+'.</div>';}})});
+  }
+  if(ct){CASES.forEach(function(c,k){var b=el('button',cDone[k]?'done':'',(k+1)+' · '+c.n);b.type='button';b.id='ct'+k;b.addEventListener('click',function(){caseShow(k)});ct.appendChild(b)});caseShow(0);}
+
+  /* ---------- what do you tell the customer ---------- */
+  var CU=[
+    {t:'"Didn\'t you burn my lawn?"',s:'You\'ve confirmed an irrigation gap: sprinkler-shaped patch, dry soil, blocked head.',o:['"No, that\'s your sprinklers, not us."','"I checked it closely. This patch matches your sprinkler zone and the soil under it is dry, so it points to watering, not anything we applied. Let me show you the head, and here\'s what I\'d recommend."','"I\'m not really sure what happened here."','"It\'s probably fungus. I\'ll spray it to be safe."'],a:1,e:'Lead with the finding, show the evidence, stay neutral on blame, and end with a specific next step.'},
+    {t:'"Just spray fungicide on the whole yard."',s:'Your flotation test found chinch bugs at the margin.',o:['"Sure, I\'ll add fungicide to every visit."','"Fungicide can\'t hurt, so I\'ll do both."','"I checked, and these are chinch bugs, not fungus. A fungicide won\'t touch them. I\'m treating with a product labeled for chinch bugs and I\'ll check this area first next visit."','"You don\'t know what you\'re talking about."'],a:2,e:'Name what you found and why the requested product won\'t work. Applying a product to a pest it isn\'t labeled for isn\'t allowed and fixes nothing.'},
+    {t:'"It still looks bad after two weeks."',s:'The lawn has confirmed take-all root rot, treated two weeks ago.',o:['"The product must be bad. I\'ll double the rate."','"Take-all is the slowest one to recover. The roots were infected weeks before it showed, so new roots have to grow back. You\'ll see it stop spreading first. Raising the mowing height to 3.5 to 4 inches will help, and I\'ll check this area first on every visit."','"It\'s the weather. Nothing we can do."','"Give it time, it\'ll be fine."'],a:1,e:'Honest timelines keep accounts. Never exceed the label rate; explain the biology, the cultural fix and your follow-up.'},
+    {t:'"Can you fix my sprinkler while you\'re here?"',s:'A head is tilted and spraying the sidewalk.',o:['Dig it up and straighten it yourself','"Not my job."','Reprogram the controller without asking','"Repairs are outside what I can do today, but I\'ll show you exactly which head is off and note it on your report so your irrigation company knows what to fix."'],a:3,e:'Identify, document and recommend. Repairs and controller changes are outside the visit unless your manager says otherwise.'},
+    {t:'"Is that black stuff on my gardenias a disease?"',s:'Black film wipes off the leaves; whiteflies fly up when you brush the shrub.',o:['"That\'s sooty mold. It grows on the sticky honeydew whiteflies leave behind. We\'ll treat the whiteflies, and the black coating will flake off over time."','"It\'s a fungus. I\'ll spray fungicide."','"Your gardenias are dying."','"That\'s just dirt."'],a:0,e:'Explain the cause in plain terms and treat what\'s actually driving it: the insect.'}
+  ];
+  var ut=$('#custTabs'), ubx=$('#custBox'), uDone=store.get('cust')||{};
+  function custShow(k){var c=CU[k];$$('button',ut).forEach(function(b,j){b.setAttribute('aria-pressed',j===k)});
+    ubx.innerHTML='<div class="callout"><svg class="ico"><use href="#i-chat"/></svg><span><b>'+c.t+'</b> '+c.s+'</span></div><div class="choices cu2">'+c.o.map(function(o,j){return '<button type="button" class="choice" id="cu'+k+'_'+j+'" data-i="'+j+'"><span class="k">'+'ABCD'[j]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="uFb"></div>';
+    $$('.choice',ubx).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;$$('.choice',ubx).forEach(function(x){x.classList.remove('wrong')});
+      if(i===c.a){$$('.choice',ubx).forEach(function(x){x.disabled=true});b.classList.add('right');uDone[k]=1;store.set('cust',uDone);$$('button',ut)[k].classList.add('done');$('#uFb').innerHTML='<div class="fb"><b>Best answer. </b>'+c.e+'</div>';}
+      else{b.classList.add('wrong');$('#uFb').innerHTML='<div class="fb no">Not the best choice. How would the customer hear it? Try again.</div>';}})});
+  }
+  if(ut){CU.forEach(function(c,k){var b=el('button',uDone[k]?'done':'','Customer '+(k+1));b.type='button';b.id='cut'+k;b.addEventListener('click',function(){custShow(k)});ut.appendChild(b)});custShow(0);}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

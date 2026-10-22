@@ -1,0 +1,1308 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-05 Fertilizer &amp; Blackout Rules</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-05 Fertilizer & Blackout Rules */
+.slide > *{flex-shrink:0}
+.lbl{font-family:var(--font);font-size:10px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+.relfig svg,.shrubfig svg,.spread svg{max-width:none;width:100%;height:auto}
+.tight .steps li{padding:9px 0;font-size:15.5px}
+.ticks{list-style:none;display:grid;gap:8px;font-size:15px}
+.ticks li{display:flex;gap:10px}
+.ticks li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-500);margin-top:9px}
+.flip button{min-height:200px}
+.flip .back{font-size:14.5px;line-height:1.5}
+#custFlip h3{font-size:19px}
+
+/* release curves */
+.relfig .ax{stroke:var(--line);stroke-width:1.4;fill:none}
+.relfig .need{stroke:var(--brand-300);stroke-width:1.2;stroke-dasharray:4 4;fill:none}
+.relfig .qr,.relfig .sr{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:640;stroke-dashoffset:640}
+.relfig .qr{stroke:var(--danger)}
+.relfig .sr{stroke:var(--brand-600)}
+.slide.on .relfig .qr{animation:drawc 1.6s ease-in-out .2s forwards}
+.slide.on .relfig .sr{animation:drawc 2.2s ease-in-out .5s forwards}
+@keyframes drawc{to{stroke-dashoffset:0}}
+.relfig .ex{fill:none;stroke:var(--danger);stroke-width:1.2}
+.relfig .qrl{fill:var(--danger)}
+.relfig .srl{fill:var(--brand-700)}
+
+/* bag label */
+.bag{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.bag-top{background:var(--grad-forest);color:var(--on-forest);padding:12px 16px;display:grid;gap:4px}
+.bag-top .hs{color:var(--on-forest);border-color:transparent}
+.bag-top .hs:hover,.bag-top .hs.sel{border-color:var(--mint);background:rgba(255,255,255,.06)}
+.bname{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint);display:block}
+.bgrade{font-size:34px;line-height:1.05;letter-spacing:.02em;display:block;font-variant-numeric:tabular-nums}
+.bag-body{padding:10px 12px;display:grid;gap:4px}
+.hs{display:block;width:100%;text-align:left;background:none;border:1px dashed transparent;border-radius:8px;padding:5px 8px;font-weight:300;font-size:14px;line-height:1.4;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.bag-body .hs{border-color:var(--brand-100)}
+.bag-body .hs:hover{border-color:var(--brand-400)}
+.bag-body .hs.sel{border:1px solid var(--brand-600);background:var(--brand-50)}
+.hs.seen:not(.sel){border-style:solid;border-color:var(--brand-200)}
+.ga .gt{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.ga .gr{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.ga .gr.sub{padding-left:16px;color:var(--muted);font-size:13px}
+.hs .small{font-size:12.5px}
+.slide.on .bag-body .hs:not(.seen){animation:pulseb 2.4s ease-in-out 1s 2}
+@keyframes pulseb{50%{border-color:var(--brand-400)}}
+
+/* slow release checker */
+.pick{gap:6px}
+.pick button{padding:6px 12px;font-size:13.5px}
+.srout{display:grid;gap:10px;min-height:250px;align-content:start}
+.srbar{position:relative;height:14px;border-radius:var(--pill);background:var(--brand-100);margin-top:6px}
+.srbar i{display:block;height:100%;border-radius:var(--pill);background:var(--grad-emerald);transition:width .4s ease-in-out}
+.srbar .req{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink);transition:left .3s ease-in-out}
+.srbig{font-size:24px;line-height:1.2}
+.srbig.ok{color:var(--positive)}
+.srbig.no{color:var(--danger)}
+
+/* formula & calculator */
+.formula{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;font-size:17px}
+.formula b{color:var(--mint);font-weight:400}
+.calc{display:grid;grid-template-columns:1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-card)}
+.calc label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.calc input{font:inherit;font-size:16px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-variant-numeric:tabular-nums;max-width:220px}
+.calc input:focus-visible{outline:2px solid var(--brand-400)}
+.calc .seg{flex-wrap:wrap;align-self:start;justify-self:start}
+.calc .seg button{padding:6px 12px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;display:grid;gap:2px}
+.stat b{font-size:22px;font-weight:400;font-variant-numeric:tabular-nums}
+#oFlags .fb{font-size:14px}
+
+/* tables */
+.ftable{min-width:600px;font-size:13.5px}
+.ftable td,.ftable th{padding:7px 12px}
+.btable{font-size:13px}
+.btable td,.btable th{padding:6px 10px}
+.ntable{min-width:420px;font-size:14.5px}
+.ntable td,.ntable th{padding:8px 12px}
+.ntable td:not(:first-child),.ntable th:not(:first-child){text-align:center;font-variant-numeric:tabular-nums}
+
+/* shrub figure */
+.shrubfig .gl{stroke:var(--brand-400);stroke-width:1.6}
+.shrubfig .stem{stroke:var(--brand-700);stroke-width:3}
+.shrubfig .crown{fill:var(--brand-100);stroke:var(--brand-500);stroke-width:1.4}
+.shrubfig .drip{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
+.shrubfig .roots{fill:none;stroke:var(--brand-500);stroke-width:1.4;stroke-linecap:round}
+.shrubfig .zone{stroke:var(--brand-600);stroke-width:3;stroke-linecap:round}
+.shrubfig .gran circle{fill:var(--brand-700);opacity:0}
+.slide.on .shrubfig .gran circle{animation:dropin 3.2s ease-in-out infinite}
+.slide.on .shrubfig .gran circle:nth-child(2n){animation-delay:.4s}
+.slide.on .shrubfig .gran circle:nth-child(3n){animation-delay:.8s}
+@keyframes dropin{0%{opacity:0;transform:translateY(-30px)}25%,85%{opacity:1;transform:none}100%{opacity:0}}
+.shrubfig .nogo{stroke:var(--danger);stroke-width:2;stroke-linecap:round}
+.shrubfig .nogol{fill:var(--danger)}
+
+/* spreader figure */
+.spread .lawn{fill:var(--brand-100)}
+.spread .pave{fill:#D5D9D6}
+.spread .hopper{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+.spread .shield{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.spread .handle,.spread .dir{fill:none;stroke:var(--brand-700);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.spread .fan circle{fill:var(--brand-700);opacity:0}
+.slide.on .spread .fan circle{animation:fan 2.4s ease-out infinite}
+.slide.on .spread .fan circle:nth-child(2n){animation-delay:.5s}
+.slide.on .spread .fan circle:nth-child(3n){animation-delay:1s}
+@keyframes fan{0%{opacity:0;transform:translate(30px,20px)}20%{opacity:1}80%{opacity:1;transform:none}100%{opacity:0}}
+.spread svg{max-height:330px}
+
+/* today scenarios (FC-04 pattern) */
+.wx{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}
+.wxcard{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 18px;display:grid;gap:8px}
+.wxcard .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.10);padding-bottom:6px;text-align:right}
+.wxcard .row:last-child{border-bottom:0;padding-bottom:0}
+.wxcard .row span:first-child{color:var(--mint);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding-top:2px;text-align:left;flex:0 0 auto}
+.wxopts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wxopts .choice{justify-content:center;text-align:center}
+.path .st p{font-size:13.5px}
+
+@media (max-width:860px){
+  .wx{grid-template-columns:1fr}
+  .wxopts{grid-template-columns:1fr}
+  .flip button{min-height:240px}
+}
+@media (prefers-reduced-motion:reduce){.relfig .qr,.relfig .sr{stroke-dashoffset:0}.shrubfig .gran circle,.spread .fan circle{opacity:1}}
+.tight .bag-body{gap:3px;padding:8px 12px}
+.tight .hs{padding:4px 8px}
+.btable td:first-child{min-width:190px}
+.flip .icobox{flex:0 0 40px}
+.spread{max-width:420px;justify-self:center}
+#npkFlip button{min-height:230px}
+#custFlip button{min-height:260px}
+@media (max-width:860px){#npkFlip button{min-height:210px}#custFlip button{min-height:240px}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">LAWN-05 · Fertilizer &amp; Blackout Rules</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/><path d="M2 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-8A5.5 5.5 0 0117 8.5a4.5 4.5 0 01.5 9.5z"/><path d="M9 21l1-2M13 21l1-2"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 6l1-3h10l1 3"/><path d="M5 6h14l-1 15H6z"/><path d="M9 11h6M9 14h6M9 17h4"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h1M12 12h1M16 12h0M8 16h1M12 16h1M16 15v2"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 14l6 4M15 14l-6 4"/></symbol>
+    <symbol id="i-root" viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M8 6c2 0 4 1 4 3M16 6c-2 0-4 1-4 3"/><path d="M4 11h16"/><path d="M12 11v4l-3 3M12 15l3 3M12 15v6"/></symbol>
+    <symbol id="i-palm" viewBox="0 0 24 24"><path d="M12 21c0-5 .5-9 1-12"/><path d="M13 9C11 5 7 5 4 7"/><path d="M13 9c2-4 6-4 8-2"/><path d="M13 9c-3-1-7 1-8 4"/><path d="M13 9c3-1 6 1 7 4"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9.5" cy="10" r="2.2"/><path d="M6.5 16c.6-1.8 1.7-2.6 3-2.6s2.4.8 3 2.6M14 9h3.5M14 12h3.5"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-05</span>
+        <h1 class="display a" style="--i:1">Fertilizer &amp; Blackout Rules</h1>
+        <p class="lead a" style="--i:2">What is in the bag, how much nitrogen goes down, and the state and county rules that decide whether a lawn can be fed today, and by whom.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 250" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M60 40h90l10 22H50z"/>
+        <path d="M48 62l8 128h49"/><path d="M162 62l-8 128h-49"/><path d="M48 62h114"/>
+        <path d="M74 98h62M74 116h62M74 134h40"/>
+        <path d="M80 160h50"/>
+        <path d="M196 120h60l-8 34h-44z"/>
+        <path d="M226 154v16"/>
+        <circle cx="214" cy="186" r="8"/><circle cx="242" cy="186" r="8"/>
+        <path d="M256 124l26-30"/>
+        <path d="M20 222c6-14 8-24 6-34"/><path d="M36 222c2-12 6-20 12-26"/><path d="M52 222c0-12-2-20-8-28"/><path d="M150 222c4-12 8-20 14-26"/><path d="M168 222c0-14-4-22-10-30"/><path d="M240 222c4-14 2-24-2-32"/><path d="M262 222c2-12 6-20 12-24"/>
+        <path d="M10 222h140"/><path d="M150 222h140"/>
+        <path d="M268 40c-10 16-18 26-18 36a18 18 0 0036 0c0-10-8-20-18-36z"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-leaf"/></svg><span>Explain what nitrogen, phosphorus, potassium, iron and the other nutrients do for turf and shrubs</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-bag"/></svg><span>Read a fertilizer bag: grade, guaranteed analysis, slow-release nitrogen and the Florida precautions</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-calc"/></svg><span>Work in pounds of nitrogen per 1,000 sq ft and convert that into pounds of product for a lawn</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-cal"/></svg><span>Apply the summer blackout, slow-release, setback and weather rules for the county the lawn is in</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-target"/></svg><span>Spread granules accurately with a deflector shield, feed shrubs and palms correctly, and leave no granule on pavement</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-badge"/></svg><span>Explain the state fertilizer applicator certification, who needs it and what it does not cover</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">Fertilizer is the one product we apply that feeds <span class="em">the water too.</span></h2>
+        <p class="lead a" style="--i:2">The right nitrogen at the right time gives a thick, green lawn that resists weeds and pests. The wrong amount, the wrong week or the wrong spot feeds algae instead.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wave"/></svg></div><div><h3>Nitrogen and phosphorus fuel algae</h3><p>Runoff and leaching carry them into the lagoon, rivers and lakes our branches sit beside. Blooms block sunlight, kill seagrass and use up the oxygen fish need.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Every county writes its own rules</h3><p>Summer bans, slow-release minimums, setbacks and weather limits differ by county and city. Ordinance violations carry fines, and local governments enforce them.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-badge"/></svg></div><div><h3>The state licenses the applicator</h3><p>Since 2014, every person who applies fertilizer for hire in Florida needs their own state certification (s. 482.1562). Customers and code officers can ask to see it.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: what's in the bag">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">What's in the bag</h1>
+        <p class="lead a" style="--i:2">Why it matters: every rule in this course is written in the language of the bag: percent nitrogen, slow-release nitrogen, phosphate. If you can't read the label, you can't prove the application was legal.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>N, P and K</li><li><span>02</span>Iron and micronutrients</li><li><span>03</span>Quick release vs slow release</li><li><span>04</span>Practice: decode the bag</li><li><span>05</span>Practice: slow-release checker</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 NPK -->
+  <section class="slide" data-label="N, P and K">
+    <span class="eyebrow a">01 · The three numbers</span>
+    <h2 class="a" style="--i:1">16-4-8 means 16% N, 4% phosphate, 8% potash. Select each one.</h2>
+    <div class="flip a" style="--i:2" id="npkFlip"></div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-bag"/></svg><span><b>Always in that order: N-P-K.</b> A 50 lb bag of 16-4-8 holds 8 lb of nitrogen, 2 lb of phosphate and 4 lb of potash. The rest is carrier and other nutrients.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>The middle number should be zero</b> on almost every lawn we feed. The ordinances on our routes ban phosphorus unless a soil test shows a deficiency.</span></div>
+    </div>
+  </section>
+
+  <!-- 6 MICRONUTRIENTS -->
+  <section class="slide" data-label="Iron and micronutrients">
+    <span class="eyebrow a">02 · Secondary nutrients, iron and micronutrients</span>
+    <h2 class="a" style="--i:1">Small amounts, big color: what else is on the tag</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-leaf"/></svg></div><h3>Secondary nutrients</h3><p><b>Calcium, magnesium, sulfur.</b> Needed in moderate amounts for cell walls, chlorophyll and protein. Magnesium matters most for palms.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Micronutrients</h3><p><b>Iron, manganese, zinc, copper, boron, molybdenum.</b> Needed in tiny amounts. Manganese is a micronutrient, not one of the big three.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-sun"/></svg></div><h3>Iron</h3><p>Yellowing between the veins of new growth is often iron chlorosis, common in centipedegrass and St. Augustine on alkaline soil. Iron greens up the leaf without a growth surge.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span><b>Iron is temporary.</b> UF/IFAS puts the green-up at roughly 2 to 4 weeks.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Iron is not a substitute for nitrogen.</b> Diagnose first: pale lawns can be pests, disease, water or pH (LAWN-08).</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-target"/></svg><span><b>Iron stains concrete</b> orange-brown. One more reason to keep every granule off driveways, pool decks and pavers.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 QUICK VS SLOW -->
+  <section class="slide" data-label="Quick vs slow release">
+    <span class="eyebrow a">03 · Quick release vs slow release</span>
+    <h2 class="a" style="--i:1">Same nitrogen, very different ride</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px;align-items:center">
+      <div class="figbox a relfig" style="--i:2">
+        <svg viewBox="0 0 440 230" role="img" aria-label="Nitrogen available to the grass over eight weeks. Quick-release nitrogen spikes in the first week and falls off; slow-release nitrogen stays low and steady.">
+          <path d="M40 190 H420" class="ax"/><path d="M40 190 V20" class="ax"/>
+          <text x="44" y="16" class="lbl">NITROGEN AVAILABLE TO THE GRASS</text>
+          <text x="40" y="208" class="lbl">WEEK 0</text><text x="200" y="208" class="lbl">WEEK 4</text><text x="370" y="208" class="lbl">WEEK 8</text>
+          <path d="M40 188 C70 20 95 30 120 120 C140 170 180 182 420 186" class="qr"/>
+          <path d="M40 188 C80 120 120 112 200 112 C280 112 330 124 420 150" class="sr"/>
+          <path d="M40 70 H420" class="need"/><text x="262" y="84" class="lbl">WHAT THE GRASS CAN USE</text>
+          <path d="M96 38 C116 60 130 70 150 74" class="ex"/><text x="154" y="44" class="lbl qrl">EXCESS: LEACHES, RUNS OFF, BURNS</text>
+          <text x="232" y="132" class="lbl srl">SLOW RELEASE: STEADY FEEDING</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>Quick release (water soluble):</b> ammonium sulfate, urea, ammonium nitrate, potassium nitrate. Fast green-up, but the excess the grass can't take in washes through sandy soil.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clock"/></svg><span><b>Slow release:</b> polymer- or sulfur-coated urea, methylene urea, IBDU and natural organics. Nitrogen comes out over weeks, so less is lost and the lawn grows evenly.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span><b>The law cares which kind.</b> Every county we serve sets a minimum share of slow-release nitrogen: 50% in most, 65% in Orange County.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 BAG DECODER -->
+  <section class="slide tight" data-label="Practice: decode the bag">
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">04 · Practice · decode the bag</span>
+        <div class="bag a" style="--i:1" id="bag">
+          <div class="bag-top"><button type="button" class="hs" data-h="0" id="hs0"><span class="bname">Turf Fertilizer</span><span class="bgrade">24-0-11</span></button><button type="button" class="hs" data-h="1" id="hs1">Covers up to 12,500 sq ft · Net wt 50 lb</button></div>
+          <div class="bag-body">
+            <button type="button" class="hs ga" data-h="2" id="hs2"><span class="gt">Guaranteed analysis</span><span class="gr"><span>Total Nitrogen (N)</span><span>24.0%</span></span><span class="gr sub"><span>4.8% Ammoniacal Nitrogen</span></span><span class="gr sub"><span>19.2% Urea Nitrogen*</span></span></button>
+            <button type="button" class="hs ga" data-h="3" id="hs3"><span class="gr"><span>Available Phosphate (P<sub>2</sub>O<sub>5</sub>)</span><span>0.0%</span></span><span class="gr"><span>Soluble Potash (K<sub>2</sub>O)</span><span>11.0%</span></span></button>
+            <button type="button" class="hs ga" data-h="4" id="hs4"><span class="gr"><span>Iron (Fe)</span><span>1.0%</span></span></button>
+            <button type="button" class="hs" data-h="5" id="hs5"><span class="small">Derived from: ammonium sulfate, polymer-coated urea, urea, sulfate of potash, iron sulfate.</span></button>
+            <button type="button" class="hs" data-h="6" id="hs6"><span class="small"><b>*Contains 12.0% slowly available nitrogen from polymer-coated urea.</b></span></button>
+            <button type="button" class="hs warnline" data-h="7" id="hs7"><span class="small">Do not apply near water, storm drains or drainage ditches. Do not apply if heavy rain is expected. Apply this product only to your lawn or garden, and sweep any product that lands on the driveway, sidewalk, or street, back onto your lawn or garden.</span></button>
+          </div>
+        </div>
+              </div>
+      <div class="grid" style="gap:10px;align-content:start">
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.4vw,28px)">Select each part of the label</h2>
+        <p class="small muted a" style="--i:1">Example label for training. Not a Clements product.</p>
+        <div class="card a" style="--i:2" id="bagCard"><span class="eyebrow">Eight parts to find</span><p style="margin-top:6px">Every one of them answers a question a code officer, a customer or your supervisor could ask about the application.</p></div>
+        <div class="a" style="--i:3"><span class="chip" id="bagCount">0 of 8 explored</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 SR CHECKER -->
+  <section class="slide" data-label="Practice: slow-release checker">
+    <span class="eyebrow a">05 · Practice · slow-release checker</span>
+    <h2 class="a" style="--i:1">Pick a bag and a location. Is it legal there?</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="a" style="--i:2"><span class="eyebrow">The bag on your truck</span><div class="pick" id="srBags" style="margin-top:6px"></div></div>
+        <div class="a" style="--i:3"><span class="eyebrow">Where the lawn is</span><div class="pick" id="srAreas" style="margin-top:6px"></div></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-calc"/></svg><span><b>Slow-release % = slow-release N ÷ total N × 100.</b> 12% slowly available N in a 24% N bag is 12 ÷ 24 = 50%.</span></div>
+      </div>
+      <div class="card a srout" style="--i:3" id="srOut"></div>
+    </div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: rates and application">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Rates and application</h1>
+        <p class="lead a" style="--i:2">Why it matters: over-feeding is the most common fertilizer mistake. It burns turf, drives thatch, disease and chinch bug pressure, wastes product, and sends the excess straight to the water table.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Pounds of nitrogen per 1,000 sq ft</li><li><span>02</span>Practice: lb-N calculator</li><li><span>03</span>How much a year, and when</li><li><span>04</span>Shrubs and palms</li><li><span>05</span>Spreading it right</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 LB N CONCEPT -->
+  <section class="slide" data-label="Pounds of nitrogen">
+    <span class="eyebrow a">01 · Pounds of nitrogen per 1,000 sq ft</span>
+    <h2 class="a" style="--i:1">Everyone in turf talks in lb N per 1,000 sq ft, not bags</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="formula a" style="--i:2"><span>lb of product per 1,000 sq ft</span><b>=</b><span>lb N wanted ÷ (% N ÷ 100)</span></div>
+        <div class="card a" style="--i:3"><span class="eyebrow">Example</span><p style="margin-top:4px;color:var(--ink)">0.5 lb N from a 16-0-8: 0.5 ÷ 0.16 = <b>3.1 lb of product per 1,000 sq ft</b>. A 6,000 sq ft lawn takes 6 × 3.1 = about <b>19 lb</b>.</p></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span>This is the concept. <b>The product label sets the rate</b>, and the most restrictive of label, state guidance and county ordinance always wins. Calibration is LAWN-09.</span></div>
+      </div>
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a" style="--i:2">Per-application limits · UF/IFAS SL21 and local ordinances</span>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>No more than 0.7 lb of quick-release N</b> per 1,000 sq ft in any one application.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span><b>Up to 2 lb N</b> per application in spring, or summer where feeding is allowed, and only with at least 65% slow-release N.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-cal"/></svg><span><b>No more than 1 lb N</b> per application in the fall.</span></div>
+        <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Orange County and the City of Naples cap every application at 1 lb N</b> per 1,000 sq ft, any season.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 CALCULATOR -->
+  <section class="slide tight" data-label="Practice: lb-N calculator">
+    <span class="eyebrow a">02 · Practice · lb-N calculator</span>
+    <h2 class="a" style="--i:1">Turn a nitrogen target into pounds of product</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:24px;align-items:start">
+      <div class="calc a" style="--i:2">
+        <label for="cN">Nitrogen in the bag (first number, %)</label><input id="cN" type="number" min="1" max="46" step="1" value="16" inputmode="decimal">
+        <label for="cSR">Slow-release share of the N (%)</label><input id="cSR" type="number" min="0" max="100" step="5" value="65" inputmode="decimal">
+        <label for="cT">Target lb N per 1,000 sq ft</label><div class="seg" role="group" aria-label="Target pounds of nitrogen" id="cTseg"></div>
+        <label for="cA">Lawn area (sq ft)</label><input id="cA" type="number" min="500" max="100000" step="500" value="6000" inputmode="decimal">
+        <label for="cSeason">Season</label><div class="seg" role="group" aria-label="Season" id="cSeason"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="grid g2">
+          <div class="stat a" style="--i:3"><span class="eyebrow">Product per 1,000 sq ft</span><b id="oPer">–</b></div>
+          <div class="stat a" style="--i:4"><span class="eyebrow">Product for the lawn</span><b id="oTot">–</b></div>
+          <div class="stat a" style="--i:5"><span class="eyebrow">Quick-release N per 1,000</span><b id="oQr">–</b></div>
+          <div class="stat a" style="--i:6"><span class="eyebrow">Total N on the lawn</span><b id="oN">–</b></div>
+        </div>
+        <div class="a" style="--i:7" id="oFlags"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 ANNUAL -->
+  <section class="slide" data-label="How much a year, and when">
+    <span class="eyebrow a">03 · How much a year, and when</span>
+    <h2 class="a" style="--i:1">Annual nitrogen depends on the grass and where it grows</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <div class="tablewrap a" style="--i:2">
+          <table class="ntable">
+            <thead><tr><th>lb N / 1,000 sq ft / year</th><th>North</th><th>Central</th><th>South</th></tr></thead>
+            <tbody>
+              <tr><td>St. Augustinegrass</td><td>2–4</td><td>2–5</td><td>4–6</td></tr>
+              <tr><td>Zoysiagrass</td><td>2–3</td><td>2–4</td><td>2.5–4.5</td></tr>
+              <tr><td>Bahiagrass</td><td>1–3</td><td>1–3</td><td>1–4</td></tr>
+              <tr><td>Bermudagrass</td><td>3–5</td><td>4–6</td><td>5–7</td></tr>
+              <tr><td>Centipedegrass</td><td>0.4–2</td><td>0.4–3</td><td>0.4–3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted a" style="--i:3">UF/IFAS ranges, clippings returned. North is above Ocala; Central runs from Ocala to State Road 60; South is below SR 60. Orlando is Central. Stuart and Naples are South. Vero Beach sits on SR 60.</p>
+      </div>
+      <div class="grid" style="gap:8px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>Local caps come first.</b> Orange County: 3 lb N a year. Naples: 4 lb (centipede 3).</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-cal"/></svg><span><b>Our program</b> feeds turf spring, summer and fall, shrubs spring and fall (CW-05). Under a summer ban, the summer visit carries no N or P.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-thermo"/></svg><span><b>Late fall:</b> N after mid-October in Central Florida pushes tender growth that cold damages.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-search"/></svg><span><b>Phosphorus only on a soil test</b>, never as a "complete" fertilizer by habit.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 SHRUBS & PALMS -->
+  <section class="slide" data-label="Shrubs and palms">
+    <span class="eyebrow a">04 · Shrubs and palms</span>
+    <h2 class="a" style="--i:1">Feed the root zone, not the stems</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:center">
+      <div class="figbox a shrubfig" style="--i:2">
+        <svg viewBox="0 0 400 220" role="img" aria-label="A shrub with its root zone extending beyond the drip line. Granules are spread evenly across the root zone and kept away from the stem.">
+          <path d="M20 150 H380" class="gl"/>
+          <path d="M200 150 V108" class="stem"/>
+          <ellipse cx="200" cy="80" rx="74" ry="40" class="crown"/>
+          <path d="M126 82 V150 M274 82 V150" class="drip"/><text x="276" y="100" class="lbl">DRIP LINE</text>
+          <path d="M200 150 C180 170 140 180 90 186 M200 150 C220 170 260 180 310 186 M200 150 V196 M200 160 C170 176 120 196 70 200 M200 160 C230 176 280 196 330 200" class="roots"/>
+          <path d="M60 204 H340" class="zone"/><text x="120" y="218" class="lbl">ROOT ZONE · BEYOND THE DRIP LINE</text>
+          <g class="gran"><circle cx="80" cy="146" r="2.6"/><circle cx="104" cy="146" r="2.6"/><circle cx="128" cy="146" r="2.6"/><circle cx="152" cy="146" r="2.6"/><circle cx="248" cy="146" r="2.6"/><circle cx="272" cy="146" r="2.6"/><circle cx="296" cy="146" r="2.6"/><circle cx="320" cy="146" r="2.6"/></g>
+          <path d="M186 140 h28" class="nogo"/><path d="M20 16 h18" class="nogo"/><text x="44" y="19" class="lbl nogol">NO GRANULES AT THE STEM</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:8px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-root"/></svg><span><b>Spread evenly over the whole bed</b> and the root zone, which reaches past the drip line. Label rate, by bed area.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span><b>Keep granules off leaves, crowns and stems.</b> Brush off foliage; it burns.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-palm"/></svg><span><b>Palms are different.</b> UF/IFAS recommends a palm fertilizer such as 8-2-12-4Mg with micronutrients and slow-release N, K and Mg. High-N turf fertilizer can worsen palm potassium deficiency.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>The ordinances cover beds too.</b> Bans, setbacks and slow-release rules apply to landscape plants too.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 SPREADING -->
+  <section class="slide tight" data-label="Spreading it right">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">05 · Spreading it right</span>
+        <h2 class="a" style="--i:1">The spreader decides where every granule lands</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Fill over turf, never on pavement.</b> A spill on the driveway is a spill in the storm drain.</span></li>
+          <li><span class="num">2</span><span><b>Deflector shield down</b> along driveways, sidewalks, streets, beds and water. Most of our counties require it on rotary and broadcast spreaders.</span></li>
+          <li><span class="num">3</span><span><b>Steady pace, slight overlap</b> per the spread pattern. Shut the gate on sharp turns and when you stop.</span></li>
+          <li><span class="num">4</span><span><b>No spreading in wind</b> that carries granules off target.</span></li>
+          <li><span class="num">5</span><span><b>Sweep or blow every stray granule</b> back onto the turf before you leave (FC-04).</span></li>
+        </ol>
+      </div>
+      <div class="figbox a spread" style="--i:3">
+        <svg viewBox="0 0 320 240" role="img" aria-label="Top view of a rotary spreader moving along a driveway edge. With the deflector shield down, granules fall only on the lawn side.">
+          <rect x="0" y="0" width="200" height="240" class="lawn"/><rect x="200" y="0" width="120" height="240" class="pave"/>
+          <text x="12" y="20" class="lbl">TURF</text><text x="214" y="20" class="lbl">DRIVEWAY</text>
+          <g class="sp"><circle cx="182" cy="150" r="14" class="hopper"/><path d="M196 136 V164" class="shield"/><path d="M182 164 V196 M170 196 h24" class="handle"/></g>
+          <g class="fan"><circle cx="150" cy="128" r="2.6"/><circle cx="134" cy="142" r="2.6"/><circle cx="122" cy="160" r="2.6"/><circle cx="140" cy="168" r="2.6"/><circle cx="160" cy="118" r="2.6"/><circle cx="114" cy="132" r="2.6"/><circle cx="104" cy="152" r="2.6"/><circle cx="150" cy="180" r="2.6"/></g>
+          <text x="206" y="146" class="lbl">SHIELD</text>
+          <path d="M182 230 V206" class="dir"/><path d="M176 212 l6 -6 6 6" class="dir"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 PRACTICE SORT -->
+  <section class="slide" data-label="Practice: right or wrong">
+    <span class="eyebrow a">Practice · application habits</span>
+    <h2 class="a" style="--i:1">Good practice, or a problem? Sort each one.</h2>
+    <div class="sort a" style="--i:2" id="sort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="sortCheck">Check my answers</button><span id="sortFb"></span></div>
+  </section>
+
+  <!-- 18 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 19 PART THREE -->
+  <section class="slide forest" data-label="Part three: blackout and local rules">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Blackout and local rules</h1>
+        <p class="lead a" style="--i:2">Why it matters: June through September is when our heaviest rain falls on our sandiest soils. The summer bans exist because that is when nitrogen and phosphorus wash off fastest, and they follow the property's address, not the branch.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The county table</li><li><span>02</span>Beyond the blackout</li><li><span>03</span>Weather and soil</li><li><span>04</span>Practice: can we fertilize here today?</li></ol>
+    </div>
+  </section>
+
+  <!-- 20 COUNTY TABLE (from FC-04, verified Oct 2026) -->
+  <section class="slide" data-label="County fertilizer rules">
+    <span class="eyebrow a">01 · County fertilizer rules · checked October 2026 (same table as FC-04)</span>
+    <h2 class="a" style="--i:1">Know the rules where the lawn is, not where the branch is</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="ftable">
+        <thead><tr><th>Where the property is</th><th>Summer nitrogen &amp; phosphorus</th><th>No fertilizer near water</th></tr></thead>
+        <tbody>
+          <tr><td>Indian River County, unincorporated <span class="muted">· Vero Beach</span></td><td class="y">Banned June 1 – Sept 30</td><td>10 ft from water, wetlands or top of seawall</td></tr>
+          <tr><td>St. Lucie County, Fort Pierce, Port St. Lucie</td><td class="y">Banned June 1 – Sept 30</td><td>10 ft</td></tr>
+          <tr><td>Martin County, unincorporated <span class="muted">· Stuart</span></td><td class="y">Banned June 1 – Sept 30</td><td>25 ft</td></tr>
+          <tr><td>Orange County <span class="muted">· Orlando</span></td><td class="y">Banned June 1 – Sept 30</td><td>25 ft from natural water bodies</td></tr>
+          <tr><td>City of Naples and Marco Island <span class="muted">· Naples</span></td><td class="y">Banned June 1 – Sept 30</td><td>10 ft</td></tr>
+          <tr><td>Collier County, unincorporated <span class="muted">· Naples</span></td><td>No summer ban · no fertilizing on wet soil or before storms</td><td>10 ft</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cloud"/></svg><span>Year-round: no fertilizer on saturated soil, in a storm watch or warning, or before heavy rain.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span>Combination products count. A granular insecticide with fertilizer in it is fertilizer. So is an "organic" one.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-wave"/></svg><span>Old training said a deflector shield shrinks the setback. The ordinances we checked don't allow that. Keep the full distance.</span></div>
+    </div>
+  </section>
+
+  <!-- 21 BEYOND THE BLACKOUT -->
+  <section class="slide tight" data-label="Beyond the blackout">
+    <span class="eyebrow a">02 · Beyond the blackout</span>
+    <h2 class="a" style="--i:1">October to May has rules too</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="ftable btable">
+        <thead><tr><th>Where the property is</th><th>Slow-release N</th><th>Nitrogen cap</th><th>Also required</th></tr></thead>
+        <tbody>
+          <tr><td>Indian River County, unincorporated</td><td>At least 50%</td><td>Label</td><td>Deflector shield on rotary spreaders</td></tr>
+          <tr><td>St. Lucie County, Fort Pierce, Port St. Lucie</td><td>At least 50%</td><td>Label</td><td>Deflector shield; remove anything that lands on pavement</td></tr>
+          <tr><td>Martin County, unincorporated</td><td>At least 50%</td><td>Label</td><td>Deflector shield; fertilize only when no rain is forecast</td></tr>
+          <tr><td>Orange County</td><td class="y">At least 65%</td><td class="y">1 lb per application · 3 lb a year</td><td>Deflector next to streets, inlets, ditches and water; vehicle decal</td></tr>
+          <tr><td>City of Naples</td><td>At least 50%</td><td class="y">1 lb per application · 4 lb a year</td><td>Deflector on broadcast spreaders</td></tr>
+          <tr><td>Marco Island · Collier County, unincorporated</td><td>At least 50% <span class="muted">· confirm</span></td><td>1 lb per application <span class="muted">· confirm</span></td><td>Marco Island: city registration and an emailed permit at least one business day before fertilizing</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span><b>Phosphorus:</b> needs a soil test showing a deficiency (Collier uninc.: confirm).</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span><b>New sod or seed:</b> no N or P for the first 30 days (Indian River, St. Lucie).</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-badge"/></svg><span><b>Carry your state certificate</b> while applying.</span></div>
+    </div>
+  </section>
+
+  <!-- 22 WEATHER -->
+  <section class="slide" data-label="Weather and soil">
+    <span class="eyebrow a">03 · Weather and soil</span>
+    <h2 class="a" style="--i:1">Check the forecast and the ground first</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-cloud"/></svg></div><h3>Heavy rain coming</h3><p>Indian River, Port St. Lucie: 2 in. or more in 24 hours likely. Naples: 60% chance of 2 in.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Watch or warning</h3><p>Flood, tropical storm or hurricane. Orange County adds severe thunderstorm advisories.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Saturated soil</h3><p>Puddles or squishy turf: the soil can't hold more, so nutrients leach or run off.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Wind</h3><p>Granules blowing off target means stop. Same weather sense as FC-04.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span>Can't fertilize today? Do the rest of the visit, note why in the office notes (technotes@clementspestcontrol.com) so the stop gets rescheduled, and tell the customer plainly. Never "make it up" with a heavier application next time.</span></div>
+  </section>
+
+  <!-- 23 PRACTICE TODAY -->
+  <section class="slide" data-label="Practice: can we fertilize today?">
+    <span class="eyebrow a">04 · Practice · can we fertilize here today?</span>
+    <h2 class="a" style="--i:1">County, date, site, weather. Make the call.</h2>
+    <div class="scen-tabs a" style="--i:2" id="tdTabs"></div>
+    <div class="a" style="--i:3" id="tdBox"></div>
+  </section>
+
+  <!-- 24 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 25 PART FOUR -->
+  <section class="slide forest" data-label="Part four: certification and the customer">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Certification and the customer</h1>
+        <p class="lead a" style="--i:2">Why it matters: fertilizing without your own state certificate is illegal, no matter who is standing next to you. And the customer who asks for "just a little extra" in July needs a clear, friendly no.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The state fertilizer certification</li><li><span>02</span>What it does and doesn't cover</li><li><span>03</span>Talking to customers</li></ol>
+    </div>
+  </section>
+
+  <!-- 26 LF CERT -->
+  <section class="slide" data-label="State fertilizer certification">
+    <span class="eyebrow a">01 · Limited Urban Commercial Fertilizer Applicator · s. 482.1562, administered by FDACS</span>
+    <h2 class="a" style="--i:1">One certificate per person. Every person who spreads it.</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-book"/></svg></span><h3>GI-BMP training</h3><p>UF/IFAS Green Industries Best Management Practices course. Pass the test (75% or better) for a training certificate.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-clip"/></svg></span><h3>Apply to FDACS</h3><p>Online, choosing the Limited Urban Commercial Fertilizer Applicator (LF) license type, with the GI-BMP certificate number.</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-badge"/></svg></span><h3>Carry it</h3><p>On you whenever you apply fertilizer. Ordinances in our area require it, and customers may ask.</p></div>
+      <div class="st top a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-clock"/></svg></span><h3>Renew every 4 years</h3><p>Four CEUs first: 2 in 482 Core, 2 in the LF category. Grace period is 30 days; after that you start over.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-users"/></svg><span><b>Who needs it:</b> anyone applying fertilizer for hire to lawns or landscapes. The statute has no exemption for pest control licenses or ID cards. The only exemption is a yard worker using the homeowner's own fertilizer and equipment.</span></div>
+      <div class="callout danger a" style="--i:7"><svg class="ico"><use href="#i-alert"/></svg><span><b>Supervision does not count.</b> A certified person may not have uncertified staff apply fertilizer under their supervision. No certificate in your pocket, no spreader in your hands.</span></div>
+    </div>
+  </section>
+
+  <!-- 27 WHAT IT COVERS -->
+  <section class="slide" data-label="What it does and doesn't cover">
+    <span class="eyebrow a">02 · What the fertilizer certificate does and doesn't cover</span>
+    <h2 class="a" style="--i:1">Fertilizer only. Anything with a pesticide in it is a pest control job.</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Covered by the LF certificate</h3><ul class="ticks"><li>Fertilizer to turf and landscape plants for hire</li><li>Nutrient-only products: N-P-K, iron, micronutrient blends</li><li>Following every county rule while you do it</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Not covered</h3><ul class="ticks"><li>Any pesticide on turf or ornamentals, including weed-and-feed and insecticide-fertilizer granules</li><li>Operating a pest control business</li><li>Letting anyone uncertified apply under you</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Combination products need both:</b> the fertilizer certificate for the nutrients, and pest control credentials under Chapter 482 for the pesticide (your FDACS ID card under the company's lawn and ornamental license). Your supervisor confirms you are cleared for each product before you use it.</span></div>
+  </section>
+
+  <!-- 28 CUSTOMERS -->
+  <section class="slide" data-label="Talking to customers">
+    <span class="eyebrow a">03 · Talking to customers</span>
+    <h2 class="a" style="--i:1">What they say, and what you say back. Select each card.</h2>
+    <div class="flip a" style="--i:2" id="custFlip"></div>
+    <p class="small muted a" style="--i:3">Pricing, extra services and complaints go to the branch manager. Never quote prices or promise results (CW-05).</p>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a real lawn</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these on a ride-along before LAWN-05 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Show your current Limited Urban Commercial Fertilizer Applicator certificate</label></li>
+      <li><label><input type="checkbox" id="f2"> Read a bag on your truck aloud: grade, slow-release %, phosphate and the Florida precautions</label></li>
+      <li><label><input type="checkbox" id="f3"> State the summer rule, setback, slow-release minimum and N cap for the property's county</label></li>
+      <li><label><input type="checkbox" id="f4"> Work out the pounds of product for the lawn from the label rate and the measured area</label></li>
+      <li><label><input type="checkbox" id="f5"> Check weather and soil and make a go or no-go call out loud</label></li>
+      <li><label><input type="checkbox" id="f6"> Fill over turf, set the deflector shield and keep the water setback while spreading</label></li>
+      <li><label><input type="checkbox" id="f7"> Fertilize a shrub bed evenly over the root zone, off foliage and stems</label></li>
+      <li><label><input type="checkbox" id="f8"> Sweep every stray granule back onto the turf before leaving</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn05:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn05:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-05", "titleHtml": "Fertilizer &amp; Blackout Rules", "nextHtml": "LAWN-06 \u00b7 Weeds &amp; Herbicides", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · What\'s in the bag',q:'Your next stop is a lawn in unincorporated Indian River County in November. The bag on the truck is a 24-0-8 whose label says "Contains 6.0% slowly available nitrogen." Can you use it there?',o:['Yes: it has no phosphorus, so it meets every rule','No: 6 ÷ 24 is only 25% slow-release, and Indian River County requires at least 50%','Yes: slow-release rules only apply in the summer','Yes, if you apply half the label rate'],a:1,e:'Slow-release % is slow-release N divided by total N: 6 ÷ 24 = 25%. Indian River County requires at least 50%. Zero phosphorus is required too, but it doesn\'t fix the nitrogen. Use a compliant product.'},
+    2:{t:'Checkpoint 2 · Rates and application',q:'The target is 0.75 lb of nitrogen per 1,000 sq ft from a 15-0-15. The lawn measures 6,000 sq ft. How much product goes on the lawn?',o:['5 lb','11.25 lb','30 lb','90 lb'],a:2,e:'0.75 ÷ 0.15 = 5 lb of product per 1,000 sq ft. 6,000 sq ft is 6 thousands, so 6 × 5 = 30 lb. Always check the result against the label rate before you spread.'},
+    3:{t:'Checkpoint 3 · Blackout and local rules',q:'October 2, a lawn in unincorporated Martin County backs onto a lake. Sunny, dry soil, no rain forecast, and the bag is 50% slow-release with zero phosphorus. What is the right call?',o:['Don\'t fertilize: the blackout runs through October','Fertilize right up to the water with the deflector shield down','Fertilize, keeping at least 10 ft from the lake','Fertilize, keeping at least 25 ft from the lake, deflector shield down, and sweep any stray granules'],a:3,e:'The summer ban ended September 30. Martin County requires a 25-foot fertilizer-free zone from water, and the deflector shield doesn\'t shrink it. Shield down along edges and sweep anything off hard surfaces.'},
+    4:{t:'Checkpoint 4 · Certification and the customer',q:'A new tech with an FDACS ID card but no fertilizer certificate yet offers to run the spreader while you, certified, watch. What do you say?',o:['Fine, as long as you stay within sight','No. Every applicator needs their own certificate; supervision doesn\'t cover it','Fine, because his ID card covers fertilizer','Fine for granules, but not for liquid fertilizer'],a:1,e:'Section 482.1562 requires each person applying commercial fertilizer to be certified, and says the certificate doesn\'t let a certified person have uncertified staff apply fertilizer under their supervision. A pest control ID card is not a fertilizer certificate.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'On a bag labeled 16-4-8, what does the 4 stand for?',o:['4% nitrogen','4% potash (K₂O)','4% available phosphate (P₂O₅)','4 lb of product per 1,000 sq ft'],a:2,e:'The grade is always N-P-K by percent weight. The middle number is available phosphate.'},
+    {k:'Multiple choice',q:'Which nutrient most drives green color and leaf growth in turf?',o:['Nitrogen','Phosphorus','Potassium','Calcium'],a:0,e:'Nitrogen drives color and growth. Phosphorus supports roots and establishment; potassium supports stress tolerance and disease resistance.'},
+    {k:'True or false',q:'Manganese is one of the three primary nutrients in a fertilizer grade.',o:['True','False'],a:1,e:'False. Manganese is a micronutrient. The primary nutrients are nitrogen, phosphorus and potassium.'},
+    {k:'Multiple choice',q:'A 50 lb bag of 20-0-10 contains how much nitrogen?',o:['20 lb','5 lb','2 lb','10 lb'],a:3,e:'20% of 50 lb is 10 lb of nitrogen.'},
+    {k:'Scenario',q:'A label shows Total Nitrogen 32% and "Contains 20.8% slowly available nitrogen." What share of the nitrogen is slow release?',o:['20.8%','50%','65%','32%'],a:2,e:'20.8 ÷ 32 = 0.65, or 65%. That meets Orange County\'s 65% minimum and the 50% minimum elsewhere.'},
+    {k:'Multiple choice',q:'Why does slow-release nitrogen matter so much on Florida lawns?',o:['It feeds steadily, so less nitrogen leaches through sandy soil or runs off','It is always cheaper','It contains more phosphorus','It never needs to be watered in'],a:0,e:'Slow-release nitrogen comes out over weeks. Quick-release nitrogen the grass can\'t take up moves quickly through sand toward the water table.'},
+    {k:'True or false',q:'Iron greens up a yellowing lawn permanently and can replace a nitrogen application.',o:['True','False'],a:1,e:'False. UF/IFAS puts the effect of supplemental iron at roughly 2 to 4 weeks, and iron is not a substitute for nitrogen.'},
+    {k:'Multiple choice',q:'Under UF/IFAS guidance, what is the most quick-release nitrogen that should go down in a single application?',o:['2 lb per 1,000 sq ft','1 lb per 1,000 sq ft','0.7 lb per 1,000 sq ft','0.25 lb per 1,000 sq ft'],a:2,e:'No more than 0.7 lb of soluble (quick-release) nitrogen per 1,000 sq ft per application. Up to 2 lb total in spring and summer only with at least 65% slow-release.'},
+    {k:'Scenario',q:'You need 0.5 lb N per 1,000 sq ft from a 25-0-10 on a 4,000 sq ft lawn. How much product is that for the whole lawn?',o:['2 lb','8 lb','12.5 lb','20 lb'],a:1,e:'0.5 ÷ 0.25 = 2 lb per 1,000 sq ft. 4 × 2 = 8 lb for the lawn.'},
+    {k:'Multiple choice',q:'In Orange County and the City of Naples, what is the most nitrogen allowed in one application?',o:['2 lb per 1,000 sq ft','1 lb per 1,000 sq ft','0.5 lb per 1,000 sq ft','Whatever the label says'],a:1,e:'Both cap every application at 1 lb N per 1,000 sq ft. Local caps can be stricter than UF/IFAS guidance and the label, and the strictest rule wins.'},
+    {k:'Multiple choice',q:'When fertilizing a shrub bed, where should the granules go?',o:['Piled around the base of each stem','On the leaves, where the plant absorbs them','Only in a ring at the drip line','Evenly over the bed and root zone, which reaches past the drip line, kept off foliage and stems'],a:3,e:'Roots extend beyond the drip line. Spread evenly over the root zone and keep granules off leaves, crowns and stems, where they burn.'},
+    {k:'True or false',q:'A rotary spreader\'s deflector shield is required along hard surfaces and water in most of the counties we serve.',o:['True','False'],a:0,e:'True. Indian River, St. Lucie, Martin, Orange and Naples all require spreader deflectors to keep granules off pavement, fertilizer-free zones and water.'},
+    {k:'Multiple choice',q:'When does the summer nitrogen and phosphorus ban run in Indian River, St. Lucie, Martin and Orange counties?',o:['June 1 – September 30','May 1 – October 31','July 1 – August 31','June 1 – October 15'],a:0,e:'June 1 through September 30, the rainy season. The City of Naples and Marco Island use the same dates.'},
+    {k:'Scenario',q:'A lawn sits in unincorporated Collier County in August. Soil is dry and no storms are forecast. Which statement is correct?',o:['Fertilizer is banned everywhere in Collier County until October 1','Phosphorus is allowed without a soil test in summer','Unincorporated Collier has no summer ban, but its setback, wet-soil and storm rules still apply','Only liquid fertilizer is allowed'],a:2,e:'Unincorporated Collier has no summer ban, unlike the City of Naples and Marco Island. Always check where the property actually sits.'},
+    {k:'Multiple choice',q:'Which of these areas requires at least 65% slow-release nitrogen?',o:['Indian River County','Martin County','City of Naples','Orange County'],a:3,e:'Orange County requires at least 65%. Indian River, St. Lucie, Martin and Naples require at least 50%.'},
+    {k:'Scenario',q:'April, Fort Pierce. The irrigation ran heavily overnight and water is standing in low spots across the lawn. What do you do?',o:['Skip the fertilizer today, note why so it gets rescheduled, and finish the rest of the visit','Fertilize now; the water will carry it into the roots','Fertilize at half rate','Fertilize only the dry high spots and the edges by the street'],a:0,e:'No fertilizer on saturated soil. It can\'t hold the nutrients, so they leach or run off. Reschedule the feeding.'},
+    {k:'True or false',q:'A deflector shield lets you fertilize closer to the water than the county setback in the table.',o:['True','False'],a:1,e:'False. The county ordinances we checked don\'t reduce the setback for a deflector shield. Keep the full 10 or 25 feet and use the shield too.'},
+    {k:'Multiple choice',q:'How long is the state Limited Urban Commercial Fertilizer Applicator certificate valid?',o:['1 year','2 years','4 years','For life'],a:2,e:'Four years. Renewal needs 4 CEUs: 2 in 482 Core and 2 in the limited urban fertilizer category.'},
+    {k:'Scenario',q:'A customer in Port St. Lucie asks for an "organic" fertilizer in July because "it\'s natural." What should they hear?',o:['"Organic is exempt, so we can apply it any time."','"The summer ban covers any fertilizer with nitrogen or phosphorus, organic or not. Your lawn gets its next feeding when the rules allow."','"We\'ll do it, but don\'t tell anyone."','"Organic fertilizer doesn\'t contain nitrogen."'],a:1,e:'Organic fertilizers contain nitrogen and often phosphorus, so the ban covers them. Explain the rule plainly and send service requests to the branch manager.'},
+    {k:'Multiple choice',q:'Which of these does the Limited Urban Commercial Fertilizer Applicator certificate allow?',o:['Applying a weed-and-feed product','Applying an insecticide-fertilizer granule','Supervising uncertified staff who spread fertilizer','Applying nutrient-only fertilizer to lawns and landscapes for hire'],a:3,e:'It covers fertilizer only. Anything with a pesticide in it needs pest control credentials under Chapter 482, and every applicator needs their own certificate.'}
+  ];
+
+  /* ---------- flip helper ---------- */
+  function flipSet(box,items,key){
+    var seen=store.get(key)||{};
+    items.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id=key+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+      b.innerHTML='<span class="in"><span class="face front"><span class="icobox"><svg class="ico"><use href="#'+v.i+'"/></svg></span><h3>'+v.t+'</h3><span class="muted" style="font-size:15px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back"><span>'+v.b+'</span></span></span>';
+      b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');seen[i]=1;store.set(key,seen)});box.appendChild(b)});
+  }
+  flipSet($('#npkFlip'),[
+    {t:'N · Nitrogen',i:'i-leaf',f:'First number. Color and leaf growth.',b:'<b>What it does:</b> drives green color, shoot growth and recovery from wear. <b>The catch:</b> it is also the nutrient that leaches fastest through sand and feeds algae, so it carries the most rules: summer bans, slow-release minimums and per-application caps.'},
+    {t:'P · Phosphate',i:'i-root',f:'Middle number. Roots and establishment.',b:'<b>What it does:</b> supports root growth and new plantings. <b>The catch:</b> most Florida soils already hold enough, and excess phosphorus is a major algae driver. The ordinances on our routes ban it without a soil test showing a deficiency.'},
+    {t:'K · Potash',i:'i-shield',f:'Last number. Stress and disease tolerance.',b:'<b>What it does:</b> helps grass handle drought, heat, cold, wear and disease. <b>Note:</b> the label lists it as soluble potash (K<sub>2</sub>O), and palms need a lot of it.'}
+  ],'npk');
+
+  flipSet($('#custFlip'),[
+    {t:'"My lawn looks pale. Can you fertilize it in July?"',i:'i-chat',f:'Stuart customer, summer.',b:'<b>Say:</b> "Martin County doesn\'t allow nitrogen or phosphorus fertilizer from June 1 through September 30, to protect the river. We\'ll feed again as soon as the rules allow." Then look for the real cause: water, chinch bugs, disease (LAWN-07, LAWN-08). Note it for the office if follow-up is needed.'},
+    {t:'"Just use organic. It\'s natural."',i:'i-leaf',f:'Customer wants a workaround.',b:'<b>Say:</b> "Organic fertilizers still contain nitrogen and usually phosphorus, so the same rules apply to them." Don\'t promise a product or a result. Product and program questions go to the branch manager.'},
+    {t:'"My neighbor fertilizes right up to the canal."',i:'i-wave',f:'Customer questions your setback.',b:'<b>Say:</b> "The county requires a fertilizer-free strip next to the water, 10 or 25 feet depending on where you live, because that\'s where runoff goes straight in. We follow it on every property." Never comment on the neighbor or another company.'}
+  ],'cust');
+
+  /* ---------- bag decoder ---------- */
+  var BAG=[
+    {t:'Product name and grade',d:'<b>24-0-11</b> is the grade: 24% nitrogen, 0% available phosphate, 11% soluble potash, by weight. The zero in the middle is what every county we serve expects without a soil test.'},
+    {t:'Coverage and net weight',d:'Florida requires lawn fertilizer to show the area a bag covers on the front. 50 lb × 24% = 12 lb N over 12,500 sq ft, so the bag is built for about <b>1 lb N per 1,000 sq ft</b>. Coverage is the most this bag should cover, not a target to beat.'},
+    {t:'Total nitrogen and its forms',d:'The guaranteed analysis breaks total N into forms. Ammoniacal and plain urea nitrogen are quick release. The asterisk sends you to the footnote that tells you how much of the urea is coated.'},
+    {t:'Phosphate and potash',d:'Phosphorus is listed as <b>available phosphate (P<sub>2</sub>O<sub>5</sub>)</b> and potassium as <b>soluble potash (K<sub>2</sub>O)</b>. If phosphate is above zero, stop: you need a soil test showing a deficiency before it goes on a lawn here.'},
+    {t:'Iron and micronutrients',d:'Iron at 1% gives quick color without extra growth. It also stains concrete, so granules on pavers and driveways need sweeping right away.'},
+    {t:'Derived from',d:'Lists the raw materials. <b>Polymer-coated urea</b>, sulfur-coated urea, methylene urea, IBDU and natural organics are slow-release sources. Ammonium sulfate, urea and potassium nitrate are quick release.'},
+    {t:'Slow-release statement',d:'<b>12.0% slowly available N ÷ 24.0% total N = 50% slow release.</b> Legal where 50% is the minimum (Indian River, St. Lucie, Martin, Naples). Not enough for Orange County, which requires 65%.'},
+    {t:'Florida precaution statements',d:'Required on lawn fertilizer sold in Florida: don\'t apply near water, storm drains or ditches, don\'t apply if heavy rain is expected, and sweep product off driveways, sidewalks and streets. They are on the bag because they are the law\'s expectations too.'}
+  ];
+  var bagSeen={};
+  $$('#bag .hs').forEach(function(b){b.addEventListener('click',function(){
+    var h=+b.dataset.h;bagSeen[h]=1;
+    $$('#bag .hs').forEach(function(x){x.classList.toggle('sel',x===b);if(bagSeen[+x.dataset.h])x.classList.add('seen')});
+    $('#bagCard').innerHTML='<span class="eyebrow">'+(h+1)+' of 8</span><h3 style="margin-top:4px">'+BAG[h].t+'</h3><p style="margin-top:6px;color:var(--ink);font-size:15px">'+BAG[h].d+'</p>';
+    var n=Object.keys(bagSeen).length;$('#bagCount').textContent=n===8?'All 8 explored':n+' of 8 explored';
+  })});
+
+  /* ---------- slow-release checker ---------- */
+  var SRB=[
+    {n:'24-0-11',tn:24,sr:12,p:0},
+    {n:'15-0-15',tn:15,sr:3,p:0},
+    {n:'16-0-8',tn:16,sr:11.2,p:0},
+    {n:'32-0-10',tn:32,sr:20.8,p:0},
+    {n:'10-10-10',tn:10,sr:0,p:10},
+    {n:'0-0-18 + iron',tn:0,sr:0,p:0}
+  ];
+  var SRA=[
+    {n:'Indian River (uninc.)',m:50},
+    {n:'St. Lucie · Fort Pierce · PSL',m:50},
+    {n:'Martin (uninc.)',m:50},
+    {n:'Orange County',m:65},
+    {n:'City of Naples',m:50},
+    {n:'Marco Island · Collier (uninc.)',m:50,c:1}
+  ];
+  var srb=0,sra=0;
+  function srRender(){
+    $$('#srBags button').forEach(function(x,j){x.setAttribute('aria-pressed',j===srb)});
+    $$('#srAreas button').forEach(function(x,j){x.setAttribute('aria-pressed',j===sra)});
+    var b=SRB[srb],a=SRA[sra],h;
+    var head='<span class="eyebrow">'+b.n+' in '+a.n+'</span>';
+    if(!b.tn){h=head+'<div class="srbig">No nitrogen</div><p>The slow-release rule only applies to products with nitrogen, and there is no phosphorus. Whether a no-N, no-P product like this can go down during a summer ban depends on the ordinance and our program: <b>ask your branch manager</b>.</p>';}
+    else{
+      var pct=Math.round(b.sr/b.tn*100),ok=pct>=a.m&&!b.p;
+      h=head+'<div class="srbar" aria-hidden="true"><i style="width:'+pct+'%"></i><span class="req" style="left:'+a.m+'%"></span></div>'+
+        '<div class="srbig '+(ok?'ok':'no')+'">'+pct+'% slow release · '+(ok?'Meets the rule':'Not legal here')+'</div>'+
+        '<p class="small">'+b.sr+'% slowly available N ÷ '+b.tn+'% total N = '+pct+'%. Minimum here: <b>'+a.m+'%</b>'+(a.c?' (from a 2020 regional code chart; confirm with your branch manager)':'')+'.</p>'+
+        (b.p?'<p class="small red" style="margin-top:6px"><b>Also contains phosphate.</b> Not allowed on a lawn here without a soil test showing a deficiency.</p>':'')+
+        (!ok&&!b.p?'<p class="small" style="margin-top:6px">Don\'t apply it at a lower rate to "make it work." Use a product that meets the minimum.</p>':'');
+    }
+    $('#srOut').innerHTML=h;
+  }
+  SRB.forEach(function(b,i){var x=document.createElement('button');x.type='button';x.id='srb'+i;x.textContent=b.n;x.addEventListener('click',function(){srb=i;srRender()});$('#srBags').appendChild(x)});
+  SRA.forEach(function(a,i){var x=document.createElement('button');x.type='button';x.id='sra'+i;x.textContent=a.n;x.addEventListener('click',function(){sra=i;srRender()});$('#srAreas').appendChild(x)});
+  srRender();
+
+  /* ---------- lb-N calculator ---------- */
+  var TG=[0.25,0.5,0.75,1,1.5,2],tg=1,SEAS=['Spring','Summer','Fall','Winter'],ss=2;
+  TG.forEach(function(t,i){var x=document.createElement('button');x.type='button';x.id='ct'+i;x.textContent=t;x.addEventListener('click',function(){tg=i;calc()});$('#cTseg').appendChild(x)});
+  SEAS.forEach(function(t,i){var x=document.createElement('button');x.type='button';x.id='cs'+i;x.textContent=t;x.addEventListener('click',function(){ss=i;calc()});$('#cSeason').appendChild(x)});
+  function num(id){var v=parseFloat($(id).value);return isNaN(v)?0:v}
+  function f1(v){return (Math.round(v*10)/10).toLocaleString('en-US')}
+  function calc(){
+    $$('#cTseg button').forEach(function(x,j){x.setAttribute('aria-pressed',j===tg)});
+    $$('#cSeason button').forEach(function(x,j){x.setAttribute('aria-pressed',j===ss)});
+    var N=num('#cN'),SR=Math.min(100,Math.max(0,num('#cSR'))),A=num('#cA'),T=TG[tg];
+    if(N<=0||A<=0){$('#oPer').textContent='–';$('#oTot').textContent='–';$('#oQr').textContent='–';$('#oN').textContent='–';$('#oFlags').innerHTML='<div class="fb no">Enter the nitrogen percentage and the lawn area.</div>';return;}
+    var per=T/(N/100),tot=per*A/1000,qr=T*(1-SR/100);
+    $('#oPer').textContent=f1(per)+' lb';$('#oTot').textContent=f1(tot)+' lb';$('#oQr').textContent=(Math.round(qr*100)/100)+' lb';$('#oN').textContent=f1(T*A/1000)+' lb';
+    var fl=[];
+    if(qr>0.7)fl.push('<b>Too much quick-release N:</b> '+(Math.round(qr*100)/100)+' lb is over the UF/IFAS limit of 0.7 lb per application. Lower the target or use more slow-release.');
+    if(T>2)fl.push('<b>Over 2 lb N:</b> not recommended in any season.');
+    else if(T>1&&(ss===2||ss===3))fl.push('<b>Over 1 lb N in the '+SEAS[ss].toLowerCase()+':</b> UF/IFAS limits fall applications to 1 lb N per 1,000 sq ft.');
+    else if(T>1&&SR<65)fl.push('<b>Over 1 lb N with under 65% slow release:</b> UF/IFAS only allows up to 2 lb in spring and summer with at least 65% slow-release N.');
+    if(T>1)fl.push('<b>Not allowed in Orange County or the City of Naples,</b> which cap every application at 1 lb N.');
+    if(ss===1)fl.push('<b>Summer:</b> in every area with a June 1 – September 30 ban, no N or P goes down at all. Check the county first.');
+    if(SR<50)fl.push('<b>Under 50% slow release:</b> fails the slow-release minimum in every county we serve.');
+    else if(SR<65)fl.push('<b>Under 65% slow release:</b> fails Orange County\'s minimum.');
+    $('#oFlags').innerHTML=fl.length?'<div class="fb no" style="display:grid;gap:4px">'+fl.map(function(x){return '<span>'+x+'</span>'}).join('')+'</div>':'<div class="fb"><b>Within the limits we teach.</b> Now confirm it against the product label rate, which always governs. Try 15-0-15, 0.75 lb, 6,000 sq ft.</div>';
+  }
+  ['#cN','#cSR','#cA'].forEach(function(id){$(id).addEventListener('input',calc)});
+  calc();
+
+  /* ---------- sort ---------- */
+  var SORT=[
+    {q:'Filling the spreader hopper on the customer\'s driveway',a:'no',w:'Fill over turf. A spill on pavement goes to the storm drain.'},
+    {q:'Deflector shield down along the sidewalk and the pond edge',a:'ok',w:'Required in most of our counties and the right habit everywhere.'},
+    {q:'Doubling the rate in October to make up for the summer ban',a:'no',w:'Never make up for a missed feeding with a heavier one. Per-application caps still apply.'},
+    {q:'Shutting the spreader gate on sharp turns',a:'ok',w:'Prevents over-application and burn stripes.'},
+    {q:'Spreading a 10-10-10 on an established lawn without a soil test',a:'no',w:'Phosphorus needs a soil test showing a deficiency under the ordinances on our routes.'},
+    {q:'Brushing granules off azalea leaves after feeding the bed',a:'ok',w:'Granules on foliage burn it. Keep them on the soil over the root zone.'},
+    {q:'Blowing stray granules from the street into the gutter',a:'no',w:'Back onto the turf, never into the street, gutter or drain.'},
+    {q:'Checking the county before a September 25 lawn feeding',a:'ok',w:'Most of our counties ban N and P through September 30. Collier unincorporated does not.'}
+  ];
+  var sb=$('#sort'),sortSel={};
+  SORT.forEach(function(s,i){
+    var r=document.createElement('div');r.className='row';
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="so'+i+'_ok" data-v="ok" aria-pressed="false">Good practice</button><button type="button" id="so'+i+'_no" data-v="no" aria-pressed="false">Problem</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){sortSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no')})});
+    sb.appendChild(r);
+  });
+  $('#sortCheck').addEventListener('click',function(){
+    var right=0,blank=0,firstWrong=-1;
+    $$('.row',sb).forEach(function(r,i){var s=SORT[i];
+      if(!sortSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=sortSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok&&firstWrong<0)firstWrong=i;
+    });
+    $('#sortFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===SORT.length?'<span class="fb" style="display:inline-block">All eight correct. Fill over turf, shield down, no make-up doses, no phosphorus without a test, nothing left on pavement.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Fix the ones in red. <b>Hint:</b> '+SORT[firstWrong].w+'</span>');
+  });
+
+  /* ---------- can we fertilize here today? ---------- */
+  var TOPT=['Yes, go ahead','Yes, with adjustments','No, not today'];
+  var TD=[
+    {n:'Port St. Lucie',r:[['Date','November 4'],['Site','Front and back lawn, no water nearby'],['Bag','24-0-11 · 50% slow release'],['Weather','Sunny, 10% rain'],['Soil','Dry']],a:0,e:'Outside the ban, compliant bag, no water to set back from, good weather. Feed it, shield down along the driveway, sweep before you leave.'},
+    {n:'Stuart in July',r:[['Date','July 15'],['Where','Unincorporated Martin County'],['Bag','15-0-15'],['Weather','Clear morning'],['Customer','Asking for a feeding']],a:2,e:'Martin County bans nitrogen and phosphorus June 1 through September 30. No N fertilizer today, whatever the weather or the customer wants.'},
+    {n:'Orlando pond',r:[['Date','March 10'],['Where','Orange County'],['Site','Retention pond along the back'],['Bag','16-0-8 · 70% slow release'],['Weather','Dry, no advisories']],a:1,e:'Legal season and a compliant bag (Orange needs 65% slow release). Adjust: stay at least 25 ft from natural water bodies, deflector shield down, and no more than 1 lb N per 1,000 sq ft.'},
+    {n:'Naples, end of September',r:[['Date','September 28'],['Where','City of Naples'],['Bag','24-0-11 · 50% slow release'],['Weather','Sunny'],['Soil','Dry']],a:2,e:'The City of Naples ban runs through September 30. Two more days. Reschedule for October.'},
+    {n:'Collier in August',r:[['Date','August 12'],['Where','Unincorporated Collier County'],['Site','No water within 50 ft'],['Weather','Dry, no storms forecast'],['Soil','Dry']],a:0,e:'Unincorporated Collier County has no summer ban. With dry soil, no storms and no water nearby, follow the label and the county\'s other rules and feed it.'},
+    {n:'Storm watch',r:[['Date','October 20'],['Where','Fort Pierce'],['Advisory','Tropical storm watch for the county'],['Bag','Compliant'],['Soil','Dry']],a:2,e:'No fertilizer during a tropical storm, hurricane or flood watch or warning. Finish the rest of the visit and reschedule the feeding.'},
+    {n:'Soggy lawn',r:[['Date','April 8'],['Where','Unincorporated Indian River County'],['Ground','Water standing after heavy irrigation'],['Bag','Compliant'],['Weather','Clear']],a:2,e:'Saturated soil can\'t hold more. Nutrients leach or run off. Skip the feeding, note it so it gets rescheduled, and mention the irrigation to the customer.'},
+    {n:'Stuart lake',r:[['Date','October 6'],['Where','Unincorporated Martin County'],['Site','Lake 20 ft from the back of the house'],['Bag','24-0-11 · 50% slow release'],['Weather','Dry, no rain forecast']],a:1,e:'Season, bag and weather are fine. But Martin County\'s fertilizer-free zone is 25 ft, and the lake is 20 ft from the house: the whole strip behind the house stays unfed. Shield down along the edge.'}
+  ];
+  var tt=$('#tdTabs'),tb=$('#tdBox'),tdone=store.get('td')||{};
+  function showTd(n){
+    $$('button',tt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!tdone[j])});
+    var s=TD[n];
+    tb.innerHTML='<div class="wx"><div class="wxcard">'+s.r.map(function(r){return '<div class="row"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'</div><div class="grid" style="gap:12px"><div class="card" style="padding:14px 18px"><span class="eyebrow">The job</span><p style="margin-top:4px">Granular turf fertilizer on a residential lawn. Can it go down today?</p></div><div class="wxopts">'+TOPT.map(function(o,i){return '<button type="button" class="choice" id="td'+n+'_'+i+'" data-i="'+i+'">'+o+'</button>'}).join('')+'</div><div id="tdFb"></div></div></div>';
+    $$('.wxopts .choice',tb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.wxopts .choice',tb).forEach(function(x){x.classList.remove('right','wrong')});
+      if(i===s.a){b.classList.add('right');tdone[n]=1;store.set('td',tdone);$$('button',tt)[n].classList.add('done');$('#tdFb').innerHTML='<div class="fb"><b>Right call.</b> '+s.e+'</div>';}
+      else{b.classList.add('wrong');$('#tdFb').innerHTML='<div class="fb no"><b>Not the best call.</b> Check the county and date against the table, then the site, the bag and the weather.</div>';}
+    })});
+  }
+  TD.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='tdt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showTd(i)});tt.appendChild(b)});
+  showTd(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

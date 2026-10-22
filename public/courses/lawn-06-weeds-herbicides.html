@@ -1,0 +1,1572 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-06 Weeds &amp; Herbicides</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-06 Weeds & Herbicides: families, life-cycle ring, field guide, clues, calendar, soil/systemic animations, spray tool, lawn grid */
+.lbl{font-family:var(--font);font-size:9px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+.ticks{list-style:none;display:grid;gap:7px;font-size:15px}
+.ticks li{display:flex;gap:10px}
+.ticks li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-500);margin-top:9px}
+
+/* families */
+.fam{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.famb{display:grid;gap:8px;justify-items:center;text-align:center;background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;font-weight:300;box-shadow:var(--shadow-card);transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.famb svg{width:100%;max-width:200px;height:auto;fill:none;stroke:var(--brand-700);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.famb svg .v{stroke:var(--brand-400)}
+.famb svg text{stroke:none}
+.famb small{display:block;color:var(--muted);font-size:13px}
+.famb[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.slide.on .famb svg path,.slide.on .famb svg circle{stroke-dasharray:300;stroke-dashoffset:300;animation:draw 1.6s ease-in-out .3s forwards}
+#famDetail{min-height:84px}
+
+/* life-cycle ring */
+#ring{max-width:290px}
+.rbase{fill:none;stroke:var(--brand-100);stroke-width:14}
+.rtick{stroke:var(--surface);stroke-width:2}
+.mlab{font-family:var(--font);font-size:12px;fill:var(--muted)}
+.rc{font-family:var(--font);font-size:20px;fill:var(--ink);font-weight:300}
+.larc{fill:none;stroke-width:14;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}
+.larc.arcS{stroke:var(--brand-600)}.larc.arcW{stroke:var(--brand-400)}.larc.arcB{stroke:var(--brand-300)}.larc.arcB2{stroke:var(--brand-700);stroke-width:6}.larc.arcP{stroke:var(--forest)}
+.slide.on .larc.grow{animation:arcg .8s ease-in-out}
+@keyframes arcg{from{stroke-dashoffset:100}}
+#lcSeg button{font-size:13px;padding:7px 12px}
+#lcCard{padding:14px 18px;min-height:150px}
+#lcCard p{font-size:14.5px}
+
+/* field guide */
+.wlist{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wlist button{display:grid;gap:0;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-weight:300;font-size:14px;line-height:1.3}
+.wlist button small{color:var(--muted);font-size:11.5px}
+.wlist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.wcard{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:18px;display:grid;gap:10px;align-content:start;min-height:420px}
+.wcard p{font-size:14.5px;color:var(--ink)}
+.wcard .sci{font-style:italic;color:var(--muted);font-size:14px}
+.wart{width:100%;max-width:240px;height:auto;justify-self:center;fill:none;stroke:var(--brand-700);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;background:var(--brand-50);border-radius:10px;padding:6px}
+.wart .v{stroke:var(--brand-400)}
+.wart path,.wart circle,.wart ellipse{stroke-dasharray:300;stroke-dashoffset:300;animation:draw 1.2s ease-in-out forwards}
+
+/* clues */
+.cluebox{display:grid;gap:8px;min-height:220px;align-content:start}
+.cluehead{display:flex;justify-content:space-between;align-items:center}
+.clue{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;animation:rise .22s ease-in-out both}
+.clue .num{flex:0 0 28px;height:28px}
+.widopts{display:grid;gap:8px}
+.widopts .choice{padding:10px 14px}
+
+/* sort rows in two columns */
+.sort.g2{grid-template-columns:1fr 1fr}
+.sort .row{padding:8px 12px;font-size:14.5px;flex-wrap:wrap}
+.sort .opts button{padding:4px 10px;font-size:12.5px}
+
+/* three questions */
+.q3 svg{width:100%;height:auto;max-height:96px;margin-bottom:8px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.q3 .soilln{stroke:var(--muted);stroke-width:1.4}
+.q3 .bar{stroke:var(--brand-400);stroke-width:6;opacity:.6}
+.q3 .seed{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4}
+.q3 .sprt{stroke:var(--brand-600);stroke-width:1.6}
+.q3 .weed,.q3 .turf{stroke:var(--brand-700);stroke-width:1.6}
+.q3 .root{stroke:var(--brand-400);stroke-width:1.4}
+.q3 .mist{stroke:var(--brand-400);stroke-width:1.4;stroke-dasharray:2 4}
+.q3 .dw{stroke:var(--brand-600);stroke-width:1.6}
+.q3 .dead{stroke:var(--danger);opacity:.75}
+.q3 .flow{fill:var(--brand-600)}
+.slide.on .q3 .sprt{animation:sprout 2.6s ease-in-out infinite}
+@keyframes sprout{0%,20%{opacity:1}55%,100%{opacity:0}}
+.slide.on .q3 .mist{animation:dash 1.2s linear infinite}
+.slide.on .q3 .flow{animation:flowd 2.4s ease-in-out infinite}
+@keyframes flowd{0%{transform:translateY(0);opacity:1}80%{transform:translateY(34px);opacity:1}100%{transform:translateY(34px);opacity:0}}
+.slide.on .q3 .dead{animation:wilt 3s ease-in-out infinite alternate}
+@keyframes wilt{from{opacity:.9}to{opacity:.35}}
+
+/* pre-emergent soil */
+.soilfig svg{max-width:none;width:100%}
+.soilfig .soil{fill:#ECEBE4}
+.soilfig .barrier{fill:var(--brand-200);opacity:.85}
+.slide.on .soilfig .barrier{animation:pulse 3.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+.soilfig .turf{stroke:var(--brand-600);stroke-width:1.6;fill:none;stroke-linecap:round}
+.soilfig .seed{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4}
+.soilfig .spr{stroke:var(--brand-600);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-dasharray:30;stroke-dashoffset:30}
+.soilfig .xk{stroke:var(--danger);stroke-width:2;fill:none;stroke-linecap:round;opacity:0}
+.slide.on .soilfig .spr{animation:grow2 3.6s ease-in-out infinite}
+.slide.on .soilfig .xk{animation:xk 3.6s ease-in-out infinite}
+.slide.on .soilfig .s2 .spr,.slide.on .soilfig .s2 .xk{animation-delay:.6s}
+.slide.on .soilfig .s3 .spr,.slide.on .soilfig .s3 .xk{animation-delay:1.2s}
+@keyframes grow2{0%{stroke-dashoffset:30}40%,100%{stroke-dashoffset:0}}
+@keyframes xk{0%,40%{opacity:0}50%,85%{opacity:1}100%{opacity:0}}
+.soilfig .dweed{stroke:var(--brand-700);stroke-width:2;fill:none;stroke-linecap:round}
+.soilfig .droot{stroke:var(--brand-500);stroke-width:1.6;fill:none;stroke-linecap:round}
+
+/* contact vs systemic */
+.csfig svg{max-width:300px}
+.csfig .soilbg{fill:#ECEBE4}
+.csfig .stem{stroke:var(--brand-700);stroke-width:2.2;fill:none}
+.csfig .lf{fill:var(--brand-100);stroke:var(--brand-700);stroke-width:1.6;transition:fill .4s ease-in-out,stroke .4s ease-in-out}
+.csfig .rt{stroke:var(--brand-500);stroke-width:1.8;fill:none;stroke-linecap:round;transition:stroke .4s ease-in-out}
+.csfig .tuber{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;transition:fill .4s ease-in-out}
+.csfig .regrow{stroke:var(--brand-600);stroke-width:1.8;fill:none;stroke-linecap:round;opacity:0}
+.csfig .ghost{fill:none;stroke:none}
+.csfig .dot{fill:var(--brand-700);opacity:0;offset-rotate:0deg}
+.contact .lf{fill:#D9C7A8;stroke:#8A6D3B}
+.slide.on .contact .regrow{animation:regrow 3.2s ease-in-out infinite}
+@keyframes regrow{0%,30%{opacity:0}60%,100%{opacity:1}}
+.systemic .lf{fill:var(--brand-100)}
+.slide.on .systemic .dot{animation:travel 2.8s linear infinite}
+.slide.on .systemic .d2{animation-delay:.9s}.slide.on .systemic .d3{animation-delay:1.8s}
+@keyframes travel{0%{offset-distance:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{offset-distance:100%;opacity:0}}
+.slide.on .systemic .rt,.slide.on .systemic .tuber{animation:soak 2.8s ease-in-out infinite}
+@keyframes soak{50%{stroke:var(--brand-800)}}
+#csSeg button{padding:8px 20px}
+#csCard p{font-size:14.5px}
+
+/* chem table */
+table.chem{min-width:0;font-size:13.5px}
+table.chem td{padding:7px 12px}
+table.chem td.red{color:var(--danger)}
+
+/* calendar */
+.calcard{display:grid;gap:12px;padding:16px 18px}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:6px}
+.months button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 0;font-size:14px;font-weight:300;transition:background .18s ease-in-out,border-color .18s ease-in-out}
+.months button:hover{border-color:var(--brand-400)}
+.months button.win{background:var(--brand-50);border-color:var(--brand-300)}
+.months button.hit{background:var(--positive);border-color:var(--positive);color:#fff}
+.months button.miss{border-color:var(--danger);color:var(--danger);animation:shake .3s ease-in-out}
+#calFb{min-height:52px}
+
+/* turf list */
+#turfList{gap:6px}
+#turfList button{padding:8px 12px}
+#turfCard p{font-size:14.5px;color:var(--ink)}
+
+/* thermometer */
+.thermo svg{max-width:150px}
+.thermo .tube{fill:var(--surface);stroke:var(--brand-400);stroke-width:1.6}
+.thermo .bulb{fill:var(--danger);opacity:.85}
+.thermo .merc{fill:var(--danger);opacity:.85;transform-origin:80px 236px;transform-box:view-box}
+.slide.on .thermo .merc{animation:merc 4s ease-in-out infinite alternate}
+@keyframes merc{from{transform:scaleY(.55)}to{transform:scaleY(1)}}
+.thermo .tk{stroke:var(--ink);stroke-width:1.4}
+.thermo .zone{stroke:var(--danger);stroke-width:3;stroke-linecap:round}
+.slide[data-label="Heat, stress and timing"] .callout{padding:10px 14px;font-size:14px}
+
+/* movement cards */
+.mv svg{width:100%;height:auto;max-height:90px;margin-bottom:6px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mv .gl{stroke:var(--muted);stroke-width:1.2}
+.mv .nz{stroke:var(--ink);stroke-width:1.4}
+.mv .dp{fill:var(--brand-600);offset-path:path('M40 40 Q 100 40 160 76');offset-rotate:0deg}
+.slide.on .mv .dp{animation:travel 2.6s linear infinite}
+.slide.on .mv .dp.d2{animation-delay:.85s}.slide.on .mv .dp.d3{animation-delay:1.7s}
+.mv .wnd{stroke:var(--muted);stroke-width:1.4;stroke-dasharray:6 6}
+.slide.on .mv .wnd{animation:dash 1.2s linear infinite}
+.mv .rose,.mv .tree{stroke:var(--brand-700);stroke-width:1.6}
+.mv .turfl{stroke:var(--brand-600);stroke-width:1.6}
+.mv .vap{stroke:var(--brand-400);stroke-width:1.6;opacity:0}
+.slide.on .mv .vap{animation:vap 3s ease-in-out infinite}
+.slide.on .mv .v2{animation-delay:1.2s}
+@keyframes vap{0%{opacity:0;transform:translateY(6px)}40%{opacity:.9}100%{opacity:0;transform:translate(14px,-18px)}}
+.mv .sunc{stroke:var(--brand-400);stroke-width:1.4}
+.mv .rootl{stroke:var(--brand-400);stroke-width:1.4;stroke-dasharray:3 3}
+.mv .up{fill:var(--brand-700);offset-path:path('M70 62 C 100 60 130 56 150 52 L150 22');offset-rotate:0deg}
+.slide.on .mv .up{animation:travel 3s linear infinite}
+.mv p{font-size:14px}
+
+/* spray today tool */
+.ctl{display:grid;gap:9px}
+.crow{display:grid;gap:5px}
+.crow .eyebrow b{color:var(--ink);font-weight:500;letter-spacing:.04em}
+.ctl .pick{gap:6px}
+.ctl .pick button{padding:5px 11px;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--brand-600);margin:0}
+.verdict{background:var(--grad-card);border:1px solid var(--line);border-left:4px solid var(--positive);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-height:420px;transition:border-color .18s ease-in-out}
+.verdict .vtitle{font-size:32px;line-height:1.1}
+.verdict .ticks{font-size:14px}
+.verdict.v-go{border-left-color:var(--positive)}.verdict.v-go .vtitle{color:var(--positive)}
+.verdict.v-care{border-left-color:var(--brand-400)}.verdict.v-care .vtitle{color:var(--brand-600)}
+.verdict.v-wait{border-left-color:var(--warning)}.verdict.v-wait .vtitle{color:#8F6400}
+.verdict.v-stop{border-left-color:var(--danger)}.verdict.v-stop .vtitle{color:var(--danger)}
+
+/* spot vs blanket grid */
+#sbGrid{max-width:none;width:100%}
+.lawnbg{fill:var(--brand-50);stroke:var(--brand-300);stroke-width:1.4}
+.wc{fill:var(--brand-100);stroke:none;transform-box:fill-box;transform-origin:center;transition:fill .2s ease-in-out,transform .2s ease-in-out}
+.wc.on{fill:var(--brand-700);transform:scale(1.15)}
+#sbSeg button{font-size:13px}
+#sbOut{min-height:110px}
+
+/* conversation */
+#cvOpts .choice{padding:10px 14px;font-size:15px}
+#cvOpts{gap:8px}
+
+@media (max-width:860px){
+  .fam,.wlist{grid-template-columns:1fr 1fr}
+  .sort.g2{grid-template-columns:1fr}
+  .months{grid-template-columns:repeat(6,1fr)}
+  .wcard,.verdict{min-height:0}
+}
+@media (prefers-reduced-motion:reduce){.wart path,.wart circle,.wart ellipse,.famb svg path,.famb svg circle{stroke-dashoffset:0}.soilfig .spr{stroke-dashoffset:0}.soilfig .xk{opacity:1}.thermo .merc{transform:none}}
+.sort .row{flex-wrap:nowrap}
+.sort .row > span:first-child{flex:1 1 auto;min-width:0}
+.sort .row.no{flex-wrap:wrap}
+#match .row{font-size:14px;padding:7px 12px}
+#turfList{grid-template-columns:1fr 1fr}
+#turfList button small{font-size:12px}
+.slide .seg{justify-self:start;align-self:flex-start}
+.tablewrap{flex-shrink:0}
+table.chem td{padding:6px 12px}
+table.chem th{padding:7px 12px}
+[data-cp] h2{font-size:clamp(22px,2.5vw,30px)}
+[data-cp] .choice{padding:11px 16px}
+.thermo .bulb,.thermo .merc{fill:var(--brand-600);opacity:1}
+.slide[data-label="Practice: conversation and note"]{gap:14px}
+.slide[data-cp].on{gap:16px}
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important}
+  .sort .row{flex-wrap:wrap}
+  .sort .row > span:first-child{flex-basis:100%}
+  #turfList{grid-template-columns:1fr}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">LAWN-06 · Weeds &amp; Herbicides</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M7 21V11h6v10z"/><path d="M8 11V8h4v3M10 8V5h5"/><path d="M18 4l2-1M18 6h3M18 8l2 1"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8a3.5 3.5 0 0 1 0 7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></symbol>
+    <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 10c0-3.5 2.5-6 6.5-6 0 3.5-2.5 6-6.5 6z"/><path d="M6 21h12"/></symbol>
+    <symbol id="i-grass" viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M6 20c0-5-1-9-3-12M9 20c0-6 1-10 3-14M14 20c0-5 1-8 4-11M18 20c0-3 1-6 3-8"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-06</span>
+        <h1 class="display a" style="--i:1">Weeds &amp; Herbicides</h1>
+        <p class="lead a" style="--i:2">Name the weed, know how it lives, pick the chemistry that kills it without hurting the lawn, and decide whether today is the day to spray.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 240" aria-hidden="true" style="max-width:360px;width:100%;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M10 210H290"/>
+        <path d="M30 210c0-30-4-56-14-80M44 210c0-36 4-66 14-96M60 210c0-26 4-46 12-62"/>
+        <path d="M232 210c0-30 4-58 16-84M246 210c0-40-2-72-10-104M262 210c0-24 4-44 14-58"/>
+        <path d="M150 210v-70"/>
+        <path d="M150 94c14 0 24 10 24 24s-10 24-24 24-24-10-24-24 10-24 24-24z"/><path d="M150 118l-10-10M150 118l10-10M150 118l-13 4M150 118l13 4"/>
+        <path d="M150 168c-14-4-26-2-34 6M150 160c14-6 28-6 36 2"/>
+        <path d="M200 40h26v14h-26z"/><path d="M212 54v14M226 47h18"/>
+        <path d="M252 40l12-6M252 47h16M252 54l12 6"/>
+        <path d="M104 228c6 4 12 4 18 0M178 228c6 4 12 4 18 0"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-search"/></svg><span>Sort any lawn weed into grassy, broadleaf or sedge, and name the common Florida weeds on our routes</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span>Explain annual, biennial and perennial life cycles, and time control to the weed's season</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-layers"/></svg><span>Tell pre-emergent from post-emergent, selective from non-selective, and contact from systemic</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-grass"/></svg><span>Match the product to the turf, and recognize the grasses each herbicide can injure</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-thermo"/></svg><span>Make a spray-today call from temperature, turf stress, wind, rain and mowing</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span>Choose spot or blanket, handle bed weeds, and set honest expectations with the customer</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">The customer grades us on <span class="em">what they can see.</span></h2>
+        <p class="quote a" style="--i:2">"Cleaner lawns keep contracts. Weedy lawns cancel them."<cite>CLEMENTS L&amp;O TRAINING · POST-EMERGENT CONTROL, MAY 2026</cite></p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-eye"/></svg></div><div><h3>Weeds are the most visible result we deliver</h3><p>Customers don't read the invoice. They look out the window. A weedy lawn tells them we aren't worth the money.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>The wrong product burns a yard faster than weeds do</h3><p>One herbicide on the wrong grass, or the right one in July heat, can kill a St. Augustine lawn. That's a callback we don't recover from.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is the law</h3><p>Applying off-label, or letting herbicide drift onto the neighbor's garden, breaks FIFRA and Florida law. It can cost fines, your license and your job.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: know the weed">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Know the weed</h1>
+        <p class="lead a" style="--i:2">Why it matters: you can't pick a product until you know what you're spraying. Getting the weed family wrong is the most common reason a weed doesn't die.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Grassy, broadleaf or sedge</li><li><span>02</span>How weeds live: life cycles</li><li><span>03</span>Florida weeds on our routes</li><li><span>04</span>Practice: name that weed</li><li><span>05</span>Practice: sort by life cycle</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 FAMILIES -->
+  <section class="slide" data-label="Three weed families">
+    <span class="eyebrow a">01 · Three families</span>
+    <h2 class="a" style="--i:1">Every lawn weed is grassy, broadleaf or a sedge</h2>
+    <p class="a muted" style="--i:2">Each family needs its own chemistry. Select a family to see how to tell it apart in the field.</p>
+    <div class="fam a" style="--i:3" id="fam"></div>
+    <div class="callout a" style="--i:4" id="famDetail"><svg class="ico"><use href="#i-hand"/></svg><span>Select a family above.</span></div>
+  </section>
+
+  <!-- 6 LIFE CYCLES -->
+  <section class="slide" data-label="Life cycles">
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:32px">
+      <div class="figbox a" style="--i:1">
+        <svg viewBox="0 0 300 300" id="ring" role="img" aria-label="A year drawn as a ring of twelve months, with the season each life cycle is active highlighted"></svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Life cycles</span>
+        <h2 class="a" style="--i:1">How long a weed lives decides when you hit it</h2>
+        <div class="seg a" style="--i:2" id="lcSeg" role="group" aria-label="Life cycle"></div>
+        <div class="card a" style="--i:3" id="lcCard"></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-sprout"/></svg><span>Young weeds are the easiest to kill. Seedlings take herbicide far better than mature plants with deep roots, tubers or woody stems.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FIELD GUIDE -->
+  <section class="slide" data-label="Florida weed field guide">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Field guide</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Twelve weeds you'll see on our routes</h2>
+        <p class="a muted small" style="--i:2">These match the CW-05 Lawn &amp; Ornamental ID Chart. Select a weed.</p>
+        <div class="wlist a" style="--i:3" id="wlist"></div>
+      </div>
+      <div class="wcard a" style="--i:4" id="wcard"></div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE: WEED ID -->
+  <section class="slide" data-label="Practice: name that weed">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Practice</span>
+        <h2 class="a" style="--i:1">Name that weed</h2>
+        <p class="a muted" style="--i:2">Clues come one at a time, the way you'd notice them walking a lawn. Name it in as few clues as you can.</p>
+        <div class="cluebox a" style="--i:3" id="clues"></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn" id="widClue">Show another clue</button><span class="small muted" id="widScore"></span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="widopts a" style="--i:3" id="widOpts"></div>
+        <div id="widFb" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 PRACTICE: LIFE CYCLE SORT -->
+  <section class="slide" data-label="Practice: sort by life cycle">
+    <span class="eyebrow a">05 · Practice</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Summer annual, winter annual or perennial?</h2>
+    <p class="a muted small" style="--i:2">Sort all nine, then check. The life cycle tells you if a pre-emergent will help.</p>
+    <div class="sort g2 a" style="--i:3" id="lcsort"></div>
+    <div class="a" style="--i:4;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="lcCheck">Check my sort</button><span id="lcFb"></span></div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: know the herbicide">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Know the herbicide</h1>
+        <p class="lead a" style="--i:2">Why it matters: every herbicide answers three questions. When does it work, what will it kill, and how does it move? Get one wrong and you waste the trip or damage the lawn.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>When, what and how</li><li><span>02</span>Pre-emergents: the barrier</li><li><span>03</span>Contact vs systemic</li><li><span>04</span>Practice: match the type</li><li><span>05</span>Chemistry by target</li><li><span>06</span>Practice: timing calendar</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 THREE QUESTIONS -->
+  <section class="slide" data-label="When, what and how">
+    <span class="eyebrow a">01 · Three questions</span>
+    <h2 class="a" style="--i:1">Every herbicide has three labels you can put on it</h2>
+    <div class="grid g3">
+      <div class="card a q3" style="--i:2">
+        <svg viewBox="0 0 200 90" aria-hidden="true"><path class="soilln" d="M10 60H190"/><path class="bar" d="M14 66H96"/><circle class="seed" cx="50" cy="76" r="4"/><path class="sprt" d="M50 72v-6"/><path class="weed" d="M150 60v-26M150 44c-8-4-14-2-18 4M150 40c8-6 16-6 20 0"/><path class="mist" d="M170 16l-12 14M178 22l-14 12"/></svg>
+        <h3>When: pre or post</h3>
+        <p><b>Pre-emergent</b> goes on before weeds sprout and stops seeds from establishing. <b>Post-emergent</b> goes on weeds you can see, while they're actively growing.</p>
+      </div>
+      <div class="card a q3" style="--i:3">
+        <svg viewBox="0 0 200 90" aria-hidden="true"><path class="soilln" d="M10 70H190"/><path class="turf" d="M20 70v-18M28 70v-22M36 70v-16M44 70v-20"/><circle class="dw" cx="70" cy="50" r="10"/><path class="dw" d="M70 60v10"/><path class="turf" d="M120 70v-18M128 70v-22M136 70v-16"/><circle class="dw dead" cx="170" cy="50" r="10"/><path class="turf dead" d="M144 70v-20M152 70v-14"/><path class="dw dead" d="M170 60v10"/></svg>
+        <h3>What: selective or not</h3>
+        <p><b>Selective</b> kills certain plants and spares others, like dollarweed out of St. Augustine. <b>Non-selective</b> injures nearly any plant it touches, turf included.</p>
+      </div>
+      <div class="card a q3" style="--i:4">
+        <svg viewBox="0 0 200 90" aria-hidden="true"><path class="soilln" d="M10 50H190"/><path class="weed" d="M60 50V24M60 32c-8-4-14-2-18 4M60 30c8-6 16-6 20 0"/><path class="root" d="M60 50v16M60 58l-8 8M60 58l8 8"/><path class="weed" d="M150 50V24M150 32c-8-4-14-2-18 4M150 30c8-6 16-6 20 0"/><path class="root" d="M150 50v16M150 58l-8 8M150 58l8 8"/><circle class="flow" cx="150" cy="30" r="3"/></svg>
+        <h3>How: contact or systemic</h3>
+        <p><b>Contact</b> kills only the tissue it touches: fast burn, but roots can regrow. <b>Systemic</b> is absorbed and moves to the roots: slower to show, but a full kill.</p>
+      </div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-book"/></svg><span>A product can be all three at once. A typical broadleaf lawn spray is <b>post-emergent, selective and systemic</b>. The label tells you which, plus the weeds it controls and the grasses it's cleared for.</span></div>
+  </section>
+
+  <!-- 13 PRE-EMERGENT -->
+  <section class="slide" data-label="Pre-emergents">
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:28px">
+      <div class="figbox a soilfig" style="--i:1">
+        <svg viewBox="0 0 420 250" role="img" aria-label="Soil cross-section: a pre-emergent barrier in the top layer of soil stops sprouting seeds, while an established weed with roots below the barrier keeps growing">
+          <rect x="0" y="110" width="420" height="140" class="soil"/>
+          <rect x="0" y="110" width="420" height="22" class="barrier"/>
+          <text x="10" y="126" class="lbl">BARRIER · WATERED IN</text>
+          <path class="turf" d="M20 110v-22M30 110v-28M40 110v-18M50 110v-26M60 110v-20M70 110v-30M80 110v-22"/>
+          <g class="sproutg"><circle cx="150" cy="150" r="5" class="seed"/><path class="spr" d="M150 145v-14"/><path class="xk" d="M142 124l16 12M158 124l-16 12"/></g>
+          <g class="sproutg s2"><circle cx="200" cy="160" r="5" class="seed"/><path class="spr" d="M200 155v-24"/><path class="xk" d="M192 124l16 12M208 124l-16 12"/></g>
+          <g class="sproutg s3"><circle cx="250" cy="148" r="5" class="seed"/><path class="spr" d="M250 143v-12"/><path class="xk" d="M242 124l16 12M258 124l-16 12"/></g>
+          <path class="dweed" d="M345 110V70M345 84c-14-6-24-2-30 6M345 78c14-8 26-8 32 2"/><path class="droot" d="M345 110v70M345 140l-18 22M345 150l20 20M345 170l-12 18"/>
+          <text x="268" y="232" class="lbl">ESTABLISHED WEED · NOT STOPPED</text>
+          <text x="128" y="200" class="lbl">GERMINATING SEEDS · STOPPED</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Pre-emergents</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">A barrier for seeds, not a cure for weeds</h2>
+        <ul class="ticks a" style="--i:2">
+          <li><span><b>Targets annuals from seed:</b> crabgrass, goosegrass, spurge, chamberbitter, winter annuals.</span></li>
+          <li><span><b>Does nothing to weeds already up.</b> Perennials like dollarweed and nutsedge need post-emergent work.</span></li>
+          <li><span><b>Must be activated</b> by irrigation or rain, per the label.</span></li>
+          <li><span><b>Disturbing the soil breaks it.</b> Aeration or digging after application opens gaps.</span></li>
+        </ul>
+        <div class="card a" style="--i:3;padding:14px 16px"><h3 style="font-size:16px">Timing in our part of Florida (UF/IFAS)</h3><p class="small"><b>Spring, for crabgrass:</b> down by <b>Feb 1</b> in south Florida (Naples, Stuart) and <b>Feb 15</b> in central Florida (Vero Beach, Orlando). <b>Fall, for winter annuals:</b> when nights drop to 55–60°F for several nights in a row.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CONTACT VS SYSTEMIC -->
+  <section class="slide" data-label="Contact vs systemic">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Contact vs systemic</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Fast burn, or the whole plant</h2>
+        <div class="seg a" style="--i:2" id="csSeg" role="group" aria-label="Herbicide action"><button type="button" id="csC" aria-pressed="true">Contact</button><button type="button" id="csS" aria-pressed="false">Systemic</button></div>
+        <div class="card a" style="--i:3" id="csCard"></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-chat"/></svg><span>Many tank mixes pair both, so the customer sees quick browning and we still get the roots. Tell them up front: <b>the browning comes fast, the full kill takes a couple of weeks.</b></span></div>
+      </div>
+      <div class="figbox a csfig" style="--i:2">
+        <svg viewBox="0 0 300 260" id="csSvg" class="contact" role="img" aria-label="A weed with roots and an underground tuber. In contact mode only the sprayed leaves turn brown and new shoots regrow. In systemic mode the herbicide travels down the stem into the roots and tuber.">
+          <path class="soilbg" d="M0 150H300V260H0z"/>
+          <path class="stem" d="M150 150V70"/>
+          <path class="lf l1" d="M150 100c-24-12-44-8-56 6 18 10 38 8 56-6z"/>
+          <path class="lf l2" d="M150 86c24-14 46-10 58 4-18 12-40 10-58-4z"/>
+          <path class="lf l3" d="M150 70c-6-18-2-32 8-40 6 14 2 28-8 40z"/>
+          <path class="rt" d="M150 150v40M150 166l-26 26M150 172l30 22M150 190l-14 30"/>
+          <ellipse class="tuber" cx="200" cy="214" rx="16" ry="10"/><path class="rt" d="M180 194l12 12"/>
+          <path class="regrow" d="M120 150v-22M120 132c-8-4-14-2-18 4M206 150v-18M206 136c8-6 14-6 18 0"/>
+          <circle class="dot d1" r="4"/><circle class="dot d2" r="4"/><circle class="dot d3" r="4"/>
+          <path id="csPath" class="ghost" d="M150 92V150v40l-14 30"/>
+          <path id="csPath2" class="ghost" d="M150 92V166l30 22l12 18l8 8"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 PRACTICE: MATCHER -->
+  <section class="slide" data-label="Practice: match the type">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Herbicide-type matcher</h2>
+    
+    <div class="sort g2 a" style="--i:3" id="match"></div>
+    <div class="a" style="--i:4;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="matchCheck">Check my answers</button><span id="matchFb"></span></div>
+  </section>
+
+  <!-- 16 CHEMISTRY TABLE -->
+  <section class="slide" data-label="Chemistry by target">
+    <span class="eyebrow a">05 · Chemistry by target</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Match the chemistry to the weed, then check the turf</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="chem">
+        <thead><tr><th>Target</th><th>Typical active ingredients</th><th>Turf caution</th></tr></thead>
+        <tbody>
+          <tr><td>Broadleaf, general</td><td>Three-way mixes (2,4-D + MCPP + dicamba); carfentrazone mixes</td><td class="l">St. Augustine and centipede: reduced label rate, and not in summer heat</td></tr>
+          <tr><td>Broadleaf, warm months</td><td>Newer mixes such as thiencarbazone + iodosulfuron + dicamba</td><td>Labeled for several warm-season grasses. Check the turf list and temperature line</td></tr>
+          <tr><td>Broadleaf, cool months</td><td>Atrazine</td><td class="l">Fall and winter on St. Augustine and centipede. Not above 85°F. Damages bahia</td></tr>
+          <tr><td>Sedges and kyllinga</td><td>Halosulfuron; sulfentrazone</td><td>Generally tolerated by warm-season turf. Broadleaf products won't kill sedges</td></tr>
+          <tr><td>Grassy weeds in turf</td><td>Quinclorac and combinations</td><td class="red">Damages St. Augustine, centipede and bahia. Zoysia tolerates it</td></tr>
+          <tr><td>Grassy weeds in beds</td><td>Fluazifop; sethoxydim</td><td class="red">Kills turfgrass it touches. Keep it off the lawn edge</td></tr>
+          <tr><td>Doveweed, tough broadleaf</td><td>Labeled mixes, including metsulfuron combinations</td><td>Use only a product that lists doveweed and your turf. Metsulfuron damages bahia</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Examples, not a mixing guide.</b> Rates, turf lists, temperature limits and rainfast times differ by product, even with the same active ingredient. Mix only from the current label on your truck. LAWN-09 covers rates.</span></div>
+  </section>
+
+  <!-- 17 PRACTICE: TIMING CALENDAR -->
+  <section class="slide" data-label="Practice: timing calendar">
+    <span class="eyebrow a">06 · Practice</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Life-cycle timing: when do you act?</h2>
+    <p class="a muted small" style="--i:2">Pick the best month for each job. Use the life cycles and timing rules from this part.</p>
+    <div class="scen-tabs a" style="--i:3" id="calTabs"></div>
+    <div class="card a calcard" style="--i:4"><p id="calQ" style="font-size:17px;color:var(--ink);max-width:none"></p><div class="months" id="months"></div><div id="calFb" aria-live="polite"></div></div>
+  </section>
+
+  <!-- 18 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 19 PART THREE -->
+  <section class="slide forest" data-label="Part three: right turf, right day">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Right turf, right day</h1>
+        <p class="lead a" style="--i:2">Why it matters: the turf decides the product, not the other way around. And the right product on the wrong day, in heat or drought or before a storm, still injures the lawn or washes away.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Turf-type sensitivity</li><li><span>02</span>Heat, stress and timing</li><li><span>03</span>Drift, vapor and roots</li><li><span>04</span>Practice: spray today?</li></ol>
+    </div>
+  </section>
+
+  <!-- 20 TURF SENSITIVITY -->
+  <section class="slide" data-label="Turf-type sensitivity">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Turf first</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Know the grass before you mix</h2>
+        <p class="a muted small" style="--i:2">LAWN-04 teaches how to identify each grass. Here's what each one means for herbicides. Select a turf.</p>
+        <div class="blist a" style="--i:3" id="turfList"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:4" id="turfCard"></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span>Can't confirm the turf, or the lawn is a mix of grasses? <b>Stop and ask</b> before you spray. Treat a mixed lawn as the most sensitive grass in it.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 HEAT -->
+  <section class="slide" data-label="Heat, stress and timing">
+    <div class="split" style="grid-template-columns:.75fr 1.25fr;gap:28px">
+      <div class="figbox a thermo" style="--i:1">
+        <svg viewBox="0 0 160 280" role="img" aria-label="Thermometer marked at 85 and 90 degrees Fahrenheit. Above 85 many herbicides are restricted on St. Augustine.">
+          <rect x="62" y="20" width="36" height="200" rx="18" class="tube"/>
+          <circle cx="80" cy="236" r="30" class="bulb"/>
+          <rect x="70" y="60" width="20" height="176" rx="10" class="merc" id="merc"/>
+          <path class="tk" d="M100 92h14M100 70h14"/>
+          <text x="118" y="96" class="lbl">85°F</text><text x="118" y="74" class="lbl">90°F</text>
+          <path class="zone" d="M40 30V92"/>
+          <text x="8" y="22" class="lbl">CAUTION</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Heat, stress and timing</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Hot, dry turf can't take what it tolerates in spring</h2>
+        <div class="grid g2" style="gap:10px">
+          <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-thermo"/></svg><span><b>85–90°F is the line.</b> Many lawn herbicides are label-restricted above it, especially on St. Augustine. UF/IFAS: no atrazine on Floratam above 85°F.</span></div>
+          <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>Drought-stressed turf: wait.</b> UF/IFAS advises against post-emergents when turf is under moisture stress. Stressed weeds don't absorb well either.</span></div>
+          <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-sun"/></svg><span><b>Summer on St. Augustine:</b> spray early morning or late afternoon, not in the heat of the day.</span></div>
+          <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-rain"/></svg><span><b>Rainfast window:</b> most post-emergents need 1–6 rain-free hours (check the label). Never spray ahead of heavy rain.</span></div>
+          <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-grass"/></svg><span><b>Mowing:</b> most labels want no mowing 24–48 hours before and after, so there's leaf to absorb the spray.</span></div>
+          <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-sprout"/></svg><span><b>New sod or sprigs:</b> many herbicides aren't cleared for turf that hasn't rooted in. Read the label's establishment section.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 DRIFT / VOLATILITY / ROOTS -->
+  <section class="slide" data-label="Drift, vapor and roots">
+    <span class="eyebrow a">03 · Off-target movement</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Three ways herbicide ends up where you didn't put it</h2>
+    <div class="grid g3">
+      <div class="card a mv" style="--i:2">
+        <svg viewBox="0 0 200 100" aria-hidden="true"><path class="gl" d="M6 86H194"/><path class="nz" d="M22 30h14v8H22z"/><circle class="dp" r="2.5"/><circle class="dp d2" r="2"/><circle class="dp d3" r="1.6"/><path class="wnd" d="M70 16h40M80 24h40"/><path class="rose" d="M170 86V64M170 70c-8-4-14-4-18 2M170 66c8-6 16-6 20 0"/></svg>
+        <h3>Drift</h3>
+        <p>Fine droplets ride the wind onto roses, gardens, the neighbor's yard or water. Use coarse droplets and low pressure, keep the nozzle low, and follow FC-04's wind and inversion rules.</p>
+      </div>
+      <div class="card a mv" style="--i:3">
+        <svg viewBox="0 0 200 100" aria-hidden="true"><path class="gl" d="M6 86H194"/><path class="turfl" d="M20 86v-12M30 86v-16M40 86v-10M50 86v-14M60 86v-12"/><path class="vap" d="M30 66c-4-8 4-12 0-20"/><path class="vap v2" d="M48 66c-4-8 4-12 0-20"/><circle class="sunc" cx="170" cy="22" r="10"/><path class="sunc" d="M170 4v4M170 36v4M152 22h4M184 22h4"/></svg>
+        <h3>Volatility</h3>
+        <p>Some herbicides turn to vapor after they land, especially in heat, and move as a gas long after a calm spray. Ester formulations and dicamba are the usual suspects. Heed the label's temperature limits.</p>
+      </div>
+      <div class="card a mv" style="--i:4">
+        <svg viewBox="0 0 200 100" aria-hidden="true"><path class="gl" d="M6 50H194"/><path class="tree" d="M150 50V18M150 22c-14-4-24 2-26 10M150 20c14-6 24 0 26 8"/><path class="rootl" d="M150 50c-20 8-50 10-90 12M150 54c-14 14-40 22-70 26"/><path class="turfl" d="M40 50v-10M50 50v-12M60 50v-8M70 50v-12"/><circle class="up" r="2.5"/></svg>
+        <h3>Root uptake</h3>
+        <p>Tree and shrub roots reach well under the lawn. Some turf herbicides are taken up by those roots. UF/IFAS warns weed-and-feed products can damage landscape plants this way.</p>
+      </div>
+    </div>
+    <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span>Drift onto any person or property that wasn't meant to get it is a violation under FIFRA and Florida law, no matter how good your intentions were. If it happens, tell your supervisor immediately and write it up the same day.</span></div>
+  </section>
+
+  <!-- 23 PRACTICE: SPRAY TODAY TOOL -->
+  <section class="slide" data-label="Practice: spray today?">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">04 · Practice</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,28px)">Spray today? Set the conditions</h2>
+        <div class="ctl a" style="--i:2">
+          <div class="crow"><span class="eyebrow">Turf</span><div class="pick" id="stTurf"></div></div>
+          <div class="crow"><span class="eyebrow">Product</span><div class="pick" id="stProd"></div></div>
+          <div class="crow"><span class="eyebrow">Air temperature · <b id="stTv">82°F</b></span><input type="range" id="stTemp" min="60" max="98" value="82" aria-label="Air temperature in degrees Fahrenheit"></div>
+          <div class="crow"><span class="eyebrow">Wind</span><div class="pick" id="stWind"></div></div>
+          <div class="crow"><span class="eyebrow">Today</span><div class="pick" id="stFlags"></div></div>
+        </div>
+      </div>
+      <div class="verdict a" style="--i:3" id="stOut" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 24 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 25 PART FOUR -->
+  <section class="slide forest" data-label="Part four: on the property">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">On the property</h1>
+        <p class="lead a" style="--i:2">Why it matters: knowing weeds and products only pays off if you apply them well and the customer understands what happens next. This is where lawns are won or lost.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Spot or blanket</li><li><span>02</span>Weeds in ornamental beds</li><li><span>03</span>What the customer will see</li><li><span>04</span>Practice: the conversation and the note</li></ol>
+    </div>
+  </section>
+
+  <!-- 26 SPOT VS BLANKET -->
+  <section class="slide" data-label="Spot or blanket">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Spot or blanket</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Walk it twice, then decide</h2>
+        <p class="a muted small" style="--i:2">One lap to identify the weeds, one to judge how much of the lawn they cover. Never make the call from the truck. Move the slider and choose the turf.</p>
+        <div class="a" style="--i:3"><span class="eyebrow">Weed cover · <b id="sbV">10%</b></span><input type="range" id="sbR" min="0" max="80" step="5" value="10" aria-label="Percent of lawn covered by weeds"></div>
+        <div class="seg a" style="--i:4" id="sbSeg" role="group" aria-label="Turf"><button type="button" id="sbS" aria-pressed="true">St. Augustine or centipede</button><button type="button" id="sbT" aria-pressed="false">Zoysia or bermuda</button></div>
+        <div class="callout a" style="--i:5" id="sbOut"></div>
+      </div>
+      <div class="figbox a" style="--i:2"><svg viewBox="0 0 300 200" id="sbGrid" role="img" aria-label="A lawn drawn as a grid; weed patches fill in as weed cover increases"></svg></div>
+    </div>
+  </section>
+
+  <!-- 27 BEDS -->
+  <section class="slide" data-label="Weeds in ornamental beds">
+    <span class="eyebrow a">02 · Ornamental beds</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Beds are a different use site with different rules</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-layers"/></svg></div><h3>Prevent first</h3><p>A 2–3 inch layer of pine bark, wood chips or pine straw blocks light and stops many weeds. Pre-emergents in beds must be labeled for use around ornamentals (isoxaben-based products are common examples).</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-grass"/></svg></div><h3>Grassy weeds in beds</h3><p>Grass-selective herbicides such as fluazifop or sethoxydim spare most shrubs, but kill any turf they touch. Stay well back from the lawn edge.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-ban"/></svg></div><h3>Non-selective spot sprays</h3><p>Glyphosate or similar products injure any green tissue they reach. Low pressure, coarse spray, no wind, and a shield between the nozzle and the plant.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-book"/></svg><span><b>Never use a turf herbicide in a bed</b> unless the label lists ornamental beds as a use site. Keeping the rate low doesn't make it legal.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-hand"/></svg><span><b>Pull by hand</b> when there are only a few weeds. Florida betony and nutsedge need the whole tuber out or they come back.</span></div>
+    </div>
+  </section>
+
+  <!-- 28 CUSTOMER EXPECTATIONS -->
+  <section class="slide" data-label="What the customer will see">
+    <span class="eyebrow a">03 · Setting expectations</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Tell them what they'll see, and when</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><div class="n"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Today</h3><p>Lawn notice posted. People and pets stay off until the spray has dried, or longer if the label says so.</p></div>
+      <div class="st a" style="--i:3"><div class="n"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Days 2 to 5</h3><p>Weeds start to yellow, curl or brown. Contact products show it sooner.</p></div>
+      <div class="st a" style="--i:4"><div class="n"><svg class="ico"><use href="#i-clock"/></svg></div><h3>Days 7 to 14</h3><p>Full kill from systemic products. Tough perennials like nutsedge or torpedograss may need repeat visits.</p></div>
+      <div class="st top a" style="--i:5"><div class="n"><svg class="ico"><use href="#i-grass"/></svg></div><h3>Weeks after</h3><p>Healthy turf slowly fills the gaps. New seed keeps germinating, which is why the program has regular visits.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span><b>Name the weed.</b> "That's doveweed, and it loves hot, wet weather" builds more trust than "weeds." Explain your method in one sentence.</span></div>
+      <div class="callout danger a" style="--i:7"><svg class="ico"><use href="#i-ban"/></svg><span><b>Never call a herbicide safe or harmless, and never promise a result.</b> Give the label's re-entry instruction, and send pricing or upgrade questions to the branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 29 PRACTICE: CONVERSATION AND NOTE -->
+  <section class="slide" data-label="Practice: conversation and note">
+    <span class="eyebrow a">04 · Practice · Pick the Orange Ice Cube answer</span>
+    <div class="scen-tabs a" style="--i:2" id="cvTabs"></div>
+    <div class="card a" style="--i:3;padding:16px 18px"><span class="eyebrow" id="cvWho"></span><p id="cvQ" style="font-size:17px;color:var(--ink);max-width:none;margin-top:4px"></p></div>
+    <div class="choices a" style="--i:4" id="cvOpts"></div>
+    <div id="cvFb" aria-live="polite"></div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on real properties</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these on a ride-along before LAWN-06 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="w1"> Identify six weeds on route properties by name, family and life cycle</label></li>
+      <li><label><input type="checkbox" id="w2"> Identify the turf on three properties and name the herbicides on the truck it won't tolerate</label></li>
+      <li><label><input type="checkbox" id="w3"> Read the weeds controlled, turf tolerance, temperature and rainfast lines on two labels aloud</label></li>
+      <li><label><input type="checkbox" id="w4"> Make a spray-today call out loud: temperature, turf stress, wind, rain and mowing</label></li>
+      <li><label><input type="checkbox" id="w5"> Walk a lawn twice and make the spot or blanket call, with your reason</label></li>
+      <li><label><input type="checkbox" id="w6"> Spot-treat weeds in turf with no overspray into beds or onto hard surfaces</label></li>
+      <li><label><input type="checkbox" id="w7"> Plan bed weed control with a product labeled for the bed, and shield the plants</label></li>
+      <li><label><input type="checkbox" id="w8"> Tell a customer what they'll see and when, and write a specific service note</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-06", "titleHtml": "Weeds &amp; Herbicides", "nextHtml": "LAWN-07 \u00b7 Turf Pests", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Know the weed',q:'A yellow-green weed stands above the St. Augustine three days after mowing. Its stem feels three-sided, and it came back after the customer pulled it. What is it, and what does that mean?',o:['Crabgrass. A summer annual, so a pre-emergent next February will clear it','Dollarweed. A broadleaf that needs a three-way broadleaf spray','Yellow nutsedge. A perennial sedge with tubers, so it needs a sedge-specific product, and pulling leaves the tubers behind','Doveweed. A summer annual that dies out on its own in the heat'],a:2,e:'Fast growth above the turf, a triangular stem and regrowth after pulling are yellow nutsedge. Sedges need sedge-labeled chemistry such as halosulfuron or sulfentrazone. Broadleaf sprays and pre-emergents won\'t control the tubers.'},
+    2:{t:'Checkpoint 2 · Know the herbicide',q:'In March a customer says: "You put down a pre-emergent last month and the dollarweed is still here." What is the accurate answer?',o:['The pre-emergent failed, so we\'ll re-apply it at a higher rate','Dollarweed is a summer annual, so it should die off on its own soon','Pre-emergents work on contact, so it will brown in a few more days','A pre-emergent stops new seeds from establishing. Dollarweed is an established perennial, so it needs a post-emergent labeled for their turf, and less irrigation helps too'],a:3,e:'Pre-emergents do nothing to weeds already growing. Dollarweed is a perennial that spreads by runners and loves wet soil: a selective post-emergent cleared for the turf, plus irrigation advice, is the fix. Never raise a rate above the label.'},
+    3:{t:'Checkpoint 3 · Right turf, right day',q:'2:00 pm in July, 93°F. Floratam St. Augustine with scattered dollarweed. The truck has atrazine and a three-way broadleaf mix. What do you do?',o:['Spray the three-way at the full rate so it works before the turf heats up more','Hold off on both. They\'re heat-restricted on St. Augustine. Note the weeds, and treat in cooler conditions or with a product whose label clears this turf at this temperature','Spray atrazine, since it is the St. Augustine product','Spray both together so each works at a lower dose'],a:1,e:'UF/IFAS warns against atrazine on Floratam above 85°F, and many three-way products are restricted on St. Augustine in heat. Waiting or using a product labeled for these conditions protects the lawn. Mixing two products is not a workaround.'},
+    4:{t:'Checkpoint 4 · On the property',q:'Scattered dollarweed covers about 10% of a St. Augustine lawn, and grassy weeds are coming up in the mulch bed along its edge. What is the best plan?',o:['Spot-treat the lawn weeds with a St. Augustine-labeled selective product, treat the bed with a grass herbicide labeled for ornamentals while keeping it off the turf edge, and note both on the ticket','Blanket the whole lawn and the beds with the same lawn product to save time','Use quinclorac in the bed and the lawn since it targets grassy weeds','Skip the lawn because 10% is too few weeds to bother with'],a:0,e:'Light, scattered pressure on sensitive turf calls for spot treatment. The bed is a separate use site: use a product labeled for it, and remember grass herbicides kill turf. Quinclorac injures St. Augustine.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which feature identifies a sedge?',o:['Round, hollow stem','Net-like veins on wide leaves','Solid, triangular stem you can feel when you roll it','Square, hairy stem'],a:2,e:'Sedges have solid, three-sided stems. Grasses have round stems that are often hollow. A square, hairy stem is Florida betony, a broadleaf in the mint family.'},
+    {k:'True or false',q:'True or false: a standard broadleaf herbicide will reliably control nutsedge.',o:['True','False'],a:1,e:'False. Sedges need sedge-specific chemistry such as halosulfuron or sulfentrazone. Spraying a broadleaf product on nutsedge wastes product and the trip.'},
+    {k:'Multiple choice',q:'Crabgrass and spotted spurge are both:',o:['Summer annuals','Winter annuals','Biennials','Perennials that spread by tubers'],a:0,e:'Both sprout in spring, grow through summer and die in fall. That is why a well-timed spring pre-emergent prevents most of them.'},
+    {k:'Multiple choice',q:'Which weed is a cool-season perennial that goes dormant in summer and spreads by white, segmented tubers?',o:['Doveweed','Chamberbitter','Crabgrass','Florida betony'],a:3,e:'Florida betony emerges in fall, grows through winter and spring, and goes dormant in summer heat. Its tubers look like a rattlesnake\'s rattle.'},
+    {k:'Scenario',q:'Dollarweed is thick in a lawn that is watered every day. Besides a labeled herbicide, what should you tell the customer?',o:['Water more so the herbicide spreads','Dollarweed points to too much moisture, so cutting back irrigation helps','Mow lower to shade it out','Nothing, irrigation has no effect on weeds'],a:1,e:'Dollarweed thrives in wet soil and is a sign of overwatering or poor drainage. Fixing the water is part of the fix.'},
+    {k:'Multiple choice',q:'What does a pre-emergent herbicide do?',o:['Kills weeds you can see within a day','Moves into the roots of established perennials','Stops germinating seeds from establishing; it does not control weeds already growing','Kills any plant it touches'],a:2,e:'Pre-emergents form a barrier in the top of the soil that stops seedlings. Established weeds need a post-emergent.'},
+    {k:'Multiple choice',q:'According to UF/IFAS, a spring crabgrass pre-emergent in central Florida (Vero Beach, Orlando) should be down by about:',o:['February 15','May 1','July 4','October 1'],a:0,e:'UF/IFAS: February 1 in south Florida, February 15 in central Florida and March 1 in north Florida, before crabgrass germinates.'},
+    {k:'True or false',q:'True or false: a contact herbicide kills the whole plant, roots included, as long as enough spray hits the leaves.',o:['True','False'],a:1,e:'False. Contact herbicides kill only the tissue they touch. Systemic herbicides move into the roots for a complete kill.'},
+    {k:'Scenario',q:'A customer calls two days after a systemic broadleaf spray: "The weeds are still there." What do you tell them?',o:['The product was probably bad, so we\'ll re-spray today','It works through the roots. They\'ll see yellowing over the next few days and the full kill in about one to two weeks. We\'ll check at the next visit','Pull them by hand to speed it up','Spray them with something stronger from the store'],a:1,e:'Systemic products take 7 to 14 days for a full kill. Set the timeline and commit to follow-up. Never blame the product or promise an instant result.'},
+    {k:'Multiple choice',q:'Which herbicide injures St. Augustine and should never be used on it?',o:['Halosulfuron','Atrazine in winter','Quinclorac','A sedge product labeled for warm-season turf'],a:2,e:'Quinclorac injures St. Augustine (and centipede and bahia). It is for grassy weeds in tolerant turf such as zoysia only.'},
+    {k:'True or false',q:'True or false: a grass-selective herbicide like fluazifop will injure any turfgrass it touches, so it belongs in beds, not on the lawn.',o:['True','False'],a:0,e:'True. Grass herbicides spare most shrubs but kill turfgrass. Use them for grassy weeds in ornamental beds and keep them off the lawn edge.'},
+    {k:'Multiple choice',q:'UF/IFAS says atrazine should not be applied to Floratam St. Augustine when air temperatures exceed:',o:['65°F','75°F','85°F','100°F'],a:2,e:'Above 85°F atrazine can injure Floratam. Fall and winter are the usual atrazine windows.'},
+    {k:'Scenario',q:'The customer mowed this morning and you arrive for a post-emergent spray. What is the best call?',o:['Spray anyway, short grass lets the spray reach the soil','Reschedule the post-emergent. Most labels want 24–48 hours without mowing so there is leaf to absorb it','Double the rate to make up for less leaf','Spray only the weeds the mower missed'],a:1,e:'A spray right after a mow is a near-guaranteed poor kill. Work another stop and come back.'},
+    {k:'Multiple choice',q:'Herbicide vapor moving off a lawn on a hot afternoon, hours after a calm spray, is called:',o:['Drift','Leaching','Volatility','Runoff'],a:2,e:'Volatility is the product turning to vapor after application, worst in heat. Drift is droplets carried by wind during the spray.'},
+    {k:'Scenario',q:'Weeds cover about half of a zoysia lawn. The product is labeled for zoysia and today\'s conditions are fine. What method fits best?',o:['Blanket (broadcast) the affected lawn','Spot-treat each weed one at a time','Skip it until pressure drops','Treat only the front yard'],a:0,e:'Widespread pressure, roughly 30% or more, on turf that tolerates the product across its full area is the case for a blanket application.'},
+    {k:'True or false',q:'True or false: a turf herbicide can be used in an ornamental bed if you keep the rate low.',o:['True','False'],a:1,e:'False. The use site must be on the label. If beds aren\'t listed, applying there is a violation at any rate.'},
+    {k:'Multiple choice',q:'Which customer statement is acceptable?',o:['"This product is completely safe for your kids."','"It\'s non-toxic once it\'s on the grass."','"Please keep people and pets off the lawn until the spray has dried, as the label directs."','"I guarantee every weed will be gone next week."'],a:2,e:'Give the label\'s re-entry instruction. Never call a pesticide safe, harmless or non-toxic, and never promise results.'},
+    {k:'Scenario',q:'Turf is wilting and gray-blue from drought, and scattered weeds are up. What do you do?',o:['Spray now while the weeds are stressed too','Hold the post-emergent until the turf recovers, note it, and advise the customer on watering','Raise the rate to push through the stress','Switch to a non-selective product'],a:1,e:'UF/IFAS advises against post-emergents on moisture-stressed turf. Stressed turf injures easily and stressed weeds absorb poorly.'},
+    {k:'Multiple choice',q:'Doveweed is best described as:',o:['A winter annual with yellow flowers','A perennial grass controlled by quinclorac','A sedge with a triangular stem','A summer annual with glossy, grass-like leaves that thrives in wet spots'],a:3,e:'Doveweed looks like St. Augustine but isn\'t a grass. It sprouts in late spring, loves moisture, and needs a product that lists doveweed and your turf.'},
+    {k:'Scenario',q:'Which service note meets the Orange Ice Cube standard after a weed treatment?',o:['"Herbicide applied."','"Treated lawn, customer not home."','"Weed control done per work order."','"Spot-treated dollarweed and nutsedge in the back lawn. Yellowing in a few days, full results in about two weeks. Keep people and pets off until dry. Heavy nutsedge along the east bed edge flagged for next visit."'],a:3,e:'A strong note names the weeds, the method, what to expect, the re-entry instruction and anything flagged for follow-up. Notes print for the customer, so office action items go to technotes@clementspestcontrol.com.'}
+  ];
+
+  /* ===== LAWN-06 Weeds & Herbicides: interactive widgets ===== */
+  function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+  function ico(n){return '<svg class="ico"><use href="#i-'+n+'"/></svg>'}
+
+  /* ---------- 1. three families ---------- */
+  var FAM=[
+    {n:'Grassy weeds',s:'Crabgrass, goosegrass, torpedograss',
+     svg:'<path d="M40 100V30"/><path d="M40 60c-10-8-14-22-12-40M40 70c12-6 18-20 18-38"/><path class="v" d="M24 26l4 24M28 22l4 26"/><circle cx="110" cy="62" r="24"/><circle cx="110" cy="62" r="14" class="v"/><text x="80" y="104" class="lbl">ROUND, HOLLOW</text>',
+     d:'<b>Look for:</b> narrow blades with <b>parallel veins</b>, round stems that are often hollow, and joints (nodes) along the stem. They look like turf, so check the seedhead and how they grow. <b>Why it matters:</b> most broadleaf herbicides won\'t touch them, and few products control grassy weeds in St. Augustine.'},
+    {n:'Broadleaf weeds',s:'Dollarweed, spurge, chamberbitter, betony',
+     svg:'<path d="M40 30c-26 10-30 46 0 66 30-20 26-56 0-66z"/><path class="v" d="M40 34v60M40 52l-12-8M40 52l12-8M40 68l-14-8M40 68l14-8M40 82l-10-6M40 82l10-6"/><path d="M104 40c18 0 28 14 28 30s-12 28-28 28-28-12-28-28 10-30 28-30z"/><path class="v" d="M104 70l0 0M104 70l-20-14M104 70l20-14M104 70v26M104 70l-24 8M104 70l24 8"/><text x="66" y="108" class="lbl">NET VEINS</text>',
+     d:'<b>Look for:</b> wider leaves with <b>branching, net-like veins</b>. Stems are usually round, but not always: Florida betony\'s is square. Flowers range from showy to tiny, so don\'t rely on them. <b>Why it matters:</b> broadleaves are the bulk of what we spray for in Florida, and selective broadleaf products leave the grass alone.'},
+    {n:'Sedges',s:'Yellow and purple nutsedge, kyllinga',
+     svg:'<path d="M40 100V22"/><path d="M40 60c-14-10-20-24-20-40M40 60c14-10 20-24 20-40M40 70c-6-14-4-30 0-44"/><path class="v" d="M110 38l26 44H84z"/><path d="M110 50l14 24H96z"/><text x="74" y="104" class="lbl">SOLID, 3-SIDED</text>',
+     d:'<b>Look for:</b> a <b>solid, triangular stem</b>. Roll it between your fingers and you\'ll feel three sides. Leaves come off in threes, are shiny, and grow faster than the turf, so they stand up a few days after mowing. Most love wet spots. <b>Why it matters:</b> sedges need sedge-specific chemistry, and most spread by underground tubers.'}
+  ];
+  var fb=$('#fam');
+  FAM.forEach(function(f,i){
+    var b=el('button','famb');b.type='button';b.id='fam'+i;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<svg viewBox="0 0 160 112" aria-hidden="true">'+f.svg+'</svg><span><b>'+f.n+'</b><small>'+f.s+'</small></span>';
+    b.addEventListener('click',function(){
+      $$('.famb',fb).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      $('#famDetail').innerHTML=ico('search')+'<span>'+f.d+'</span>';
+    });
+    fb.appendChild(b);
+  });
+
+  /* ---------- 2. life-cycle ring ---------- */
+  var MON=['J','F','M','A','M','J','J','A','S','O','N','D'];
+  var LC=[
+    {k:'Summer annual',on:[2,9],c:'arcS',d:'<h3>Summer annuals</h3><p>Sprout in spring, grow through summer, set seed and die in fall, all in one season. <b>Examples:</b> crabgrass, goosegrass, spotted spurge, chamberbitter, doveweed, Florida pusley.</p><p style="margin-top:6px"><b>Strike:</b> spring pre-emergent before they germinate, then post-emergent while they\'re young.</p>'},
+    {k:'Winter annual',on:[9,3],c:'arcW',d:'<h3>Winter annuals</h3><p>Sprout in fall, grow through the cool months and die by late spring. <b>Examples:</b> henbit, common chickweed.</p><p style="margin-top:6px"><b>Strike:</b> fall pre-emergent when nights reach 55–60°F, or post-emergent while small in winter.</p>'},
+    {k:'Biennial',on:[0,11],c:'arcB',d:'<h3>Biennials</h3><p>Two-year life: a flat rosette of leaves and a storage root in year one, then flower, seed and die in year two. Less common in Florida lawns.</p><p style="margin-top:6px"><b>Strike:</b> post-emergent at the rosette stage, before the flower stalk.</p>'},
+    {k:'Perennial',on:[0,11],c:'arcP',d:'<h3>Perennials</h3><p>Live three years or more and regrow from roots, rhizomes, stolons or tubers, as well as seed. The hardest to control. <b>Examples:</b> dollarweed, nutsedge, torpedograss, Florida betony, Virginia buttonweed.</p><p style="margin-top:6px"><b>Strike:</b> systemic post-emergent while actively growing, often more than once.</p>'}
+  ];
+  var ring=$('#ring'),CX=150,CY=150,R=104;
+  function pt(a,r){a=(a-90)*Math.PI/180;return [CX+r*Math.cos(a),CY+r*Math.sin(a)]}
+  function arc(m0,m1,r){var a0=m0*30,a1=(m1+1)*30;if(a1<=a0)a1+=360;if(a1-a0>=360){var q=pt(0,r),q2=pt(180,r);return 'M'+q[0].toFixed(1)+' '+q[1].toFixed(1)+' A'+r+' '+r+' 0 1 1 '+q2[0].toFixed(1)+' '+q2[1].toFixed(1)+' A'+r+' '+r+' 0 1 1 '+q[0].toFixed(1)+' '+q[1].toFixed(1)}var p0=pt(a0,r),p1=pt(a1-0.01,r);var big=(a1-a0)>180?1:0;return 'M'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' A'+r+' '+r+' 0 '+big+' 1 '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)}
+  var rh='<circle cx="150" cy="150" r="'+R+'" class="rbase"/>';
+  MON.forEach(function(m,i){var p=pt(i*30+15,R+26);var t=pt(i*30,R-12),t2=pt(i*30,R+12);rh+='<path class="rtick" d="M'+t[0].toFixed(1)+' '+t[1].toFixed(1)+'L'+t2[0].toFixed(1)+' '+t2[1].toFixed(1)+'"/><text class="mlab" x="'+p[0].toFixed(1)+'" y="'+(p[1]+4).toFixed(1)+'" text-anchor="middle">'+m+'</text>'});
+  rh+='<path id="lcArc" class="larc arcS" pathLength="100" d=""/><path id="lcArc2" class="larc" pathLength="100" d=""/><text x="150" y="146" text-anchor="middle" class="rc" id="lcT">Summer annual</text><text x="150" y="166" text-anchor="middle" class="lbl" id="lcS">ACTIVE MAR–OCT</text>';
+  ring.innerHTML=rh;
+  var lseg=$('#lcSeg');
+  LC.forEach(function(l,i){var b=el('button',null,l.k);b.type='button';b.id='lc'+i;b.setAttribute('aria-pressed',i===0);b.addEventListener('click',function(){showLC(i)});lseg.appendChild(b)});
+  function showLC(i){
+    var l=LC[i];$$('button',lseg).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});
+    var a=$('#lcArc'),a2=$('#lcArc2');a.setAttribute('class','larc '+l.c);a2.setAttribute('d','');
+    if(i===0){a.setAttribute('d',arc(2,9,R));$('#lcS').textContent='ACTIVE MAR–OCT · DIES IN FALL'}
+    else if(i===1){a.setAttribute('d',arc(9,3,R));$('#lcS').textContent='ACTIVE OCT–APR · DIES BY LATE SPRING'}
+    else if(i===2){a.setAttribute('d',arc(0,11,R));a2.setAttribute('d',arc(0,11,R-16));a2.setAttribute('class','larc arcB2');$('#lcS').textContent='YEAR 1 ROSETTE · YEAR 2 SEED'}
+    else {a.setAttribute('d',arc(0,11,R));$('#lcS').textContent='YEAR AFTER YEAR'}
+    $('#lcT').textContent=l.k;
+    a.classList.remove('grow');void a.getBBox();a.classList.add('grow');
+    $('#lcCard').innerHTML=l.d;
+  }
+  showLC(0);
+
+  /* ---------- 3. field guide ---------- */
+  var W=[
+    {n:'Dollarweed',sci:'Hydrocotyle spp.',f:'Broadleaf',l:'Perennial',
+     svg:'<circle cx="60" cy="48" r="26"/><path class="v" d="M60 48l0 0M60 48l-18-12M60 48l18-12M60 48l-22 6M60 48l22 6M60 48l-8 22M60 48l8 22"/><circle cx="60" cy="48" r="2.5"/><path d="M60 74v24M60 98c20 0 40-4 60-14"/><circle cx="122" cy="62" r="14"/><path d="M122 76v10"/>',
+     id:'Round, glossy, scalloped leaves like a coin, with the stalk attached at the center like an umbrella. Spreads by runners and seed.',
+     tell:'A sign of too much water or poor drainage. Cutting back irrigation is part of the fix.'},
+    {n:'Yellow nutsedge',sci:'Cyperus esculentus',f:'Sedge',l:'Perennial',
+     svg:'<path d="M70 96V20"/><path d="M70 60c-16-10-22-26-22-42M70 60c16-10 22-26 22-42M70 70c-6-16-4-32 0-48"/><path class="v" d="M70 96c-14 4-24 2-30-4M70 96c16 2 26 0 32-6"/><ellipse cx="36" cy="94" rx="6" ry="4"/><ellipse cx="106" cy="88" rx="6" ry="4"/>',
+     id:'Yellow-green, shiny leaves in threes on a solid triangular stem. Outgrows the turf and stands up days after mowing. Tubers (nutlets) at the tips of underground rhizomes. Purple nutsedge is darker, with chains of tubers, and is even harder to control.',
+     tell:'Wet or overwatered areas. Pulling leaves the tubers, so it comes back.'},
+    {n:'Green kyllinga',sci:'Kyllinga brevifolia',f:'Sedge',l:'Perennial',
+     svg:'<path d="M70 98V40"/><circle cx="70" cy="34" r="8"/><path d="M70 34l-20-8M70 34l20-8M70 34l-18 10"/><path d="M60 98c0-16-6-28-14-36M80 98c0-16 6-28 14-36"/><path class="v" d="M20 98h100"/>',
+     id:'Low, dense sedge with a round, green, globe-shaped seedhead and three short leaves just under it. Spreads by rhizomes into patches.',
+     tell:'Moist, frequently irrigated turf. Mows short, so it can hide until it seeds.'},
+    {n:'Crabgrass',sci:'Digitaria spp.',f:'Grassy',l:'Summer annual',
+     svg:'<path d="M70 98V30"/><path d="M70 30l-20-22M70 30l-6-26M70 30l8-26M70 30l22-20"/><path d="M70 70c-16-4-30 2-40 14M70 60c16-6 30-4 42 6M70 84c-10 2-18 8-24 14"/>',
+     id:'Light green, wider blades than most turf, often hairy, spreading low and rooting at the joints. Seedheads look like fingers spreading from one point.',
+     tell:'Thin turf and bare spots in summer. A well-timed spring pre-emergent prevents most of it.'},
+    {n:'Goosegrass',sci:'Eleusine indica',f:'Grassy',l:'Summer annual',
+     svg:'<path d="M70 98V40M70 40V10"/><path class="v" d="M70 10l-6 30M70 10l6 30"/><path d="M60 40l-4 30M80 40l4 30"/><path d="M70 98c-18-6-34-6-44 0M70 98c18-6 34-6 44 0"/><path class="v" d="M66 92h8"/>',
+     id:'Dark green, flattened clump with a silvery-white center. Seedheads have two to several thick spikes that look like a zipper. Can survive winter in south Florida.',
+     tell:'Compacted soil and high traffic: walkways, driveway edges, play areas.'},
+    {n:'Torpedograss',sci:'Panicum repens',f:'Grassy',l:'Perennial',
+     svg:'<path class="v" d="M10 70H150"/><path d="M14 80h100l14-6-14-4"/><path d="M40 80V40M40 50c-8-6-12-14-12-22M80 80V34M80 46c8-6 12-14 12-22"/><path d="M40 80l-6 16M80 80l6 14"/>',
+     id:'Stiff, upright blades on a jointed stem, from thick white rhizomes with a sharp, pointed tip like a torpedo.',
+     tell:'One of the toughest weeds in St. Augustine. Few selective options, repeated visits, sometimes renovation. Set expectations early.'},
+    {n:'Spotted spurge',sci:'Euphorbia maculata',f:'Broadleaf',l:'Summer annual',
+     svg:'<circle cx="70" cy="60" r="3"/><path d="M70 60c-20-6-40-2-56 10M70 60c20-8 40-6 56 4M70 60c-4 16-14 28-28 36"/><ellipse cx="34" cy="60" rx="6" ry="3.5"/><ellipse cx="50" cy="56" rx="6" ry="3.5"/><ellipse cx="96" cy="56" rx="6" ry="3.5"/><ellipse cx="114" cy="60" rx="6" ry="3.5"/><ellipse cx="54" cy="82" rx="6" ry="3.5"/><circle class="v" cx="50" cy="56" r="1.4"/>',
+     id:'Flat mat hugging the ground, small opposite leaves often with a reddish spot, and milky sap when a stem breaks.',
+     tell:'Thin, hot, dry turf and edges along sidewalks and drives. A prolific seeder.'},
+    {n:'Chamberbitter',sci:'Phyllanthus urinaria',f:'Broadleaf',l:'Summer annual',
+     svg:'<path d="M20 70H140"/><path d="M30 70l-4-8M44 70l-4-8M58 70l-4-8M72 70l-4-8M86 70l-4-8M100 70l-4-8M114 70l-4-8M128 70l-4-8M30 70l-4 8M44 70l-4 8M58 70l-4 8M72 70l-4 8M86 70l-4 8M100 70l-4 8M114 70l-4 8M128 70l-4 8"/><circle class="v" cx="40" cy="74" r="2.4"/><circle class="v" cx="68" cy="74" r="2.4"/><circle class="v" cx="96" cy="74" r="2.4"/><circle class="v" cx="124" cy="74" r="2.4"/>',
+     id:'Looks like a tiny mimosa: small leaflets in two rows along each stem, with bead-like seed pods tucked beneath. Pods burst and fling seed.',
+     tell:'Moist, overwatered lawns and beds in summer. Hard to kill once the base turns woody, so hit it young.'},
+    {n:'Florida betony',sci:'Stachys floridana',f:'Broadleaf',l:'Perennial',
+     svg:'<path d="M70 70V14"/><path class="v" d="M66 70h8v-56h-8z"/><path d="M70 34c-14-6-26-2-32 6M70 34c14-6 26-2 32 6M70 52c-12-4-22 0-28 6M70 52c12-4 22 0 28 6"/><path d="M70 70v10"/><ellipse cx="70" cy="84" rx="6" ry="4"/><ellipse cx="70" cy="92" rx="5.5" ry="4"/><ellipse cx="70" cy="100" rx="5" ry="3.5"/>',
+     id:'Square, hairy stems and opposite, toothed leaves (mint family). White, segmented tubers like a rattlesnake\'s rattle. Pink to white flowers in spring.',
+     tell:'Cool-season: emerges in fall, dormant in summer heat. Treat while it\'s actively growing.'},
+    {n:'Doveweed',sci:'Murdannia nudiflora',f:'Broadleaf (grass-like)',l:'Summer annual',
+     svg:'<path d="M20 80c30-6 70-6 120 0"/><path d="M50 79c-4-14-2-28 6-38M50 79c6-12 16-20 30-22M100 78c-2-14 4-26 14-32"/><circle cx="58" cy="36" r="4"/><path class="v" d="M58 32l-3-6M58 32l3-6M62 38l6-1"/>',
+     id:'Glossy, waxy, grass-like leaves that look a lot like St. Augustine, creeping stems that root at the joints, and small pale-purple flowers. Not a true grass: a spiderwort relative.',
+     tell:'Wet, hot weather and soggy spots. Sprouts in late spring as pre-emergents fade; most visible late summer. Needs a product that lists doveweed.'},
+    {n:'Florida pusley',sci:'Richardia scabra',f:'Broadleaf',l:'Summer annual',
+     svg:'<path d="M70 96V46"/><path d="M70 60c-14-2-24 4-30 12M70 60c14-2 24 4 30 12M70 78c-12 0-20 6-24 12M70 78c12 0 20 6 24 12"/><path d="M70 40l0 0M70 40l-6-8M70 40l6-8M70 40l-8 4M70 40l8 4M70 40v8"/><path class="v" d="M44 70l-2-3M52 66l-1-3M88 66l1-3M96 70l2-3"/>',
+     id:'Hairy stems and leaves, sprawling low, with clusters of small white star-shaped flowers at the stem tips.',
+     tell:'Sandy, dry, low-fertility turf in summer. Thicker, well-fed turf crowds it out.'},
+    {n:'Virginia buttonweed',sci:'Diodia virginiana',f:'Broadleaf',l:'Perennial',
+     svg:'<path d="M14 72c40-12 80-12 132 0"/><path d="M40 68c-6-10-6-20 0-28M40 68c8-8 16-12 26-12M100 66c-4-10-2-20 6-26M100 66c-10-8-18-10-28-8"/><path d="M106 40l-4-6M106 40l4-6M106 40l-6 2M106 40l6 2"/><path class="v" d="M80 64v14"/>',
+     id:'Sprawling stems with opposite, lance-shaped leaves and small white four-petaled tube flowers. Roots and stem pieces both resprout.',
+     tell:'Wet, poorly drained areas. Mowing spreads the stem pieces, so expect repeat treatments.'}
+  ];
+  var wl=$('#wlist');
+  W.forEach(function(w,i){
+    var b=el('button',null,'<span>'+w.n+'</span><small>'+w.f+'</small>');b.type='button';b.id='wg'+i;b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){showW(i)});wl.appendChild(b);
+  });
+  function showW(i){
+    var w=W[i];$$('button',wl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});
+    $('#wcard').innerHTML='<svg viewBox="0 0 160 110" class="wart" aria-hidden="true">'+w.svg+'</svg><div><h3>'+w.n+' <span class="sci">'+w.sci+'</span></h3><div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px"><span class="chip">'+w.f+'</span><span class="chip">'+w.l+'</span></div><p><b>ID it:</b> '+w.id+'</p><p style="margin-top:6px"><b>What it tells you:</b> '+w.tell+'</p></div>';
+  }
+  showW(0);
+
+  /* ---------- 4. weed ID with clues ---------- */
+  var WID=[
+    {a:'Yellow nutsedge',c:['Three days after mowing, it\'s already taller than the St. Augustine around it.','The leaves are shiny and yellow-green, and they come off the base in threes.','Roll the stem between your fingers: you feel three sides.'],o:['Crabgrass','Yellow nutsedge','Doveweed','Torpedograss'],e:'Fast growth, leaves in threes and a triangular stem: a sedge. It needs a sedge product, not a broadleaf spray.'},
+    {a:'Dollarweed',c:['It\'s thickest by the irrigation heads and in the low corner that stays wet.','Leaves are round, glossy and scalloped, about the size of a coin.','The stalk joins the leaf in the very center, like an umbrella.'],o:['Dollarweed','Florida betony','Spotted spurge','Chamberbitter'],e:'Round, centered-stalk leaves in wet spots: dollarweed. Selective broadleaf product plus less water.'},
+    {a:'Florida betony',c:['You only see it from late fall to spring. By midsummer it\'s gone.','The stem feels square, and it\'s hairy.','Dig it up and you find white, segmented tubers that look like a rattlesnake\'s rattle.'],o:['Virginia buttonweed','Yellow nutsedge','Florida betony','Doveweed'],e:'Cool-season, square hairy stem, rattle-shaped tubers: Florida betony. Treat while it\'s actively growing.'},
+    {a:'Spotted spurge',c:['It grows flat against the ground along the hot driveway edge.','Small, opposite leaves, many with a reddish spot.','Snap a stem and a milky sap oozes out.'],o:['Florida pusley','Spotted spurge','Chamberbitter','Crabgrass'],e:'Prostrate mat, red-spotted leaves, milky sap: spotted spurge, a summer annual.'},
+    {a:'Chamberbitter',c:['It popped up in summer in an overwatered lawn and the bed beside it.','From a distance it looks like a miniature mimosa tree.','Turn a stem over and there\'s a row of tiny bead-like pods under the leaflets.'],o:['Dollarweed','Doveweed','Spotted spurge','Chamberbitter'],e:'Mimosa-like leaflets with beads underneath: chamberbitter. Hit it young, before the base turns woody.'},
+    {a:'Doveweed',c:['It\'s worst in a soggy St. Augustine lawn in late summer.','At a glance it looks like St. Augustine, but the leaves are glossier and waxier.','You spot small pale-purple flowers on it.'],o:['Doveweed','Torpedograss','Goosegrass','Green kyllinga'],e:'Waxy, grass-like leaves, purple flowers, wet summer lawn: doveweed. Use a product that lists it.'},
+    {a:'Goosegrass',c:['It\'s growing in the hard, compacted strip where the kids cut across the lawn.','A flattened clump that hugs the ground.','The center of the clump is silvery-white, and the seedhead looks like a zipper.'],o:['Crabgrass','Goosegrass','Torpedograss','Yellow nutsedge'],e:'Compacted soil, flat clump, silver center, zipper seedhead: goosegrass.'},
+    {a:'Crabgrass',c:['It filled in the thin, sunny spots this summer and wasn\'t there in winter.','Light green blades, wider than the bermuda around it, rooting where the stems touch the soil.','The seedhead spreads like fingers from one point.'],o:['Goosegrass','Torpedograss','Crabgrass','Doveweed'],e:'Summer annual with finger-like seedheads: crabgrass. A spring pre-emergent prevents most of it.'}
+  ];
+  var wi=0,wclue=1,wpts=0,wdone={};
+  function drawWID(){
+    var q=WID[wi];
+    $('#clues').innerHTML='<div class="cluehead"><span class="eyebrow">Weed '+(wi+1)+' of '+WID.length+'</span><span class="small muted">Clue '+wclue+' of 3</span></div>'+q.c.slice(0,wclue).map(function(c,k){return '<div class="clue"><span class="num">'+(k+1)+'</span><span>'+c+'</span></div>'}).join('');
+    $('#widClue').disabled=wclue>=3||!!wdone[wi];
+    var o=$('#widOpts');o.innerHTML='';
+    q.o.forEach(function(t,k){var b=el('button','choice','<span class="k">'+'ABCD'[k]+'</span><span>'+t+'</span>');b.type='button';b.id='wid'+wi+'_'+k;
+      if(wdone[wi]){b.disabled=true;if(t===q.a)b.classList.add('right')}
+      b.addEventListener('click',function(){
+        if(t===q.a){var pts=4-wclue;wpts+=pts;wdone[wi]=1;$$('.choice',o).forEach(function(x){x.disabled=true});b.classList.add('right');
+          $('#widFb').innerHTML='<div class="fb"><b>'+q.a+'</b> on clue '+wclue+'. '+q.e+'</div>'+(wi<WID.length-1?'<div style="margin-top:10px"><button type="button" class="btn primary" id="widNext">Next weed</button></div>':'<div class="fb" style="margin-top:10px">All eight named. Score: <b>'+wpts+'</b> of '+(WID.length*3)+' points.</div>');
+          var n=$('#widNext');if(n)n.addEventListener('click',function(){wi++;wclue=1;$('#widFb').innerHTML='';drawWID()});
+          $('#widClue').disabled=true;
+        } else {b.classList.add('wrong');b.disabled=true;if(wclue<3){wclue++;drawWID();$('#widFb').innerHTML='<div class="fb no">Not '+t+'. Here\'s another clue.</div>'}else{$('#widFb').innerHTML='<div class="fb no">Not '+t+'. Try again.</div>'}}
+        $('#widScore').textContent='Points: '+wpts;
+      });
+      o.appendChild(b)});
+    $('#widScore').textContent='Points: '+wpts;
+  }
+  $('#widClue').addEventListener('click',function(){if(wclue<3){wclue++;$('#widFb').innerHTML='';drawWID()}});
+  drawWID();
+
+  /* ---------- generic sort-row helper ---------- */
+  function sortRows(box,items,opts,checkBtn,fbBox,allMsg){
+    var sel={};
+    items.forEach(function(s,i){
+      var r=el('div','row');var os=s.opts||opts;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+os.map(function(o){return '<button type="button" id="'+box.id+i+'_'+o.v+'" data-v="'+o.v+'" aria-pressed="false">'+o.t+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});
+      box.appendChild(r);
+    });
+    checkBtn.addEventListener('click',function(){
+      var right=0,blank=0;
+      $$('.row',box).forEach(function(r,i){var s=items[i];var w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){r.appendChild(el('span','why',s.w))}
+      });
+      fbBox.innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+allMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the hints in red and fix them.</span>');
+    });
+  }
+
+  /* ---------- 5. life-cycle sort ---------- */
+  sortRows($('#lcsort'),[
+    {q:'Crabgrass',a:'s',w:'Sprouts in spring, dies in fall: summer annual.'},
+    {q:'Henbit',a:'w',w:'Sprouts in fall, dies by late spring: winter annual.'},
+    {q:'Dollarweed',a:'p',w:'Comes back year after year from runners: perennial.'},
+    {q:'Chamberbitter',a:'s',w:'Warm-season weed that grows from seed each year: summer annual.'},
+    {q:'Yellow nutsedge',a:'p',w:'Regrows from underground tubers: perennial.'},
+    {q:'Common chickweed',a:'w',w:'A cool-season weed that dies as it warms up: winter annual.'},
+    {q:'Doveweed',a:'s',w:'Sprouts in late spring and seeds in fall: summer annual.'},
+    {q:'Florida betony',a:'p',w:'Cool-season but returns every fall from tubers: perennial.'},
+    {q:'Torpedograss',a:'p',w:'Spreads by rhizomes and lives for years: perennial.'}
+  ],[{v:'s',t:'Summer'},{v:'w',t:'Winter'},{v:'p',t:'Perennial'}],$('#lcCheck'),$('#lcFb'),'All nine right. Annuals come back from seed, so pre-emergents help. Perennials come back from roots and tubers, so they need systemic post-emergent work.');
+
+  /* ---------- 6. contact vs systemic ---------- */
+  var CS={
+    c:'<h3>Contact</h3><p>Kills only the green tissue the spray touches. The customer sees browning in a day or two, but roots, rhizomes and tubers survive and push new shoots.</p><p style="margin-top:6px"><b>Best for:</b> small annual weeds and quick knockdown, or a burndown in beds.</p>',
+    s:'<h3>Systemic</h3><p>Absorbed by the leaves and carried through the plant to the roots, rhizomes and tubers. Slower to show, often 7–14 days, but kills the whole plant.</p><p style="margin-top:6px"><b>Best for:</b> perennials and creeping weeds: nutsedge, torpedograss, dollarweed.</p>'
+  };
+  function showCS(k){
+    $('#csC').setAttribute('aria-pressed',k==='c');$('#csS').setAttribute('aria-pressed',k==='s');
+    $('#csCard').innerHTML=CS[k];var s=$('#csSvg');s.setAttribute('class',k==='c'?'contact':'systemic');
+  }
+  $('#csC').addEventListener('click',function(){showCS('c')});
+  $('#csS').addEventListener('click',function(){showCS('s')});
+  (function(){var p1=$('#csPath').getAttribute('d'),p2=$('#csPath2').getAttribute('d');
+    $$('#csSvg .dot').forEach(function(d,i){d.style.offsetPath="path('"+(i===1?p2:p1)+"')"})})();
+  showCS('c');
+
+  /* ---------- 7. herbicide-type matcher ---------- */
+  var PP=[{v:'pre',t:'Pre-emergent'},{v:'post',t:'Post-emergent'}],SN=[{v:'sel',t:'Selective'},{v:'non',t:'Non-selective'}],CSY=[{v:'con',t:'Contact'},{v:'sys',t:'Systemic'}];
+  sortRows($('#match'),[
+    {q:'Applied in January to stop crabgrass that hasn\'t sprouted yet',opts:PP,a:'pre',w:'It works before the weed emerges: pre-emergent.'},
+    {q:'Clears weeds from paver cracks, and would kill the lawn too',opts:SN,a:'non',w:'Injures nearly any plant it touches: non-selective.'},
+    {q:'Browns dollarweed leaves in two days, but it regrows from the runners',opts:CSY,a:'con',w:'Only the sprayed tissue died: contact.'},
+    {q:'Moves down into nutsedge tubers; full kill in about two weeks',opts:CSY,a:'sys',w:'Travels through the plant to the tubers: systemic.'},
+    {q:'Kills dollarweed in St. Augustine without hurting the grass',opts:SN,a:'sel',w:'Targets some plants and spares others: selective.'},
+    {q:'Grass herbicide that clears grassy weeds from a shrub bed but kills any turf it touches',opts:SN,a:'sel',w:'It spares the shrubs and kills grasses, so it is selective. Selective doesn\'t mean it spares every grass.'},
+    {q:'Sprayed on doveweed you can see, while it\'s actively growing',opts:PP,a:'post',w:'Applied to emerged weeds: post-emergent.'},
+    {q:'Must be watered in, and aerating afterward breaks the barrier',opts:PP,a:'pre',w:'A soil barrier that stops seedlings: pre-emergent.'}
+  ],null,$('#matchCheck'),$('#matchFb'),'All eight right. Remember: selective means it picks its targets, not that it spares every grass.');
+
+  /* ---------- 8. timing calendar ---------- */
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var CAL=[
+    {t:'Naples crabgrass',q:'<b>Naples, St. Augustine.</b> Crabgrass was bad last summer. When should the spring pre-emergent go down?',ok:[0],e:'South Florida: down by February 1, so January. February is already late, and by March seedlings are up and the pre-emergent won\'t touch them.'},
+    {t:'Orlando crabgrass',q:'<b>Orlando, bahia.</b> Same crabgrass problem. When should the spring pre-emergent go down?',ok:[0,1],e:'Central Florida: down by February 15. January or early February works.'},
+    {t:'Winter annuals',q:'<b>Vero Beach.</b> Henbit and chickweed showed up last winter. When does the fall pre-emergent go down?',ok:[9,10],e:'When nights drop to 55–60°F for several nights in a row, usually October or November here, before the winter annuals germinate.'},
+    {t:'Florida betony',q:'<b>Stuart.</b> Florida betony is back in the lawn. When will a post-emergent do the most good?',ok:[10,11,0,1],e:'Betony emerges in fall and grows through winter, then goes dormant in summer. Treat while it\'s actively growing, roughly November through February, before it builds new tubers in spring.'},
+    {t:'Doveweed',q:'<b>Orlando, St. Augustine.</b> Doveweed took over last August. When is the best time to start post-emergent control?',ok:[4,5],e:'Doveweed sprouts later than crabgrass, from late spring into summer once soils are warm. Hitting it young in May or June beats fighting mature mats in August, and remember the heat limits on St. Augustine.'},
+    {t:'Atrazine cleanup',q:'<b>Vero Beach, Floratam St. Augustine.</b> You want to use atrazine for broadleaf cleanup. When is it appropriate?',ok:[10,11,0,1],e:'UF/IFAS: fall and winter are the usual atrazine windows, and never above 85°F on Floratam. November through February is the right range.'}
+  ];
+  var ci=0,cdone={},ct=$('#calTabs'),mb=$('#months');
+  CAL.forEach(function(c,i){var b=el('button',null,c.t);b.type='button';b.id='calt'+i;b.setAttribute('aria-pressed',i===0);b.addEventListener('click',function(){ci=i;drawCal()});ct.appendChild(b)});
+  MN.forEach(function(m,i){var b=el('button',null,m);b.type='button';b.id='mon'+i;b.addEventListener('click',function(){
+    var c=CAL[ci];$$('button',mb).forEach(function(x){x.classList.remove('hit','miss','win')});
+    if(c.ok.indexOf(i)>=0){c.ok.forEach(function(k){mb.children[k].classList.add('win')});b.classList.add('hit');cdone[ci]=1;$$('button',ct)[ci].classList.add('done');$('#calFb').innerHTML='<div class="fb">'+MN[i]+' works. '+c.e+'</div>'}
+    else{b.classList.add('miss');$('#calFb').innerHTML='<div class="fb no">'+MN[i]+' is off. Think about when this weed germinates or actively grows, and the temperature rules. Try again.</div>'}
+  });mb.appendChild(b)});
+  function drawCal(){$$('button',ct).forEach(function(b,j){b.setAttribute('aria-pressed',j===ci)});$('#calQ').innerHTML=CAL[ci].q;$$('button',mb).forEach(function(x){x.classList.remove('hit','miss','win')});$('#calFb').innerHTML=''}
+  drawCal();
+
+  /* ---------- 9. turf sensitivity ---------- */
+  var TURF=[
+    {n:'St. Augustine',s:'Most common on our routes · most sensitive',d:'<p><b>Watch for:</b> 2,4-D and three-way broadleaf products only at reduced label rates and never in summer heat. Atrazine only in cooler weather, and not on Floratam above 85°F (UF/IFAS). <b>Quinclorac and grass herbicides injure it.</b></p><p style="margin-top:6px"><b>Grassy weeds:</b> very few selective options. Spot work, cultural fixes and honest expectations.</p>'},
+    {n:'Bahia',s:'Tough, low-input',d:'<p><b>Watch for:</b> atrazine, metsulfuron and quinclorac all damage bahia (UF/IFAS). Three-way broadleaf products are tolerated. Read the label\'s bahia section every time.</p><p style="margin-top:6px"><b>Common pressure:</b> broadleaves, sedges, and its own tall seedheads, which aren\'t weeds.</p>'},
+    {n:'Zoysia',s:'Dense, slow to recover',d:'<p><b>Watch for:</b> tolerates many products that would hurt St. Augustine, including quinclorac, but recovers slowly from herbicide injury, so don\'t overuse. Confirm zoysia is listed on the label.</p><p style="margin-top:6px"><b>Common pressure:</b> crabgrass, goosegrass, sedges and broadleaves.</p>'},
+    {n:'Bermuda',s:'Most herbicide-tolerant',d:'<p><b>Watch for:</b> tolerates the widest range of post-emergents, but quinclorac tolerance varies by product (LAWN-04), so check the label. Check for dormancy and label restrictions in cool months.</p><p style="margin-top:6px"><b>Common pressure:</b> goosegrass and crabgrass, especially in thin, high-traffic areas.</p>'},
+    {n:'Centipede',s:'Low-maintenance, easily injured',d:'<p><b>Watch for:</b> very sensitive to many herbicides. Lower end of the label range, careful product choice, and no sprays in heat or drought stress.</p><p style="margin-top:6px"><b>Common pressure:</b> broadleaves and sedges in thin, acidic, sandy lawns.</p>'},
+    {n:'Seashore paspalum',s:'Coastal, salt-tolerant',d:'<p><b>Watch for:</b> sensitive to many common herbicides and often not listed on labels at all. If it isn\'t on the label, don\'t spray it. Check with your supervisor.</p>'}
+  ];
+  var tl=$('#turfList');
+  TURF.forEach(function(t,i){var b=el('button',null,ico('grass')+'<span>'+t.n+'<small>'+t.s+'</small></span>');b.type='button';b.id='turf'+i;b.setAttribute('aria-pressed',i===0);b.addEventListener('click',function(){showTurf(i)});tl.appendChild(b)});
+  function showTurf(i){$$('button',tl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});$('#turfCard').innerHTML='<div class="icobox">'+ico('grass')+'</div><h3>'+TURF[i].n+'</h3>'+TURF[i].d}
+  showTurf(0);
+
+  /* ---------- 10. spray today tool ---------- */
+  var ST={turf:'sa',prod:'three',temp:82,wind:'ok',flags:{}};
+  var STT=[{v:'sa',t:'St. Augustine'},{v:'ce',t:'Centipede'},{v:'ba',t:'Bahia'},{v:'zo',t:'Zoysia'},{v:'be',t:'Bermuda'}];
+  var STP=[{v:'three',t:'Three-way broadleaf'},{v:'atr',t:'Atrazine'},{v:'sedge',t:'Sedge product'},{v:'quin',t:'Quinclorac'},{v:'gly',t:'Non-selective'}];
+  var STW=[{v:'calm',t:'Dead calm, fog'},{v:'ok',t:'Steady 3–10 mph'},{v:'hi',t:'Over 10 or gusty'}];
+  var STF=[{v:'dry',t:'Turf drought-stressed'},{v:'mow',t:'Mowed this morning'},{v:'rain',t:'Rain due within 2 hours'},{v:'new',t:'New sod'}];
+  function pickRow(box,list,get,set,multi){
+    list.forEach(function(o){var b=el('button',null,o.t);b.type='button';b.id=box.id+'_'+o.v;b.setAttribute('aria-pressed',multi?!!get()[o.v]:get()===o.v);
+      b.addEventListener('click',function(){if(multi){var f=get();f[o.v]=!f[o.v];b.setAttribute('aria-pressed',!!f[o.v])}else{set(o.v);$$('button',box).forEach(function(x){x.setAttribute('aria-pressed',x===b)})}stRun()});box.appendChild(b)});
+  }
+  pickRow($('#stTurf'),STT,function(){return ST.turf},function(v){ST.turf=v});
+  pickRow($('#stProd'),STP,function(){return ST.prod},function(v){ST.prod=v});
+  pickRow($('#stWind'),STW,function(){return ST.wind},function(v){ST.wind=v});
+  pickRow($('#stFlags'),STF,function(){return ST.flags},null,true);
+  $('#stTemp').addEventListener('input',function(e){ST.temp=+e.target.value;$('#stTv').textContent=ST.temp+'°F';stRun()});
+  function stRun(){
+    var r=[],lvl=0,T=ST.temp,sens=(ST.turf==='sa'||ST.turf==='ce');
+    function add(l,m){r.push({l:l,m:m});if(l>lvl)lvl=l}
+    if(ST.prod==='quin'&&ST.turf==='sa')add(3,'Quinclorac injures St. Augustine. Never use it on this turf.');
+    if(ST.prod==='gly')add(3,'Non-selective products kill turf. Spot use only on non-turf areas such as cracks and beds, never broadcast on a lawn.');
+    if(ST.prod==='atr'&&ST.turf==='ba')add(3,'Atrazine damages bahia (UF/IFAS). Never use it on this turf.');
+    if(ST.prod==='atr'&&(ST.turf==='be'||ST.turf==='zo'))add(2,'UF/IFAS gives no atrazine rating for this turf. Confirm it is on the label before use.');
+    if(ST.prod==='atr'&&T>85)add(2,'Atrazine above 85°F can injure St. Augustine and other lawns (UF/IFAS). Save it for fall and winter.');
+    if(ST.prod==='three'&&sens&&T>=85)add(2,'Three-way broadleaf products are heat-restricted on St. Augustine and centipede. Wait for cooler weather or use a product labeled for these conditions.');
+    if(ST.prod==='three'&&!sens&&T>=90)add(2,'Many broadleaf labels restrict use above 85–90°F. Check the temperature line; spray early or wait.');
+    if(ST.prod==='quin'&&(ST.turf==='ce'||ST.turf==='ba'))add(3,'Quinclorac damages centipede and bahia (UF/IFAS). Never use it on this turf.');
+    if(ST.prod==='quin'&&ST.turf==='be')add(1,'Bermuda tolerance to quinclorac varies by product. Confirm bermuda is on the label.');
+    if(T>=90&&ST.prod!=='gly'&&lvl<2)add(1,'90°F or hotter: read the label\'s temperature line, spray in the cool of the morning, and watch for turf stress.');
+    if(ST.flags.dry)add(2,'Drought-stressed turf: UF/IFAS advises against post-emergents. Note it and advise on watering.');
+    if(ST.flags.mow)add(2,'Mowed this morning: most labels want 24–48 hours without mowing. Reschedule the post-emergent.');
+    if(ST.flags.rain)add(2,'Rain inside the label\'s rainfast window washes product off and toward drains. Wait.');
+    if(ST.flags.new)add(2,'New sod or sprigs: many herbicides aren\'t cleared until turf is established. Check the label.');
+    if(ST.wind==='hi')add(2,'Wind over 10 mph or gusty: drift risk. Wait (FC-04).');
+    if(ST.wind==='calm')add(2,'Dead calm with fog suggests an inversion: fine droplets can hang and travel. Wait for a steady breeze (FC-04).');
+    if(ST.prod==='sedge'&&lvl===0)r.push({l:0,m:'Sedge products are generally tolerated by warm-season turf. Confirm the turf and spot-treat the sedges.'});
+    var V=[['Go','Conditions look right. Confirm the product label lists this turf and weed, then spray.','go'],['Go with care','You can spray, with adjustments.','care'],['Wait','Not today, or not now. Note it on the ticket and plan the return.','wait'],['Stop','Wrong product for this job.','stop']][lvl];
+    $('#stOut').className='verdict v-'+V[2];
+    $('#stOut').innerHTML='<span class="eyebrow">Verdict</span><div class="vtitle">'+V[0]+'</div><p class="small muted">'+V[1]+'</p><ul class="ticks">'+(r.length?r.map(function(x){return '<li><span>'+x.m+'</span></li>'}).join(''):'<li><span>No red flags in these conditions.</span></li>')+'</ul><p class="small muted" style="margin-top:auto">Training aid with simplified rules. The label on your truck is the final word.</p>';
+  }
+  stRun();
+
+  /* ---------- 11. spot vs blanket ---------- */
+  var sbSens=true,sbCells=[];
+  (function(){var g='<rect x="4" y="4" width="292" height="192" rx="10" class="lawnbg"/>',k=0;
+    for(var y=0;y<8;y++)for(var x=0;x<12;x++){g+='<circle class="wc" id="wc'+k+'" cx="'+(20+x*24)+'" cy="'+(22+y*22.5)+'" r="7"/>';k++}
+    $('#sbGrid').innerHTML=g;
+    var order=[];for(var i=0;i<96;i++)order.push(i);var s=7;order.sort(function(){s=(s*9301+49297)%233280;return s/233280-.5});sbCells=order})();
+  function sbRun(){
+    var v=+$('#sbR').value;$('#sbV').textContent=v+'%';var n=Math.round(96*v/100);
+    sbCells.forEach(function(c,i){$('#wc'+c).classList.toggle('on',i<n)});
+    var t;
+    if(v===0)t='No weeds to treat. Note the clean lawn on the ticket, and check the beds and edges.';
+    else if(v<30)t='<b>Spot treat.</b> Light, scattered pressure. Backpack or hand sprayer right on the weeds: minimum product and minimum turf stress'+(sbSens?', which matters most on sensitive turf.':'.');
+    else if(sbSens)t='<b>Blanket only with a product labeled for this turf at today\'s temperature.</b> Pressure is widespread, but St. Augustine and centipede injure easily. If conditions aren\'t right, spot the worst areas and schedule the follow-up.';
+    else t='<b>Blanket treat.</b> Roughly 30% or more of the lawn is affected and zoysia and bermuda tolerate more products across their full area. Confirm the label, then broadcast.';
+    $('#sbOut').innerHTML=ico('target')+'<span>'+t+'</span>';
+  }
+  $('#sbR').addEventListener('input',sbRun);
+  $('#sbS').addEventListener('click',function(){sbSens=true;$('#sbS').setAttribute('aria-pressed','true');$('#sbT').setAttribute('aria-pressed','false');sbRun()});
+  $('#sbT').addEventListener('click',function(){sbSens=false;$('#sbT').setAttribute('aria-pressed','true');$('#sbS').setAttribute('aria-pressed','false');sbRun()});
+  sbRun();
+
+  /* ---------- 12. conversation and note ---------- */
+  var CV=[
+    {t:'Is it safe?',w:'Customer at the door, with a toddler and a dog',q:'"Is that stuff safe for my kids and the dog?"',o:['"Totally safe. It\'s just for weeds."','"Please keep the kids and the dog off the lawn until the spray has dried, as the label directs. I\'ll post the notice, and I can give you the product name and label information if you\'d like it."','"I wouldn\'t worry about it, we use it everywhere."','"You\'d have to call the office for that."'],a:1,e:'Give the label\'s re-entry instruction and offer the product and label information, which Florida law requires on request. Never call a pesticide safe or harmless.'},
+    {t:'Spray it all',w:'Customer watching you spot-treat',q:'"Why don\'t you just spray the whole yard?"',o:['"I\'m behind today, so I\'m doing the quick version."','"Sure, I\'ll blanket it if that makes you happier."','"Your lawn doesn\'t need it. These are scattered, so spot-treating them gets a clean kill without stressing the good grass. If pressure gets heavier, I\'ll blanket."','"Company policy, sorry."'],a:2,e:'Explain the judgment call in one sentence. Customer preference alone isn\'t a reason to broadcast.'},
+    {t:'Keeps coming back',w:'Customer on the phone with you at the stop',q:'"Why do these weeds keep coming back?"',o:['"A lot of Florida weeds seed fast and spread by runners. One visit knocks down what\'s here, but new seed keeps sprouting through the season. That\'s why the program has regular visits. Cutting back watering in that wet corner will help too."','"The last tech probably didn\'t do it right."','"I guarantee they\'ll be gone after today."','"Weeds just do that, nothing we can do."'],a:0,e:'Biology plus a practical tip, with no blame and no promises.'},
+    {t:'Service note',w:'No one home. You spot-treated dollarweed and nutsedge in the back lawn.',q:'Which service note do you leave?',o:['"Herbicide applied."','"Weed control done per work order. Customer not home."','"Sprayed weeds. Lawn is safe once dry."','"Spot-treated dollarweed and nutsedge in the back lawn. Expect yellowing in a few days and full results in about two weeks. Keep people and pets off until dry. Heavy nutsedge along the east bed edge flagged for next visit."'],a:3,e:'Specific, useful, and about this property. Notes print for the customer, so never write "safe." Anything the office must act on goes to technotes@clementspestcontrol.com.'}
+  ];
+  var vi=0,vt=$('#cvTabs'),vdone={};
+  CV.forEach(function(c,i){var b=el('button',null,c.t);b.type='button';b.id='cvt'+i;b.setAttribute('aria-pressed',i===0);b.addEventListener('click',function(){vi=i;drawCV()});vt.appendChild(b)});
+  function drawCV(){
+    var c=CV[vi];$$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===vi)});
+    $('#cvWho').textContent=c.w;$('#cvQ').textContent=c.q;$('#cvFb').innerHTML='';
+    var o=$('#cvOpts');o.innerHTML='';
+    c.o.forEach(function(t,k){var b=el('button','choice','<span class="k">'+'ABCD'[k]+'</span><span>'+t+'</span>');b.type='button';b.id='cv'+vi+'_'+k;
+      b.addEventListener('click',function(){$$('.choice',o).forEach(function(x){x.classList.remove('wrong')});
+        if(k===c.a){b.classList.add('right');vdone[vi]=1;$$('button',vt)[vi].classList.add('done');$('#cvFb').innerHTML='<div class="fb">'+c.e+'</div>'}
+        else{b.classList.add('wrong');$('#cvFb').innerHTML='<div class="fb no">Not that one. Which answer is honest, specific and label-based?</div>'}});
+      o.appendChild(b)});
+  }
+  drawCV();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

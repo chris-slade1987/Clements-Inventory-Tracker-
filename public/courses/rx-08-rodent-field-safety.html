@@ -1,0 +1,1211 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-08 Rodent Field Safety</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-08 additions */
+ul.tick{list-style:none;padding:0;margin:0;display:grid;gap:5px}
+ul.tick li{position:relative;padding-left:22px;font-size:14px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:6px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+ul.tick.rdot li::before{width:7px;height:7px;border:0;border-radius:50%;background:var(--danger);transform:none;top:7px}
+.card ul.tick{margin-top:6px}
+.card ul.tick li{color:var(--muted)}
+.card ul.tick li b{color:var(--ink)}
+
+/* compact slides */
+.slide.cc{gap:14px}
+.slide.cc .card{padding:14px 18px}
+.slide.cc .icobox{width:32px;height:32px;margin-bottom:6px;border-radius:8px}
+.slide.cc .icobox .ico{width:20px;height:20px}
+.slide.cc .card p{font-size:14px;line-height:1.5}
+.slide.cc .callout{padding:10px 14px}
+.slide.cc .order{gap:6px}
+.slide.cc .order button{padding:7px 12px;font-size:14px;line-height:1.4}
+.slide.cc h2{font-size:clamp(22px,2.6vw,32px)}
+
+/* exposure routes diagram */
+.routes .rl{font-family:var(--font);font-size:11px;fill:var(--muted);letter-spacing:.04em}
+.routes .dust{fill:var(--muted);opacity:0}
+.slide.on .routes .dust{animation:dust 3.2s ease-in-out infinite}
+.slide.on .routes .d2{animation-delay:.6s}.slide.on .routes .d3{animation-delay:1.2s}.slide.on .routes .d4{animation-delay:1.8s}
+@keyframes dust{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}100%{opacity:0;transform:translate(60px,-70px)}}
+.slide.on .routes .flow{animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-36}}
+
+/* disease flip cards */
+.flip.dz button{min-height:150px}
+.flip.dz .face{padding:16px 18px;gap:8px}
+.flip.dz h3{font-size:20px}
+.flip.dz .back{font-size:13.5px;line-height:1.5}
+.flip.dz .icobox{width:34px;height:34px}
+
+/* fact or myth rows */
+.sort .row{padding:7px 12px}
+.sort .row .small{line-height:1.4}
+
+/* PPE picker */
+#ppPick button{font-size:14px;padding:7px 13px}
+#ppPick button.extra{border-color:var(--muted);border-style:dashed}
+
+/* thermometer */
+.thermo .tt{font-family:var(--font);font-size:14px;fill:var(--danger);font-weight:500}
+.thermo .tt.sm{font-size:11px;fill:var(--muted);font-weight:400}
+.merc{transform-box:fill-box;transform-origin:bottom}
+.slide.on .merc{animation:merc 3.6s ease-in-out infinite}
+@keyframes merc{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
+.slide.cc .heat .card h3{font-size:16px;margin-bottom:4px}
+
+/* attic hotspot */
+#atSvg .tl2{font-family:var(--font);font-size:12px;fill:var(--danger);font-weight:500}
+#atSvg .hs{cursor:pointer}
+#atSvg .hs .ring{fill:transparent;stroke:transparent;stroke-width:2;transform-box:fill-box;transform-origin:center}
+#atSvg .hs:hover .ring,#atSvg .hs:focus-visible .ring{stroke:var(--brand-400);stroke-dasharray:4 3}
+#atSvg .hs.found .ring{stroke:var(--danger);fill:rgba(220,38,38,.08);stroke-dasharray:none;animation:pop .22s ease-in-out}
+#atSvg .hs.ok .ring{stroke:var(--positive);fill:rgba(31,122,69,.06);stroke-dasharray:none}
+#atSvg .hs:focus{outline:none}
+#atSvg .hs .badge{opacity:0}
+#atSvg .hs.found .badge{opacity:1}
+#atSvg .hs .badge circle{fill:var(--danger)}
+#atSvg .hs .badge text{fill:#fff;font-size:11px;font-family:var(--font);font-weight:500}
+@keyframes pop{from{transform:scale(.8)}to{transform:none}}
+
+@media (max-width:860px){
+  #ppWrap{grid-template-columns:1fr!important}
+  .flip.dz{grid-template-columns:1fr 1fr}
+  .slide .grid[style*="grid-template-columns:1.1fr 1fr"],.slide .grid[style*="grid-template-columns:1.15fr 1fr"]{grid-template-columns:1fr!important}
+  .heat{grid-template-columns:1fr!important}
+  .sort .row{flex-wrap:wrap}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">RX-08 · Rodent Field Safety</span></div>
+  </header>
+  <main class="stage" id="stage">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M7 7h10M7 11h10M7 15h10M7 19h10"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-6h4v6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 13H7zM9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+  <symbol id="i-spray" viewBox="0 0 24 24"><path d="M9 10h6v11H9zM10 10V7h4v3M14 7h3M19 5l2-1M19 8h2M19 11l2 1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></symbol>
+  <symbol id="i-needle" viewBox="0 0 24 24"><path d="M18 3l3 3M16.5 4.5l3 3M19 6l-9 9-3-3 9-9M7 12l-1.5 1.5 3 3L10 15M6.5 16.5L3 20"/></symbol>
+  <symbol id="i-germ" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.9 2.9M15.5 15.5l2.9 2.9M5.6 18.4l2.9-2.9M15.5 8.5l2.9-2.9"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 16a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a3.5 3.5 0 0 1 0 7M12 13l-2 4h3l-2 4"/></symbol>
+  <symbol id="i-air"viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></symbol>
+</defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-08</span>
+        <h1 class="display a" style="--i:1">Rodent Field Safety</h1>
+        <p class="lead a" style="--i:2">Rodent jobs put you in hot attics, on rooflines and around droppings, urine and nests. This is how you do the work and go home healthy, every time.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 260" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M10 236H290"/>
+        <path d="M60 236V132M236 236V132"/>
+        <path d="M48 132H248"/>
+        <path d="M36 140L148 52"/><path d="M148 52L260 140"/>
+        <path d="M78 132v-7M108 132v-7M168 132v-7M198 132v-7M228 132v-7"/>
+        <path d="M128 132h24" stroke-dasharray="3 4"/>
+        <path d="M172 121c3-11 25-11 28 0z"/><path d="M200 121q14 3 18-9"/><circle cx="177" cy="114" r="3"/>
+        <path d="M150 52V132M120 132L148 72M176 132L148 72"/>
+        <path d="M252 236L240 146M266 236L254 146"/>
+        <path d="M250.7 224h14M249.3 212h14M248 200h14M246.7 188h14M245.3 176h14M244 164h14M242.7 152h14"/>
+        <path d="M86 196h40v24H86zM106 196v24"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-germ"/></svg><span>Name the diseases rodents carry, how each one reaches you, and which rodents carry hantavirus in Florida</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-spray"/></svg><span>Clean up droppings, urine and nests the CDC way: ventilate, wet, wait, wipe, bag. Never sweep or vacuum</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-bag"/></svg><span>Handle dead rodents and traps safely, and decontaminate before you get back in the truck</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-mask"/></svg><span>Pick the right gloves, eyewear, coveralls and respirator (N95 or P100) for each rodent task</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-thermo"/></svg><span>Work an attic safely: heat, joists, wiring, nails, insulation and the roofline</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-plus"/></svg><span>Respond to a bite, scratch, needle-stick or illness, and report it the same day</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why rodent safety matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">The hottest, highest and <span class="em">dirtiest work</span> we do.</h2>
+        <p class="lead a" style="--i:2">A Rodent Shield job can stack a biohazard, a 130°F attic and an extension ladder into one morning. None of it is theoretical. Skipping a step doesn't save twenty minutes. It can end a career.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-germ"/></svg></div><div><h3>Droppings are a biohazard</h3><p>Rodent urine, droppings and nests carry bacteria and viruses that cause serious illness. Some, untreated, kill.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>OSHA expects it</h3><p>Clements must assess hazards, provide PPE and train you (29 CFR 1910.132). Respirators have their own standard (1910.134).</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-home"/></svg></div><div><h3>The customer's family lives there</h3><p>Nest debris carried through a hallway, or dust kicked out of an attic, lands on their floors. Doing it right protects them too.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 HAZARD MAP -->
+  <section class="slide" data-label="Four hazard families">
+    <span class="eyebrow a">On every rodent job</span>
+    <h2 class="a" style="--i:1">Four kinds of hazard, often in the same hour</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-germ"/></svg></div><h3>Biological</h3><p>Droppings, urine, nests, dead rodents, fleas, bites and scratches. Part one and two.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-thermo"/></svg></div><h3>Heat</h3><p>Florida attics regularly pass 130°F in summer, and PPE traps body heat. Part three.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-ladder"/></svg></div><h3>Falls</h3><p>Through a ceiling between joists, off a ladder at the eave, off a roof. Part three and FC-06.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-bolt"/></svg></div><h3>Physical</h3><p>Gnawed wiring, roofing nails, cut metal, insulation fibers and discarded needles. Part three and four.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-hand"/></svg><span><b>Stop-work authority is yours.</b> If heat, access, air, wiring or anything else makes the job unsafe, you stop, document why, tell the customer professionally and call your supervisor. RX-09 covers escalation.</span></div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one">
+    <span class="eyebrow a">Part one</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">What rodents carry</h2>
+    <p class="lead a" style="--i:2">Why it matters: you can't see a pathogen, and the dust you raise in an attic goes straight into your lungs. Knowing how each disease reaches you tells you exactly which step stops it.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Four ways in</li><li><span>02</span>The diseases, card by card</li><li><span>03</span>Hantavirus in Florida: the accurate picture</li><li><span>04</span>Practice: fact or myth?</li></ul>
+  </section>
+
+  <!-- 6 ROUTES -->
+  <section class="slide" data-label="Four ways in">
+    <span class="eyebrow a">01 · Exposure routes</span>
+    <h2 class="a" style="--i:1">Four ways a rodent pathogen gets into you</h2>
+    <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:22px;align-items:center">
+      <div class="figbox a" style="--i:2;padding:10px">
+        <svg viewBox="0 0 400 220" aria-hidden="true" style="max-width:none;width:100%" class="routes">
+          <path d="M10 204H390" stroke="var(--line)" stroke-width="2"/>
+          <path d="M44 204c4-14 18-18 28-10s20-12 32-2 14 6 18 12" stroke="#8A6D4B" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M52 202c10-6 20 0 30-4s18 0 26 4" stroke="#A88E6C" stroke-width="1.6" fill="none"/>
+          <ellipse cx="60" cy="200" rx="4" ry="2" fill="var(--ink)"/><ellipse cx="76" cy="197" rx="4" ry="2" fill="var(--ink)"/><ellipse cx="94" cy="199" rx="4" ry="2" fill="var(--ink)"/><ellipse cx="110" cy="201" rx="4" ry="2" fill="var(--ink)"/>
+          <path class="flow" d="M90 186Q140 100 214 66" stroke="var(--brand-400)" stroke-width="1.6" fill="none" stroke-dasharray="4 5"/>
+          <circle class="dust d1" cx="88" cy="186" r="2.6"/><circle class="dust d2" cx="98" cy="188" r="2"/><circle class="dust d3" cx="78" cy="188" r="2.2"/><circle class="dust d4" cx="106" cy="190" r="2.4"/>
+          <circle cx="232" cy="62" r="20" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <circle cx="226" cy="58" r="1.8" fill="var(--ink)"/><path d="M220 70h8" stroke="var(--ink)" stroke-width="1.6"/>
+          <path d="M232 82v62M232 144l-18 58M232 144l18 58M232 98l-30 22M232 98l34 16" stroke="var(--ink)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M266 114l6 4M268 110l7 1" stroke="var(--danger)" stroke-width="1.6" stroke-linecap="round"/>
+          <ellipse cx="300" cy="204" rx="40" ry="5" fill="var(--brand-100)" stroke="var(--brand-400)" stroke-width="1.4"/>
+          <path d="M256 58h18" stroke="var(--muted)" stroke-width="1"/><text x="278" y="62" class="rl">Eyes, nose, mouth</text>
+          <path d="M276 114h10" stroke="var(--muted)" stroke-width="1"/><text x="290" y="118" class="rl">Cut or scratch</text>
+          <text x="196" y="138" class="rl" text-anchor="end">Hand to mouth</text>
+          <text x="118" y="112" class="rl" text-anchor="end">Inhaled dust</text>
+          <text x="300" y="194" class="rl" text-anchor="middle">Wet soil, water</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:8px">
+        <div class="callout a" style="--i:3;padding:10px 14px"><svg class="ico"><use href="#i-air"/></svg><span class="small"><b>Breathing it in.</b> Dried droppings, urine and nesting material break into dust when disturbed. Sweeping, vacuuming and crawling through insulation put it in the air.</span></div>
+        <div class="callout a" style="--i:4;padding:10px 14px"><svg class="ico"><use href="#i-drop"/></svg><span class="small"><b>Skin breaks and mucous membranes.</b> Urine-contaminated water or soil entering a cut, or splashed into eyes, nose or mouth.</span></div>
+        <div class="callout a" style="--i:5;padding:10px 14px"><svg class="ico"><use href="#i-hand"/></svg><span class="small"><b>Hand to mouth.</b> Touching droppings, a trap or a dead rodent, then eating, drinking, smoking or touching your face.</span></div>
+        <div class="callout a" style="--i:6;padding:10px 14px"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Bites and scratches.</b> Live rodents in traps, under debris or cornered in a garage.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 DISEASES -->
+  <section class="slide" data-label="The diseases">
+    <span class="eyebrow a">02 · The diseases</span>
+    <h2 class="a" style="--i:1">Six names to know. Select each card.</h2>
+    <div class="flip dz a" style="--i:2" id="dzFlip"></div>
+    <p class="a small muted" style="--i:3">Sources: CDC and Florida Department of Health. Not medical advice: if you feel sick after rodent work, see a doctor and tell them about the exposure.</p>
+  </section>
+
+  <!-- 8 HANTA FLORIDA -->
+  <section class="slide" data-label="Hantavirus in Florida">
+    <span class="eyebrow a">03 · Hantavirus in Florida</span>
+    <h2 class="a" style="--i:1">Get it right: <span class="em">which rodents carry it here</span></h2>
+    <div class="grid g2" style="gap:16px">
+      <div class="card a" style="--i:2"><span class="eyebrow">Linked to hantavirus in Florida</span>
+        <ul class="tick" style="margin-top:8px"><li><b>Hispid cotton rat.</b> Native, lives in tall grass, fields and yard edges statewide. Host of Black Creek Canal virus, linked to Florida's first documented hantavirus pulmonary syndrome case (Dade County, 1993).</li><li><b>Marsh rice rat.</b> Native, lives in wetlands and marsh edges across the Southeast. Host of Bayou virus.</li><li>Both can wander into garages, sheds and crawl spaces next to fields and water.</li></ul></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Our three household rodents</span>
+        <ul class="tick" style="margin-top:8px"><li><b>House mouse, roof rat, Norway rat</b> are not known carriers of the hantaviruses that cause pulmonary syndrome in the US.</li><li>Norway rats can carry <b>Seoul virus</b>, a different hantavirus that affects the kidneys. US cases are rare.</li><li>They do carry <b>leptospirosis, salmonella, rat-bite fever and LCMV</b>, plus allergens in their dust.</li></ul></div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Same protocol on every job.</b> You can't be certain which rodent left the droppings, and the household rodents carry plenty of other disease. If a customer asks about hantavirus, give the accurate picture calmly and refer health questions to their doctor or the health department.</span></div>
+  </section>
+
+  <!-- 9 FACT OR MYTH -->
+  <section class="slide cc" data-label="Practice: fact or myth">
+    <span class="eyebrow a">04 · Practice · fact or myth?</span>
+    <h2 class="a" style="--i:1">Sort each statement, then check your answers</h2>
+    <div class="sort grid a" style="--i:2;gap:6px" id="fmSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="fmCheck">Check answers</button><span id="fmFb" aria-live="polite"></span></div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two">
+    <span class="eyebrow a">Part two</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Clean it up and carry it out</h2>
+    <p class="lead a" style="--i:2">Why it matters: most exposure happens when droppings are disturbed, a dead rodent is handled or dirty gear goes back in the truck. The right order turns a hazard into a routine task.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Before you start: scope and disinfectant</li><li><span>02</span>Practice: the cleanup in order</li><li><span>03</span>Dead rodents and traps</li><li><span>04</span>Decontaminate before the truck</li></ul>
+  </section>
+
+  <!-- 12 BEFORE CLEANUP -->
+  <section class="slide cc" data-label="Before you start">
+    <span class="eyebrow a">01 · Before you start</span>
+    <h2 class="a" style="--i:1">Know your scope, mix it right, air it out</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Scope</h3><p>We clean up <b>small amounts at our work area</b>: droppings by a trap, at an entry point, under a sink. Roughly 2 by 2 feet or less. Bigger contamination, or soaked insulation, is not a Clements cleanup: photograph it and tell your supervisor (RX-09).</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Disinfectant</h3><p><b>1 part bleach to 9 parts water</b> (about 1½ cups per gallon) or an <b>EPA-registered disinfectant</b> used per its label. Mix bleach fresh. Disinfectants are registered pesticides: the label is the law.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-air"/></svg></div><h3>Ventilate</h3><p>CDC: in a closed room, shed or garage, open doors and windows for <b>30 minutes</b> and step out before you start. In an attic, move slowly and don't stir up material while it airs.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Never sweep, vacuum, blow or pressure-wash dry droppings or nests.</b> That puts the dust in the air you breathe. Wet it first, every time.</span></div>
+      <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Never mix bleach with ammonia or other cleaners.</b> It releases toxic gas. Mix bleach fresh, with water only, and test on finished surfaces.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 CLEANUP ORDER -->
+  <section class="slide cc" data-label="Practice: cleanup order">
+    <div class="split" style="grid-template-columns:1fr 1.3fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Practice · CDC cleanup steps</span>
+        <h2 class="a" style="--i:1">Put the cleanup in the right order</h2>
+        <p class="a muted small" style="--i:2">Select the steps in the order you'd do them. You found a small pile of mouse droppings and some urine staining beside a trap in a garage.</p>
+        <div class="callout a" style="--i:3;padding:10px 14px"><svg class="ico"><use href="#i-clock"/></svg><span class="small"><b>The wait matters.</b> Five minutes (or the label's contact time) gives the disinfectant time to work before anything is wiped.</span></div>
+        <div id="clFb" aria-live="polite"></div>
+      </div>
+      <div class="order a" style="--i:2" id="clOrder"></div>
+    </div>
+  </section>
+
+  <!-- 14 DEAD RODENTS -->
+  <section class="slide cc" data-label="Dead rodents and traps">
+    <span class="eyebrow a">03 · Dead rodents and traps</span>
+    <h2 class="a" style="--i:1">Gloves on, spray, wait, double-bag</h2>
+    <div class="grid" style="grid-template-columns:1.15fr 1fr;gap:18px">
+      <ol class="steps a" style="--i:2">
+        <li style="padding:7px 0;font-size:15px"><span class="num">1</span><span><b>Gloves on</b> before you touch a carcass, a trap or a station. Never bare-handed, never close to your face.</span></li>
+        <li style="padding:7px 0;font-size:15px"><span class="num">2</span><span><b>Spray</b> the rodent, nest or trap and the area around it until wet. <b>Wait 5 minutes.</b></span></li>
+        <li style="padding:7px 0;font-size:15px"><span class="num">3</span><span><b>Bag it</b>, knot the bag, then place it in a <b>second bag</b> and knot that too.</span></li>
+        <li style="padding:7px 0;font-size:15px"><span class="num">4</span><span><b>Reusing a snap trap?</b> Soak it in disinfectant for 5 minutes, release the rodent over the bag, rinse and let it dry.</span></li>
+        <li style="padding:7px 0;font-size:15px"><span class="num">5</span><span><b>Gloves off inside out</b>, into the bag, then wash your hands with soap and water.</span></li>
+      </ol>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3;padding:10px 14px"><svg class="ico"><use href="#i-germ"/></svg><span class="small"><b>Fleas leave a dead host.</b> Insect repellent on clothing and shoes before you handle dead rodents and nests helps keep them off you.</span></div>
+        <div class="callout a" style="--i:4;padding:10px 14px"><svg class="ico"><use href="#i-book"/></svg><span class="small"><b>Baited account?</b> Follow the rodenticide label on carcass search and disposal. Collecting dead rodents on follow-ups also protects pets and wildlife from secondary poisoning.</span></div>
+        <div class="callout a" style="--i:5;padding:10px 14px"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>A dead bird, pet or other non-target animal</b> near a station: don't handle it bare-handed, photograph it, and tell your supervisor the same day.</span></div>
+        <div class="callout a" style="--i:6;padding:10px 14px"><svg class="ico"><use href="#i-hand"/></svg><span class="small"><b>Live bats, raccoons, snakes:</b> never handle them. Back away and escalate (RX-09).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 DECON -->
+  <section class="slide cc" data-label="Decontaminate">
+    <span class="eyebrow a">04 · Decontamination</span>
+    <h2 class="a" style="--i:1">Nothing contaminated rides in the cab</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-shirt"/></svg></div><h3>At the work area</h3><p>Coveralls and outer gloves come off <b>before</b> you leave the attic or crawl space opening, rolled inside out.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-bag"/></svg></div><h3>Bag and seal</h3><p>Disposable PPE, nest material and towels go into sealed bags <b>before</b> you walk through the living space. Never loose debris down a hallway.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-boot"/></svg></div><h3>Boots and tools</h3><p>Wipe boot soles and hand tools with disinfectant. Respirator facepiece cleaned and stored in a sealed bag (FC-03).</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Wash up</h3><p>Hands and forearms with soap and water before you eat, drink, smoke or use your phone. Heavy exposure: shower and change.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-shirt"/></svg><span class="small"><b>Work clothes</b> wash separately from family laundry, hot water and detergent. A torn coverall that let dust through: bag that clothing and wash it separately.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-truck"/></svg><span class="small"><b>Sealed waste bags</b> never go in the cab. Dispose of them the way your supervisor directs for your branch.</span></div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three">
+    <span class="eyebrow a">Part three</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">PPE, the attic and the roofline</h2>
+    <p class="lead a" style="--i:2">Why it matters: the attic is where droppings pile up, heat builds and one wrong step goes through a ceiling. The roofline is where roof rats get in, and where falls happen.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Respirators, and practice: PPE by task</li><li><span>02</span>Practice: attic hazard hunt</li><li><span>03</span>Attic entry rules and heat</li><li><span>04</span>Ladders and rooflines</li></ul>
+  </section>
+
+  <!-- 18 RESPIRATORS -->
+  <section class="slide cc" data-label="Respirators">
+    <span class="eyebrow a">01 · Respirators</span>
+    <h2 class="a" style="--i:1">Particulate protection, sealed to your face</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>N95 · the minimum</h3><p>NIOSH-approved filtering facepiece. Required before entering an attic or crawl space on an active or recent rodent account, and for trap checks in enclosed spaces with built-up droppings.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>Half-face P100 · cleanup</h3><p>Elastomeric half mask with P100 (magenta) filters. For nest removal, cleanup and heavy contamination. This is what CDC and NIOSH point to for heavy rodent work.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Not a respirator</h3><p>Paper dust masks, surgical masks and bandanas. They don't seal and aren't rated. And particulate filters <b>don't stop pesticide vapors</b>: if you treat too, follow the label (FC-03).</p></div>
+    </div>
+    <div class="grid g4" style="gap:10px">
+      <div class="callout a" style="--i:5;padding:10px 14px"><span class="small"><b>1 · Medical clearance</b> before your first use</span></div>
+      <div class="callout a" style="--i:6;padding:10px 14px"><span class="small"><b>2 · Fit test</b> before first use and every year, on the exact model and size</span></div>
+      <div class="callout a" style="--i:7;padding:10px 14px"><span class="small"><b>3 · Clean-shaven</b> where it seals. Stubble breaks the seal</span></div>
+      <div class="callout a" style="--i:8;padding:10px 14px"><span class="small"><b>4 · Seal check</b> every time it goes on: positive and negative</span></div>
+    </div>
+  </section>
+
+  <!-- 19 PPE PICKER -->
+  <section class="slide cc" data-label="Practice: PPE by task">
+    <span class="eyebrow a">01 · Practice · PPE by task</span>
+    <h2 class="a" style="--i:1">Gear up for the job, then check it</h2>
+    <div class="scen-tabs a" style="--i:2" id="ppTabs"></div>
+    <div class="grid a" style="--i:3;grid-template-columns:1fr 1.25fr;gap:18px;align-items:start" id="ppWrap">
+      <div class="grid" style="gap:10px">
+        <div class="card" style="padding:14px 18px" id="ppJob"></div>
+        <div id="ppFb" aria-live="polite"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="pick" id="ppPick"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" id="ppCheck">Check my gear</button><button type="button" class="btn" id="ppClear">Clear</button></div>
+        <p class="small muted">The Clements minimum by task. The product label and your supervisor can always require more.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 ATTIC HOTSPOT -->
+  <section class="slide cc" data-label="Practice: attic hazard hunt">
+    <div class="split" style="grid-template-columns:1.45fr 1fr;gap:24px">
+      <div class="figbox a" style="--i:1;padding:8px">
+        <svg id="atSvg" viewBox="0 0 560 330" role="group" aria-label="Cross-section of an attic. Select each spot you think is a hazard." style="max-width:none;width:100%"></svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Practice · attic hazard hunt</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">This attic has <span class="em">ten hazards</span>. Find them.</h2>
+        <p class="a muted small" style="--i:2">Select anything that could hurt you. Some spots are fine.</p>
+        <div class="card a" style="--i:3;padding:14px 16px;min-height:150px" id="atFb" aria-live="polite"><span class="eyebrow">Found <b>0</b> of 10</span><p class="small" style="margin-top:6px">Start at the hatch and work your way across.</p></div>
+        <div class="a" style="--i:4;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="atReveal">Show all hazards</button><button type="button" class="btn" id="atReset">Reset</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 ATTIC RULES -->
+  <section class="slide cc" data-label="Attic entry rules">
+    <span class="eyebrow a">03 · Attic and crawl space entry</span>
+    <h2 class="a" style="--i:1">Before, during, and when to get out</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Before</h3><ul class="tick"><li>Someone knows you're going in, with a check-in time</li><li>Check the attic ladder (FC-06) and the hatch area</li><li>PPE on and seal-checked; water first</li><li>Headlamp or flashlight. <b>Never an open flame</b></li><li>Smell gas or sewer, see heavy mold or deteriorated pipe wrap? <b>Don't enter.</b> Call your supervisor</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>During</h3><ul class="tick"><li><b>Joists or walk boards only.</b> Insulation and drywall won't hold you</li><li>Move slowly, head low: truss webs and roofing nails</li><li>Don't step on ducts, lights or the air handler</li><li>Hands off wiring. Gnawed wire is a fire and shock hazard</li><li>Keep your path back to the hatch clear</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>Get out when</h3><ul class="tick rdot"><li>Dizzy, nauseous, headache, cramping or confused</li><li>Your respirator leaks, or you smell something new</li><li>Wiring is exposed or sparking</li><li>Structure feels soft or sags</li><li>Wasps, a bat colony or a cornered animal</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:5;padding:10px 14px"><svg class="ico"><use href="#i-users"/></svg><span class="small"><b>Confined space awareness.</b> Attics and crawl spaces can meet OSHA's confined space definition (1910.146): hard to get out of, not built for occupancy. Crawl spaces go in feet-first, never head-first. A second person at the opening is the safest setup, especially in heat or heavy contamination.</span></div>
+  </section>
+
+  <!-- 22 HEAT -->
+  <section class="slide cc" data-label="Attic heat" data-alert="1">
+    <div class="split" style="grid-template-columns:.8fr 1.3fr;gap:26px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Attic heat</span>
+        <h2 class="a" style="--i:1">An attic can be 40°F hotter than the yard</h2>
+        <div class="figbox a" style="--i:2;padding:10px">
+          <svg viewBox="0 0 280 150" aria-hidden="true" style="max-width:280px" class="thermo">
+            <path d="M10 140H270" stroke="var(--line)" stroke-width="2"/>
+            <path d="M20 140V92L110 30L200 92V140" fill="none" stroke="var(--ink)" stroke-width="2"/>
+            <path d="M28 92H192" stroke="var(--ink)" stroke-width="1.6"/>
+            <rect x="96" y="44" width="12" height="44" rx="6" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+            <rect class="merc" x="99" y="50" width="6" height="36" rx="3" fill="var(--danger)"/>
+            <text x="114" y="84" class="tt">130°F+</text>
+            <path d="M232 140v-22M226 124l6-6 6 6" stroke="var(--brand-500)" stroke-width="1.6" fill="none"/><text x="232" y="108" class="tt sm" text-anchor="middle">Yard 92°F</text>
+          </svg>
+        </div>
+        <ul class="tick a" style="--i:3"><li>Exclusion and attic work <b>early in the day</b> in summer</li><li>Water before entry, then about every 15 to 20 minutes</li><li>Short attic stints with cool-down breaks</li><li>New to the work or back from time off? Ease in: bodies take 1 to 2 weeks to acclimate</li></ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="heat" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="card a" style="--i:3;padding:14px 16px"><h3>Heat cramps</h3><p class="small">Painful cramps in legs or belly. <b>Get out, cool off, drink water.</b> Don't go back in until they're gone.</p></div>
+          <div class="card a" style="--i:4;padding:14px 16px"><h3>Heat exhaustion</h3><p class="small">Heavy sweating, cool clammy skin, headache, dizziness, nausea, weakness. <b>Stop. Shade or AC, loosen PPE, sip water, tell your supervisor.</b> Not better within an hour, or worse? Get medical care.</p></div>
+          <div class="card stroke a" style="--i:5;padding:14px 16px"><h3>Heat stroke</h3><p class="small">Confusion, slurred speech, fainting, seizures, very high temperature, hot skin. <b>Call 911.</b> Cool them right away with water, ice and shade and stay with them.</p></div>
+        </div>
+        <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-thermo"/></svg><span class="small"><b>Never pull your respirator off to cool down in a dusty attic.</b> Get out of the attic first, then take your PPE off safely.</span></div>
+        <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-shield"/></svg><span class="small"><b>The rule today:</b> there is no final federal OSHA heat standard yet. OSHA enforces heat hazards under the General Duty Clause, targets heat in its inspections, and expects water, rest, shade and acclimatization.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 ROOFLINE -->
+  <section class="slide cc" data-label="Ladders and rooflines">
+    <span class="eyebrow a">04 · Ladders and rooflines</span>
+    <h2 class="a" style="--i:1">Roof rats get in up high. Get up there the FC-06 way.</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-ladder"/></svg></div><h3>The ladder</h3><ul class="tick"><li>Inspect it every shift; tag out any defect</li><li>Fiberglass, <b>10 feet</b> from overhead lines</li><li>4-to-1 angle, 3 feet above the edge, secured</li><li>Three points of contact; belt buckle inside the rails</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>Materials up high</h3><ul class="tick"><li>Snips, screws and gun in a belt or pouch</li><li>Hardware cloth, sheet metal and cement go up on a <b>hand line</b>, not in your hand</li><li>Cut-resistant gloves and safety glasses for cut metal and mesh</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>The roof</h3><ul class="tick rdot"><li>Only with roof access cleared by your supervisor</li><li>Not wet, dewy, tile, metal or steep</li><li>Fall protection near an edge at 4 feet or more (OSHA 1910.28)</li><li>Soft decking or loose tile: stop</li></ul></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Soffits and gable vents hide wasps.</b> Look before your face is at the gap. Never climb a palm or tree to reach the roof: that's a referral, not a shortcut.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-storm"/></svg><span class="small"><b>Thunder?</b> Off the ladder and into the truck. Wait 30 minutes after the last thunder (FC-06).</span></div>
+    </div>
+  </section>
+
+  <!-- 24 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 25 PART FOUR -->
+  <section class="slide forest" data-label="Part four">
+    <span class="eyebrow a">Part four</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">When something gets through</h2>
+    <p class="lead a" style="--i:2">Why it matters: rodent-borne illness responds best to early treatment, and a doctor can only treat what they know about. What you do in the first hour, and who you tell, makes the difference.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Bites, scratches and needle-sticks</li><li><span>02</span>Sharps and cuts on the job</li><li><span>03</span>Practice: what do you do?</li></ul>
+  </section>
+
+  <!-- 26 BITES -->
+  <section class="slide cc" data-label="Bites and scratches" data-alert="1">
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:28px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Bites, scratches, needle-sticks</span>
+        <h2 class="a" style="--i:1">Wash it. Tell your supervisor. Get it checked.</h2>
+        <ol class="steps a" style="--i:2">
+          <li style="padding:7px 0;font-size:15px"><span class="num red">1</span><span><b>Wash right away</b> with soap and running water for several minutes. Apply antiseptic and cover it.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num red">2</span><span><b>Tell your supervisor immediately</b>, however small it looks.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">3</span><span><b>Medical evaluation the same day.</b> Rat-bite fever is treatable early, and tetanus status matters. A needle-stick needs care right away.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">4</span><span><b>Write it down:</b> time, place, the animal or object, how it happened.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">5</span><span><b>Written report the same day</b>, even if you feel fine (CW-09).</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Any bat contact, or a bite from a raccoon or other wildlife:</b> possible rabies exposure. Wash it and get medical care now. Rats and mice almost never carry rabies.</span></div>
+        <div class="card a" style="--i:4;padding:14px 16px"><h3>Sick in the weeks after a rodent job?</h3><p class="small">Fever, chills, muscle aches, rash, vomiting or shortness of breath. See a doctor and <b>say you work around rodents.</b> Then tell your supervisor. Hantavirus can take up to 8 weeks to show, leptospirosis up to 4.</p></div>
+        <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-clip"/></svg><span class="small">Same rule as every injury, exposure or spill at Clements: <b>supervisor immediately, written report the same day.</b></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 SHARPS -->
+  <section class="slide cc" data-label="Sharps and cuts">
+    <span class="eyebrow a">02 · Sharps and cuts</span>
+    <h2 class="a" style="--i:1">Sharp things hide in insulation, crawl spaces and debris</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-needle"/></svg></div><h3>Discarded needles</h3><p>Don't pick it up or move it. Photograph it, keep others away, tell the customer and your supervisor, and work around it only if you safely can. Needles can carry bloodborne disease.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>Cut metal and mesh</h3><p>Fresh-cut hardware cloth and sheet metal edges slice through nitrile. Cut-resistant work gloves for cutting and installing, nitrile underneath when there's contamination.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-search"/></svg></div><h3>Look before you reach</h3><p>Never reach blind into insulation, a wall void or debris. Look first with your light, or use a tool. Broken glass, nails, wasps and live animals all hide there.</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-plus"/></svg><span class="small"><b>Cut or punctured on the job?</b> Same steps as a bite: wash, cover, tell your supervisor immediately, get it checked, and file the written report the same day.</span></div>
+  </section>
+
+  <!-- 28 SCENARIOS -->
+  <section class="slide cc" data-label="Practice: what do you do?">
+    <span class="eyebrow a">03 · Practice · exposure scenarios</span>
+    <h2 class="a" style="--i:1">What do you do?</h2>
+    <div class="scen-tabs a" style="--i:2" id="scTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="scBox"></div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a rodent job</h2>
+    <p class="a muted" style="--i:2">Your supervisor or field training lead will watch you do each of these before RX-08 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Explain which rodents carry hantavirus in Florida, and why we still take full precautions on every job</label></li>
+      <li><label><input type="checkbox" id="s2"> Put on your respirator, do positive and negative seal checks, and say when you wear an N95 or a P100</label></li>
+      <li><label><input type="checkbox" id="s3"> Clean a small area of droppings: wet, wait 5 minutes, wipe, bag, disinfect. No sweeping or vacuuming</label></li>
+      <li><label><input type="checkbox" id="s4"> Double-bag a dead rodent, reset a snap trap, and remove gloves without touching your skin</label></li>
+      <li><label><input type="checkbox" id="s5"> Enter an attic correctly: check-in plan, PPE, light, joists or walk boards only, exit path clear</label></li>
+      <li><label><input type="checkbox" id="s6"> Point out the attic hazards on a live job: wiring, nails, ducts, lights, insulation type and heat</label></li>
+      <li><label><input type="checkbox" id="s7"> Decontaminate before the truck: coveralls and gloves off, waste bagged, hands and forearms washed</label></li>
+      <li><label><input type="checkbox" id="s8"> State the steps for a bite, scratch or needle-stick, who you call, and when the report is due</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx08:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx08:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-08", "titleHtml": "Rodent Field Safety", "nextHtml": "RX-09 \u00b7 Limits &amp; Escalation", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · What rodents carry',q:'In a Vero Beach attic full of roof rat droppings, a new tech says: "Roof rats don\'t carry hantavirus here, so we don\'t need respirators." What\'s the right response?',o:['He\'s right. Leave the respirators in the truck','He\'s wrong. Roof rats are Florida\'s main hantavirus carrier','He\'s right about hantavirus, but the respirator stays on: the dust carries leptospirosis, salmonella and allergens, and you can\'t be sure which rodent left it','Only wear one if the attic smells bad'],a:2,e:'In Florida, hantavirus is linked to native cotton rats and rice rats, not roof rats. But household rodents carry plenty of other disease, so the same protection applies on every rodent job: N95 minimum for attic entry.'},
+    2:{t:'Checkpoint 2 · Clean it up and carry it out',q:'Placing a trap under a kitchen sink, you find a small pile of mouse droppings. What do you do?',o:['Vacuum it up so the cabinet looks clean','Gloves and eye protection on, spray it until wet, wait 5 minutes, wipe it up with paper towels, bag it and disinfect the surface','Sweep it into the customer\'s trash can','Leave it for the customer to deal with'],a:1,e:'The CDC method: wet it with disinfectant, wait 5 minutes (or the label\'s contact time), wipe, bag and disinfect. Never sweep or vacuum dry droppings: that puts the dust in the air.'},
+    3:{t:'Checkpoint 3 · Attic and roofline',q:'Two in the afternoon in August. Fifteen minutes into an attic trap check you get a pounding headache and feel nauseous. Two traps are left. What do you do?',o:['Finish the last two traps quickly, then rest','Take off your respirator so you can breathe easier','Get out of the attic now, cool down in shade or AC, drink water and tell your supervisor. Finish later or reschedule for the morning','Lie down on the insulation until it passes'],a:2,e:'Headache and nausea in heat are heat exhaustion. Stop and get out first; never pull your respirator off in a dusty attic. If you get confused or your skin is hot and dry, that\'s heat stroke: call 911.'},
+    4:{t:'Checkpoint 4 · When something gets through',q:'A rat scratches the back of your hand as you lift a snap trap. It barely bled. What\'s next?',o:['Wash it with soap and water, cover it, tell your supervisor right away, get it checked today and file the written report the same day','Keep working; scratches don\'t count','Put on a fresh glove and mention it at the next team meeting','Only report it if it gets infected'],a:0,e:'Every bite or scratch gets the same steps: wash, supervisor immediately, medical evaluation, same-day written report. Rat-bite fever spreads through scratches too, and is treatable when caught early.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'In Florida, hantavirus pulmonary syndrome is associated with which rodents?',o:['House mice and roof rats','Norway rats','Native cotton rats and rice rats','All rodents equally'],a:2,e:'Florida\'s first documented case was linked to Black Creek Canal virus in cotton rats; rice rats host Bayou virus. Our three household rodents are not known carriers of the US pulmonary hantaviruses.'},
+    {k:'True or false',q:'Sweeping up dry droppings is acceptable as long as you wear nitrile gloves.',o:['True','False'],a:1,e:'False. Sweeping and vacuuming put the dust in the air you breathe. Wet it with disinfectant first, wait, then wipe.'},
+    {k:'Multiple choice',q:'After spraying droppings with disinfectant, how long does CDC say to wait before wiping?',o:['No wait needed','30 minutes','24 hours','5 minutes, or the disinfectant label\'s contact time'],a:3,e:'Let it soak for 5 minutes or as the label directs, then wipe up with paper towels.'},
+    {k:'Multiple choice',q:'If you use household bleach as the disinfectant, how do you mix it?',o:['1 part bleach to 9 parts water (about 1½ cups per gallon), mixed fresh','Full strength, straight from the bottle','Bleach plus an ammonia cleaner for extra strength','A capful in a 5-gallon bucket'],a:0,e:'CDC: 1 part bleach to 9 parts water (about 1½ cups per gallon) or an EPA-registered disinfectant. Mix bleach fresh. Never mix bleach with ammonia or other cleaners: it releases toxic gas.'},
+    {k:'Multiple choice',q:'How does leptospirosis usually get into the body?',o:['Mosquito bites','Water or soil contaminated with rat urine, through cuts or the eyes, nose or mouth','Person-to-person contact','Touching a bait station lid'],a:1,e:'Leptospira bacteria are shed in rat urine and enter through skin breaks and mucous membranes. Gloves, eye protection and rubber boots in wet areas.'},
+    {k:'Multiple choice',q:'What is the minimum respiratory protection to enter an attic on an active rodent account?',o:['A paper dust mask','A surgical mask','None, if the attic vents are open','A NIOSH-approved N95, fit-tested and seal-checked'],a:3,e:'N95 at minimum. Dust masks and surgical masks don\'t seal and aren\'t rated respirators.'},
+    {k:'Multiple choice',q:'Which respirator fits nest removal and heavy contamination?',o:['Half-face respirator with P100 filters','A bandana over the nose and mouth','An organic vapor cartridge with no particulate filter','A paper dust mask worn double'],a:0,e:'CDC and NIOSH point to a half-face respirator with P100 (HEPA) filters, or a PAPR, for heavy rodent contamination.'},
+    {k:'True or false',q:'A tight-fitting respirator protects you even if facial hair crosses the sealing surface, as long as you strap it tight.',o:['True','False'],a:1,e:'False. Facial hair breaks the seal. You must be clean-shaven where the respirator seals, and seal-check it every time.'},
+    {k:'Scenario',q:'You find a dead rat in a trap on a follow-up visit. Which is correct?',o:['Pick it up by the tail and drop it in the customer\'s kitchen trash','Leave it for the homeowner','Gloves on, spray and wait 5 minutes, bag and knot it, second bag and knot, gloves off inside out, wash hands','Wrap it in a paper towel and put it in the truck cab'],a:2,e:'That\'s the CDC method. Never bare-handed, and nothing contaminated rides in the cab.'},
+    {k:'Scenario',q:'You need to cross an attic to reach a trap. Where can you step?',o:['On the insulation between joists','On the drywall ceiling','On the flex duct, if you move fast','Only on joists or walk boards'],a:3,e:'Insulation sits on drywall, and drywall won\'t hold you. Joists or walk boards only, and go around ducts, lights and the air handler.'},
+    {k:'Multiple choice',q:'You see pebbly, gray-brown loose-fill insulation in an older attic. What should you do?',o:['Treat it as possible vermiculite with asbestos: don\'t disturb it, and tell your supervisor','Dig through it to find the runway','Scoop some into a bag for the customer','Ignore it; insulation is harmless'],a:0,e:'Older vermiculite insulation may contain asbestos. Don\'t disturb it. Report it and let your supervisor decide next steps.'},
+    {k:'Multiple choice',q:'A coworker coming out of an attic is confused, slurring words and has hot skin. What do you do?',o:['Give him water and let him rest in the truck','Call 911 and cool him immediately with water, ice and shade, and stay with him','Have him finish the job, then rest','Drive him home'],a:1,e:'Confusion, slurred speech and hot skin point to heat stroke, a medical emergency. Call 911 and cool him right away.'},
+    {k:'Multiple choice',q:'In summer, when should exclusion and attic work be scheduled when possible?',o:['Early in the day','Noon','Mid-afternoon','It doesn\'t matter'],a:0,e:'Attics heat up fast as the day goes on. Morning work, water and short stints reduce heat illness risk.'},
+    {k:'True or false',q:'Follow the rodenticide label\'s directions on carcass search and disposal when you service a baited account.',o:['True','False'],a:0,e:'True. The label is the law. Collecting dead rodents also protects pets and wildlife from secondary poisoning.'},
+    {k:'Multiple choice',q:'How close can you and your ladder come to an overhead power line?',o:['3 feet','6 feet','No closer than 10 feet','Any distance with a fiberglass ladder'],a:2,e:'OSHA: unqualified workers keep themselves and anything conductive at least 10 feet from overhead lines (FC-06).'},
+    {k:'Multiple choice',q:'Under OSHA\'s general industry rules, fall protection is required at an unprotected roof edge starting at what height?',o:['20 feet','10 feet','15 feet','4 feet'],a:3,e:'29 CFR 1910.28 requires fall protection at 4 feet or more. Roof access is cleared with your supervisor first (FC-06).'},
+    {k:'Scenario',q:'A mouse bites through your glove while you remove it from a trap. What do you do?',o:['Wash it with soap and water, tell your supervisor immediately, get a medical evaluation today and file the written report today','Bandage it and skip the report if it\'s small','Finish the route and mention it next week','Wait to see if symptoms develop'],a:0,e:'Wash, supervisor immediately, same-day medical evaluation, same-day written report. Every bite, however small.'},
+    {k:'Scenario',q:'You spot a hypodermic needle in crawl space debris. What\'s right?',o:['Pick it up and put it in your waste bag','Push it aside with your glove','Don\'t touch it: photograph it, keep others away, tell the customer and your supervisor','Leave without saying anything'],a:2,e:'Needles go through gloves and can carry bloodborne disease. Leave it, document it, report it. If you\'re stuck, wash it and get care right away.'},
+    {k:'Scenario',q:'Three weeks after a heavy attic job you have a fever and muscle aches. What should you do?',o:['Ignore it; it\'s the flu','See a doctor, tell them you work around rodents, and tell your supervisor','Take leftover antibiotics','Wait two more months'],a:1,e:'Rodent-borne illnesses start like the flu. Hantavirus can take up to 8 weeks to show and leptospirosis up to 4. The doctor needs to know about the exposure.'},
+    {k:'Scenario',q:'Where do contaminated coveralls and outer gloves come off after attic work?',o:['In the truck cab','At home','At the branch the next morning','At the work area, rolled inside out and bagged, before you walk through the house'],a:3,e:'Take them off at the opening, bag them, and never carry loose debris through the living space or into the cab.'}
+  ];
+
+  var REDUCE=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- disease flip cards ---------- */
+  var DZ=[
+    {t:'Hantavirus',i:'i-air',f:'Lungs. Inhaled dust. In Florida: native cotton rats and rice rats.',b:'Breathing dust from dried droppings, urine or nests. Symptoms <b>1 to 8 weeks</b> later: fever, aches, then cough and shortness of breath. More than a third of people who reach the lung stage die. Rare in Florida.'},
+    {t:'Leptospirosis',i:'i-drop',f:'Kidneys and liver. Rat urine in water and soil.',b:'Bacteria in urine enter through <b>cuts, eyes, nose or mouth</b>, often from wet soil or standing water. Fever, headache, muscle pain <b>2 days to 4 weeks</b> later. Treatable with antibiotics when caught early.'},
+    {t:'Salmonellosis',i:'i-hand',f:'Gut. Droppings, hand to mouth.',b:'Droppings on hands, food or surfaces. Diarrhea, fever and cramps. <b>Gloves on</b>, no eating or drinking in the work area, and wash before you touch your face.'},
+    {t:'Rat-bite fever',i:'i-alert',f:'Whole body. Bites, scratches, handling rats.',b:'Bacteria from a rat\'s mouth. Fever, vomiting, joint pain and rash, usually <b>3 to 10 days</b> later. Treatable, but untreated it kills about 1 in 10. CDC has reported deaths from it in Florida.'},
+    {t:'LCMV',i:'i-germ',f:'House mice. Urine, droppings, nests, bites.',b:'Lymphocytic choriomeningitis virus. Often mild and flu-like, but it can cause meningitis and is <b>dangerous in pregnancy</b>. Pregnant? Talk to your doctor and your supervisor about rodent work.'},
+    {t:'Plague',i:'i-pin',f:'Rodent fleas. Not found in Florida.',b:'In the US it occurs in rural western states, not here. The lesson still applies: <b>fleas leave a dead rodent</b> looking for a new host. Use repellent and bag carcasses promptly.'}
+  ];
+  var dz=$('#dzFlip'),dzSeen=store.get('dz')||{};
+  DZ.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='dz'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span style="display:flex;gap:10px;align-items:center"><span class="icobox" style="margin:0"><svg class="ico"><use href="#'+v.i+'"/></svg></span><h3>'+v.t+'</h3></span><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');dzSeen[i]=1;store.set('dz',dzSeen)});dz.appendChild(b)});
+
+  /* ---------- fact or myth ---------- */
+  var FM=[
+    {q:'House mice, roof rats and Norway rats are the main hantavirus carriers in Florida.',a:'Myth',w:'In Florida, hantavirus is linked to native cotton rats and rice rats.'},
+    {q:'Sweeping up dry droppings is fine as long as you wear gloves.',a:'Myth',w:'Sweeping puts the dust in the air. Wet it with disinfectant, wait, then wipe.'},
+    {q:'Leptospirosis can get in through a small cut or your eyes, from water or soil contaminated with rat urine.',a:'Fact',w:'That is the main route. Gloves, eye protection and rubber boots in wet areas.'},
+    {q:'A paper dust mask protects you from droppings dust in an attic.',a:'Myth',w:'It doesn\'t seal and isn\'t rated. N95 minimum, fit-tested and seal-checked.'},
+    {q:'A rat bite that looks minor still needs a medical evaluation and a same-day report.',a:'Fact',w:'Rat-bite fever is treatable early and can be fatal untreated.'},
+    {q:'Mouse droppings can\'t carry hantavirus here, so the respirator can stay in the truck.',a:'Myth',w:'Household rodents carry leptospirosis, salmonella and LCMV, and you can\'t be sure which rodent left the droppings.'}
+  ];
+  var fmB=$('#fmSort'),fmSel={};
+  FM.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='fmr'+i;
+    r.innerHTML='<span class="small">'+s.q+'</span><span class="opts"><button type="button" aria-pressed="false" data-v="Fact" id="fm'+i+'f">Fact</button><button type="button" aria-pressed="false" data-v="Myth" id="fm'+i+'m">Myth</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){fmSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});
+    fmB.appendChild(r)});
+  $('#fmCheck').addEventListener('click',function(){
+    var right=0,blank=0;
+    FM.forEach(function(s,i){var r=$('#fmr'+i),w=$('.why',r);if(w)w.remove();
+      if(!fmSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=fmSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.a+'. '+s.w;r.appendChild(d)}});
+    $('#fmFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all six before checking.</span>':(right===FM.length?'<span class="fb" style="display:inline-block">All six correct.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 6. Read the notes in red and try again.</span>');
+  });
+
+  /* ---------- cleanup order ---------- */
+  var CL=['Confirm it\'s a small area at your work site, within our scope','Ventilate: open doors and windows for 30 minutes and step out','Put on gloves, eye protection and your respirator','Spray droppings and urine until very wet with disinfectant','Wait 5 minutes, or the label\'s contact time','Wipe up with paper towels. No sweeping, no vacuum','Bag the waste, knot it, then a second bag','Disinfect the surface, wash gloved hands, remove gloves, wash hands'];
+  var clOrd=[4,1,6,0,7,3,5,2],clN=0;
+  function renderCl(){
+    var box=$('#clOrder');box.innerHTML='';clN=0;$('#clFb').innerHTML='';
+    clOrd.forEach(function(ix){var b=document.createElement('button');b.type='button';b.id='cl'+ix;b.dataset.ix=ix;b.innerHTML='<span class="num">·</span><span>'+CL[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===clN){b.classList.add('placed');$('.num',b).textContent=clN+1;clN++;
+          if(clN===CL.length){$('#clFb').innerHTML='<div class="fb">Correct. Scope, air, PPE, wet, wait, wipe, bag, disinfect and wash. <button type="button" class="btn" id="clAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#clAgain').addEventListener('click',renderCl)}
+          else $('#clFb').innerHTML=''}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#clFb').innerHTML='<div class="fb no">Not yet. What has to happen before this step is safe?</div>'}
+      });box.appendChild(b)});
+  }
+  renderCl();
+
+  /* ---------- PPE picker ---------- */
+  var GEAR=[{k:'nit',t:'Nitrile gloves'},{k:'cut',t:'Cut-resistant gloves'},{k:'eye',t:'Safety glasses or goggles'},{k:'n95',t:'N95 respirator'},{k:'p100',t:'Half-face P100 respirator'},{k:'cov',t:'Disposable coveralls'},{k:'rub',t:'Rubber boots'},{k:'boot',t:'Slip-resistant work boots'},{k:'rep',t:'Insect repellent'}];
+  var GN={};GEAR.forEach(function(g){GN[g.k]=g.t});
+  var PP=[
+    {n:'Exterior inspection',job:'Walking the perimeter and checking the roofline from the ground for gaps, rub marks and burrows. No contact with droppings.',req:[['boot']],ok:['nit','eye'],e:'Work boots on every job. Gloves are recommended so you can check a rub mark or lift debris without bare hands.'},
+    {n:'Attic inspection',job:'Active roof rat account. You\'ll go into the attic to find runways, droppings and entry points.',req:[['n95','p100'],['nit'],['eye'],['cov']],ok:['boot','rep'],e:'A respirator is required before attic entry on an active account: N95 at minimum. Coveralls keep insulation fibers and droppings dust off your clothes.'},
+    {n:'Droppings by a trap',job:'A small pile of mouse droppings and some urine staining beside a trap under a kitchen sink.',req:[['nit'],['eye']],ok:['n95','p100','boot','cov'],e:'Gloves and eye protection for the wet-wipe cleanup. Add an N95 if the space is enclosed or the material is dusty.'},
+    {n:'Nest removal',job:'Pulling a roof rat nest out of the attic insulation near the eave so you can seal the entry point.',req:[['p100'],['nit'],['eye'],['cov']],ok:['rep','boot','rub'],e:'Nest removal is the dustiest task we do: half-face P100. Repellent on clothing helps with fleas leaving the nest.'},
+    {n:'Heavy contamination',job:'Vacant rental. Droppings across the garage floor and attic, strong urine odor. You\'re inspecting so the cleanup can be referred out.',req:[['p100'],['nit'],['eye'],['cov'],['rub']],ok:['rep','boot'],e:'Heavy contamination: P100, coveralls, gloves, eye protection and rubber boots you can disinfect. Decontaminate everything before you leave.'},
+    {n:'Dead rat in a trap',job:'Follow-up visit. A dead rat in a snap trap on the garage floor.',req:[['nit']],ok:['eye','rep','n95','p100','boot'],e:'Gloves before you touch it. Spray, wait 5 minutes, double-bag. Repellent on clothing is a good habit.'},
+    {n:'Sealing at the eave',job:'Cutting and fastening hardware cloth over a gap at the soffit, working from an extension ladder.',req:[['cut'],['eye'],['boot']],ok:['nit','n95'],e:'Cut-resistant gloves and eye protection for cut mesh and metal, slip-resistant boots for the ladder. Nitrile underneath if there are droppings at the gap.'}
+  ];
+  var ppCur=0,ppSel={},ppDone=store.get('pp')||{};
+  var ppT=$('#ppTabs');
+  PP.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.id='ppt'+i;b.textContent=(i+1)+'. '+p.n;b.addEventListener('click',function(){showPP(i)});ppT.appendChild(b)});
+  function showPP(n){
+    ppCur=n;ppSel={};
+    $$('button',ppT).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!ppDone[j])});
+    $('#ppJob').innerHTML='<span class="eyebrow">Task '+(n+1)+' of '+PP.length+'</span><p style="margin-top:4px">'+PP[n].job+'</p>';
+    $('#ppFb').innerHTML='';
+    $('#ppPick').innerHTML=GEAR.map(function(g){return '<button type="button" aria-pressed="false" id="pg_'+g.k+'" data-k="'+g.k+'">'+g.t+'</button>'}).join('');
+    $$('#ppPick button').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k;ppSel[k]=!ppSel[k];b.setAttribute('aria-pressed',!!ppSel[k]);b.classList.remove('miss','extra')})});
+  }
+  $('#ppCheck').addEventListener('click',function(){
+    var p=PP[ppCur],miss=[],extra=[];
+    p.req.forEach(function(gr){if(!gr.some(function(k){return ppSel[k]}))miss.push(gr)});
+    Object.keys(ppSel).forEach(function(k){if(!ppSel[k])return;var inReq=p.req.some(function(gr){return gr.indexOf(k)>=0});if(!inReq&&p.ok.indexOf(k)<0)extra.push(k)});
+    $$('#ppPick button').forEach(function(b){var k=b.dataset.k;b.classList.remove('miss','extra');
+      if(miss.some(function(gr){return gr[0]===k}))b.classList.add('miss');
+      if(extra.indexOf(k)>=0)b.classList.add('extra')});
+    if(!miss.length){ppDone[ppCur]=1;store.set('pp',ppDone);$$('button',ppT)[ppCur].classList.add('done');
+      $('#ppFb').innerHTML='<div class="fb"><b>Geared up.</b> '+p.e+(extra.length?' <span class="small">('+extra.map(function(k){return GN[k]}).join(', ')+': not needed for this task.)</span>':'')+'</div>'}
+    else $('#ppFb').innerHTML='<div class="fb no"><b>Missing:</b> '+miss.map(function(gr){return gr.map(function(k){return GN[k]}).join(' or ')}).join('; ')+'. Outlined in red.</div>';
+  });
+  $('#ppClear').addEventListener('click',function(){showPP(ppCur)});
+  showPP(0);
+
+  /* ---------- attic hazard hunt ---------- */
+  var AT=[
+    {x:72,y:256,r:20,d:1,t:'Droppings and a nest at the eave',e:'Low, tight and full of dried material. Respirator on before you get close, and never sweep it. Wet, wait, wipe, bag, or refer it if it\'s large.'},
+    {x:135,y:304,r:18,d:1,t:'The open hatch',e:'The hole you came up through. Know where it is at all times and keep your path back to it clear. Never back toward it blind.'},
+    {x:185,y:282,r:15,d:1,t:'Insulation between joists',e:'Insulation sits on drywall, and drywall won\'t hold you. One step off a joist goes through the customer\'s ceiling, and you with it.'},
+    {x:236,y:280,r:15,d:1,t:'Vermiculite insulation',e:'Pebbly, gray-brown, loose-fill. Older vermiculite may contain asbestos. Don\'t dig in it or disturb it. Tell your supervisor.'},
+    {x:205,y:110,r:15,d:1,t:'Wasp nest on a rafter',e:'Common in Florida attics. Spot it with your light before your head is next to it, and back away if it\'s active.'},
+    {x:302,y:118,r:18,d:1,t:'Heat at the ridge',e:'Heat rises to the peak, and attics pass 130°F in summer. Short stints, water before and after, and get out at the first symptom.'},
+    {x:326,y:236,r:20,d:1,t:'Air handler and ducts',e:'Flex ducts crush and tear under a knee, and the unit and condensate line are not steps. Go around them.'},
+    {x:436,y:260,r:15,d:1,t:'Recessed light',e:'The can gets hot and sits in an open hole in the ceiling. Don\'t step on it or kneel on it.'},
+    {x:430,y:172,r:18,d:1,t:'Roofing nails through the decking',e:'Nail tips poke through the underside of the roof. Move slowly, keep your head down, and a bump cap helps.'},
+    {x:496,y:253,r:16,d:1,t:'Gnawed wiring at a junction box',e:'Rodents chew insulation off wires. Don\'t touch it, don\'t staple or fasten near it. Exposed or sparking wire: get out and tell the customer and your supervisor.'},
+    {x:372,y:262,r:13,d:0,t:'Walk board',e:'A plywood walk board across the joists. This is where you want to be.'},
+    {x:230,y:192,r:13,d:0,t:'Truss web',e:'Sound structure. Fine to steady yourself on. Never cut, notch or stand on it.'}
+  ];
+  function drawAT(){
+    var g='',sl=function(x){return 272-(x-20)*248/260},sr=function(x){return 24+(x-280)*248/260};
+    var ink='stroke="var(--ink)" stroke-width="2.2" fill="none" stroke-linecap="round"';
+    g+='<rect x="20" y="292" width="520" height="5" fill="var(--line)"/>';
+    g+='<rect x="24" y="268" width="512" height="24" fill="var(--brand-50)"/>';
+    for(var x=28;x<536;x+=12)g+='<path d="M'+x+' 270q3-4 6 0t6 0" stroke="var(--brand-300)" stroke-width="1.2" fill="none"/>';
+    g+='<rect x="212" y="266" width="46" height="26" fill="#E7E3DC"/>';
+    for(var vx=215;vx<256;vx+=6)for(var vy=270;vy<290;vy+=6)g+='<circle cx="'+(vx+(vy%12?3:0))+'" cy="'+vy+'" r="1.5" fill="#8E8778"/>';
+    [60,110,160,210,260,310,360,410,460,510].forEach(function(jx){g+='<rect x="'+(jx-4)+'" y="264" width="8" height="28" fill="var(--brand-200)" stroke="var(--brand-600)" stroke-width="1"/>'});
+    g+='<rect x="115" y="262" width="40" height="36" fill="var(--canvas)"/>';
+    g+='<path d="M114 292V298M156 292V298" stroke="var(--ink)" stroke-width="1.6"/>';
+    g+='<path d="M122 298L114 328M148 298L156 328M121 306h28M118 316h33M116 325h37" stroke="var(--brand-600)" stroke-width="1.8" fill="none"/>';
+    g+='<rect x="300" y="259" width="122" height="5" fill="#C9B79A" stroke="#8A6D4B" stroke-width="1"/>';
+    g+='<path d="M20 272L280 24L540 272" '+ink+' stroke-width="3"/>';
+    g+='<path d="M280 24V264M280 264L180 '+sl(180)+'M280 264L380 '+sr(380)+'" stroke="var(--brand-600)" stroke-width="2" fill="none"/>';
+    g+='<path d="M48 266c6-8 14-4 20-9s14-2 18 3 10 2 14 6" stroke="#8A6D4B" stroke-width="2" fill="none"/><path d="M52 264c8-3 16 2 24-2s14 0 20 2" stroke="#A88E6C" stroke-width="1.6" fill="none"/>';
+    [[58,262],[66,258],[82,261],[90,264],[74,263],[98,262]].forEach(function(p){g+='<ellipse cx="'+p[0]+'" cy="'+p[1]+'" rx="2.6" ry="1.3" fill="var(--ink)"/>'});
+    g+='<path d="M205 '+sl(205)+'V104" stroke="var(--ink)" stroke-width="1.4"/><ellipse cx="205" cy="112" rx="9" ry="8" fill="#D9D3C7" stroke="var(--ink)" stroke-width="1.4"/><path d="M200 112h10M201 116h8" stroke="var(--ink)" stroke-width="1"/>';
+    g+='<rect x="296" y="96" width="12" height="44" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/><rect class="merc" x="299" y="104" width="6" height="34" rx="3" fill="var(--danger)"/><text x="314" y="124" class="tl2">130°F</text>';
+    g+='<path d="M304 238C286 238 278 250 272 262" stroke="var(--brand-300)" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M304 238C286 238 278 250 272 262" stroke="var(--surface)" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="2 3"/>';
+    g+='<rect x="304" y="214" width="44" height="45" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><path d="M310 224h32M310 230h32M310 236h32" stroke="var(--muted)" stroke-width="1.2"/>';
+    g+='<path d="M426 268V254h20V268" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><path d="M424 254h24" stroke="var(--ink)" stroke-width="2"/>';
+    [410,430,450].forEach(function(nx){var ny=sr(nx);g+='<path d="M'+nx+' '+ny+'v10" stroke="var(--ink)" stroke-width="1.6"/>'});
+    g+='<path d="M486 253C470 256 466 262 450 264M504 253L528 262" stroke="#3B3F3C" stroke-width="2.2" fill="none"/><path d="M468 255l2 4M474 254l1 4" stroke="var(--danger)" stroke-width="1.4"/><rect x="486" y="246" width="18" height="14" rx="2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>';
+    AT.forEach(function(h,i){g+='<g class="hs" id="at'+i+'" tabindex="0" role="button" aria-label="'+h.t+'"><circle class="ring" cx="'+h.x+'" cy="'+h.y+'" r="'+h.r+'"/>'+(h.d?'<g class="badge"><circle cx="'+(h.x+h.r-2)+'" cy="'+(h.y-h.r+2)+'" r="8"/><text x="'+(h.x+h.r-2)+'" y="'+(h.y-h.r+6)+'" text-anchor="middle" id="atb'+i+'"></text></g>':'')+'</g>'});
+    $('#atSvg').innerHTML=g;
+    var found=[];
+    function hit(i){
+      var h=AT[i],el=$('#at'+i);
+      if(h.d){if(found.indexOf(i)<0){found.push(i);$('#atb'+i).textContent=found.length}el.classList.add('found')}else el.classList.add('ok');
+      var done=found.length===10;
+      $('#atFb').innerHTML='<span class="eyebrow">Found <b>'+found.length+'</b> of 10</span><h3 style="margin:6px 0 4px;color:'+(h.d?'var(--danger)':'var(--positive)')+'">'+(h.d?'Hazard: ':'Fine: ')+h.t+'</h3><p class="small">'+h.e+(done?' <b>All ten found.</b>':'')+'</p>';
+    }
+    AT.forEach(function(h,i){var el=$('#at'+i);el.addEventListener('click',function(){hit(i)});el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();hit(i)}})});
+    $('#atReveal').onclick=function(){AT.forEach(function(h,i){if(h.d&&found.indexOf(i)<0){found.push(i);$('#atb'+i).textContent=found.length;$('#at'+i).classList.add('found')}});$('#atFb').innerHTML='<span class="eyebrow">All 10 shown</span><p class="small" style="margin-top:6px">Nest and droppings, open hatch, insulation between joists, vermiculite, wasps, ridge heat, air handler and ducts, recessed light, roofing nails, gnawed wiring. Select any marker to read why.</p>'};
+    $('#atReset').onclick=drawAT;
+  }
+  drawAT();
+
+  /* ---------- exposure scenarios ---------- */
+  var SC=[
+    {n:'Bitten',q:'Removing a live mouse from a trap, it bites through your nitrile glove. Two small punctures, a little blood.',o:['Finish the job and mention it at the end of the week','Wash it with soap and water, tell your supervisor now, get a medical evaluation today, and file the written report today','Put on a bandage and skip the report since it\'s small','Wait to see if you get sick before telling anyone'],a:1,e:'Wash, supervisor immediately, medical evaluation the same day, written report the same day. Rat-bite fever and infection are treatable when caught early.'},
+    {n:'Big pile',q:'Ten feet into an attic you find droppings and nesting material spread across several square feet. Your N95 is on, but this is far more than a trap-side cleanup.',o:['Sweep it into a bag so the customer is happy','Vacuum it with the customer\'s shop vac','Spray it all down and spend the afternoon cleaning','Don\'t disturb it: photograph it, finish the inspection carefully, and tell your supervisor. Large cleanup is outside our scope'],a:3,e:'We do small cleanups at our work area. Heavy contamination gets documented and escalated, and sweeping or vacuuming dry material is never an option.'},
+    {n:'Feeling sick',q:'Two weeks after a heavy attic job you have a fever, chills and bad muscle aches.',o:['See a doctor, tell them you work around rodents and droppings, then tell your supervisor','Tough it out; it\'s probably the flu','Take leftover antibiotics from home','Wait until it\'s been 8 weeks to be sure'],a:0,e:'Hantavirus, leptospirosis and other rodent illnesses look like the flu at first. The doctor needs to know about the exposure, and your supervisor needs to know too.'},
+    {n:'Needle',q:'While pulling back insulation by the hatch, your light catches a hypodermic needle.',o:['Pick it up carefully and put it in your waste bag','Push it aside with your gloved hand and keep working','Don\'t touch it. Photograph it, keep others away, tell the customer and your supervisor','Ignore it and work somewhere else'],a:2,e:'Needles can carry bloodborne disease and go through gloves. Leave it, document it and report it. If you are stuck, wash it and get medical care right away.'},
+    {n:'Attic heat',q:'1:30 pm in July. Twenty minutes into an attic you feel dizzy and sick to your stomach, and you realize you\'ve stopped sweating.',o:['Push through; you\'re almost done','Get out now, tell the customer or a coworker, cool down. Confusion or hot, dry skin means call 911','Take your respirator off and keep working','Sit still in the attic until it passes'],a:1,e:'Dizziness and nausea are heat exhaustion; hot, dry skin and confusion point to heat stroke, a 911 emergency. Get out first. Then report it and reschedule the attic work for the morning.'},
+    {n:'Customer asks',q:'A worried customer asks if her kids will get hantavirus from the roof rat droppings you found.',o:['Tell her yes, it\'s very dangerous','Tell her it\'s completely safe','Say nothing and change the subject','Explain calmly that roof rats aren\'t the rodents linked to hantavirus here, but droppings carry other germs, so small areas should be cleaned the wet way, and her doctor can answer health questions'],a:3,e:'Accurate, calm and within your role. Don\'t scare her, don\'t promise anything is "safe", and refer medical questions to her doctor or the health department.'}
+  ];
+  var scT=$('#scTabs'),scB=$('#scBox'),scDone=store.get('sc')||{};
+  function showSC(n){
+    $$('button',scT).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!scDone[j])});
+    var s=SC[n];
+    scB.innerHTML='<div class="card" style="padding:12px 18px"><span class="eyebrow">Scenario '+(n+1)+' of '+SC.length+'</span><p style="margin-top:4px">'+s.q+'</p></div><div class="choices" style="grid-template-columns:1fr 1fr">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'" style="padding:9px 14px;font-size:14px"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="scFb" aria-live="polite"></div>';
+    $$('.choice',scB).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i,ok=i===s.a;$$('.choice',scB).forEach(function(x){x.classList.remove('wrong')});b.classList.add(ok?'right':'wrong');
+      $('#scFb').innerHTML='<div class="fb'+(ok?'':' no')+'" style="padding:10px 14px;font-size:14px">'+(ok?'<b>Right call.</b> '+s.e:'<b>Not the safest choice.</b> Try again.')+'</div>';
+      if(ok){scDone[n]=1;store.set('sc',scDone);$$('button',scT)[n].classList.add('done');$$('.choice',scB).forEach(function(x){x.disabled=true})}
+    })});
+  }
+  SC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='sct'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showSC(i)});scT.appendChild(b)});
+  showSC(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

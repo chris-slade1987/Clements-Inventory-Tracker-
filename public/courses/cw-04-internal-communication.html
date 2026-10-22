@@ -1,0 +1,1253 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CW-04 Internal Communication</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* CW-04 widgets: directory, escalation lanes, router, urgency ladder, day timeline, readers, note, inbox */
+.dir{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dir button{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.dir button b{display:block;font-size:14px}
+.dir button small{display:block;color:var(--muted);font-size:12px}
+.dir button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.dir button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+#dirWho h3{font-size:22px;margin:6px 0 2px}
+#dirWho .not{margin-top:10px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+#dirWho .how{margin-top:10px;display:flex;gap:10px;align-items:flex-start;font-size:14px;background:var(--brand-50);border-radius:10px;padding:8px 12px;word-break:break-word}
+#dirWho .how .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+#dirWho{animation:rise .2s ease-in-out both}
+
+.lanes{display:grid;gap:12px}
+.lane{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.lname{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:400}
+.lname .ico{color:var(--brand-600)}
+.ladder{list-style:none;display:flex;gap:0;align-items:stretch}
+.ladder li{flex:1;position:relative;display:grid;gap:2px;padding:10px 12px 10px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:10px;margin-right:26px;font-size:14px;line-height:1.3;opacity:0;transform:translateX(-6px)}
+.ladder li small{color:var(--muted);font-size:12px}
+.ladder li:last-child{margin-right:0;background:var(--surface);border-style:dashed}
+.ladder li:not(:last-child)::after{content:"";position:absolute;right:-21px;top:50%;width:16px;height:2px;background:var(--brand-400)}
+.ladder li:not(:last-child)::before{content:"";position:absolute;right:-22px;top:calc(50% - 4px);border:5px solid transparent;border-left:6px solid var(--brand-400);border-right:0}
+.slide.on .ladder li{animation:lad .22s ease-in-out forwards}
+.slide.on .ladder li:nth-child(1){animation-delay:.35s}.slide.on .ladder li:nth-child(2){animation-delay:.6s}.slide.on .ladder li:nth-child(3){animation-delay:.85s}.slide.on .ladder li:nth-child(4){animation-delay:1.1s}
+@keyframes lad{to{opacity:1;transform:none}}
+
+.rhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.router{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;align-items:start}
+.rq .who{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-600)}
+.rq p.s{font-size:18px;color:var(--ink);margin-top:8px;line-height:1.45}
+.rq .prog{display:flex;gap:5px;margin-top:14px}
+.rq .prog i{width:22px;height:4px;border-radius:2px;background:var(--line)}
+.rq .prog i.ok{background:var(--positive)}.rq .prog i.cur{background:var(--brand-600)}
+.rpick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rpick button{display:grid;gap:0;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:300;line-height:1.3;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.rpick button b{font-size:14px}
+.rpick button small{font-size:12px;color:var(--muted)}
+.rpick button:hover:not([disabled]){border-color:var(--brand-400)}
+.rpick button.right{border-color:var(--positive);background:#EAF5EE}
+.rpick button.wrong{border-color:var(--danger);background:#FDEEEE}
+.rpick button[disabled]{cursor:default}
+#rFoot .fb{flex:1}
+
+.chan .card{display:flex;flex-direction:column;gap:6px}
+.chan .card p{font-size:14px;flex:1;word-break:break-word}
+.chan .chip{align-self:flex-start}
+
+.urg{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:stretch}
+.ulev{display:grid;gap:8px}
+.ulev button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:var(--radius);padding:12px 14px;font-weight:300;transition:background .18s ease-in-out,border-color .18s ease-in-out}
+.ulev button b{display:block;font-size:16px}
+.ulev button small{display:block;font-size:13px;color:var(--muted)}
+.ulev button[aria-pressed="true"]{background:var(--brand-50);border-color:var(--brand-600);border-left-color:var(--c)}
+.ulev button .ico{color:var(--c)}
+.udet{animation:rise .2s ease-in-out both}
+.udet h3{font-size:22px;margin:4px 0 10px}
+.udet .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.udet ul{list-style:none;display:grid;gap:6px;font-size:15px}
+.udet li{display:flex;gap:10px}
+.udet li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.udet .do li::before{background:var(--brand-700)}
+.udet .resp{margin-top:14px;display:flex;gap:10px;align-items:center;font-size:15px;border-top:1px solid var(--line);padding-top:12px}
+.udet .resp .ico{color:var(--brand-600)}
+
+.day{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.day .dline{position:absolute;left:12.5%;right:12.5%;top:56px;height:2px;background:var(--brand-100)}
+.day .dline i{position:absolute;inset:0;background:var(--brand-600);transform-origin:left;transform:scaleX(0)}
+.slide.on .day .dline i{animation:grow 1.4s ease-in-out .4s forwards}
+.dstep{position:relative;display:grid;justify-items:center;text-align:center;gap:6px}
+.dstep .dt{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.dstep .dd{width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.dstep .dd.red{border-color:var(--danger);color:var(--danger)}
+.dstep b{font-size:16px}
+.dstep p{font-size:14px;color:var(--muted)}
+.slide.on .day .dd{animation:pop .3s ease-in-out both}
+.slide.on .dstep:nth-of-type(2) .dd{animation-delay:.4s}.slide.on .dstep:nth-of-type(3) .dd{animation-delay:.8s}.slide.on .dstep:nth-of-type(4) .dd{animation-delay:1.2s}.slide.on .dstep:nth-of-type(5) .dd{animation-delay:1.6s}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+.sort .opts.three button{padding:5px 10px}
+
+.readers{display:grid;gap:10px}
+.rd{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px}
+.rd .rn{flex:0 0 32px;height:32px;border-radius:50%;background:var(--grad-emerald);color:#fff;display:grid;place-items:center;font-size:14px}
+.rd b{font-size:16px}
+.rd p{font-size:14px;color:var(--muted)}
+
+.note{font-size:15px;min-height:250px}
+.note .meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px;flex-wrap:wrap}
+.note .tag{display:inline-block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-600);margin-right:6px}
+.note .ln{display:block;margin-bottom:6px}
+.note.bad .ln{color:var(--ink)}
+.note .flag{display:block;margin-top:10px;font-size:13px;color:var(--danger)}
+.note .ok{display:block;margin-top:10px;font-size:13px;color:var(--positive)}
+
+#npick button.good-hit{border-color:var(--positive)}
+#nPrev{font-size:15px}
+
+.order button{font-size:15px}
+
+#tBox .choices{grid-template-columns:1fr 1fr}
+#tBox .msg{font-size:16px}
+
+.inbox{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+.ilist{display:grid;gap:8px}
+.ilist button{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-weight:300;line-height:1.3}
+.ilist button .ico{color:var(--brand-600);margin-top:2px}
+.ilist button b{display:block;font-size:14px}
+.ilist button small{display:block;font-size:12px;color:var(--muted)}
+.ilist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.ilist button.done::after{content:"Done";margin-left:auto;font-size:12px;color:var(--positive)}
+.iview .msg{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;font-size:15px}
+.iview .msg .hd{font-size:12px;color:var(--muted);margin-bottom:6px}
+.iview .choices{gap:8px}
+.iview .choice{padding:10px 14px;font-size:15px}
+
+@media (max-width:860px){
+  .dir,.rpick{grid-template-columns:1fr 1fr}
+  .lane{grid-template-columns:1fr}
+  .ladder{flex-direction:column;gap:22px}
+  .ladder li{margin-right:0}
+  .ladder li:not(:last-child)::after{right:auto;left:24px;top:auto;bottom:-16px;width:2px;height:12px}
+  .ladder li:not(:last-child)::before{display:none}
+  .router,.urg,.inbox,.udet .cols,#tBox .choices{grid-template-columns:1fr}
+  .day{grid-template-columns:1fr 1fr}
+  .day .dline{display:none}
+  .flip[style]{grid-template-columns:1fr!important}
+}
+@media (prefers-reduced-motion:reduce){.ladder li{opacity:1;transform:none}.day .dline i{transform:none}}
+.seg{justify-self:start}
+.label .lt{display:block}
+.rpick button{padding:6px 12px}
+#tBox .choice{padding:10px 14px}
+#chSort .row.no > span:first-child{cursor:pointer;text-decoration:underline dotted var(--danger);text-underline-offset:4px}
+#nPrev{flex-shrink:0}
+.pick button.extra{border-color:var(--danger);border-style:dashed}
+#nPrev{font-size:14px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 29</span><span class="code-chip">CW-04 · Internal Communication</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Clements Way · CW-04</span>
+        <h1 class="display a" style="--i:1">Internal Communication</h1>
+        <p class="lead a" style="--i:2">Who owns what, how to reach them, how fast to answer, and how to write a tech note or an escalation the office can act on the first time.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">4 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 220" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <rect x="20" y="24" width="110" height="64" rx="12"/><path d="M44 88l-8 18 26-18"/><path d="M40 46h70M40 62h48"/>
+          <rect x="190" y="120" width="110" height="64" rx="12"/><path d="M276 184l8 18-26-18"/><path d="M210 142h70M210 158h44"/>
+          <path d="M130 56c60 0 60 40 60 82"/><path d="M182 128l8 10 8-10"/>
+          <circle cx="250" cy="52" r="22"/><path d="M250 30v-10M250 84v-10M228 52h-10M282 52h-10"/><path d="M250 40v12l8 6"/>
+          <circle cx="70" cy="168" r="18"/><path d="M58 168l8 8 16-16"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-users"/></svg><span>Route any question to the right person the first time, using the Corporate Contact &amp; Reference Sheet</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-route"/></svg><span>Follow the escalation path for customer and operational issues without skipping steps</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-phone"/></svg><span>Pick the right channel for the urgency: call, email, tech note or face to face</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span>Meet Clements' response standard: calls and emails answered through the day, nothing left by close of business</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-pen"/></svg><span>Write a clear, accurate tech note and an escalation email the office can act on without calling you back</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-shield"/></svg><span>Keep every message professional, confidential and safe, and handle disagreements the right way</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">Every message is part of <span class="em">the service.</span></h2>
+        <p class="a muted" style="--i:2">The customer never sees the email, the call back or the note in PestPac. They only see the result: a visit that happened when it should, a question answered the first time, a problem fixed without telling their story twice.</p>
+        <p class="quote a" style="--i:3;font-size:20px">"Clear, courteous communication fosters a collaborative work environment and ensures problems are solved efficiently."<cite>CLEMENTS ONBOARDING · COMMUNICATION WITH THE OFFICE</cite></p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Customer trust</h3><p>A message sent to the wrong person, or answered a day late, becomes a missed service, a wrong bill or a customer who calls back angry. In a hub-and-spoke company, the office and the field only work if information moves between them.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>Records the state can inspect</h3><p>Florida rule 5E-14.142 requires pest control records to be recorded within two working days and kept at least two years for FDACS inspectors. Your PestPac notes and log-in times are those records.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Some clocks are legal deadlines</h3><p>OSHA requires a work-related death reported within 8 hours; a hospitalization, amputation or eye loss within 24. That only works if you report right away.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: who owns what">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Who owns what</h1>
+        <p class="lead a" style="--i:2">Why it matters: every question that goes to the wrong person costs two people time and leaves the customer waiting. CW-01 introduced the team. Here you learn to route.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The contact directory</li><li><span>02</span>Common mix-ups</li><li><span>03</span>The escalation path</li><li><span>04</span>Practice: who do I contact?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 DIRECTORY -->
+  <section class="slide" data-label="Contact directory">
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · The contact directory</span>
+        <h2 class="a" style="--i:1">Select anyone: what to bring them and how to reach them</h2>
+        <div class="dir a" style="--i:2" id="dir"></div>
+        <p class="small muted a" style="--i:3">From the CW-04 Corporate Contact &amp; Reference Sheet, current October 2026. Main office 772-562-6450. Mobile numbers are on the printed sheet.</p>
+      </div>
+      <div class="card who a" style="--i:3" id="dirWho"><span class="eyebrow">Select a contact</span><p style="margin-top:8px">Each card lists what that person handles, what does not belong with them, and the contact method the sheet asks you to use.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 MIX-UPS -->
+  <section class="slide" data-label="Common mix-ups">
+    <span class="eyebrow a">02 · Common mix-ups</span>
+    <h2 class="a" style="--i:1">It sounds like theirs. It isn't.</h2>
+    <p class="a muted" style="--i:2">Four routing mistakes that are easy to make. Select each card to see where the question really goes.</p>
+    <div class="flip a" style="--i:3;grid-template-columns:repeat(4,1fr)" id="mix"></div>
+  </section>
+
+  <!-- 7 ESCALATION PATH -->
+  <section class="slide" data-label="Escalation path">
+    <span class="eyebrow a">03 · The escalation path</span>
+    <h2 class="a" style="--i:1">Start at the first level that can solve it. Move up only when it can't.</h2>
+    <div class="lanes">
+      <div class="lane a" style="--i:2"><span class="lname"><svg class="ico"><use href="#i-headset"/></svg>Customer and account issues</span>
+        <ol class="ladder"><li><b>Customer Service Team</b><small>technotes@ · tech line</small></li><li><b>Emily Trione</b><small>CSR Coordinator</small></li><li><b>The right department</b><small>Finance, Routing, branch manager</small></li><li><b>Chris Slade</b><small>COO · executive input only</small></li></ol></div>
+      <div class="lane a" style="--i:3"><span class="lname"><svg class="ico"><use href="#i-truck"/></svg>Field and operational issues</span>
+        <ol class="ladder"><li><b>Your branch manager</b><small>service, pricing, complaints</small></li><li><b>Graham Foster</b><small>Director of Field Operations</small></li><li><b>Chris Slade</b><small>COO · executive input only</small></li></ol></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-route"/></svg><span><b>Don't skip levels.</b> Emailing the COO about a billing question doesn't make it faster. It lands back with Robin, a day later.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-door"/></svg><span><b>Personal concerns are different.</b> Under the open door policy you may talk to any manager or director. Harassment can go straight to HR or leadership.</span></div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE ROUTING -->
+  <section class="slide" data-label="Practice: who do I contact?">
+    <div class="rhead a"><div><span class="eyebrow">04 · Practice · who do I contact?</span><h2 style="margin-top:4px">Route each request</h2></div><div class="scen-tabs" id="rTabs"></div></div>
+    <div class="router a" style="--i:1">
+      <div class="grid" style="gap:12px"><div class="card rq" id="rCard"></div><div style="display:grid;gap:10px;justify-items:start" id="rFoot"></div></div>
+      <div class="rpick" id="rPick"></div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: channel and timing">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The right channel, at the right time</h1>
+        <p class="lead a" style="--i:2">Why it matters: an urgent problem sent by email sits unread, and a routine question sent by phone pulls someone off a customer call. Match the channel to the urgency.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Our channels</li><li><span>02</span>How urgent is it?</li><li><span>03</span>Response standards</li><li><span>04</span>Practice: pick the channel</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 CHANNELS -->
+  <section class="slide" data-label="Our channels">
+    <span class="eyebrow a">01 · Our channels</span>
+    <h2 class="a" style="--i:1">"Email unless urgent." The rule on the contact sheet.</h2>
+    <div class="grid g4 chan">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-mail"/></svg></div><h3>Email</h3><p>The default for routine requests and anything that needs details or a record. Customer service: <b>technotes@</b> clementspestcontrol.com</p><span class="chip">Routine · record</span></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-phone"/></svg></div><h3>Phone</h3><p>When it can't wait: a customer on site, a locked gate, a conflict today. Field: <b>tech line 772-469-2566</b>. Office: 772-562-6450 + ext.</p><span class="chip">Urgent · same day</span></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>PestPac notes</h3><p>What was done at the account, what you found and what the customer should do. It goes on the service record and to customers with email on file.</p><span class="chip">The service record</span></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>In person</h3><p>Disagreements, sensitive matters, coaching, and anything that would take five emails to settle. Follow up in writing if a decision was made.</p><span class="chip">Sensitive · complex</span></div>
+    </div>
+    <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span><b>Follow up important calls in writing.</b> If a call settles something the office must act on, send a short email so there is a record. CW-10 covers our systems, including Google Chat.</span></div>
+  </section>
+
+  <!-- 12 URGENCY -->
+  <section class="slide" data-label="How urgent is it?">
+    <span class="eyebrow a">02 · How urgent is it?</span>
+    <h2 class="a" style="--i:1">Select a level to see what belongs there and what to do</h2>
+    <div class="urg a" style="--i:2">
+      <div class="ulev" id="uLev"></div>
+      <div class="card udet" id="uDet"></div>
+    </div>
+  </section>
+
+  <!-- 13 RESPONSE STANDARDS -->
+  <section class="slide" data-label="Response standards">
+    <span class="eyebrow a">03 · Response standards</span>
+    <h2 class="a" style="--i:1">Answer through the day. Nothing waits past close of business.</h2>
+    <div class="day a" style="--i:2" id="day">
+      <span class="dline"><i></i></span>
+      <div class="dstep"><span class="dt">Start of day</span><span class="dd"><svg class="ico"><use href="#i-inbox"/></svg></span><b>Check messages</b><p>Read email and voicemail before your first stop or first call. Customer service is in at 8:00; phones open to customers at 9:00.</p></div>
+      <div class="dstep"><span class="dt">Through the day</span><span class="dd"><svg class="ico"><use href="#i-phone"/></svg></span><b>Respond as you go</b><p>When the office calls, answer or call back as soon as you can. Reply to email throughout the day, not in one batch at night.</p></div>
+      <div class="dstep"><span class="dt">Driving</span><span class="dd red"><svg class="ico"><use href="#i-truck"/></svg></span><b>Let it go to voicemail</b><p>No calls, texts or email behind the wheel, hands-free included. Park safely, then respond.</p></div>
+      <div class="dstep"><span class="dt">Close of business</span><span class="dd"><svg class="ico"><use href="#i-check"/></svg></span><b>Clear the list</b><p>Every missed call returned and every lingering email answered by end of day, even if the answer is "I'm checking and will reply tomorrow by 10."</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span><b>Can't solve it today?</b> Acknowledge it today. Say what you are doing and when you will follow up. Silence is what slows the office down.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-calendar"/></svg><span><b>Out or running late?</b> Notify your supervisor yourself, no later than your scheduled start time. Word passed through a coworker is not notice.</span></div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE CHANNEL -->
+  <section class="slide" data-label="Practice: pick the channel">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Call, email or PestPac note? Pick the best first channel.</h2>
+    <div class="sort a" style="--i:2" id="chSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="chCheck">Check my answers</button><span id="chFb"></span></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: writing it down">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Writing it down</h1>
+        <p class="lead a" style="--i:2">Why it matters: what you write becomes the customer's report, the office's instructions and a record the state can inspect. If it isn't written down clearly, as far as anyone else knows, it didn't happen.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Notes are records</li><li><span>02</span>Anatomy of a good note</li><li><span>03</span>Practice: build the note</li><li><span>04</span>The escalation email</li><li><span>05</span>Practice: say it professionally</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 NOTES ARE RECORDS -->
+  <section class="slide" data-label="Notes are records">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">01 · Notes are records</span>
+        <h2 class="a" style="--i:1">Who reads what you post</h2>
+        <p class="a muted" style="--i:2">Log in to each appointment when you arrive, write notes during the service, and log out when the work is done, before you move to the next stop. That is the Clements onboarding standard for PestPac Mobile, and it is what makes your time and notes accurate.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>Be factual.</b> Never record work you didn't do, a time you weren't there, or a product you didn't apply. Inaccurate records hurt the customer, the company and your license.</span></div>
+      </div>
+      <div class="readers">
+        <div class="rd a" style="--i:2"><span class="rn">1</span><div><b>The customer</b><p>Customers with an email on file get an inspection report with your comments after every service.</p></div></div>
+        <div class="rd a" style="--i:3"><span class="rn">2</span><div><b>Customer service</b><p>When the customer calls, the CSR reads your note to answer them. No note means no answer.</p></div></div>
+        <div class="rd a" style="--i:4"><span class="rn">3</span><div><b>The next technician</b><p>They need to know what you found, what you treated and what to watch.</p></div></div>
+        <div class="rd a" style="--i:5"><span class="rn">4</span><div><b>Your branch manager and FDACS</b><p>Notes verify the work, support a complaint or callback review, and are kept as pest control records for at least two years.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 ANATOMY -->
+  <section class="slide" data-label="Anatomy of a good note">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Anatomy of a good note</span>
+        <h2 class="a" style="--i:1">Five things every note answers</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>What you did</b> and where: areas serviced, method</span></li>
+          <li><span class="num">2</span><span><b>What you found:</b> activity, pest, conducive conditions</span></li>
+          <li><span class="num">3</span><span><b>What the customer can do</b> to help</span></li>
+          <li><span class="num">4</span><span><b>Follow-up:</b> next visit, callback or office action</span></li>
+          <li><span class="num">5</span><span><b>Who you spoke with,</b> or the door hanger left</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="seg a" style="--i:2" role="group" aria-label="Note example"><button type="button" id="nGood" aria-pressed="true">Good note</button><button type="button" id="nBad" aria-pressed="false">Weak note</button></div>
+        <div class="label note a" style="--i:3" id="noteBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 PRACTICE BUILD NOTE -->
+  <section class="slide" data-label="Practice: build the note">
+    <span class="eyebrow a">03 · Practice · build the note · ants at the kitchen slider</span>
+    <h2 class="a" style="--i:1">Select every line that belongs in the note</h2>
+    <div class="pick a" style="--i:2" id="npick"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="nCheck">Check my note</button><span id="nFb"></span></div>
+    <div class="label a" style="--i:4;min-height:64px" id="nPrev"><span class="lt">Your note preview</span><span class="muted" id="nPrevT">Select lines above to build the note.</span></div>
+  </section>
+
+  <!-- 20 ESCALATION EMAIL -->
+  <section class="slide" data-label="The escalation email">
+    <div class="split" style="align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · The escalation email</span>
+        <h2 class="a" style="--i:1">Put the parts of a good escalation in order</h2>
+        <p class="a muted" style="--i:2">Whoever reads it should be able to act without calling you. Select the parts in the order they belong.</p>
+        <div id="escFb" class="a" style="--i:3"></div>
+      </div>
+      <div class="order a" style="--i:2" id="esc"></div>
+    </div>
+  </section>
+
+  <!-- 21 PRACTICE TONE -->
+  <section class="slide" data-label="Practice: say it professionally">
+    <span class="eyebrow a">05 · Practice · say it professionally</span>
+    <h2 class="a" style="--i:1">Pick the version you would send</h2>
+    <div class="scen-tabs a" style="--i:2" id="tTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="tBox"></div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: professionalism">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Professional, every time</h1>
+        <p class="lead a" style="--i:2">Why it matters: the office and the field depend on each other all day. One heated email can cost more than the problem it was about. How we talk to each other shows up in how we treat customers.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>When you disagree</li><li><span>02</span>Confidential, safe, on the record</li><li><span>03</span>Practice: your inbox</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 DISAGREE -->
+  <section class="slide" data-label="When you disagree">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">01 · When you disagree</span>
+        <h2 class="a" style="--i:1">Problems, not people</h2>
+        <p class="a muted" style="--i:2">"Always be polite and avoid argumentative behavior, even when discussing problems or disagreements." The handbook adds that respect for supervisors and management is required. Disagreeing is fine. How you do it matters.</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never</b> argue in front of a customer, reply-all to vent, or put something in writing you wouldn't want read aloud. Email can be forwarded and can be used in legal proceedings.</span></div>
+      </div>
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li><span class="num">1</span><span><b>Pause.</b> Don't answer while angry. Re-read the message: assume a busy coworker, not a hostile one.</span></li>
+        <li><span class="num">2</span><span><b>Move it off email.</b> Call or talk in person. Tone is easy to misread in writing.</span></li>
+        <li><span class="num">3</span><span><b>Stick to facts</b> and what the customer needs. Offer a solution, not blame.</span></li>
+        <li><span class="num">4</span><span><b>Still stuck?</b> Take it to your immediate supervisor. Then HR in writing; HR usually answers within five working days.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 25 CONFIDENTIAL -->
+  <section class="slide" data-label="Confidential, safe, on the record">
+    <span class="eyebrow a">02 · Confidential, safe, on the record</span>
+    <h2 class="a" style="--i:1">Three rules that apply to every message</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Customer information stays inside</h3><p>Customer names, accounts and conditions in their homes are confidential. No photos of customer homes or comments about them on social media. Share account details only with coworkers who need them to do the job.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-mail"/></svg></div><h3>Company systems are company records</h3><p>Email and voicemail belong to Clements and may be reviewed. Don't read messages not sent to you. Never share passwords or logins in a message. Lost or damaged phones go to your supervisor right away.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-truck"/></svg></div><h3>Never behind the wheel</h3><p>Florida bans texting while driving and any handheld phone use in school and active work zones. Clements goes further: no calls, texts or email while driving, hands-free included. Park, then respond. Set GPS before you go.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-phone"/></svg><span>Using your personal phone for work? The same standards apply: professional, confidential, and never while driving.</span></div>
+  </section>
+
+  <!-- 26 PRACTICE INBOX -->
+  <section class="slide" data-label="Practice: your inbox">
+    <span class="eyebrow a">03 · Practice · your inbox</span>
+    <h2 class="a" style="--i:1">It's 2:15. Respond to what came in while you were busy.</h2>
+    <div class="inbox a" style="--i:2">
+      <div class="grid" style="gap:10px;align-content:start"><div class="ilist" id="iList"></div><div id="iFb"></div></div>
+      <div class="grid iview" style="gap:10px" id="iView"></div>
+    </div>
+  </section>
+
+  <!-- 27 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 28 SIGN-OFF -->
+  <section class="slide" data-label="Onboarding sign-off" data-cp="5">
+    <span class="eyebrow a">Onboarding application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on the job</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes or reviews each of these with you before CW-04 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Keep the Corporate Contact &amp; Reference Sheet where you can reach it at work, and save the tech line and technotes@ address</label></li>
+      <li><label><input type="checkbox" id="s2"> Route five real or sample requests to the right contact, out loud, with your supervisor</label></li>
+      <li><label><input type="checkbox" id="s3"> Set up your email signature with the company standard signature block</label></li>
+      <li><label><input type="checkbox" id="s4"> Go one full workday with every missed call and email answered by close of business</label></li>
+      <li><label><input type="checkbox" id="s5"> Write a note your supervisor reviews and approves: a PestPac tech note, or an account note for office roles</label></li>
+      <li><label><input type="checkbox" id="s6"> Send one escalation email using the five-part structure, reviewed by your supervisor</label></li>
+      <li><label><input type="checkbox" id="s7"> Show your phone set to voicemail while driving, or explain the no-phone-while-driving rule if you don't drive for work</label></li>
+      <li><label><input type="checkbox" id="s8"> Explain the escalation path and the open door steps in your own words</label></li>
+    </ul>
+  </section>
+
+  <!-- 29 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('cw04:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('cw04:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "CW-04", "titleHtml": "Internal Communication", "nextHtml": "CW-05 \u00b7 What We Sell", "passNote": "Your onboarding sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Onboarding sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Who owns what',q:'At a stop, a customer tells you she was charged twice for last month\'s service and asks you to fix it. What is the best way to route this?',o:['Tell her to call her bank','Call April Williford, since it involves money','Tell her the office will follow up, then send the details to customer service (technotes@), who route payment issues to Finance & Accounting','Promise her a refund and tell your branch manager later'],a:2,e:'Billing beyond a standard payment belongs to Robin Berning in Finance & Accounting, and customer service routes it there. April handles HR matters only. Never promise a refund you can\'t authorize.'},
+    2:{t:'Checkpoint 2 · Channel and timing',q:'At a home, the customer says she asked the office last week to skip interior service because of a newborn. Your work order still shows interior. What is your best first move?',o:['Treat the interior as the work order says','Call the tech line now, hold the interior until it\'s confirmed, and record the outcome in your PestPac notes','Email technotes@ and carry on with the interior','Leave without servicing and deal with it tomorrow'],a:1,e:'The customer is standing in front of you and the decision affects today\'s treatment, so it is urgent: call. Then make sure the note and the account reflect what was decided.'},
+    3:{t:'Checkpoint 3 · Writing it down',q:'Which of these tech notes best meets the Clements standard?',o:['"Did the usual. All good."','"Customer kept me talking 20 min. Ants again!!"','"Sprayed outside. Call if problems."','"Treated exterior perimeter and entry points, interior kitchen baseboards. Light ant trail at kitchen slider from east mulch bed. Recommended pulling mulch back from the foundation. Will recheck at next quarterly. Reviewed with homeowner."'],a:3,e:'A good note says what you did and where, what you found, what the customer can do, the follow-up, and who you spoke with, in plain professional language. Customers with email on file will read it.'},
+    4:{t:'Checkpoint 4 · Professional every time',q:'A CSR emails you, copying your branch manager, saying you skipped a stop yesterday. You\'re sure you serviced it. What should you do?',o:['Check your log-in record, then call or reply to the CSR the same day with the facts, and copy the same people','Reply-all with a firm message that the office keeps making mistakes','Ignore it; your manager will sort it out','Mention it to coworkers so they know what the office is doing'],a:0,e:'Stay factual and timely. Check the record, respond the same day, and keep the same people informed. If it can\'t be settled, take it to your supervisor. Never argue by email.'},
+    5:{t:'Checkpoint 5',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the default contact method the Corporate Contact & Reference Sheet asks for with most office contacts?',o:['Text message','Walk in to the office','Email unless urgent','Social media message'],a:2,e:'"Email unless urgent." Email gives the person the details and creates a record. Call when it can\'t wait.'},
+    {k:'Multiple choice',q:'A customer asks a technician whether adding mosquito service would also help with ants, and what it would cost. Who owns that question?',o:['Larry Ignazio, Marketing Coordinator','April Williford, Director of HR','Robin Berning, Finance & Accounting','The branch manager'],a:3,e:'Questions about services, treatment options and pricing go to the branch manager.'},
+    {k:'Multiple choice',q:'Who should you contact about a payroll discrepancy or a PTO request?',o:['April Williford, Director of HR & Administrative Affairs','Graham Foster, Director of Field Operations','Your branch manager only','Emily Trione, CSR Coordinator'],a:0,e:'April handles HR matters: payroll, benefits, PTO and leave, onboarding and HR policy. She handles HR matters only.'},
+    {k:'Multiple choice',q:'A sales rep needs a newly signed agreement entered so service can start. Who enters it?',o:['Customer Service Team','Howard Cohn, Director of Sales','Jessica Sanderson, Routing & Logistics Coordinator','Robin Berning, Finance & Accounting'],a:2,e:'Jessica enters new customer agreements and service start-ups in PestPac and handles route and scheduling adjustments.'},
+    {k:'Multiple choice',q:'A homeowners\' association invites Clements to set up a table at its community event. Who should get the request?',o:['Larry Ignazio','Howard Cohn','Julie Glanville','Emily Trione'],a:1,e:'Events, groups and community outreach go to Howard Cohn, Director of Sales. Larry handles marketing materials, social media, the website and branding.'},
+    {k:'Multiple choice',q:'Who is the first stop for customer account setup, changes, corrections and discrepancies?',o:['Chris Slade, COO','Jessica Sanderson','April Williford','Emily Trione, CSR Coordinator'],a:3,e:'Emily is the primary contact for customer account matters, and she routes billing to Finance and other issues to the right department.'},
+    {k:'True or false',q:'Emailing the COO directly about a routine billing question is the fastest way to get it solved.',o:['True','False'],a:1,e:'False. Skipping levels slows things down: it comes back to Finance & Accounting. The COO handles issues that need executive input.'},
+    {k:'Multiple choice',q:'What is the Clements standard for returning missed calls and answering email from the office?',o:['Within one week','Only when you are back at the branch','Respond throughout the business day; nothing left unanswered by end of the business day','Only if the message is marked urgent'],a:2,e:'Respond throughout the day, and return every missed call and lingering email by end of the business day.'},
+    {k:'Scenario',q:'The office calls while you are driving between stops. What do you do?',o:['Answer on speaker; hands-free is allowed','Text back at the next red light','Ignore it until the end of the day','Let it go to voicemail, then call back once you are safely parked'],a:3,e:'Clements prohibits calls, texts and email while driving, hands-free included. Park safely, then return the call as soon as you can.'},
+    {k:'Multiple choice',q:'You\'re injured on the job. Who do you notify first?',o:['Your direct supervisor, immediately, then the office','A coworker, at the end of the day','Only HR, by email next week','No one if it seems minor'],a:0,e:'Report every injury, however minor, and every near miss: your supervisor right away, then the office, and a written incident report the same day. CW-09 covers accident reporting in full.'},
+    {k:'Multiple choice',q:'Which is the best channel for a disagreement with a coworker in the office?',o:['A reply-all email so everyone sees your side','A group chat','A phone call or in-person conversation, and your supervisor if it isn\'t resolved','A note in the customer\'s PestPac account'],a:2,e:'Tone is easy to misread in writing. Talk it through, stick to facts, and use your supervisor if needed.'},
+    {k:'Multiple choice',q:'Who reads your PestPac tech comments?',o:['Only you','Only your branch manager','No one; they are deleted monthly','Customers with email on file, customer service, other technicians and managers, and they are kept as service records'],a:3,e:'Comments go out on the inspection report to customers with an email address, and the office relies on them. Florida rule 5E-14.142 requires pest control records to be kept at least two years.'},
+    {k:'Multiple choice',q:'When should a technician log in and out of an appointment in PestPac Mobile?',o:['Log in on arrival, add notes during the service, log out when the work is done before moving to the next stop','All at once at the end of the day','Log in at the start of the day only','Whenever the office reminds you'],a:0,e:'That is the Clements onboarding standard. Accurate times and notes verify the work and keep the record correct.'},
+    {k:'True or false',q:'It\'s acceptable to use ALL CAPS, slang or emoji in messages to customers and vendors as long as the meaning is clear.',o:['True','False'],a:1,e:'False. The handbook prohibits ALL CAPS, slang and emoji when conducting business on behalf of Clements, and asks for proper grammar and punctuation.'},
+    {k:'Multiple choice',q:'In what order should a good escalation email be written?',o:['Clear subject, who and where, what happened, what you\'ve done, what you need and by when, how to reach you','What you need, then the background, then who it\'s about','A long story first, the request at the very end','Only the request; details can come later'],a:0,e:'Lead with a clear subject and the account, give the facts and what you\'ve already done, then state exactly what you need and by when.'},
+    {k:'Scenario',q:'Emily emails at noon asking about a visit you don\'t remember clearly. You can\'t check until tomorrow morning. What do you do today?',o:['Wait and answer tomorrow without saying anything today','Guess so the email is answered','Reply today that you\'ll check the record and answer by a set time tomorrow','Forward it to your manager without comment'],a:2,e:'If you can\'t solve it today, acknowledge it today and say when you will follow up. Never guess in a record.'},
+    {k:'Multiple choice',q:'Which of these is allowed under the Clements confidentiality policy?',o:['Posting a photo of an interesting infestation at a customer\'s home on social media','Sharing account details with a coworker who needs them to do the job','Telling a neighbor what you found at the house next door','Reading email that was sent to someone else'],a:1,e:'Customer information is confidential. Share it only with people who need it to do their job, and never post customer homes or conditions online.'},
+    {k:'Multiple choice',q:'A customer complaint can\'t be resolved by the front line. Who handles it next?',o:['Larry Ignazio','April Williford','Robin Berning','The branch manager'],a:3,e:'Complaints that need escalation beyond front-line staff go to the branch manager. Graham Foster and then the COO handle issues that need more input.'},
+    {k:'True or false',q:'For a concern about your own work situation, the open door policy lets you talk with any manager or director you feel comfortable with, not only your direct supervisor.',o:['True','False'],a:0,e:'True. Start with your immediate supervisor where you can, but you may talk with any manager or director, and put it in writing to HR if it isn\'t addressed.'},
+    {k:'Scenario',q:'A CSR needs an answer from the technician who serviced a home this morning while the customer waits on hold. What is the best channel?',o:['Email the technician and ask the customer to wait','Call the technician; it\'s urgent and the customer is waiting','Leave a PestPac note and hope they see it','Message the branch group chat'],a:1,e:'A customer waiting right now is urgent: call. If you can\'t reach them, leave a clear voicemail and tell the customer when to expect a callback.'}
+  ];
+
+  /* ---------- helpers ---------- */
+  function ico(n,st){return '<svg class="ico"'+(st?' style="'+st+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function fbHtml(ok,t){return '<div class="fb'+(ok?'':' no')+'">'+t+'</div>'}
+
+  /* ---------- directory ---------- */
+  var DIR=[
+    {n:'Chris Slade',t:'Chief Operating Officer',o:['Escalated customer or operational issues that need executive involvement','Strategic initiatives, planning and direction','Major project decisions and approvals; acquisitions and expansions'],x:'Routine questions. Work through the right department and your manager first.',h:'Email unless urgent · c.slade@clementspestcontrol.com · Office ext. 106'},
+    {n:'Julie Glanville',t:'Chief of Staff',o:['Company-wide projects, initiatives and process changes','Policies, SOPs, templates and internal documentation','Reports and presentations for leadership','Scheduling meetings or time with the COO'],x:'Day-to-day branch, account or HR questions.',h:'Email unless urgent · jglanville@clementspestcontrol.com · Office ext. 111'},
+    {n:'April Williford',t:'Director of HR & Administrative Affairs',o:['Payroll questions or discrepancies','Benefits and health insurance','PTO, leave and time-off requests','Onboarding, hiring paperwork, HR-assigned training','HR policies, employee relations, workplace concerns'],x:'Anything that isn\'t HR. Non-HR questions go to your branch manager or the right contact.',h:'Email unless urgent · awilliford@clementspestcontrol.com · Office ext. 103'},
+    {n:'Graham Foster',t:'Director of Field Operations',o:['Escalated operational or technician performance issues','Branch audits and safety compliance','Support with routing, technician scheduling and field processes','Technician training compliance and continuing education'],x:'First-line service questions. Start with your branch manager.',h:'gfoster@clementspestcontrol.com · mobile on the printed sheet'},
+    {n:'Howard Cohn',t:'Director of Sales',o:['Events, groups and community outreach','Marketing or sales initiatives and promotions','Sales team, sales process and lead questions'],x:'Services, pricing, customer complaints and other operational issues. Those go to the branch manager.',h:'hcohn@clementspestcontrol.com · mobile on the printed sheet'},
+    {n:'Branch managers',t:'Vero Beach · Stuart · Orlando · Naples',o:['Services, treatment options and pricing','Customer complaints beyond front-line staff','Local branch operations, inventory and equipment','Technician performance, scheduling and conduct'],x:'HR, payroll and company-wide policy questions.',h:'Jason Colontrelle (Vero Beach) jcolontrelle@ · Adam Goetz (Stuart) agoetz@ · Ted Travelute (Orlando) etravelute@ · Corey Carter (Naples) ccarter@ · all @clementspestcontrol.com'},
+    {n:'Emily Trione',t:'CSR Coordinator',o:['Any question about a customer account','Account setup, updates, changes and corrections','Account issues and discrepancies to investigate','Account status, agreement details and history'],x:'Payment processing (she routes it to Finance) and route changes (Routing & Logistics).',h:'etrione@clementspestcontrol.com · Office 772-562-6450'},
+    {n:'Robin Berning',t:'Finance & Accounting Coordinator',o:['Payment issues beyond a standard online payment','Billing adjustments, balances, payment application','Invoices and statements','Vendor payment status'],x:'Account setup or service changes. Those go to Emily or Jessica.',h:'Email unless urgent · rberning@clementspestcontrol.com · Office ext. 105'},
+    {n:'Jessica Sanderson',t:'Routing & Logistics Coordinator',o:['Route changes and scheduling adjustments','Entering new agreements and service start-ups','Service setup corrections and scheduling conflicts','PestPac and Sentricon reporting requests'],x:'Rescheduling a single customer appointment. Customer service handles that.',h:'Email unless urgent · jsanderson@clementspestcontrol.com · Office ext. 102'},
+    {n:'Larry Ignazio',t:'Marketing Coordinator',o:['Marketing materials and branded assets','Social media, website and digital marketing','Branding questions'],x:'Events, groups and sales initiatives. Those go to Howard Cohn.',h:'Email unless urgent · lignazio@clementspestcontrol.com · Office ext. 108'},
+    {n:'Customer Service Team',t:'Customer service representatives',o:['Scheduling, rescheduling or booking service','General questions about services','Billing questions, payments, balances','Customer contact and account detail updates','Unsure? They escalate to Emily, who escalates as needed'],x:'HR, pricing decisions and complaints beyond the front line.',h:'Email if possible · technotes@clementspestcontrol.com · Tech line 772-469-2566'},
+    {n:'Main office',t:'Corporate office, Vero Beach',o:['Main office line for staff and vendors, with extensions','Customer line 1-844-606-BUGS is for customers: give it out, don\'t use it to reach coworkers'],x:'Field issues that need customer service quickly. Use the tech line.',h:'Main office 772-562-6450 · Customer line 1-844-606-BUGS'}
+  ];
+  var dir=$('#dir'), dirSeen=store.get('dir')||{};
+  DIR.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.id='dir'+i;b.setAttribute('aria-pressed','false');if(dirSeen[i])b.classList.add('seen');
+    b.innerHTML='<b>'+p.n+'</b><small>'+p.t+'</small>';
+    b.addEventListener('click',function(){$$('button',dir).forEach(function(x){x.setAttribute('aria-pressed',x===b)});b.classList.add('seen');dirSeen[i]=1;store.set('dir',dirSeen);
+      var w=$('#dirWho');w.style.animation='none';void w.offsetWidth;w.style.animation='';
+      w.innerHTML='<span class="eyebrow">Bring them</span><h3>'+p.n+'</h3><p class="muted" style="font-size:14px">'+p.t+'</p><ul>'+p.o.map(function(o){return '<li>'+o+'</li>'}).join('')+'</ul><p class="not"><b>Not for:</b> '+p.x+'</p><div class="how">'+ico('i-mail')+'<span>'+p.h+'</span></div>';});
+    dir.appendChild(b)});
+
+  /* ---------- mix-ups ---------- */
+  var MIX=[
+    {f:'"April handles payroll, so she can tell me what to charge the customer."',i:'i-user',b:'<b>Branch manager.</b> April handles HR matters only. Services, treatment options and pricing go to your branch manager.'},
+    {f:'"Larry does marketing, so he\'s organizing the community event."',i:'i-star',b:'<b>Howard Cohn.</b> Events, groups, outreach and sales initiatives belong to the Director of Sales. Larry handles materials, social media, the website and branding.'},
+    {f:'"The customer says her payment didn\'t post. I\'ll send it to Emily."',i:'i-clip',b:'<b>Robin Berning.</b> Payment issues beyond a standard online payment, balances and adjustments go to Finance & Accounting. Emily owns account setup and discrepancies.'},
+    {f:'"My route has the same two stops on opposite ends of the county. I\'ll ask a CSR to fix it."',i:'i-route',b:'<b>Jessica Sanderson.</b> Routes, scheduling adjustments, service setup and new agreements belong to Routing & Logistics. CSRs move individual appointments.'}
+  ];
+  var mix=$('#mix'), mixSeen=store.get('mix')||{};
+  MIX.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='mix'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Mix-up '+(i+1)+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox">'+ico(v.i)+'</span><span style="font-size:16px;line-height:1.4">'+v.f+'</span><span class="hint">Where does it really go?</span></span><span class="face back">'+v.b+'</span></span>';
+    b.style.minHeight='230px';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');mixSeen[i]=1;store.set('mix',mixSeen)});mix.appendChild(b)});
+
+  /* ---------- router (who do I contact?) ---------- */
+  var RC=[
+    {id:'cs',n:'Customer Service Team',s:'technotes@ · tech line'},
+    {id:'bm',n:'Your branch manager',s:'Services, pricing, complaints'},
+    {id:'em',n:'Emily Trione',s:'CSR Coordinator'},
+    {id:'rb',n:'Robin Berning',s:'Finance & Accounting'},
+    {id:'js',n:'Jessica Sanderson',s:'Routing & Logistics'},
+    {id:'aw',n:'April Williford',s:'Director of HR'},
+    {id:'gf',n:'Graham Foster',s:'Director of Field Operations'},
+    {id:'hc',n:'Howard Cohn',s:'Director of Sales'},
+    {id:'li',n:'Larry Ignazio',s:'Marketing Coordinator'},
+    {id:'jg',n:'Julie Glanville',s:'Chief of Staff'},
+    {id:'cl',n:'Chris Slade',s:'COO'}
+  ];
+  var RS={
+    'Technician':[
+      {s:'At the door, a customer asks you to move her service to Saturdays from now on.',a:'cs',e:'Scheduling and rescheduling belong to customer service. Tell her the office will follow up, and email technotes@ (or call the tech line if she needs an answer now).'},
+      {s:'A customer asks what it would cost to add lawn service to her account.',a:'bm',e:'Services, treatment options and pricing go to the branch manager, who also follows up on leads. Don\'t guess at a price.'},
+      {s:'Every month your route sends you across the county and back for two stops. You want them resequenced.',a:'js',e:'Route changes and scheduling adjustments belong to Jessica in Routing & Logistics. Keep your branch manager informed.'},
+      {s:'You want to know whether an outside class will count toward your required continuing education.',a:'gf',e:'Graham oversees technician training compliance and continuing education.'}
+    ],
+    'CSR':[
+      {s:'A customer insists she paid online last week, but her account still shows a balance.',a:'rb',e:'Payment application and balances beyond a standard online payment go to Robin in Finance & Accounting.'},
+      {s:'You find two accounts for the same customer with different service histories and can\'t tell which is right.',a:'em',e:'Account discrepancies, corrections and history are Emily\'s. If you are ever unsure, Emily is your escalation point.'},
+      {s:'After a second callback, a customer is still unhappy with results and asks for a manager.',a:'bm',e:'Complaints that need escalation beyond the front line go to the branch manager for that customer\'s branch.'},
+      {s:'A coworker tells you, upset, that another employee has been making comments that make her uncomfortable.',a:'aw',e:'Workplace concerns and harassment go to HR. The handbook lets her report to her supervisor, HR or leadership, without going through her supervisor first.'}
+    ],
+    'Sales':[
+      {s:'You just signed a new quarterly agreement and the customer wants service to start this week.',a:'js',e:'Jessica enters new agreements and service start-ups in PestPac. Send it promptly and completely so the start isn\'t delayed.'},
+      {s:'A homeowners\' association invites Clements to set up a table at its fall community day.',a:'hc',e:'Events, groups and community outreach belong to Howard Cohn, Director of Sales.'},
+      {s:'Your leave-behind flyers are out of date and you need fresh branded copies.',a:'li',e:'Marketing materials and branded assets come from Larry Ignazio.'},
+      {s:'A property manager wants a custom multi-site agreement. Your branch manager and the Director of Sales agree it needs an executive decision.',a:'cl',e:'High-impact decisions that need executive input go to the COO, after the right people below have reviewed it. That is the escalation path working as designed.'}
+    ],
+    'Office':[
+      {s:'You want to request two days of PTO next month.',a:'aw',e:'PTO, leave and time-off requests go to April. Give notice in writing, as the handbook requires.'},
+      {s:'You need 30 minutes on the COO\'s calendar to walk through a proposal.',a:'jg',e:'Julie manages the COO\'s calendar and meeting requests.'},
+      {s:'A vendor calls: an invoice from two months ago still hasn\'t been paid.',a:'rb',e:'Vendor payments and invoice status belong to Robin in Finance & Accounting.'},
+      {s:'A customer emails the wrong inbox asking to update her phone number and email address.',a:'cs',e:'Contact information and account detail updates are handled by customer service. Forward it to technotes@ and let the customer know.'}
+    ]
+  };
+  var rRoles=Object.keys(RS), rRole=rRoles[0], rIdx=0, rDone=store.get('rt')||{};
+  function rKey(r,i){return r[0]+i}
+  function rRender(){
+    $$('button',$('#rTabs')).forEach(function(b){b.setAttribute('aria-pressed',b.dataset.r===rRole);var all=RS[b.dataset.r].every(function(_,i){return rDone[rKey(b.dataset.r,i)]});b.classList.toggle('done',all)});
+    var list=RS[rRole], sc=list[rIdx];
+    $('#rCard').innerHTML='<span class="who">'+rRole+' · request '+(rIdx+1)+' of '+list.length+'</span><p class="s">'+sc.s+'</p><div class="prog">'+list.map(function(_,i){return '<i class="'+(rDone[rKey(rRole,i)]?'ok':(i===rIdx?'cur':''))+'"></i>'}).join('')+'</div>';
+    var pk=$('#rPick');pk.innerHTML='';
+    RC.forEach(function(c){var b=document.createElement('button');b.type='button';b.id='rp_'+c.id;b.innerHTML='<b>'+c.n+'</b><small>'+c.s+'</small>';
+      if(rDone[rKey(rRole,rIdx)]){b.disabled=true;if(c.id===sc.a)b.classList.add('right')}
+      b.addEventListener('click',function(){
+        if(c.id===sc.a){rDone[rKey(rRole,rIdx)]=1;store.set('rt',rDone);rRender();}
+        else{$$('button',pk).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('#rFoot').innerHTML=fbHtml(false,'Not this one. Check what '+c.n+' owns, and try again.');}
+      });pk.appendChild(b)});
+    var foot=$('#rFoot');
+    if(rDone[rKey(rRole,rIdx)]){
+      var nextI=rIdx<list.length-1, nextRole=rRoles[rRoles.indexOf(rRole)+1];
+      foot.innerHTML=fbHtml(true,'<b>Correct.</b> '+sc.e)+(nextI?'<button type="button" class="btn" id="rNext">Next request</button>':(nextRole?'<button type="button" class="btn" id="rNext">Next role: '+nextRole+'</button>':''));
+      var nb=$('#rNext');if(nb)nb.addEventListener('click',function(){if(nextI)rIdx++;else{rRole=nextRole;rIdx=0}rRender()});
+    } else foot.innerHTML='<span class="small muted">Pick the person or team who owns this request.</span>';
+  }
+  rRoles.forEach(function(r){var b=document.createElement('button');b.type='button';b.id='rt_'+r;b.dataset.r=r;b.textContent=r;b.addEventListener('click',function(){rRole=r;rIdx=0;rRender()});$('#rTabs').appendChild(b)});
+  rRender();
+
+  /* ---------- urgency ladder ---------- */
+  var UL=[
+    {n:'Emergency',s:'Someone hurt, or at risk',c:'var(--danger)',i:'i-alert',h:'Emergency: act now, then report',ex:['An injury to you, a coworker or a customer','A vehicle accident','A spill, exposure or product emergency','A threat to anyone\'s safety'],dd:['Call 911 first if anyone is hurt or in danger','Notify your direct supervisor immediately, then the office','Leave a message if you can\'t reach them, and keep trying','Written incident report the same day, with photos and witnesses'],r:'Immediately. OSHA\'s clock starts when the company learns of it.'},
+    {n:'Urgent',s:'Someone is waiting now',c:'var(--brand-700)',i:'i-phone',h:'Urgent: call',ex:['A customer on site or on hold needs an answer','You can\'t access the property','The work order doesn\'t match what the customer expects','A schedule conflict today'],dd:['Field: call the tech line, 772-469-2566','Office: call the person\'s extension or mobile','No answer? Voicemail with your name, the account and a callback number','If something changed, send a short follow-up email for the record'],r:'Answer or return the call as soon as you safely can.'},
+    {n:'Routine',s:'Needs action, not this minute',c:'var(--brand-500)',i:'i-mail',h:'Routine: email',ex:['Account updates and contact changes','Route adjustments for next month','PTO requests and HR questions','Marketing material requests'],dd:['Email the person who owns it; copy only who needs to know','One topic per email, with a clear subject','Give everything needed to act: account, dates, what you need','Supply orders go on the weekly chemical request form to your supervisor'],r:'Reply the same business day.'},
+    {n:'Record',s:'What happened at the account',c:'var(--brand-300)',i:'i-clip',h:'Record: PestPac notes',ex:['What you treated and where','What you found and recommended','Who you spoke with, or the door hanger left','Changes to the appointment made in the app'],dd:['Log in on arrival, write notes during the service','Log out when the work is done, before the next stop','Sync changes so the office sees them','If the office must act on it, also email or call: a note alone may not be seen'],r:'During the service, before you leave the property.'}
+  ];
+  var ul=$('#uLev');
+  function showU(n){$$('button',ul).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var u=UL[n],d=$('#uDet');d.style.animation='none';void d.offsetWidth;d.style.animation='';
+    d.innerHTML='<span class="eyebrow">Level '+(n+1)+' of 4</span><h3>'+u.h+'</h3><div class="cols"><div><span class="eyebrow">Examples</span><ul style="margin-top:6px">'+u.ex.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div><div class="do"><span class="eyebrow">What to do</span><ul style="margin-top:6px">'+u.dd.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div></div><div class="resp">'+ico('i-clock')+'<span><b>Response:</b> '+u.r+'</span></div>';}
+  UL.forEach(function(u,i){var b=document.createElement('button');b.type='button';b.id='ul'+i;b.style.setProperty('--c',u.c);b.setAttribute('aria-pressed','false');b.innerHTML=ico(u.i)+'<span><b>'+u.n+'</b><small>'+u.s+'</small></span>';b.addEventListener('click',function(){showU(i)});ul.appendChild(b)});
+  showU(0);
+
+  /* ---------- channel sort ---------- */
+  var CH=[
+    {q:'You\'re at the property, the gate is locked and the customer isn\'t answering',a:'Call',w:'You\'re on site now: call the tech line so customer service can reach the customer or reschedule.'},
+    {q:'You treated for ants and recommended trimming shrubs off the wall',a:'Note',w:'Findings and recommendations go in the PestPac notes, where the customer and office can read them.'},
+    {q:'A customer who works nights wants call-ahead notices before visits',a:'Email',w:'Ask the office to update the account by email. It\'s routine and needs a record.'},
+    {q:'A minor fender bender in the company truck; no one is hurt',a:'Call',w:'Accidents are reported immediately: call your supervisor, then the office, and complete the written report the same day.'},
+    {q:'A customer mentions they\'re moving out next month',a:'Email',w:'Account changes go to customer service by email (technotes@). A note alone may not be acted on.'},
+    {q:'Your paycheck seems to be missing overtime hours',a:'Email',w:'Payroll goes to April. The sheet says email unless urgent.'},
+    {q:'You found a damaged bait station and replaced it',a:'Note',w:'What you found and did at the account belongs in the service record.'},
+    {q:'CSR: a customer on hold needs an answer from this morning\'s technician',a:'Call',w:'A customer waiting right now is urgent. Call the technician.'}
+  ];
+  var cs=$('#chSort'), chSel={}, OPTS=['Call','Email','Note'];
+  CH.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='crow'+i;
+    r.innerHTML='<span>'+s.q+'</span><span class="opts three">'+OPTS.map(function(o){return '<button type="button" aria-pressed="false" data-v="'+o+'" id="c'+i+o[0]+'">'+o+'</button>'}).join('')+'</span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){chSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');})});
+    cs.appendChild(r)});
+  function chWhy(i){$('#chFb').innerHTML='<span class="fb no" style="display:inline-block"><b>Row '+(i+1)+':</b> '+CH[i].w+'</span>';}
+  CH.forEach(function(s,i){var r=$('#crow'+i);$('span',r).addEventListener('click',function(){if(r.classList.contains('no'))chWhy(i)})});
+  $('#chCheck').addEventListener('click',function(){
+    var right=0,blank=0,firstBad=-1;
+    CH.forEach(function(s,i){var r=$('#crow'+i);
+      if(!chSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=chSel[i]===s.a;if(ok)right++;else if(firstBad<0)firstBad=i;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+    });
+    $('#chFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all eight before checking.</span>':(right===CH.length?'<span class="fb" style="display:inline-block">All eight correct. Waiting now: call. Needs action and a record: email. What happened at the account: note.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Select the text of a red row to see why, change your answer and check again.</span>');
+  });
+
+  /* ---------- note good / weak ---------- */
+  var NOTE={
+    good:'<div class="meta"><span>Quarterly general pest · exterior and interior</span><span>Logged in 10:42 · out 11:18</span></div><span class="ln"><span class="tag">Did</span>Treated exterior perimeter, foundation, entry points and eaves. Interior crack and crevice at kitchen and bath baseboards.</span><span class="ln"><span class="tag">Found</span>Light ant trail at kitchen slider, coming in from the east mulch bed. No roach activity seen.</span><span class="ln"><span class="tag">You can help</span>Pull mulch back from the foundation and keep the slider track clean.</span><span class="ln"><span class="tag">Next</span>Will recheck the slider at next quarterly service. Call the office if activity continues.</span><span class="ln"><span class="tag">Spoke with</span>Homeowner at the door; reviewed findings.</span><span class="ok">Factual, specific, plain language, and readable by the customer.</span>',
+    bad:'<div class="meta"><span>Quarterly general pest</span><span>Logged in 4:55 · out 4:56</span></div><span class="ln">did the usual. ANTS AGAIN!!</span><span class="ln">customer needs to fix her yard</span><span class="ln">will come back</span><span class="flag">No areas treated, no findings, a shouting tone the customer will read, a vague follow-up, and log times that don\'t match the visit.</span>'
+  };
+  function showNote(k){$('#nGood').setAttribute('aria-pressed',k==='good');$('#nBad').setAttribute('aria-pressed',k==='bad');var nb=$('#noteBox');nb.className='label note'+(k==='bad'?' bad':'');nb.innerHTML=NOTE[k];}
+  $('#nGood').addEventListener('click',function(){showNote('good')});$('#nBad').addEventListener('click',function(){showNote('bad')});
+  showNote('good');
+
+  /* ---------- note picker ---------- */
+  var NP=[
+    {t:'Treated exterior perimeter, entry points and eaves; interior kitchen baseboards',g:1},
+    {t:'Did the usual service',g:0},
+    {t:'Ant trail at kitchen slider, coming from the east mulch bed',g:1},
+    {t:'Kitchen was filthy, no wonder she has ants',g:0},
+    {t:'Recommended pulling mulch back from the foundation',g:1},
+    {t:'ANTS EVERYWHERE!!',g:0},
+    {t:'Will recheck the slider at next quarterly service',g:1},
+    {t:'Guaranteed the ants will be gone by tomorrow',g:0},
+    {t:'Reviewed findings with homeowner at the door',g:1}
+  ];
+  var np=$('#npick'), nSel={};
+  function nPrev(){var t=NP.filter(function(_,i){return nSel[i]}).map(function(x){return x.t}).join('. ');$('#nPrevT').textContent=t?t+'.':'Select lines above to build the note.';$('#nPrevT').className=t?'':'muted';}
+  NP.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.id='np'+i;b.setAttribute('aria-pressed','false');b.textContent=x.t;
+    b.addEventListener('click',function(){nSel[i]=!nSel[i];b.setAttribute('aria-pressed',!!nSel[i]);$$('button',np).forEach(function(y){y.classList.remove('miss','extra')});$('#nFb').innerHTML='';nPrev();});np.appendChild(b)});
+  $('#nCheck').addEventListener('click',function(){
+    var miss=0,extra=0;
+    NP.forEach(function(x,i){var b=$('#np'+i);b.classList.remove('miss','extra');if(x.g&&!nSel[i]){miss++;b.classList.add('miss')}if(!x.g&&nSel[i]){extra++;b.classList.add('extra')}});
+    $('#nFb').innerHTML=(!miss&&!extra)?'<span class="fb" style="display:inline-block">That\'s a complete, professional note: what you did, what you found, what the customer can do, the follow-up and who you spoke with.</span>':'<span class="fb no" style="display:inline-block">'+(miss?miss+' useful line'+(miss>1?'s':'')+' missing (red). ':'')+(extra?extra+(extra>1?' lines don\'t':' line doesn\'t')+' belong (dashed): vague, judgmental or over-promising.':'')+'</span>';
+  });
+
+  /* ---------- escalation order ---------- */
+  var ESC=['<b>Subject:</b> the account and the issue in a few words','<b>Who and where:</b> customer or account, branch, date of service','<b>What happened:</b> the facts, in order, without opinion','<b>What you\'ve already done</b> to solve it','<b>What you need,</b> from whom, and by when','<b>How to reach you,</b> with the standard signature block'];
+  var escOrder=[3,0,5,2,4,1], eb=$('#esc'), en=0;
+  function renderEsc(){eb.innerHTML='';en=0;$('#escFb').innerHTML='';
+    escOrder.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='esc'+ix;b.innerHTML='<span class="num">·</span><span>'+ESC[ix]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===en){b.classList.add('placed');$('.num',b).textContent=en+1;en++;
+          if(en===ESC.length){$('#escFb').innerHTML='<div class="fb">Correct. The reader knows what it\'s about from the subject, has the facts and what\'s been tried, and knows exactly what you need. <button type="button" class="btn" id="escAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#escAgain').addEventListener('click',renderEsc);}
+          else $('#escFb').innerHTML='';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#escFb').innerHTML='<div class="fb no">Not yet. Think about what the reader needs to know first.</div>';}
+      });eb.appendChild(b)});}
+  renderEsc();
+
+  /* ---------- tone practice ---------- */
+  var TS=[
+    {n:'Cancelled stop',s:'Technician to customer service: your 9:00 stop says the customer cancelled last week, but it\'s still on your route.',o:['"Why do you guys keep sending me to cancelled stops?? Wasted my morning."','"CANCELLED. FIX IT."','"Hi, my 9:00 shows the customer cancelled last week. Can you check the account and take it off my route? I\'ve moved on to my next stop. Thanks."','"k its cancelled"'],a:2,e:'Polite, specific and actionable, without blame. The handbook asks for proper grammar and no ALL CAPS, slang or emoji when representing Clements.'},
+    {n:'Customer complaint',s:'CSR to technician: a customer called saying her side gate was left open after service and her dog got out.',o:['"Hi, the customer from your 10:30 called: the side gate was left open after this morning\'s service and her dog got out. The dog is home safe. Please call me when you\'re parked so we can follow up with her today."','"You left ANOTHER gate open. Customer is furious."','"Customer\'s dog got out, your fault apparently"','"Call me."'],a:0,e:'Facts, the customer\'s concern, and a clear next step. "Call me" alone gives no context, and blame makes people defensive instead of helpful.'},
+    {n:'Reply-all',s:'Office: a coworker\'s email to the whole office has a schedule error that created extra work for you.',o:['Reply-all pointing out the mistake so it doesn\'t happen again','Forward it to your friends at other branches','Say nothing and fix it yourself every time','Call or message the coworker privately with the specific error and a suggested fix; involve your supervisor only if it keeps happening'],a:3,e:'Correct privately, with specifics and a solution. Reply-all criticism embarrasses people and rarely fixes the process.'}
+  ];
+  var tt=$('#tTabs'), tb=$('#tBox'), tDone=store.get('tone')||{};
+  function showT(n){
+    $$('button',tt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!tDone[j])});
+    var s=TS[n];
+    tb.innerHTML='<div class="callout" style="border-left-color:var(--brand-400)">'+ico('i-mail')+'<span class="msg">'+s.s+'</span></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="t'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="tFb"></div>';
+    $$('.choice',tb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',tb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',tb).forEach(function(x){x.disabled=true});tDone[n]=1;store.set('tone',tDone);$$('button',tt)[n].classList.add('done');
+        $('#tFb').innerHTML='<div class="fb">'+s.e+(n<TS.length-1?' <button type="button" class="btn" id="tNext" style="margin-left:8px;padding:4px 12px">Next message</button>':'')+'</div>';var nx=$('#tNext');if(nx)nx.addEventListener('click',function(){showT(n+1)});}
+      else{b.classList.add('wrong');$('#tFb').innerHTML='<div class="fb no">Would this get the problem solved without making anyone defensive? Try again.</div>';}
+    })});
+  }
+  TS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='tt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showT(i)});tt.appendChild(b)});
+  showT(0);
+
+  /* ---------- inbox ---------- */
+  var IN=[
+    {i:'i-mail',f:'Jessica Sanderson',w:'Email · 11:02',sub:'Two start-ups added to Thursday',b:'Two new start-ups have been added to your Thursday route. Please confirm you can fit them, or let me know about any conflict, by end of day.',o:['Wait until Thursday morning to see how the day looks','Reply today: confirm, or name the specific conflict and suggest an option','Ignore it; routing will sort it out','Forward it to the COO'],a:1,e:'She asked for an answer by end of day. Reply today, with specifics, so routing can adjust before Thursday.'},
+    {i:'i-phone',f:'Customer service · tech line',w:'Missed call · 1:40',sub:'Voicemail',b:'"Your 3:00 has a new dog. The customer asked that you call before you arrive so she can bring it inside. Please call us back." You\'re driving to your next stop.',o:['Call back on speaker while you drive','Text back at the next red light','Wait until end of day; you\'ll see the dog when you get there','Pull into a safe spot or wait until your next stop is parked, then call back before 3:00'],a:3,e:'Return it promptly, but only when safely parked. Never call, text or email while driving.'},
+    {i:'i-inbox',f:'Emily Trione',w:'Email · 12:30',sub:'Second visit, no notes',b:'The account shows you serviced this property twice this month, and the second visit has no notes. Can you tell me what happened at that visit?',o:['Reply today with the facts you know; if you need to check, say so and when you\'ll answer','Go into PestPac and write notes that make the visit look complete','Reply-all to the office explaining that it isn\'t your fault','Forward it to your branch manager without comment'],a:0,e:'Answer factually and on time. Never add or change a record to make it look better than what happened. Notes must reflect the actual service.'}
+  ];
+  var il=$('#iList'), iDone=store.get('inbox')||{};
+  function showI(n){
+    $$('button',il).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!iDone[j])});
+    var m=IN[n], v=$('#iView');
+    v.innerHTML='<div class="msg"><div class="hd">'+m.f+' · '+m.w+'</div><b>'+m.sub+'</b><p style="margin-top:4px">'+m.b+'</p></div><div class="choices">'+m.o.map(function(o,i){return '<button type="button" class="choice" id="i'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div>';$('#iFb').innerHTML='';
+    $$('.choice',v).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',v).forEach(function(x){x.classList.remove('wrong')});
+      if(i===m.a){b.classList.add('right');$$('.choice',v).forEach(function(x){x.disabled=true});iDone[n]=1;store.set('inbox',iDone);$$('button',il)[n].classList.add('done');
+        var left=IN.map(function(_,k){return k}).filter(function(k){return !iDone[k]});
+        $('#iFb').innerHTML='<div class="fb">'+m.e+(left.length?' <button type="button" class="btn" id="iNext" style="margin-left:8px;padding:4px 12px">Next message</button>':' Inbox clear.')+'</div>';var nx=$('#iNext');if(nx)nx.addEventListener('click',function(){showI(left[0])});}
+      else{b.classList.add('wrong');$('#iFb').innerHTML='<div class="fb no">Think timely, safe and accurate. Try again.</div>';}
+    })});
+  }
+  IN.forEach(function(m,i){var b=document.createElement('button');b.type='button';b.id='in'+i;b.innerHTML=ico(m.i)+'<span><b>'+m.f+'</b><small>'+m.w+' · '+m.sub+'</small></span>';b.addEventListener('click',function(){showI(i)});il.appendChild(b)});
+  showI(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

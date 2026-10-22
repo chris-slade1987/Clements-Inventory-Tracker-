@@ -1,0 +1,1286 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-02 Labels &amp; Pesticide Law</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-02 · specimen label with hotspots */
+.lblwrap{display:grid;grid-template-columns:1.05fr 1fr;gap:28px;align-items:start}
+.lblwrap > *{min-width:0}
+.mock{background:#FFFFFF;border:1px solid var(--ink);border-radius:6px;box-shadow:var(--shadow-card);padding:10px;font-size:12px;line-height:1.4;color:var(--ink);position:relative;overflow:hidden}
+.mock::after{content:"SPECIMEN";position:absolute;right:-30px;bottom:26px;transform:rotate(-24deg);font-size:46px;letter-spacing:.2em;color:rgba(46,111,71,.06);pointer-events:none;font-weight:500}
+.mtop{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:0 4px 8px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.mz{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hz{position:relative;display:block;text-align:left;background:transparent;border:1px dashed var(--brand-200);border-radius:6px;padding:7px 9px 7px 22px;font-size:12px;font-weight:300;line-height:1.38;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.hz:hover{border-color:var(--brand-400);background:var(--brand-50)}
+.hz[aria-pressed="true"]{border:1px solid var(--brand-600);background:var(--brand-50);box-shadow:0 0 0 3px rgba(46,111,71,.12)}
+.hz.seen:not([aria-pressed="true"]){border-style:solid;border-color:var(--brand-200)}
+.hdot{position:absolute;left:8px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--brand-500)}
+.hz:not(.seen) .hdot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--brand-400);opacity:0}
+.slide.on .hz:not(.seen) .hdot::after{animation:hzp 2.4s ease-out infinite}
+@keyframes hzp{0%{opacity:.8;transform:scale(.5)}100%{opacity:0;transform:scale(2)}}
+.hz.seen .hdot{background:var(--positive)}
+.z-rup,.z-name,.z-ai,.z-sig,.z-mfr,.z-haz,.z-dfu,.z-sto{grid-column:1/-1}
+.z-rup{border-color:var(--line);color:var(--muted);text-align:center}
+.rupmini{display:block;border:1px solid var(--muted);padding:2px 6px;font-size:11px;letter-spacing:.1em;font-weight:500;opacity:.55}
+.pname{display:block;font-size:22px;font-weight:500;letter-spacing:.02em;line-height:1.1}
+.zs{display:block;font-size:11px;color:var(--muted)}
+.zl{font-weight:500}
+.zh{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--brand-700);margin-bottom:2px}
+.sigbig{display:block;font-size:20px;font-weight:500;letter-spacing:.14em;margin:2px 0}
+.z-sig{text-align:center;padding-left:22px}
+.hzd{min-height:260px}
+.hzd p{font-size:15px}
+.onjob{margin-top:12px;padding:12px 14px;background:var(--brand-50);border-radius:10px;border-left:3px solid var(--brand-600)}
+.onjob p{color:var(--ink);margin-top:4px}
+
+/* signal words */
+.sigt{min-width:0;font-size:13px}
+.sigt td{padding:7px 10px}
+.sw{display:inline-block;border:1px solid var(--ink);padding:1px 7px;font-weight:500;font-size:12px;letter-spacing:.06em;white-space:nowrap}
+.sw.d{border-color:var(--danger);color:var(--danger)}
+.sigd{display:block;font-size:12px;color:var(--muted)}
+.order button .num{flex:0 0 28px}
+
+/* label vs sds */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+.vsmid{display:grid;place-items:center;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.dl{list-style:none;display:grid;gap:6px;margin-top:8px}
+.dl li{position:relative;padding-left:16px;font-size:15px;color:var(--ink)}
+.dl li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.dl.big li{font-size:16px}
+
+/* FIFRA flow */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.fstep{position:relative;display:grid;gap:4px;padding:0 14px 0 0}
+.fstep .n{display:inline-grid;place-items:center;height:32px;min-width:64px;padding:0 10px;border-radius:var(--pill);background:var(--brand-50);border:1px solid var(--brand-300);color:var(--brand-700);font-size:13px;font-weight:500;justify-self:start;position:relative;z-index:1}
+.fstep:nth-child(3) .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.fstep::after{content:"";position:absolute;top:16px;left:76px;right:4px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .fstep::after{animation:grow .5s ease-in-out forwards;animation-delay:.5s}
+.slide.on .fstep:nth-child(2)::after{animation-delay:.9s}
+.fstep:last-child::after{display:none}
+.fstep h3{font-size:16px;margin-top:4px}
+.fstep p{font-size:14px;color:var(--muted)}
+h3.ok{color:var(--positive)}
+h3.no{color:var(--danger)}
+
+/* RUP box */
+.rupbox{border:2px solid var(--ink);padding:10px 14px;font-size:13px;line-height:1.45;background:var(--surface);display:grid;gap:4px}
+.rupbox b{letter-spacing:.12em;text-align:center}
+
+/* service container art */
+.svc{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px 20px}
+.svcart{width:100%;max-width:220px;height:auto;display:block;margin:0 auto}
+.svcart .jug{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:1.6;stroke-linejoin:round}
+.svcart .tagr{fill:#fff;stroke:var(--brand-700);stroke-width:1.6}
+.svcart .tagl{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:60;stroke-dashoffset:60}
+.slide.on .svcart .tagl{animation:draw 1.2s ease-in-out .3s forwards}
+.svcart .arrowp{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* credentials stack */
+.stack{display:grid;gap:0}
+.tierbox{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px}
+.tierbox .ico{color:var(--brand-600);margin-top:2px}
+.tierbox b{display:block;font-size:15px}
+.tierbox small{display:block;color:var(--muted);font-size:13px;line-height:1.4}
+.tierbox.you{background:var(--brand-50);border-color:var(--brand-300)}
+.cats{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.link{height:18px;width:2px;margin-left:25px;background:repeating-linear-gradient(to bottom,var(--brand-500) 0 3px,transparent 3px 7px);background-size:2px 14px}
+.slide.on .link{animation:flowdn 1.6s linear infinite}
+@keyframes flowdn{to{background-position:0 14px}}
+.steps.tight li{padding:7px 0;font-size:15px}
+.steps.tight .num{flex-basis:28px;height:28px;font-size:13px}
+
+/* ID card illustration */
+.idc{width:100%;max-width:340px;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-card);background:#fff}
+.idtop{display:flex;justify-content:space-between;background:var(--grad-forest);color:var(--on-forest);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:10px 14px}
+.idbody{display:flex;gap:14px;padding:14px}
+.idph{flex:0 0 76px;height:92px;border-radius:8px;background:var(--brand-50);border:1px solid var(--brand-200);display:grid;place-items:center;color:var(--brand-400)}
+.idbody dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:12px}
+.idbody dt{color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding-top:2px}
+.idbody dd{margin:0}
+.idsig{margin:0 14px 14px;border-top:1px solid var(--ink);padding-top:3px;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* may / may not */
+.mm ul{list-style:none;display:grid;gap:8px;margin-top:8px}
+.mm li{display:flex;gap:10px;font-size:15px;align-items:flex-start}
+.mm li .ico{width:20px;height:20px;margin-top:2px;color:var(--positive)}
+.mm h3.no + ul li .ico{color:var(--danger)}
+#flBox .fsch{grid-template-columns:1fr 1fr}
+#flBox .choice{padding:10px 14px;font-size:15px}
+
+/* five reads path */
+.path.five{grid-template-columns:repeat(5,1fr)}
+.path.five .st .n{font-size:15px}
+
+@media (max-width:860px){
+  .lblwrap,.vs,.flow,.path.five,#flBox .fsch{grid-template-columns:1fr}
+  .vsmid{padding:4px 0}
+  .fstep{padding:0 0 12px}
+  .fstep::after{display:none}
+  .hzd{min-height:0}
+  .mock::after{font-size:34px}
+}
+@media (prefers-reduced-motion:reduce){.fstep::after{transform:none}.svcart .tagl{stroke-dashoffset:0}}
+
+#mockB .hz{font-size:11.5px;padding:5px 8px 5px 20px;line-height:1.34}
+#mockB .hdot{top:9px;left:7px}
+#mockB .mz{gap:5px}
+.vs .card{padding:16px 20px}.vs .icobox{margin-bottom:8px}
+.draw.ttl path,.draw.ttl rect,.draw.ttl circle{stroke-dasharray:720;stroke-dashoffset:720}
+@media (prefers-reduced-motion:reduce){.draw.ttl path,.draw.ttl rect,.draw.ttl circle{stroke-dashoffset:0}}
+.path.five{align-items:start}.path.five .st{align-content:start}
+.hz{align-self:start}
+#lvSort .row{padding:8px 14px}
+#lvSort .why{display:block;margin-top:2px;line-height:1.35}
+#flBox{gap:10px!important}
+#flBox .card{padding:12px 18px!important}
+#lvSort{gap:6px}#lvSort .row{font-size:14px;padding:6px 12px}#lvSort .why{font-size:12px}#lvSort .opts button{padding:4px 11px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">FC-02 · Labels &amp; Pesticide Law</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-skull" viewBox="0 0 24 24"><path d="M12 3a7 7 0 00-7 7c0 2.4 1.2 4 2.5 5v2.5h9V15c1.3-1 2.5-2.6 2.5-5a7 7 0 00-7-7z"/><circle cx="9.3" cy="10.5" r="1.4"/><circle cx="14.7" cy="10.5" r="1.4"/><path d="M10.5 17.5v2M13.5 17.5v2"/><path d="M4 20l16-3M4 17l16 3"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10"/><path d="M5 7h14"/><path d="M5 7l-3 6a3 3 0 006 0zM19 7l-3 6a3 3 0 006 0z"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.6 1.7-2.3 3-2.3s2.4.7 3 2.3"/><path d="M14 10h4M14 13h4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15h6M9 18h4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-02</span>
+        <h1 class="display a" style="--i:1">Labels &amp; Pesticide Law</h1>
+        <p class="lead a" style="--i:2">How to read every part of a pesticide label, why the label is the law, and what Florida's pest control law expects of you as an ID cardholder.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">4 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <svg class="draw ttl a" style="--i:2;max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 300 260" aria-hidden="true">
+        <path d="M95 40h70v22h-70z"/>
+        <path d="M80 62h100c8 0 14 6 14 14v150c0 8-6 14-14 14H80c-8 0-14-6-14-14V76c0-8 6-14 14-14z"/>
+        <rect x="82" y="92" width="96" height="112" rx="4"/>
+        <path d="M94 110h52M94 124h72M94 138h60M94 160h40M94 174h66M94 188h48"/>
+        <circle cx="214" cy="160" r="34"/>
+        <path d="M238 184l34 34"/>
+        <path d="M200 160h28M214 146v28"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-tag"/></svg><span>Find and explain every required part of a pesticide label, front and back</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span>Rank the signal words and say what each one tells you about a product</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-file"/></svg><span>Explain the difference between the label and the Safety Data Sheet (SDS)</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-scale"/></svg><span>Apply "the label is the law": what FIFRA lets you do, and what it never allows</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-id"/></svg><span>Describe how Florida licenses pest control and what your ID card requires of you</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-clip"/></svg><span>Keep the records and give customers the information Florida law requires</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">The label is <span class="em">the law.</span></h2>
+        <p class="lead a" style="--i:2">A misread label is not an honest mistake. It is a federal and state violation, and it can hurt a customer, a pet, a pond or you.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-scale"/></svg></div><div><h3>Federal and state penalties</h3><p>EPA civil penalties under FIFRA run up to $24,885 per violation for a commercial applicator (2025 inflation adjustment). FDACS can fine up to $5,000 per violation and suspend or revoke a license or ID card.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-building"/></svg></div><div><h3>The company's license to operate</h3><p>Clements can only do pest control because the state licenses us. Every application you make is made under that license and our certified operator's name.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Customer trust</h3><p>Customers let us into their homes around their kids and pets. Florida law gives them the right to ask what you applied. Your answer should be confident and correct.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: reading the label">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Reading the label</h1>
+        <p class="lead a" style="--i:2">Every answer you need about a product is printed on it: how much to mix, where it can go, what to wear, what to do if something goes wrong. You just have to know where to look.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The front panel</li><li><span>02</span>The back panel</li><li><span>03</span>Signal words</li><li><span>04</span>Directions for use</li><li><span>05</span>Label vs. SDS</li><li><span>06</span>Practice: find it on the label</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 FRONT PANEL -->
+  <section class="slide" data-label="The front panel">
+    <div class="lblwrap">
+      <div class="mock a" style="--i:1" id="mockF" aria-label="Training specimen label, front panel"></div>
+      <div class="grid" style="gap:12px;align-content:start">
+        <span class="eyebrow a">01 · The front panel</span>
+        <h2 class="a" style="--i:1">Who made it, what's in it, how hazardous it is</h2>
+        <p class="a muted small" style="--i:2">Select each part of the label. <span id="cntF">0 of 7</span> explored.</p>
+        <div class="card hzd a" style="--i:3" id="detF"><span class="eyebrow">Select a part of the label</span><p style="margin-top:6px">This is a training specimen built for Clements. It is not a real product, but every part is laid out the way EPA requires.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 BACK PANEL -->
+  <section class="slide" data-label="The back panel">
+    <div class="lblwrap">
+      <div class="mock a" style="--i:1" id="mockB" aria-label="Training specimen label, back panel"></div>
+      <div class="grid" style="gap:12px;align-content:start">
+        <span class="eyebrow a">02 · The back panel</span>
+        <h2 class="a" style="--i:1">How to use it safely and legally</h2>
+        <p class="a muted small" style="--i:2">Select each part of the label. <span id="cntB">0 of 7</span> explored.</p>
+        <div class="card hzd a" style="--i:3" id="detB"><span class="eyebrow">Select a part of the label</span><p style="margin-top:6px">On a real jug, the back panel often continues into a booklet attached to the container. All of it is the label, and all of it is enforceable.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 SIGNAL WORDS -->
+  <section class="slide" data-label="Signal words">
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Signal words</span>
+        <h2 class="a" style="--i:1">One word tells you how acutely toxic the product is</h2>
+        <div class="tablewrap a" style="--i:2">
+          <table class="sigt">
+            <thead><tr><th>Signal word</th><th>Category</th><th>What it means</th></tr></thead>
+            <tbody>
+              <tr><td><span class="sw d">DANGER-POISON</span></td><td>I</td><td>Highly toxic if swallowed, inhaled or absorbed through skin. Red "POISON" and skull and crossbones.</td></tr>
+              <tr><td><span class="sw d">DANGER</span></td><td>I</td><td>Can cause severe, often permanent, eye or skin damage (corrosive).</td></tr>
+              <tr><td><span class="sw">WARNING</span></td><td>II</td><td>Moderately toxic, or causes substantial but temporary eye injury or skin irritation.</td></tr>
+              <tr><td><span class="sw">CAUTION</span></td><td>III · IV</td><td>Slightly toxic, or mild to moderate irritation. Optional on Category IV.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted a" style="--i:3">The signal word reflects <b>acute</b> (short-term) toxicity of the product as packaged, based on its worst route of exposure. It says nothing about long-term effects or environmental risk. Every label must also say <b>"Keep Out of Reach of Children."</b></p>
+      </div>
+      <div class="card a" style="--i:3;display:grid;gap:12px">
+        <span class="eyebrow">Practice · rank them</span>
+        <p class="small" style="margin:0">Select the signal words from <b>lowest</b> hazard to <b>highest</b>.</p>
+        <div class="order" id="sigOrder"></div>
+        <div id="sigFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 DIRECTIONS FOR USE -->
+  <section class="slide" data-label="Directions for use">
+    <span class="eyebrow a">04 · Directions for use</span>
+    <h2 class="a" style="--i:1">The most important section on the label</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Where</h3><p>The sites the product may be used on: indoor, outdoor, perimeter, lawn, crack and crevice. Not listed means not allowed.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>What</h3><p>The pests it is labeled for, and the application method: spray, bait, dust, granule, injection.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>How much</h3><p>Mix rate, application rate, and the maximum per application or per year. Never exceed it.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-clock"/></svg></div><h3>How often</h3><p>Minimum days between treatments, weather limits, and when people and pets may return.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-book"/></svg><span>Every directions section opens with the same sentence: <b>"It is a violation of Federal law to use this product in a manner inconsistent with its labeling."</b></span></div>
+      <div class="callout warn a" style="--i:7"><svg class="ico"><use href="#i-alert"/></svg><span><b>Labels change.</b> Mix from the current label and the Clements approved mix rate sheet, never from memory or an old handout. If they don't agree, stop and ask your supervisor.</span></div>
+    </div>
+  </section>
+
+  <!-- 9 LABEL VS SDS -->
+  <section class="slide" data-label="Label vs. SDS">
+    <span class="eyebrow a">05 · Label vs. Safety Data Sheet</span>
+    <h2 class="a" style="--i:1">Two documents, two different jobs</h2>
+    <div class="vs">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-tag"/></svg></div><h3>The label</h3><ul class="dl">
+        <li>Approved by EPA under <b>FIFRA</b> at registration</li>
+        <li><b>A legal document.</b> Tells you how you may use the product</li>
+        <li>Directions, rates, sites, PPE, first aid, storage and disposal</li>
+        <li>Must be followed exactly. FDACS enforces it</li></ul></div>
+      <div class="vsmid a" style="--i:3" aria-hidden="true">vs</div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-file"/></svg></div><h3>The SDS</h3><ul class="dl">
+        <li>Written by the manufacturer under <b>OSHA</b> Hazard Communication (29 CFR 1910.1200)</li>
+        <li>16 standard sections: hazards, fire fighting, spills, chemical properties, emergency numbers</li>
+        <li>For safety and emergencies. It does <b>not</b> tell you how to apply</li></ul></div>
+    </div>
+    <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-check"/></svg><span>Keep both within reach for every product you carry. In an exposure, take the <b>label</b> to the doctor. On how to use the product, the label always governs.</span></div>
+  </section>
+
+  <!-- 10 PRACTICE FIND IT -->
+  <section class="slide" data-label="Practice: find it on the label">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">06 · Practice · find it on the label</span>
+        <h2 class="a" style="--i:1">Where would you look?</h2>
+        <p class="a muted small" style="--i:2">Questions you'll hear on the job. Choose the part of the label that answers each one.</p>
+        <div class="card a" style="--i:3" id="findQ"></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:12px">
+        <div class="pick" id="findPick"></div>
+        <div id="findFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 12 PART TWO -->
+  <section class="slide forest" data-label="Part two: federal law">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The label is the law</h1>
+        <p class="lead a" style="--i:2">Federal law decides what can be sold and how it can be used. Knowing exactly where the lines are lets you solve the customer's problem without ever crossing one.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>FIFRA and who enforces it</li><li><span>02</span>Practice: legal or violation?</li><li><span>03</span>Restricted-use pesticides</li><li><span>04</span>Service containers and labels on file</li></ol>
+    </div>
+  </section>
+
+  <!-- 13 FIFRA -->
+  <section class="slide" data-label="FIFRA">
+    <span class="eyebrow a">01 · FIFRA and who enforces it</span>
+    <h2 class="a" style="--i:1">One federal law, enforced in Florida by FDACS</h2>
+    <div class="flow a" style="--i:2">
+      <div class="fstep"><span class="n">EPA</span><h3>Registers</h3><p>Reviews each product and use, approves the label and assigns the EPA Reg. No.</p></div>
+      <div class="fstep"><span class="n">FDACS</span><h3>Enforces in Florida</h3><p>Under its agreement with EPA, FDACS inspects, investigates and penalizes misuse.</p></div>
+      <div class="fstep"><span class="n">You</span><h3>Follow the labeling</h3><p>"Labeling" includes the container label, the attached booklet and any supplemental label.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card a" style="--i:4"><h3 class="ok">FIFRA allows you to</h3><ul class="dl">
+        <li>Apply at a <b>lower</b> rate, concentration or frequency than the label</li>
+        <li>Treat a pest not named on the label, if the <b>site and method are on the label</b></li>
+        <li>Use any equipment or method the label does not prohibit</li>
+        <li>Tank-mix products the labels don't prohibit, each at or below its label rate</li></ul></div>
+      <div class="card a" style="--i:5"><h3 class="no">FIFRA never allows you to</h3><ul class="dl">
+        <li>Exceed the label rate, or treat more often than the label allows</li>
+        <li>Apply to a site the label doesn't list</li>
+        <li>Mix, store or dispose of it other than as the label says</li>
+        <li>Ignore any precaution, PPE or restriction on the label</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE LEGAL OR VIOLATION -->
+  <section class="slide" data-label="Practice: legal or violation">
+    <span class="eyebrow a">02 · Practice</span>
+    <h2 class="a" style="--i:1">Legal or violation?</h2>
+    <p class="a muted" style="--i:2;margin-top:-10px;max-width:none">The label: 0.33 to 1.0 fl oz per gallon, foundations and cracks and crevices, once every 7 days, never before rain.</p>
+    <div class="sort a" style="--i:3" id="lvSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="lvCheck">Check my answers</button><span id="lvFb"></span></div>
+  </section>
+
+  <!-- 15 RUP -->
+  <section class="slide" data-label="Restricted-use pesticides">
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · Restricted-use pesticides</span>
+        <h2 class="a" style="--i:1">General use or restricted use</h2>
+        <p class="a muted" style="--i:2">EPA classifies a product as restricted use (RUP) when it could harm people or the environment <b>even when used as directed</b>. Most products a GHP technician carries are general use. A general-use label has no classification statement.</p>
+        <div class="rupbox a" style="--i:3"><b>RESTRICTED USE PESTICIDE</b><span>Due to [reason, e.g. acute toxicity]. For retail sale to and use only by Certified Applicators, or persons under their direct supervision, and only for those uses covered by the Certified Applicator's certification.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-id"/></svg><span><b>Who may apply it:</b> a certified applicator, or a noncertified person under their direct supervision. Under Chapter 482, that supervisor is the certified operator.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-user"/></svg><span><b>Before a noncertified applicator uses an RUP</b> (40 CFR 171.201): at least 18 years old, trained within the last 12 months, given product-specific instructions, with the labeling available at all times.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-phone"/></svg><span><b>Supervision:</b> immediate communication with the certified applicator at all times, and the certified applicator on site whenever the label requires it.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-clip"/></svg><span><b>Records:</b> brand, amount, use, date and location of every RUP application, kept at the licensed location for at least 2 years (5E-14.142).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 SERVICE CONTAINERS -->
+  <section class="slide" data-label="Service containers">
+    <span class="eyebrow a">04 · Service containers and labels on file</span>
+    <h2 class="a" style="--i:1">If it leaves the original jug, it still needs a label</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="svc a" style="--i:2">
+        <svg viewBox="0 0 240 200" aria-hidden="true" class="svcart">
+          <path class="jug" d="M70 34h44v16H70z"/>
+          <path class="jug" d="M56 50h72c8 0 12 4 12 12v118c0 6-4 10-10 10H54c-6 0-10-4-10-10V62c0-8 4-12 12-12z"/>
+          <rect class="tagr" x="58" y="84" width="68" height="72" rx="4"/>
+          <path class="tagl" d="M66 100h40M66 114h52M66 128h34M66 142h46"/>
+          <path class="arrowp" d="M150 120h40"/><path class="arrowp" d="M182 112l8 8-8 8"/>
+        </svg>
+        <ul class="dl" style="margin-top:6px">
+          <li>Brand or trade name</li><li>Common or chemical name and percentage of each active ingredient</li><li>EPA Reg. No. and EPA Est. No.</li></ul>
+        <p class="small muted" style="margin-top:8px">Florida requires a permanent, durable label or tag with the active ingredient and the information EPA requires or recommends (5E-14.106). The list above is the Clements standard.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never</b> put pesticide in a drink bottle, food container or anything unlabeled. Pesticide in a food or drink container is a classic cause of accidental poisoning.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-truck"/></svg><span>Concentrates stay in leakproof, labeled containers and are <b>locked</b> whenever the vehicle is unattended.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-building"/></svg><span>A current specimen label for every product we use is kept at the licensed business location and shown to FDACS on request.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-book"/></svg><span>Keep the label and SDS for every product on your truck where you can reach them. The full requirements are in FC-05 and FC-07.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 18 PART THREE -->
+  <section class="slide forest" data-label="Part three: Florida law">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Florida law: Chapter 482 and rule 5E-14</h1>
+        <p class="lead a" style="--i:2">Florida regulates pest control around homes more tightly than farm use. Every technician works under a license, a certified operator and an ID card, and each comes with duties.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>How we're licensed</li><li><span>02</span>Your ID card</li><li><span>03</span>Your training requirement</li><li><span>04</span>What you may and may not do</li><li><span>05</span>Practice: what would you do?</li><li><span>06</span>Records and customers</li></ol>
+    </div>
+  </section>
+
+  <!-- 19 CREDENTIALS -->
+  <section class="slide" data-label="How we're licensed">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · How we're licensed</span>
+        <h2 class="a" style="--i:1">Three credentials on every job</h2>
+        <div class="stack">
+          <div class="tierbox a" style="--i:2"><svg class="ico"><use href="#i-building"/></svg><div><b>Business license</b><small>Held by Clements for each licensed location. Renewed every year.</small></div></div>
+          <div class="link a" style="--i:3" aria-hidden="true"></div>
+          <div class="tierbox a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><div><b>Certified operator in charge</b><small>Passed the state exams. Named on the location's license. Certified by category:</small><span class="cats"><span class="chip">General Household Pest</span><span class="chip">Lawn &amp; Ornamental</span><span class="chip">Termite &amp; WDO</span><span class="chip">Fumigation</span></span></div></div>
+          <div class="link a" style="--i:5" aria-hidden="true"></div>
+          <div class="tierbox you a" style="--i:6"><svg class="ico"><use href="#i-id"/></svg><div><b>ID cardholder: you</b><small>A trained employee working under that operator's supervision, in the categories the operator holds.</small></div></div>
+        </div>
+      </div>
+      <div class="card a" style="--i:4"><span class="eyebrow">What the certified operator in charge is responsible for (482.152)</span><ol class="steps tight">
+        <li><span class="num">1</span><span>Choosing the proper and correct chemicals for each job</span></li>
+        <li><span class="num">2</span><span>Safe and proper use of every pesticide</span></li>
+        <li><span class="num">3</span><span>Correct concentrations and formulations</span></li>
+        <li><span class="num">4</span><span>Training personnel in accepted pest control methods</span></li>
+        <li><span class="num">5</span><span>Supervising control measures and procedures</span></li>
+        <li><span class="num">6</span><span>Reporting any accidental human poisoning or death to FDACS within 24 hours</span></li>
+      </ol><p class="small muted">That's why you consult your certified operator about product choice, rates and formulations. They are legally responsible for your work.</p></div>
+    </div>
+  </section>
+
+  <!-- 20 ID CARD -->
+  <section class="slide" data-label="Your ID card">
+    <div class="split" style="grid-template-columns:.85fr 1.15fr;gap:28px">
+      <div class="grid" style="gap:12px;justify-items:center">
+        <div class="idc a" style="--i:1" aria-label="Illustration of an employee identification card">
+          <div class="idtop"><span>Employee identification card</span><span>Pest control</span></div>
+          <div class="idbody"><div class="idph"><svg class="ico" style="width:40px;height:40px"><use href="#i-user"/></svg></div>
+            <dl><dt>Cardholder</dt><dd>Your name</dd><dt>Licensee</dt><dd>Clements · your location</dd><dt>Card no.</dt><dd>On every card</dd><dt>Expires</dt><dd>Licensee anniversary date</dd></dl></div>
+          <div class="idsig">Cardholder signature</div>
+        </div>
+        <p class="small muted a" style="--i:2">Illustration only. Your card is issued by FDACS.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Your ID card · 482.091</span>
+        <h2 class="a" style="--i:1">Required for everyone who performs pest control</h2>
+        <ul class="dl big a" style="--i:2">
+          <li>Clements and the certified operator in charge apply for it <b>within 30 days of your hire date</b>.</li>
+          <li><b>Carry it</b> whenever you perform or solicit pest control. <b>Show it on demand</b> to a customer or an FDACS inspector.</li>
+          <li>It must carry your current photo and signature.</li>
+          <li>It is renewed every year, and it <b>expires the day you leave</b> Clements. The company collects and destroys it.</li>
+          <li>You can hold a card for only one licensee at a time.</li>
+          <li>Office-only staff whose duties are clerical don't need one. Anyone who solicits or accepts pest control work in person or by phone does (5E-14.142).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 TRAINING TIMELINE -->
+  <section class="slide" data-label="Your training requirement">
+    <span class="eyebrow a">03 · Your training requirement</span>
+    <h2 class="a" style="--i:1">What the law requires, and when</h2>
+    <p class="a muted" style="--i:2">Select each point on the timeline. This course is part of meeting these requirements.</p>
+    <div class="tl a" style="--i:3" id="trTl"><span class="fill" id="trFill"></span></div>
+    <div class="tldetail a" style="--i:4" id="trDet"></div>
+  </section>
+
+  <!-- 22 MAY / MAY NOT -->
+  <section class="slide" data-label="May and may not">
+    <span class="eyebrow a">04 · What you may and may not do</span>
+    <h2 class="a" style="--i:1">As an ID cardholder (not a certified operator)</h2>
+    <div class="grid g2">
+      <div class="card mm a" style="--i:2"><h3 class="ok">You may</h3><ul>
+        <li><svg class="ico"><use href="#i-check"/></svg>Perform pest control in the categories you're trained in, once you complete field training</li>
+        <li><svg class="ico"><use href="#i-check"/></svg>Work under the supervision of your location's certified operator in charge</li>
+        <li><svg class="ico"><use href="#i-check"/></svg>Use Clements products, equipment and materials on Clements customers</li>
+        <li><svg class="ico"><use href="#i-check"/></svg>Solicit and accept pest control work for Clements</li>
+        <li><svg class="ico"><use href="#i-check"/></svg>Apply a restricted-use product only under a certified applicator's direct supervision</li></ul></div>
+      <div class="card mm a" style="--i:3"><h3 class="no">You may not</h3><ul>
+        <li><svg class="ico"><use href="#i-x"/></svg>Work alone before completing your 40-hour, five-day field training</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>Do side jobs, use your own products, or work as an independent contractor</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>Change the product, rate or formulation without consulting the certified operator</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>Perform WDO inspections without a WDO ID card endorsement</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>Perform fumigation without the required special ID card or endorsement, or supervise anyone</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 23 PRACTICE SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do">
+    <span class="eyebrow a">05 · Practice · what would you do?</span>
+    <h2 class="a" style="--i:1">Florida law on the job</h2>
+    <div class="scen-tabs a" style="--i:2" id="flTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="flBox"></div>
+  </section>
+
+  <!-- 24 RECORDS & CUSTOMERS -->
+  <section class="slide" data-label="Records and customers">
+    <span class="eyebrow a">06 · Records and customers</span>
+    <h2 class="a" style="--i:1">Records and the customer's right to know</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Records · 5E-14.142</h3><p>Service records and contracts are kept at least <b>2 years</b>, and the information is recorded within <b>2 working days</b> of the application. Record the product, amount and where it went, accurately, every time.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-chat"/></svg></div><h3>Customer's right to know · 482.2265</h3><p>On request, a customer gets the business name, <b>your ID card number</b>, the brand or common name of the product and its active ingredient, and the label's safety information.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-flag"/></svg></div><h3>Lawn notices and the registry</h3><p>Lawn and exterior foliage applications need a posted notice, at least 4 by 5 inches, with our business name. Neighbors on the FDACS pesticide-sensitive registry get notice <b>24 hours</b> ahead. The office tracks the registry list.</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Honesty counts.</b> False records or claims are grounds for discipline under Chapter 482. A false statement on a license or certificate application voids it, and violating the chapter is a misdemeanor (482.191).</span></div>
+  </section>
+
+  <!-- 25 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 26 PART FOUR -->
+  <section class="slide forest" data-label="Part four: the label on the job">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">The label on the job</h1>
+        <p class="lead a" style="--i:2">Knowing the law only matters if it shows up on your route. These are the habits that keep every application legal, from the shop to the last stop.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Read it five times</li><li><span>02</span>Storage, disposal and emergencies</li></ol>
+    </div>
+  </section>
+
+  <!-- 27 FIVE TIMES -->
+  <section class="slide" data-label="Read it five times">
+    <span class="eyebrow a">01 · Read it five times</span>
+    <h2 class="a" style="--i:1">Every product, every time it changes hands</h2>
+    <div class="path five">
+      <div class="st a" style="--i:2"><span class="n">1</span><h3>Before you load it</h3><p>Right product for your services? Labeled for the sites you treat? Your certified operator selects it.</p></div>
+      <div class="st a" style="--i:3"><span class="n">2</span><h3>Before you mix</h3><p>PPE for mixing, the rate, the water volume, any mixing restrictions.</p></div>
+      <div class="st a" style="--i:4"><span class="n">3</span><h3>Before you apply</h3><p>Site, pest, method, weather, people and pets, water and pollinators nearby.</p></div>
+      <div class="st a" style="--i:5"><span class="n">4</span><h3>Before you store</h3><p>Temperature limits, locked, away from food, feed and your clean PPE.</p></div>
+      <div class="st top a" style="--i:6"><span class="n">5</span><h3>Before you dispose</h3><p>Rinsing, leftover mix and the empty container.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:7"><svg class="ico"><use href="#i-search"/></svg><span>For PPE, go straight to the label's Personal Protective Equipment statement. FC-03 covers how to read it and gear up to it.</span></div>
+  </section>
+
+  <!-- 28 STORAGE DISPOSAL EMERGENCIES -->
+  <section class="slide" data-label="Storage, disposal and emergencies">
+    <span class="eyebrow a">02 · Storage, disposal and emergencies</span>
+    <h2 class="a" style="--i:1">The label covers the end of the job too</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Leftover mix</h3><p>Plan your mix so little is left. Apply what remains to a site the label lists, at or below the label rate. <b>Never</b> pour it on the ground, in a sink, or near a storm drain.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>Empty containers</h3><p>Triple rinse or pressure rinse as the label directs, and add the rinse water to the spray tank. Never reuse or refill a pesticide container. Dispose of it the way the label says.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-phone"/></svg></div><h3>Exposure or poisoning</h3><p>Follow the label's First Aid section. Call Poison Control, <b>1-800-222-1222</b>, with the label in hand. Tell your supervisor right away. Exposure response is covered in FC-03.</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span>A spill is handled with the 3 Cs: Control, Contain, Clean up. Tell your supervisor right away and file a written report the same day. FC-05 covers spill response in full.</span></div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on the truck</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before FC-02 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Find and name every label part on two products from your truck</label></li>
+      <li><label><input type="checkbox" id="f2"> State the signal word of each product on your truck, from lowest to highest hazard</label></li>
+      <li><label><input type="checkbox" id="f3"> Read the mix rate from the current label and match it to the approved mix rate sheet</label></li>
+      <li><label><input type="checkbox" id="f4"> Show where the label and SDS for each product are kept, and pull one up in under two minutes</label></li>
+      <li><label><input type="checkbox" id="f5"> Show your ID card, and explain when you must carry and present it</label></li>
+      <li><label><input type="checkbox" id="f6"> Answer a mock customer's "What did you spray?" with everything 482.2265 requires</label></li>
+      <li><label><input type="checkbox" id="f7"> Show a correctly labeled service container, or confirm none is in use</label></li>
+      <li><label><input type="checkbox" id="f8"> Complete a service record with product, amount and location</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc02:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc02:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-02", "titleHtml": "Labels &amp; Pesticide Law", "nextHtml": "FC-03 \u00b7 PPE &amp; Respirators", "passNote": "Your supervisor sign-off completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Reading the label',q:'You open a new jug of a product you\'ve used for years. The label now lists a lower maximum rate than the one you always mix. What do you do?',o:['Keep mixing your usual rate; it has always worked','Mix halfway between the old and new rates','Use the old rate until the old jugs are gone from the shop','Mix at or below the new label rate, and tell your supervisor so the mix rate sheet gets checked'],a:3,e:'The label on the container in your hand is the law. Labels change, so mix from the current label and flag the difference so the approved mix rate sheet is updated.'},
+    2:{t:'Checkpoint 2 · The label is the law',q:'A restaurant account has a heavy roach problem. A coworker suggests doubling the label rate "to knock them out." What is the right call?',o:['Double it, but only in the kitchen','Stay at or below the label rate, use other label-approved tools like baits and sanitation advice, and involve your supervisor','Double it, and note it in the service record','Use a rate halfway between the label maximum and double'],a:1,e:'Exceeding the label rate is a FIFRA and Florida violation no matter the situation. Solve heavy pressure with IPM and other labeled products, with your certified operator\'s guidance.'},
+    3:{t:'Checkpoint 3 · Florida law',q:'You resign from Clements to take a job with another pest control company. What happens to your Clements ID card?',o:['It expires when you leave Clements; the company collects and destroys it, and your new employer applies for a new card','It stays valid until its printed expiration date','You can use it at the new company for 30 days','You transfer it to the new company by mailing it to FDACS'],a:0,e:'An ID card expires automatically when you leave the licensee. You can hold a card for only one licensee at a time, so the new company must apply for yours within 30 days of hiring you.'},
+    4:{t:'Checkpoint 4 · The label on the job',q:'At your last stop you have about a quart of mixed perimeter product left in your sprayer. What do you do with it?',o:['Pour it into a storm drain at the shop','Pour it on the gravel behind the shop','Apply it to a site the label lists, at or below the label rate','Leave it in the sprayer in the sun until next week'],a:2,e:'Leftover mix should be applied to a labeled site at or below the label rate, and future mixes planned so little is left. Never dump it on the ground or in a drain.'},
+    5:{t:'Checkpoint 5',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which section of the label tells you how much product to mix, where it may be applied and how often?',o:['Precautionary statements','Directions for use','Ingredient statement','Storage and disposal'],a:1,e:'The directions for use cover sites, pests, rates, methods and intervals. They are the most important section of the label.'},
+    {k:'Multiple choice',q:'Rank the signal words from lowest to highest hazard.',o:['WARNING, CAUTION, DANGER','DANGER, WARNING, CAUTION','CAUTION, DANGER, WARNING','CAUTION, WARNING, DANGER'],a:3,e:'CAUTION (low), WARNING (moderate), DANGER (high). DANGER-POISON with skull and crossbones marks the most acutely toxic products.'},
+    {k:'True or false',q:'The signal word describes a product\'s long-term health and environmental risks.',o:['True','False'],a:1,e:'False. The signal word reflects acute (short-term) toxicity of the product as packaged. Environmental risks are in the Environmental Hazards section.'},
+    {k:'Multiple choice',q:'What does the EPA Registration Number on a label tell you?',o:['Where the product was manufactured','The batch and expiration date','That EPA registered this exact product and approved its label','The product\'s toxicity category'],a:2,e:'The EPA Reg. No. identifies the registered product. The EPA Establishment Number identifies the factory where it was made.'},
+    {k:'Multiple choice',q:'Where does a restricted-use statement appear?',o:['In a box at the top of the front panel, only on restricted-use products','On every label, under the directions for use','Only on the SDS','On the back panel next to storage and disposal'],a:0,e:'Only restricted-use products carry the statement, prominently at the top of the front panel. General-use labels have no classification statement.'},
+    {k:'Scenario',q:'A customer asks when her children can play on the treated patio. Where do you find the answer?',o:['The signal word','The EPA Reg. No.','The re-entry statement','The net contents'],a:2,e:'The re-entry statement, usually in the directions for use. Structural labels typically say not to allow people or pets to contact treated surfaces until dry.'},
+    {k:'Multiple choice',q:'What is the main difference between a pesticide label and a Safety Data Sheet (SDS)?',o:['The label is a legal document that governs how you use the product; the SDS is an OSHA hazard document for safety and emergencies','They are the same document in different formats','The SDS overrides the label when they differ','Only the SDS is required on the truck'],a:0,e:'The label is EPA-approved under FIFRA and legally governs use. The SDS is required by OSHA Hazard Communication and covers chemical hazards and emergency response.'},
+    {k:'True or false',q:'Under FIFRA, you may apply a product at a lower rate than the label states.',o:['True','False'],a:0,e:'True. FIFRA allows a lower rate, concentration or frequency. It never allows a higher rate or more frequent applications than the label permits.'},
+    {k:'Scenario',q:'The label lists foundation perimeters as a site. You find crickets there, but crickets aren\'t named on the label. May you treat them with this product?',o:['No, never','Yes, because the site and method are on the label','Only at double the rate','Only with the customer\'s written permission'],a:1,e:'FIFRA allows treating a pest not named on the label when the application site and method are listed, at the labeled rate.'},
+    {k:'Multiple choice',q:'Who may apply a restricted-use pesticide?',o:['Any employee who has read the label','Any ID cardholder after 30 days','Only the branch manager','A certified applicator, or a person under their direct supervision'],a:3,e:'RUPs may be applied only by certified applicators or noncertified persons under their direct supervision, who must be trained and at least 18 years old.'},
+    {k:'Scenario',q:'You need a smaller amount of concentrate for a job. Which container is acceptable?',o:['A rinsed-out sports drink bottle','A service container labeled with the brand name, active ingredient and percentage, EPA Reg. No. and EPA Est. No.','Any container, if you write the product name on tape','An unlabeled jug kept in a locked box'],a:1,e:'Florida rule requires a permanent, durable label on any container other than the original or the application equipment. Never use food or drink containers.'},
+    {k:'Multiple choice',q:'Which agency enforces pesticide label and pest control laws in Florida?',o:['OSHA','The county health department','FDACS, the Florida Department of Agriculture and Consumer Services','The Florida Department of Transportation'],a:2,e:'FDACS enforces Chapter 482 and rule 5E-14, and enforces FIFRA in Florida under its agreement with EPA.'},
+    {k:'Multiple choice',q:'Which of these is NOT one of the Florida certified operator categories?',o:['General Household Pest','Lawn & Ornamental','Termite and other wood-destroying organisms','Mosquito misting systems'],a:3,e:'The four main categories under 482.111 are General Household Pest, Lawn & Ornamental, Termite and WDO, and Fumigation.'},
+    {k:'Multiple choice',q:'Within how many days of your hire must Clements apply for your employee ID card?',o:['30 days','7 days','90 days','6 months'],a:0,e:'The licensee and certified operator in charge must apply to FDACS within 30 days after the employee is hired.'},
+    {k:'Multiple choice',q:'Before you may perform pest control on your own, how much initial field training must you complete?',o:['One day','Five days, verified as 40 hours of training','Two weeks','Four hours of classroom training'],a:1,e:'Florida law requires at least five days of field training under a certified operator\'s supervision. Rule 5E-14.1421 verifies the 40 hours on form FDACS-13665 or an equivalent record.'},
+    {k:'True or false',q:'Within six months after your ID card is issued, you must complete 4 hours of classroom training in pesticide safety, IPM, and pest control laws and rules.',o:['True','False'],a:0,e:'True. After that, at least 2 hours of continuing training in the same subjects are due every year by your card\'s renewal date.'},
+    {k:'Scenario',q:'A customer asks to see your ID card. What do you do?',o:['Show it; you must present it on demand','Tell her only FDACS inspectors can ask','Tell her it\'s back at the office','Give her the office phone number instead'],a:0,e:'You must carry your ID card whenever you perform or solicit pest control, and present it on demand to a customer or an FDACS inspector.'},
+    {k:'Multiple choice',q:'Under 482.2265, which of these must you provide when a customer asks?',o:['Your home address','The product\'s price per gallon','The product\'s brand or common name, its active ingredient, the label\'s safety information and your ID card number','A copy of the company\'s license renewal'],a:2,e:'On request, the customer is entitled to the business name, your ID card number, the product\'s brand or common name, its active ingredient and the label\'s safety information.'},
+    {k:'Multiple choice',q:'How long must pest control records, including contracts, be kept under rule 5E-14.142?',o:['30 days','6 months','At least 2 years','Only until the customer cancels'],a:2,e:'At least two years at the licensed business location, with the information recorded within two working days of the application.'},
+    {k:'Scenario',q:'Who must notify FDACS within 24 hours of learning of an accidental human poisoning connected to a job?',o:['The technician, directly','The customer','Poison Control','The certified operator in charge'],a:3,e:'Under 482.152 the certified operator in charge reports any accidental human poisoning or death connected to the work within 24 hours. Your job is to get care and tell your supervisor immediately.'}
+  ];
+
+  /* ---------- specimen label: hotspots ---------- */
+  var FRONT=[
+    {k:'rup',cls:'z-rup',h:'<span class="rupmini">RESTRICTED USE PESTICIDE</span><span class="zs">Only appears on restricted-use products</span>',
+      t:'Restricted-use statement',p:'Printed in a box at the top of the front panel, only on restricted-use products, with the reason for the restriction. A general-use product, like this specimen, has no classification statement at all.',j:'No box means general use. If you see the box, only a certified applicator, or someone under their direct supervision, may apply it.'},
+    {k:'name',cls:'z-name',h:'<span class="pname">PERIMAX 7.9 SC</span><span class="zs">Insecticide · Suspension concentrate · For use by licensed pest control operators</span>',
+      t:'Product (brand) name and formulation',p:'The trade name the manufacturer sells it under, plus the formulation (SC = suspension concentrate). Different brands can contain the same active ingredient at different strengths.',j:'Confirm the brand name matches the job and the approved product list before you mix. Look-alike jugs are a common source of mistakes.'},
+    {k:'ai',cls:'z-ai',h:'<span class="zl">Active ingredient:</span> Bifenthrin ........ 7.9%<br><span class="zl">Other ingredients:</span> ............ 92.1%<br><span class="zl">Total:</span> ........................ 100.0%',
+      t:'Ingredient statement',p:'Names each active ingredient (the part that controls the pest) by its common or chemical name and percentage. "Other ingredients" are inert carriers and additives.',j:'Customers and Poison Control will ask for the active ingredient. Florida law lets a customer ask for it, and you should be able to read it off right here.'},
+    {k:'sig',cls:'z-sig',h:'<span class="zl">KEEP OUT OF REACH OF CHILDREN</span><span class="sigbig">CAUTION</span><span class="zs">See back panel for First Aid and Precautionary Statements</span>',
+      t:'Signal word and child hazard warning',p:'CAUTION, WARNING or DANGER (DANGER-POISON with skull and crossbones) tells you how acutely toxic the product is. "Keep Out of Reach of Children" is required on virtually every label.',j:'This specimen is CAUTION: the lowest of the signal words. It still requires PPE and still causes harm if misused.'},
+    {k:'reg',cls:'z-reg',h:'<span class="zl">EPA Reg. No.</span> 99999-12',
+      t:'EPA Registration Number',p:'Proves EPA registered this exact product and approved this label. The first part identifies the company, the second the product. No legal pesticide is sold without one.',j:'This is the number Poison Control, a doctor or FDACS uses to identify exactly what you used. Read it off the label, not from memory.'},
+    {k:'est',cls:'z-est',h:'<span class="zl">EPA Est. No.</span> 99999-FL-001',
+      t:'EPA Establishment Number',p:'Identifies the factory where this batch was produced. It can appear on the label or be stamped on the container.',j:'Used to trace a product problem back to where it was made. It is also part of the Clements service container label.'},
+    {k:'mfr',cls:'z-mfr',h:'<span class="zl">Net contents:</span> 1 gallon (128 fl oz)<br><span class="zs">Specimen Chemical Co. · Anytown, FL · Emergency: 1-800-000-0000</span>',
+      t:'Net contents, manufacturer and emergency number',p:'How much product is in the container, by weight or volume, and the name and address of the company responsible for it. Most labels list a 24-hour emergency number.',j:'Call the manufacturer\'s emergency number for product-specific spill or exposure advice, and tell your supervisor right away. Life-threatening emergency: 911 first.'}
+  ];
+  var BACK=[
+    {k:'haz',cls:'z-haz',h:'<span class="zh">Precautionary statements</span><span class="zl">Hazards to humans and domestic animals · CAUTION</span> Harmful if absorbed through skin or swallowed. Causes moderate eye irritation.',
+      t:'Hazards to humans and domestic animals',p:'Explains how the product can hurt people and pets, and by which route: skin, eyes, swallowing, breathing. Repeats the signal word.',j:'This tells you which exposure to guard against most. Here it is skin: gloves matter more than anything else.'},
+    {k:'ppe',cls:'z-ppe',h:'<span class="zh">PPE</span>Applicators and other handlers must wear: long-sleeved shirt, long pants, shoes plus socks and chemical-resistant gloves.',
+      t:'Personal protective equipment (PPE)',p:'The legal minimum PPE for anyone handling the product. Every item listed is required, not suggested. Some labels add items for mixers and loaders.',j:'FC-03 teaches how to read this statement, choose the right gear and wear it correctly.'},
+    {k:'fa',cls:'z-fa',h:'<span class="zh">First aid</span><span class="zl">Skin or eyes:</span> rinse 15–20 minutes. <span class="zl">If swallowed:</span> call Poison Control; do not induce vomiting unless told to. Have the label with you.',
+      t:'First aid',p:'What to do right away for each route of exposure, often with a note to physicians. On DANGER (Category I) products it must appear on the front panel.',j:'Read it before you need it. In an emergency, bring the label to the phone or the hospital.'},
+    {k:'env',cls:'z-env',h:'<span class="zh">Environmental hazards</span>Extremely toxic to fish. Do not apply to water or where surface water is present, or when rain is expected. Highly toxic to bees.',
+      t:'Environmental hazards',p:'Risks to fish, wildlife, bees and water, and the restrictions that protect them: water setbacks, runoff, weather and pollinator limits.',j:'Florida homes sit on ponds, canals and lakes. This section is why you check where the water and storm drains are before you spray.'},
+    {k:'re',cls:'z-re',h:'<span class="zh">Re-entry</span>Do not allow people or pets to contact treated surfaces until the spray has dried.',
+      t:'Re-entry statement',p:'When people and pets may return to the treated area. Structural labels usually say "until dry." Agricultural labels set a timed Restricted-Entry Interval (REI) instead.',j:'Tell the customer before you leave: keep kids and pets off treated areas until dry. That is a label requirement, not just good service.'},
+    {k:'dfu',cls:'z-dfu',h:'<span class="zh">Directions for use</span>It is a violation of Federal law to use this product in a manner inconsistent with its labeling. <span class="zl">Perimeter and crack and crevice:</span> Mix 0.33 to 1.0 fl oz per gallon of water. Do not apply more than once every 7 days.',
+      t:'Directions for use',p:'Where the product may be used, which pests, how to mix and apply it, maximum rates and minimum intervals. The most important section of the label.',j:'If a site, rate or frequency is not on the label, it is not allowed. Mix from the current label and the approved mix rate sheet.'},
+    {k:'sto',cls:'z-sto',h:'<span class="zh">Storage and disposal</span>Store in original container in a cool, dry, locked place. Do not reuse or refill this container. Triple rinse, then recycle or dispose of as directed.',
+      t:'Storage and disposal',p:'How to store the product, how to handle the empty container, and how to dispose of leftover product. These are legal requirements too.',j:'Locked, labeled, away from heat, food and your clean PPE. Never pour leftover product down a drain.'}
+  ];
+  function buildMock(box,list,det,cnt,side,key){
+    var seen=store.get(key)||{};
+    box.innerHTML='<div class="mtop"><span>Training specimen · not a real product</span><span>'+side+'</span></div><div class="mz"></div>';
+    var mz=$('.mz',box);
+    function count(){var n=Object.keys(seen).length;cnt.textContent=n+' of '+list.length;}
+    list.forEach(function(z,i){var b=document.createElement('button');b.type='button';b.className='hz '+z.cls+(seen[z.k]?' seen':'');b.id='hz_'+z.k;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',z.t);
+      b.innerHTML='<span class="hdot" aria-hidden="true"></span>'+z.h;
+      b.addEventListener('click',function(){$$('.hz',box).forEach(function(x){x.setAttribute('aria-pressed',x===b)});b.classList.add('seen');seen[z.k]=1;store.set(key,seen);count();
+        det.innerHTML='<span class="eyebrow">Label part '+(i+1)+' of '+list.length+'</span><h3 style="font-size:22px;margin:6px 0 8px">'+z.t+'</h3><p>'+z.p+'</p><div class="onjob"><span class="eyebrow">On the job</span><p>'+z.j+'</p></div>';
+        if(window.innerWidth<860)det.scrollIntoView({block:'nearest',behavior:'smooth'});
+      });
+      mz.appendChild(b)});
+    count();
+  }
+  buildMock($('#mockF'),FRONT,$('#detF'),$('#cntF'),'Front panel','lf');
+  buildMock($('#mockB'),BACK,$('#detB'),$('#cntB'),'Back panel','lb');
+
+  /* ---------- signal word ranking ---------- */
+  var SIG=[{w:'WARNING',r:1,d:'Category II · moderate'},{w:'DANGER-POISON',r:3,d:'Category I · highly toxic by mouth, skin or breath'},{w:'CAUTION',r:0,d:'Category III–IV · slight'},{w:'DANGER',r:2,d:'Category I · corrosive to eyes or skin'}];
+  var so=$('#sigOrder'), sigNext=0;
+  function buildSig(){
+    so.innerHTML='';sigNext=0;$('#sigFb').innerHTML='';
+    SIG.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='sig'+i;
+      b.innerHTML='<span class="num">&nbsp;</span><span><b class="sw'+(s.r>=2?' d':'')+'">'+s.w+'</b>'+(s.r===3?' <svg class="ico" style="width:18px;height:18px;vertical-align:-3px;color:var(--danger)"><use href="#i-skull"/></svg>':'')+'<small class="sigd">'+s.d+'</small></span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(s.r===sigNext){b.classList.add('placed');$('.num',b).textContent=sigNext+1;sigNext++;
+          if(sigNext===SIG.length){$('#sigFb').innerHTML='<div class="fb">Correct: CAUTION, WARNING, DANGER, DANGER-POISON. Higher hazard usually means more PPE, but always read the PPE statement itself. <button type="button" class="btn" id="sigReset" style="margin-left:6px;padding:4px 12px">Try again</button></div>';$('#sigReset').addEventListener('click',buildSig);store.set('sig',1);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#sigFb').innerHTML='<div class="fb no">Not that one yet. Start with the lowest hazard and work up.</div>';}
+      });
+      so.appendChild(b)});
+  }
+  buildSig();
+
+  /* ---------- find it on the label ---------- */
+  var SECT=[{k:'sig',n:'Signal word'},{k:'ai',n:'Ingredient statement'},{k:'reg',n:'EPA Reg. No.'},{k:'rup',n:'Restricted-use statement'},{k:'ppe',n:'PPE statement'},{k:'fa',n:'First aid'},{k:'env',n:'Environmental hazards'},{k:'dfu',n:'Directions for use'},{k:'re',n:'Re-entry statement'},{k:'sto',n:'Storage and disposal'}];
+  var FIND=[
+    {q:'How much PERIMAX do I put in my 1-gallon sprayer for a perimeter treatment?',a:'dfu',s:'"Mix 0.33 to 1.0 fl oz per gallon of water." Then confirm the Clements approved mix rate sheet for the product.'},
+    {q:'The customer asks: "When can my kids play on the patio again?"',a:'re',s:'"Do not allow people or pets to contact treated surfaces until the spray has dried."'},
+    {q:'There\'s a koi pond next to the back patio. Can I spray right up to it?',a:'env',s:'"Extremely toxic to fish. Do not apply to water or where surface water is present." Keep the spray off the pond and away from its edge.'},
+    {q:'Poison Control asks exactly which product the customer\'s dog licked.',a:'reg',s:'EPA Reg. No. 99999-12 identifies this exact registered product. Give the brand name and active ingredient too.'},
+    {q:'A customer wants to know what chemical is in the product.',a:'ai',s:'"Active ingredient: Bifenthrin 7.9%." Florida law entitles the customer to the product name and its active ingredient.'},
+    {q:'Does a certified operator need to directly supervise this application?',a:'rup',s:'There is no restricted-use box on the front panel, so this is a general-use product. Your normal supervision under Chapter 482 applies.'},
+    {q:'What do I do with the empty jug?',a:'sto',s:'"Do not reuse or refill this container. Triple rinse, then recycle or dispose of as directed."'},
+    {q:'Product splashed into a coworker\'s eye while mixing. What do we do right now?',a:'fa',s:'"Skin or eyes: rinse 15–20 minutes." Then call Poison Control with the label and tell your supervisor.'}
+  ];
+  var fi=store.get('fi')||0, fDone=false;
+  if(fi>=FIND.length)fi=0;
+  var fpk=$('#findPick');
+  SECT.forEach(function(s){var b=document.createElement('button');b.type='button';b.id='fp_'+s.k;b.dataset.k=s.k;b.setAttribute('aria-pressed','false');b.textContent=s.n;
+    b.addEventListener('click',function(){if(fDone)return;var f=FIND[fi];
+      $$('button',fpk).forEach(function(x){x.classList.remove('miss');x.setAttribute('aria-pressed','false')});
+      if(s.k===f.a){fDone=true;b.setAttribute('aria-pressed','true');
+        var last=fi===FIND.length-1;
+        $('#findFb').innerHTML='<div class="fb"><b>Right: '+s.n+'.</b> The label says: '+f.s+'<div style="margin-top:8px"><button type="button" class="btn primary" id="findNext" style="padding:6px 14px">'+(last?'Start over':'Next question')+'</button></div></div>';
+        $('#findNext').addEventListener('click',function(){fi=last?0:fi+1;store.set('fi',fi);showFind()});
+        if(last)store.set('fdone',1);
+      } else {b.classList.add('miss');$('#findFb').innerHTML='<div class="fb no">Not there. Think about which part of the label answers this question, and try again.</div>';}
+    });fpk.appendChild(b)});
+  function showFind(){fDone=false;var f=FIND[fi];
+    $('#findQ').innerHTML='<span class="eyebrow">Question '+(fi+1)+' of '+FIND.length+'</span><p style="font-size:19px;margin-top:8px;line-height:1.4">'+f.q+'</p>';
+    $$('button',fpk).forEach(function(x){x.classList.remove('miss');x.setAttribute('aria-pressed','false')});$('#findFb').innerHTML='';}
+  showFind();
+
+  /* ---------- legal or violation sort ---------- */
+  var LV=[
+    {q:'Mixing 0.5 fl oz per gallon for a routine perimeter',a:'Legal',w:'0.5 is within the labeled 0.33–1.0 range.'},
+    {q:'Mixing 1.5 fl oz per gallon because the infestation is heavy',a:'Violation',w:'Exceeding the label rate is illegal, no matter how bad the infestation.'},
+    {q:'Treating crickets (not named on the label) along the foundation',a:'Legal',w:'An unlisted pest is allowed when the site and method are on the label.'},
+    {q:'Broadcasting it across a vegetable garden',a:'Violation',w:'That site is not on the label. Not listed means not allowed.'},
+    {q:'Re-treating the same perimeter 3 days later',a:'Violation',w:'The label limits treatment to once every 7 days.'},
+    {q:'Using 0.33 fl oz per gallon on a light-pressure account',a:'Legal',w:'Using less than the maximum is allowed, as long as it is within the label\'s directions.'},
+    {q:'Pouring concentrate into an empty water bottle for a quick job',a:'Violation',w:'Unlabeled containers violate the label and Florida rule, and are a poisoning risk.'},
+    {q:'Spraying the driveway edge right before a storm rolls in',a:'Violation',w:'The label says do not apply when rain is expected. Runoff carries it to water.'}
+  ];
+  var lvb=$('#lvSort'), lvSel={};
+  LV.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='lvrow'+i;
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" aria-pressed="false" data-v="Legal" id="lv'+i+'l">Legal</button><button type="button" aria-pressed="false" data-v="Violation" id="lv'+i+'v">Violation</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){lvSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+    lvb.appendChild(r)});
+  $('#lvCheck').addEventListener('click',function(){
+    var right=0,blank=0;
+    LV.forEach(function(s,i){var r=$('#lvrow'+i),w=$('.why',r);if(w)w.remove();
+      if(!lvSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=lvSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.firstChild.appendChild(d);}
+    });
+    $('#lvFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all eight before checking.</span>':(right===LV.length?'<span class="fb" style="display:inline-block">All eight correct. Within the label is legal. Outside it is a violation.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes under the ones in red and try again.</span>');
+  });
+
+  /* ---------- training timeline ---------- */
+  var TR=[
+    {y:'Day 1',g:'Hired',i:'i-user',h:'Field training starts',p:'You train in the field under the direct supervision of a certified operator, or a trainer the certified operator designates in writing. You do not perform pest control on your own yet.'},
+    {y:'30 days',g:'ID card',i:'i-id',h:'ID card application filed',p:'Clements and the certified operator in charge must apply to FDACS for your employee identification card within 30 days of your hire date (application form FDACS-13606).'},
+    {y:'40 hrs',g:'5 days',i:'i-check',h:'Initial training complete: 40 hours, five days',p:'Florida law requires at least five days of field training in each category before you perform, solicit, inspect or apply on your own. Rule 5E-14.1421 verifies the 40 hours on form FDACS-13665 or an equivalent attendance record, kept by Clements for at least two years.'},
+    {y:'6 months',g:'Classroom',i:'i-book',h:'4 hours of classroom training',p:'Within six months after your card is issued, complete 4 hours of classroom training in pesticide safety, integrated pest management, and federal and state pest control laws and rules.'},
+    {y:'Every year',g:'Renewal',i:'i-trend',h:'2 hours of continuing training',p:'Complete at least 2 hours of continuing training in the same three subjects by your card\'s renewal date, every year. Each contact hour is at least 50 minutes. Clements keeps the proof. WDO inspectors and fumigation crews have additional training requirements.'}
+  ];
+  var trt=$('#trTl'), trSeen=store.get('tr')||{};
+  function showTR(n){
+    $$('button',trt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(trSeen[j])b.classList.add('seen')});
+    $('#trFill').style.width=(n/(TR.length-1)*80)+'%';
+    var t=TR[n];$('#trDet').innerHTML='<div class="card" style="display:flex;gap:16px;align-items:flex-start"><div class="icobox" style="margin:0"><svg class="ico"><use href="#'+t.i+'"/></svg></div><div><span class="eyebrow">'+t.y+' · '+t.g+'</span><h3 style="margin:4px 0 6px;font-size:20px">'+t.h+'</h3><p>'+t.p+'</p></div></div>';
+  }
+  TR.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tr'+i;b.innerHTML='<span class="dot"><svg class="ico" style="width:20px;height:20px"><use href="#'+t.i+'"/></svg></span><span class="yr">'+t.y+'</span><span class="tg">'+t.g+'</span>';
+    b.addEventListener('click',function(){trSeen[i]=1;store.set('tr',trSeen);showTR(i)});trt.appendChild(b)});
+  showTR(0);
+
+  /* ---------- Florida scenarios ---------- */
+  var FS=[
+    {n:'Short-handed',s:'It\'s your third day. Your trainer calls in sick, and you\'re asked to run a few easy routine stops alone "just this once."',o:['Run the stops carefully and don\'t tell anyone','Explain that you haven\'t finished your five days of field training, and ask your supervisor for another trainer or other work','Run them, but only exterior services','Ask the customer if they mind'],a:1,e:'Florida law prohibits performing pest control on your own until you complete five days of field training under a certified operator\'s supervision. No exceptions for easy stops.'},
+    {n:'The side job',s:'Your neighbor asks you to spray his yard on Saturday for cash. You have leftover mix that would otherwise go to waste.',o:['Do it, since the product is already mixed','Do it with product you buy yourself','Decline. Recommend he call Clements so it\'s done under our license','Do it, but don\'t wear the uniform'],a:2,e:'An ID cardholder may only serve the licensee\'s customers, with the licensee\'s products, under the certified operator. A side job is unlicensed pest control, and it puts your card at risk.'},
+    {n:'"What did you spray?"',s:'After a service, a customer asks to see your ID and wants to know exactly what you applied in her kitchen.',o:['Say it\'s a safe, standard product','Tell her to call the office','Show your ID card and give the brand name, active ingredient and the label\'s safety information','Tell her it\'s proprietary'],a:2,e:'You must show your ID card on demand. Under 482.2265 the customer is entitled to the business name, your ID card number, the product\'s brand or common name, its active ingredient and the label\'s safety information.'},
+    {n:'The closing',s:'A realtor flags you down on your route and asks you to do a quick termite (WDO) inspection report for a closing tomorrow.',o:['Do it; you know what termites look like','Do a verbal inspection only','Fill out the report and have the office sign it','Explain that WDO inspections require a WDO ID card endorsement, and pass the request to the office'],a:3,e:'Only a WDO ID card endorsement holder, supervised by a Termite and WDO certified operator, may perform WDO inspections and issue the report. Pass the lead to the office.'}
+  ];
+  var ft=$('#flTabs'), fb=$('#flBox'), fsDone=store.get('fs')||{};
+  function showFS(n){
+    $$('button',ft).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!fsDone[j])});
+    var s=FS[n];
+    fb.innerHTML='<div class="card" style="padding:16px 20px"><span class="eyebrow">The situation</span><p style="margin-top:6px;font-size:17px">'+s.s+'</p></div><div class="choices fsch">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="fs'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="fsFb"></div>';
+    $$('.choice',fb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',fb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',fb).forEach(function(x){x.disabled=true});fsDone[n]=1;store.set('fs',fsDone);$$('button',ft)[n].classList.add('done');
+        $('#fsFb').innerHTML='<div class="fb">'+s.e+(n<FS.length-1?' <button type="button" class="btn" id="fsNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#fsNext');if(nx)nx.addEventListener('click',function(){showFS(n+1)});}
+      else{b.classList.add('wrong');$('#fsFb').innerHTML='<div class="fb no">Think about what your ID card allows, and who is responsible for your work. Try again.</div>';}
+    })});
+  }
+  FS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='fst'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showFS(i)});ft.appendChild(b)});
+  showFS(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1224 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-02 L&amp;O Program &amp; Calendar</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-02 L&O Program & Calendar: flip cards, program bars, 12-month calendar, pressure chart, matcher, county planner, code builder */
+.slide > *{flex-shrink:0}
+@keyframes l2rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lbl{font-family:var(--font);font-size:10px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+
+/* flip 4 */
+.flip.f4{grid-template-columns:repeat(4,1fr)}
+.flip.f4 button{min-height:224px}
+.flip.f4 h3{font-size:20px}
+.flip.f4 .back{font-size:13.5px;line-height:1.45;padding:18px}
+.flip.f4 .front .muted{font-size:14px}
+
+/* count + program bars */
+.lotot{display:flex;gap:14px;align-items:center;background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.lotot .big{font-size:52px;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+.pbar{position:relative;display:grid;grid-template-columns:76px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;overflow:hidden}
+.pbar .pk{display:flex;gap:8px;align-items:center;color:var(--brand-600)}
+.pbar .pk b{font-size:30px;font-weight:300;color:var(--ink);font-variant-numeric:tabular-nums}
+.pbar small{display:block;color:var(--muted);font-size:13px;line-height:1.4}
+.pbar i{position:absolute;left:0;bottom:0;height:3px;background:var(--brand-500);width:0}
+.slide.on .pbar i{width:var(--w);transition:width 1.2s ease-in-out .4s}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:150px repeat(12,1fr);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;position:relative}
+.cal .mh{border:0;background:none;padding:8px 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--line);transition:background .18s ease-in-out,color .18s ease-in-out}
+.cal .mh.bo{background:repeating-linear-gradient(135deg,var(--brand-50) 0 6px,#fff 6px 12px)}
+.cal .mh[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+.cal .mh:hover:not([aria-pressed="true"]){color:var(--brand-700)}
+.cal .rl{display:flex;flex-direction:column;justify-content:center;padding:6px 12px;font-size:14px;line-height:1.2;border-bottom:1px solid var(--line)}
+.cal .rl small{font-size:11px;color:var(--muted)}
+.cal .c{display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);border-left:1px solid #EEF1EF;min-height:44px;transition:background .18s ease-in-out}
+.cal .c.bo{background:repeating-linear-gradient(135deg,var(--brand-50) 0 6px,#fff 6px 12px)}
+.cal .c.sel{background:var(--brand-100)}
+.cal .lastrow{border-bottom:0}
+.cal .tk{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;padding:0 6px;border-radius:var(--pill);background:var(--brand-600);color:#fff;font-size:10.5px;letter-spacing:.06em;font-weight:500}
+.cal .tk.f{background:var(--forest)}
+.cal .tk.p{background:var(--brand-500)}
+.cal .tk.nopk{background:#fff;color:var(--brand-800);border:1.5px dashed var(--brand-700)}
+.slide.on .cal .tk{animation:l2rise .22s ease-in-out both;animation-delay:calc(var(--d,0)*30ms + 120ms)}
+.cal .bonote{grid-column:1 / -1;padding:5px 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+.cal .bonote i{display:inline-block;width:18px;height:10px;vertical-align:-1px;margin-right:6px;border:1px solid var(--line);background:repeating-linear-gradient(135deg,var(--brand-100) 0 4px,#fff 4px 8px)}
+.calcard{display:grid;grid-template-columns:200px 1fr 1fr;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;animation:l2rise .2s ease-in-out both}
+.calcard .mn{font-size:34px;line-height:1;font-weight:300}
+.calcard .vis{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.calcard .vis span{font-size:12px;border:1px solid var(--brand-300);background:var(--brand-50);border-radius:var(--pill);padding:3px 10px}
+.calcard .vis span.none{border-color:var(--line);background:#fff;color:var(--muted)}
+.calcard p{font-size:14.5px;line-height:1.5}
+.calcard .eyebrow{display:block;margin-bottom:4px}
+
+/* pressure chart */
+.pfig{padding:12px 14px;display:block}
+.pfig svg{width:100%;height:auto;max-width:none}
+.pfig .bo{fill:var(--brand-50);stroke:var(--brand-200);stroke-dasharray:4 4}
+.pfig .axis{stroke:var(--brand-300);stroke-width:1.4}
+.pfig .cv{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900}
+.pfig .ins{stroke:var(--brand-700)}
+.pfig .fun{stroke:var(--brand-400);stroke-dasharray:900}
+.slide.on .pfig .cv{animation:l2draw 1.8s ease-in-out .3s forwards}
+.slide.on .pfig .fun{animation-delay:.9s}
+@keyframes l2draw{to{stroke-dashoffset:0}}
+.pfig .ls circle{fill:var(--forest)}
+.pfig .ls text{font-family:var(--font);font-size:10px;letter-spacing:.08em;fill:var(--ink);font-weight:500}
+.pfig .ls .ring{fill:none;stroke:var(--brand-500);stroke-width:1.4;opacity:0}
+.slide.on .pfig .ls .ring{animation:l2pulse 2.4s ease-in-out infinite}
+@keyframes l2pulse{0%{opacity:.8;r:7}100%{opacity:0;r:16}}
+.pfig .mo text{font-family:var(--font);font-size:10px;letter-spacing:.1em;fill:var(--muted)}
+.legend2{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;padding:6px 4px 0}
+.legend2 span{display:flex;align-items:center;gap:6px}
+.legend2 i{width:18px;height:3px;border-radius:2px;display:inline-block}
+.legend2 .l1{background:var(--brand-700)}.legend2 .l2{background:var(--brand-400)}
+
+/* seasons, feeding rows */
+.season .eyebrow{color:var(--brand-600)}
+.season h3{margin:6px 0 6px}
+.frow,.sv{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;font-size:15px;line-height:1.5}
+.fm{display:inline-flex;align-items:center;justify-content:center;height:34px;border-radius:8px;background:var(--brand-600);color:#fff;font-size:12px;letter-spacing:.12em;font-weight:500}
+.frow.hot,.sv.hot{border-color:var(--brand-600);box-shadow:inset 4px 0 0 var(--brand-600)}
+.frow.hot .fm,.sv.hot .fm{background:var(--forest)}
+.sv p{font-size:14.5px;margin-top:2px}
+
+/* matcher */
+.mwrap{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:start}
+.clue{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:18px 20px;display:grid;gap:10px;min-height:220px;animation:l2rise .2s ease-in-out both}
+.clue .eyebrow{color:var(--mint)}
+.clue .row{display:flex;gap:10px;font-size:15px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px}
+.clue .row:last-child{border-bottom:0}
+.clue .row span:first-child{flex:0 0 92px;color:var(--mint);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding-top:3px}
+.mprog{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.mprog i{width:22px;height:5px;border-radius:3px;background:var(--line)}
+.mprog i.ok{background:var(--positive)}.mprog i.cur{background:var(--brand-400)}
+.mwrap .choices{gap:8px}
+.mwrap .choice{padding:10px 14px}
+
+/* county planner */
+#coSort .row{padding:8px 12px}
+#coSort .opts button{white-space:nowrap}
+#coTabs button{font-size:13px}
+
+/* code builder */
+.code-big2{display:flex;gap:6px;font-size:clamp(32px,4vw,50px);font-weight:300;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.code-big2 span{padding:2px 10px 6px;border-radius:10px;border-bottom:4px solid}
+.code-big2 .s1{background:#E5EFE8;border-color:var(--brand-800)}
+.code-big2 .s2{background:var(--brand-50);border-color:var(--brand-600)}
+.code-big2 .s3{background:#F0F4F1;border-color:var(--brand-400)}
+.code-big2 .s4{background:#F6F8F7;border-color:var(--brand-300)}
+.seg button{border:0;background:none;padding:6px 12px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+.mstrip{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.mstrip span{text-align:center;font-size:11px;letter-spacing:.1em;padding:8px 0;border-radius:8px;background:var(--surface);border:1px solid var(--line);color:var(--muted);transition:background .18s ease-in-out,color .18s ease-in-out}
+.mstrip span.on{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.mstrip span.on.f{background:var(--forest);border-color:var(--forest)}
+
+/* customer talk */
+.say{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brand-500);border-radius:var(--radius);padding:12px 16px}
+.say b{display:block;margin-bottom:4px}
+.say p{font-size:14.5px;line-height:1.5;color:var(--ink)}
+.dcard{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start}
+.dcard .quote2{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:18px 20px;font-size:17px;line-height:1.45}
+.dcard .quote2 .eyebrow{color:var(--mint);display:block;margin-bottom:8px}
+.dcard .choices{gap:8px}
+.dcard .choice{padding:10px 14px;font-size:15px}
+
+.ftable{min-width:600px;font-size:13.5px}
+.ftable td,.ftable th{padding:7px 12px}
+
+@media (max-width:860px){
+  .flip.f4{grid-template-columns:1fr 1fr}
+  .cal{grid-template-columns:76px repeat(12,minmax(0,1fr))}
+  .cal .mh{font-size:9px;letter-spacing:.02em}
+  .cal .rl{font-size:11px;padding:4px 6px}
+  .cal .rl small{display:none}
+  .cal .tk{min-width:0;width:100%;height:18px;font-size:0;padding:0;border-radius:4px}
+  .cal .c{padding:0 2px;min-height:36px}
+  .calcard,.mwrap,.dcard{grid-template-columns:1fr}
+  .pbar{grid-template-columns:64px 1fr}
+  .mstrip span{font-size:9px;letter-spacing:0}
+}
+@media (max-width:480px){.flip.f4{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  .slide.on .pfig .cv{animation:none;stroke-dashoffset:0}
+  .pfig .cv{stroke-dashoffset:0}
+  .slide.on .pfig .ls .ring{animation:none}
+  .slide.on .cal .tk{animation:none}
+  .slide.on .pbar i{transition:none}
+  .calcard,.clue{animation:none}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 27</span><span class="code-chip">LAWN-02 · L&amp;O Program &amp; Calendar</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h0.5M8 17h2"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="4.5" ry="6"/><path d="M12 8V20"/><path d="M9.5 6.5L8 4M14.5 6.5L16 4"/><path d="M7.5 11H4M7.5 15H4M16.5 11H20M16.5 15H20"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M4 20l7-7"/><path d="M11 13l3-3 2 2-3 3z"/><path d="M16 12l2-2"/><path d="M18 5v.01M21 7v.01M20 3v.01M21 11v.01M17 8v.01"/></symbol>
+    <symbol id="i-grain" viewBox="0 0 24 24"><circle cx="7" cy="16" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="17" cy="15" r="1.6"/><circle cx="9.5" cy="11" r="1.6"/><circle cx="15" cy="10" r="1.6"/><path d="M3 21h18"/></symbol>
+    <symbol id="i-weed" viewBox="0 0 24 24"><path d="M12 21V11"/><path d="M12 14c-3 0-5-2-6-5 3 0 5 1.5 6 5z"/><path d="M12 12c3 0 5-2 6-5-3 0-5 1.5-6 5z"/><path d="M12 11c-1.5-2-1.5-4.5 0-7 1.5 2.5 1.5 5 0 7z"/><path d="M4 21h16"/></symbol>
+    <symbol id="i-shrub" viewBox="0 0 24 24"><path d="M6 17a4 4 0 01-1-7.5A4.5 4.5 0 0112 6a4.5 4.5 0 017 3.5A4 4 0 0118 17z"/><path d="M12 17v4M9 21h6"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-8A5.5 5.5 0 0117 8.5a4.5 4.5 0 01.5 9.5z"/><path d="M9 21l1-2M13 21l1-2"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-02</span>
+        <h1 class="display a" style="--i:1">L&amp;O Program &amp; Calendar</h1>
+        <p class="lead a" style="--i:2">Fourteen treatments, twelve months, one plan. What each visit is, why it falls when it does in Florida, how summer fertilizer rules change it, and how to explain it to the customer.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 260" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <circle cx="150" cy="122" r="96"/>
+        <circle cx="150" cy="122" r="70"/>
+        <path d="M150 26v12M150 206v12M54 122h12M234 122h12M82 54l8 8M210 182l8 8M218 54l-8 8M90 182l-8 8"/>
+        <path d="M150 122L150 70"/><path d="M150 122l34 20"/>
+        <circle cx="150" cy="122" r="5"/>
+        <path d="M203 74a20 20 0 1 1 0 .1"/>
+        <path d="M104 160c0-18 12-30 32-31-2 20-14 31-32 31z"/><path d="M104 160l18-18"/>
+        <path d="M20 246c10-14 14-28 14-40M34 246c4-10 10-18 20-24M48 246c0-12-4-22-12-30M120 246c8-12 12-26 10-38M134 246c4-8 10-14 18-18M200 246c8-14 10-26 8-36M214 246c6-10 12-16 22-20M262 246c2-12 0-22-6-30M276 246c4-10 10-16 18-20"/>
+        <path d="M10 248h280"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-leaf"/></svg><span>Name the four visit types in the standard program and how many of each a full-program customer gets</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span>Walk the calendar month by month and say what each visit targets and why it falls when it does</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span>Tell a full-program account from an a la carte account, and treat only what is on the service order</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-ban"/></svg><span>Apply the June 1 – September 30 nitrogen and phosphorus rules by county, and adjust summer visits</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-route"/></svg><span>Read the schedule code behind a lawn account and know who sets up and changes the schedule</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span>Explain the calendar to customers in plain language, without quoting prices or promising results</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">The customer buys a year, <span class="em">not a visit.</span></h2>
+        <p class="lead a" style="--i:2">A lawn program only works when the right treatment lands in the right month. Every visit sets up the next one, and the customer judges all of it by what they see out the window.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-ban"/></svg></div><div><h3>Summer fertilizer rules are law</h3><p>Every county and city where our branches work has its own fertilizer ordinance. Nitrogen or phosphorus on a lawn in the wrong month can mean a fine for the company and a mark against the applicator's credential.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-target"/></svg></div><div><h3>Wrong season, wasted visit</h3><p>A weed spray in the wrong heat, a fungicide on chinch bug damage, a feeding that pushes tender growth before a cold snap: each one costs product, a callback and the customer's trust.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>A customer who understands stays</h3><p>"Why didn't you fertilize in July?" is a cancellation waiting to happen, or a chance to show we know Florida lawns. You decide which.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the program">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The standard program</h1>
+        <p class="lead a" style="--i:2">Why it matters: before you can explain a visit, you need to know which of the four visit types it is, what it is for, and whether this customer even bought it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Four problems, four visit types</li><li><span>02</span>Fourteen treatments a year</li><li><span>03</span>Full program or a la carte</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 FOUR PROBLEMS -->
+  <section class="slide" data-label="Four visit types">
+    <span class="eyebrow a">01 · Four problems, four visit types</span>
+    <h2 class="a" style="--i:1">Every lawn problem falls into one of four groups</h2>
+    <p class="a muted" style="--i:2">Pests, fungus, nutrition and weeds. The program answers with liquid sprays, weed control and granular feedings. Select a card to see what happens on that visit.</p>
+    <div class="flip f4 a" style="--i:3" id="vtFlip"></div>
+    <p class="small muted a" style="--i:4;max-width:none">Calendar abbreviations: <b>LS</b> liquid spray · <b>WC</b> weed control · <b>GF-T</b> granular fertilization, turf · <b>GF-S</b> granular fertilization, shrubs. LAWN-01 covers the equipment.</p>
+  </section>
+
+  <!-- 6 FOURTEEN -->
+  <section class="slide" data-label="Fourteen treatments">
+    <span class="eyebrow a">02 · The standard lawn care program</span>
+    <h2 class="a" style="--i:1">Fourteen treatments a year on the full program</h2>
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:28px;align-items:center">
+      <div class="grid" style="gap:12px">
+        <div class="lotot a" style="--i:2"><span class="big" id="loCount">0</span><span>scheduled treatments a year, covering the turf <i>and</i> the plants and shrubs around it</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span>Treatments fall in <b>nine months</b> of the year. April, July and October each carry more than one.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span>Same numbers as CW-05. This course adds the months and the reasons.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="pbar a" style="--i:3"><span class="pk"><svg class="ico"><use href="#i-spray"/></svg><b>6</b></span><span><b>Liquid sprays</b><small>Every other month · turf and plants · pests, fungus, liquid nutrition by season</small></span><i style="--w:100%"></i></div>
+        <div class="pbar a" style="--i:4"><span class="pk"><svg class="ico"><use href="#i-weed"/></svg><b>3</b></span><span><b>Weed control</b><small>Spring, summer, winter · turf only, never shrubs or beds</small></span><i style="--w:50%"></i></div>
+        <div class="pbar a" style="--i:5"><span class="pk"><svg class="ico"><use href="#i-grain"/></svg><b>3</b></span><span><b>Granular fertilization, turf</b><small>Spring, summer, fall · slow-release granules</small></span><i style="--w:50%"></i></div>
+        <div class="pbar a" style="--i:6"><span class="pk"><svg class="ico"><use href="#i-shrub"/></svg><b>2</b></span><span><b>Granular fertilization, shrubs</b><small>Spring, fall · plants and shrubs</small></span><i style="--w:33%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FULL VS A LA CARTE -->
+  <section class="slide" data-label="Full program or a la carte">
+    <span class="eyebrow a">03 · Full program or a la carte</span>
+    <h2 class="a" style="--i:1">Most lawn customers are on the full program. Not all.</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Full program</h3><p>All fourteen treatments on the calendar, recurring year after year. Each visit is planned around the one before it: sprays every other month, weed control in three seasons, feedings in spring, summer and fall.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>A la carte</h3><p>Some customers choose individual treatments, a different frequency, or both: sprays only, for example. Accounts that joined Clements from other companies may also carry older frequencies such as quarterly.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>The service order is the plan.</b> Check what this account bought before you mix or load the spreader.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-eye"/></svg><span><b>See a problem the customer didn't buy for?</b> Note it on the inspection report and flag it. LAWN-03 covers when to go beyond the order.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-headset"/></svg><span><b>Adding or dropping treatments</b> is an office and branch manager change. Never quote a price or change a schedule yourself.</span></div>
+    </div>
+  </section>
+
+  <!-- 8 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 9 PART TWO -->
+  <section class="slide forest" data-label="Part two: month by month">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Month by month</h1>
+        <p class="lead a" style="--i:2">Why it matters: the calendar follows Florida's seasons, not the other way around. When you know why a visit falls in its month, you can spot the problem in front of you and explain it at the door.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The 12-month calendar</li><li><span>02</span>The liquid spray year</li><li><span>03</span>Weed control timing</li><li><span>04</span>Feeding timing</li><li><span>05</span>Practice: which visit is this?</li></ol>
+    </div>
+  </section>
+
+  <!-- 10 CALENDAR -->
+  <section class="slide" data-label="The 12-month calendar" style="gap:12px">
+    <span class="eyebrow a">01 · The program calendar</span>
+    <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Select any month to see what goes down and why</h2>
+    <div class="cal a" style="--i:2" id="cal" role="group" aria-label="Lawn program calendar"></div>
+    <div class="a" style="--i:3" id="calDetail"></div>
+  </section>
+
+  <!-- 11 SPRAY YEAR -->
+  <section class="slide" data-label="The liquid spray year">
+    <span class="eyebrow a">02 · The liquid spray year</span>
+    <h2 class="a" style="--i:1">Six sprays that follow the pressure</h2>
+    <div class="split" style="grid-template-columns:1.35fr 1fr;gap:24px;align-items:center">
+      <div class="figbox a pfig" style="--i:2">
+        <svg viewBox="0 0 560 230" role="img" aria-label="Illustrative chart: insect pressure rises from spring and peaks in summer; brown patch pressure peaks from November to March. Liquid sprays fall in January, March, May, July, September and November.">
+          <rect x="243" y="16" width="170" height="164" class="bo"/><text x="251" y="30" class="lbl">N &amp; P BLACKOUT · JUN 1 – SEP 30</text>
+          <path d="M30 180H540" class="axis"/>
+          <path class="cv ins" d="M30 172 C90 170 120 150 170 112 S240 46 290 44 S380 60 430 120 S500 170 540 172"/>
+          <path class="cv fun" d="M30 66 C70 66 110 96 150 150 S200 176 250 176 S400 176 430 150 S500 70 540 64"/>
+          <g id="lsDots"></g>
+          <g class="mo"></g>
+        </svg>
+        <div class="legend2"><span><i class="l1"></i>Insect pressure (chinch bugs, webworms)</span><span><i class="l2"></i>Brown patch pressure</span><span class="muted">Illustrative, not measured data</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>Jan and Nov · fungus + liquid feeding.</b> Cool, humid nights (60–75°F) are brown patch weather, usually November through March.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-bug"/></svg><span><b>Mar, May, Jul, Sep · pest.</b> Chinch bugs peak in hot, dry spells; sod webworms are active April to November and peak September to November in south Florida.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span><b>Diagnose first.</b> Grey leaf spot hits in hot, wet summers, and half of "fungus" calls are really insects, drought or herbicide injury (LAWN-07, LAWN-08).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 WEED TIMING -->
+  <section class="slide" data-label="Weed control timing">
+    <span class="eyebrow a">03 · Weed control timing</span>
+    <h2 class="a" style="--i:1">Three weed visits, three different weed crops</h2>
+    <div class="grid g3">
+      <div class="card a season" style="--i:2"><span class="eyebrow">April · spring</span><h3>Catch summer weeds young</h3><p>Summer annuals germinate in spring. Young weeds are far easier to kill than ones that have gone to seed, and the turf is waking up to fill the gaps.</p></div>
+      <div class="card a season" style="--i:3"><span class="eyebrow">July · summer</span><h3>Peak heat, peak pressure</h3><p>Doveweed, sedges and dollarweed thrive in hot, wet weather. Use only products labeled for summer heat on that turf, and keep off St. Augustine at midday.</p></div>
+      <div class="card a season" style="--i:4"><span class="eyebrow">December · winter</span><h3>Winter weeds, cool-season products</h3><p>Winter annuals sprout in fall and grow through winter. Some broadleaf products are only usable in cool weather, so this is the window.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-weed"/></svg><span><b>Turf only.</b> Never spray herbicide on shrubs or plants. Spot or blanket is a judgment call (LAWN-06).</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-clock"/></svg><span><b>Systemic products take 7–14 days</b> for a full kill. Tell the customer before they ask.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-book"/></svg><span><b>The label rules:</b> turf type, temperature limits, rainfast time and mowing interval all change by product.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 FEEDING TIMING -->
+  <section class="slide" data-label="Feeding timing">
+    <span class="eyebrow a">04 · Granular feeding timing</span>
+    <h2 class="a" style="--i:1">Feed the turf when it can use it</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="frow a" style="--i:2"><span class="fm">APR</span><span><b>Turf and shrubs.</b> Turf is greening up and actively growing; shrubs push new growth in early spring. UF/IFAS: first lawn feeding in early April in central Florida; south Florida may feed year-round.</span></div>
+        <div class="frow hot a" style="--i:3"><span class="fm">JUL</span><span><b>Turf only, inside the summer rules.</b> In every blackout jurisdiction this feeding carries <b>no nitrogen and no phosphorus</b>. Part three covers it.</span></div>
+        <div class="frow a" style="--i:4"><span class="fm">OCT</span><span><b>Turf and shrubs.</b> The blackout ends September 30. This is the last feeding before the cool season: nitrogen after mid-October pushes tender growth that cold snaps damage, and potassium helps turf handle the cold.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><h3>Why granular, why slow-release</h3><p>Slow-release granules feed through the soil and roots over several months, so less washes away with a storm. Several of our counties require a share of the nitrogen to be slow-release.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>Read the grade:</b> N-P-K. A bag that starts <b>0-0-</b> carries no nitrogen and no phosphorus. LAWN-05 covers grades and county rates.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shrub"/></svg><span><b>Phosphorus on shrubs, too,</b> follows county rules: every jurisdiction on our table requires a soil test showing a deficiency first (LAWN-05).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 MATCHER -->
+  <section class="slide" data-label="Practice: which visit is this?">
+    <span class="eyebrow a">05 · Practice · which visit is this?</span>
+    <h2 class="a" style="--i:1">Read the clues. Name the visit.</h2>
+    <div class="a" style="--i:2" id="mBox"></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: summer rules">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">The summer blackout</h1>
+        <p class="lead a" style="--i:2">Why it matters: nitrogen and phosphorus washed off lawns in the rainy season feed the algae blooms that have killed seagrass and wildlife in the lagoon and our rivers. Counties made it law, and the rule follows the property, not the branch.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Who has a blackout</li><li><span>02</span>What changes in summer</li><li><span>03</span>Practice: plan the summer by county</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 WHO -->
+  <section class="slide" data-label="Who has a blackout">
+    <span class="eyebrow a">01 · Who has a blackout · same table as FC-04, checked October 2026</span>
+    <h2 class="a" style="--i:1">Know the rule where the lawn is</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="ftable">
+        <thead><tr><th>Where the property is</th><th>Branch</th><th>June 1 – Sept 30</th><th>No fertilizer near water</th></tr></thead>
+        <tbody>
+          <tr><td>Indian River County, unincorporated</td><td>Vero Beach</td><td class="y">No nitrogen or phosphorus</td><td>10 ft</td></tr>
+          <tr><td>St. Lucie County, Fort Pierce, Port St. Lucie</td><td>Vero Beach · Stuart</td><td class="y">No nitrogen or phosphorus</td><td>10 ft</td></tr>
+          <tr><td>Martin County, unincorporated</td><td>Stuart</td><td class="y">No nitrogen or phosphorus</td><td>25 ft</td></tr>
+          <tr><td>Orange County</td><td>Orlando</td><td class="y">No nitrogen or phosphorus</td><td>25 ft from natural water bodies</td></tr>
+          <tr><td>City of Naples and Marco Island</td><td>Naples</td><td class="y">No nitrogen or phosphorus</td><td>10 ft</td></tr>
+          <tr><td>Collier County, unincorporated</td><td>Naples</td><td>No summer blackout</td><td>10 ft</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cloud"/></svg><span><b>Year-round, everywhere:</b> no fertilizer on saturated soil, during a storm watch or warning, or before heavy rain.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-pin"/></svg><span><b>Naples routes cross a line.</b> A city address and an unincorporated Collier address can sit a mile apart and follow different rules.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Not on this table?</b> Some routes reach other counties and cities with their own rules. Ask your branch manager before you feed.</span></div>
+    </div>
+  </section>
+
+  <!-- 18 WHAT CHANGES -->
+  <section class="slide" data-label="What changes in summer">
+    <span class="eyebrow a">02 · What changes in summer</span>
+    <h2 class="a" style="--i:1">Four visits fall inside the blackout. Here is what happens to each.</h2>
+    <div class="grid g2" style="gap:10px">
+      <div class="sv a" style="--i:2"><span class="fm">JUL</span><div><b>Liquid spray · pest</b><p>Goes ahead. The tank carries insecticide (and fungicide if diagnosed), but <b>no liquid fertilizer with nitrogen or phosphorus.</b></p></div></div>
+      <div class="sv a" style="--i:3"><span class="fm">JUL</span><div><b>Weed control</b><p>Goes ahead. Herbicide isn't fertilizer, but check the label: some combination products contain fertilizer, and those count.</p></div></div>
+      <div class="sv hot a" style="--i:4"><span class="fm">JUL</span><div><b>Granular turf feeding</b><p>Changes. In a blackout jurisdiction, <b>only a product with no nitrogen and no phosphorus</b> that your branch manager has approved for that county. Never the spring or fall blend.</p></div></div>
+      <div class="sv a" style="--i:5"><span class="fm">SEP</span><div><b>Liquid spray · pest</b><p>Goes ahead, still inside the blackout until September 30. Same rule as July: nothing with N or P in the tank.</p></div></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Settled for this course:</b> the "summer" turf feeding on our calendar (and in CW-05) is real, but in every blackout jurisdiction it is a no-N, no-P feeding. Normal nitrogen feedings resume October 1.</span></div>
+  </section>
+
+  <!-- 19 COUNTY PRACTICE -->
+  <section class="slide" data-label="Practice: plan the summer by county">
+    <span class="eyebrow a">03 · Practice · plan the summer by county</span>
+    <h2 class="a" style="--i:1">Pick a property location. Mark each planned treatment.</h2>
+    <div class="scen-tabs a" style="--i:2" id="coTabs" role="group" aria-label="Property location"></div>
+    <div class="sort a" style="--i:3" id="coSort"></div>
+    <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="coCheck">Check this plan</button><span id="coFb" class="small"></span></div>
+  </section>
+
+  <!-- 20 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 21 PART FOUR -->
+  <section class="slide forest" data-label="Part four: PestPac and the customer">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">On the schedule and at the door</h1>
+        <p class="lead a" style="--i:2">Why it matters: the program only reaches the lawn if it is on the route correctly, and the customer only keeps it if they understand what they're paying for.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The program in PestPac</li><li><span>02</span>What to tell customers</li><li><span>03</span>Practice: at the door</li></ol>
+    </div>
+  </section>
+
+  <!-- 22 PESTPAC -->
+  <section class="slide" data-label="The program in PestPac">
+    <span class="eyebrow a">01 · The program in PestPac</span>
+    <h2 class="a" style="--i:1">The liquid sprays ride a bi-monthly January code</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="code-big2 a" style="--i:2" aria-live="polite"><span class="s1">B</span><span class="s2">JAN</span><span class="s3" id="cwk">2</span><span class="s4" id="cdy">TUES</span></div>
+        <div class="a" style="--i:3;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="small muted">Week</span><div class="seg" role="group" aria-label="Week of month" id="wkSeg"></div><span class="small muted">Day</span><div class="seg" role="group" aria-label="Weekday" id="dySeg"></div></div>
+        <div class="mstrip a" style="--i:4" id="mStrip" aria-hidden="true"></div>
+        <p class="small a" style="--i:5" id="codeTxt"></p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span><b>Bi-monthly from January</b> lands on January, March, May, July, September and November: exactly the six liquid spray months. CW-10 and FC-09 teach how to read any code.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-grain"/></svg><span><b>Weed control and feedings</b> fall in April, July, October and December, which no single cycle letter covers. They are set up as their own services on the account. <span class="chip">coding to confirm</span></span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-route"/></svg><span><b>Routing &amp; Logistics</b> (Jessica Sanderson) sets schedules. Customer wants a different day or service? Send it to technotes@clementspestcontrol.com; don't change it in the field.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 WHAT TO TELL -->
+  <section class="slide" data-label="What to tell customers">
+    <span class="eyebrow a">02 · What to tell customers about the calendar</span>
+    <h2 class="a" style="--i:1">Plain words, real names, honest timing</h2>
+    <div class="grid g2" style="gap:10px">
+      <div class="say a" style="--i:2"><b>"When are you coming next, and for what?"</b><p>Name the next visit and its month: "Next is your fall feeding in October, then a fungus spray in November."</p></div>
+      <div class="say a" style="--i:3"><b>"Why no fertilizer this summer?"</b><p>"The county doesn't allow nitrogen or phosphorus from June through September, to protect local waters. Your summer feeding has neither. Full feeding resumes in October."</p></div>
+      <div class="say a" style="--i:4"><b>"The weeds are still there."</b><p>"What we sprayed moves into the roots. You'll see yellowing in a few days and the full kill in one to two weeks. I'll check it first thing next visit."</p></div>
+      <div class="say a" style="--i:5"><b>"Why spray for fungus in winter?"</b><p>"Brown patch shows up in cool, damp weather, usually November through March. That's why your November and January sprays target it."</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-ban"/></svg><span><b>Never</b> quote a price, promise a result, or call a product "safe."</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-clock"/></svg><span><b>Keep people and pets off</b> treated areas until dry, or as the label says.</span></div>
+      <div class="callout a" style="--i:8"><svg class="ico"><use href="#i-flag"/></svg><span><b>Not home?</b> Door hanger and notes say what was done and what comes next.</span></div>
+    </div>
+  </section>
+
+  <!-- 24 PRACTICE DOOR -->
+  <section class="slide" data-label="Practice: at the door">
+    <span class="eyebrow a">03 · Practice · at the door</span>
+    <h2 class="a" style="--i:1">Pick the best answer for each customer</h2>
+    <div class="scen-tabs a" style="--i:2" id="dTabs"></div>
+    <div class="a" style="--i:3" id="dBox"></div>
+  </section>
+
+  <!-- 25 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 26 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your route</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before LAWN-02 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="l1"> Walk the 12-month calendar from memory: each visit type, its month and what it targets</label></li>
+      <li><label><input type="checkbox" id="l2"> Read three lawn service orders and say whether each is full program or a la carte</label></li>
+      <li><label><input type="checkbox" id="l3"> Decode the schedule code on two lawn accounts and name the months they fall in</label></li>
+      <li><label><input type="checkbox" id="l4"> State the summer nitrogen and phosphorus rule and water setback for every jurisdiction on your route</label></li>
+      <li><label><input type="checkbox" id="l5"> Show the label on the product approved for the July turf feeding in your area and point out that it has no N and no P</label></li>
+      <li><label><input type="checkbox" id="l6"> Explain to a customer, or in a role-play, why the summer feeding is different</label></li>
+      <li><label><input type="checkbox" id="l7"> Tell a customer what the next visit is and when, in person or on a door hanger</label></li>
+      <li><label><input type="checkbox" id="l8"> Send a customer's schedule or service change request to technotes instead of changing it yourself</label></li>
+    </ul>
+  </section>
+
+  <!-- 27 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn02:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn02:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-02", "titleHtml": "L&amp;O Program &amp; Calendar", "nextHtml": "LAWN-03 \u00b7 Standard L&amp;O Visit", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The standard program',q:'A new technician looks at an April service order for a full-program customer and sees weed control, turf granular and shrub granular all on the same account that month. What is going on?',o:['It\'s an error; one of them should be moved to May','Nothing is wrong: April is the spring visit for weed control, turf feeding and shrub feeding, so all three fall in that month','The customer must have added extra treatments a la carte','Shrub feeding only happens in fall, so the shrub granular should be deleted'],a:1,e:'April carries three of the fourteen treatments: spring weed control, the spring turf feeding and the spring shrub feeding. July and October also carry more than one.'},
+    2:{t:'Checkpoint 2 · Month by month',q:'It\'s mid-November. Nights are in the mid-60s, the air is damp, and a St. Augustine lawn shows roughly circular thinning patches. Which visit in the standard program is built for this?',o:['The November liquid spray, which targets fungus and carries a liquid feeding where county rules allow','The July weed control','The October turf granular','None; fungus is only a summer problem in Florida'],a:0,e:'Cool, humid nights are brown patch weather, usually November through March. The November and January liquid sprays target fungus. Confirm the diagnosis first (LAWN-08): pull a blade and check for a rotted sheath.'},
+    3:{t:'Checkpoint 3 · The summer blackout',q:'July 14. Your route has a full-program lawn in unincorporated Martin County, and the service order shows the summer turf granular. What do you apply?',o:['The same blend used in April, since the customer paid for it','Nothing granular ever goes down in summer, so skip it without telling anyone','Only the product your branch manager approved for that county with no nitrogen and no phosphorus (a grade that starts 0-0-)','Double the nitrogen in October to make up for it'],a:2,e:'Martin County bans nitrogen and phosphorus fertilizer June 1 through September 30. The summer feeding still happens, but only with a no-N, no-P product approved for that county.'},
+    4:{t:'Checkpoint 4 · On the schedule and at the door',q:'A lawn account\'s liquid spray schedule code is BJAN3WED. The customer asks when the "fungus sprays" come. What do you tell her?',o:['Every month on the 3rd Wednesday','In January and November, on the 3rd Wednesday, as part of her six sprays a year','Only in July','Whenever she calls for one'],a:1,e:'BJAN = bi-monthly starting in January: January, March, May, July, September and November. In the program, the January and November sprays target fungus; the other four target pests.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'How many treatments a year does a full-program lawn customer receive?',o:['6','10','14','24'],a:2,e:'Fourteen: 6 liquid sprays, 3 weed control treatments, 3 turf feedings and 2 shrub feedings.'},
+    {k:'Multiple choice',q:'Which of these is the standard lawn care program?',o:['12 liquid sprays and 4 feedings','4 liquid sprays, 4 weed control, 4 feedings','6 liquid sprays and monthly interior pest treatment','6 liquid sprays, 3 weed control, 3 turf granular feedings, 2 shrub granular feedings'],a:3,e:'6 LS, 3 WC, 3 GF-T and 2 GF-S. Interior pest treatment is GHP, not lawn.'},
+    {k:'Multiple choice',q:'In which months do the liquid sprays fall?',o:['February, April, June, August, October, December','Every month','January, March, May, July, September, November','March through August only'],a:2,e:'Every other month starting in January: the odd months.'},
+    {k:'Multiple choice',q:'Which two liquid sprays target fungus and carry a liquid feeding where rules allow?',o:['January and November','May and July','March and September','July and September'],a:0,e:'January and November, inside brown patch season (usually November through March) and outside the summer blackout.'},
+    {k:'True or false',q:'Weed control is sprayed on the turf and the shrub beds.',o:['True','False'],a:1,e:'False. Weed control is turf only. Never spray herbicide on shrubs or plants.'},
+    {k:'Multiple choice',q:'When do the three weed control treatments fall?',o:['January, May, September','March, June, September','April, July, December','October, November, December'],a:2,e:'Spring (April), summer (July) and winter (December), each aimed at that season\'s weeds.'},
+    {k:'Multiple choice',q:'When do the shrub granular feedings fall?',o:['April and October','January and July','Every other month','July only'],a:0,e:'Spring and fall: April and October. Shrubs push new growth in spring and recover from summer stress in fall.'},
+    {k:'Scenario',q:'A customer on sprays only (a la carte) has weeds in the lawn. What is the right move?',o:['Spray weed control anyway; it\'s good service','Quote a price for weed control at the door','Tell the customer weeds aren\'t our problem','Treat only what\'s on the order, note and flag what you saw, and let the office or branch manager handle adding a service'],a:3,e:'The service order is the plan. Document what you see and pass it along. Adding services and pricing belong to the office and the branch manager.'},
+    {k:'Multiple choice',q:'What are the dates of the summer nitrogen and phosphorus blackout in our blackout counties?',o:['June 1 – September 30','May 1 – August 31','July 1 – October 31','June 15 – September 15'],a:0,e:'June 1 through September 30, the rainy season, when runoff carries nutrients to the water.'},
+    {k:'Multiple choice',q:'Which jurisdiction on our routes has NO summer fertilizer blackout?',o:['Martin County, unincorporated','Orange County','City of Naples','Collier County, unincorporated'],a:3,e:'Unincorporated Collier County has no summer blackout, but the City of Naples and Marco Island do. Year-round weather rules still apply.'},
+    {k:'Scenario',q:'July. A full-program lawn in Port St. Lucie is due its summer turf granular. What goes down?',o:['The spring blend','A half rate of the fall blend','Only a branch-approved product with no nitrogen and no phosphorus','Liquid nitrogen instead of granular'],a:2,e:'St. Lucie County, Fort Pierce and Port St. Lucie ban N and P in summer. The summer feeding must be a no-N, no-P product approved for that county.'},
+    {k:'True or false',q:'A fertilizer grade that starts 0-0- contains no nitrogen and no phosphorus.',o:['True','False'],a:0,e:'True. The grade is N-P-K. Zero in the first two places means no nitrogen and no phosphorus.'},
+    {k:'Scenario',q:'September 20 in Orange County. A customer asks you to add liquid fertilizer to today\'s pest spray. What do you say?',o:['"Sure, I\'ll mix some in."','"Fertilizer doesn\'t help lawns."','"I\'ll add double next time."','"Orange County doesn\'t allow nitrogen or phosphorus until October 1. Your fall feeding comes in October."'],a:3,e:'The blackout runs through September 30. Explain the rule and the next feeding instead of adding N or P.'},
+    {k:'Scenario',q:'October 6, St. Lucie County. The fall feeding is due, but a tropical storm watch is in effect. What do you do?',o:['Hold the fertilizer: no fertilizer during a storm watch or warning, on saturated soil, or before heavy rain','Apply it; the blackout ended September 30','Apply it on the driveway side only','Apply double so some stays after the rain'],a:0,e:'Year-round rules ban fertilizing during a storm watch or warning or before heavy rain. Hold it and let the office reschedule.'},
+    {k:'Multiple choice',q:'Why is October the last turf feeding before the cool season?',o:['Turf stops growing in August','Nitrogen after mid-October pushes tender growth that cold snaps damage, and potassium in fall helps turf handle cold','It\'s the cheapest month','The blackout starts in November'],a:1,e:'UF/IFAS guidance: nitrogen after mid-October in Central Florida pushes new shoots that cold damages. Potassium helps cold tolerance.'},
+    {k:'Multiple choice',q:'Chinch bugs do the most damage in St. Augustine lawns during:',o:['Cool, damp winters','Only in December','Only after frost','Hot, dry spells in late spring and summer'],a:3,e:'Hot, dry late spring and summer, though they can show up year-round in Florida. The March, May, July and September sprays target pests.'},
+    {k:'Multiple choice',q:'A lawn account\'s spray schedule code is BJAN2TUES. When does it get serviced?',o:['Every Tuesday in January','January and July on the 2nd Tuesday','January, March, May, July, September and November, on the 2nd Tuesday','Every 2 weeks starting in January'],a:2,e:'B = bi-monthly, JAN = starts in January, 2TUES = 2nd Tuesday. Exactly the six liquid spray months.'},
+    {k:'Multiple choice',q:'A customer wants her lawn service moved to Thursdays. What do you do?',o:['Change the schedule in PestPac Mobile yourself','Tell her it can\'t be changed','Send the request to technotes@clementspestcontrol.com so the office and Routing & Logistics handle it','Write it only in the mobile notes'],a:2,e:'Routing & Logistics sets schedules. Office requests go to technotes; mobile notes print on the customer\'s report.'},
+    {k:'Scenario',q:'Two days after weed control, the customer says, "The weeds are still there." Best answer?',o:['"What we sprayed moves into the roots. You\'ll see yellowing in a few days and the full kill in one to two weeks. I\'ll check it first thing next visit."','"The product must be bad. I\'ll respray now."','"Weeds always come back."','"Pull them by hand."'],a:0,e:'Systemic post-emergents take 7–14 days. Set the expectation and commit to a follow-up.'},
+    {k:'True or false',q:'It is fine to tell a customer the lawn product is "completely safe" for pets once it is applied.',o:['True','False'],a:1,e:'False. Never call a pesticide safe, harmless or non-toxic. Tell them to keep people and pets off treated areas until dry, or as the label directs.'}
+  ];
+
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function isBO(m){return m>=5&&m<=8}
+
+  /* ---------- visit-type flip cards ---------- */
+  var VT=[
+    {t:'Liquid spray',a:'LS · 6 a year',i:'i-spray',f:'Turf and plants, every other month.',b:'<b>What:</b> a spray over the lawn and the plants and shrubs, from the hose reel.<br><b>Targets by season:</b> pests (chinch bugs, sod webworms, ornamental pests) from spring through fall; fungus with a liquid feeding in winter.<br><b>Tank mix:</b> matched to what you find on the walk-around.'},
+    {t:'Weed control',a:'WC · 3 a year',i:'i-weed',f:'Turf only. Never shrubs or beds.',b:'<b>What:</b> a broadleaf weed spray on the turf, broadcast or spot depending on pressure (LAWN-06).<br><b>When:</b> spring, summer and winter, each aimed at that season\'s weeds.<br><b>Rule:</b> product must be labeled for that turf type and temperature.'},
+    {t:'Turf feeding',a:'GF-T · 3 a year',i:'i-grain',f:'Slow-release granules on the lawn.',b:'<b>What:</b> granular fertilizer spread on the turf; it feeds through the soil and roots over several months.<br><b>When:</b> spring, summer and fall.<br><b>Summer:</b> no nitrogen or phosphorus in blackout areas (Part three).'},
+    {t:'Shrub feeding',a:'GF-S · 2 a year',i:'i-shrub',f:'Granules for plants and shrubs.',b:'<b>What:</b> granular fertilizer around the base of plants and shrubs, not against trunks or stems.<br><b>When:</b> spring, as new growth starts, and fall, to recover from summer stress.<br><b>Rule:</b> county phosphorus limits apply here too.'}
+  ];
+  var vf=$('#vtFlip');
+  VT.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox"><svg class="ico"><use href="#'+v.i+'"/></svg></span><span class="eyebrow">'+v.a+'</span><h3>'+v.t+'</h3><span class="muted">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});vf.appendChild(b)});
+
+  /* ---------- count-up ---------- */
+  function loCount(){var el=$('#loCount'),t0=null;if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=14;return}
+    function st(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/1200);el.textContent=Math.round(14*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(st)}requestAnimationFrame(st)}
+
+  /* ---------- 12-month calendar ---------- */
+  var ROWS=[
+    {k:'LS',n:'Liquid spray',s:'6 a year',m:{0:'f',2:'p',4:'p',6:'p',8:'p',10:'f'}},
+    {k:'WC',n:'Weed control',s:'3 a year',m:{3:1,6:1,11:1}},
+    {k:'GF-T',n:'Turf feeding',s:'3 a year',m:{3:1,6:'nopk',9:1}},
+    {k:'GF-S',n:'Shrub feeding',s:'2 a year',m:{3:1,9:1}}
+  ];
+  var MD=[
+    {v:['LS · fungus + liquid feeding'],w:'Cool, humid nights put St. Augustine and zoysia in the middle of brown patch season (usually November through March). Outside the summer blackout, so a liquid feeding can go in the tank where county rules allow.',x:'Brown patch: circular thinning patches, blades that slip out of a rotted sheath. Confirm before fungicide (LAWN-08). Heavy nitrogen in cool weather feeds brown patch.'},
+    {v:[],w:'No scheduled treatment. Turf is semi-dormant in much of our area and lawns generally shouldn\'t be fed before April.',x:'Callbacks, catching up missed stops, and scouting. Winter weeds may be visible; the December spray is working on them.'},
+    {v:['LS · pest'],w:'Warming weather wakes up turf insects. The first pest spray of the year gets ahead of chinch bugs and sod webworms before they build.',x:'Brown patch can still be active early in the month. Diagnose, then choose the tank mix.'},
+    {v:['WC · spring','GF-T · spring','GF-S · spring'],w:'The busiest month. Turf is greening up and actively growing, shrubs push new growth, and summer weeds are germinating while they are still young and easy to kill.',x:'Three treatments on one account is normal this month. Sweep granules off hard surfaces every time.'},
+    {v:['LS · pest'],w:'Late spring heat and dry spells are peak chinch bug conditions in St. Augustine. Sod webworm activity is climbing.',x:'Yellow or straw-colored patches that look like drought, especially near driveways and sunny edges: check for chinch bugs.'},
+    {v:[],w:'No scheduled treatment. The blackout begins June 1 in our blackout counties and cities, and the rainy season starts.',x:'Daily storms: watch rainfast times and never fertilize before heavy rain or during a storm watch.'},
+    {v:['LS · pest','WC · summer','GF-T · summer, no N or P'],w:'Peak heat and rain. Insects, summer weeds such as doveweed and sedges, and grey leaf spot are all active. The summer turf feeding goes down inside the blackout rules.',x:'In a blackout jurisdiction the turf feeding carries no nitrogen and no phosphorus. Heat-labeled weed products only; avoid St. Augustine at midday.'},
+    {v:[],w:'No scheduled treatment. Peak rainy and storm season, still inside the blackout.',x:'Grubs and armyworms can show up late summer. Report what you see on other visits.'},
+    {v:['LS · pest'],w:'Late-summer insect pressure: sod webworms, armyworms and grubs. Still inside the blackout until September 30.',x:'Nothing with nitrogen or phosphorus in the tank this month in blackout areas.'},
+    {v:['GF-T · fall','GF-S · fall'],w:'The blackout ends September 30. The fall feeding is the last before the cool season: nitrogen after mid-October pushes tender growth that cold damages, and potassium helps turf handle the cold. Shrubs recover from summer stress.',x:'Storm season isn\'t over. No fertilizer during a storm watch or warning, on saturated soil, or before heavy rain.'},
+    {v:['LS · fungus + liquid feeding'],w:'Nights cool into the 60s and 70s with humidity: brown patch season begins. The spray targets fungus, with a liquid feeding where county rules allow.',x:'Pull a blade at the edge of a patch. A rotted sheath with a green runner is brown patch.'},
+    {v:['WC · winter'],w:'Winter annual weeds sprout in fall and grow through winter. Some broadleaf products can only be used in cool weather, so winter is their window.',x:'Check the label\'s temperature range and turf type. Systemic products work slower in cool weather; set expectations.'}
+  ];
+  var cal=$('#cal'),calSel=-1,calSeen=store.get('cal')||{};
+  (function buildCal(){
+    var h='<span></span>';
+    MON.forEach(function(m,j){h+='<button type="button" class="mh'+(isBO(j)?' bo':'')+'" id="mh'+j+'" data-m="'+j+'" aria-pressed="false" aria-label="'+MONL[j]+'">'+m+'</button>'});
+    ROWS.forEach(function(r,ri){
+      var last=ri===ROWS.length-1?' lastrow':'';
+      h+='<div class="rl'+last+'"><b>'+r.k+'</b><small>'+r.n+' · '+r.s+'</small></div>';
+      MON.forEach(function(m,j){var v=r.m[j],tk='';
+        if(v){var cls=v==='f'?' f':(v==='p'?' p':(v==='nopk'?' nopk':''));var lab=v==='f'?'FUN':(v==='p'?'PEST':(v==='nopk'?'0-0':r.k));tk='<span class="tk'+cls+'" style="--d:'+(ri+j)+'" title="'+r.n+'">'+lab+'</span>';}
+        h+='<div class="c'+(isBO(j)?' bo':'')+last+'" data-m="'+j+'">'+tk+'</div>'});
+    });
+    h+='<div class="bonote" style="border-top:1px solid var(--line)"><span><i></i>N &amp; P blackout counties · Jun 1 – Sep 30</span><span>FUN = fungus + liquid feeding</span><span>PEST = pest spray</span><span>0-0 = no N, no P</span></div>';
+    cal.innerHTML=h;
+  })();
+  function showMonth(j){
+    calSel=j;calSeen[j]=1;store.set('cal',calSeen);
+    $$('.mh',cal).forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.m===j)});
+    $$('.c',cal).forEach(function(c){c.classList.toggle('sel',+c.dataset.m===j)});
+    var d=MD[j],n=Object.keys(calSeen).length;
+    $('#calDetail').innerHTML='<div class="calcard"><div><span class="eyebrow">'+(isBO(j)?'Inside the blackout':'Month '+(j+1)+' of 12')+'</span><div class="mn">'+MONL[j]+'</div><div class="vis">'+(d.v.length?d.v.map(function(v){return '<span>'+v+'</span>'}).join(''):'<span class="none">No scheduled treatment</span>')+'</div><p class="small muted" style="margin-top:8px">'+n+' of 12 months viewed</p></div><div><span class="eyebrow">Why now</span><p>'+d.w+'</p></div><div><span class="eyebrow">Watch for</span><p>'+d.x+'</p></div></div>';
+  }
+  $$('.mh',cal).forEach(function(b){b.addEventListener('click',function(){showMonth(+b.dataset.m)})});
+  $$('.c',cal).forEach(function(c){c.addEventListener('click',function(){showMonth(+c.dataset.m)})});
+  showMonth(0);
+
+  /* ---------- pressure chart: LS dots and month labels ---------- */
+  (function(){var g='',mo='';for(var j=0;j<12;j++){var x=30+(j+.5)*42.5;mo+='<text x="'+(x-9).toFixed(1)+'" y="224">'+MON[j].toUpperCase()+'</text>';
+    if(j%2===0){var f=(j===0||j===10);g+='<g class="ls"><circle class="ring" cx="'+x.toFixed(1)+'" cy="180" r="7" style="animation-delay:'+(j*0.2)+'s"/><circle cx="'+x.toFixed(1)+'" cy="180" r="5.5"/><text x="'+(x-(f?13:12)).toFixed(1)+'" y="202">'+(f?'FUNG':'PEST')+'</text></g>';}}
+    $('#lsDots').innerHTML=g;$('.pfig .mo').innerHTML=mo;})();
+
+  /* ---------- matcher: which visit is this? ---------- */
+  var MOPT=['Liquid spray · pest','Liquid spray · fungus + liquid feeding','Weed control','Turf granular feeding','Shrub granular feeding'];
+  var MQ=[
+    {r:[['Month','November'],['Weather','Cool, damp nights'],['Equipment','Hose reel, liquid tank mix'],['Target','Turf disease, plus nutrition']],a:1,e:'November and January sprays target fungus, with a liquid feeding where county rules allow.'},
+    {r:[['Month','April'],['Equipment','Spreader'],['Where','The lawn only'],['Product','Slow-release granules']],a:3,e:'Spring turf feeding. April also carries weed control and the shrub feeding, but granules on the lawn only is GF-T.'},
+    {r:[['Month','December'],['Equipment','Sprayer'],['Where','Turf only; nothing on the shrubs'],['Target','Broadleaf weeds']],a:2,e:'Winter weed control: turf only, aimed at winter annual weeds with products labeled for cool weather.'},
+    {r:[['Month','May'],['Weather','Hot, dry stretch'],['Seen','Yellow patches in St. Augustine by the driveway'],['Where','Liquid on turf and plants']],a:0,e:'Late spring pest spray. Drought-looking patches in St. Augustine during hot, dry weather point to chinch bugs.'},
+    {r:[['Month','October'],['Equipment','Granules by hand or small spreader'],['Where','Around the base of hedges and beds'],['Note','Blackout ended Sept 30']],a:4,e:'Fall shrub feeding, applied around the base of plants, not against trunks or stems.'},
+    {r:[['Month','July'],['Equipment','Sprayer'],['Where','The lawn'],['Target','Doveweed and dollarweed']],a:2,e:'Summer weed control, with a product labeled for summer heat on that turf type.'},
+    {r:[['Month','January'],['Equipment','Hose reel'],['Where','Turf and plants'],['Target','Fungus, with a liquid feeding in the tank']],a:1,e:'The January spray is the second fungus spray of brown patch season.'},
+    {r:[['Month','September'],['Equipment','Hose reel'],['Where','Turf and plants'],['Target','Webworms and armyworms']],a:0,e:'September is the last pest spray of the year, still inside the blackout: nothing with N or P in the tank.'}
+  ];
+  var mb=$('#mBox'),mi=0,mok=store.get('match')||{};
+  function showM(n){
+    mi=n;var q=MQ[n];
+    var prog='<div class="mprog">'+MQ.map(function(_,j){return '<i class="'+(mok[j]?'ok':(j===n?'cur':''))+'"></i>'}).join('')+'<span style="margin-left:6px">Clue '+(n+1)+' of '+MQ.length+'</span></div>';
+    mb.innerHTML='<div class="mwrap"><div class="grid" style="gap:10px"><div class="clue"><span class="eyebrow">On the service order</span>'+q.r.map(function(r){return '<div class="row"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'</div>'+prog+'</div><div class="grid" style="gap:10px"><div class="choices">'+MOPT.map(function(o,i){return '<button type="button" class="choice" id="m'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCDE'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="mFb"></div></div></div>';
+    $$('.choice',mb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',mb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===q.a){b.classList.add('right');$$('.choice',mb).forEach(function(x){x.disabled=true});mok[n]=1;store.set('match',mok);
+        var done=Object.keys(mok).length===MQ.length;
+        $('#mFb').innerHTML='<div class="fb">'+q.e+(n<MQ.length-1?' <button type="button" class="btn" id="mNext" style="margin-left:8px;padding:4px 12px">Next clue</button>':(done?' All eight matched.':''))+'</div>';
+        var nx=$('#mNext');if(nx)nx.addEventListener('click',function(){showM(n+1)});
+        $$('.mprog i',mb)[n].className='ok';
+      } else {b.classList.add('wrong');$('#mFb').innerHTML='<div class="fb no">Not that one. Check the month and where the product goes.</div>';}
+    })});
+  }
+  showM(0);
+
+  /* ---------- county planner ---------- */
+  var CO=[
+    {n:'Indian River County',b:1,sb:'10 ft'},
+    {n:'Port St. Lucie',b:1,sb:'10 ft'},
+    {n:'Martin County',b:1,sb:'25 ft'},
+    {n:'Orange County',b:1,sb:'25 ft from natural water'},
+    {n:'City of Naples',b:1,sb:'10 ft'},
+    {n:'Collier County, unincorporated',b:0,sb:'10 ft'}
+  ];
+  var PL=[
+    {t:'<b>Apr 15</b> · spring turf and shrub granular, regular blend',bo:0},
+    {t:'<b>Jun 3</b> · make-up of a missed spring turf granular, regular blend',bo:1},
+    {t:'<b>Jul 14</b> · summer turf granular',bo:1},
+    {t:'<b>Jul 14</b> · pest liquid spray, insecticide only',bo:0},
+    {t:'<b>Sep 24</b> · customer asks to add liquid fertilizer to the pest spray',bo:1},
+    {t:'<b>Oct 6</b> · fall turf and shrub granular, regular blend, dry forecast',bo:0}
+  ];
+  var ct=$('#coTabs'),cs=$('#coSort'),cur=0,coSel={},coDone=store.get('co')||{};
+  CO.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.id='co'+i;b.textContent=c.n;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showCo(i)});ct.appendChild(b)});
+  function showCo(i){
+    cur=i;coSel={};
+    $$('button',ct).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('done',!!coDone[j])});
+    cs.innerHTML='';
+    PL.forEach(function(p,k){var r=document.createElement('div');r.className='row';
+      r.innerHTML='<span>'+p.t+'</span><span class="opts"><button type="button" id="pl'+k+'_a" data-v="a" aria-pressed="false">Go as planned</button><button type="button" id="pl'+k+'_c" data-v="c" aria-pressed="false">No N, no P</button></span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){coSel[k]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      cs.appendChild(r)});
+    $('#coFb').innerHTML='<span class="muted">'+(CO[i].b?CO[i].n+' has a June 1 – Sept 30 nitrogen and phosphorus blackout.':'Unincorporated Collier has no summer blackout. Year-round weather rules still apply.')+' Water setback: '+CO[i].sb+'.</span>';
+  }
+  $('#coCheck').addEventListener('click',function(){
+    var c=CO[cur],right=0,blank=0;
+    $$('.row',cs).forEach(function(r,k){var w=$('.why',r);if(w)w.remove();
+      if(!coSel[k]){blank++;r.classList.remove('ok','no');return}
+      var ans=(c.b&&PL[k].bo)?'c':'a',ok=coSel[k]===ans;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=ans==='c'?'This falls inside June 1 – Sept 30 in a blackout jurisdiction, so no nitrogen or phosphorus.':(PL[k].bo?'No summer blackout here, so it goes as planned (unless the soil is saturated or a storm is coming).':'This is outside the blackout window or carries no fertilizer, so it goes as planned.');r.style.flexWrap='wrap';r.appendChild(d)}
+    });
+    if(blank){$('#coFb').innerHTML='<span class="fb no" style="display:inline-block">Mark all six first.</span>';return}
+    if(right===PL.length){coDone[cur]=1;store.set('co',coDone);$$('button',ct)[cur].classList.add('done');
+      var n=Object.keys(coDone).length;
+      $('#coFb').innerHTML='<span class="fb" style="display:inline-block">Correct for '+c.n+'. '+(n<2?'Now try another location, including unincorporated Collier.':'You have planned '+n+' locations. The window is June 1 – Sept 30; April and October are outside it.')+'</span>';}
+    else $('#coFb').innerHTML='<span class="fb no" style="display:inline-block">'+right+' of 6. Read the notes in red and try again.</span>';
+  });
+  showCo(0);
+
+  /* ---------- code builder ---------- */
+  var WK=['1','2','3','4'],DY=['MON','TUES','WED','THUR','FRI'];var wk=1,dy=1;
+  var ORD=['1st','2nd','3rd','4th'],DYL={MON:'Monday',TUES:'Tuesday',WED:'Wednesday',THUR:'Thursday',FRI:'Friday'};
+  var ws=$('#wkSeg'),ds=$('#dySeg'),ms=$('#mStrip');
+  WK.forEach(function(w,i){var b=document.createElement('button');b.type='button';b.id='wk'+w;b.textContent=w;b.addEventListener('click',function(){wk=i;drawCode()});ws.appendChild(b)});
+  DY.forEach(function(d,i){var b=document.createElement('button');b.type='button';b.id='dy'+d;b.textContent=d;b.addEventListener('click',function(){dy=i;drawCode()});ds.appendChild(b)});
+  ms.innerHTML=MON.map(function(m,j){return '<span class="'+(j%2===0?'on'+((j===0||j===10)?' f':''):'')+'">'+m.toUpperCase()+'</span>'}).join('');
+  function drawCode(){
+    $('#cwk').textContent=WK[wk];$('#cdy').textContent=DY[dy];
+    $$('button',ws).forEach(function(b,i){b.setAttribute('aria-pressed',i===wk)});
+    $$('button',ds).forEach(function(b,i){b.setAttribute('aria-pressed',i===dy)});
+    $('#codeTxt').innerHTML='<b>BJAN'+WK[wk]+DY[dy]+'</b> = the '+ORD[wk]+' '+DYL[DY[dy]]+' of January, March, May, July, September and November. Darker months are the fungus sprays; the rest are pest sprays.';
+  }
+  drawCode();
+
+  /* ---------- at the door ---------- */
+  var DS=[
+    {n:'Greener neighbor',w:'Orange County customer, late August',q:'"You haven\'t fertilized all summer. My neighbor\'s lawn is greener than mine."',o:['"Your neighbor is probably breaking the law."','"Orange County doesn\'t allow nitrogen or phosphorus on lawns from June through September, to protect the lakes. Your summer feeding followed that rule, and your full fall feeding comes in October."','"I\'ll put down extra nitrogen today to catch you up."','"Fertilizer doesn\'t matter much anyway."'],a:1,e:'Explain the rule, what we did, and what comes next. Never criticize a neighbor or another company, and never break the blackout to please a customer.'},
+    {n:'Still weeds',w:'Customer at the door, December',q:'"You sprayed the weeds two days ago and they\'re still standing."',o:['"I\'ll respray right now with something stronger."','"That product must be bad."','"What we used moves into the roots. You\'ll see yellowing in a few days and the full kill in one to two weeks, a little slower in cool weather. I\'ll check it first thing next visit."','"Weeds always come back, nothing you can do."'],a:2,e:'Systemic weed products take 7–14 days, longer in cool weather. Set the expectation, flag the area, note it, and follow up.'},
+    {n:'Drop the shrubs',w:'Full-program customer, April',q:'"Can I drop the shrub feedings and keep the lawn? What would that cost?"',o:['"Sure, I\'ll just skip them from now on."','"That\'s about half off, I think."','"You have to keep the full program."','"Some customers do choose individual treatments. I\'ll pass this to our office so the right person can go over the options and pricing with you."'],a:3,e:'A la carte exists, but changing an agreement and quoting price belong to the office and the branch manager. Send it to technotes and tell the customer who will follow up.'},
+    {n:'The dog',w:'Customer letting the dog out, July',q:'"Is this stuff safe for my dog?"',o:['"Keep the dog off the treated area until it has dried, as the label directs. I\'m happy to tell you the product name and where to find its label information."','"It\'s completely safe and non-toxic."','"Dogs don\'t react to lawn products."','"I don\'t know, ask the office."'],a:0,e:'Never call a pesticide safe or non-toxic. Give the label\'s re-entry direction and offer the product name and label safety information, which Florida law entitles the customer to on request.'}
+  ];
+  var dt=$('#dTabs'),dbx=$('#dBox'),dDone=store.get('door')||{};
+  function showD(n){
+    $$('button',dt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!dDone[j])});
+    var s=DS[n];
+    dbx.innerHTML='<div class="dcard"><div class="quote2"><span class="eyebrow">'+s.w+'</span>'+s.q+'</div><div class="grid" style="gap:10px"><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="d'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="dFb"></div></div></div>';
+    $$('.choice',dbx).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',dbx).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',dbx).forEach(function(x){x.disabled=true});dDone[n]=1;store.set('door',dDone);$$('button',dt)[n].classList.add('done');
+        $('#dFb').innerHTML='<div class="fb">'+s.e+(n<DS.length-1?' <button type="button" class="btn" id="dNext" style="margin-left:8px;padding:4px 12px">Next customer</button>':'')+'</div>';var nx=$('#dNext');if(nx)nx.addEventListener('click',function(){showD(n+1)});}
+      else{b.classList.add('wrong');$('#dFb').innerHTML='<div class="fb no">Think about honesty, the rules, and who owns changes and pricing. Try again.</div>';}
+    })});
+  }
+  DS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='dt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showD(i)});dt.appendChild(b)});
+  showD(0);
+
+  function onShow(i){if(slides[i].dataset.label==='Fourteen treatments')loCount();}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

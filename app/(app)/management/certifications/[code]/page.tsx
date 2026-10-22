@@ -67,6 +67,7 @@ export default async function CertificationDetailPage({ params }: { params: Prom
               <th className="px-3 py-2.5 font-medium">Course</th>
               <th className="px-3 py-2.5 font-medium">Type</th>
               <th className="px-3 py-2.5 font-medium text-right">Content</th>
+              <th className="px-3 py-2.5 font-medium text-right">Course</th>
             </tr>
           </thead>
           <tbody>
@@ -91,6 +92,16 @@ export default async function CertificationDetailPage({ params }: { params: Prom
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_CHIP[statusBucket(m.contentStatus)]}`}>
                     {m.contentStatus}
                   </span>
+                </td>
+                <td className="px-3 py-3 align-top text-right">
+                  {m.contentUrl ? (
+                    <a href={m.contentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-emerald-grad px-3 py-1.5 text-[11px] font-semibold text-white hover:brightness-95">
+                      Open
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" /></svg>
+                    </a>
+                  ) : (
+                    <span className="text-[11px] text-muted">—</span>
+                  )}
                 </td>
               </tr>
             ))}

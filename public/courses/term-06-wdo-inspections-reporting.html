@@ -1,0 +1,1286 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>TERM-06 WDO Inspections &amp; Reporting</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* TERM-06 components */
+.wflip{grid-template-columns:repeat(3,1fr);gap:12px}
+.wflip button{min-height:136px}
+.wflip .face{padding:16px 18px;gap:6px}
+.wflip h3{font-size:20px}
+.wflip .back{font-size:14px;line-height:1.5}
+
+/* credential chain */
+.chain{display:grid;gap:0;position:relative}
+.chain .lk{display:flex;gap:14px;align-items:flex-start;padding:10px 0;position:relative}
+.chain .lk .n{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--grad-emerald);color:#fff;font-size:14px;font-weight:500;position:relative;z-index:1}
+.chain .lk::after{content:"";position:absolute;left:16px;top:44px;bottom:-10px;width:2px;background:var(--brand-200);transform-origin:top;transform:scaleY(0)}
+.slide.on .chain .lk::after{animation:cgrow .5s ease-out .5s both}
+.chain .lk:last-child::after{display:none}
+@keyframes cgrow{to{transform:scaleY(1)}}
+.chain b{display:block;font-size:16px}
+.chain small{display:block;color:var(--muted);font-size:13.5px;line-height:1.45}
+#whoS{grid-template-columns:1fr;gap:6px}
+#whoS .row{padding:8px 12px;font-size:14px}
+
+/* sort grids */
+.sort2{grid-template-columns:1fr 1fr;gap:8px}
+.sort2 .row{padding:8px 12px;font-size:14px;flex-wrap:wrap}
+.sort2 .row .q{flex:1 1 140px;line-height:1.35}
+.cls .row{flex-direction:column;align-items:flex-start;gap:4px;padding:6px 12px}
+.cls .row .q{flex:none}
+.cls .opts{flex-wrap:wrap}
+.cls .opts button{padding:4px 10px;font-size:12.5px}
+
+/* comparison table */
+.ktab{font-size:13.5px}
+.ktab th,.ktab td{padding:7px 10px;vertical-align:top;line-height:1.4}
+.ktab td.l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+
+/* zones */
+.zfig{padding:10px}
+.zfig svg{width:100%;max-width:none;height:auto;max-height:330px}
+.zl{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-linejoin:round}
+.zgnd{fill:var(--brand-50)}
+.zslab{fill:var(--brand-200)}
+.ztube{stroke:var(--brand-800);stroke-width:3;stroke-linecap:round}
+.zone{cursor:pointer}
+.zone rect,.zone path{fill:var(--brand-400);fill-opacity:.0;stroke:var(--brand-400);stroke-width:1.4;stroke-dasharray:5 6;transition:fill-opacity .18s ease-in-out}
+.slide.on .zone rect,.slide.on .zone path{animation:zdash 3.2s linear infinite}
+@keyframes zdash{to{stroke-dashoffset:-44}}
+.zone:hover rect,.zone:hover path{fill-opacity:.12}
+.zone.sel rect,.zone.sel path{fill-opacity:.22;stroke:var(--brand-700);stroke-dasharray:none}
+.zone:focus{outline:none}.zone:focus-visible rect,.zone:focus-visible path{stroke-width:3}
+.ztabs button.seen:not([aria-pressed="true"]){border-color:var(--brand-300)}
+.blist button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.zd,.fwd{display:grid;gap:8px;align-content:start}
+.zd > *,.fwd > *{animation:rise .2s ease-in-out both}
+.zd h3,.fwd h3{font-size:19px;margin:0}
+.dl{list-style:none;display:grid;gap:3px;font-size:14.5px}
+.dl li{display:flex;gap:10px;line-height:1.45}
+.dl li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:8px}
+
+/* finding kinds */
+.fk{display:grid;gap:6px;align-content:start;padding:16px}
+.fk h3{font-size:19px;margin:0}
+.fk p{font-size:14px}
+.fk .ex{font-size:13px;color:var(--brand-700);border-top:1px solid var(--line);padding-top:6px}
+.fk .chip{justify-self:start}
+
+/* mock form */
+.mform{background:var(--surface);border:1px solid var(--ink);border-radius:6px;font-size:13px;display:grid;align-content:start;overflow:hidden;box-shadow:var(--shadow-card)}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 12px;border-bottom:1px solid var(--ink);background:var(--brand-50);flex-wrap:wrap}
+.mhead span{font-weight:500;font-size:13px}
+.mhead small{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ms{display:grid;gap:0;border-bottom:1px solid var(--line)}
+.ms:last-child{border-bottom:0}
+.ms > b{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;background:var(--canvas);color:var(--brand-800);font-weight:500}
+.mf{display:grid;grid-template-columns:128px 1fr;gap:10px;padding:3px 12px;border-top:1px solid var(--line);align-items:baseline;transition:background .18s ease-in-out}
+.mf.cur{background:var(--brand-50)}
+.ml{font-size:11px;color:var(--muted)}
+.mv{min-height:18px;line-height:1.35}
+.mv.blank{border-bottom:1px dashed var(--line);color:var(--muted);font-size:11px;font-style:italic}
+.mv.ok{color:var(--brand-800);font-family:"Courier New",Courier,monospace;font-size:12px;animation:rise .25s ease-in-out both}
+.mini .msec{display:flex;gap:12px;align-items:baseline;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:14px 14px;font-weight:300;font-size:15px;transition:background .18s ease-in-out}
+.mini .msec b{flex:0 0 84px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-700)}
+.mini .msec:hover{background:var(--brand-50)}
+.mini .msec[aria-pressed="true"]{background:var(--brand-100)}
+.mini .msec.seen:not([aria-pressed="true"]) b::after{content:" ·";color:var(--positive)}
+
+.fiwrap{display:grid;grid-template-columns:1fr 1.05fr;gap:16px;align-items:start}
+.fiscen{padding:12px 16px}
+.fnotes{list-style:none;display:grid;gap:2px;font-size:13px;line-height:1.4;margin-top:4px}
+.fnotes li{display:flex;gap:8px}
+.fnotes li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;background:var(--brand-400);margin-top:7px}
+.fiq{display:grid;gap:8px;padding:14px 16px}
+.fiq > *{animation:rise .2s ease-in-out both}
+.fopts{display:grid;gap:6px}
+.wopt{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.wopt:hover{border-color:var(--brand-400)}
+.wopt.wrong{border-color:var(--danger);background:#FDEEEE;animation:shake .3s ease-in-out}
+.wwhy{font-size:13px;color:var(--danger);min-height:18px}
+
+/* notice */
+.notice{background:var(--surface);border:2px solid var(--ink);border-radius:4px;padding:14px 18px;display:grid;gap:6px;max-width:420px;position:relative;box-shadow:var(--shadow-card)}
+.slide.on .notice{animation:nin .45s ease-out .2s both}
+@keyframes nin{from{transform:rotate(-2deg) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.nlbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:500}
+.nrow{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:3px 0;font-size:14px}
+.nrow span{color:var(--muted)}
+.ndim{font-size:11px;color:var(--muted);letter-spacing:.06em}
+.nl{list-style:none;display:grid;gap:4px;font-size:14.5px}
+.nl li{position:relative;padding-left:16px;line-height:1.45}
+.nl li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+#nC .choice{padding:10px 14px;font-size:14.5px}
+
+#ordFb.done{border-color:var(--brand-600)}
+.order button{padding:7px 12px;font-size:14px}
+.ord2{grid-template-columns:1fr 1fr}
+#ordFb p{font-size:14px}
+
+@media (max-width:860px){
+  .wflip,.sort2,.fiwrap,.ord2{grid-template-columns:1fr}
+  .mf{grid-template-columns:110px 1fr}
+  .ktab{font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide.on .zone rect,.slide.on .zone path,.slide.on .notice,.slide.on .chain .lk::after{animation:none}
+  .chain .lk::after{transform:none}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">TERM-06 · WDO Inspections</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-wood" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M3 12h4M11 10h6M11 14h4"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 15.5c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></symbol>
+    <symbol id="i-lens" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/><path d="M7.5 9a3 3 0 0 1 2-2"/></symbol>
+    <symbol id="i-probe" viewBox="0 0 24 24"><path d="M4 20l9-9"/><path d="M12 12l2-2 6-6-2 6-2 2z"/><path d="M4 20l2-1"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9"/><path d="M10 13h4"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-6z"/><path d="M12 14l8-10"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M7 10h10M7 13h7M12 3v3"/></symbol>
+    <symbol id="i-fungus" viewBox="0 0 24 24"><path d="M4 12a8 6 0 0 1 16 0z"/><path d="M10 12v7h4v-7"/><path d="M8 9h.01M12 8h.01M16 9h.01"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Termite · TERM-06</span>
+        <h1 class="display a" style="--i:1">WDO Inspections &amp; Reporting</h1>
+        <p class="lead a" style="--i:2">What a Florida wood-destroying organism inspection is, who is allowed to perform one, what the inspector looks for, and how every finding is recorded, posted, delivered and kept on the state's FDACS-13645 report.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">50–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M24 120L112 60l88 60"/><path d="M40 110v110h144V110"/><path d="M94 220v-48h36v48"/>
+          <path d="M70 96h84"/><path d="M104 76v20M120 76v20"/>
+          <path d="M14 220h200"/>
+          <path d="M52 220v-30q6-8 0-16q-6-8 0-16"/>
+          <rect x="196" y="40" width="96" height="132" rx="4"/><path d="M226 34h36v14h-36z"/>
+          <path d="M210 70h68M210 88h68M210 106h44M210 124h68M210 142h52"/>
+          <rect x="210" y="152" width="10" height="10"/><path d="M212 157l3 3 5-6"/>
+          <circle cx="240" cy="200" r="26"/><path d="M259 219l26 26"/><path d="M226 194a14 14 0 0 1 10-10"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Inspect · Record · Post · Deliver · Retain</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-card"/></svg><span>State who may legally perform a WDO inspection in Florida, and why this course alone does not qualify you</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-doc"/></svg><span>Tell a real estate WDO inspection apart from a contract inspection and from a routine pest visit</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-lens"/></svg><span>Apply the state inspection standard: visual, accessible areas, all WDOs, probing only when evidence calls for it</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-layers"/></svg><span>Classify findings as live WDOs, evidence, damage or previous treatment, and record obstructed and inaccessible areas with reasons</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-tag"/></svg><span>Complete each section of FDACS-13645 and post the notice of inspection where the law requires</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-scale"/></svg><span>Deliver and retain the report correctly, and explain why accuracy and honesty protect the customer and Clements</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,3.6vw,46px)">A WDO report is a legal document <span class="em">people buy houses on.</span></h2>
+        <p class="lead a" style="--i:2">Buyers, sellers, lenders and agents make six-figure decisions on what one inspector writes on one state form. Every word has to be true, complete and defensible.</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-lock"/></svg><span><b>This course does not authorize you to perform WDO inspections.</b> Only a WDO-category certified operator, or a special WDO ID cardholder working under one, may (s. 482.091(9)).</span></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-scale"/></svg></div><div><h3>Regulated by statute and rule</h3><p>Section 482.226, F.S. and Rule 5E-14.142, F.A.C. set the form, its contents, the notice, the standard and the 3-year retention. FDACS can discipline the company and the cardholder.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Liability that outlives the closing</h3><p>The law requires WDO inspecting companies to carry errors and omissions insurance or a bond (or show qualifying net worth) because a missed or misstated finding can become a claim long after the sale.</p></div></div></div>
+        <div class="card a" style="--i:6"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Our name is on it</h3><p>Agents remember which company writes clear, honest reports on time. One slanted report costs more trust than a hundred good ones earn.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: what and who">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">What a WDO inspection is, and who may do one</h1>
+        <p class="lead a" style="--i:2">Why it matters: the first mistake in WDO work is the wrong person doing it, or the wrong kind of report. Get these two right and everything after has a foundation.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The six WDO groups</li><li><span>02</span>Who may inspect</li><li><span>03</span>Three kinds of "termite inspection"</li><li><span>04</span>Practice: which report is this?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 WDO GROUPS -->
+  <section class="slide" data-label="The six WDO groups" style="gap:14px">
+    <span class="eyebrow a">01 · The six WDO groups</span>
+    <h2 class="a" style="--i:1">"All wood-destroying organisms" means more than termites</h2>
+    <div class="a" style="--i:2;display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap">
+      <p class="muted small" style="max-width:80ch">Florida defines a WDO as arthropod or plant life that damages and can reinfest seasoned wood in a structure: termites, powderpost beetles, old house borers and wood-decaying fungi (s. 482.021(30)). The inspection covers all of them. TERM-01 covers identification in depth.</p>
+      <span class="small muted" id="wgN">0 of 6 flipped</span>
+    </div>
+    <div class="flip wflip a" style="--i:3" id="wgF"></div>
+  </section>
+
+  <!-- 6 WHO MAY INSPECT -->
+  <section class="slide" data-label="Who may inspect" style="gap:14px">
+    <span class="eyebrow a">02 · Who may inspect</span>
+    <h2 class="a" style="--i:1">The credential chain: no link, no inspection</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="chain a" style="--i:2">
+          <div class="lk"><span class="n">1</span><div><b>Licensed company</b><small>The FDACS pest control business license, plus the financial responsibility the law requires for WDO inspections: errors and omissions insurance, a bond or qualifying net worth (s. 482.226(6)).</small></div></div>
+          <div class="lk"><span class="n">2</span><div><b>Certified operator in charge, WDO category</b><small>Without a certified operator in the termite and WDO category in charge, no one at the company may inspect.</small></div></div>
+          <div class="lk"><span class="n">3</span><div><b>Special WDO employee ID card</b><small>Applied for by the company with an affidavit signed by the employee and the certified operator: trained in WDO biology and ID, the inspection report form, and the law (s. 482.091(9)).</small></div></div>
+        </div>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-lock"/></svg><span><b>Passing TERM-06 is not a credential.</b> It supports your training. You inspect only once FDACS issues your WDO ID card, and only under the WDO certified operator.</span></div>
+      </div>
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a" style="--i:3">Practice · can they perform the WDO inspection?</span>
+        <div class="sort a" style="--i:4" id="whoS"></div>
+        <div class="a" style="--i:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="whoCheck">Check my answers</button><span id="whoFb"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 THREE KINDS -->
+  <section class="slide" data-label="Three kinds of termite inspection" style="gap:14px">
+    <span class="eyebrow a">03 · Three kinds of "termite inspection"</span>
+    <h2 class="a" style="--i:1">Same attic, three very different legal duties</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="ktab">
+        <tr><th></th><th>Real estate WDO inspection</th><th>Contract inspection</th><th>Routine pest (GHP) visit</th></tr>
+        <tr><td class="l">When</td><td>A home sale or refinance, and a fee is charged or a written report is requested</td><td>Annual or periodic inspection, or retreatment, under a termite contract (Sentricon, drywood, liquid)</td><td>Any general pest service</td></tr>
+        <tr><td class="l">Report</td><td><b>FDACS-13645</b>, the state form, with nothing added</td><td>Signed report in Clements' format: covered WDO present or absent, treatment made, pesticide name</td><td>No WDO report. Notes describe what you saw</td></tr>
+        <tr><td class="l">Covers</td><td><b>All</b> WDOs, all accessible areas</td><td>The WDOs the contract covers</td><td>Not a WDO inspection</td></tr>
+        <tr><td class="l">Notice</td><td>Notice of inspection posted (s. 482.226(4))</td><td>Treatment notice when treatment is made (s. 482.226(5))</td><td>None</td></tr>
+        <tr><td class="l">Who</td><td colspan="2">WDO ID cardholder under the WDO certified operator, or the certified operator (ss. 482.091(9), 482.226(3)(b))</td><td>Any ID cardholder. Termite signs go to the branch manager the same day</td></tr>
+        <tr><td class="l">Keep</td><td colspan="2">At least 3 years</td><td>Normal service records</td></tr>
+      </table>
+    </div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>V5 also describes an annual inspection add-on for non-contract customers. It is <b>not</b> the real estate WDO inspection: different workflow, different form.</span></div>
+  </section>
+
+  <!-- 8 WHICH REPORT -->
+  <section class="slide" data-label="Practice: which report is this?">
+    <span class="eyebrow a">04 · Practice · which report is this?</span>
+    <h2 class="a" style="--i:1">Match the job to the report it needs</h2>
+    <div class="scen-tabs a" style="--i:2" id="rTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="rBox"></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: scope and standard">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The inspection standard and its limits</h1>
+        <p class="lead a" style="--i:2">Why it matters: a WDO report is only as good as what it honestly says was and was not seen. The standard tells you how far to go; the limits tell the reader where your knowledge stops.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The state standard</li><li><span>02</span>Walk the structure</li><li><span>03</span>Obstructed and inaccessible</li><li><span>04</span>Practice: inspect it or list it?</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 STANDARD -->
+  <section class="slide" data-label="The state standard" style="gap:16px">
+    <span class="eyebrow a">01 · The state standard · Rule 5E-14.142(5)(c)</span>
+    <h2 class="a" style="--i:1">Four rules define every WDO inspection</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>Accessible by normal means</h3><p>All areas you can reach normally. Not enclosed or concealed areas: behind wall and floor coverings, furniture, equipment, stored items, insulation.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Visual first</h3><p>The inspection is visual. Probe and sound wood only when you have a visual finding of possible infestation or damage.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-x"/></svg></div><h3>Nothing defaced</h3><p>You never remove or deface any part of the structure to look. If seeing it would require that, it is not inspected, and the report says so.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-fungus"/></svg></div><h3>All WDOs, fungi too</h3><p>Includes wood-decaying fungi (brown, white and cubical rot). Not surface molds that don't damage sound wood.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-doc"/></svg><span><b>The form itself warns the reader:</b> the report covers visible, readily accessible areas only, is not a guarantee that WDOs or damage are absent, and is not a structural damage report.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-x"/></svg><span><b>No disclaimers.</b> The rule bars adding disclaimers or extra language to FDACS-13645. Limits go in the sections built for them.</span></div>
+    </div>
+  </section>
+
+  <!-- 12 WALK THE STRUCTURE -->
+  <section class="slide" data-label="Walk the structure" style="gap:12px">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Walk the structure</span>
+        <h2 class="a" style="--i:1;font-size:30px">Five zones, every time. Select a zone.</h2>
+        <div class="figbox zfig a" style="--i:2">
+          <svg viewBox="0 0 560 300" role="img" aria-label="Cross-section of a slab home with attached garage, attic and crawl area, with five inspection zones" id="zSvg">
+            <rect class="zgnd" x="0" y="262" width="560" height="38"/>
+            <path class="zl" d="M60 120L280 30l220 90z"/>
+            <rect class="zl" x="80" y="120" width="400" height="136"/>
+            <path class="zl" d="M240 120v136"/>
+            <rect class="zslab" x="74" y="256" width="412" height="8"/>
+            <path class="zl" d="M96 176h126v80"/><path class="zl" d="M262 150h60v36h-60zM360 200h86v56"/>
+            <path class="zl" d="M206 120v-12h22v12"/>
+            <path class="zl" d="M480 210h46v52"/><path class="zl" d="M18 262v-40h36v40"/>
+            <path class="ztube" d="M484 262v-26"/>
+            <g class="zone" id="zz0" data-z="0"><rect x="10" y="200" width="66" height="70" rx="6"/><rect x="474" y="190" width="70" height="80" rx="6"/></g>
+            <g class="zone" id="zz1" data-z="1"><rect x="84" y="124" width="152" height="130" rx="6"/></g>
+            <g class="zone" id="zz2" data-z="2"><rect x="244" y="124" width="232" height="130" rx="6"/></g>
+            <g class="zone" id="zz3" data-z="3"><path d="M96 118L280 42l184 76z"/></g>
+            <g class="zone" id="zz4" data-z="4"><rect x="80" y="264" width="400" height="30" rx="6"/></g>
+          </svg>
+        </div>
+        <div class="scen-tabs ztabs a" style="--i:3" id="zList"></div>
+      </div>
+      <div class="card zd a" style="--i:4" id="zD"></div>
+    </div>
+  </section>
+
+  <!-- 13 OBSTRUCTED / INACCESSIBLE -->
+  <section class="slide" data-label="Obstructed and inaccessible" style="gap:14px">
+    <span class="eyebrow a">03 · Obstructed and inaccessible areas</span>
+    <h2 class="a" style="--i:1">What you couldn't see is a finding too</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-box"/></svg></div><h3>Obstructed</h3></div><p>A visible, accessible area you could not fully inspect because something is in the way: stored boxes, furniture, appliances, insulation, wall or floor coverings, dense plants, a locked room. The law requires the area <b>and the reason</b> (s. 482.226(2)(a)4).</p></div>
+      <div class="card a" style="--i:3"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Inaccessible</h3></div><p>An area with no normal access: an attic section with no hatch, a crawl area with too little clearance, enclosed wall voids, a sealed soffit. The law requires the areas that were inaccessible (s. 482.226(2)(a)5).</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-pin"/></svg><span><b>Be specific.</b> "Attic: north half above the bedrooms, blown-in insulation over the ceiling joists" beats "attic: partial".</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-doc"/></svg><span><b>Section 3 of the form</b> has lines for attic, interior, exterior, crawlspace and other, each with specific areas and a reason.</span></div>
+      <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-x"/></svg><span><b>Never</b> leave Section 3 blank to make a report look cleaner. An omitted limit reads as "inspected and clear."</span></div>
+    </div>
+  </section>
+
+  <!-- 14 SORT INSPECT / LIST -->
+  <section class="slide" data-label="Practice: inspect it or list it?" style="gap:12px">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Inspect it, or list it in Section 3?</h2>
+    <div class="sort sort2 a" style="--i:2" id="aSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="aCheck">Check my answers</button><span id="aFb"></span></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: findings">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Reading and recording findings</h1>
+        <p class="lead a" style="--i:2">Why it matters: the reader acts on your words. "Live" means call for treatment now; "evidence" means something was here; "damage" means wood was harmed. Mixing them up misleads a buyer either way.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Live, evidence, damage, previous treatment</li><li><span>02</span>Practice: classify the finding</li><li><span>03</span>Writing a finding</li><li><span>04</span>Practice: what goes on the report?</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 LIVE EVIDENCE DAMAGE -->
+  <section class="slide" data-label="Live, evidence, damage" style="gap:14px">
+    <span class="eyebrow a">01 · Four kinds of finding</span>
+    <h2 class="a" style="--i:1">Each has its own place on the form</h2>
+    <div class="grid g4">
+      <div class="card fk a" style="--i:2"><span class="chip">Section 2 · B1</span><h3>Live WDOs</h3><p>Living termites, beetles or larvae seen at the time of inspection. Record the common name and location.</p><p class="ex">Workers in a freshly broken shelter tube; drywood termites in an opened gallery.</p></div>
+      <div class="card fk a" style="--i:3"><span class="chip">Section 2 · B2</span><h3>Evidence</h3><p>Signs the organism is or was present: dead WDOs or parts, frass, shelter tubes, exit holes, wings. Common name, description, location.</p><p class="ex">Empty tubes on the slab edge; pellets below trim; shed wings on a sill.</p></div>
+      <div class="card fk a" style="--i:4"><span class="chip">Section 2 · B3</span><h3>Damage</h3><p>Visible harm to wood caused by a WDO. Common name, description, location. Describe what you see, not how bad the structure is.</p><p class="ex">Galleries in a sill; honeycombed baseboard; cubical rot in a fascia.</p></div>
+      <div class="card fk a" style="--i:5"><span class="chip">Section 4</span><h3>Previous treatment</h3><p>Visible evidence a structure was treated before. Yes or no, and what you saw. You give no assurance about another company's work.</p><p class="ex">Patched drill holes in a slab; bait stations; an old treatment notice.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Nothing visible?</b> Check Section 2 A: "No visible signs of WDO(s) (live, evidence or damage) observed." Never write "no termites" or "termite-free."</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-layers"/></svg><span><b>One spot, several boxes.</b> Live drywood termites in a damaged sill with pellets below go in B1, B2 and B3.</span></div>
+    </div>
+  </section>
+
+  <!-- 18 CLASSIFY -->
+  <section class="slide" data-label="Practice: classify the finding" style="gap:12px">
+    <span class="eyebrow a">02 · Practice · classify the finding</span>
+    <h2 class="a" style="--i:1">Where does each finding go?</h2>
+    <div class="sort sort2 cls a" style="--i:2" id="cSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="cCheck">Check my answers</button><span id="cFb"></span></div>
+  </section>
+
+  <!-- 19 WRITING A FINDING -->
+  <section class="slide" data-label="Writing a finding" style="gap:12px">
+    <span class="eyebrow a">03 · Writing a finding</span>
+    <h2 class="a" style="--i:1">Name, description, location. Observed, not guessed.</h2>
+    <div class="door">
+      <div class="pair a" style="--i:2"><div class="then"><span class="lbl">Weak</span>Termites in garage</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Defensible</span>Subterranean termites: shelter tubes on slab-to-wall joint, garage northeast corner behind water heater</div></div>
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">Weak</span>Major structural damage to front wall</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Defensible</span>Drywood termites: galleries and hollow-sounding wood in living room front window sill, approx. 24 in. section</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">Weak</span>Old activity, nothing to worry about</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Defensible</span>Evidence and damage recorded as observed. No live WDOs observed at time of inspection</div></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-cam"/></svg><span><b>Photograph</b> every finding and every obstruction you list.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-probe"/></svg><span><b>Probe with purpose:</b> only where you see signs. Never gouge finishes.</span></div>
+      <div class="callout danger a" style="--i:7"><svg class="ico"><use href="#i-x"/></svg><span><b>Never</b> guess age or activity, estimate repairs or judge structural soundness.</span></div>
+    </div>
+  </section>
+
+  <!-- 20 WHAT GOES ON THE REPORT -->
+  <section class="slide" data-label="Practice: what goes on the report?">
+    <span class="eyebrow a">04 · Practice · what goes on the report?</span>
+    <h2 class="a" style="--i:1">Pressure, gray areas and judgment calls</h2>
+    <div class="scen-tabs a" style="--i:2" id="gTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="gBox"></div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: the report">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Complete, post, deliver, retain</h1>
+        <p class="lead a" style="--i:2">Why it matters: a correct inspection on an incomplete form is still a violation. The form, the notice, the delivery and the 3-year record are all required by law.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>FDACS-13645, section by section</li><li><span>02</span>Practice: fill in the report</li><li><span>03</span>The notice of inspection</li><li><span>04</span>Deliver, retain, stay honest</li><li><span>05</span>Practice: order the job</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 FORM WALKTHROUGH -->
+  <section class="slide" data-label="FDACS-13645 section by section" style="gap:12px">
+    <span class="eyebrow a">01 · FDACS-13645 (Rev. 05/21) section by section</span>
+    <h2 class="a" style="--i:1">Five sections. Select each one.</h2>
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:22px;align-items:start">
+      <div class="mform mini a" style="--i:2" id="fwForm"></div>
+      <div class="card fwd a" style="--i:3" id="fwD"></div>
+    </div>
+  </section>
+
+  <!-- 24 FILL IN THE REPORT -->
+  <section class="slide" data-label="Practice: fill in the report" style="gap:8px;padding-top:32px;padding-bottom:28px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:6px"><span class="eyebrow a">02 · Practice · fill in the report</span>
+      <h2 class="a" style="--i:1;font-size:26px">Complete the mock FDACS-13645 from the inspector's notes</h2></div>
+      <button type="button" class="btn a" style="--i:2" id="fiReset">Start over</button>
+    </div>
+    <div class="fiwrap a" style="--i:2">
+      <div class="grid" style="gap:10px;align-content:start">
+        <div class="card fiscen"><span class="eyebrow">Inspector's field notes · sample property</span><ul class="fnotes">
+          <li>CBS home on slab, attached garage. Ordered by buyer's agent for buyer; fee charged.</li>
+          <li>Garage NE corner behind water heater: broken-open shelter tubes on slab-to-wall joint, no termites seen.</li>
+          <li>Living room front window sill: probed; galleries with pellets, live drywood termites.</li>
+          <li>Attic: blown-in insulation covers the joists except around the hatch.</li>
+          <li>Rear patio slab: patched holes about 12 in. apart along the house.</li>
+          <li>Notice posted beside garage attic access. No treatment done.</li>
+        </ul></div>
+        <div class="card fiq" id="fiQ"></div>
+      </div>
+      <div class="mform" id="fiForm"></div>
+    </div>
+  </section>
+
+  <!-- 25 NOTICE -->
+  <section class="slide" data-label="The notice of inspection" style="gap:12px">
+    <span class="eyebrow a">03 · The notice of inspection · s. 482.226(4)</span>
+    <h2 class="a" style="--i:1">Post it where the next inspector will look</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="notice a" style="--i:2">
+          <span class="nlbl">Notice of WDO inspection · sample</span>
+          <div class="nrow"><span>Inspected by</span><b>Licensee name</b></div>
+          <div class="nrow"><span>Address</span><b>Licensee business address</b></div>
+          <div class="nrow"><span>Date of inspection</span><b>Month / day / year</b></div>
+          <span class="ndim" aria-hidden="true">at least 3 in. × 5 in. · lasts at least 3 years</span>
+        </div>
+        <ul class="nl a" style="--i:3">
+          <li><b>Where:</b> immediately next to the attic or crawl area access, or another readily accessible area</li>
+          <li><b>Size and material:</b> at least 3 by 5 inches, built to last at least 3 years</li>
+          <li><b>On it:</b> licensee's name and address, and the inspection date</li>
+          <li><b>On the report:</b> a statement that it was posted, and exactly where</li>
+          <li><b>Removal:</b> only the property owner may ever remove it</li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a" style="--i:3">Practice · the attic hatch is in the garage ceiling. Where do you post?</span>
+        <div class="choices a" style="--i:4" id="nC"></div>
+        <div id="nFb" class="a" style="--i:5"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 DELIVER RETAIN HONEST -->
+  <section class="slide" data-label="Deliver, retain, stay honest" style="gap:14px">
+    <span class="eyebrow a">04 · Deliver, retain, stay honest</span>
+    <h2 class="a" style="--i:1">After the inspection, the report has three more jobs</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-send"/></svg></div><h3>Deliver</h3><p>Findings go to the person who requested the inspection, and to the others named in Section 1. Real estate deals run on deadlines: the closing date and report-needed-by date are captured at intake.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-archive"/></svg></div><h3>Retain</h3><p>Clements keeps a copy at least 3 years (s. 482.226(1)). V5 stores the FDACS-13645 copy in PestPac under the T-WDO service code. Re-inspections use T-WDO REINSPECT.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-scale"/></svg></div><h3>Stay independent</h3><p>Section 5 certifies that neither Clements nor the inspector has a financial interest in the property or any role in the deal beyond inspecting (s. 482.226(2)(d)). Tell your supervisor about any conflict before you go.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Honesty is not negotiable.</b> No one (agent, seller, buyer or coworker) can change what you observed. A false or incomplete report exposes the cardholder and the company to FDACS discipline and civil liability.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span><b>Pending at Clements:</b> WDO pricing, payment, turnaround and the full workflow are still being finalized (V5). Don't quote a price or a delivery time; route it to your branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 27 ORDER THE JOB -->
+  <section class="slide" data-label="Practice: order the job" style="gap:10px">
+    <div class="split" style="grid-template-columns:1.3fr .7fr;gap:24px;align-items:end">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">05 · Practice · order the job</span>
+        <h2 class="a" style="--i:1">A real estate WDO job, start to finish</h2>
+        <p class="a muted small" style="--i:2">Select the steps in order. A wrong pick shakes.</p>
+      </div>
+      <div class="card a" style="--i:3;padding:14px 18px" id="ordFb"><span class="eyebrow">Progress</span><h3 id="ordN">0 of 9 placed</h3><p>It starts before anyone drives to the house.</p></div>
+    </div>
+    <div class="order ord2 a" style="--i:4" id="ord"></div>
+    <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it alongside a WDO inspector</h2>
+    <p class="a muted" style="--i:2">Observed by your supervisor or the WDO certified operator while you shadow. Shadowing is not inspecting: you inspect only once FDACS issues your WDO ID card.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> State your WDO credential status and your branch's WDO certified operator in charge</label></li>
+      <li><label><input type="checkbox" id="f2"> Say whether a request needs FDACS-13645, a contract report or a same-day escalation</label></li>
+      <li><label><input type="checkbox" id="f3"> Follow the five-zone route and point out WDO evidence or conducive conditions</label></li>
+      <li><label><input type="checkbox" id="f4"> Name each obstructed or inaccessible area, with the specific area and reason</label></li>
+      <li><label><input type="checkbox" id="f5"> Classify findings as live, evidence, damage or previous treatment, with name, description, location</label></li>
+      <li><label><input type="checkbox" id="f6"> Explain every section of a completed FDACS-13645, including the financial disclosure</label></li>
+      <li><label><input type="checkbox" id="f7"> Show where the notice of inspection was posted and what it must state</label></li>
+      <li><label><input type="checkbox" id="f8"> Explain delivery, 3-year retention, and how you answer pressure to change a finding</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('term06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('term06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "TERM-06", "titleHtml": "WDO Inspections &amp; Reporting", "nextHtml": "TERM-07 \u00b7 Warranty, Renewals &amp; ATI", "passNote": "Your field sign-off with your supervisor completes the course. It does not authorize you to perform WDO inspections."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · What and who',q:'You hold a standard ID card. On a pest service, the seller\'s agent asks you to "do the termite letter" for next week\'s closing. What do you do?',o:['Walk the house and fill out FDACS-13645, since you know what termites look like','Do a quick look and write your findings in the PestPac Mobile notes instead','Politely explain that WDO inspections must be done by a WDO cardholder or certified operator; take the details and route the request to your branch manager the same day','Tell the agent Clements doesn\'t do WDO inspections'],a:2,e:'Only a WDO-category certified operator, or an employee with the special WDO ID card working under one, may perform a WDO inspection (s. 482.091(9)). Take the requester, address, closing date and contact details, and route it. Never improvise a report.'},
+    2:{t:'Checkpoint 2 · Scope and standard',q:'In the attic, blown-in insulation covers the ceiling joists everywhere except near the hatch. What is correct?',o:['List the attic in Section 3 with the specific area covered and the reason: blown-in insulation over the joists','Rake the insulation back across the attic to inspect the joists','Leave Section 3 blank, since you did enter the attic','Check "No visible signs" for the attic, since you saw nothing near the hatch'],a:0,e:'The standard covers areas accessible by normal means. Areas concealed by insulation are obstructed. The law requires you to list them, with the reason, so the reader knows the report says nothing about them.'},
+    3:{t:'Checkpoint 3 · Findings',q:'A probed sill shows galleries packed with pellets, no live termites. The seller\'s agent says, "Just call it old and inactive." How do you record it?',o:['As "old inactive damage," since there are no live termites','Leave it off, since no live termites were seen','As live drywood termites, to be safe','As evidence (pellets) and damage (galleries) from drywood termites, with description and location; no live WDOs observed'],a:3,e:'You report what is visible in the section built for it. Pellets are evidence, galleries are damage, and the common name, description and location go with each. Age and activity are not yours to certify, and no one can change an observation.'},
+    4:{t:'Checkpoint 4 · The report',q:'Inspection done, no one home, attic access in the garage ceiling. Which meets the notice of inspection requirement?',o:['Leave the notice on the kitchen counter for the owner','Post a durable notice, at least 3 by 5 inches, on the garage wall next to the attic access, showing the licensee\'s name, address and the inspection date, and state that location on the report','Email the notice to the buyer\'s agent','Skip the notice, since no treatment was done'],a:1,e:'Section 482.226(4) requires the notice for every real estate WDO inspection: adjacent to the attic or crawl access (or another readily accessible area), at least 3 x 5 inches, lasting at least 3 years, with the licensee\'s name, address and inspection date. The report must state where it is.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Who may perform a real estate WDO inspection in Florida?',o:['Any employee with a standard FDACS ID card','A Corteva Certified Sentricon Specialist','A certified operator in the termite and WDO category, or an employee with the special WDO ID card working under one','Anyone who has completed TERM-06'],a:2,e:'Section 482.091(9) requires the special WDO ID card, used under a WDO-category certified operator in charge. A WDO-category certified operator may inspect without the card.'},
+    {k:'True or false',q:'Passing TERM-06 authorizes you to perform WDO inspections.',o:['True','False'],a:1,e:'False. The course supports training. The credential is the FDACS-issued WDO ID card, used under the WDO certified operator, or WDO-category certification.'},
+    {k:'Multiple choice',q:'Which form is used to report a real estate WDO inspection in Florida?',o:['FDACS-13645, Wood-Destroying Organisms Inspection Report','FDACS-13692, Consumer Notice Form','FDACS-13671, Consumer Consent Form','Any form the company designs'],a:0,e:'Rule 5E-14.142 adopts FDACS-13645 (Rev. 05/21). The Consumer Notice and Consumer Consent forms belong to treatment contracts (Rule 5E-14.105).'},
+    {k:'Multiple choice',q:'Which of these is a wood-destroying organism under Florida law?',o:['Black surface mold on drywall','Carpenter bees','German cockroaches','Wood-decaying fungi that cause brown or white rot'],a:3,e:'Section 482.021(30) names termites, powderpost beetles, old house borers and wood-decaying fungi. Surface molds that don\'t damage sound wood are excluded.'},
+    {k:'Multiple choice',q:'How long must Clements keep a copy of a WDO inspection report?',o:['1 year','At least 3 years','Until the property sells','5 years only if damage was found'],a:1,e:'Section 482.226(1) requires the licensee to keep a copy for not less than 3 years. V5 keeps it in PestPac.'},
+    {k:'Multiple choice',q:'Under the state standard, when may the inspector probe and sound wood?',o:['On every board in the house','Never','When a visual finding suggests infestation or damage','Only with the owner\'s written permission'],a:2,e:'The inspection is visual, but may include probing and sounding where the inspector sees visual evidence of infestation or damage (5E-14.142(5)(c)).'},
+    {k:'True or false',q:'A WDO inspection report guarantees that the structure has no wood-destroying organisms.',o:['True','False'],a:1,e:'False. The report covers visible, accessible areas and is not a guarantee unless it states the extent of one (s. 482.226(2)(c)). It is also not a structural damage report.'},
+    {k:'Scenario',q:'Stacked boxes line the garage walls and you cannot see the slab-to-wall joint behind them. What goes on the report?',o:['Section 3: garage walls, specific areas, obstructed by stored items','Nothing, since the garage was entered','Section 2 A: no visible signs','A note asking the buyer to move the boxes, and no other entry'],a:0,e:'Visible, accessible areas not inspected must be listed with the reason (s. 482.226(2)(a)4).'},
+    {k:'Multiple choice',q:'Empty mud shelter tubes on the slab edge, no termites seen. Where do they go on FDACS-13645?',o:['Section 2 B1, live WDOs','Section 2 B2, evidence of WDOs','Section 3, inaccessible areas','Section 4, previous treatment'],a:1,e:'Shelter tubes are evidence of subterranean termites: common name, description and location in B2.'},
+    {k:'Multiple choice',q:'Patched drill holes about 12 inches apart along a patio slab are recorded as:',o:['Damage caused by WDOs','Live WDOs','An obstruction','Visible evidence of previous treatment in Section 4'],a:3,e:'Regularly spaced patched holes indicate a past liquid treatment. Record it in Section 4; you give no assurance about another company\'s work.'},
+    {k:'Multiple choice',q:'Where must the notice of inspection be posted?',o:['Immediately adjacent to the attic or crawl area access, or another readily accessible area','On the front door','In the electrical panel','At the mailbox'],a:0,e:'Section 482.226(4). The report must also state the notice\'s location.'},
+    {k:'Multiple choice',q:'What must the notice of inspection state?',o:['The inspector\'s cell phone number','The licensee\'s name and address and the date of inspection','The findings of the inspection','The price of the inspection'],a:1,e:'Licensee name, address and inspection date, on a notice at least 3 x 5 inches that lasts at least 3 years.'},
+    {k:'True or false',q:'Anyone who later finds a WDO notice in a garage may remove it if it looks old.',o:['True','False'],a:1,e:'False. Only the property owner may remove a WDO inspection or treatment notice (s. 482.226(4)–(5)).'},
+    {k:'Scenario',q:'A buyer\'s agent asks you to add "termite-free, no further action needed" to the comments. You found no visible signs. What do you do?',o:['Add it, since you found nothing','Add it with a disclaimer underneath','Check Section 2 A and add nothing else; the report is not a guarantee and no added language is allowed','Leave the report unsigned'],a:2,e:'Rule 5E-14.142 bars disclaimers or added language on FDACS-13645, and the report is not a guarantee. Section 2 A says what is true.'},
+    {k:'Multiple choice',q:'Which statement must every FDACS-13645 include in Section 5?',o:['A warranty against future infestation','A repair cost estimate','A recommendation of a treatment company','A certification that neither the company nor the inspector has a financial interest in the property or any role in the transaction beyond inspecting'],a:3,e:'Section 482.226(2)(d) requires the financial-interest certification.'},
+    {k:'Multiple choice',q:'An annual Sentricon inspection under an existing contract requires:',o:['A signed report: covered WDO present or absent, whether treatment was made, and the pesticide name','FDACS-13645 every year','No report at all','A new notice of inspection each quarter'],a:0,e:'Contract inspections are reported under s. 482.226(3), in the company\'s own format, and kept 3 years. FDACS-13645 is for real estate WDO inspections.'},
+    {k:'Scenario',q:'During a real estate WDO inspection, the seller asks you to spot treat live drywood termites today so the report "looks better." What is correct?',o:['Treat and leave it off the report','Treat and record it as previous treatment','Treat and check "no visible signs"','Record the live termites as observed and route the treatment request to the branch manager'],a:3,e:'Treatment needs its own contract and consumer paperwork, and any treatment at inspection must be disclosed in Section 4. Never treat to change a finding.'},
+    {k:'Multiple choice',q:'Black mildew on a sound bathroom ceiling is:',o:['Live WDOs','Damage caused by wood-decaying fungi','Not a WDO finding; surface mold on sound material is excluded','An inaccessible area'],a:2,e:'The standard covers wood-decaying fungi that damage wood, not surface molds on sound wood. The form gives no opinion on health or air quality.'},
+    {k:'Multiple choice',q:'A customer asks what a WDO inspection costs and how fast the report will be ready. What do you say?',o:['Quote last year\'s price','Promise a 24-hour turnaround','Say it\'s free with a Sentricon contract','Take the details and route it to your branch manager; WDO pricing and turnaround are still being finalized'],a:3,e:'V5 has not set WDO pricing or turnaround commitments. Never quote a price or a delivery time.'},
+    {k:'True or false',q:'Wall voids behind finished drywall are inspected by cutting small access holes if termites are suspected.',o:['True','False'],a:1,e:'False. The inspection never removes or defaces any part of the structure. Enclosed areas are listed as inaccessible.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* generic sort widget: rows with option buttons, check button */
+  function sortWidget(box,items,opts,checkBtn,fbEl,key,doneMsg){
+    var sel={};
+    items.forEach(function(s,i){var r=mk('div','row');r.id=key+'r'+i;
+      r.innerHTML='<span class="q">'+s.q+'</span><span class="opts">'+opts.map(function(o,k){return '<button type="button" id="'+key+i+'_'+k+'" data-v="'+o.v+'" aria-pressed="false">'+o.t+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});
+      box.appendChild(r)});
+    checkBtn.addEventListener('click',function(){var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+key+'r'+i),w=$('.why',r);if(w)w.remove();if(!sel[i]){blank++;r.classList.remove('ok','no');return}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok)r.appendChild(mk('span','why',s.w))});
+      fbEl.innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+doneMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes in red and try again.</span>');
+    });
+  }
+
+  /* generic scenario tabs */
+  function scenTabs(tabsEl,boxEl,list,key,hint){
+    var done=store.get(key)||{};
+    function tabs(cur){tabsEl.innerHTML='';list.forEach(function(p,i){var b=mk('button',done[i]?'done':null,p.n);b.type='button';b.id=key+'t'+i;b.setAttribute('aria-pressed',i===cur);b.addEventListener('click',function(){show(i)});tabsEl.appendChild(b)})}
+    function show(n){tabs(n);var p=list[n];
+      boxEl.innerHTML='<div class="card" style="padding:14px 18px"><p>'+p.s+'</p></div><div class="choices">'+p.o.map(function(o,i){return '<button type="button" class="choice" id="'+key+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="sfb"></div>';
+      $$('.choice',boxEl).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+        $$('.choice',boxEl).forEach(function(x){x.classList.remove('wrong')});
+        if(i===p.a){b.classList.add('right');$$('.choice',boxEl).forEach(function(x){x.disabled=true});done[n]=1;store.set(key,done);tabs(n);
+          $('.sfb',boxEl).innerHTML='<div class="fb">'+p.e+(n<list.length-1?' <button type="button" class="btn" id="'+key+'Next" style="margin-left:8px;padding:6px 12px">Next scenario</button>':'')+'</div>';
+          var nx=$('#'+key+'Next');if(nx)nx.addEventListener('click',function(){show(n+1)})}
+        else{b.classList.add('wrong');$('.sfb',boxEl).innerHTML='<div class="fb no">Not quite. '+hint+'</div>'}})});
+    }
+    show(0);
+  }
+
+  /* ---------- WDO flip cards ---------- */
+  var WG=[
+    {t:'Subterranean termites',f:'Eastern, Formosan, Asian',b:'<b>Live in soil, travel in mud shelter tubes.</b> Look at the slab edge, foundation, expansion joints, plumbing penetrations and wood touching soil. Evidence: tubes, swarmers, wings. Damage follows the grain, packed with soil.'},
+    {t:'Drywood termites',f:'Live entirely in the wood',b:'<b>No soil contact needed.</b> Evidence: six-sided fecal pellets kicked out of small holes, often piled under trim, sills and attic framing. Damage: smooth galleries cutting across the grain.'},
+    {t:'Dampwood termites',f:'Need wet, decaying wood',b:'<b>A moisture finding as well as a termite finding.</b> Found in wood kept wet by leaks or soil contact. Pellets are larger and less uniform than drywood pellets.'},
+    {t:'Powderpost beetles',f:'Tiny round exit holes',b:'<b>Larvae tunnel; adults exit.</b> Evidence: small round exit holes and fine, flour-like or pelleted frass in hardwood floors, trim, furniture and framing.'},
+    {t:'Old house borer',f:'Larger oval exit holes',b:'<b>Attacks seasoned softwood framing,</b> often in attics. Evidence: oval exit holes with ragged edges and tightly packed, powdery frass in the galleries.'},
+    {t:'Wood-decaying fungi',f:'Brown, white and cubical rot',b:'<b>A WDO under Florida law.</b> Look where wood stays wet: fascia, sills, door frames, bathrooms. Report rot that damages wood, not surface mold or mildew on sound wood.'}
+  ];
+  var wgF=$('#wgF'), wgSeen=store.get('wg')||{};
+  function wgCount(){var n=Object.keys(wgSeen).length;$('#wgN').textContent=n===6?'All 6 flipped':n+' of 6 flipped'}
+  WG.forEach(function(v,i){var b=mk('button',null,'<span class="in"><span class="face front"><h3>'+v.t+'</h3><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">What does the inspector look for?</span></span><span class="face back"><span>'+v.b+'</span></span></span>');
+    b.type='button';b.id='wg'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');wgSeen[i]=1;store.set('wg',wgSeen);wgCount()});wgF.appendChild(b)});
+  wgCount();
+
+  /* ---------- who may inspect ---------- */
+  sortWidget($('#whoS'),[
+    {q:'GHP technician with a standard FDACS ID card',a:'N',w:'A standard ID card does not cover WDO inspections. Note what you see and escalate to the branch manager.'},
+    {q:'Employee with the special WDO ID card, working under the WDO certified operator in charge',a:'Y',w:'Yes. This is exactly who the law allows (s. 482.091(9)).'},
+    {q:'Certified operator in the termite and WDO category',a:'Y',w:'Yes. A WDO-category certified operator needs no affidavit or special card.'},
+    {q:'Certified Sentricon Specialist with no WDO ID card',a:'N',w:'Corteva\'s designation is not a state WDO credential.'},
+    {q:'New hire who passed TERM-06; WDO card application pending',a:'N',w:'Not until FDACS issues the card. Training is not the credential.'}
+  ],[{v:'Y',t:'Yes'},{v:'N',t:'No'}],$('#whoCheck'),$('#whoFb'),'who','All five correct. The card, under a WDO certified operator, or the certification itself. Nothing else.');
+
+  /* ---------- which report ---------- */
+  var RO=['FDACS-13645 real estate WDO report','Signed contract inspection report (Clements format)','No WDO report: note it and escalate the same day'];
+  scenTabs($('#rTabs'),$('#rBox'),[
+    {n:'Buyer\'s agent',s:'A buyer\'s agent calls to order a termite inspection for a closing in two weeks. A fee will be charged and the lender wants it in writing.',o:RO,a:0,e:'A real estate transaction with a fee or a written report requested means FDACS-13645, covering all WDOs (s. 482.226(1)).'},
+    {n:'Sentricon annual',s:'An existing Sentricon customer\'s annual inspection is due. The certified technician inspects the structure and the stations.',o:RO,a:1,e:'An inspection required by a termite contract needs a signed report: covered WDO present or absent, whether treatment was made, and the pesticide name. The format is the company\'s (s. 482.226(3)).'},
+    {n:'GHP visit',s:'On a quarterly pest service, you notice mud tubes on the slab edge behind a shrub. The customer has no termite contract.',o:RO,a:2,e:'A pest visit is not a WDO inspection. Photograph it, leave it intact, note what you observed and tell your branch manager the same day. Don\'t diagnose or promise treatment.'},
+    {n:'Listing agent',s:'A seller\'s listing agent wants a written WDO report before the house goes on the market, and will pay for it.',o:RO,a:0,e:'Still a real estate transaction, with a fee and a written report. FDACS-13645 applies whether a buyer or a seller orders it.'},
+    {n:'Drywood renewal',s:'A drywood Whole-Home customer renews; the renewal includes a reinspection of the covered structure.',o:RO,a:1,e:'A contract reinspection: signed report on the covered WDO, any treatment and the pesticide used, kept at least 3 years.'}
+  ],'rp','Ask: is it a real estate deal, a contract duty, or a pest visit?');
+
+  /* ---------- five zones ---------- */
+  var ZN=[
+    {n:'Exterior',s:'Foundation, slab edge, wood near soil',i:'i-sun',l:['Slab edge, foundation and stucco near grade: shelter tubes','Wood-to-soil contact: door frames, fences or decks touching the house','Fascia, soffits and trim: rot, pellets, exit holes','Grade, mulch or pavers covering the slab edge: list it as obstructed'],t:'List each detached structure you inspect on Section 1. Anything not inspected is not covered.'},
+    {n:'Garage',s:'Slab joints, walls, stored items',i:'i-truck',l:['Slab-to-wall joint, expansion joints and corners: tubes','Door jambs and the bottom of wood door frames','Behind the water heater and along plumbing','Stored items against walls: list them as obstructions'],t:'The garage often holds the attic access. Check for older WDO and treatment notices too.'},
+    {n:'Living areas',s:'Baseboards, sills, frames, cabinets',i:'i-home',l:['Window sills and door frames: blistered paint, pellets','Baseboards: sound for hollow wood where you see signs','Kitchen and bath: plumbing walls, cabinet bases, moisture','Wood floors and trim: beetle exit holes and frass'],t:'Furniture, rugs and stored items are obstructions. Never move heavy furniture or lift flooring to look.'},
+    {n:'Attic',s:'Rafters, trusses, sheathing, top plates',i:'i-layers',l:['Rafters, trusses and roof sheathing: pellets, galleries, exit holes','Top plates, and around the hatch and roof penetrations','Stains from roof leaks: decay fungi','Insulation covering joists: obstruction, with the area'],t:'Ladders follow FC-06. Walk on framing only, watch for wiring and nails, and limit time in summer heat.'},
+    {n:'Crawl area',s:'Piers, sill plates, joists, soil',i:'i-search',l:['Piers, sill plates and floor joists: tubes, rot, damage','Wood debris and form boards left in the soil','Moisture, standing water, plumbing leaks','Too little clearance to enter safely: inaccessible'],t:'Most Clements homes are on slab. Where there is a crawl area, record what you could and could not reach.'}
+  ];
+  var zList=$('#zList'), zSeen=store.get('zn')||{};
+  ZN.forEach(function(z,i){var b=mk('button',zSeen[i]?'seen':null,(i+1)+' · '+z.n);b.type='button';b.id='zn'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showZ(i)});zList.appendChild(b)});
+  $$('#zSvg .zone').forEach(function(g){g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',ZN[+g.dataset.z].n);keyAct(g,function(){showZ(+g.dataset.z)})});
+  function showZ(i){zSeen[i]=1;store.set('zn',zSeen);var z=ZN[i];
+    $$('#zList button').forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!zSeen[j])});
+    $$('#zSvg .zone').forEach(function(g){g.classList.toggle('sel',+g.dataset.z===i)});
+    var n=Object.keys(zSeen).length;
+    $('#zD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(z.i)+'</div><div><h3>'+(i+1)+' · '+z.n+'</h3><span class="small muted">'+z.s+'</span></div></div><ul class="dl">'+z.l.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><p class="small muted">'+z.t+'</p><p class="small" style="color:var(--brand-700)">'+(n===5?'All five zones viewed.':n+' of 5 zones viewed')+'</p>'}
+  showZ(0);
+
+  /* ---------- inspect or list ---------- */
+  sortWidget($('#aSort'),[
+    {q:'Attic rafters and sheathing, reachable from the hatch',a:'I',w:'Accessible by normal means: inspect it.'},
+    {q:'Attic floor under 10 in. of blown-in insulation',a:'O',w:'Concealed by insulation: list the area and the reason.'},
+    {q:'Attic over the garage with no access opening',a:'N',w:'No normal access: list it as inaccessible.'},
+    {q:'Kitchen and bath cabinet bases, cleared',a:'I',w:'Accessible: inspect it.'},
+    {q:'Garage walls lined with stacked boxes',a:'O',w:'Stored articles block the view: list the walls and the reason.'},
+    {q:'Wall voids behind finished drywall',a:'N',w:'Enclosed; seeing them would mean opening the wall. Inaccessible.'},
+    {q:'Slab edge on the east side under pavers',a:'O',w:'Concealed by hardscape: list the area and the reason.'},
+    {q:'Window sills and door frames in every room',a:'I',w:'Accessible: inspect, and probe where you see signs.'},
+    {q:'Wall-to-wall carpet over the slab',a:'O',w:'Concealed by floor covering: note the area. Never lift flooring.'},
+    {q:'Locked bedroom the seller won\'t open',a:'O',w:'A visible, accessible area not inspected: list it with the reason (locked, no access given).'}
+  ],[{v:'I',t:'Inspect'},{v:'O',t:'Obstructed'},{v:'N',t:'Inaccessible'}],$('#aCheck'),$('#aFb'),'acc','All ten correct. Everything you could not see goes in Section 3 with the specific area and a reason.');
+
+  /* ---------- classify ---------- */
+  sortWidget($('#cSort'),[
+    {q:'Workers moving inside a tube you just broke open',a:'L',w:'Living termites at inspection: Live (B1).'},
+    {q:'Empty shelter tubes on the slab edge',a:'E',w:'Sign of presence: Evidence (B2), even with no live termites.'},
+    {q:'Six-sided pellets piled below window trim',a:'E',w:'Frass is Evidence (B2). Look for damage and live termites above it.'},
+    {q:'Shed wings and dead swarmers on a sill',a:'E',w:'Dead WDOs and parts are Evidence (B2).'},
+    {q:'Sill that gives under the probe, galleries inside',a:'D',w:'Visible harm to wood: Damage (B3).'},
+    {q:'Cubical brown rot in a fascia board',a:'D',w:'Wood-decaying fungi are WDOs. Rot in wood is Damage (B3).'},
+    {q:'Patched drill holes along the patio slab',a:'P',w:'Visible evidence of previous treatment (Section 4).'},
+    {q:'An old WDO treatment notice in the garage',a:'P',w:'Previous treatment (Section 4). Leave it: only the owner may remove it.'},
+    {q:'Black mildew on a sound bathroom ceiling',a:'X',w:'Surface mold on sound wood or drywall is not a WDO. It is not reported as a WDO finding.'},
+    {q:'Tiny round holes and fine powder in an oak floor',a:'E',w:'Exit holes and frass (likely powderpost beetles): Evidence (B2). Damage too if the wood is visibly harmed.'}
+  ],[{v:'L',t:'Live'},{v:'E',t:'Evidence'},{v:'D',t:'Damage'},{v:'P',t:'Prev. treatment'},{v:'X',t:'Not a WDO'}],$('#cCheck'),$('#cFb'),'cls','All ten correct. Live, evidence, damage and previous treatment each have their own place on the form.');
+
+  /* ---------- what goes on the report ---------- */
+  scenTabs($('#gTabs'),$('#gBox'),[
+    {n:'"Leave it off"',s:'You record drywood damage in a closet door frame. The seller\'s agent asks you to leave it off: "It\'s old, they treated years ago."',o:['Leave it off if the agent puts the request in writing','Record the damage as observed, and record any visible evidence of previous treatment in Section 4','Write "old inactive damage" so everyone is happy','Leave it off but mention it to the buyer verbally'],a:1,e:'You report what you see. Damage is recorded with common name, description and location; a past treatment goes in Section 4 if there is visible evidence of it. No one can change an observation.'},
+    {n:'"Termite-free"',s:'You find no visible signs of any WDO. The buyer\'s agent asks you to write "termite-free" in the comments so the lender is satisfied.',o:['Write it, since you found nothing','Write "termite-free in all areas" plus a disclaimer','Check Section 2 A, no visible signs observed, and add nothing else','Refuse to complete the report'],a:2,e:'The report is not a guarantee, and the rule bars added disclaimers or language. Section 2 A says exactly what is true: no visible signs observed in the areas inspected.'},
+    {n:'Mold',s:'A bathroom ceiling has black surface mold on sound drywall. The wood framing you can see is sound.',o:['Report it as wood-decaying fungi damage','Not a WDO finding; report wood-decaying fungi only where wood is damaged','Check "live WDOs"','Comment that the home has a mold problem and health risk'],a:1,e:'Surface molds that don\'t damage sound wood are not WDOs, and the form gives no opinion on health or air quality. Recommend the customer address moisture, but keep it off as a WDO finding.'},
+    {n:'"Just spray it"',s:'You find live drywood termites in a window sill. The seller asks you to "just spot treat it today" so the report looks better.',o:['Treat it now and leave it off the report','Treat it and check "no visible signs"','Report the finding as observed. Don\'t treat on the spot; route treatment to the branch manager','Treat it, then report it as previous treatment'],a:2,e:'Treatment needs its own contract and consumer paperwork, and any treatment at inspection must be reported in Section 4. Record what you found and hand the treatment request to your branch manager.'},
+    {n:'Seller disclosure',s:'At intake, the seller disclosed an active infestation that was treated last month. On site you see patched drill holes but no other signs.',o:['Section 4: yes, previous treatment, patched drill holes, location; Section 2 as observed','Record the infestation as live because it was disclosed','Write that the treatment was effective','Skip Section 4; the treating company handles that'],a:0,e:'Report what is visible: the patched holes are previous-treatment evidence. You give no assurance about another company\'s work; the reader contacts them for history and any warranty.'}
+  ],'gp','Report only what you observed, in the section built for it.');
+
+  /* ---------- form walkthrough ---------- */
+  var FS=[
+    {n:'Section 1',t:'General information',l:['Company name, business license number, address and phone','Date of inspection','Inspector\'s name and ID card number','Address of the property and the structure(s) inspected','Who requested the inspection, and who the report is sent to'],w:'Statute items: licensee name, date, address (s. 482.226(2)(a)1–3). List every structure you inspected; anything not listed is not covered.'},
+    {n:'Section 2',t:'Inspection findings',l:['A: no visible signs of WDO(s) observed','B: visible evidence observed','B1 Live WDOs: common name, location','B2 Evidence: common name, description, location','B3 Damage: common name, description, location'],w:'Statute item: identity of any WDOs present and visible damage (s. 482.226(2)(a)7). The consumer notice in this section explains the report\'s limits.'},
+    {n:'Section 3',t:'Obstructions and inaccessible areas',l:['Attic','Interior','Exterior','Crawlspace','Other','Each with specific areas and the reason'],w:'Statute items: visible accessible areas not inspected and why, and inaccessible areas (s. 482.226(2)(a)4–5). The report gives no information about these areas.'},
+    {n:'Section 4',t:'Notice of inspection and treatment',l:['Evidence of previous treatment: yes or no, and what was seen','Where the notice of inspection is affixed','Treated at time of inspection: yes or no','If yes: organism, pesticide, terms and conditions, whole structure or spot, treatment notice location'],w:'Statute items: previous treatment (s. 482.226(2)(a)6), notice location (2)(a)8, and treatment details if any treatment was made (2)(b).'},
+    {n:'Section 5',t:'Comments and financial disclosure',l:['Comments, with extra pages if needed','Statement of no financial interest in the property or the transaction','Signature of the licensee or agent and date','Property address and inspection date repeated'],w:'Statute item: financial disclosure (s. 482.226(2)(d)). Comments clarify findings; they never add disclaimers.'}
+  ];
+  var fwSeen=store.get('fw')||{};
+  $('#fwForm').innerHTML='<div class="mhead"><span>Wood-Destroying Organisms Inspection Report</span><small>FDACS-13645 · mock for training</small></div>'+FS.map(function(s,i){return '<button type="button" class="msec'+(fwSeen[i]?' seen':'')+'" id="fw'+i+'" aria-pressed="false"><b>'+s.n+'</b><span>'+s.t+'</span></button>'}).join('');
+  function showFW(i){fwSeen[i]=1;store.set('fw',fwSeen);var s=FS[i];
+    $$('#fwForm .msec').forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!fwSeen[j])});
+    $('#fwD').innerHTML='<span class="eyebrow">'+s.n+'</span><h3>'+s.t+'</h3><ul class="dl">'+s.l.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><div class="callout" style="padding:10px 14px;font-size:14px">'+ico('i-scale')+'<span>'+s.w+'</span></div><p class="small muted">'+Object.keys(fwSeen).length+' of 5 sections viewed</p>'}
+  $$('#fwForm .msec').forEach(function(b,i){b.addEventListener('click',function(){showFW(i)})});
+  showFW(0);
+
+  /* ---------- fill in the report ---------- */
+  var FI=[
+    {sec:'Section 2',f:'Findings',q:'Which box do you check in Section 2?',o:['A · No visible signs of WDO(s) observed','B · Visible evidence of WDO(s) observed','Leave both blank until the termite team confirms'],a:1,w:['The notes record tubes, pellets, damage and live termites.','','Findings are reported at inspection. Nothing waits.']},
+    {sec:'Section 2 · B1',f:'Live WDO(s)',q:'What goes on the Live WDO(s) line?',o:['Subterranean termites, garage','Drywood termites · living room front window sill','None observed'],a:1,w:['No live subterranean termites were seen; the tubes were empty.','','Live drywood termites were seen in the sill galleries.']},
+    {sec:'Section 2 · B2',f:'Evidence of WDO(s)',q:'What goes on the Evidence line?',o:['Termites, garage','Possible old activity, not a concern','Subterranean termites · shelter tubes · garage NE corner, slab-to-wall joint'],a:2,w:['Too vague: give common name, description and specific location.','Never judge age or significance. Record what is there.','']},
+    {sec:'Section 2 · B3',f:'Damage caused by WDO(s)',q:'What goes on the Damage line?',o:['Drywood termites · galleries · living room front window sill','Extensive structural damage to the front wall','Leave blank; live termites already reported'],a:0,w:['','You saw one sill. The report is not a structural assessment.','Damage is its own finding, even at the same spot.']},
+    {sec:'Section 3',f:'Attic',q:'What goes on the Attic line in Section 3?',o:['Nothing; the attic was entered','Attic: all but area at hatch · blown-in insulation over joists','Attic: not inspected · too hot'],a:1,w:['Most of the attic floor could not be seen. That must be listed.','','The attic was entered. Give the specific area and the real reason.']},
+    {sec:'Section 4',f:'Evidence of previous treatment',q:'Evidence of previous treatment?',o:['No','Yes · treated in the past by another company, warranty unknown','Yes · patched drill holes, rear patio slab'],a:2,w:['Patched drill holes are visible evidence of previous treatment.','Report only what is visible. History and warranties come from the treating company.','']},
+    {sec:'Section 4',f:'Notice of inspection location',q:'Where is the notice of inspection affixed?',o:['Garage wall, adjacent to attic access','Not posted; owner not home','Given to the buyer\'s agent'],a:0,w:['','The notice is posted at every real estate WDO inspection.','The notice is affixed to the property, not handed out.']},
+    {sec:'Section 4',f:'Treated at time of inspection',q:'Did the company treat at the time of inspection?',o:['Yes · spot treated the sill','No','Yes · whole structure'],a:1,w:['The notes say no treatment was done.','','The notes say no treatment was done.']}
+  ];
+  var fiAt=0,fiWrong=null;
+  function fiRender(){
+    var val=function(k){return k<fiAt?'<span class="mv ok">'+FI[k].o[FI[k].a].replace(/^[AB] · /,'')+'</span>':'<span class="mv blank">'+(k===fiAt?'answer at left':'&nbsp;')+'</span>'};
+    var box=function(k,lbl){return '<div class="mf'+(k===fiAt?' cur':'')+'"><span class="ml">'+lbl+'</span>'+val(k)+'</div>'};
+    $('#fiForm').innerHTML='<div class="mhead"><span>Wood-Destroying Organisms Inspection Report</span><small>FDACS-13645 · mock for training</small></div>'+
+      '<div class="ms"><b>Section 1 · General information</b><div class="mf done"><span class="ml">Structure · requested by</span><span class="mv ok">Dwelling with attached garage · buyer\'s agent</span></div></div>'+
+      '<div class="ms"><b>Section 2 · Inspection findings</b>'+box(0,'A or B')+box(1,'B1 · Live WDO(s)')+box(2,'B2 · Evidence')+box(3,'B3 · Damage')+'</div>'+
+      '<div class="ms"><b>Section 3 · Obstructions and inaccessible areas</b>'+box(4,'Attic · area · reason')+'</div>'+
+      '<div class="ms"><b>Section 4 · Notice and treatment</b>'+box(5,'Previous treatment')+box(6,'Notice affixed at')+box(7,'Treated at inspection')+'</div>';
+    if(fiAt>=FI.length){$('#fiQ').innerHTML='<span class="eyebrow">Report complete</span><div class="fb">Every finding is in its own section, every limit is listed, and the notice location is stated. Section 5 is signed with the financial disclosure, and the report goes to the requester and the parties in Section 1.</div>';return}
+    var f=FI[fiAt];
+    $('#fiQ').innerHTML='<span class="eyebrow">Field '+(fiAt+1)+' of '+FI.length+' · '+f.sec+'</span><h3 style="font-size:18px">'+f.q+'</h3><div class="fopts">'+f.o.map(function(o,k){return '<button type="button" class="wopt'+(fiWrong===k?' wrong':'')+'" id="fi'+fiAt+'_'+k+'" data-k="'+k+'">'+o+'</button>'}).join('')+'</div><div class="wwhy">'+(fiWrong!==null?f.w[fiWrong]:'')+'</div>';
+    $$('#fiQ .wopt').forEach(function(b){b.addEventListener('click',function(){var k=+b.dataset.k;if(k===f.a){fiAt++;fiWrong=null}else fiWrong=k;fiRender()})});
+  }
+  $('#fiReset').addEventListener('click',function(){fiAt=0;fiWrong=null;fiRender()});
+  fiRender();
+
+  /* ---------- notice location ---------- */
+  var NC=[
+    {t:'On the garage wall immediately next to the attic access',ok:1,e:'Right. Immediately adjacent to the attic access, where any future inspector will look. The report states this exact location.'},
+    {t:'On the inside of the front door',ok:0,e:'Not where the law points. The notice goes next to the attic or crawl access, or another readily accessible area if there is none.'},
+    {t:'Handed to the seller to keep with closing papers',ok:0,e:'The notice is affixed to the property. A handed-over notice is not a posted notice.'},
+    {t:'Inside the electrical panel cover',ok:0,e:'Not adjacent to the attic access, and not a place the next inspector expects to look.'}
+  ];
+  $('#nC').innerHTML=NC.map(function(c,i){return '<button type="button" class="choice" id="nc'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+c.t+'</span></button>'}).join('');
+  $$('#nC .choice').forEach(function(b){b.addEventListener('click',function(){var c=NC[+b.dataset.i];
+    $$('#nC .choice').forEach(function(x){x.classList.remove('wrong')});
+    if(c.ok){b.classList.add('right');$$('#nC .choice').forEach(function(x){x.disabled=true});$('#nFb').innerHTML='<div class="fb">'+c.e+'</div>'}
+    else{b.classList.add('wrong');$('#nFb').innerHTML='<div class="fb no">'+c.e+'</div>'}})});
+
+  /* ---------- order the job ---------- */
+  var ORD=['Intake: requester role, address, closing date, who pays, who gets the report, known treatments or disclosures','Schedule a WDO cardholder or certified operator from the inspecting branch','Arrive, start the order and confirm the structures to be inspected','Exterior: foundation, slab edge, wood near soil, fascia and trim','Garage and living areas: frames, sills, baseboards, plumbing walls','Attic and any crawl area, safely','Post the notice of inspection next to the attic or crawl access','Complete FDACS-13645: findings, obstructions, previous treatment, notice location, signature','Deliver the report to the requester and named parties; retain a copy 3 years'];
+  var ORDMSG=['Real estate deals are deadline-driven; capture it all up front.','The credential decides who goes, not the schedule.','The structures list sets the report\'s scope.','Outside first: tubes and wood-to-soil contact start here.','Probe only where you see signs.','Note every obstructed area as you go.','Every real estate WDO inspection gets a posted notice.','Nothing added, nothing left blank that the law requires.','Delivered on time, and kept at least 3 years.'];
+  var ordBox=$('#ord'), ordMix=[4,0,7,2,8,5,1,6,3], ordAt=0;
+  function ordRender(){ordBox.innerHTML='';ordAt=0;
+    ordMix.forEach(function(k){var b=mk('button',null,'<span class="num">&middot;</span><span>'+ORD[k]+'</span>');b.type='button';b.id='ord'+k;b.dataset.k=k;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.k===ordAt){b.classList.add('placed');$('.num',b).textContent=ordAt+1;ordAt++;
+          $('#ordN').textContent=ordAt===9?'Job complete':ordAt+' of 9 placed';
+          $('#ordFb p').textContent=ordAt===9?'Intake, credential, scope, exterior, interior, attic, notice, form, delivery and retention. The same order on every real estate WDO inspection.':ORDMSG[ordAt-1];
+          if(ordAt===9)$('#ordFb').classList.add('done')}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}});
+      ordBox.appendChild(b)});
+    $('#ordN').textContent='0 of 9 placed';$('#ordFb p').textContent='It starts before anyone drives to the house.';$('#ordFb').classList.remove('done')}
+  $('#ordReset').addEventListener('click',ordRender);ordRender();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

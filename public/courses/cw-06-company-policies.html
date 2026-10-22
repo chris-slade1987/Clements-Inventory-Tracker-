@@ -1,0 +1,1179 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CW-06 Company Policies</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* CW-06: reporting path, flip x4, discipline ladder, decision deck, stat tiles */
+.rpath{display:grid;grid-template-columns:1fr 46px 1.2fr 46px 1fr 30px 1fr;align-items:center;gap:0}
+.rdoors{display:grid;gap:8px}
+.rnode{display:grid;justify-items:center;gap:2px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;font-weight:300;box-shadow:var(--shadow-card);transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.rnode .ico{color:var(--brand-600)}
+.rnode b{font-size:15px}
+.rnode small{font-size:12px;color:var(--muted)}
+.rnode.start,.rnode.end{background:var(--brand-50);border-color:var(--brand-300)}
+.rnode[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50);box-shadow:0 0 0 2px var(--brand-200)}
+.rlink{width:100%;height:150px}
+.rlink path{fill:none;stroke:var(--brand-300);stroke-width:1.6;stroke-dasharray:5 6;vector-effect:non-scaling-stroke}
+.slide.on .rlink path{animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-44}}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end}
+.ladder .rung{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-card);display:grid;gap:4px;align-content:start;transform-origin:bottom}
+.ladder .rung:nth-child(1){min-height:120px}.ladder .rung:nth-child(2){min-height:145px}.ladder .rung:nth-child(3){min-height:170px}.ladder .rung:nth-child(4){min-height:195px}
+.ladder .rung .n{width:30px;height:30px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:13px}
+.ladder .rung.red{border-color:var(--danger)}
+.ladder .rung.red .n{border-color:var(--danger);color:var(--danger)}
+.ladder .rung h3{font-size:16px}
+.ladder .rung p{font-size:14px;color:var(--muted)}
+.slide.on .ladder .rung{animation:grow .22s ease-in-out both}
+.slide.on .ladder .rung:nth-child(2){animation-delay:.15s}.slide.on .ladder .rung:nth-child(3){animation-delay:.3s}.slide.on .ladder .rung:nth-child(4){animation-delay:.45s}
+@keyframes grow{from{opacity:0;transform:scaleY(.85)}to{opacity:1;transform:none}}
+.deck{display:grid;gap:12px}
+.deck .scn{font-size:19px;max-width:none}
+.deck .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.deck .acts .choice{justify-content:center}
+.dk-dots{display:flex;gap:5px;flex-wrap:wrap}
+.dk-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dk-dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dk-dots i.ok{background:var(--positive)}.dk-dots i.no{background:var(--danger)}
+.stat{background:var(--brand-50);border-radius:10px;padding:10px 6px;display:grid;gap:2px}
+.stat b{font-size:30px;font-weight:300;color:var(--brand-700);line-height:1}
+.stat small{font-size:12px;color:var(--muted);line-height:1.3}
+#lawTbl td.n{color:var(--danger);font-weight:500}
+#lawTbl td.dim{opacity:.35}
+#lawTbl td{transition:opacity .18s ease-in-out}
+#hflip button{min-height:250px}
+@media (max-width:860px){
+  .rpath{grid-template-columns:1fr;gap:10px}
+  .rlink{display:none}
+  .ladder{grid-template-columns:1fr 1fr}
+  .ladder .rung{min-height:0!important}
+  .deck .acts{grid-template-columns:1fr}
+  #hflip{grid-template-columns:1fr 1fr!important}
+}
+#toRole button[aria-pressed="true"]::after{content:"Selected"}
+#lawTbl th,#lawTbl td{padding:7px 12px}
+.slide .tablewrap{flex-shrink:0}
+#lawNote{max-width:none}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">CW-06 · Company Policies</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M3.5 10.5l6 1M20.5 10.5l-6 1M12 14.5V21"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Clements Way · CW-06</span>
+        <h1 class="display a" style="--i:1">Company Policies</h1>
+        <p class="lead a" style="--i:2">The rules every Clements employee works by: respect and how to report a problem, attendance and time off, drugs and alcohol, company property and information, and safe, phone-free driving.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 200" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M30 28a8 8 0 0 1 8-8h104a8 8 0 0 1 8 8v70"/><path d="M150 98v64a8 8 0 0 1-8 8H38a8 8 0 0 1-8-8V28"/>
+          <path d="M52 52h76M52 72h76M52 92h56M52 112h66M52 132h40"/>
+          <path d="M240 34l52 18v40c0 34-22 58-52 68"/><path d="M240 34l-52 18v40c0 34 22 58 52 68"/>
+          <path d="M216 96l16 16l32-34"/>
+          <path d="M10 186h150"/><path d="M160 186h150"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-scale"/></svg><span>Recognize discrimination, harassment and retaliation, and report them through any of the three open doors</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span>Call out correctly and request time off on the right timeline for your role</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-ban"/></svg><span>Explain our drug and alcohol, smoking, weapons and safety-reporting rules</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-lock"/></svg><span>Protect company property, devices and customer information, on the job and online</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-wheel"/></svg><span>Follow Florida law and our stricter phone-free driving rule, and handle a vehicle accident</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-door"/></svg><span>Use the open door and grievance process, and know how progressive discipline works</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">Policies protect <span class="em">people first.</span></h2>
+        <p class="quote a" style="--i:2">"Compliance with this code is the responsibility of every employee of Clements, both with regard to your own conduct, as well as with respect to reporting any possible violations."<cite>CLEMENTS EMPLOYEE POLICY HANDBOOK 2025 · PERSONAL RESPONSIBILITIES</cite></p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wheel"/></svg></div><div><h3>Lives are on the road</h3><p>Crashes involving distracted drivers killed 3,208 people on U.S. roads in 2024 (NHTSA). Many of us drive a marked Clements truck all day. One glance at a phone can end a life and a career.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-scale"/></svg></div><div><h3>The law backs these rules</h3><p>Federal and Florida law prohibit discrimination, harassment and retaliation, and Florida traffic law covers phone use behind the wheel. Breaking them carries legal consequences for you and the company.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Customers let us into their homes</h3><p>They trust us with their property, their schedules and their information. A photo posted online or a careless comment can lose that trust for good.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: respect at work">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Respect at work, and how to speak up</h1>
+        <p class="lead a" style="--i:2">Everyone deserves to do their job without being judged, targeted or punished for who they are. When something is wrong, you need to know exactly where to go.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Equal opportunity</li><li><span>02</span>What harassment looks like</li><li><span>03</span>The reporting path</li><li><span>04</span>Open door and grievances</li><li><span>05</span>Practice: does it violate policy?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 EEO -->
+  <section class="slide" data-label="Equal opportunity">
+    <span class="eyebrow a">01 · Equal employment opportunity</span>
+    <h2 class="a" style="--i:1">Decisions are made on ability, never on who you are</h2>
+    <p class="a muted" style="--i:2">Hiring, pay, benefits, discipline, promotion, termination and every other term of employment are decided without regard to:</p>
+    <div class="pick a" style="--i:3" aria-label="Protected characteristics">
+      <span class="chip">Race</span><span class="chip">Color</span><span class="chip">Creed and religion</span><span class="chip">Sex, including pregnancy</span><span class="chip">Sexual orientation</span><span class="chip">National origin</span><span class="chip">Age</span><span class="chip">Disability</span><span class="chip">Genetic information</span><span class="chip">Veteran status</span><span class="chip">Marital status</span><span class="chip">Citizenship</span><span class="chip">Any other status protected by law</span>
+    </div>
+    <div class="grid g2">
+      <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-hand"/></svg></div><div><h3>Need an accommodation?</h3><p>If a disability, or pregnancy or a related condition, affects how you do your job, talk to HR. We make reasonable accommodations so qualified people can perform the essential functions of the job.</p></div></div></div>
+      <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-user"/></svg></div><div><h3>Who owns this policy</h3><p>Human Resources: <b>April Williford</b>, Director of HR &amp; Administrative Affairs. Questions or concerns about fair treatment go to her.</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- 6 HARASSMENT -->
+  <section class="slide" data-label="What harassment looks like">
+    <span class="eyebrow a">02 · What harassment looks like</span>
+    <h2 class="a" style="--i:1">Verbal, physical or visual, in person or on a screen</h2>
+    <p class="a muted" style="--i:2">Select each card. Harassment is prohibited whether it comes from a coworker, a supervisor, a vendor or a customer, at work or at any work-related event.</p>
+    <div class="flip a" style="--i:3;grid-template-columns:repeat(4,1fr)" id="hflip"></div>
+  </section>
+
+  <!-- 7 REPORTING PATH -->
+  <section class="slide" data-label="The reporting path">
+    <span class="eyebrow a">03 · The reporting path</span>
+    <h2 class="a" style="--i:1">Three open doors. Pick whichever feels right.</h2>
+    <div class="rpath a" style="--i:3" id="rpath">
+      <button type="button" class="rnode start" id="rn0" data-n="0"><svg class="ico"><use href="#i-user"/></svg><b>You</b><small>or a witness</small></button>
+      <svg class="rlink fan" viewBox="0 0 60 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 90C30 90 30 30 60 30"/><path d="M0 90H60"/><path d="M0 90C30 90 30 150 60 150"/></svg>
+      <div class="rdoors">
+        <button type="button" class="rnode" id="rn1" data-n="1"><svg class="ico"><use href="#i-users"/></svg><b>Your supervisor</b><small>Immediate supervisor</small></button>
+        <button type="button" class="rnode" id="rn2" data-n="2"><svg class="ico"><use href="#i-shield"/></svg><b>Human Resources</b><small>April Williford</small></button>
+        <button type="button" class="rnode" id="rn3" data-n="3"><svg class="ico"><use href="#i-building"/></svg><b>COO</b><small>Chris Slade</small></button>
+      </div>
+      <svg class="rlink fan" viewBox="0 0 60 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30C30 30 30 90 60 90"/><path d="M0 90H60"/><path d="M0 150C30 150 30 90 60 90"/></svg>
+      <button type="button" class="rnode" id="rn4" data-n="4"><svg class="ico"><use href="#i-search"/></svg><b>Investigation</b><small>Prompt and discreet</small></button>
+      <svg class="rlink" viewBox="0 0 40 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 90H40"/></svg>
+      <button type="button" class="rnode end" id="rn5" data-n="5"><svg class="ico"><use href="#i-check"/></svg><b>Action taken</b><small>No retaliation</small></button>
+    </div>
+    <div class="callout a" style="--i:4" id="rdetail"><svg class="ico"><use href="#i-arrow"/></svg><span><b>You do not have to go to your supervisor first.</b> Report early. Select each step to see what happens.</span></div>
+  </section>
+
+  <!-- 8 OPEN DOOR -->
+  <section class="slide" data-label="Open door and grievances">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">04 · Open door and grievances</span>
+        <h2 class="a" style="--i:1">For every other concern, large or small</h2>
+        <p class="a muted" style="--i:2">Pay questions, scheduling, a policy you think isn't working, a conflict with a coworker: Clements wants to hear it. Nobody is penalized for expressing a point of view.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span><b>You may always discuss your own wages, benefits and working conditions</b> with coworkers. Our handbook protects that right under the National Labor Relations Act.</span></div>
+      </div>
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li><span class="num">1</span><span><b>Talk with your immediate supervisor.</b> Most problems are solved here.</span></li>
+        <li><span class="num">2</span><span><b>Or any manager or director</b> you feel comfortable with.</span></li>
+        <li><span class="num">3</span><span><b>Not resolved in a reasonable time?</b> Put it in writing to HR.</span></li>
+        <li><span class="num">4</span><span>HR reviews the facts and usually answers <b>within five working days</b>. HR's decision is final.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 9 PRACTICE SORT -->
+  <section class="slide" data-label="Practice: does it violate policy">
+    <span class="eyebrow a">05 · Practice</span>
+    <h2 class="a" style="--i:1">Does it violate the anti-harassment policy?</h2>
+    <div class="sort a" style="--i:2" id="hsort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="hsCheck">Check my answers</button><span id="hsFb"></span></div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: showing up">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Showing up ready to work</h1>
+        <p class="lead a" style="--i:2">Customers count on the same person showing up on schedule, clear-headed and safe. Every unplanned absence lands on a teammate and a customer.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Attendance and calling out</li><li><span>02</span>Practice: plan your time off</li><li><span>03</span>Drugs and alcohol</li><li><span>04</span>Smoking, weapons and safety</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 ATTENDANCE -->
+  <section class="slide" data-label="Attendance and calling out">
+    <span class="eyebrow a">01 · Attendance and calling out</span>
+    <h2 class="a" style="--i:1">If you can't be there, call. Don't text.</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li><span class="num">1</span><span><b>Call your supervisor personally</b>, no later than your scheduled start time. Technicians call their Branch Manager. A text or voicemail is not notice.</span></li>
+        <li><span class="num">2</span><span><b>Out more than two days in a row</b> for illness? Bring a doctor's note to return to work.</span></li>
+        <li><span class="num">3</span><span><b>Technicians:</b> call missed accounts within 24 hours and reschedule them within one week. Can't catch up? Tell your supervisor within two business days of returning.</span></li>
+      </ol></div>
+      <div class="grid" style="gap:12px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Two consecutive days absent without proper notice</b> and you are subject to termination.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clock"/></svg><span><b>Core hours are 8:00 to 5:00.</b> Your supervisor sets your exact schedule. Customer service is in at 8:00 with phones on at 9:00.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-users"/></svg><span><b>Technician meetings are required.</b> Can't attend? Get your supervisor's approval in advance.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span>An occasional late arrival from a genuine emergency isn't penalized. A pattern of tardiness or sick days is tracked and leads to discipline.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 TIME OFF CALC -->
+  <section class="slide" data-label="Practice: plan your time off">
+    <span class="eyebrow a">02 · Practice · plan your time off</span>
+    <h2 class="a" style="--i:1">When is your request due?</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;align-items:start;gap:28px">
+      <div class="grid" style="gap:14px">
+        <div class="a" style="--i:2"><span class="eyebrow">1 · Your role</span><div class="kit" id="toRole" style="margin-top:8px"></div></div>
+        <div class="field a" style="--i:3"><label for="toDate" class="eyebrow">2 · First day off</label><input type="date" id="toDate"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="phone a" style="--i:3" id="toOut"></div>
+        <p class="small muted a" style="--i:4">PTO eligibility, allotments, rollover and payout rules are covered in CW-08 · Payroll, Benefits &amp; Paychex. Every request is subject to manager approval.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 DRUGS -->
+  <section class="slide" data-label="Drugs and alcohol">
+    <span class="eyebrow a">03 · Drugs and alcohol</span>
+    <h2 class="a" style="--i:1">Clements is a drug-free workplace</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="callout danger a" style="--i:2"><svg class="ico"><use href="#i-ban"/></svg><span><b>Never</b> use, possess, sell or be under the influence of alcohol or illegal drugs, or misuse legal drugs, on company premises, in a company vehicle, or while doing company business.</span></div>
+        <div class="card a" style="--i:3"><h3>You must tell management</h3><ul class="steps">
+          <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-drop"/></svg><span>About any prescription that may affect your judgment, driving or behavior, <b>before</b> you work or drive</span></li>
+          <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-alert"/></svg><span>Right away if you are convicted of a drug or alcohol offense</span></li>
+          <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-eye"/></svg><span>If you suspect a coworker or manager is using on the job</span></li></ul></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:4"><h3>When you may be tested</h3><div class="pick" style="margin-top:8px"><span class="chip">Pre-employment</span><span class="chip">Random</span><span class="chip">Reasonable suspicion</span><span class="chip">After any work accident</span></div><p style="margin-top:10px">After an accident or on reasonable suspicion, you may be suspended without pay until results come back. A positive test is misconduct.</p></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span><b>Medical marijuana:</b> a Florida card does not permit use or impairment at work or in a company vehicle. Florida law lets employers keep a drug-free workplace policy.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 SAFETY -->
+  <section class="slide" data-label="Smoking, weapons and safety">
+    <span class="eyebrow a">04 · Smoking, weapons and safety</span>
+    <h2 class="a" style="--i:1">A safe workplace is everyone's job</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wind"/></svg></div><div><h3>Smoking and vaping</h3><p>Not inside or within 50 feet of office entrances, never in a company vehicle, never at a customer's property.</p></div></div></div>
+      <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-ban"/></svg></div><div><h3>Weapons</h3><p>No guns or large knives at work, in offices or in company vehicles. A small pocket knife is fine. Florida law (s. 790.251) allows a lawfully owned firearm kept locked inside your own vehicle in a parking lot; the handbook is being updated to match. Questions go to HR.</p></div></div></div>
+      <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Report it now</h3><p>Any unsafe condition goes to your supervisor right away. Any injury to you, a customer or a visitor goes to management and HR immediately, however small. Work injuries are covered by workers' compensation.</p></div></div></div>
+      <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-search"/></svg></div><div><h3>Searches</h3><p>Desks, lockers, company vehicles, and bags or vehicles on company premises can be searched when property is missing or a violation is suspected. Cooperation is required.</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: property and information">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Company property, information and conduct</h1>
+        <p class="lead a" style="--i:2">The truck, the phone, the customer list and the company name are trusted to you. How you handle them says as much about Clements as the service itself.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Company property</li><li><span>02</span>Phones, email and internet</li><li><span>03</span>Confidentiality and conflicts</li><li><span>04</span>Conduct and discipline</li><li><span>05</span>Practice: allowed, not allowed, ask first</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 PROPERTY -->
+  <section class="slide" data-label="Company property">
+    <div class="split" style="grid-template-columns:1fr 1fr;align-items:start;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Company property</span>
+        <h2 class="a" style="--i:1">Use it for work. Take care of it. Give it back.</h2>
+        <ul class="steps a" style="--i:2">
+          <li style="font-size:15px;padding:9px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-truck"/></svg><span><b>Company vehicles are for assigned work only.</b> No personal use, and no passengers other than Clements employees. Keep it locked, clean and checked.</span></li>
+          <li style="font-size:15px;padding:9px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-clip"/></svg><span><b>Fuel cards</b> are for your company vehicle only, on scheduled workdays.</span></li>
+          <li style="font-size:15px;padding:9px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-box"/></svg><span><b>Equipment and supplies</b> are for business use. Report anything broken right away. Loss or damage from negligence can be charged to you.</span></li>
+        </ul>
+      </div>
+      <div class="card a" style="--i:3">
+        <span class="eyebrow">Practice · leaving the company</span>
+        <h3 style="margin:6px 0 10px">Select everything you must return</h3>
+        <div class="pick" id="retPick"></div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn primary" id="retCheck">Check</button><span id="retFb" class="small"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 DEVICES -->
+  <section class="slide" data-label="Phones, email and internet">
+    <span class="eyebrow a">02 · Phones, email and internet</span>
+    <h2 class="a" style="--i:1">Company systems are company records</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-eye"/></svg><span><b>No expectation of privacy.</b> Company phones, email, voicemail, computers and accounts can be monitored, accessed or collected by management at any time.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-phone"/></svg><span><b>Personal use is fine when it's occasional</b> and doesn't get in the way of work. Keep personal calls brief, ideally on breaks. Phones on silent or vibrate in meetings.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Lost, stolen or damaged company device?</b> Tell your supervisor immediately. Leave company data on it when you leave Clements.</span></div>
+      </div>
+      <div class="card a" style="--i:5"><h3>Writing to customers and vendors</h3>
+        <div class="grid g2" style="gap:10px;margin-top:10px">
+          <div><span class="eyebrow" style="color:var(--positive)">Do</span><ul class="who"><li>Proper grammar and punctuation</li><li>The company signature block</li><li>Write as if it's on letterhead</li></ul></div>
+          <div><span class="eyebrow" style="color:var(--danger)">Don't</span><ul class="who"><li>ALL CAPS, slang or emoji</li><li>Offensive or harassing content</li><li>Open unknown attachments</li></ul></div>
+        </div>
+        <p style="margin-top:12px">Don't download games or unapproved software. Unsure about a link or attachment? Ask before you click.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 CONFIDENTIALITY -->
+  <section class="slide" data-label="Confidentiality and conflicts">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · Confidentiality and conflicts</span>
+        <h2 class="a" style="--i:1">What you see on the job stays on the job</h2>
+        <p class="a muted" style="--i:2">Customer names, addresses, what we do for them and the condition of their homes are confidential. Use them only to do your work.</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-ban"/></svg><span><b>No photos of customers' homes or businesses on social media,</b> and no posting or chatting about what you saw inside. Even with the address cropped out.</span></div>
+        <p class="small muted a" style="--i:4">Being confidential about customers and company business never limits your right to talk about your own pay and working conditions.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>Non-solicitation agreement</h3><p>You signed one at hire. Never take a Clements customer's business for yourself or another company. HR has your copy.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-scale"/></svg></div><div><h3>Second jobs and conflicts</h3><p>Discuss any outside job with management first. No side business that competes with Clements or pulls you from your hours.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-mail"/></svg></div><div><h3>Speaking for Clements</h3><p>Only an authorized officer can sign contracts or commit company money. Posting for the company online needs leadership approval.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 DISCIPLINE -->
+  <section class="slide" data-label="Conduct and discipline">
+    <span class="eyebrow a">04 · Conduct and discipline</span>
+    <h2 class="a" style="--i:1">How progressive discipline works</h2>
+    <div class="ladder a" style="--i:2" id="ladder">
+      <div class="rung"><span class="n">1</span><h3>Verbal correction</h3><p>Your manager talks it through with you. A note goes in your file.</p></div>
+      <div class="rung"><span class="n">2</span><h3>Written correction</h3><p>You sign to show you received it. A copy goes in your file.</p></div>
+      <div class="rung"><span class="n">3</span><h3>One-day unpaid suspension</h3><p>Two write-ups for the same issue, or three for anything, within 12 months.</p></div>
+      <div class="rung red"><span class="n">4</span><h3>Termination</h3><p>A fourth write-up within 12 months.</p></div>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Serious misconduct can skip steps.</b> Management may begin at any step. Employment is at-will.</span></div>
+      <div class="a" style="--i:4"><span class="eyebrow">Examples of misconduct</span><div class="pick" style="margin-top:6px"><span class="chip">Clocking in for someone else</span><span class="chip">No-call absence</span><span class="chip">Working impaired</span><span class="chip">Theft of any size</span><span class="chip">Insubordination</span><span class="chip">Safety violations</span><span class="chip">Weapons</span><span class="chip">Violence</span></div></div>
+    </div>
+  </section>
+
+  <!-- 22 PRACTICE ALA -->
+  <section class="slide" data-label="Practice: allowed or not">
+    <span class="eyebrow a">05 · Practice · policy judgment</span>
+    <div class="qhead a" style="--i:1"><h2>Allowed, not allowed, or ask first?</h2><span class="small muted" id="alaScore"></span></div>
+    <div class="deck a" style="--i:2" id="ala"></div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: on the road">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">On the road</h1>
+        <p class="lead a" style="--i:2">For many of us the most dangerous thing we do all day is drive. Hands-free is not risk-free: your eyes can be on the road while your mind is on the call.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Florida law and our stricter rule</li><li><span>02</span>Practice: the phone rings</li><li><span>03</span>Vehicle rules and your record</li><li><span>04</span>If you have an accident</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 LAW VS POLICY -->
+  <section class="slide" data-label="Florida law and our rule" style="gap:16px">
+    <div class="qhead a"><div><span class="eyebrow">01 · Florida law and our stricter rule</span><h2 style="margin-top:6px">The law sets the floor. We set the standard.</h2></div><div class="seg" id="lawSeg" role="group" aria-label="Compare"><button type="button" id="lawFL" aria-pressed="true">Florida law</button><button type="button" id="lawCL" aria-pressed="false">Clements policy</button></div></div>
+    <div class="tablewrap a" style="--i:2">
+      <table id="lawTbl"><thead><tr><th>While the vehicle is moving</th><th>Florida law</th><th>Clements</th></tr></thead><tbody></tbody></table>
+    </div>
+    <p class="small muted a" style="--i:3" id="lawNote"></p>
+  </section>
+
+  <!-- 26 PHONE RINGS ORDER -->
+  <section class="slide" data-label="Practice: the phone rings">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Practice · the phone rings</span>
+        <h2 class="a" style="--i:1">Your branch manager calls while you're on US-1</h2>
+        <p class="a muted" style="--i:2">Put the steps in the right order. Select them first to last.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-phone"/></svg><span>Before you roll: program the GPS, turn on voicemail, and let regular contacts know you return calls when parked.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="order a" style="--i:3" id="ord"></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn" id="ordReset">Start over</button><span id="ordFb" class="small"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 VEHICLE RULES -->
+  <section class="slide" data-label="Vehicle rules and your record">
+    <span class="eyebrow a">03 · Vehicle rules and your driving record</span>
+    <h2 class="a" style="--i:1">Drive like the company name is on the door. It is.</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card a" style="--i:2"><ul class="steps">
+        <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-check"/></svg><span><b>Everyone buckles up,</b> every trip. Report a broken seat belt immediately.</span></li>
+        <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-cup"/></svg><span><b>Other distractions count too:</b> no eating, drinking or reading while driving.</span></li>
+        <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-pin"/></svg><span><b>Back into parking spaces</b> when possible. Carry your license and the company insurance card.</span></li>
+        <li style="font-size:15px;padding:8px 0"><svg class="ico" style="color:var(--brand-600)"><use href="#i-alert"/></svg><span><b>Move Over:</b> Florida law requires you to move over or slow down for any vehicle stopped with its hazard lights on, not just police and tow trucks.</span></li>
+      </ul></div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><h3>To drive for Clements you must keep</h3><div class="grid g3" style="gap:8px;margin-top:10px;text-align:center">
+          <div class="stat"><b>2</b><small>max standard violations in 3 years</small></div>
+          <div class="stat"><b>0</b><small>accidents with a violation in 3 years</small></div>
+          <div class="stat"><b>0</b><small>major violations, such as DUI, in 5 years</small></div></div>
+          <p style="margin-top:10px">Driving records are checked periodically.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span><b>Tickets in a company vehicle are yours.</b> Turn parking tickets in to HR right away. Speeding, red-light and other moving violations are your responsibility.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 ACCIDENT -->
+  <section class="slide" data-label="If you have an accident" data-alert="1">
+    <span class="eyebrow a">04 · If you have an accident in a company vehicle</span>
+    <h2 class="a" style="--i:1">Stop. Make it safe. Call. Document.</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li style="font-size:15px;padding:8px 0"><span class="num red">1</span><span><b>Stop at once.</b> Anyone hurt? <b class="red">Call 911</b> first.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num">2</span><span><b>Make the scene safe.</b> No injuries and the vehicle can be driven? Florida law (s. 316.061) requires a reasonable effort to move it out of traffic lanes; the handbook is being updated to match. Otherwise leave it until police say to move it.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num">3</span><span><b>Call the police for every accident,</b> however small, and stay until they release you.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num">4</span><span><b>Call your supervisor and HR immediately.</b> You'll get instructions for the post-accident drug screen.</span></li>
+      </ol></div>
+      <div class="card a" style="--i:3"><ol class="steps">
+        <li style="font-size:15px;padding:8px 0"><span class="num">5</span><span><b>Photograph</b> all damage and the scene.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num">6</span><span><b>Collect:</b> other drivers' names, addresses, license and insurance details, and witness names and phone numbers. Fill out the vehicle accident form.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num red">7</span><span><b>Don't discuss fault</b> with anyone except the police.</span></li>
+        <li style="font-size:15px;padding:8px 0"><span class="num">8</span><span><b>Product spilled?</b> Contain it and follow spill procedures.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 WRAP -->
+  <section class="slide" data-label="Who to go to">
+    <span class="eyebrow a">Wrap-up · who to go to</span>
+    <h2 class="a" style="--i:1">Keep this list handy</h2>
+    <div class="tablewrap a" style="--i:2"><table><thead><tr><th>Situation</th><th>Go to</th></tr></thead><tbody>
+      <tr><td>Harassment, discrimination or retaliation</td><td class="y">Your supervisor, April Williford (HR) or Chris Slade (COO). Any one.</td></tr>
+      <tr><td>Calling out sick or running late</td><td>Your supervisor by phone; technicians call their Branch Manager</td></tr>
+      <tr><td>PTO, leave, payroll, benefits, accommodations</td><td>April Williford, Director of HR &amp; Administrative Affairs</td></tr>
+      <tr><td>Injury, unsafe condition, vehicle accident</td><td>Supervisor and HR immediately (911 and police first when needed)</td></tr>
+      <tr><td>Lost or damaged device, vehicle repair</td><td>Your supervisor</td></tr>
+      <tr><td>A concern that isn't resolved</td><td>In writing to HR</td></tr>
+    </tbody></table></div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shirt"/></svg><span><b>Uniforms and dress code</b> are covered next in CW-07 · Appearance &amp; Dress Code.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span><b>Pay, PTO allotments, benefits and Paychex</b> are in CW-08. The full Employee Policy Handbook always governs.</span></div>
+    </div>
+  </section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Onboarding sign-off" data-cp="5">
+    <span class="eyebrow a">Onboarding application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it in your first week</h2>
+    <p class="a muted" style="--i:2">Your supervisor will go through each of these with you before CW-06 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Sign the Employee Handbook acknowledgment and return it to HR</label></li>
+      <li><label><input type="checkbox" id="s2"> Sign the Distracted Driving and Mobile Device policy acknowledgments</label></li>
+      <li><label><input type="checkbox" id="s3"> Name the three people you can report harassment to, and explain you can go to any of them first</label></li>
+      <li><label><input type="checkbox" id="s4"> Save your supervisor's or Branch Manager's number and explain how and when to call out</label></li>
+      <li><label><input type="checkbox" id="s5"> Show your supervisor how you would submit a time-off request for your role</label></li>
+      <li><label><input type="checkbox" id="s6"> Turn on voicemail and a driving do-not-disturb setting on the phone you use for work</label></li>
+      <li><label><input type="checkbox" id="s7"> Review the company property issued to you (vehicle, phone, keys, cards) with your supervisor</label></li>
+      <li><label><input type="checkbox" id="s8"> Drivers: show where the insurance card and vehicle accident form are kept</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('cw06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('cw06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "CW-06", "titleHtml": "Company Policies", "nextHtml": "CW-07 \u00b7 Appearance &amp; Dress Code", "passNote": "Your onboarding sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Onboarding sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Respect at work',q:'A coworker has made repeated comments about your appearance. Your supervisor is his close friend, and you are uncomfortable going to him. What should you do?',o:['Wait and see if it stops on its own','Report it directly to HR (April Williford) or the COO (Chris Slade). You don\'t have to start with your supervisor','Post about it in the team group chat','Confront the coworker in front of customers'],a:1,e:'You can report to your supervisor, HR or the COO, and you never have to go to your supervisor first. Report early, and know that retaliation is prohibited.'},
+    2:{t:'Checkpoint 2 · Showing up',q:'You wake up sick with a fever at 6:00 a.m. Your route starts at 7:30. What is the right way to call out?',o:['Text your Branch Manager at 7:45','Leave a voicemail on the office line overnight','Ask a coworker to let your manager know','Call your Branch Manager personally before 7:30 and plan to reschedule missed accounts'],a:3,e:'Call your supervisor or Branch Manager yourself, by phone, before your start time. Missed accounts are called within 24 hours and rescheduled within a week.'},
+    3:{t:'Checkpoint 3 · Property and information',q:'While treating a home, you notice the homeowner\'s collection of rare guitars. That evening a friend asks whose house you were at today. What do you say?',o:['Nothing specific. Customer names, addresses and what you saw in their homes are confidential','Share the address since your friend is trustworthy','Show the photo you took of the guitars','Post a picture of the collection without the address'],a:0,e:'Customer names, addresses, business with us and the condition of their homes are confidential. Never photograph or post customers\' homes.'},
+    4:{t:'Checkpoint 4 · On the road',q:'You\'re driving a company truck on a highway with no school or work zone. Your truck has Bluetooth. Your manager calls. What does Clements policy require?',o:['Answer by Bluetooth, since it\'s legal in Florida','Answer only if you hold the phone below the window','Let it go to voicemail, pull to a safe place out of traffic, put it in Park, then call back','Read the text he sends instead'],a:2,e:'Florida law allows hands-free calls, including in school and work zones, but Clements prohibits any call, text, email or browsing, handheld or hands-free, while the vehicle is moving.'},
+    5:{t:'Checkpoint 5',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which of these people can you report harassment or discrimination to?',o:['Only your immediate supervisor','Your immediate supervisor, HR or the COO, whichever you choose','Only HR, in writing','Only a coworker you trust'],a:1,e:'Any of the three: your immediate supervisor, April Williford in HR, or Chris Slade, COO. You don\'t have to start with your supervisor.'},
+    {k:'True or false',q:'The anti-harassment policy covers harassment by customers and vendors, not only by coworkers.',o:['True','False'],a:0,e:'True. It covers coworkers, supervisors and anyone outside Clements, such as a vendor or customer, in any work-related setting.'},
+    {k:'Multiple choice',q:'Which of these is retaliation?',o:['A supervisor documenting a missed shift','Cutting an employee\'s route after she reported harassment','Moving a route for business needs','Scheduling a semi-annual review'],a:1,e:'Retaliation is any punishment for reporting or taking part in an investigation. It is a serious violation on its own.'},
+    {k:'Scenario',q:'You raised a scheduling concern with your supervisor two weeks ago and nothing has happened. What is the next step in the open door process?',o:['Quit without notice','Post about it on social media','Put your concern in writing to HR','Stop doing the work in question'],a:2,e:'If a concern isn\'t addressed in a reasonable time, submit it in writing to HR. HR usually responds within five working days.'},
+    {k:'True or false',q:'Clements policy allows you to discuss your own pay and working conditions with coworkers.',o:['True','False'],a:0,e:'True. The handbook protects that right under Section 7 of the National Labor Relations Act. Confidentiality applies to customer and company business information.'},
+    {k:'Multiple choice',q:'Who should you talk to about a disability or pregnancy-related accommodation?',o:['Your customers','A coworker','Human Resources','No one; accommodations aren\'t available'],a:2,e:'HR handles reasonable accommodation requests for disabilities and for pregnancy and related conditions.'},
+    {k:'Multiple choice',q:'What is acceptable notice when you are too sick to work?',o:['A text to your supervisor','A personal phone call to your supervisor or Branch Manager before your start time','An email sent at the end of the day','A message passed through a coworker'],a:1,e:'Call personally, before your scheduled start. A text, voicemail or message through someone else is not proper notice.'},
+    {k:'True or false',q:'Two consecutive days absent without proper notice can result in termination.',o:['True','False'],a:0,e:'True. Two consecutive no-notice days make you subject to termination.'},
+    {k:'Scenario',q:'You\'re an office team member and want a day off five weeks from now. When must your request be in Paychex Flex?',o:['At least 2 weeks before the day off','The morning of the day off','At least 2 months before','Requests aren\'t needed for one day'],a:0,e:'Office and customer service requests go into Paychex Flex at least two weeks ahead. Technicians need three weeks; HOA technicians two months.'},
+    {k:'Multiple choice',q:'A route technician has approved PTO. What else is the technician responsible for?',o:['Nothing; the office handles it','Asking customers to skip a month','Reworking the route and arranging callback coverage, then emailing the plan to the Branch Manager and HR','Moving the work onto extra service days without telling anyone'],a:2,e:'Technicians rework their route so service standards are met and arrange callback coverage, confirmed by email to the Branch Manager and HR.'},
+    {k:'Multiple choice',q:'Which situation must you report to management under the drug and alcohol policy?',o:['Taking a prescription that may affect your driving','Drinking a coffee before your route','Taking a vitamin','Having a cold'],a:0,e:'Tell management about any medication that may affect your judgment, driving, performance or behavior, before you work or drive.'},
+    {k:'True or false',q:'A Florida medical marijuana card allows you to be under its influence while driving a company vehicle.',o:['True','False'],a:1,e:'False. Florida law lets employers keep a drug-free workplace. Use or impairment at work or in a company vehicle is prohibited.'},
+    {k:'Multiple choice',q:'Where is smoking prohibited?',o:['Only inside the office','Inside or within 50 feet of office entrances, in company vehicles, and at customer sites','Nowhere, during breaks','Only at customer sites'],a:1,e:'No smoking within 50 feet of office entrances, in any company vehicle, or at any customer property.'},
+    {k:'Scenario',q:'Your spouse asks to ride along in your company truck for the afternoon route. What do you do?',o:['Allow it if they stay in the truck','Allow it on Fridays only','Allow it if your manager is not around','Decline. Only Clements employees may ride in a company vehicle'],a:3,e:'Company vehicles are for assigned work, and only Clements employees may ride in them.'},
+    {k:'Multiple choice',q:'Which statement about company phones and email is correct?',o:['Messages are private once you delete them','Management may monitor and access them at any time; there is no expectation of privacy','Only HR can see personal messages','Personal use is never allowed'],a:1,e:'Company devices and systems are company property and records. Occasional personal use is fine, but nothing on them is private.'},
+    {k:'Multiple choice',q:'Under progressive discipline, what happens after two write-ups for the same issue within 12 months?',o:['A one-day unpaid suspension','Nothing; write-ups expire','A verbal correction','A raise review'],a:0,e:'Two write-ups for the same issue, or three for any issues, within 12 months bring a one-day unpaid suspension. A fourth within 12 months means termination.'},
+    {k:'True or false',q:'Under Florida law, a driver may hold a phone to talk in an active work zone while workers are present.',o:['True','False'],a:1,e:'False. Section 316.306 bans handheld phone use in school zones, school crossings and active work zones. It is a moving violation with 3 points.'},
+    {k:'Multiple choice',q:'When should you program your GPS?',o:['While driving, at a red light','Before you leave, or after pulling over and parking','While merging','Whenever the route changes, at any speed'],a:1,e:'Set the GPS before departing. If it needs changing, pull out of traffic and put the vehicle in Park first.'},
+    {k:'Scenario',q:'You rear-end a car at low speed. No one is hurt, both cars drive fine, and you are blocking a busy lane. What comes first?',o:['Leave, since there\'s no injury','Argue about who was at fault','Move the vehicles out of the travel lane, call the police, then call your supervisor and HR','Wait in the lane for an hour'],a:2,e:'Florida law requires a reasonable effort to move a drivable vehicle out of traffic. Then call police for every accident, and notify your supervisor and HR right away.'},
+    {k:'Multiple choice',q:'Who pays a speeding ticket received while driving a company vehicle?',o:['The company','The customer','Split evenly','The employee'],a:3,e:'Moving violations in a company vehicle are the employee\'s responsibility. Turn in parking tickets to HR right away.'}
+  ];
+
+  /* ---------- harassment flip cards ---------- */
+  var HF=[
+    {t:'Sexual harassment',i:'i-alert',f:'Unwelcome conduct of a sexual nature.',b:'<b>Includes:</b> unwanted advances or requests for favors, sexual jokes or innuendo, comments about someone\'s body, leering or touching, and sharing sexual images or messages, including by text or email. Can involve the same or a different gender.'},
+    {t:'Protected traits',i:'i-users',f:'Hostility aimed at who someone is.',b:'<b>Includes:</b> slurs, epithets, negative stereotyping, denigrating jokes, threats or intimidation based on race, religion, national origin, age, disability, sexual orientation or any other protected status.'},
+    {t:'Sex-based treatment',i:'i-scale',f:'Treating people worse because of their sex.',b:'<b>Example:</b> a manager who yells only at the women on the team. No sexual language is involved, but when it is severe or pervasive it is still discrimination.'},
+    {t:'Retaliation',i:'i-shield',f:'Punishing someone for speaking up.',b:'<b>Includes:</b> cutting hours, bad assignments, exclusion or threats against anyone who reports or takes part in an investigation. It is as serious as the harassment itself.'}
+  ];
+  var hf=$('#hflip');
+  HF.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='hf'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox"><svg class="ico"><use href="#'+v.i+'"/></svg></span><h3>'+v.t+'</h3><span class="muted" style="font-size:15px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back" style="font-size:14px">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});hf.appendChild(b)});
+
+  /* ---------- reporting path ---------- */
+  var RP=[
+    {i:'i-user',h:'You, or anyone who sees it',p:'Report promptly. You may tell the person the behavior is unwelcome and ask them to stop, but you never have to before reporting. If a customer harasses you, get to a safe place if needed and report it the same way.'},
+    {i:'i-users',h:'Your immediate supervisor',p:'A natural first stop for many people, but never required. If your supervisor is involved, or you would rather not, use another door.'},
+    {i:'i-shield',h:'Human Resources · April Williford',p:'Director of HR &amp; Administrative Affairs. HR owns this policy and its reporting and monitoring procedures. Reach HR through the main office at 772-562-6450.'},
+    {i:'i-building',h:'Chief Operating Officer · Chris Slade',p:'You can bring a report about anyone, regardless of their position, straight to the COO.'},
+    {i:'i-search',h:'A prompt, discreet investigation',p:'Clements investigates promptly and as discreetly as possible. Everyone involved is expected to cooperate and keep the matter confidential while it is investigated.'},
+    {i:'i-check',h:'Action, and no retaliation',p:'Violations lead to discipline up to and including termination. Retaliating against anyone who reports or takes part is a serious violation on its own. Outside legal complaints have deadlines, another reason to report early.'}
+  ];
+  var rp=$('#rpath');
+  $$('.rnode',rp).forEach(function(b){b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){
+    var n=+b.dataset.n,r=RP[n];$$('.rnode',rp).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    $('#rdetail').innerHTML='<svg class="ico"><use href="#'+r.i+'"/></svg><span><b>'+r.h+'.</b> '+r.p+'</span>';})});
+
+  /* ---------- generic two/three-way sort ---------- */
+  function makeSort(box,items,opts,checkBtn,fbBox,okMsg){
+    var sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=box.id+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+opts.map(function(o,j){return '<button type="button" aria-pressed="false" data-v="'+o+'" id="'+box.id+i+'_'+j+'">'+o+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      box.appendChild(r)});
+    checkBtn.addEventListener('click',function(){var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+box.id+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}});
+      fbBox.innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes in red and try again.</span>');});
+  }
+  makeSort($('#hsort'),[
+    {q:'A customer keeps commenting on a CSR\'s body during calls',a:'Violates',w:'Customers are covered. Harassment by a non-employee is still harassment, and it must be reported.'},
+    {q:'A coworker texts you a racist meme on a Saturday night',a:'Violates',w:'The policy applies in any setting, including texts and social media between coworkers.'},
+    {q:'A manager yells only at the women on the team',a:'Violates',w:'Sex-based treatment is discrimination even with no sexual language.'},
+    {q:'Your supervisor documents that you were late three times',a:'Does not',w:'Fair, documented feedback is normal management. If you disagree, use the open door.'},
+    {q:'The crew stops inviting a teammate to lunch "so she can\'t report us"',a:'Violates',w:'Excluding people of one sex to avoid harassment complaints is itself prohibited.'},
+    {q:'A teammate mocks a coworker\'s accent and uses a slur',a:'Violates',w:'Slurs and mockery tied to national origin are harassment.'},
+    {q:'Two coworkers respectfully disagree about how to run a process',a:'Does not',w:'Professional disagreement is not harassment. Work it out or bring it to your supervisor.'},
+    {q:'You are moved to a different route because of business needs',a:'Does not',w:'Assignments based on business needs are management decisions. Ask your supervisor if you have concerns.'}
+  ],['Violates','Does not'],$('#hsCheck'),$('#hsFb'),'All eight correct. Harassment is about how people are treated because of who they are, wherever it happens.');
+
+  /* ---------- time off planner ---------- */
+  var TO=[
+    {n:'Office / customer service',s:'Submit in Paychex Flex',d:14,lbl:'2 weeks ahead',x:['Submit the request in Paychex Flex','Wait for your supervisor\'s approval before making plans','Coordinate desk or phone coverage with your supervisor']},
+    {n:'Salaried service technician',s:'Submit in Paychex Flex',d:21,lbl:'3 weeks ahead',x:['Submit the request in Paychex Flex','Wait for approval before making plans','Plan with your manager how your work will be covered']},
+    {n:'Route technician (pest, lawn and ornamental)',s:'Submit for Branch Manager approval',d:21,lbl:'3 weeks ahead',x:['Rework your route so service standards are met: work ahead, reschedule after, or weekends','Arrange callback coverage with a teammate','Email the coverage plan to your Branch Manager and HR']},
+    {n:'HOA technician',s:'Submit for Branch Manager approval',m:2,lbl:'2 months ahead',x:['Submit at least two months ahead','Approval is at the Branch Manager\'s discretion, based on scheduling, service commitments and customer impact','Arrange callback coverage and email the plan to your Branch Manager and HR']}
+  ];
+  var toRole=store.get('toR')||0, toBox=$('#toRole'), toDate=$('#toDate');
+  function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+  var dflt=new Date();dflt.setDate(dflt.getDate()+45);toDate.value=iso(dflt);
+  function toCalc(){
+    $$('button',toBox).forEach(function(b,j){b.setAttribute('aria-pressed',j===toRole)});
+    var r=TO[toRole],v=toDate.value;if(!v){$('#toOut').innerHTML='<div class="row"><span class="lbl">Pick a date</span></div>';return;}
+    var p=v.split('-'),off=new Date(+p[0],+p[1]-1,+p[2]),due=new Date(off);
+    if(r.m)due.setMonth(due.getMonth()-r.m);else due.setDate(due.getDate()-r.d);
+    var today=new Date();today.setHours(0,0,0,0);var left=Math.round((due-today)/864e5);
+    var f=function(d){return d.toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'})};
+    $('#toOut').innerHTML='<div class="row"><span class="lbl">'+r.s+' no later than</span><span class="num-big">'+f(due)+'</span><span style="color:var(--mint);font-size:14px">'+r.lbl+(left<0?' · that date has passed. Talk to your supervisor now; approval is not guaranteed.':(left===0?' · that\'s today':' · '+left+' days from today'))+'</span></div><div class="row"><span class="lbl">Also</span><ul style="list-style:none;display:grid;gap:4px;font-size:14px">'+r.x.map(function(x){return '<li>· '+x+'</li>'}).join('')+'</ul></div>';
+  }
+  TO.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='tor'+i;b.setAttribute('aria-pressed','false');b.innerHTML='<svg class="ico"><use href="#'+(i===0?'i-headset':'i-truck')+'"/></svg><span>'+r.n+'<small>'+r.lbl+'</small></span>';
+    b.addEventListener('click',function(){toRole=i;store.set('toR',i);toCalc()});toBox.appendChild(b)});
+  toDate.addEventListener('input',toCalc);toDate.addEventListener('change',toCalc);toCalc();
+
+  /* ---------- return property picker ---------- */
+  var RET=[['Company vehicle and keys',1],['Your personal work boots',0],['Company phone',1],['Handheld, laptop or tablet',1],['Your personal phone',0],['Office keys and key fobs',1],['Company credit or fuel card',1],['Your own pocket knife',0],['Uniforms',1],['Company manuals',1]];
+  var rpk=$('#retPick'),rsel={};
+  RET.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.id='ret'+i;b.setAttribute('aria-pressed','false');b.textContent=x[0];
+    b.addEventListener('click',function(){rsel[i]=!rsel[i];b.setAttribute('aria-pressed',!!rsel[i]);b.classList.remove('miss','extra');$('#retFb').textContent=''});rpk.appendChild(b)});
+  $('#retCheck').addEventListener('click',function(){var miss=0,extra=0;
+    RET.forEach(function(x,i){var b=$('#ret'+i);b.classList.remove('miss','extra');if(x[1]&&!rsel[i]){miss++;b.classList.add('miss')}if(!x[1]&&rsel[i]){extra++;b.classList.add('extra')}});
+    $('#retFb').innerHTML=(!miss&&!extra)?'<span class="fb" style="display:inline-block">Correct. Everything the company issued goes back, in good condition. Unreturned or damaged items can be deducted from your final pay.</span>':'<span class="fb no" style="display:inline-block">'+(miss?miss+' company item'+(miss>1?'s':'')+' missed (outlined in red). ':'')+(extra?extra+' personal item'+(extra>1?'s':'')+' selected. Personal property stays with you.':'')+'</span>';});
+
+  /* ---------- allowed / not allowed / ask first deck ---------- */
+  var ALA=[
+    {s:'A coworker\'s truck is in the shop. You drive him to the branch for the morning meeting in your company truck.',a:0,e:'Allowed. Company vehicles may carry Clements employees for company business.'},
+    {s:'A friend needs help moving on Saturday, and your company truck has plenty of room.',a:1,e:'Not allowed. Company vehicles are for assigned work only, never personal use, and never carry non-employees.'},
+    {s:'You\'d like to pick up a weekend job at a restaurant.',a:2,e:'Ask first. Discuss any second job with management to rule out scheduling problems or a conflict of interest.'},
+    {s:'You post a photo of a badly infested customer kitchen on your Instagram. No address shows.',a:1,e:'Not allowed. Photos of customers\' homes and comments on their condition are confidential, address or not.'},
+    {s:'On break, you and a coworker compare your pay and talk about whether the schedule is fair.',a:0,e:'Allowed. You have the right to discuss your own wages and working conditions.'},
+    {s:'Your branch manager calls while you\'re on I-95. Your truck has Bluetooth, so you answer hands-free.',a:1,e:'Not allowed. Florida law permits hands-free calls, but Clements policy prohibits any call while the vehicle is moving. Pull over and park first.'},
+    {s:'Your doctor prescribed a new medication with a drowsiness warning, and you start your route tomorrow.',a:2,e:'Ask first. Tell management before you drive or work so they can decide how to keep you and others safe.'},
+    {s:'You carry a small folding pocket knife on your route to open boxes and bait packaging.',a:0,e:'Allowed. A small pocket knife is permitted. Large knives and guns are not allowed at work.'},
+    {s:'A customer asks if you\'d spray her neighbor\'s yard for cash on your day off.',a:1,e:'Not allowed. Soliciting or accepting customers for outside work is prohibited and can mean immediate termination.'},
+    {s:'You have a medical appointment on the day of next month\'s technician meeting.',a:2,e:'Ask first. Meetings are required. Get your supervisor\'s approval in advance to miss one.'}
+  ];
+  var LBL=['Allowed','Not allowed','Ask first'],ICO=['i-check','i-ban','i-chat'];
+  var dk=$('#ala'),di=0,dres=store.get('ala')||[];
+  function dkDots(){return '<div class="dk-dots" aria-hidden="true">'+ALA.map(function(_,i){return '<i class="'+(i===di&&dres[i]===undefined?'cur':(dres[i]===undefined?'':(dres[i]?'ok':'no')))+'"></i>'}).join('')+'</div>'}
+  function alaTally(){var d=dres.filter(function(x){return x!==undefined}).length,r=dres.filter(function(x){return x}).length;$('#alaScore').textContent=d?r+' of '+d+' right on first try':''}
+  function showD(n){di=n;var c=ALA[n];
+    dk.innerHTML='<div class="qhead"><span class="eyebrow">Situation '+(n+1)+' of '+ALA.length+'</span>'+dkDots()+'</div><div class="card"><p class="scn">'+c.s+'</p></div><div class="acts">'+LBL.map(function(l,j){return '<button type="button" class="choice" id="ala'+n+'_'+j+'" data-j="'+j+'"><svg class="ico"><use href="#'+ICO[j]+'"/></svg><span>'+l+'</span></button>'}).join('')+'</div><div id="alaFb"></div>';
+    $$('.choice',dk).forEach(function(b){b.addEventListener('click',function(){var j=+b.dataset.j;
+      if(dres[n]===undefined){dres[n]=j===c.a;store.set('ala',dres);alaTally()}
+      $$('.choice',dk).forEach(function(x){x.disabled=true;if(+x.dataset.j===c.a)x.classList.add('right')});if(j!==c.a)b.classList.add('wrong');
+      $('.dk-dots',dk).outerHTML=dkDots();
+      var last=n===ALA.length-1;
+      $('#alaFb').innerHTML='<div class="fb'+(j===c.a?'':' no')+'" style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><span>'+c.e+'</span><button type="button" class="btn" id="alaNext" style="padding:6px 14px">'+(last?'Start over':'Next situation')+'</button></div>';
+      $('#alaNext').addEventListener('click',function(){if(last){dres=[];store.set('ala',dres);alaTally();showD(0)}else showD(n+1)});
+    })});
+  }
+  var firstOpen=0;for(var kk=0;kk<ALA.length;kk++){if(dres[kk]===undefined){firstOpen=kk;break}}
+  alaTally();showD(firstOpen);
+
+  /* ---------- Florida law vs Clements ---------- */
+  var LAW=[
+    ['Typing or reading texts, email or messages by hand','Illegal everywhere','n','Not allowed','n'],
+    ['Holding the phone for a call in a school zone or active work zone','Illegal · moving violation, 3 points','n','Not allowed','n'],
+    ['Holding the phone for a call anywhere else','Legal','','Not allowed','n'],
+    ['Hands-free or Bluetooth call','Legal','','Not allowed','n'],
+    ['Hands-free GPS directions set before you leave','Legal','','Allowed','y'],
+    ['Typing a new address into the GPS','Legal, except handheld in school and work zones','','Pull over and park first','n'],
+    ['Calling 911 to report an emergency','Legal','','Park in a safe spot first, then call','n'],
+    ['Eating, drinking or reading','Careless driving laws apply','','Not allowed','n']
+  ];
+  var tb=$('#lawTbl tbody');
+  tb.innerHTML=LAW.map(function(r){return '<tr><td>'+r[0]+'</td><td class="fl '+r[2]+'">'+r[1]+'</td><td class="cl '+r[4]+'">'+r[3]+'</td></tr>'}).join('');
+  var NOTES=['Florida\'s Wireless Communications While Driving Law (s. 316.305) bans texting while driving statewide. Section 316.306 bans any handheld use in school zones, school crossings and active work zones. As of 2026, Florida has no general hands-free law.','Clements is stricter: no calls, texts, email or browsing, handheld or hands-free, while driving on company business in any vehicle. Pull out of traffic, put it in Park, then use the phone.'];
+  function law(c){$('#lawFL').setAttribute('aria-pressed',c===0);$('#lawCL').setAttribute('aria-pressed',c===1);
+    $$('td.fl',tb).forEach(function(t){t.classList.toggle('dim',c===1)});$$('td.cl',tb).forEach(function(t){t.classList.toggle('dim',c===0)});$('#lawNote').textContent=NOTES[c];}
+  $('#lawFL').addEventListener('click',function(){law(0)});$('#lawCL').addEventListener('click',function(){law(1)});law(0);
+
+  /* ---------- phone rings order ---------- */
+  var ORD=['Let it ring through to voicemail and keep your eyes on the road','Find a safe place out of the traffic lanes and pull over','Put the vehicle in Park','Listen to the voicemail and return the call','Put the phone away before you pull back into traffic'];
+  var SHUF=[2,0,4,1,3],op=0,ob=$('#ord');
+  function ordBuild(){op=0;ob.innerHTML='';$('#ordFb').innerHTML='';
+    SHUF.forEach(function(k){var b=document.createElement('button');b.type='button';b.id='ord'+k;b.innerHTML='<span class="num">·</span><span>'+ORD[k]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(k===op){b.classList.add('placed');$('.num',b).textContent=op+1;op++;
+          if(op===ORD.length)$('#ordFb').innerHTML='<span class="fb" style="display:inline-block">Right. The call can wait. Nothing about it is worth a crash.</span>';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#ordFb').innerHTML='<span class="fb no" style="display:inline-block">Not yet. What has to happen before that?</span>';}
+      });ob.appendChild(b)});}
+  ordBuild();$('#ordReset').addEventListener('click',ordBuild);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

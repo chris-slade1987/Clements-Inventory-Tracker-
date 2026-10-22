@@ -1,0 +1,1350 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-04 Exclusion — Clements Standard</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-04 components */
+ul.tick{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:15px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+ul.nolist{list-style:none;display:grid;gap:6px;font-size:15px;line-height:1.45}
+ul.nolist li{position:relative;padding-left:22px}
+ul.nolist li::before,ul.nolist li::after{content:"";position:absolute;left:3px;top:10px;width:11px;height:1.6px;background:var(--danger);transform:rotate(45deg)}
+ul.nolist li::after{transform:rotate(-45deg)}
+.path.p5{grid-template-columns:repeat(5,1fr)}
+.path .st p{font-size:14px}
+
+/* size ladder */
+.ladderfig{padding:10px}
+.ladderfig svg{max-width:420px}
+.szhole{fill:var(--forest-ink);transition:d .22s ease-in-out}
+.szlayer{opacity:0;transition:opacity .22s ease-in-out}
+.szlayer.on{opacity:1}
+.szfill{fill:url(#pMesh);stroke:#5C6B62;stroke-width:1}
+.szcloth{fill:url(#pCloth);stroke:var(--brand-600);stroke-width:1.4}
+.szplate{fill:#C9D3CD;stroke:#7D8A82;stroke-width:1.4}
+.szcem{fill:none;stroke:#D8CBB4;stroke-width:9}
+.szscrew{fill:#5C6B62}
+.szdim{font-family:var(--font);font-size:11px;letter-spacing:.14em;fill:var(--muted)}
+#szR{width:100%;accent-color:var(--brand-600)}
+.lvls5{display:grid;grid-template-columns:repeat(5,1fr);font-size:12px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+#szOut{min-height:196px;display:grid;gap:8px;align-content:start;padding:16px 18px}
+#szOut > *{animation:rise .2s ease-in-out both}
+#szOut h3{font-size:20px;margin:0}
+#szOut p{font-size:15px;color:var(--ink)}
+#szOut .tagline{display:flex;gap:6px;flex-wrap:wrap}
+
+/* material flip cards */
+.flip.mats{grid-template-columns:repeat(3,1fr);gap:12px}
+.flip.mats button{min-height:158px}
+.flip.mats .face{padding:16px 18px;gap:6px}
+.flip.mats h3{font-size:19px}
+.flip.mats .front p{font-size:14px;color:var(--muted)}
+.flip.mats .back{font-size:14px;line-height:1.45}
+.flip.mats .icobox{margin-bottom:2px;width:34px;height:34px}
+
+/* house explorer */
+.xhouse{padding:10px}
+.xhouse svg{max-width:none;width:100%}
+.hx-ground{fill:none;stroke:var(--brand-300);stroke-width:2}
+.hx-wall{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.hx-wall2{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.4}
+.hx-roof{fill:var(--brand-100);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.hx-fas,.hx-trim{fill:none;stroke:var(--brand-700);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.hx-vent path{fill:none;stroke:var(--brand-700);stroke-width:1.4}
+.hx-door{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.4}
+.hx-line{fill:none;stroke:var(--brand-500);stroke-width:2.4;stroke-linecap:round}
+.hpin{cursor:pointer}
+.hpin .hit{fill:transparent}
+.hpin .core{fill:var(--brand-600);stroke:#fff;stroke-width:2}
+.hpin .halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hpin:not(.seen) .halo{animation:halo 2.8s ease-out infinite}
+.hpin text{font-family:var(--font);font-size:10px;fill:#fff;font-weight:500;pointer-events:none}
+.hpin.seen .core{fill:var(--forest)}
+.hpin.no .core{fill:var(--danger)}
+.hpin.sel .core{stroke:var(--forest);stroke-width:3}
+.hpin:focus{outline:none}.hpin:focus-visible .core{stroke:var(--brand-400);stroke-width:4}
+.hxd{display:grid;gap:8px;align-content:start;min-height:330px;padding:16px 18px}
+.hxd > *{animation:rise .2s ease-in-out both}
+.hxd h3{font-size:20px;margin:0}
+.hxd dl{display:grid;grid-template-columns:78px 1fr;margin:0;font-size:14px;line-height:1.45}
+.hxd dt,.hxd dd{margin:0;padding:7px 0;border-top:1px solid var(--line)}
+.hxd dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:9px}
+.hxd .no{color:var(--danger)}
+
+/* airflow */
+.airfig svg{max-width:340px}
+.aflbl{font-family:var(--font);font-size:11px;letter-spacing:.18em;fill:var(--brand-700);font-weight:500}
+.aflbl.no{fill:var(--danger)}
+.afsub{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.afbox{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.afmesh{fill:none;stroke:var(--brand-600);stroke-width:1}
+.afflow{fill:none;stroke:var(--brand-400);stroke-width:1.8;stroke-linecap:round;stroke-dasharray:6 10}
+.slide.on .afflow{animation:afl 2.4s linear infinite}
+@keyframes afl{to{stroke-dashoffset:-64}}
+.afx{fill:none;stroke:var(--danger);stroke-width:2.4;stroke-linecap:round}
+
+/* material matcher */
+.scen-tabs button.bad::after{content:" · retry";color:var(--danger)}
+.mmcard{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px;align-items:start;padding:18px 20px}
+.mmcard > *{animation:rise .2s ease-in-out both}
+.mmcard h3{font-size:21px;margin:4px 0 6px}
+.mmcard p{font-size:15px;color:var(--ink)}
+.mmcard .choices{gap:8px}
+.mmcard .choice{padding:9px 14px;font-size:15px}
+.mmcard .fb{margin-top:10px}
+
+/* before / after */
+.bafig svg{max-width:420px}
+.ba-wall{fill:#EFE7DA;stroke:none}
+.ba-soffit{fill:#F7F3EC;stroke:#8C8273;stroke-width:1.2}
+.ba-fascia{fill:#FFFFFF;stroke:#8C8273;stroke-width:1.2}
+.ba-roof{fill:#C9D3CD;stroke:#7D8A82;stroke-width:1.2}
+.ba-gap{fill:var(--forest-ink);transition:opacity .22s ease-in-out}
+.ba-rub{fill:none;stroke:#4A3F33;stroke-width:5;stroke-linecap:round;opacity:.35;transition:opacity .22s ease-in-out}
+.ba-drop{fill:#3B3128;transition:opacity .22s ease-in-out}
+.ba-cloth{fill:url(#pCloth);stroke:var(--brand-600);stroke-width:1.2;opacity:0;transition:opacity .22s ease-in-out}
+.ba-cem{fill:#EFE7DA;stroke:#DDD2C1;stroke-width:4;opacity:0;transition:opacity .22s ease-in-out .15s}
+.ba-tape{fill:#F4F6F5;stroke:var(--muted);stroke-width:1}
+.ba-tick{fill:none;stroke:var(--muted);stroke-width:1}
+.ba-tag{font-family:var(--font);font-size:10px;letter-spacing:.14em;fill:var(--ink)}
+.bafig.after .ba-gap,.bafig.after .ba-drop{opacity:0}
+.bafig.after .ba-rub{opacity:.18}
+.bafig.after .ba-cem{opacity:1}
+.bafig.after .ba-cloth{opacity:0}
+
+/* stop list */
+.stopg{gap:8px}
+.stopi{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--danger);border-radius:10px;padding:9px 12px;font-size:14px;line-height:1.4}
+.stopi .ico{width:20px;height:20px;color:var(--danger);margin-top:1px}
+
+/* sorts */
+.sort{gap:7px}
+.sort .row{padding:8px 14px;font-size:14.5px}
+.sort3{grid-template-columns:1fr 1fr}
+
+@media (max-width:860px){
+  .path.p5,.mmcard,.sort3,.flip.mats{grid-template-columns:1fr}
+  .lvls5{font-size:10px}
+  .hxd{min-height:0}
+  .stopg{grid-template-columns:1fr}
+}
+/* fit tweaks */
+[data-cp] h2{font-size:clamp(22px,2.5vw,30px)}
+.tight .card{padding:16px 18px}
+.tight .card .icobox{margin-bottom:8px;width:36px;height:36px}
+.tight .card p{font-size:14px;line-height:1.5}
+.door.tight{gap:8px}
+.door.tight .then,.door.tight .now{padding:8px 14px;font-size:14.5px}
+.order button{padding:7px 12px;font-size:14.5px}
+.order button .num{flex-basis:26px;height:26px}
+.callout.sm{padding:10px 14px;font-size:14px}
+@media (max-width:860px){.split{grid-template-columns:1fr!important}.hxd dl{grid-template-columns:70px 1fr}}
+@media (max-width:860px){.sort .row{flex-wrap:wrap}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">RX-04 · Exclusion</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></symbol>
+    <symbol id="i-trowel" viewBox="0 0 24 24"><path d="M4 14l8-8 6 6-8 8z"/><path d="M15 9l4-4"/><path d="M18 4l2 2"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3l-2 18M17 3l2 18"/><path d="M6.5 7h11M6 11.5h12M5.5 16h13"/></symbol>
+    <symbol id="i-vent" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1"/><path d="M7 9h10M7 12h10M7 15h10"/></symbol>
+    <symbol id="i-pipe" viewBox="0 0 24 24"><path d="M4 9h9a3 3 0 0 1 3 3v8"/><path d="M4 14h6a1 1 0 0 1 1 1v5"/><path d="M14 20h4"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="M8 12h8"/></symbol>
+    <symbol id="i-sweep" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M3 16h18"/><path d="M5 16v3M8 16v3M11 16v3M14 16v3M17 16v3M20 16v3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-2 0-3h3a4 4 0 0 0 4-4c0-5-4-9-9-9z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="11" cy="7" r="1.2"/><circle cx="16" cy="8.5" r="1.2"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-04</span>
+        <h1 class="display a" style="--i:1">Exclusion: the Clements standard</h1>
+        <p class="lead a" style="--i:2">How a Rodent Shield technician closes an entry point so it stays closed: the right material for the opening, the right method for the spot, finished work you'd be proud to photograph, and the judgment to stop when a job belongs to a roofer.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M30 140L160 36l130 104"/><path d="M50 124v108h220V124"/><path d="M14 232h292"/>
+          <path d="M30 140h-12M290 140h12"/>
+          <path d="M138 96h44v30h-44z"/><path d="M149 96v30M160 96v30M171 96v30M138 106h44M138 116h44"/>
+          <rect x="72" y="160" width="30" height="26"/><rect x="218" y="160" width="30" height="26"/>
+          <path d="M140 232v-48h40v48"/>
+          <path d="M226 214l26-26 18 18-26 26z"/><path d="M262 196l14-14"/><path d="M272 178l8 8"/>
+          <path d="M60 222c10-4 22-4 32 0"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Right material · right method · finished right</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-layers"/></svg><span>Choose the approved Rodent Shield material for any opening by its size, from courtesy foam to a backed metal patch</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-home"/></svg><span>Apply the right method at roof returns, soffits, gable vents, penetrations, A/C chases, garage doors and weep holes</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-stop"/></svg><span>Never block a dryer, exhaust or appliance vent, a plumbing vent or a drainage path, and explain why to a homeowner</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-palette"/></svg><span>Finish every seal neat, weatherproof and color-matched, with before and after photos uploaded to PestPac</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-clip"/></svg><span>Tell Basic from Plus scope, and what counts as an entry point, a courtesy repair or a declined opening</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-ladder"/></svg><span>Work the roofline safely under FC-06 and stop and refer when the job needs a roofer or contractor</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">The customer won't know the difference for six months. <span class="em">The rat will.</span></h2>
+        <p class="lead a" style="--i:2">Trapping removes the rodents that are inside. Exclusion is what keeps the next ones out. It's the part of Rodent Shield Plus the customer is really paying for, and the part our warranty stands on.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Every failed seal is a warranty callback</h3><p>A patch that gets chewed through, cracks or pops out puts us back on the roof for free, and puts a rat back in the customer's attic.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Sealing the wrong opening is dangerous</h3><p>A blocked dryer vent can start a fire. A blocked exhaust can push carbon monoxide or moisture into the home. Knowing what not to seal is part of the standard.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-star"/></svg></div><div><h3>Our work is on the outside of their home</h3><p>Neighbors see it. A neat, color-matched seal says Clements. A smear of foam on the stucco says the opposite, for years.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: materials">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The standard and the materials</h1>
+        <p class="lead a" style="--i:2">Why it matters: rodents chew anything softer than their teeth. The material decides whether a seal lasts six months or the life of the warranty, so Clements sets it by opening size, not by what's handy on the truck.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The non-negotiables</li><li><span>02</span>Size decides the material</li><li><span>03</span>The approved materials</li><li><span>04</span>Foam is not exclusion</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 NON-NEGOTIABLES -->
+  <section class="slide" data-label="The non-negotiables" style="gap:16px">
+    <span class="eyebrow a">01 · The non-negotiables</span>
+    <h2 class="a" style="--i:1">Six rules every Rodent Shield seal follows</h2>
+    <div class="grid g3 tight">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-trowel"/></svg></div><h3>Cement first</h3><p>Every entry point 1/2 inch and larger is finished with cement, color-matched to the home. Rats chew foam. They don't chew cement.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-ruler"/></svg></div><h3>The 1/2-inch threshold</h3><p>A rat needs about 1/2 inch. Openings that size and up are documented and sealed as entry points. Smaller gaps are noted for the record.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-grid"/></svg></div><h3>Backing, then finish</h3><p>Fill or backing goes in first (mesh, hardware cloth or metal), mechanically fastened. Cement seals every edge. Both layers, every time.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Vents breathe, water drains</h3><p>Never seal dryer, exhaust or appliance vents, plumbing vent tops or weep holes. Attic vents get screened, never closed.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-cam"/></svg></div><h3>Photo before and after</h3><p>Same angle, every entry point, uploaded to PestPac with the entry point PDF. The photos are the warranty record.</p></div>
+      <div class="card a" style="--i:7"><div class="icobox"><svg class="ico"><use href="#i-stop"/></svg></div><h3>You can stop the job</h3><p>Rot, damaged roof decking, unsafe access or contractor-level work: you stop, document and escalate. No seal is worth a fall.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 SIZE LADDER -->
+  <section class="slide" data-label="Size decides the material">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:center">
+      <div class="figbox ladderfig a" style="--i:1">
+        <svg viewBox="0 0 300 220" role="img" aria-label="Cross-section of a wall opening and the materials used to close it" id="szSvg">
+          <defs>
+            <pattern id="pStucco" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#EEF4F0"/><circle cx="3" cy="4" r=".8" fill="#C3DAC9"/><circle cx="10" cy="10" r=".8" fill="#C3DAC9"/></pattern>
+            <pattern id="pMesh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v5M0 0h5" stroke="#5C6B62" stroke-width=".9"/></pattern>
+            <pattern id="pCloth" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M0 0h9M0 0v9" stroke="#2E6F47" stroke-width="1.1" fill="none"/></pattern>
+          </defs>
+          <rect x="0" y="0" width="300" height="220" fill="url(#pStucco)"/>
+          <path id="szHole" class="szhole" d=""/>
+          <path id="szFill" class="szlayer szfill" d=""/>
+          <rect id="szCloth" class="szlayer szcloth" x="0" y="0" width="0" height="0"/>
+          <rect id="szPlate" class="szlayer szplate" x="0" y="0" width="0" height="0"/>
+          <rect id="szCem" class="szlayer szcem" x="0" y="0" width="0" height="0" rx="4"/>
+          <g id="szScrews" class="szlayer"></g>
+          <text id="szDim" class="szdim" x="150" y="210" text-anchor="middle"></text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Size decides the material</span>
+        <h2 class="a" style="--i:1">Measure first. The opening tells you what to use.</h2>
+        <label for="szR" class="eyebrow a" style="--i:2">Opening size</label>
+        <input type="range" id="szR" class="a" style="--i:2" min="0" max="4" step="1" value="1" aria-describedby="szOut">
+        <div class="lvls5 a" style="--i:2" aria-hidden="true"><span>Under 1/2"</span><span>1/2–1"</span><span>1–4"</span><span>4–8"</span><span>Over 8"</span></div>
+        <div id="szOut" class="card a" style="--i:3" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 APPROVED MATERIALS -->
+  <section class="slide" data-label="The approved materials" style="gap:14px">
+    <span class="eyebrow a">03 · The approved materials</span>
+    <h2 class="a" style="--i:1">Know every material on the truck. Flip each card.</h2>
+    <div class="flip mats a" style="--i:2" id="matFlip"></div>
+    <p class="small muted a" style="--i:3" id="matN">0 of 6 flipped</p>
+  </section>
+
+  <!-- 8 FOAM IS NOT EXCLUSION -->
+  <section class="slide" data-label="Foam is not exclusion" style="gap:14px">
+    <span class="eyebrow a">04 · Foam is not exclusion</span>
+    <h2 class="a" style="--i:1">The shortcut on the truck, and what we use instead</h2>
+    <div class="door tight">
+      <div class="pair a" style="--i:2"><div class="then"><span class="lbl">Shortcut</span>Spray foam alone in a 3/4-inch gap at the soffit</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Clements standard</span>Mesh packed tight, sealed with color-matched cement</div></div>
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">Shortcut</span>Steel wool stuffed around a pipe</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Clements standard</span>Xcluder or copper mesh. Steel wool rusts and compresses</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">Shortcut</span>Window screen or light mesh glued over a gable vent tear</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Clements standard</span>1/4-inch galvanized hardware cloth, fastened, edges sealed</div></div>
+      <div class="pair a" style="--i:5"><div class="then"><span class="lbl">Shortcut</span>Caulk over a gnawed fascia board</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Clements standard</span>Sheet metal over the gnaw site, fastened, edges sealed</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout sm a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Where foam is allowed:</b> low-expansion foam on courtesy gaps under 1/2 inch, or as filler behind hardware cloth on a large irregular opening finished with cement. Never billed or warranted.</span></div>
+      <div class="callout sm a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span><b>"My last guy used foam."</b> "Rats chew through foam. We use cement because they can't, and that's why Plus carries a warranty." Never run down the other company.</span></div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: methods by entry point">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Methods by entry point</h1>
+        <p class="lead a" style="--i:2">Why it matters: a roof return, a pipe and a garage door fail in different ways. The right method for each spot is what makes the seal hold, and some openings must never be closed at all.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Walk the house</li><li><span>02</span>Roofline openings</li><li><span>03</span>Ground-level openings</li><li><span>04</span>Never block these</li><li><span>05</span>Practice: pick the right material</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 HOUSE EXPLORER -->
+  <section class="slide" data-label="Walk the house" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.6fr 1fr;gap:20px;align-items:center">
+      <div class="figbox xhouse a" style="--i:1">
+        <svg viewBox="0 0 640 340" role="group" aria-label="Florida home with nine places to check for exclusion" id="hxSvg">
+          <path class="hx-ground" d="M10 322h620"/>
+          <path class="hx-wall" d="M150 172h320v150H150z"/>
+          <path class="hx-roof" d="M112 176L310 58l198 118"/>
+          <path class="hx-fas" d="M112 176h38M470 176h38"/>
+          <path class="hx-trim" d="M150 182h320"/>
+          <g class="hx-vent"><path d="M288 112h44v28h-44z"/><path d="M292 119h36M292 126h36M292 133h36"/></g>
+          <path class="hx-trim" d="M396 112V92h10v26"/>
+          <rect class="hx-wall2" x="182" y="210" width="56" height="42"/><path class="hx-trim" d="M210 210v42"/>
+          <rect class="hx-wall2" x="362" y="210" width="56" height="42"/><path class="hx-trim" d="M390 210v42"/>
+          <path class="hx-wall2" d="M288 322v-78h40v78"/>
+          <path class="hx-wall" d="M470 200h140v122H470z"/><path class="hx-roof" d="M462 204l12-14h130l14 14"/>
+          <path class="hx-door" d="M488 322v-86h104v86"/><path class="hx-trim" d="M488 256h104M488 276h104M488 298h104"/>
+          <rect class="hx-wall2" x="56" y="284" width="54" height="38" rx="2"/><path class="hx-trim" d="M64 294h38M64 302h38M64 310h38"/>
+          <path class="hx-line" d="M110 296h18c8 0 10-4 10-12v-18h12"/>
+          <path class="hx-trim" d="M222 296h10M227 291v10"/>
+          <path class="hx-trim" d="M436 274h22v16h-22z"/><path class="hx-trim" d="M438 290l18-6"/>
+          <path class="hx-trim" d="M344 316h6M362 316h6M380 316h6"/>
+          <g id="hxPins"></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Walk the house</span>
+        <h2 class="a" style="--i:1;font-size:28px">Nine places, nine methods</h2>
+        <div class="card hxd a" style="--i:2" id="hxD"></div>
+        <p class="small muted a" style="--i:3" id="hxN">0 of 9 checked</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ROOFLINE -->
+  <section class="slide" data-label="Roofline openings" style="gap:14px">
+    <span class="eyebrow a">02 · Roofline openings · roof rat territory</span>
+    <h2 class="a" style="--i:1">Where Florida rats get in most</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Roof returns</h3><p>The open corner where the roof and fascia return at the eave. Cut hardware cloth to the shape with at least 1 inch of overlap, screw it to solid framing, then seal every edge with cement. Back a large return with sheet metal.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-ruler"/></svg></div><h3>Soffit and fascia gaps</h3><p>Open seams, separated fascia, unfinished corners. Size it, then use the matching material from the size chart. Active gnawing on wood gets sheet metal. Soft or rotted wood is not a seal surface: stop and refer.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-vent"/></svg></div><h3>Gable vents</h3><p>Torn screens, loose louvers, gaps at the corners. Cover with 1/4-inch galvanized hardware cloth, fastened and edge-sealed. The vent must still pass air: screen it, never fill it.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-pipe"/></svg><span><b>Roof stacks and cable entries:</b> seal the gap around a plumbing or HVAC stack where it passes through. Never cap the open top of a plumbing vent; the drains need it. A cracked roof boot is a roofer's job.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-eye"/></svg><span><b>Find the active one:</b> dark grease rub marks, fresh gnawing, droppings below, no cobwebs. Seal every documented opening, but photograph the active ones closely.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 GROUND LEVEL -->
+  <section class="slide" data-label="Ground-level openings" style="gap:14px">
+    <span class="eyebrow a">03 · Ground-level openings · Norway rats and mice</span>
+    <h2 class="a" style="--i:1">Penetrations, chases, doors and weeps</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-pipe"/></svg></div><h3>Plumbing and conduit</h3><p>Irregular gaps around pipes are the job Xcluder and copper mesh were made for. Pack tight with no soft spots, then cement over flush.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>A/C line-set chase</h3><p>Where refrigerant lines enter the wall. Pack mesh around the lines, finish with cement. Don't crush or nick the lines or their insulation. Included in Plus; a standalone add-on otherwise (RX-05).</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-sweep"/></svg></div><h3>Garage doors</h3><p>Check the bottom seal and both corners. Gnawed or gapped seals get a sweep or brush seal that meets the slab fully with no corner gaps. Aluminum-reinforced preferred.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Weep holes</h3><p>They let water out of the wall. Never fill them with cement, foam or mesh packing. Use a weep hole cover that keeps rodents out and lets water drain.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-layers"/></svg><span><b>Every method follows the same order:</b> measure, clean and prep the surface, install the fill or backing and fasten it, seal every edge with color-matched cement, tool it smooth, photograph.</span></div>
+  </section>
+
+  <!-- 14 NEVER BLOCK -->
+  <section class="slide" data-label="Never block these" data-alert="1">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Never block these</span>
+        <h2 class="a" style="--i:1">Some openings exist on purpose. <span class="red">Leave them working.</span></h2>
+        <ul class="nolist a" style="--i:2">
+          <li><b>Dryer vents.</b> Lint builds up behind a screen or seal and can catch fire. Building code bans screens on dryer exhaust terminations.</li>
+          <li><b>Bath, kitchen and HVAC exhausts.</b> Blocking them pushes moisture, mold and combustion gases back inside.</li>
+          <li><b>Plumbing vent tops.</b> Seal around the stack, never the opening.</li>
+          <li><b>Weep holes and condensate lines.</b> Water has to get out.</li>
+          <li><b>Attic ventilation.</b> Soffit, gable and ridge vents are screened, never sealed solid.</li>
+        </ul>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span>No material, screen or cover on a dryer or exhaust vent, <b>even if the homeowner asks</b>. Note it, photograph it and tell them why. It's in the Rodent Shield terms.</span></div>
+      </div>
+      <div class="figbox airfig a" style="--i:2">
+        <svg viewBox="0 0 320 250" role="img" aria-label="A screened attic vent still passes air; a dryer vent must stay open">
+          <text class="aflbl" x="80" y="20" text-anchor="middle">SCREEN IT</text>
+          <rect class="afbox" x="30" y="40" width="100" height="120"/>
+          <path class="afmesh" d="M30 60h100M30 80h100M30 100h100M30 120h100M30 140h100M50 40v120M70 40v120M90 40v120M110 40v120"/>
+          <path class="afflow" d="M0 70h160M0 100h160M0 130h160"/>
+          <text class="afsub" x="80" y="184" text-anchor="middle">Gable or soffit vent</text>
+          <text class="afsub" x="80" y="200" text-anchor="middle">air passes, rats don't</text>
+          <text class="aflbl no" x="240" y="20" text-anchor="middle">NEVER TOUCH</text>
+          <path class="afbox" d="M200 70h80v60h-80z"/><path class="afbox" d="M200 130l80-18"/>
+          <path class="afflow out" d="M240 140v60M226 140v50M254 140v50"/>
+          <path class="afx" d="M206 40l18 18M224 40l-18 18"/>
+          <text class="afsub" x="240" y="222" text-anchor="middle">Dryer or exhaust hood</text>
+          <text class="afsub" x="240" y="238" text-anchor="middle">no seal, no screen</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 PRACTICE MATERIAL MATCHER -->
+  <section class="slide" data-label="Practice: pick the right material" style="gap:14px">
+    <span class="eyebrow a">05 · Practice · pick the right material</span>
+    <h2 class="a" style="--i:1">Nine openings. What goes in each one?</h2>
+    <div class="scen-tabs a" style="--i:2" id="mmTabs"></div>
+    <div class="card mmcard a" style="--i:3" id="mmBox"></div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: workmanship">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Workmanship</h1>
+        <p class="lead a" style="--i:2">Why it matters: a seal that keeps rats out but looks like a patch job still costs us the customer. The finish, and the photos that prove it, are part of the standard.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>What finished looks like</li><li><span>02</span>Before and after photos</li><li><span>03</span>Practice: pass or redo?</li><li><span>04</span>Practice: order the job</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 FINISHED LOOKS LIKE -->
+  <section class="slide" data-label="What finished looks like" style="gap:16px">
+    <span class="eyebrow a">01 · What finished looks like</span>
+    <h2 class="a" style="--i:1">If you wouldn't want it on your own house, it isn't done</h2>
+    <div class="path p5">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-grid"/></svg></span><h3>Solid</h3><p>Backing fastened with screws, flush heads, no soft spots you can push through.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-layers"/></svg></span><h3>Sealed</h3><p>Cement on every edge. No gap at the overlap, no mesh corners poking out.</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-drop"/></svg></span><h3>Weatherproof</h3><p>Tooled to shed water, not hold it. Sun and rain won't crack or lift it.</p></div>
+      <div class="st a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-palette"/></svg></span><h3>Color-matched</h3><p>Blends with the stucco or trim. Texture matched where you can.</p></div>
+      <div class="st top a" style="--i:6"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><h3>Clean</h3><p>No smears, drips or debris left on walls, roof, plants or driveway.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-sun"/></svg><span><b>Florida weather:</b> in summer, do exterior and roofline work in the morning. Don't apply cement in rain or on a soaked surface, and give it time to set before anyone touches it.</span></div>
+      <div class="callout a" style="--i:8"><svg class="ico"><use href="#i-refresh"/></svg><span><b>It gets checked again.</b> Every follow-up and warranty visit includes a look at your seals. Cracked, lifted or gnawed work is redone and noted.</span></div>
+    </div>
+  </section>
+
+  <!-- 19 BEFORE AND AFTER -->
+  <section class="slide" data-label="Before and after photos">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <div class="seg a" style="--i:1;justify-self:start" role="group" aria-label="Photo"><button type="button" id="baB" aria-pressed="true">Before</button><button type="button" id="baA" aria-pressed="false">After</button></div>
+        <div class="figbox bafig a" style="--i:2" id="baFig">
+          <svg viewBox="0 0 320 220" role="img" aria-label="Soffit return corner before and after exclusion" id="baSvg">
+            <rect class="ba-wall" x="0" y="96" width="320" height="124"/>
+            <path class="ba-soffit" d="M0 70h320v26H0z"/>
+            <path class="ba-fascia" d="M0 52h320v18H0z"/>
+            <path class="ba-roof" d="M0 52L60 10h260v42"/>
+            <path class="ba-gap" d="M226 70h44l-10 26h-26z"/>
+            <path class="ba-rub" d="M222 98c-4 18-6 30-4 44M276 98c4 16 4 28 2 40"/>
+            <circle class="ba-drop" cx="240" cy="160" r="2"/><circle class="ba-drop" cx="248" cy="166" r="2"/><circle class="ba-drop" cx="256" cy="158" r="2"/>
+            <path class="ba-cloth" d="M218 66h60l-12 34h-38z"/>
+            <path class="ba-cem" d="M218 66h60l-12 34h-38z"/>
+            <rect class="ba-tape" x="200" y="104" width="90" height="10" rx="2"/>
+            <path class="ba-tick" d="M200 114v-4M215 114v-3M230 114v-4M245 114v-3M260 114v-4M275 114v-3M290 114v-4"/>
+            <text class="ba-tag" x="16" y="206" id="baTag">BEFORE · NW SOFFIT RETURN · 3/4 IN</text>
+          </svg>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Before and after photos</span>
+        <h2 class="a" style="--i:1">The photo set is the warranty record</h2>
+        <ul class="tick a" style="--i:2">
+          <li><b>Before:</b> every documented entry point, with something in frame that shows size (tape or ruler)</li>
+          <li><b>After:</b> same spot, same angle, so anyone can match the pair</li>
+          <li><b>Labeled:</b> location and size in the notes, matching the entry point PDF</li>
+          <li><b>Uploaded</b> to the order in PestPac before you leave, with the entry point PDF completed on site</li>
+          <li><b>Courtesy repairs</b> and declined entry points photographed and noted too</li>
+        </ul>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span>If a hole reopens or a new one shows up later, the original photos prove what was in scope and what we sealed. No photo, no proof. RX-07 covers the full documentation package.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 PASS OR REDO -->
+  <section class="slide" data-label="Practice: pass or redo" style="gap:14px">
+    <span class="eyebrow a">03 · Practice · quality judge</span>
+    <h2 class="a" style="--i:1">You're reviewing a trainee's photos. Pass, or redo?</h2>
+    <div class="sort a" style="--i:2" id="qjSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="qjCheck">Check my answers</button><span id="qjFb"></span></div>
+  </section>
+
+  <!-- 21 ORDER THE JOB -->
+  <section class="slide" data-label="Practice: order the job">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px;align-items:center">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Practice · order the job</span>
+        <h2 class="a" style="--i:1;font-size:28px">Sealing a soffit return on a signed Plus job. Put the steps in order.</h2>
+        <div class="order a" style="--i:2" id="joOrd"></div>
+        <div id="joFb" class="a" style="--i:3"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Scope comes first</h3><p>The entry point list stays internal until the contract is signed. Once it is, the documented list is the scope of work, and that's what you seal.</p></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Traps work with the seals</h3><p>Plus places traps at or near the entry points so rodents already inside are caught while the follow-up visits check that the seals hold (RX-03).</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: scope, safety, limits">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Scope, safety and knowing when to stop</h1>
+        <p class="lead a" style="--i:2">Why it matters: doing work outside the scope costs us money, doing it unsafely costs people, and sealing over damage that needs a roofer guarantees a warranty failure.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Basic and Plus scope</li><li><span>02</span>Roofline and ladder safety</li><li><span>03</span>When to stop and refer</li><li><span>04</span>Practice: Basic, Plus or refer?</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 SCOPE TABLE -->
+  <section class="slide" data-label="Basic and Plus scope" style="gap:14px">
+    <span class="eyebrow a">01 · Basic and Plus scope</span>
+    <h2 class="a" style="--i:1">Exclusion belongs to Plus</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table>
+        <thead><tr><th style="width:30%">Exclusion item</th><th>Rodent Shield Basic</th><th>Rodent Shield Plus</th></tr></thead>
+        <tbody>
+          <tr><td>Entry point documentation</td><td>Inspection finds them; present Plus before you leave</td><td class="y">Every opening 1/2" and up, photographed: the warranty record</td></tr>
+          <tr><td>Sealing entry points</td><td>None</td><td class="y">Up to 4 included; more are added per opening</td></tr>
+          <tr><td>Irregular openings over 8"</td><td>Not in scope</td><td class="y">Sealed, priced as a surcharge line item by the advisor</td></tr>
+          <tr><td>A/C chase sealing</td><td>Standalone add-on (RX-05)</td><td class="y">Included in scope</td></tr>
+          <tr><td>Courtesy fixes under 1/2"</td><td>Low-expansion foam, minor gaps only</td><td>Same, noted in service notes; not billed, not warranted</td></tr>
+          <tr><td>Declined entry points</td><td>No warranty applies</td><td>On the service agreement with homeowner acknowledgment; not covered</td></tr>
+          <tr><td>Warranty on seals</td><td>None</td><td class="y">1-year or 3-year option, chosen at the original service (RX-06)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span><b>Never quote prices in the field.</b> Additional openings, surcharges and add-ons are priced by the service advisor or your branch manager. Tell the customer what you found; let the advisor price it.</span></div>
+  </section>
+
+  <!-- 25 ROOF SAFETY -->
+  <section class="slide" data-label="Roofline and ladder safety" data-alert="1">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Roofline and ladder safety</span>
+        <h2 class="a" style="--i:1">Most exclusion work is overhead. FC-06 rules apply on every job.</h2>
+        <ul class="tick a" style="--i:2">
+          <li>Extension ladder at <b>4 to 1</b>, on firm footing, secured, <b>3 feet above</b> the roof edge</li>
+          <li><b>Three points of contact</b>. Materials go up in a pouch or by line, not in your hand</li>
+          <li>Never above the 4th rung from the top of an extension ladder or the top two steps of a stepladder</li>
+          <li><b>Roof access cleared</b> with your supervisor. No wet, dewy, tile or metal roofs without approval and fall protection</li>
+          <li>OSHA requires fall protection near an unprotected edge <b>4 feet</b> or more above a lower level</li>
+          <li><b>10 feet</b> from overhead power lines, ladder included</li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-thermo"/></svg></div><div><h3>Heat</h3><p>Roofline and attic work in the morning in summer. Water about every 15 to 20 minutes, shade breaks, and never work a hot attic alone without a check-in (RX-08).</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-mask"/></svg></div><div><h3>Droppings at the opening</h3><p>Wet them with disinfectant first. Never sweep or vacuum dry. Gloves and respirator per FC-03.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-hand"/></svg></div><div><h3>Hurt or close call?</h3><p>Tell your supervisor immediately and file the written report the same day (CW-09).</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 STOP AND REFER -->
+  <section class="slide" data-label="When to stop and refer">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · When to stop and refer</span>
+        <h2 class="a" style="--i:1">You have the final word on whether it can be done safely and right</h2>
+        <div class="grid g2 stopg a" style="--i:2">
+          <div class="stopi"><svg class="ico"><use href="#i-home"/></svg><span>Roof or fascia rot beyond about 4 to 6 inches</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-layers"/></svg><span>Soft or damaged roof decking</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-x"/></svg><span>Broken tiles, cracked roof boots, failed flashing</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-building"/></svg><span>Remodel-level or structural repair</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-ladder"/></svg><span>Access you can't make safe</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-users"/></svg><span>Multi-unit with shared attic and no firewall: manager review</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-eye"/></svg><span>Bats or other wildlife using the opening</span></div>
+          <div class="stopi"><svg class="ico"><use href="#i-alert"/></svg><span>Wiring damage, gas smell or anything that feels wrong</span></div>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><span class="eyebrow">What you do</span><ol class="steps" style="margin-top:4px">
+          <li style="padding:7px 0;font-size:15px"><span class="num">1</span><span>Stop work on that opening. Don't seal over damage.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">2</span><span>Photograph and note it on the order.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">3</span><span>Tell the homeowner professionally, without diagnosing or quoting.</span></li>
+          <li style="padding:7px 0;font-size:15px"><span class="num">4</span><span>Escalate to your supervisor or branch manager the same day.</span></li>
+        </ol></div>
+        <div class="quote a" style="--i:4;font-size:18px">"This section has rot that a seal won't hold on. I'd rather pause than do work that fails in six months. I'm flagging it for our team so we can come back once a roofer addresses it."<cite>What it sounds like</cite></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 SCOPE SORT -->
+  <section class="slide" data-label="Practice: Basic, Plus or refer" style="gap:14px">
+    <span class="eyebrow a">04 · Practice · scope sort</span>
+    <h2 class="a" style="--i:1">Basic, Plus, or refer it out?</h2>
+    <div class="sort sort3 a" style="--i:2" id="ssSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="ssCheck">Check my answers</button><span id="ssFb"></span></div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a live Rodent Shield job</h2>
+    <p class="a muted" style="--i:2">Your field training supervisor will watch you do each of these before RX-04 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="so1"> Name every approved material on the truck and the opening size it is used for</label></li>
+      <li><label><input type="checkbox" id="so2"> Measure an entry point and select the correct material without prompting</label></li>
+      <li><label><input type="checkbox" id="so3"> Pack Xcluder or copper mesh around a penetration and finish it with color-matched cement</label></li>
+      <li><label><input type="checkbox" id="so4"> Cut, fasten and edge-seal hardware cloth with at least 1 inch of overlap</label></li>
+      <li><label><input type="checkbox" id="so5"> Identify every dryer, exhaust and plumbing vent and weep hole on the property and leave them working</label></li>
+      <li><label><input type="checkbox" id="so6"> Set up and use an extension ladder at the roofline to FC-06 standard</label></li>
+      <li><label><input type="checkbox" id="so7"> Take matching before and after photos, upload them to PestPac and complete the entry point PDF</label></li>
+      <li><label><input type="checkbox" id="so8"> Explain to the supervisor, as you would to a homeowner, an opening you would refer to a roofer</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx04:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx04:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-04", "titleHtml": "Exclusion \u2014 Clements Standard", "nextHtml": "RX-05 \u00b7 Add-On Services", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The standard and the materials',q:'On a Plus job you measure a 3/4-inch gap where a cable line enters the stucco. You\'re running behind, and a can of foam would close it in seconds. What goes in the gap?',o:['Foam, trimmed flush, since the gap is small','Xcluder or copper mesh packed tight, then sealed with color-matched cement','Steel wool, because rodents won\'t chew metal','Nothing; gaps under 1 inch aren\'t entry points'],a:1,e:'At 1/2 to 1 inch the Clements standard is Xcluder or copper mesh, packed tight and sealed with color-matched cement. Foam is not exclusion, and steel wool rusts and compresses. Anything 1/2 inch and up is a documented entry point.'},
+    2:{t:'Checkpoint 2 · Methods by entry point',q:'The homeowner saw a rat near her dryer vent and asks you to put hardware cloth over it "while you\'re up there." What do you do?',o:['Screen it with 1/4-inch hardware cloth so it still passes air','Seal it with cement, since it\'s an entry point','Tell her we never seal or screen dryer vents because lint can catch fire and moisture backs up; photograph and note it, and recommend repairing the hood if the flap is damaged','Stuff copper mesh behind the flap where she can\'t see it'],a:2,e:'No material, screen or cover ever goes on a dryer or exhaust vent, even at the homeowner\'s request. Building code bans screens on dryer terminations because lint builds up and can ignite. Explain why, photograph it, note it and recommend the hood be repaired.'},
+    3:{t:'Checkpoint 3 · Workmanship',q:'A trainee\'s roof return: cloth overlapped 1 inch and screwed to framing, but gray cement is smeared on cream stucco and the after photo was shot from the driveway. Your call?',o:['Redo the finish: clean it up, color-match the cement, and retake the after photo close up from the same angle as the before','Pass it; the rodent can\'t get in, so the job is done','Pass it if the homeowner doesn\'t complain','Redo the whole seal with foam so it\'s neater'],a:0,e:'The backing is right, but the standard is also neat, weatherproof and color-matched, with a matching before and after pair. Sloppy finish and an unusable photo both mean the job isn\'t finished.'},
+    4:{t:'Checkpoint 4 · Scope, safety and limits',q:'Sealing the last entry point on a Plus job, you find the fascia behind the roof return is soft and the rot runs about a foot along the eave. What do you do?',o:['Pack it with extra cement so the patch holds anyway','Screw sheet metal over the rot and move on','Skip it without telling anyone, since it\'s not your fault','Stop work on that opening, photograph and note it, tell the homeowner professionally that it needs repair before it can be sealed, and escalate to your supervisor the same day'],a:3,e:'Rot beyond about 4 to 6 inches is contractor work. Sealing over it fails and becomes a warranty problem. Stop, document, explain without quoting or diagnosing, and escalate the same day.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the primary finish material for Rodent Shield entry points 1/2 inch and larger?',o:['Expanding foam','Silicone caulk','Color-matched cement','Duct tape and mesh'],a:2,e:'Cement first. Rodents chew foam and caulk; they don\'t chew cement.'},
+    {k:'Multiple choice',q:'At what opening size does a gap become a Rodent Shield entry point that is documented and sealed?',o:['1/2 inch and larger','1/8 inch and larger','1 inch and larger','Only openings over 4 inches'],a:0,e:'Rats need about 1/2 inch. Smaller gaps are noted for the record but don\'t drive exclusion scope.'},
+    {k:'True or false',q:'Foam is an approved primary exclusion material as long as it is low-expansion foam.',o:['True','False'],a:1,e:'False. Foam is not exclusion. Low-expansion foam is used only as a courtesy on minor gaps under 1/2 inch, or as a filler behind hardware cloth that is finished with cement.'},
+    {k:'Multiple choice',q:'Which material is approved for a 1 to 4 inch opening?',o:['Steel wool and caulk','1/4-inch galvanized hardware cloth, overlapped at least 1 inch, edges sealed with cement','Window screen glued in place','Foam alone'],a:1,e:'Hardware cloth with at least 1 inch of overlap on every side, fastened mechanically, edges cemented.'},
+    {k:'Multiple choice',q:'Why is Xcluder or copper mesh used instead of steel wool?',o:['It\'s cheaper','It expands to fill the gap','It rusts more slowly than cement','It doesn\'t rust or compress the way steel wool does, and rodents won\'t chew through it'],a:3,e:'Steel wool rusts, stains stucco and compresses over time. Xcluder and copper hold up.'},
+    {k:'Scenario',q:'You find fresh gnaw marks around a 5-inch hole in solid fascia. Which repair meets the standard?',o:['Galvanized sheet metal over hardware cloth backing, 1.5 inches of overlap, screwed, edges sealed with cement','Caulk the hole and paint over it','Foam and trim it flush','Hardware cloth held with construction adhesive'],a:0,e:'4 to 8 inches, and an active gnaw site: sheet metal backed with hardware cloth. Rodents chew caulk and foam, and adhesive alone fails.'},
+    {k:'True or false',q:'Hardware cloth must be fastened mechanically; adhesive alone is not acceptable.',o:['True','False'],a:0,e:'True. Adhesive lets go. Screws or staples go in flush, and every edge is sealed with cement.'},
+    {k:'Multiple choice',q:'How do you exclude rodents at a gable vent?',o:['Fill the louvers with foam','Cover it with solid sheet metal','Screen it with 1/4-inch galvanized hardware cloth, fastened and edge-sealed, so it still passes air','Leave it; gable vents are never entry points'],a:2,e:'Attic ventilation is screened, never sealed. Torn gable vent screens are a classic roof rat entry.'},
+    {k:'Scenario',q:'A homeowner insists you seal her bathroom exhaust vent because she hears scratching near it. What do you do?',o:['Seal it, since the customer asked','Screen it with hardware cloth','Fill it with copper mesh','Explain that we never seal or screen exhaust vents because moisture and gases need to get out; inspect the area for the real entry point, photograph and note it'],a:3,e:'Exhaust, dryer and appliance vents are never sealed or screened under any Rodent Shield tier. Find the real entry and document the vent.'},
+    {k:'Multiple choice',q:'What is the right way to handle weep holes in a block wall where mice are active?',o:['Install weep hole covers that keep rodents out and let water drain','Pack them with cement','Fill them with copper mesh and seal over','Spray foam in each one'],a:0,e:'Never block drainage. Trapped water damages the wall. Weep hole covers do both jobs.'},
+    {k:'Multiple choice',q:'A plumbing vent stack comes through the roof with a 3/4-inch gap around it. What do you seal?',o:['The open top of the pipe','The gap around the stack where it passes through, per the size chart','Both the top and the gap','Nothing; roof stacks are always roofer work'],a:1,e:'Seal the open collar around the stack. Never cap the top of a plumbing vent. A cracked or loose roof boot is a roofer\'s job.'},
+    {k:'Multiple choice',q:'What does a garage door seal need to do to meet the standard?',o:['Cover the middle of the door; corners don\'t matter','Be foamed to the slab','Meet the slab across the full width with no gaps at either corner','Be stapled to the concrete'],a:2,e:'Light at the corners is a mouse entry. Full contact, no corner gaps; aluminum-reinforced seals preferred.'},
+    {k:'True or false',q:'A seal that keeps rodents out passes inspection even if the cement is smeared and doesn\'t match the house color.',o:['True','False'],a:1,e:'False. Clements work is neat, weatherproof and color-matched. Smears and drips are redone before you leave.'},
+    {k:'Multiple choice',q:'What makes a before and after photo pair meet the standard?',o:['Same spot, same angle, size reference in the before photo, labeled and uploaded to PestPac with the entry point PDF','Any photo of the house','A photo from the street showing the whole roof','Only an after photo'],a:0,e:'The pair is the warranty record. It proves what was in scope and what was sealed.'},
+    {k:'Scenario',q:'On a signed Plus job, what comes immediately before cutting and fastening the hardware cloth?',o:['Uploading photos to PestPac','Taking the after photo','Walking the homeowner through the work','Wetting down any droppings and cleaning and prepping the opening'],a:3,e:'Scope, safety, before photo, prep, backing, cement finish, after photo, then documentation.'},
+    {k:'Multiple choice',q:'How many entry points does Rodent Shield Plus include, and what happens with more?',o:['Up to 4 included; additional openings are added per opening and priced by the advisor','Unlimited','2 included; the rest are free','None; every opening is billed separately'],a:0,e:'Plus seals up to 4 documented entry points. Additional openings and surcharges are priced by the service advisor, never quoted by the technician in the field.'},
+    {k:'Multiple choice',q:'Which of these tells you to stop and refer instead of sealing?',o:['A 3/4-inch gap around a hose bib','A torn gable vent screen','Soft, rotted roof decking at the entry point','A chewed garage door seal'],a:2,e:'Compromised decking, rot beyond about 4 to 6 inches, broken tiles, structural or remodel-level work and unsafe access go to a roofer or contractor.'},
+    {k:'Multiple choice',q:'Under FC-06, what is the correct extension ladder setup for roofline exclusion work?',o:['As steep as possible so it takes less room','4 to 1 angle, firm footing, secured, extending 3 feet above the roof edge, three points of contact','Leaned against the gutter at any angle','Standing on the top rung to reach the soffit'],a:1,e:'4 to 1, secured, 3 feet above the landing, three points of contact. Roof access is cleared with your supervisor.'},
+    {k:'True or false',q:'If a homeowner declines sealing an entry point, it is documented on the service agreement with their acknowledgment and is not covered by the warranty.',o:['True','False'],a:0,e:'True. Declined entry points are recorded on the agreement and excluded from warranty coverage.'},
+    {k:'Scenario',q:'At dusk you see bats leaving through a gap at the gable vent you were scheduled to screen. What do you do?',o:['Screen it quickly before they come back','Seal it with cement','Stop, don\'t close the opening, document it and refer it to your supervisor for the wildlife team; bats are protected and can\'t be excluded during maternity season','Spray the gap with foam'],a:2,e:'Bats are protected in Florida and are never trapped inside or excluded during maternity season (CW-05). Stop and refer.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- size decides the material ---------- */
+  var SZ=[
+    {t:'Under 1/2 inch',m:'Low-expansion foam or caulk',c:'Courtesy only',hole:'M96 98L160 104L206 108L206 111L160 107L96 101Z',fill:1,foam:1,
+     d:'Too small for a rat, so it isn\'t a Rodent Shield entry point. Note it for the record. If it\'s a minor gap on a suitable surface, a neat bead of low-expansion foam is a courtesy: not billed, not warranted.',
+     w:'Check the can says low expansion. Standard foam over-expands and cracks.'},
+    {t:'1/2 to 1 inch',m:'Xcluder fill fabric or copper mesh, sealed with cement',c:'Entry point',hole:'M136 105a14 9 0 1 0 28 0a14 9 0 1 0 -28 0Z',fill:1,cem:[128,90,44,30],
+     d:'Pack the fill tightly into the opening until there is nothing soft left to push through, then seal every edge with color-matched cement.',
+     w:'Never steel wool: it rusts, stains stucco and compresses over time.'},
+    {t:'1 to 4 inches',m:'1/4-inch galvanized hardware cloth plus cement',c:'Entry point',hole:'M120 85h60v40h-60Z',cloth:[108,73,84,64],cem:[108,73,84,64],
+     d:'Cut the cloth to overlap the opening by at least 1 inch on every side. Fasten it with screws or staples, then seal all edges with color-matched cement.',
+     w:'Adhesive alone fails. Fasteners sit flush; a sharp cut edge or proud screw is a warranty problem.'},
+    {t:'4 to 8 inches',m:'Galvanized sheet metal or wood patch, backed with hardware cloth, finished with cement',c:'Entry point',hole:'M95 70h110v70H95Z',cloth:[86,61,128,88],plate:[80,55,140,100],cem:[80,55,140,100],
+     d:'Back the opening with hardware cloth, then screw the patch over it with at least 1.5 inches of overlap. Finish with color-matched cement.',
+     w:'A wood patch is only as good as what it\'s screwed into. Soft or rotted framing means stop and refer.'},
+    {t:'Over 8 inches or irregular',m:'Foam-backed hardware cloth, custom cut, finished with cement',c:'Entry point · surcharge',hole:'M70 60L140 48L215 66L232 120L200 158L120 162L66 130Z',fill:1,foam:1,cloth:[52,36,198,140],cem:[52,36,198,140],
+     d:'Measure and cut the cloth to the shape, secure it on all sides, and finish with color-matched cement. The advisor prices it as a surcharge line item.',
+     w:'This is the only place foam goes into an entry point: as a filler behind the cloth, never on its own.'}
+  ];
+  (function(){
+    var r=$('#szR');if(!r)return;
+    function rect(id,b){var e=$('#'+id);if(!b){e.classList.remove('on');return}e.setAttribute('x',b[0]);e.setAttribute('y',b[1]);e.setAttribute('width',b[2]);e.setAttribute('height',b[3]);e.classList.add('on')}
+    function show(){var s=SZ[+r.value];
+      $('#szHole').setAttribute('d',s.hole);
+      var f=$('#szFill');f.setAttribute('d',s.hole);f.classList.toggle('on',!!s.fill);f.style.fill=s.foam?'#E8E2CF':'';f.style.stroke=s.foam?'#CFC6AE':'';
+      rect('szCloth',s.cloth);rect('szPlate',s.plate);rect('szCem',s.cem);
+      var g=$('#szScrews');g.innerHTML='';var b=s.plate||s.cloth;
+      if(b){[[b[0]+6,b[1]+6],[b[0]+b[2]-6,b[1]+6],[b[0]+6,b[1]+b[3]-6],[b[0]+b[2]-6,b[1]+b[3]-6],[b[0]+b[2]/2,b[1]+6],[b[0]+b[2]/2,b[1]+b[3]-6]].forEach(function(p){g.appendChild(sv('circle',{cx:p[0],cy:p[1],r:'2.6','class':'szscrew'}))});g.classList.add('on')}else g.classList.remove('on');
+      $('#szDim').textContent=s.t.toUpperCase();
+      $('#szOut').innerHTML='<div class="tagline"><span class="chip">'+s.t+'</span><span class="chip">'+s.c+'</span></div><h3>'+s.m+'</h3><p>'+s.d+'</p><div class="callout" style="padding:9px 14px">'+ico('i-eye')+'<span>'+s.w+'</span></div>';
+      r.setAttribute('aria-valuetext',s.t+': '+s.m);
+    }
+    r.addEventListener('input',show);show();
+  })();
+
+  /* ---------- material flip cards ---------- */
+  var MAT=[
+    {n:'Cement or stucco mix',i:'i-trowel',f:'The finish on every entry point 1/2 inch and up.',b:'<b>Hydraulic cement or stucco mix, color-matched to the home.</b> Seals every edge of the fill or backing. Tool it smooth to shed water. Rodents can\'t chew it, which is why Clements leads with it.'},
+    {n:'Xcluder or copper mesh',i:'i-layers',f:'1/2 to 1 inch, and irregular gaps around pipes and conduit.',b:'<b>Metal fibers rodents won\'t chew through.</b> Unlike steel wool, it doesn\'t rust or compress. Pack it tight with no soft spots, then always seal over it with cement.'},
+    {n:'Hardware cloth',i:'i-grid',f:'1 to 4 inch openings, gable vents and roof returns.',b:'<b>1/4-inch galvanized mesh, 19-gauge or heavier.</b> At least 1 inch of overlap on every side. Fastened with screws or staples, never adhesive alone. Fasteners flush, edges cemented.'},
+    {n:'Sheet metal',i:'i-box',f:'4 to 8 inch openings and active gnaw sites on wood.',b:'<b>Galvanized sheet metal or flashing.</b> Backed with hardware cloth on large openings, 1.5 inches of overlap, screwed in place, edges sealed. The only real fix for gnawed fascia: rodents chew caulk and foam.'},
+    {n:'Low-expansion foam',i:'i-drop',f:'Courtesy gaps under 1/2 inch only.',b:'<b>Foam is not exclusion.</b> Use it only for minor courtesy gaps, or as filler behind hardware cloth on a large irregular opening finished with cement. Low expansion only. Not billed, not warranted.'},
+    {n:'Sweeps, seals and weep covers',i:'i-sweep',f:'Garage doors, exterior doors and weep holes.',b:'<b>Door sweeps and brush seals</b> must meet the threshold across the full width with no corner gaps; aluminum-reinforced preferred. <b>Weep hole covers</b> keep rodents out and still let water drain.'}
+  ];
+  (function(){
+    var box=$('#matFlip');if(!box)return;var seen=store.get('mat')||{};
+    function count(){var n=Object.keys(seen).length;$('#matN').textContent=n===MAT.length?'All six flipped. If it isn\'t on this list, it isn\'t a Rodent Shield material.':n+' of 6 flipped'}
+    MAT.forEach(function(m,i){var b=mk('button');b.type='button';b.id='mat'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',m.n);
+      b.innerHTML='<span class="in"><span class="face front"><span class="icobox">'+ico(m.i)+'</span><h3>'+m.n+'</h3><p>'+m.f+'</p><span class="hint">Flip for the standard</span></span><span class="face back"><span>'+m.b+'</span></span></span>';
+      b.addEventListener('click',function(){var on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);seen[i]=1;store.set('mat',seen);count()});
+      box.appendChild(b)});
+    count();
+  })();
+
+  /* ---------- house explorer ---------- */
+  var HX=[
+    {n:'Roof return',x:136,y:184,m:'1/4-inch hardware cloth cut to the shape; sheet metal backing on a large return',h:'Overlap at least 1 inch, screw to solid framing, cement every edge. Color-match to the fascia or stucco.',w:'Fresh gnawing on the wood calls for metal. Soft or rotted wood: stop and refer.'},
+    {n:'Soffit gap',x:490,y:184,m:'By size: mesh plus cement, hardware cloth plus cement, or a backed metal patch',h:'Measure, then follow the size chart. Close open seams and unfinished corners along the soffit and fascia.',w:'Soffit vents are screened, never sealed. A sagging or rotted soffit is contractor work.'},
+    {n:'Gable vent',x:310,y:126,m:'1/4-inch galvanized hardware cloth over the vent',h:'Cover torn screens and corner gaps, fastened and edge-sealed. Remove and refit the louver cover if needed.',w:'The attic has to breathe. Screen it, never fill it or cover it solid.'},
+    {n:'Roof stack',x:401,y:96,m:'Seal the gap around the stack per the size chart',h:'Close the open collar where a plumbing or HVAC stack or cable passes through.',w:'Never cap the open top of a plumbing vent. A cracked or loose roof boot is a roofer\'s job.'},
+    {n:'A/C line-set chase',x:146,y:264,m:'Xcluder or copper mesh packed around the lines, finished with cement',h:'Pack gently but tightly around the refrigerant lines, then cement flush. Included in Plus scope; a standalone add-on outside it (RX-05).',w:'Don\'t crush, kink or nick the lines or their insulation.'},
+    {n:'Plumbing penetration',x:227,y:296,m:'Xcluder or copper mesh, sealed with color-matched cement',h:'Irregular gaps around hose bibs, supply lines, drains and conduit. Pack tight, cement flush to the wall.',w:'Fill under 1/2 inch around a pipe is a courtesy fix, not an entry point.'},
+    {n:'Garage door',x:490,y:316,m:'Door sweep or brush seal',h:'Seal must meet the slab across the full width with no gaps at either corner. Aluminum-reinforced preferred.',w:'Light at the corners means a mouse can get in. Note gnawed seals and photograph them.'},
+    {n:'Weep holes',x:365,y:308,no:1,m:'Weep hole cover only, never fill',h:'Weep holes let water out of the wall. A proper cover keeps rodents out and still drains.',w:'Never pack a weep hole with cement, foam or mesh. Trapped water rots and cracks the wall.'},
+    {n:'Dryer vent',x:447,y:280,no:1,m:'Nothing. Do not seal, screen or cover it.',h:'Photograph it and note its condition. If the flap is broken, tell the homeowner it needs repair by the appropriate trade.',w:'A screen or seal traps lint and can start a fire, and pushes moisture back inside. No exceptions, even if the homeowner asks.'}
+  ];
+  (function(){
+    var L=$('#hxPins');if(!L)return;var seen=store.get('hx')||{};
+    function cnt(){var n=Object.keys(seen).length;$('#hxN').textContent=n===HX.length?'All nine checked. Two of them, you leave open.':n+' of 9 checked'}
+    function info(i){var h=HX[i];seen[i]=1;store.set('hx',seen);
+      $$('.hpin',L).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('seen',!!seen[j])});
+      $('#hxD').innerHTML='<span class="eyebrow'+(h.no?' no':'')+'">'+(h.no?'Never seal':'Entry point '+(i+1))+'</span><h3>'+h.n+'</h3><dl><dt>Material</dt><dd'+(h.no?' class="no"':'')+'>'+h.m+'</dd><dt>Method</dt><dd>'+h.h+'</dd><dt>Watch for</dt><dd>'+h.w+'</dd></dl>';
+      cnt()}
+    HX.forEach(function(h,i){var g=sv('g',{'class':'hpin'+(h.no?' no':'')+(seen[i]?' seen':''),tabindex:'0',role:'button',id:'hx'+i,'aria-label':h.n});
+      g.appendChild(sv('circle',{'class':'hit',cx:h.x,cy:h.y,r:'20'}));
+      g.appendChild(sv('circle',{'class':'halo',cx:h.x,cy:h.y,r:'11'}));
+      g.appendChild(sv('circle',{'class':'core',cx:h.x,cy:h.y,r:'11'}));
+      var t=sv('text',{x:h.x,y:h.y+3.5,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);
+      keyAct(g,function(){info(i)});L.appendChild(g)});
+    $('#hxD').innerHTML='<span class="eyebrow">Select a numbered spot</span><h3>Each opening has its own method</h3><p class="small">Roofline spots are roof rat territory. Ground-level spots are where Norway rats and mice get in. The red ones are openings you must leave working.</p>';
+    cnt();
+  })();
+
+  /* ---------- material matcher ---------- */
+  var MO={foam:'Low-expansion foam (courtesy)',mesh:'Xcluder or copper mesh + cement',cloth:'1/4" hardware cloth + cement',metal:'Sheet metal backed with hardware cloth + cement',fbc:'Foam-backed hardware cloth + cement',sweep:'Door sweep or brush seal',weep:'Weep hole cover',none:'Leave it open: photograph and note it',solid:'Solid sheet metal cover',cem:'Pack it with cement'};
+  var MM=[
+    {t:'Hose bib',q:'A 3/4-inch irregular gap around the hose bib pipe on the north wall.',o:['foam','mesh','cloth','none'],a:'mesh',w:{foam:'Foam is not exclusion. At 3/4 inch, this is an entry point.',cloth:'Hardware cloth suits flat 1 to 4 inch openings, not an irregular gap around a pipe.',none:'It\'s over 1/2 inch: a rat can use it. It gets sealed.'},ok:'Irregular, 1/2 to 1 inch, around a pipe: pack mesh tight and seal with color-matched cement.'},
+    {t:'Roof return',q:'An open roof return corner, about 2 by 3 inches, with rub marks on the fascia.',o:['mesh','cloth','foam','metal'],a:'cloth',w:{mesh:'Mesh fill is for 1/2 to 1 inch and irregular pipe gaps. This opening is bigger and flat-sided.',foam:'Foam alone will be chewed through, probably within weeks at an active spot.',metal:'A backed metal patch is for 4 to 8 inch openings. Use it here only if the wood is being gnawed.'},ok:'1 to 4 inches: hardware cloth with at least 1 inch of overlap, screwed to solid framing, every edge cemented.'},
+    {t:'Gable vent',q:'A 6-inch tear in the screen behind the gable vent louvers.',o:['solid','cloth','foam','none'],a:'cloth',w:{solid:'A solid cover closes the vent. The attic has to breathe.',foam:'Foam blocks airflow and won\'t stop rats.',none:'A torn vent screen is a classic roof rat entry. It gets screened.'},ok:'Vents are screened, never sealed: 1/4-inch hardware cloth across the vent, fastened and edge-sealed, air still flows.'},
+    {t:'Window trim',q:'A 1/8-inch hairline gap at the corner of a window frame.',o:['mesh','cloth','foam','metal'],a:'foam',w:{mesh:'Too small for mesh, and below the 1/2-inch threshold.',cloth:'Far below the 1/2-inch threshold. Not an entry point.',metal:'Not an entry point. No patch needed.'},ok:'Under 1/2 inch: note it. A neat bead of low-expansion foam is a courtesy, not billed and not warranted.'},
+    {t:'Gnawed fascia',q:'A 6 by 5 inch hole in the fascia with fresh gnaw marks around the edges. The wood is solid.',o:['cloth','metal','foam','mesh'],a:'metal',w:{cloth:'Hardware cloth alone is the right call at 1 to 4 inches. This is bigger, and the gnawing needs metal.',foam:'Foam on an active gnaw site is gone in days.',mesh:'Mesh fill is for small, irregular gaps.'},ok:'4 to 8 inches on gnawed wood: sheet metal over hardware cloth, 1.5 inches of overlap, screwed, edges sealed.'},
+    {t:'Dryer vent',q:'A dryer vent hood with a broken flap and droppings on the ground beneath it.',o:['cloth','foam','none','mesh'],a:'none',w:{cloth:'A screen on a dryer vent traps lint and can start a fire. Building code bans it.',foam:'Never seal a dryer vent. Fire and moisture hazard.',mesh:'No material of any kind goes in a dryer or exhaust vent.'},ok:'Never seal, screen or cover a dryer vent. Photograph it, note it, and tell the homeowner the hood needs repair.'},
+    {t:'Garage door',q:'Daylight at both bottom corners of the garage door, and the rubber seal is chewed.',o:['cem','foam','sweep','cloth'],a:'sweep',w:{cem:'Cement on the slab would stop the door closing properly and won\'t seal a moving door.',foam:'Foam on a door seal is chewed through and tears off.',cloth:'Hardware cloth can\'t seal a moving door.'},ok:'A door sweep or brush seal that meets the slab across the full width, with no gaps at either corner.'},
+    {t:'Weep holes',q:'Weep holes along the base of a block wall, with mouse droppings below one of them.',o:['cem','mesh','weep','foam'],a:'weep',w:{cem:'Packing a weep hole traps water in the wall.',mesh:'Mesh packing blocks drainage. Use a cover made for weeps.',foam:'Foam blocks drainage and doesn\'t stop mice.'},ok:'Weep hole covers keep rodents out and let water drain. Never block drainage.'},
+    {t:'Soffit cut-out',q:'A 12-inch irregular opening in the soffit where an old cable line was removed.',o:['foam','cloth','fbc','none'],a:'fbc',w:{foam:'Foam alone is never exclusion, at any size.',cloth:'Plain cloth won\'t follow an irregular opening this large. It needs the custom foam-backed method.',none:'A 12-inch opening is a door for rats. It gets sealed.'},ok:'Over 8 inches and irregular: foam-backed hardware cloth cut to shape, secured on all sides, finished with cement. The advisor prices it as a surcharge.'}
+  ];
+  (function(){
+    var tabs=$('#mmTabs'),box=$('#mmBox');if(!tabs)return;var done=store.get('mm')||{};
+    function render(i){var m=MM[i];
+      $$('button',tabs).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});
+      box.innerHTML='<div><span class="eyebrow">Opening '+(i+1)+' of '+MM.length+'</span><h3>'+m.t+'</h3><p>'+m.q+'</p></div><div><div class="choices">'+m.o.map(function(k,j){return '<button type="button" class="choice" id="mm'+i+'_'+j+'" data-k="'+k+'"><span class="k">'+'ABCD'[j]+'</span><span>'+MO[k]+'</span></button>'}).join('')+'</div><div id="mmFb"></div></div>';
+      $$('.choice',box).forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k;
+        if(k===m.a){$$('.choice',box).forEach(function(x){x.disabled=true;x.classList.remove('wrong')});b.classList.add('right');done[i]=1;store.set('mm',done);$('#mmTab'+i).classList.add('done');$('#mmTab'+i).classList.remove('bad');
+          var nx=MM.findIndex(function(_,j){return !done[j]});
+          $('#mmFb').innerHTML='<div class="fb">'+m.ok+(nx>=0?' <button type="button" class="btn" id="mmNext" style="margin-left:6px;padding:4px 12px">Next opening</button>':' <b>All nine matched.</b>')+'</div>';
+          if(nx>=0)$('#mmNext').addEventListener('click',function(){render(nx)});}
+        else{$$('.choice',box).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('#mmTab'+i).classList.add('bad');$('#mmFb').innerHTML='<div class="fb no">'+m.w[k]+' Try again.</div>';}
+      })});
+    }
+    MM.forEach(function(m,i){var b=mk('button',done[i]?'done':'',m.t);b.type='button';b.id='mmTab'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){render(i)});tabs.appendChild(b)});
+    render(0);
+  })();
+
+  /* ---------- before / after ---------- */
+  (function(){
+    var fig=$('#baFig');if(!fig)return;
+    function set(after){fig.classList.toggle('after',after);$('#baB').setAttribute('aria-pressed',!after);$('#baA').setAttribute('aria-pressed',after);
+      $('#baTag').textContent=after?'AFTER · NW SOFFIT RETURN · CLOTH + CEMENT':'BEFORE · NW SOFFIT RETURN · 3/4 IN'}
+    $('#baB').addEventListener('click',function(){set(false)});$('#baA').addEventListener('click',function(){set(true)});
+  })();
+
+  /* ---------- generic sort ---------- */
+  function makeSort(box,btn,fb,items,labels,okMsg){
+    var el=$('#'+box);if(!el)return;var sel={};
+    items.forEach(function(s,i){var r=mk('div','row');r.id=box+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+labels.map(function(l,j){return '<button type="button" aria-pressed="false" data-v="'+l+'" id="'+box+i+'_'+j+'">'+l+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      el.appendChild(r)});
+    $('#'+btn).addEventListener('click',function(){
+      var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+box+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=mk('span','why');d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+      });
+      $('#'+fb).innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">All '+items.length+' correct. '+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes under the ones in red and try again.</span>');
+    });
+  }
+  makeSort('qjSort','qjCheck','qjFb',[
+    {q:'Mesh around a pipe, cement tooled flush and color-matched, matching photos',a:'Pass',w:'Right material, sealed, finished and documented.'},
+    {q:'Hardware cloth on a roof return, held with adhesive only',a:'Redo',w:'Hardware cloth is fastened mechanically. Adhesive alone lets go.'},
+    {q:'A neat, trimmed bead of foam in a 3/4-inch A/C chase gap',a:'Redo',w:'Neat or not, foam is not exclusion. 3/4 inch takes mesh and cement.'},
+    {q:'Solid patch, but gray cement smeared on tan stucco, drips on pavers',a:'Redo',w:'Color-match and clean up. The finish is part of the standard.'},
+    {q:'Hardware cloth, 1.5-inch overlap, flush screws, edges cemented',a:'Pass',w:'Overlap, fasteners and sealed edges all meet the standard.'},
+    {q:'After photo taken from the driveway; patch can\'t be seen',a:'Redo',w:'Same spot, same angle as the before photo, close enough to see the work.'},
+    {q:'Weep holes packed with cement to stop mice',a:'Redo',w:'Never block drainage. Use weep hole covers.'},
+    {q:'Gnawed fascia under screwed sheet metal, edges sealed, matches trim',a:'Pass',w:'Metal is the fix for active gnaw sites.'},
+    {q:'Garage brush seal meets the slab full width, corners closed',a:'Pass',w:'Full contact with no corner gaps.'}
+  ],['Pass','Redo'],'You\'d sign off on the passes and send the rest back.');
+
+  makeSort('ssSort','ssCheck','ssFb',[
+    {q:'Inspection, up to 6 traps, five follow-ups, no sealing',a:'Basic',w:'That is the Basic package. No exclusion, no warranty.'},
+    {q:'Sealing four documented entry points with mesh and cement',a:'Plus',w:'Plus includes sealing up to 4 entry points.'},
+    {q:'A fifth documented entry point on the same home',a:'Plus',w:'Plus adds openings beyond 4 per opening; the advisor prices it.'},
+    {q:'Fascia rot running two feet along the eave',a:'Refer',w:'Rot beyond about 4 to 6 inches is contractor work. Seal after it\'s repaired.'},
+    {q:'Cracked roof tiles where roof rats are getting in',a:'Refer',w:'Roof repair is a roofer\'s job. Document, photograph and escalate.'},
+    {q:'A 1-year or 3-year warranty on the sealed openings',a:'Plus',w:'Only Plus carries a warranty.'},
+    {q:'A duplex with a shared attic and no firewall between units',a:'Refer',w:'Partial exclusion doesn\'t work without a firewall. Flag it for manager review.'},
+    {q:'Bats flying out of the gable vent at dusk',a:'Refer',w:'Bats are protected. Stop and refer to the wildlife team; never exclude during maternity season (CW-05).'},
+    {q:'Inspection finds open entry points on a Basic job',a:'Plus',w:'Present the Plus upgrade before leaving the property.'},
+    {q:'A 12-inch irregular soffit opening on solid framing',a:'Plus',w:'In scope: foam-backed hardware cloth and cement, priced as a surcharge.'}
+  ],['Basic','Plus','Refer'],'Plus is where exclusion lives, and damage gets fixed by the right trade first.');
+
+  /* ---------- job order ---------- */
+  var JO=['Confirm the signed scope: the entry point list on the agreement','Set up the ladder to FC-06 and put on your PPE','Take the before photo with a tape measure in frame','Wet down any droppings, then clean and prep the opening','Cut hardware cloth with 1 inch of overlap and screw it to solid framing','Seal every edge with color-matched cement and tool it smooth','Take the after photo from the same angle','Upload photos, complete the entry point PDF and walk the homeowner through it'];
+  var joMix=[4,1,6,0,7,3,5,2];
+  (function(){
+    var box=$('#joOrd');if(!box)return;var n=0;
+    function render(){box.innerHTML='';n=0;$('#joFb').innerHTML='';
+      joMix.forEach(function(ix){var b=mk('button',null,'<span class="num">·</span><span>'+JO[ix]+'</span>');b.type='button';b.dataset.ix=ix;b.id='jo'+ix;
+        b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+          if(+b.dataset.ix===n){b.classList.add('placed');$('.num',b).textContent=n+1;n++;
+            if(n===JO.length){$('#joFb').innerHTML='<div class="fb">Correct. Scope, safety, before photo, prep, backing, finish, after photo, document. <button type="button" class="btn" id="joAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#joAgain').addEventListener('click',render)}}
+          else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');
+            $('#joFb').innerHTML='<div class="fb no">'+(n<2?'Know what you\'re sealing and be safe before you touch the house.':(n<3?'Photograph the opening before you change anything.':(n<6?'Prep, then backing, then the cement finish.':'Photograph the finished seal before the paperwork.')))+'</div>'}
+        });box.appendChild(b)});
+    }
+    render();
+  })();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

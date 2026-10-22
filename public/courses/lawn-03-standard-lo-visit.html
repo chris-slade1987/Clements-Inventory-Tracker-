@@ -1,0 +1,1459 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-03 The Standard L&amp;O Visit</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-03 extras */
+.mini{list-style:none;display:grid;gap:5px;margin-top:6px;font-size:14.5px}
+.mini li{position:relative;padding-left:16px;line-height:1.42}
+.mini li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.card .mini{color:var(--ink)}
+.steps.tight li{padding:7px 0;font-size:15px;gap:12px;line-height:1.4}
+.steps.tight .num{flex-basis:28px;height:28px;font-size:13px}
+.speech{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:11px 16px;font-size:15.5px}
+.speech .who{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.slide.on.tight{gap:14px}
+.ihead{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+.ihead .icobox{margin:0;width:38px;height:38px;flex:0 0 38px}
+.ihead h3{margin:0;font-size:17px}
+.card p{font-size:14.5px}
+
+/* timeline, eight stages */
+.tl.vt{grid-template-columns:repeat(8,minmax(0,1fr))}
+.tl.vt::before,.tl.vt .fill{left:6.2%}
+.tl.vt::before{right:6.2%}
+.tl.vt .yr{font-size:14px;line-height:1.2}
+.slide.on .tl.vt button[aria-pressed="true"] .dot{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,111,71,.35)}50%{box-shadow:0 0 0 7px rgba(46,111,71,0)}}
+
+/* scene */
+.scene{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start}
+.sc-ln{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.sc-ln.pave{stroke:var(--muted);stroke-width:1.2}
+.sc-t{font-family:var(--font);font-size:10px;fill:var(--muted)}
+.hs{cursor:pointer;outline:none}
+.hs .hit{fill:transparent;stroke:none}
+.hs:hover .hit,.hs:focus-visible .hit{fill:rgba(116,169,110,.12);stroke:var(--brand-400);stroke-dasharray:3 3;rx:6}
+.hs.got .hit{fill:rgba(46,111,71,.10);stroke:var(--brand-600);stroke-dasharray:none;rx:6}
+.hs.fine .hit{fill:rgba(31,122,69,.08);stroke:var(--positive);stroke-dasharray:none;rx:6}
+.patch{fill:rgba(92,107,98,.14);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 3}
+.bugdot{fill:var(--ink)}
+.weed{fill:none;stroke:var(--brand-700);stroke-width:1.3}
+.spray{fill:none;stroke:var(--brand-500);stroke-width:1.4;stroke-dasharray:2 4;stroke-linecap:round}
+.slide.on .spray{animation:sprayf 1.8s linear infinite}
+.slide.on .spray.s2{animation-delay:.6s}
+@keyframes sprayf{to{stroke-dashoffset:-24}}
+.ring{fill:none;stroke:var(--muted);stroke-width:3;opacity:.55}
+.soot{fill:var(--ink)}
+.water{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4}
+.wv{stroke:var(--brand-300)}
+.slide.on .wv{animation:wv 3.2s ease-in-out infinite}
+@keyframes wv{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+.found{display:grid;gap:4px}
+.slide.tight h2.sh{font-size:clamp(22px,2.6vw,30px)}
+.fi{display:flex;gap:9px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:12.5px;line-height:1.32;animation:rise .22s ease-in-out both}
+.fi .num{flex-basis:22px;height:22px;font-size:11px}
+.fi.okk{border-color:var(--positive);background:#EAF5EE;display:block}
+.hs-list{display:none}
+
+/* symptom & recommendation choices */
+.choices.five{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.choices.five .choice{padding:9px 10px;font-size:14px;gap:8px}
+.choices.five .choice .k{flex-basis:24px;height:24px;font-size:12px}
+.choices.one{grid-template-columns:1fr;gap:8px}
+#rcBox .choice{font-size:14.5px;padding:9px 14px}
+#syFb .fb,#rcFb .fb{font-size:14px;padding:9px 13px;line-height:1.45}
+
+/* label */
+.lab{padding:12px 14px;display:grid;gap:2px}
+.lab .lt{margin-bottom:4px}
+.lr{display:block;width:100%;text-align:left;border:0;border-radius:8px;background:none;padding:5px 8px;font-weight:300;font-size:13.5px;line-height:1.45;transition:background .18s ease-in-out}
+.lr .u{background:linear-gradient(transparent 60%,var(--brand-100) 60%)}
+.lr:hover{background:var(--brand-50)}
+.lr.sel{background:var(--brand-100)}
+.lr.seen{box-shadow:inset 3px 0 0 var(--positive)}
+
+/* path tweaks */
+.path .st h3{font-size:15.5px}
+.path .st p{font-size:13.5px;line-height:1.42}
+
+/* turf pattern diagram */
+.patt{width:100%}
+.pt-house{fill:var(--brand-50);stroke:var(--brand-300);stroke-width:1.2}
+.pt-lawn{fill:#F2F7F3;stroke:var(--brand-300);stroke-width:1.2}
+.pt-pave{fill:#ECEEEC;stroke:var(--line);stroke-width:1}
+.band{fill:var(--brand-400);opacity:0}
+.slide.on .band{animation:band 4.2s ease-in-out infinite}
+.slide.on .band.b2{animation-delay:.35s}.slide.on .band.b3{animation-delay:.7s}.slide.on .band.b4{animation-delay:1.05s}.slide.on .band.b5{animation-delay:1.4s}
+@keyframes band{0%,10%{opacity:0}30%,80%{opacity:.16}100%{opacity:0}}
+.border{fill:none;stroke:var(--brand-600);stroke-width:2.2;stroke-dasharray:740;stroke-dashoffset:740}
+.slide.on .border{animation:drawb 4.2s ease-in-out infinite}
+@keyframes drawb{0%{stroke-dashoffset:740}35%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+.passes{fill:none;stroke:var(--brand-700);stroke-width:1.4;stroke-dasharray:1200;stroke-dashoffset:1200}
+.slide.on .passes{animation:drawp 4.2s ease-in-out infinite}
+@keyframes drawp{0%,30%{stroke-dashoffset:1200}85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+.tech{fill:var(--brand-600)}
+
+/* area seg */
+.arcard{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;animation:rise .22s ease-in-out both;min-height:170px}
+.arcard .icobox{margin:0;flex:0 0 auto}
+.arcard .mini{font-size:15px;gap:6px}
+
+/* order */
+#vo{gap:6px}
+#vo button{padding:7px 12px;font-size:14px}
+#vo button .num{flex-basis:24px;height:24px;font-size:12px}
+#voFb .fb{font-size:14px;padding:8px 12px}
+
+/* notice check (hanger style) */
+.hanger{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.dh-top{display:flex;gap:10px;align-items:center;padding:12px 14px;background:var(--grad-forest);color:var(--on-forest);font-size:14px}
+.dh-top .ico{color:var(--mint)}
+.dh-f{display:grid;grid-template-columns:140px 1fr;gap:4px 10px;width:100%;text-align:left;border:0;border-bottom:1px dashed var(--line);background:none;padding:8px 14px;font-weight:300;font-size:14px;transition:background .18s ease-in-out}
+.dh-f:last-child{border-bottom:0}
+.dh-f:hover:not([data-done]){background:var(--brand-50)}
+.dh-f .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.dh-f .v{color:var(--brand-800);min-height:20px}
+.dh-f small{grid-column:1/-1;font-size:12.5px;color:var(--muted);line-height:1.35}
+.dh-f small:empty{display:none}
+.dh-f.no{background:#FDEEEE}
+.dh-f.ok{background:#EAF5EE}
+
+/* final walk */
+.walk{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:center}
+.wring{width:120px;height:120px}
+.wring circle{fill:none;stroke-width:9}
+.wring .bg{stroke:var(--brand-100)}
+.wring .fg{stroke:var(--brand-600);stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dashoffset .5s ease-out}
+.wring text{font-family:var(--font);font-size:20px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.wring text.done{font-size:15px;fill:var(--positive)}
+.fwl{display:grid;gap:6px}
+.fwl button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-weight:300;font-size:14px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.fwl .cbx{flex:0 0 22px;height:22px;border:1px solid var(--brand-300);border-radius:6px;display:grid;place-items:center;color:transparent}
+.fwl .cbx .ico{width:16px;height:16px}
+.fwl button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.fwl button[aria-pressed="true"] .cbx{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+
+/* sorts */
+.sort.one{grid-template-columns:1fr}
+.sort .row{padding:6px 12px;font-size:14px;line-height:1.35}
+#ahSort{gap:6px}
+.sort.three{gap:6px}
+.sort.three .row{flex-wrap:wrap;gap:4px 12px;padding:6px 12px}
+.sort.three .opts button{padding:4px 9px;font-size:12px}
+#ahFb .fb,#nsFb .fb{font-size:13.5px;padding:8px 12px;line-height:1.4}
+
+/* mowing table */
+#mowT table{min-width:0;width:100%}
+#mowT td,#mowT th{padding:6px 12px;font-size:14px}
+[data-cp="5"] .check label{padding:8px 12px;font-size:14px}
+
+@media (max-width:860px){
+  .scene,.walk{grid-template-columns:1fr}
+  .tl.vt .yr{font-size:10px}
+  .tl.vt .tg{display:none}
+  .tl.vt .dot{width:30px;height:30px}
+  .tl.vt::before,.tl.vt .fill{top:20px}
+  .walk{justify-items:start}
+  .choices.five{grid-template-columns:1fr 1fr}
+  .dh-f{grid-template-columns:1fr;gap:2px}
+  .arcard{flex-direction:column}
+}
+@media (max-width:600px){
+  .hs-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .hs-list button{min-height:40px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-size:14px;color:inherit;cursor:pointer}
+  .hs-list button.got{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+  .hs-list button.fine{border-color:var(--positive);color:var(--positive)}
+}
+@media (prefers-reduced-motion:reduce){
+  .wring .fg{transition:none}
+  .slide.on .band,.slide.on .border,.slide.on .passes,.slide.on .spray,.slide.on .wv{animation:none}
+  .band{opacity:.14}.border,.passes{stroke-dashoffset:0}
+}
+
+.scdet{padding:12px 14px;min-height:118px;animation:rise .22s ease-in-out both}
+.scdet h3{font-size:16px}
+.scdet p{font-size:13.5px;line-height:1.42}
+.scdet.okd{border-color:var(--positive);background:#EAF5EE}
+.fi{font-size:13px;padding:3px 10px;align-items:center}
+.fi .num{flex-basis:20px;height:20px;font-size:11px}
+
+#nsSort .row{padding:4px 12px;gap:2px 12px}
+#nsSort{gap:5px}
+#vo{gap:5px}
+#vo button{padding:6px 12px}
+.lr{padding:4px 8px}
+.dh-f{grid-template-columns:150px 1fr;padding:7px 14px}
+#nsFb .fb{font-size:13px;padding:6px 10px;line-height:1.38}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">LAWN-03 · Standard L&amp;O Visit</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/><path d="M2 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-8A5.5 5.5 0 0117 8.5a4.5 4.5 0 01.5 9.5z"/><path d="M9 21l1-2M13 21l1-2"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4.2-1 10.6-10.6a2 2 0 000-2.8l-.4-.4a2 2 0 00-2.8 0L5 15.8z"/><path d="M14 6.6l3.4 3.4"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M7 3h10v18l-5-3-5 3z"/><circle cx="12" cy="7.5" r="1.6"/><path d="M9.5 12h5M9.5 15h3"/></symbol>
+    <symbol id="i-sign" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="10" rx="1.5"/><path d="M12 13v8M9 21h6"/><path d="M8 7h8M8 10h5"/></symbol>
+    <symbol id="i-grass" viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M6 20c0-4-1-7-3-9M9 20c0-5 1-9 3-12M13 20c0-4 1-7 4-9M17 20c0-3 1-5 3-6"/></symbol>
+    <symbol id="i-sprinkler" viewBox="0 0 24 24"><path d="M10 21h4M12 21v-7"/><rect x="10" y="11" width="4" height="3" rx="1"/><path d="M8 9a5 5 0 018 0M5 7a9 9 0 0114 0"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1.5"/><path d="M7 8v3M11 8v4M15 8v3M19 8v2"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="4.5" ry="5.5"/><path d="M12 8.5V20M9.5 7.5L8 5M14.5 7.5L16 5M7.5 12H4M16.5 12H20M7.5 16l-3 1.5M16.5 16l3 1.5"/></symbol>
+    <symbol id="i-broom" viewBox="0 0 24 24"><path d="M20 3l-8 8"/><path d="M12 11l-5 1-3 8 8-3 1-5z"/><path d="M7 17l3-3"/></symbol>
+    <symbol id="i-mix" viewBox="0 0 24 24"><path d="M8 3h8M9 3v5l-4 9a2.5 2.5 0 002.3 3.5h9.4A2.5 2.5 0 0019 17l-4-9V3"/><path d="M7 14h10"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-03</span>
+        <h1 class="display a" style="--i:1;font-size:clamp(34px,4.8vw,58px)">The Standard L&amp;O Visit</h1>
+        <p class="lead a" style="--i:2">One lawn visit, step by step: walk the property, choose the right application, treat turf and shrubs by the label, post the notice, and leave a customer who knows exactly what we did.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">L&amp;O technicians</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:340px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M150 96L214 50L278 96"/><path d="M160 88V176H268V88"/>
+          <path d="M202 176V136H226V176"/><rect x="172" y="104" width="22" height="20" rx="3"/><rect x="236" y="104" width="22" height="20" rx="3"/>
+          <path d="M140 176q-14-26 4-38q16 10 8 38M268 176q4-30 22-34q12 18-2 34"/>
+          <path d="M10 214H312"/><path d="M10 176H312" stroke-dasharray="2 7"/>
+          <path d="M30 214v-8M36 214v-12M42 214v-7M118 214v-9M124 214v-13M130 214v-8M236 214v-8M242 214v-12M248 214v-7"/>
+          <rect x="70" y="140" width="34" height="26" rx="2"/><path d="M87 166V212"/><path d="M76 150h22M76 157h14"/>
+          <path d="M20 120q40-40 96-20"/><path d="M116 100l-8-2M116 100l-3 7"/>
+          <path d="M26 112q4 18 0 30M38 108q6 18 2 34M50 106q6 16 4 32" stroke-dasharray="3 5"/>
+          <circle cx="292" cy="40" r="14"/><path d="M292 16v-6M292 70v-6M268 40h-6M322 40h-6"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-search"/></svg><span>Walk a property and read turf color and density, weeds, insect and disease signs, irrigation problems and shrub health</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-mix"/></svg><span>Decide whether the truck's tank mix fits what you found, and spot-mix only from the current label</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-cloud"/></svg><span>Recognize the conditions that mean hold, not apply: wind, rain, heat, stressed turf, people and pets</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-grass"/></svg><span>Apply to turf and ornamentals with an even pattern and overlap, keeping product off hard surfaces, water and beds it isn't labeled for</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-sign"/></svg><span>Post the lawn notice Florida requires and explain how the pesticide-sensitive registry works</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-pen"/></svg><span>Leave clear watering and mowing recommendations, flags, a door hanger and PestPac Mobile notes the customer can use</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split" style="gap:32px">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(28px,3.8vw,46px)">A lawn that improves, <span class="em">plus</span> communication, keeps a customer.</h2>
+        <p class="a muted" style="--i:2">Customers don't read labels or see dilution rates. They see whether the lawn gets better, whether we looked professional and whether they understand what was done. We are not just lawn techs. We are property care professionals.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>The weeds nobody explained</h3><p>You spot-treat weeds on an insect visit but don't flag them, leave a note or document it. A week later the weeds are still standing. The CSR sees no mention of weeds. A callback is booked, or the customer cancels. Almost always preventable.</p></div></div></div>
+        <div class="card a" style="--i:4;padding:16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The law is in the yard</h3><p>The label is federal law. Florida requires a posted notice on every lawn and exterior foliage application, and at least 24 hours' notice to nearby people on the pesticide-sensitive registry.</p></div></div></div>
+        <div class="card a" style="--i:5;padding:16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wave"/></svg></div><div><h3>Everything drains somewhere</h3><p>Drift, runoff and granules on the driveway end up in canals, ponds and groundwater. FDACS can test a property after a drift complaint.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 VISIT AT A GLANCE -->
+  <section class="slide" data-label="The lawn visit at a glance">
+    <span class="eyebrow a">The standard L&amp;O visit</span>
+    <h2 class="a" style="--i:1">Eight stages on every lawn stop</h2>
+    <p class="a muted small" style="--i:2">FC-11 taught the visit every service line shares. This course goes deeper on the lawn. Select each stage.</p>
+    <div class="tl vt a" style="--i:3" id="vt"><span class="fill" id="vtFill"></span></div>
+    <div class="tldetail a" style="--i:4" id="vtDetail"></div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one: arrive and walk the property">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Arrive and walk the property</h1>
+        <p class="lead a" style="--i:2">Why it matters: the lawn tells you what it needs, but only if you look. A two-minute walk decides the product, the pattern, what you tell the customer and what you write down. Spraying without walking is guessing.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Arrive and greet</li><li><span>02</span>What to inspect</li><li><span>03</span>Practice: walk the property</li><li><span>04</span>Practice: read the symptom</li></ol>
+    </div>
+  </section>
+
+  <!-- 6 ARRIVE AND GREET -->
+  <section class="slide" data-label="Arrive and greet">
+    <div class="split" style="align-items:start;gap:28px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Arrive and greet</span>
+        <h2 class="a" style="--i:1">The FC-11 arrival, with lawn questions</h2>
+        <ol class="steps tight a" style="--i:2">
+          <li><span class="num">1</span><span><b>Park in front of the house,</b> in park, ignition off, seatbelt off. Never on the lawn or blocking the driveway.</span></li>
+          <li><span class="num">2</span><span><b>Start the order in PestPac Mobile</b> before you walk up, so the service time is accurate.</span></li>
+          <li><span class="num">3</span><span><b>Knock and introduce yourself,</b> unless the account says Do Not Knock or the customer asked for no contact.</span></li>
+          <li><span class="num">4</span><span><b>Say what you're doing today</b> and ask the lawn questions on the right.</span></li>
+        </ol>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>FDACS ID card on you.</b> Show it on request (s. 482.091). Give the product name, active ingredient and label safety information on request (s. 482.2265).</span></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <span class="eyebrow">Ask before you walk</span>
+        <div class="card" style="padding:16px"><ul class="mini">
+          <li><b>"Have you noticed anything in the lawn or plants?"</b> Start your walk there.</li>
+          <li><b>"When does the irrigation run?"</b> It explains wet, fungus-prone turf or dry strips, and decides your watering advice.</li>
+          <li><b>"When was it last mowed, and at what height?"</b> Scalping looks like disease.</li>
+          <li><b>"Any pets or children using the yard today?"</b> They stay off treated areas until the label allows.</li>
+          <li><b>"Any new plantings, edibles or a garden?"</b> No spray unless the label lists them.</li>
+        </ul></div>
+        <div class="speech"><span class="who">Technician at the door</span>"Morning, I'm [name] with Clements. I'm here for your lawn and shrub service. I'll walk the yard first, then treat, and I'll put a small notice sign out front. Anything you've noticed I should look at?"</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 WHAT TO INSPECT -->
+  <section class="slide" data-label="What to inspect">
+    <span class="eyebrow a">02 · What to inspect</span>
+    <h2 class="a" style="--i:1">Six things to read on every walk</h2>
+    <div class="grid g3" style="gap:10px">
+      <div class="card a" style="--i:2;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-grass"/></svg></span><h3>Turf color and density</h3></div><p>Even green and thick, or thin, off-color, patchy? Note where: sun, shade, along pavement.</p></div>
+      <div class="card a" style="--i:3;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-leaf"/></svg></span><h3>Weeds</h3></div><p>Broadleaf, grassy or sedge, and how much. Weeds in beds are a different job than weeds in turf (LAWN-06).</p></div>
+      <div class="card a" style="--i:4;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-bug"/></svg></span><h3>Insect signs</h3></div><p>Damage at the edge of the green, chewed blades, frass, moths at dusk. Part the grass and look (LAWN-07).</p></div>
+      <div class="card a" style="--i:5;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-target"/></svg></span><h3>Disease signs</h3></div><p>Rings, spots, leaf lesions, blades that pull loose. Note the season, shade and moisture (LAWN-08).</p></div>
+      <div class="card a" style="--i:6;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-sprinkler"/></svg></span><h3>Irrigation</h3></div><p>Broken or tilted heads, dry strips, puddles, water on pavement, runs during rain.</p></div>
+      <div class="card a" style="--i:7;padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-heart"/></svg></span><h3>Shrubs and beds</h3></div><p>Black sooty coating, whiteflies, scale, leaf spots, chewed leaves, mulch piled on stems.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:8"><svg class="ico"><use href="#i-alert"/></svg><span><b>And read the site for safety:</b> ponds, canals, seawalls and drains; pools and play areas; edible gardens; pets, bowls and toys; wind direction. These decide where you <i>won't</i> spray.</span></div>
+  </section>
+
+  <!-- 8 SCENE -->
+  <section class="slide tight" data-label="Practice: walk the property">
+    <span class="eyebrow a">03 · Practice · walk the property</span>
+    <h2 class="a sh" style="--i:1">Find eight things on this walk that change your visit.</h2>
+    <div class="scene a" style="--i:2">
+      <div class="figbox" style="padding:8px">
+        <svg viewBox="0 0 520 250" role="img" aria-label="Front and side yard of a home with lawn, driveway, shrubs, a tree, a vegetable bed and a pond. Select what you notice." id="sc1" style="max-width:none">
+          <path class="sc-ln" d="M150 70L215 30L280 70"/><rect class="sc-ln" x="160" y="70" width="110" height="70"/>
+          <rect class="sc-ln" x="205" y="104" width="22" height="36" rx="2"/>
+          <path class="sc-ln pave" d="M280 140H330L360 244H300Z"/><text x="306" y="232" class="sc-t">driveway</text>
+          <path class="sc-ln pave" d="M210 140V244"/><path class="sc-ln pave" d="M222 140V244"/>
+          <path class="sc-ln" d="M0 244H520" style="stroke:var(--line)"/>
+          <path class="sc-ln" d="M0 140H160M270 140H280M330 140H520" style="stroke:var(--brand-200)"/>
+          <g class="hs" data-k="0" tabindex="0" role="button" aria-label="Patch along the driveway">
+            <path class="patch" d="M362 176q14-10 30-2q12 10 6 24q-14 10-30 4q-12-10-6-26z"/><circle class="bugdot" cx="372" cy="184" r="1.4"/><circle class="bugdot" cx="380" cy="194" r="1.4"/><circle class="bugdot" cx="388" cy="182" r="1.4"/>
+            <rect class="hit" x="352" y="164" width="56" height="48"/>
+          </g>
+          <g class="hs" data-k="1" tabindex="0" role="button" aria-label="Spots in the front lawn">
+            <circle class="weed" cx="96" cy="200" r="3.2"/><circle class="weed" cx="104" cy="196" r="3.2"/><circle class="weed" cx="100" cy="206" r="3.2"/><circle class="weed" cx="118" cy="212" r="3.2"/><circle class="weed" cx="124" cy="206" r="3.2"/><circle class="weed" cx="84" cy="214" r="3.2"/>
+            <rect class="hit" x="74" y="186" width="60" height="36"/>
+          </g>
+          <g class="hs" data-k="2" tabindex="0" role="button" aria-label="Sprinkler head by the driveway">
+            <rect class="sc-ln" x="268" y="216" width="6" height="8" rx="1"/>
+            <path class="spray s1" d="M274 216q16-14 34-8"/><path class="spray s2" d="M274 218q18-6 30 4"/>
+            <rect class="hit" x="260" y="200" width="54" height="30"/>
+          </g>
+          <g class="hs" data-k="3" tabindex="0" role="button" aria-label="Shaded lawn under the tree">
+            <path class="sc-ln" d="M50 150V112"/><circle class="sc-ln" cx="50" cy="90" r="26"/>
+            <circle class="ring" cx="56" cy="172" r="14"/>
+            <rect class="hit" x="36" y="154" width="42" height="36"/>
+          </g>
+          <g class="hs" data-k="4" tabindex="0" role="button" aria-label="Shrubs along the house">
+            <path class="sc-ln" d="M164 140q-6-20 10-22q14 0 10 22M186 140q-4-20 12-22q12 2 8 22"/>
+            <circle class="soot" cx="172" cy="126" r="1.6"/><circle class="soot" cx="178" cy="122" r="1.6"/><circle class="soot" cx="194" cy="124" r="1.6"/><circle class="soot" cx="198" cy="130" r="1.6"/>
+            <rect class="hit" x="156" y="112" width="58" height="30"/>
+          </g>
+          <g class="hs" data-k="5" tabindex="0" role="button" aria-label="Pond at the side of the yard">
+            <ellipse class="water" cx="470" cy="190" rx="44" ry="20"/><path class="sc-ln wv" d="M446 190q8-4 16 0t16 0t16 0"/>
+            <rect class="hit" x="422" y="166" width="96" height="48"/>
+          </g>
+          <g class="hs" data-k="6" tabindex="0" role="button" aria-label="Raised bed by the house">
+            <rect class="sc-ln" x="96" y="124" width="48" height="14" rx="2"/><path class="sc-ln" d="M104 124v-8M112 124v-10M120 124v-7M128 124v-10M136 124v-8"/>
+            <rect class="hit" x="90" y="106" width="60" height="36"/>
+          </g>
+          <g class="hs" data-k="7" tabindex="0" role="button" aria-label="Items on the side lawn">
+            <path class="sc-ln" d="M420 236h20l-3 6h-14z"/><circle class="sc-ln" cx="456" cy="236" r="6"/>
+            <rect class="hit" x="412" y="222" width="54" height="24"/>
+          </g>
+          <g class="hs ok" data-k="8" tabindex="0" role="button" aria-label="Thick turf by the walk">
+            <path class="sc-ln" d="M234 200v-8M240 200v-11M246 200v-8M252 200v-11M258 200v-8" style="stroke:var(--brand-600)"/>
+            <rect class="hit" x="228" y="184" width="36" height="20"/>
+          </g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:6px;align-content:start">
+        <div class="card scdet" id="sc1Det"><span class="eyebrow">What it means</span><p style="margin-top:4px">Select anything in the yard that would change what you do: the product, where you spray, or what you tell the customer.</p></div>
+        <div id="sc1List" class="found"></div>
+        <p class="small muted" id="sc1Tally">0 of 8 found.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 SYMPTOM -->
+  <section class="slide tight" data-label="Practice: read the symptom">
+    <span class="eyebrow a">04 · Practice · read the symptom</span>
+    <h2 class="a" style="--i:1">Insects, disease, water or the mower? Choose the most likely cause.</h2>
+    <div class="scen-tabs a" style="--i:2" id="syTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="syBox"></div>
+    <p class="small muted a" style="--i:4">A first read, not a diagnosis. LAWN-07 and LAWN-08 teach how to confirm each one.</p>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: choose and mix the right application">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Choose and mix the right application</h1>
+        <p class="lead a" style="--i:2">Why it matters: the right product at the wrong rate, on the wrong grass or in the wrong weather can burn a lawn, miss the pest or break the law. The label decides, every time, and some days the right call is to hold.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Does the tank mix fit?</li><li><span>02</span>Mix by the label</li><li><span>03</span>Practice: apply or hold?</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 DOES THE MIX FIT -->
+  <section class="slide" data-label="Does the tank mix fit?">
+    <span class="eyebrow a">01 · Does the tank mix fit?</span>
+    <h2 class="a" style="--i:1">Match what you found to what's in the truck</h2>
+    <div class="path a" style="--i:2">
+      <div class="st" style="--i:0"><span class="n"><svg class="ico"><use href="#i-search"/></svg></span><h3>1 · What did you find?</h3><p>Insects, disease, weeds, nutrition or a water problem. Where, and how much.</p></div>
+      <div class="st" style="--i:1"><span class="n"><svg class="ico"><use href="#i-clip"/></svg></span><h3>2 · Is it in this service?</h3><p>Check the order and the customer's program (LAWN-02). Not covered: note it and route it.</p></div>
+      <div class="st" style="--i:2"><span class="n"><svg class="ico"><use href="#i-book"/></svg></span><h3>3 · Does the tank mix cover it?</h3><p>Labeled for this site, this turf species and this pest, in today's conditions? Then apply.</p></div>
+      <div class="st top" style="--i:3"><span class="n"><svg class="ico"><use href="#i-mix"/></svg></span><h3>4 · If not, spot-mix</h3><p>A backpack or small tank, mixed from the current label and the approved mix sheet, for the problem area only.</p></div>
+    </div>
+    <div class="grid g2" style="gap:10px">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-star"/></svg><span><b>Treat the property, not just the work order.</b> Weeds, fungus or thin turf on an insect visit? When it's in their program and you have a labeled product: treat it, flag it, communicate it, document it.</span></div>
+      <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never improvise a rate.</b> No "a little extra." Over-application is off-label, burns turf and drives resistance. If the label and mix sheet disagree, use the label and tell your supervisor.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 MIX BY THE LABEL -->
+  <section class="slide" data-label="Mix by the label">
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Mix by the label</span>
+        <h2 class="a" style="--i:1">Six things to check before you mix</h2>
+        <p class="a muted small" style="--i:2">Example turf label, shortened. Values in brackets come from the current label of the product you are using. Select each highlighted line.</p>
+        <div class="label a lab" style="--i:3" id="lab">
+          <div class="lt">Example label · Directions for use</div>
+          <button type="button" class="lr" id="lab0"><b>Use sites.</b> For established turf of the species listed. <span class="u">Do not apply to [species not listed].</span></button>
+          <button type="button" class="lr" id="lab1"><b>Rate.</b> <span class="u">Apply [rate from current label] per 1,000 sq ft.</span> Do not exceed the maximum per year.</button>
+          <button type="button" class="lr" id="lab2"><b>Mixing.</b> <span class="u">Fill tank half full, start agitation, add product, then fill.</span></button>
+          <button type="button" class="lr" id="lab3"><b>Restrictions.</b> <span class="u">Do not apply to turf under heat or drought stress, or above [label temperature].</span></button>
+          <button type="button" class="lr" id="lab4"><b>Weather.</b> <span class="u">Do not apply when wind may cause drift, or when rain is expected within [label interval].</span></button>
+          <button type="button" class="lr" id="lab5"><b>Environmental hazards.</b> <span class="u">Do not apply directly to water. Keep out of drains.</span> Do not allow people or pets on treated areas until sprays have dried.</button>
+        </div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="card" id="labBox" style="min-height:150px;padding:16px"><span class="eyebrow">What you check</span><p style="margin-top:8px">Select a line on the label.</p></div>
+        <p class="small muted" id="labTally">0 of 6 checked</p>
+        <div class="card" style="padding:14px 16px"><h3 style="font-size:17px">Mixing safely</h3><ul class="mini">
+          <li>Label PPE on before you open a concentrate. Gloves at minimum; eye protection when the label says.</li>
+          <li>Fill and mix away from storm drains, water and the customer's hard surfaces.</li>
+          <li>Keep the fill hose above the water line, and never walk away from a filling tank.</li>
+          <li>Spill? The 3 Cs: Control, Contain, Clean up, and tell your supervisor (FC-05).</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 APPLY OR HOLD -->
+  <section class="slide tight" data-label="Practice: apply or hold?">
+    <span class="eyebrow a">03 · Practice</span>
+    <h2 class="a" style="--i:1">You're ready to treat. Apply, or hold and fix it first?</h2>
+    <div class="sort a" style="--i:2" id="ahSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="ahCheck" style="padding:8px 16px">Check my answers</button><span id="ahFb"></span></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: apply turf and ornamental treatments">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Apply turf and ornamental treatments</h1>
+        <p class="lead a" style="--i:2">Why it matters: an uneven pattern shows up as stripes and missed weeds for weeks. Product on the driveway ends up in the canal. And you are legally responsible for every drop that lands where it shouldn't.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The turf pattern</li><li><span>02</span>Beds, shrubs, water and hard surfaces</li><li><span>03</span>Practice: the visit in order</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 TURF PATTERN -->
+  <section class="slide" data-label="The turf pattern">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:center">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · The turf pattern</span>
+        <h2 class="a" style="--i:1">Border first, then even passes with a slight overlap</h2>
+        <ol class="steps tight a" style="--i:2">
+          <li><span class="num">1</span><span><b>Post the notice</b> as you start, so it's up while product goes down.</span></li>
+          <li><span class="num">2</span><span><b>Border pass:</b> spray a strip around the edges, directed in toward the lawn and away from pavement, beds and water.</span></li>
+          <li><span class="num">3</span><span><b>Fill in with straight passes,</b> each slightly overlapping the last. Steady speed and a steady fan; no gaps, no double strips.</span></li>
+          <li><span class="num">4</span><span><b>Shut off on turns</b> and at the end of each pass. Stopping with the nozzle open leaves a burned spot.</span></li>
+          <li><span class="num">5</span><span><b>Work toward your exit</b> so you never walk back through wet product. Then spot-treat and wind the hose, gloves on.</span></li>
+        </ol>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="figbox" style="padding:12px">
+          <svg viewBox="0 0 300 220" role="img" aria-label="Lawn diagram: a border pass around the edges, then parallel passes with slight overlap, working toward the exit" class="patt" style="max-width:none">
+            <rect x="10" y="10" width="280" height="40" class="pt-house"/><text x="150" y="35" text-anchor="middle" class="sc-t">house · shrub bed</text>
+            <rect x="10" y="50" width="250" height="150" class="pt-lawn"/>
+            <rect x="260" y="50" width="30" height="160" class="pt-pave"/><text x="275" y="140" text-anchor="middle" class="sc-t" transform="rotate(-90 275 140)">driveway</text>
+            <rect x="10" y="200" width="250" height="12" class="pt-pave"/>
+            <rect class="band b1" x="26" y="66" width="218" height="26"/><rect class="band b2" x="26" y="88" width="218" height="26"/><rect class="band b3" x="26" y="110" width="218" height="26"/><rect class="band b4" x="26" y="132" width="218" height="26"/><rect class="band b5" x="26" y="154" width="218" height="30"/>
+            <rect class="border" x="18" y="58" width="234" height="134" rx="2"/>
+            <path class="passes" d="M30 79H240V101H30V123H240V145H30V167H240"/>
+            <circle class="tech" cx="244" cy="182" r="5"/>
+          </svg>
+        </div>
+        <div class="grid g2" style="gap:8px">
+          <div class="callout" style="padding:10px 12px;font-size:14px"><svg class="ico"><use href="#i-grass"/></svg><span><b>Boom:</b> lower booms before moving, steady speed, slight overlap between passes.</span></div>
+          <div class="callout" style="padding:10px 12px;font-size:14px"><svg class="ico"><use href="#i-drop"/></svg><span><b>Hose:</b> keep the nozzle moving at an even height and walking pace.</span></div>
+        </div>
+        <p class="small muted">Equipment setup and calibration: LAWN-01 and LAWN-09.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 BEDS WATER SURFACES -->
+  <section class="slide" data-label="Beds, shrubs, water and hard surfaces">
+    <span class="eyebrow a">02 · Beds, shrubs, water and hard surfaces</span>
+    <h2 class="a" style="--i:1">Where the product goes, and where it never does</h2>
+    <div class="a" style="--i:2"><div class="seg" role="group" aria-label="Choose an area" id="arSeg"></div></div>
+    <div class="a" style="--i:3" id="arBox"></div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span>FC-04 covers drift, buffers and county fertilizer rules in depth. On a lawn, the short version: <b>the label's buffer, a coarse spray, wind away from anything sensitive, and nothing left on a hard surface.</b></span></div>
+  </section>
+
+  <!-- 19 VISIT ORDER -->
+  <section class="slide" data-label="Practice: the visit in order">
+    <div class="split" style="align-items:start;gap:26px;grid-template-columns:.8fr 1.2fr">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Practice · the visit in order</span>
+        <h2 class="a" style="--i:1">Put the standard L&amp;O visit in order</h2>
+        <p class="a muted" style="--i:2">From the curb to the next stop. Select the steps in the order you'd do them.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clip"/></svg><span>This is the Clements L&amp;O Treatment Checklist. Your trainer uses the same order on your ride-alongs.</span></div>
+      </div>
+      <div class="grid a" style="--i:2;gap:8px">
+        <div class="order" id="vo"></div>
+        <div id="voFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 21 PART FOUR -->
+  <section class="slide forest" data-label="Part four: post, recommend, document">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Post, recommend, document</h1>
+        <p class="lead a" style="--i:2">Why it matters: the notice is the law. The flag, the hanger and the notes are how the customer, the CSR and the next tech know what you did. If it isn't posted, flagged and written down, as far as anyone can tell, it didn't happen.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The lawn notice and the registry</li><li><span>02</span>Practice: is this notice ready?</li><li><span>03</span>Before you leave the yard</li><li><span>04</span>Watering and mowing advice</li><li><span>05</span>Practice: write the recommendation</li><li><span>06</span>Door hanger and PestPac Mobile</li></ol>
+    </div>
+  </section>
+
+  <!-- 22 NOTICE AND REGISTRY -->
+  <section class="slide" data-label="The lawn notice and the registry">
+    <span class="eyebrow a">01 · The lawn notice and the registry · checked October 2026</span>
+    <h2 class="a" style="--i:1">Every lawn application gets a posted notice</h2>
+    <div class="grid g3" style="gap:10px">
+      <div class="card a" style="--i:2;padding:16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-sign"/></svg></span><h3>The law · 482.2265(2), 5E-14.147</h3></div><ul class="mini">
+        <li>Posted in a <b>conspicuous location</b> at the time of application</li>
+        <li>At least <b>4 x 5 inches</b>, rigid, durable, weatherproof</li>
+        <li>Contrasting background and lettering, wording and symbol per the FDACS example</li>
+        <li>Our <b>business name</b> clearly shown</li></ul></div>
+      <div class="card a" style="--i:3;padding:16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-flag"/></svg></span><h3>The Clements standard</h3></div><ul class="mini">
+        <li>Notice of Application sign <b>fully completed</b> with the correct product information</li>
+        <li>Placed where it's easy to see from the street, at the driveway</li>
+        <li><b>Area of Concern flags</b> where you spot-treated or found a problem, with a short note</li>
+        <li>Left in place when you go</li></ul></div>
+      <div class="card a" style="--i:4;padding:16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-users"/></svg></span><h3>The registry · 482.2267</h3></div><ul class="mini">
+        <li>FDACS lists people whose physician certifies they need <b>prior notice</b></li>
+        <li>Lawn, bed or foliage work near a registrant (adjacent by default, up to half a mile): notice <b>at least 24 hours ahead</b>, with location and pesticide type</li>
+        <li>FDACS sends the list quarterly. <b>The office tracks it</b> and flags the order</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Order flagged for registry notice and you can't confirm it was given?</b> Hold the broadcast and call the office. The statute drops only the pesticide-type detail for a small amount on an infestation or disease found on site; it does not clearly waive the 24-hour notice. No confirmed notice, no application.</span></div>
+  </section>
+
+  <!-- 23 NOTICE CHECK -->
+  <section class="slide" data-label="Practice: is this notice ready?">
+    <div class="split" style="align-items:start;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Practice · is this notice ready?</span>
+        <h2 class="a" style="--i:1">A new tech set this notice out. Find the four problems.</h2>
+        <p class="a muted" style="--i:2">Select each line. Some are fine. The law sets the minimum; the Clements standard adds the product information.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-sign"/></svg><span><b>Why it's non-negotiable:</b> the notice tells neighbors, kids and dog walkers to keep off a freshly treated lawn. A missing or unreadable sign is a Chapter 482 violation in itself.</span></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px">
+        <div class="hanger nt" id="ntc"></div>
+        <p class="small muted" id="ntcTally">0 of 4 problems found</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24 BEFORE YOU LEAVE -->
+  <section class="slide" data-label="Before you leave the yard">
+    <div class="split" style="align-items:center;gap:30px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Before you leave the yard</span>
+        <h2 class="a" style="--i:1">Look at the yard the way the customer will</h2>
+        <p class="a muted" style="--i:2">Granules on a driveway wash into the street drain with the next rain, and from there to the canal. Sweep or blow every one back onto the turf. Select each check as you'd do it on site.</p>
+        <p class="quote a" style="--i:3;font-size:clamp(17px,1.8vw,21px)">"If the customer walks out right now, will they know what was done and where?"<cite>THE SIGN, THE FLAGS AND THE HANGER ANSWER IT</cite></p>
+      </div>
+      <div class="walk a" style="--i:3">
+        <svg viewBox="0 0 120 120" class="wring" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" id="fwRing" cx="60" cy="60" r="50"/><text x="60" y="66" text-anchor="middle" id="fwPct">0/8</text></svg>
+        <div class="fwl" id="fw"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 WATERING AND MOWING -->
+  <section class="slide tight" data-label="Watering and mowing advice">
+    <span class="eyebrow a">04 · Watering and mowing advice · UF/IFAS guidance</span>
+    <h2 class="a" style="--i:1">Most lawn problems start with water or the mower</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+      <div class="grid a" style="--i:2;gap:8px">
+        <div class="card" style="padding:14px 16px"><div class="ihead"><span class="icobox"><svg class="ico"><use href="#i-sprinkler"/></svg></span><h3>Watering</h3></div><ul class="mini">
+          <li>Water when about a third of the lawn shows need: blades folding, footprints that stay, a blue-gray cast</li>
+          <li>About <b>½ to ¾ inch</b> per watering, early in the morning</li>
+          <li>Only on the days the local watering rules allow. Turn it off when it rains</li>
+          <li>Daily watering keeps turf wet and invites fungus and weak roots</li></ul></div>
+        <div class="callout" style="padding:10px 14px"><svg class="ico"><use href="#i-book"/></svg><span><b>After today's treatment,</b> tell them what the label says: water it in, or keep it dry until it's dried on the leaf. Never guess.</span></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px">
+        <div class="tablewrap" id="mowT"><table>
+          <thead><tr><th>Turfgrass</th><th>Mowing height</th></tr></thead>
+          <tbody>
+            <tr><td>St. Augustinegrass, standard</td><td class="y">3.5–4 in</td></tr>
+            <tr><td>St. Augustinegrass, dwarf (Seville)</td><td class="y">2–2.5 in</td></tr>
+            <tr><td>St. Augustinegrass, CitraBlue</td><td class="y">2–3 in</td></tr>
+            <tr><td>Bahiagrass</td><td class="y">3–4 in</td></tr>
+            <tr><td>Zoysiagrass, coarse types (Empire)</td><td class="y">1.75–2.5 in</td></tr>
+            <tr><td>Centipedegrass</td><td class="y">1.5–2 in</td></tr>
+            <tr><td>Bermudagrass</td><td class="y">0.5–1.5 in</td></tr>
+          </tbody></table></div>
+        <div class="callout" style="padding:10px 14px"><svg class="ico"><use href="#i-ruler"/></svg><span><b>The one-third rule:</b> never cut more than a third of the blade at once, with a sharp blade. Varieties in LAWN-04.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 WRITE THE RECOMMENDATION -->
+  <section class="slide" data-label="Practice: write the recommendation">
+    <span class="eyebrow a">05 · Practice · write the recommendation</span>
+    <h2 class="a" style="--i:1">Pick the note you'd leave the customer</h2>
+    <div class="scen-tabs a" style="--i:2" id="rcTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="rcBox"></div>
+  </section>
+
+  <!-- 27 DOOR HANGER AND PESTPAC -->
+  <section class="slide" data-label="Door hanger and PestPac Mobile">
+    <div class="split" style="align-items:start;gap:26px;grid-template-columns:1fr 1.1fr">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">06 · Door hanger and PestPac Mobile</span>
+        <h2 class="a" style="--i:1">Say it, flag it, write it down</h2>
+        <ol class="steps tight a" style="--i:2">
+          <li><span class="num">1</span><span><b>Customer home:</b> knock back. What you treated, what you found, what they can do, what to expect.</span></li>
+          <li><span class="num">2</span><span><b>Didn't speak with them:</b> a completed door hanger, per FC-11. Date, time, treatments, concerns, simple words. Skip it only if the account says no hangers.</span></li>
+          <li><span class="num">3</span><span><b>In the truck, parked:</b> equipment stowed, then customer-ready notes on the Activities page: lawn condition, areas spot-treated, irrigation or mowing concerns, recommendations. Tap Save.</span></li>
+          <li><span class="num">4</span><span><b>Office items</b> to technotes@clementspestcontrol.com. <b>Complete the order</b> before you drive.</span></li>
+        </ol>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px">
+        <span class="eyebrow">Practice · where does it go?</span>
+        <div class="sort one three" id="nsSort"></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="nsCheck" style="padding:8px 16px">Check my answers</button><span id="nsFb"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on real lawn stops</h2>
+    <p class="a muted" style="--i:2">Your supervisor or training tech observes at least three complete L&amp;O visits and reviews each item with you before LAWN-03 is complete.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Parked properly, started the order on arrival, knocked (unless Do Not Knock) and asked about concerns, irrigation, pets and children</label></li>
+      <li><label><input type="checkbox" id="s2"> Walked the property and identified turf, weed, insect, disease, irrigation and shrub conditions before treating</label></li>
+      <li><label><input type="checkbox" id="s3"> Chose the right application, spot-mixed only from the current label in label PPE, and held when conditions weren't right</label></li>
+      <li><label><input type="checkbox" id="s4"> Applied turf and ornamental treatments with an even pattern and overlap; no herbicide on shrubs; no drift toward water, edibles or neighbors</label></li>
+      <li><label><input type="checkbox" id="s5"> Posted a completed, compliant notice of application; placed Area of Concern flags with notes; can explain the registry</label></li>
+      <li><label><input type="checkbox" id="s6"> Swept granules off hard surfaces, wound the hose with gloves on and left the yard as I found it</label></li>
+      <li><label><input type="checkbox" id="s7"> Gave a specific watering and mowing recommendation; knocked back or left a completed door hanger</label></li>
+      <li><label><input type="checkbox" id="s8"> Wrote customer-ready PestPac Mobile notes, sent office items to technotes@ and completed the order before driving</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn03:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn03:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-03", "titleHtml": "The Standard L&amp;O Visit", "nextHtml": "LAWN-04 \u00b7 Turfgrass Varieties", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Arrive and walk the property',q:'July, St. Augustine. Straw-colored patches in full sun along the driveway. The customer says, "I water every day." What do you do first?',o:['Agree it\'s drought and tell them to water twice a day','Part the grass at the edge where the damage meets green turf and look for insects, and check the irrigation coverage, before choosing a treatment','Spray a fungicide over the whole lawn to be safe','Skip the area and note "dry spots"'],a:1,e:'Hot, sunny strips near pavement in St. Augustine are where chinch bugs show first, and they look like drought. Inspect before you treat: look at the active edge for insects and check whether water is actually reaching the area. Then choose a labeled product for what you found.'},
+    2:{t:'Checkpoint 2 · Choose and mix',q:'On an insect visit you find broadleaf weeds in the turf. Weed control is in their program, your herbicide is labeled for their grass and conditions are right. What\'s the Clements way?',o:['Leave them for the next weed visit and say nothing','Add herbicide to the main tank and spray everything, shrubs included','Spot-mix from the current label, treat the weeds in the turf only, then flag, explain and document it','Tell the customer the weeds will be gone tomorrow'],a:2,e:'Treat the property, not just the work order, when it\'s in their program and you have a labeled product. Mix from the label, keep herbicide off shrubs and bed plants, and then flag, communicate and document so the customer knows the weeds were treated.'},
+    3:{t:'Checkpoint 3 · Apply',q:'You\'re finishing the back lawn, which slopes to a retention pond. The breeze has picked up and is blowing toward the water. What do you do?',o:['Keep the label\'s buffer, turn your passes so the spray moves away from the water, and if the wind still carries toward the pond, skip that edge and note it','Spray quickly along the bank before the wind gets worse','Use higher pressure so the spray reaches the bank faster','Throw granules instead; they can\'t drift'],a:0,e:'Drift into water is off-label and illegal, and many turf products are toxic to fish. Keep the buffer, use a coarse, low-pressure spray directed away from the water, and skip the edge when the wind is wrong. Granules can bounce or wash into water too.'},
+    4:{t:'Checkpoint 4 · Post, recommend, document',q:'No one is home. You treated the lawn and shrubs and spot-treated weeds by the front walk. What must be in place before you drive away?',o:['Nothing; the emailed invoice covers it','A door hanger only','A posted notice, but notes can wait until the end of the day','A completed notice of application at the driveway, an Area of Concern flag at the weeds, a completed door hanger, customer-ready PestPac Mobile notes and the order completed'],a:3,e:'The notice is the law. The flag explains the spot treatment. The hanger speaks for you when you didn\'t talk to the customer. The notes reach the customer and the office. And each order is completed before you leave.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'When must you NOT knock at a lawn stop?',o:['When you\'re running late','When the account is marked Do Not Knock or the customer has asked for no contact','When the customer\'s car is in the driveway','On every recurring visit'],a:1,e:'Knock and introduce yourself when appropriate. Skip it only when the account says Do Not Knock or the customer asked for no contact.'},
+    {k:'Multiple choice',q:'Which question at the door most directly helps you explain wet, fungus-prone turf?',o:['"How long have you lived here?"','"Do you rent or own?"','"When does your irrigation run?"','"Who mows your neighbor\'s yard?"'],a:2,e:'Irrigation schedule explains wet or dry areas and decides your watering recommendation.'},
+    {k:'True or false',q:'Inspection on a lawn stop is optional when the truck already has the seasonal tank mix.',o:['True','False'],a:1,e:'False. The walk decides whether the tank mix fits, what needs a spot treatment and where you won\'t spray.'},
+    {k:'Scenario',q:'Irregular straw-colored patches in full sun along the driveway in summer St. Augustine. Which pest do you check for first?',o:['Chinch bugs','Brown patch','Mole crickets in shade','Sooty mold'],a:0,e:'Chinch bug damage starts in hot, sunny areas near pavement and looks like drought. Look at the edge of the damage.'},
+    {k:'Multiple choice',q:'Circular patches with a darker, smoky edge in January after heavy rain most likely point to:',o:['Drought stress','Brown patch fungus','Sod webworms','Scalping'],a:1,e:'Brown patch favors cool (below about 80°F), wet weather, November through March in Florida.'},
+    {k:'Multiple choice',q:'A black, sooty coating on shrub leaves usually means:',o:['Too much fertilizer','Sun scald','Sap-feeding insects like whiteflies or scale are producing honeydew','The irrigation is too low'],a:2,e:'Sooty mold grows on honeydew. Check leaf undersides and treat the insect causing it.'},
+    {k:'True or false',q:'If the approved mix sheet and the current product label disagree, follow the label and tell your supervisor.',o:['True','False'],a:0,e:'True. The label is the law, and labels change. Flag the difference so the sheet gets updated.'},
+    {k:'Multiple choice',q:'Which of these may you spray with herbicide?',o:['Shrubs with weeds growing through them','Flower beds','Weeds in turf, with a product labeled for that grass','A vegetable garden'],a:2,e:'Broadcast weed control is turf only. Never spray herbicide on shrubs, bed plants or edibles.'},
+    {k:'Scenario',q:'The herbicide label warns against treating heat- or drought-stressed turf, and the lawn is wilted and gray at 2 p.m. What do you do?',o:['Hold the herbicide, recommend watering, and note the weeds for follow-up','Spray at a double rate to finish faster','Spray only the worst weeds','Water it with the hose and spray immediately'],a:0,e:'Treating stressed turf against the label injures the lawn. Hold, recommend watering and document.'},
+    {k:'Multiple choice',q:'Granular fertilizer is on an order in August in unincorporated Martin County. What applies?',o:['Apply it, but sweep the driveway','Apply half the rate','Apply it only near the pond','The summer nitrogen and phosphorus ban (June 1 to September 30) applies; call the office'],a:3,e:'Most of our counties ban summer nitrogen and phosphorus fertilizer (FC-04). Combination products count.'},
+    {k:'Multiple choice',q:'What is the right turf application pattern?',o:['Random passes until the tank is empty','Spray the middle heavily and skip the edges','Double passes everywhere for insurance','A border pass around the edges, then straight passes with slight overlap, working toward your exit'],a:3,e:'Border first, aimed in toward the lawn, then even passes with slight overlap. Shut off on turns and don\'t walk back through wet product.'},
+    {k:'True or false',q:'When treating ornamentals for whiteflies or scale, you need to reach the undersides of the leaves.',o:['True','False'],a:0,e:'True. Many shrub pests live on the leaf undersides, so coverage there matters.'},
+    {k:'Scenario',q:'Wind is pushing your spray toward the neighbor\'s pool. What do you do?',o:['Raise the pressure to push through the wind','Finish quickly','Hold, wait for it to calm or reschedule that section, and note it','Spray only when the neighbor isn\'t outside'],a:2,e:'Drift onto someone else\'s property is off-label and illegal. Wait, adjust or reschedule.'},
+    {k:'Multiple choice',q:'Under s. 482.2265(2), F.S. and rule 5E-14.147, the lawn notice must be:',o:['Posted in a conspicuous location at the time of application, at least 4 x 5 inches, rigid and weatherproof, with contrasting colors and our business name','Mailed to the customer within a week','Posted only for herbicide applications','Taped inside the front door'],a:0,e:'Every lawn and exterior foliage application needs the posted notice, made and placed to the rule.'},
+    {k:'Multiple choice',q:'A customer\'s neighbor is on the FDACS pesticide-sensitive registry. Before a lawn application in the notice area, they must receive notice:',o:['After the application','Only if they ask','At least 24 hours before the application, with the location and type of pesticide','One week before, in writing only'],a:2,e:'Section 482.2267, F.S.: at least 24 hours ahead. The office tracks the quarterly FDACS list and flags affected orders.'},
+    {k:'True or false',q:'Granules left on the driveway are fine because the next rain will wash them into the lawn.',o:['True','False'],a:1,e:'False. Rain washes them into the street drain and the water. Sweep or blow them back onto the turf before you leave.'},
+    {k:'Multiple choice',q:'What does an Area of Concern flag tell the customer?',o:['That the lawn failed inspection','That the yard is off-limits for a week','Nothing; it\'s for the office','Where you spot-treated or found a problem, ideally with a short note'],a:3,e:'Flags show the customer where you treated or found something, so standing weeds read as "being treated," not "missed."'},
+    {k:'Scenario',q:'Standard St. Augustine is being mowed at about 2 inches and looks thin. What do you recommend?',o:['Mow lower so it dries faster','Mow once a month','Bag all clippings','Raise the mower to 3.5–4 inches, keep the blade sharp and cut no more than a third at a time'],a:3,e:'UF/IFAS recommends 3.5–4 inches for standard St. Augustine, and the one-third rule.'},
+    {k:'Multiple choice',q:'Which watering advice matches UF/IFAS guidance?',o:['Water every evening for 10 minutes','Water when about a third of the lawn shows need, ½ to ¾ inch, early in the morning, on allowed days','Water at noon so it dries quickly','Water daily in the rainy season'],a:1,e:'Water when the lawn shows need (folded blades, footprints that stay, blue-gray color), about ½ to ¾ inch, early morning, following local watering rules.'},
+    {k:'Multiple choice',q:'Where should "customer asked for a price on mosquito service" go?',o:['The customer-facing notes on the Activities page','The door hanger','technotes@clementspestcontrol.com, so the branch manager can follow up','Nowhere'],a:2,e:'Leads and account changes go to technotes@. Activities notes print on the customer\'s inspection report.'}
+  ];
+
+  function fbHtml(ok,t){return '<div class="fb'+(ok?'':' no')+'">'+t+'</div>'}
+
+  /* ---------- visit timeline ---------- */
+  var VT=[
+    {g:'Prep',i:'i-clip',d:'Review the day in PestPac Mobile: account notes, order and service instructions, program and registry flags. Check the tank mix, spot-mix products, label PPE, notice signs, flags, door hangers, broom or blower.',c:'Nothing yet. Later they notice you already knew about the dog and last visit\'s weeds.',k:'FC-09 Route Management · LAWN-02 Program'},
+    {g:'Arrive',i:'i-door',d:'Park in front, ignition off, start the order. Knock unless the account says Do Not Knock. Ask about concerns, irrigation, mowing, pets and children.',c:'A professional who asks about their lawn before spraying it.',k:'FC-11 Service Visit · this course'},
+    {g:'Walk',i:'i-search',d:'Walk the whole property: turf color and density, weeds, insect and disease signs, irrigation, shrubs. Read the site for water, edibles, pets and wind.',c:'Someone looking closely at their yard.',k:'This course · LAWN-06, 07, 08'},
+    {g:'Choose',i:'i-mix',d:'Does the tank mix fit what you found, on this turf, today? If not, spot-mix from the current label. If conditions are wrong, hold.',c:'Nothing, unless you get it wrong: burned turf, missed weeds.',k:'FC-02 Labels · LAWN-09 Calibration'},
+    {g:'Apply',i:'i-grass',d:'Post the notice. Border pass, then even passes with slight overlap. Ornamentals top and underside. No herbicide on shrubs. No drift.',c:'Care around their beds, pool and car. A sign out front.',k:'FC-04 Environmental Safety · LAWN-01'},
+    {g:'Clean up',i:'i-broom',d:'Sweep granules off hard surfaces, wind the hose with gloves on, place Area of Concern flags with notes, latch gates.',c:'A clean driveway and flags that explain the spots you treated.',k:'This course'},
+    {g:'Talk',i:'i-chat',d:'Knock back, or a completed door hanger: what you did, what you found, watering and mowing advice, what to expect.',c:'Plain words and one or two things they can do.',k:'CW-03 Orange Ice Cube · FC-11'},
+    {g:'Document',i:'i-pen',d:'Customer-ready notes in PestPac Mobile, office items to technotes@, complete the order before you drive.',c:'Your notes on the emailed inspection report.',k:'FC-10 PestPac Mobile'}
+  ];
+  var vt=$('#vt'), vtSeen=store.get('vt')||{};
+  function showVT(n){
+    $$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(vtSeen[j])b.classList.add('seen')});
+    $('#vtFill').style.width=(n/(VT.length-1)*87.6)+'%';
+    var t=VT[n];
+    $('#vtDetail').innerHTML='<div class="card" style="padding:16px 18px"><div class="grid g3" style="gap:18px"><div><span class="eyebrow">You do</span><p style="margin-top:4px;color:var(--ink)">'+t.d+'</p></div><div><span class="eyebrow">The customer notices</span><p style="margin-top:4px">'+t.c+'</p></div><div><span class="eyebrow">Goes deeper in</span><p style="margin-top:4px">'+t.k+'</p></div></div></div>';
+  }
+  VT.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.innerHTML='<span class="dot"><svg class="ico" style="width:18px;height:18px"><use href="#'+t.i+'"/></svg></span><span class="yr">'+t.g+'</span><span class="tg">Stage '+(i+1)+'</span>';
+    b.addEventListener('click',function(){vtSeen[i]=1;store.set('vt',vtSeen);showVT(i)});vt.appendChild(b)});
+  showVT(0);
+
+  /* ---------- walk-the-property scene ---------- */
+  function scene(id,items,total,doneMsg){
+    var svg=$('#'+id), list=$('#'+id+'List'), found={}, n=0, hl=document.createElement('div');
+    hl.className='hs-list';svg.parentNode.insertAdjacentElement('afterend',hl);
+    $$('.hs',svg).forEach(function(g){
+      function act(){
+        var k=+g.dataset.k, it=items[k];
+        var det=$('#'+id+'Det');det.classList.toggle('okd',!!it.ok);det.innerHTML='<span class="eyebrow">'+(it.ok?'Looks fine':'What it means')+'</span><h3 style="margin-top:4px">'+it.t+'</h3><p>'+it.w+'</p>';
+        if(it.ok){g.classList.add('fine');return;}
+        if(found[k])return; found[k]=1;n++;g.classList.add('got');
+        list.insertAdjacentHTML('beforeend','<div class="fi"><span class="num">'+n+'</span><span>'+it.t.replace(/\.$/,'')+'</span></div>');
+        $('#'+id+'Tally').textContent=n+' of '+total+' found.'+(n===total?' '+doneMsg:' Keep walking.');
+      }
+      g.addEventListener('click',act);
+      g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}});
+      var bt=document.createElement('button');bt.type='button';bt.id=id+'_hb'+g.dataset.k;bt.textContent=g.getAttribute('aria-label');
+      bt.addEventListener('click',function(){act();bt.classList.add(g.classList.contains('fine')?'fine':'got')});
+      hl.appendChild(bt);
+    });
+  }
+  scene('sc1',[
+    {t:'Straw-colored patch, full sun, by the driveway.',w:'Classic chinch bug spot in St. Augustine. Part the grass at the edge of the damage and look before you treat.'},
+    {t:'Weeds in the front lawn.',w:'Identify them. If weed control is in their program, spot-treat with a product labeled for this turf, then flag it.'},
+    {t:'Sprinkler spraying the driveway.',w:'Wasted water, a dry strip, and runoff off pavement. Recommend the repair, and don\'t treat that wet pavement edge.'},
+    {t:'Ring in the shade under the tree.',w:'Shade plus moisture: possible fungus such as brown patch. Note season and watering; confirm before choosing a fungicide.'},
+    {t:'Black coating on the shrubs.',w:'Sooty mold grows on honeydew from insects like whiteflies or scale. Check leaf undersides; treat the insect, not the black.'},
+    {t:'Pond at the edge of the yard.',w:'Keep the label\'s buffer, spray away from it, no granules toward it. Many products are toxic to fish.'},
+    {t:'Vegetable bed.',w:'No spray on or toward edibles unless the label lists that crop. Keep drift off it.'},
+    {t:'Dog bowl and toy on the lawn.',w:'Pets use this yard. Ask the customer to keep them off until the label allows, and move or cover the bowl.'},
+    {ok:1,t:'Thick, even turf: fine.',w:'Note what\'s healthy too. It shows the customer the program is working.'}
+  ],8,'That\'s a real walk. Every one of these changes your product, pattern or advice.');
+
+  /* ---------- symptom reader ---------- */
+  var SY=[
+    {n:'Sunny strip',who:'July · St. Augustine',say:'Irregular straw-colored patches in full sun along the driveway, spreading outward. The grass is still firmly rooted. The customer says "I water every day and it\'s still dying."',a:0,
+     w:'Hot, dry, sunny areas near pavement in St. Augustine are where chinch bugs show first, and they look like drought. Watering doesn\'t fix it. Look at the edge where yellow meets green for small black insects with white wings (LAWN-07).'},
+    {n:'Smoky ring',who:'January · after a week of rain',say:'Circular patches a few feet across, with a darker, smoky edge. Blades pull loose easily from the runners. The irrigation still runs daily.',a:2,
+     w:'Cool (below about 80°F), wet weather from November to March is brown patch season. Daily irrigation feeds it. Confirm and choose by the label (LAWN-08), and recommend cutting back the water.'},
+    {n:'Chewed blades',who:'Late summer · after heavy rain',say:'Ragged, chewed blades in small irregular patches, little green pellets in the thatch. The customer has seen moths over the lawn at dusk.',a:1,
+     w:'Chewed blades and frass point to sod webworms. Moths alone don\'t mean damage; the chewing and pellets do (LAWN-07).'},
+    {n:'Blue-gray lawn',who:'May · no rain for weeks',say:'Large areas with a blue-gray cast, blades folded in half lengthwise, footprints that stay in the grass long after you walk.',a:3,
+     w:'Those are the three signs of drought stress. Check the irrigation schedule and coverage, recommend ½ to ¾ inch when it shows need, and check herbicide labels before treating stressed turf (LAWN-08).'},
+    {n:'After mowing',who:'Any season',say:'Thin, yellowed turf with brown stubble showing, worst on the ridge where the lawn meets the curb. Clippings are piled on top.',a:4,
+     w:'Scalping: cut too low or too much at once. Recommend the right height for the grass and the one-third rule. Don\'t treat it as a disease.'}
+  ];
+  var SYO=['Chinch bugs','Sod webworms','Brown patch (fungus)','Drought stress','Mowing too low'];
+  var st=$('#syTabs'), sb=$('#syBox'), syDone=store.get('sy')||{};
+  function showSY(n){
+    $$('button',st).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!syDone[j])});
+    var s=SY[n];
+    sb.innerHTML='<div class="speech"><span class="who">'+s.who+'</span>'+s.say+'</div><div class="choices five">'+SYO.map(function(o,i){return '<button type="button" class="choice" id="sy'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCDE'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="syFb"></div>';
+    $$('.choice',sb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',sb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',sb).forEach(function(x){x.disabled=true});syDone[n]=1;store.set('sy',syDone);$$('button',st)[n].classList.add('done');
+        $('#syFb').innerHTML=fbHtml(1,'<b>Good read.</b> '+s.w+(n<SY.length-1?' <button type="button" class="btn" id="syNext" style="margin-left:8px;padding:4px 12px">Next symptom</button>':''));var nx=$('#syNext');if(nx)nx.addEventListener('click',function(){showSY(n+1)});}
+      else{b.classList.add('wrong');$('#syFb').innerHTML=fbHtml(0,'<b>Not the best fit.</b> Look again at where it is, the season and what the blades look like.');}
+    })});
+  }
+  SY.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='syt'+i;b.textContent=s.n;b.addEventListener('click',function(){showSY(i)});st.appendChild(b)});
+  showSY(0);
+
+  /* ---------- label checks ---------- */
+  var LB=[
+    ['Is this turf on the label?','Some turf products injure certain grasses. A product labeled for bahia may not be labeled for St. Augustine. Know the grass (LAWN-04) and check the site list before you mix.'],
+    ['Rate from the current label','Mix from the current label and the approved mix sheet only. Labels change; if the sheet and label disagree, follow the label and tell your supervisor. This course never gives a rate.'],
+    ['Mixing order','Follow the label\'s mixing directions and keep agitation running. Wrong order can clump or separate the mix, and you get uneven coverage.'],
+    ['Heat and stress limits','Many turf herbicide labels prohibit treating stressed turf or treating above a set temperature. Hot afternoon, wilted lawn: check before you spray.'],
+    ['Wind and rain','Drift is off-label application. Rain too soon washes product off the leaf and toward drains. Check the forecast against the label\'s interval.'],
+    ['Water and re-entry','No product into water or drains, and people and pets stay off until sprays dry. That\'s what you tell the customer at the door.']
+  ];
+  var lbSeen={}, lbN=0;
+  LB.forEach(function(w,i){var b=$('#lab'+i);b.addEventListener('click',function(){
+    $$('#lab .lr').forEach(function(x){x.classList.toggle('sel',x===b)});
+    if(!lbSeen[i]){lbSeen[i]=1;lbN++;b.classList.add('seen');}
+    $('#labBox').innerHTML='<span class="eyebrow">What you check</span><h3 style="margin-top:6px">'+w[0]+'</h3><p>'+w[1]+'</p>';
+    $('#labTally').textContent=lbN+' of 6 checked'+(lbN===6?'. Sixty seconds with the label beats a burned lawn.':'');
+  })});
+
+  /* ---------- multi-way sort helper ---------- */
+  function makeSort(boxSel,btnSel,fbSel,items,labels,prefix,doneMsg){
+    var box=$(boxSel), sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=prefix+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+labels.map(function(l,k){return '<button type="button" aria-pressed="false" data-v="'+l+'" id="'+prefix+i+'_'+k+'">'+l+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');})});
+      box.appendChild(r)});
+    $(btnSel).addEventListener('click',function(){
+      var right=0,blank=0,firstWrong=-1;
+      items.forEach(function(s,i){var r=$('#'+prefix+'r'+i);
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok&&firstWrong<0)firstWrong=i;
+      });
+      $(fbSel).innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort every item before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+doneMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. <b>'+items[firstWrong].q+':</b> '+items[firstWrong].w+' Fix the red ones and check again.</span>');
+    });
+  }
+
+  makeSort('#ahSort','#ahCheck','#ahFb',[
+    {q:'Wind is gusting toward the neighbor\'s pool as you start the back yard',a:'Hold',w:'Drift onto someone else\'s property is off-label and illegal. Wait it out, treat what you can safely, or reschedule.'},
+    {q:'Calm, dry morning; the label lists this turf and this pest',a:'Apply',w:'Everything lines up. Post the notice and go.'},
+    {q:'Herbicide in the tank; weeds coming up in the shrub bed',a:'Hold',w:'Never spray herbicide on shrubs or bed plants. Note it, and ask your supervisor about the right bed option.'},
+    {q:'St. Augustine is wilted and gray; the herbicide label warns against stressed turf',a:'Hold',w:'Treating stressed turf against the label injures it. Recommend watering and come back to the weeds.'},
+    {q:'Rain is moving in sooner than the label\'s rain-free interval',a:'Hold',w:'Product washes off the leaf and toward drains. Stop and ask the office about finishing it.'},
+    {q:'Granular fertilizer is on the order in August in unincorporated Martin County',a:'Hold',w:'Summer nitrogen and phosphorus ban, June 1 to September 30 (FC-04). Call the office.'},
+    {q:'Two kids and a dog are playing on the front lawn',a:'Hold',w:'People and pets stay off treated areas. Ask the parent to bring them in until the label allows.'},
+    {q:'Office flagged a registry neighbor and confirms notice went out yesterday',a:'Apply',w:'At least 24 hours\' notice was given. You\'re clear.'},
+    {q:'Irrigation just ran and the blades are dripping; label says apply to dry foliage',a:'Hold',w:'Wet blades dilute and run the product off. Treat the dry areas first and come back, or reschedule.'},
+    {q:'A small chinch bug spot you found today; your labeled product is in their program',a:'Apply',w:'Spot-treat the hot spot by the label, flag it and write it down.'}
+  ],['Apply','Hold'],'ah','All ten correct. Holding for ten minutes is cheaper than a burned lawn, a fish kill or a complaint to FDACS.');
+
+  /* ---------- beds / water / surfaces ---------- */
+  var AR=[
+    {n:'Turf',i:'i-grass',p:['Broadcast weed control goes on turf only, with a product labeled for that grass.','Liquid insect and fungus sprays: even coverage of the blades, per the label.','Granular: steady pace, spreader off on sharp turns, slight overlap, no throw onto pavement.'],x:'Weeds standing after a weed treatment are normal for a while. Flag the area so the customer knows it was treated.'},
+    {n:'Shrubs and beds',i:'i-leaf',p:['Cover tops and undersides of leaves, where whiteflies, scale and mites live.','No herbicide spray on shrubs, flowers or bed plants. Ever.','Edibles and fruit trees: nothing unless the label lists that crop.','Plants in bloom draw bees. Keep spray off open flowers your label protects.'],x:'Fertilizing shrubs: spread granules evenly around the base, off the trunk and stems.'},
+    {n:'Near water',i:'i-wave',p:['Ponds, canals, lakes, seawalls, wetlands: keep the label\'s buffer and the county\'s fertilizer buffer (FC-04).','Spray away from the water, with a coarse spray and low pressure.','No granules thrown toward water. Turn the spreader deflector or switch to a drop pass.'],x:'If the wind is pushing toward the water, skip that edge and note it. Never treat into water.'},
+    {n:'Hard surfaces',i:'i-broom',p:['Drives, walks, patios, pool decks and the street: no spray, no granules left behind.','Direct border passes in toward the lawn.','Sweep or blow every stray granule back onto turf before you leave. Never into the street or a drain.'],x:'Don\'t mix or rinse on pavement or near a storm drain. A spill there goes straight to the water.'}
+  ];
+  var as=$('#arSeg');
+  function showAR(n){$$('button',as).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var a=AR[n];
+    $('#arBox').innerHTML='<div class="card arcard"><div class="icobox"><svg class="ico"><use href="#'+a.i+'"/></svg></div><div><ul class="mini" style="margin-top:0">'+a.p.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul><p class="small" style="margin-top:8px;color:var(--brand-700)"><b>Remember:</b> '+a.x+'</p></div></div>';}
+  AR.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.id='ar'+i;b.textContent=a.n;b.addEventListener('click',function(){showAR(i)});as.appendChild(b)});
+  showAR(0);
+
+  /* ---------- visit order ---------- */
+  var VO=['Park in front, in park, ignition off; start the order','Knock (unless Do Not Knock), introduce yourself, ask about concerns','Walk the property: turf, weeds, insects, disease, irrigation, shrubs','Decide if the tank mix fits; spot-mix by the label in label PPE','Post the notice of application where it\'s easy to see','Treat turf and shrubs: border, even passes, overlap, no drift','Spot-treat problem areas, then wind the hose with gloves on','Sweep granules off hard surfaces; place Area of Concern flags','Knock back, or leave a completed door hanger','In the parked truck: notes in PestPac Mobile, complete the order'];
+  var voMix=[4,0,7,2,9,1,5,3,8,6], voBox=$('#vo'), vn=0;
+  function renderVO(){
+    voBox.innerHTML='';vn=0;$('#voFb').innerHTML='';
+    voMix.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='vo'+ix;b.innerHTML='<span class="num">·</span><span>'+VO[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===vn){b.classList.add('placed');$('.num',b).textContent=vn+1;vn++;
+          if(vn===VO.length){$('#voFb').innerHTML=fbHtml(1,'That\'s the standard L&amp;O visit. Look before you mix, post before you spray, clean up before you talk, and write it down before you drive. <button type="button" class="btn" id="voAgain" style="margin-left:6px;padding:4px 12px">Again</button>');$('#voAgain').addEventListener('click',renderVO);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#voFb').innerHTML=fbHtml(0,'Not yet. Arrive, talk, walk, choose, post, treat, clean up, communicate, document.');}
+      });voBox.appendChild(b)});
+  }
+  renderVO();
+
+  /* ---------- notice check ---------- */
+  var NT=[
+    {l:'Size and material',v:'3 x 4 in, printed on paper',bad:1,w:'Too small and not weatherproof. The minimum is 4 x 5 inches, rigid, durable and weatherproof.'},
+    {l:'Wording and symbol',v:'FDACS example layout',bad:0,w:'Fine.'},
+    {l:'Colors',v:'Dark lettering on a light background',bad:0,w:'Fine. Background and lettering must contrast.'},
+    {l:'Business name',v:'&nbsp;',bad:1,w:'Blank. The law requires the business name of the licensee on the notice.'},
+    {l:'Product information',v:'&nbsp;',bad:1,w:'Blank. The Clements standard is a fully completed sign with the correct product information.'},
+    {l:'Placed',v:'Behind the side gate',bad:1,w:'Not conspicuous. Put it where people see it before they step onto the lawn: at the driveway, visible from the street.'}
+  ];
+  var nt=$('#ntc'), ntN=0;
+  nt.innerHTML='<div class="dh-top"><svg class="ico"><use href="#i-sign"/></svg><span>Notice of pesticide application · lawn</span></div>'+NT.map(function(f,i){return '<button type="button" class="dh-f" id="ntc'+i+'"><span class="k">'+f.l+'</span><span class="v">'+f.v+'</span><small></small></button>'}).join('');
+  NT.forEach(function(f,i){var b=$('#ntc'+i);b.addEventListener('click',function(){
+    if(b.dataset.done)return;b.dataset.done=1;b.classList.add(f.bad?'no':'ok');if(f.bad)$('small',b).textContent=f.w;
+    if(f.bad){ntN++;$('#ntcTally').textContent=ntN+' of 4 problems found'+(ntN===4?'. Two minutes at the truck prevents a violation.':'');}
+  })});
+
+  /* ---------- before you leave ---------- */
+  var FW=['Pump motor off; hose wound with gloves on; equipment secured','Granules swept off drives, walks, decks and the street','Area of Concern flags placed where you spot-treated, with a note','Notice of application posted, completed, easy to see','Gates latched; anything you moved put back','Nothing in drains, water or edibles; any spill handled with the 3 Cs','Knock back done, or a completed door hanger left','Parked: notes saved and the order completed before you drive'];
+  var fw=$('#fw'), fwOn={}, C=2*Math.PI*50;
+  $('#fwRing').setAttribute('stroke-dasharray',C.toFixed(1));$('#fwRing').setAttribute('stroke-dashoffset',C.toFixed(1));
+  function fwUpd(){var n=Object.keys(fwOn).filter(function(k){return fwOn[k]}).length;$('#fwRing').setAttribute('stroke-dashoffset',(C*(1-n/FW.length)).toFixed(1));$('#fwPct').textContent=n===FW.length?'Drive on':n+'/'+FW.length;$('#fwPct').classList.toggle('done',n===FW.length);}
+  FW.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='fw'+i;b.setAttribute('aria-pressed','false');b.innerHTML='<span class="cbx"><svg class="ico"><use href="#i-check"/></svg></span><span>'+t+'</span>';
+    b.addEventListener('click',function(){fwOn[i]=!fwOn[i];b.setAttribute('aria-pressed',!!fwOn[i]);fwUpd()});fw.appendChild(b)});
+
+  /* ---------- write the recommendation ---------- */
+  var RC=[
+    {n:'Scalped lawn',who:'You found standard St. Augustine cut to about 2 inches, thin and weedy.',o:[
+      ['"Your landscaper is cutting it way too short. You should find someone better."',0,'Never criticize another company or person. Give the fix, not the blame.'],
+      ['"The lawn is being cut short, which thins St. Augustine and lets weeds in. Raising the mower to 3.5–4 inches and keeping the blade sharp will help it thicken."',1,'Specific, correct for this grass, and something they can act on.'],
+      ['"Mow lower so it dries out faster and the fungus goes away."',0,'Wrong advice. Low mowing stresses the turf and invites weeds.']]},
+    {n:'Daily irrigation',who:'The sprinklers run every day, and you treated brown patch this January visit.',o:[
+      ['"Water every evening so the grass stays green."',0,'Evening and daily watering keeps blades wet overnight. That\'s what fungus wants.'],
+      ['"Turn the sprinklers off for good."',0,'Too far. The lawn still needs water when it shows need.'],
+      ['"The lawn is staying wet, which favors the fungus I treated. Water only when the grass shows need, about ½ to ¾ inch early in the morning, on your allowed days."',1,'Ties the advice to what you found and gives a clear, correct routine.']]},
+    {n:'Broken head',who:'You found a broken sprinkler head by the driveway and a dry strip beside it.',o:[
+      ['"The sprinkler head by the driveway is broken and spraying the pavement, so that strip isn\'t getting water. Having it repaired will help that area recover."',1,'What, where, why it matters and what to do. No promises outside our service.'],
+      ['"Sprinkler broken."',0,'Says nothing the customer can use.'],
+      ['"Don\'t worry, I\'ll fix that sprinkler next time I\'m out."',0,'Irrigation repair isn\'t our service. Never promise what we don\'t do.']]},
+    {n:'Weeds spot-treated',who:'You spot-treated weeds along the front walk and flagged the area. No one is home.',o:[
+      ['"Sprayed the weeds. They\'ll be gone tomorrow."',0,'A promise you can\'t keep. Weeds take time to die back.'],
+      ['"Weeds along the front walk were spot-treated today; the flag marks the area. They take time to die back, so you may still see them for a while. Please don\'t pull them so the treatment can work."',1,'Explains the flag, sets an honest expectation and prevents the "you missed them" call.'],
+      ['"Weed control applied per label rates, see invoice."',0,'Jargon the customer can\'t use, and no expectation set.']]}
+  ];
+  var rt=$('#rcTabs'), rb=$('#rcBox'), rcDone=store.get('rc')||{};
+  function showRC(n){
+    $$('button',rt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!rcDone[j])});
+    var s=RC[n];
+    rb.innerHTML='<div class="speech"><span class="who">Situation</span>'+s.who+'</div><div class="choices one">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="rc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABC'[i]+'</span><span>'+o[0]+'</span></button>'}).join('')+'</div><div id="rcFb"></div>';
+    $$('.choice',rb).forEach(function(b){b.addEventListener('click',function(){
+      var o=s.o[+b.dataset.i];$$('.choice',rb).forEach(function(x){x.classList.remove('wrong')});
+      if(o[1]){b.classList.add('right');$$('.choice',rb).forEach(function(x){x.disabled=true});rcDone[n]=1;store.set('rc',rcDone);$$('button',rt)[n].classList.add('done');
+        $('#rcFb').innerHTML=fbHtml(1,'<b>That\'s the note.</b> '+o[2]+(n<RC.length-1?' <button type="button" class="btn" id="rcNext" style="margin-left:8px;padding:4px 12px">Next</button>':''));var nx=$('#rcNext');if(nx)nx.addEventListener('click',function(){showRC(n+1)});}
+      else{b.classList.add('wrong');$('#rcFb').innerHTML=fbHtml(0,'<b>Not quite.</b> '+o[2]+' Try again.');}
+    })});
+  }
+  RC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='rct'+i;b.textContent=s.n;b.addEventListener('click',function(){showRC(i)});rt.appendChild(b)});
+  showRC(0);
+
+  /* ---------- notes sort ---------- */
+  makeSort('#nsSort','#nsCheck','#nsFb',[
+    {q:'Spot-treated weeds by front walk; flagged. Mow at 3.5–4 in.',a:'Notes',w:'Customer-ready detail and a recommendation for the inspection report.'},
+    {q:'Customer asked what it would cost to add mosquito service',a:'technotes@',w:'A lead for the branch manager. Notes go to the customer, not the office.'},
+    {q:'New gate code; dog now kept in the side yard',a:'technotes@',w:'An account change the office updates for the next tech.'},
+    {q:'Chinch bug activity in sunny strip by driveway; treated per label',a:'Notes',w:'An observation and the treatment. Exactly what the customer should read.'},
+    {q:'Their landscaper is terrible and scalps everything',a:'Neither',w:'Never criticize anyone in writing. Write the mowing recommendation instead.'},
+    {q:'Neighbor\'s lawn is full of chinch bugs',a:'Neither',w:'Never write about other people\'s property. If it\'s a lead, tell your branch manager.'}
+  ],['Notes','technotes@','Neither'],'ns','All six correct. Notes are for the customer. technotes@ is for the office.');
+
+  function onShow(i){}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

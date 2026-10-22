@@ -1,6 +1,24 @@
 import type { PrismaClient } from "@prisma/client";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+
+/** Scan public/courses for hosted, interactive course pages and map each to its
+ *  course CODE by filename prefix (e.g. "fc-01-pest-management-ipm.html" → "FC-01").
+ *  So dropping a new <code>-<slug>.html into public/courses auto-links it to its
+ *  catalog course — no per-course config. Returns {} if the folder is absent. */
+function hostedCoursesByCode(): Record<string, string> {
+  const out: Record<string, string> = {};
+  try {
+    for (const f of readdirSync(join(process.cwd(), "public", "courses"))) {
+      if (!f.endsWith(".html")) continue;
+      const m = f.match(/^([a-z]+-(?:\d+|fld))-/i); // leading "<letters>-<digits|FLD>" = the course code
+      if (m) out[m[1].toUpperCase()] = `/courses/${f}`;
+    }
+  } catch {
+    /* no hosted courses folder in this environment */
+  }
+  return out;
+}
 
 /**
  * Training Center catalog seed — Program → Module → Course.
@@ -65,34 +83,30 @@ export async function seedTrainingCatalog(prisma: PrismaClient) {
     certIdByCode.set(c.code, row.id);
   }
 
-  // 2. Courses (units)
+  // 2. Courses (units). A hosted interactive page (public/courses/<code>-*.html)
+  //    auto-links via contentUrl and marks the course content "Exists".
+  const hosted = hostedCoursesByCode();
   const courseIdByCode = new Map<string, string>();
   for (const c of cat.courses) {
     const certificationId = certIdByCode.get(c.group);
     if (!certificationId) throw new Error(`course ${c.code} references unknown group ${c.group}`);
+    const contentUrl = hosted[c.code.toUpperCase()] ?? null;
+    const contentStatus = contentUrl ? "Exists" : (c.contentStatus ?? "None");
+    const fields = {
+      name: c.name,
+      certificationId,
+      order: c.order,
+      courseType: c.courseType,
+      contentStatus,
+      contentUrl,
+      sourceNote: c.sourceNote ?? null,
+      targetMinutes: c.targetMinutes ?? null,
+      trainingFolder: c.trainingFolder ?? null,
+    };
     const row = await prisma.certCourse.upsert({
       where: { code: c.code },
-      update: {
-        name: c.name,
-        certificationId,
-        order: c.order,
-        courseType: c.courseType,
-        contentStatus: c.contentStatus ?? "None",
-        sourceNote: c.sourceNote ?? null,
-        targetMinutes: c.targetMinutes ?? null,
-        trainingFolder: c.trainingFolder ?? null,
-      },
-      create: {
-        code: c.code,
-        name: c.name,
-        certificationId,
-        order: c.order,
-        courseType: c.courseType,
-        contentStatus: c.contentStatus ?? "None",
-        sourceNote: c.sourceNote ?? null,
-        targetMinutes: c.targetMinutes ?? null,
-        trainingFolder: c.trainingFolder ?? null,
-      },
+      update: fields,
+      create: { code: c.code, ...fields },
     });
     courseIdByCode.set(c.code, row.id);
   }

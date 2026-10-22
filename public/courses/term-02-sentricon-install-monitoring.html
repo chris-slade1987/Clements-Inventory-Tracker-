@@ -1,0 +1,1363 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>TERM-02 Sentricon Install &amp; Monitoring</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* TERM-02 components */
+.dl{list-style:none;display:grid;gap:4px;font-size:14px;color:var(--muted)}
+.dl li{display:flex;gap:10px;line-height:1.45}
+.dl li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:7px}
+.nsteps li{padding:9px 0;font-size:15px;gap:12px}
+.nsteps .num{flex-basis:28px;height:28px;font-size:13px}
+.ob p{font-size:14px}
+.ob .obh{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.ob .obh .icobox{margin:0}
+.ob .obh h3{margin:0}
+.card.ob{padding:16px 18px}
+table.spec td,table.route td{font-size:13.5px}
+.tablewrap table.spec,.tablewrap table.route{min-width:0}
+
+/* soil scenes */
+.sky{fill:var(--surface)}
+.soil{fill:#ECE8E2}
+.hwall,.hroof{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.slabx{fill:#D9DEDA}
+.stx{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+.stcap{stroke:var(--brand-700);stroke-width:3;stroke-linecap:round}
+.baitx{fill:var(--brand-400);transition:height .22s ease-in-out,y .22s ease-in-out}
+.clbl{font-family:var(--font);font-size:13px;fill:var(--ink);font-weight:400}
+.clbl.sm{font-size:11px;fill:var(--muted);letter-spacing:.06em}
+.tun,.forage{fill:none;stroke:#D8CFC2;stroke-width:7;stroke-linecap:round}
+.tun.live{stroke:#CDBFAE}
+.nest{fill:#E0D7CB;stroke:#CDBFAE;stroke-width:1.6}
+.term,.run{fill:var(--brand-800)}
+.cd{fill:var(--brand-800);transition:fill .2s ease-in-out,opacity .2s ease-in-out}
+.cd.dosed{fill:var(--brand-400)}
+.cd.dead{opacity:.12}
+.cd.queen{fill:var(--forest)}
+.cd.queen.dosed{fill:var(--brand-500)}
+.colfig{padding:10px}
+.colfig svg{max-width:none}
+.colsteps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.colsteps button{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:7px 10px;font-size:13px;text-align:left;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.colsteps button span{flex:0 0 20px;height:20px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:11px}
+.colsteps button.seen{border-color:var(--brand-200)}
+.colsteps button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.colsteps button[aria-pressed="true"] span{background:var(--brand-600);color:#fff}
+.coltxt{min-height:168px;display:grid;gap:6px;align-content:start;padding:16px 18px}
+.coltxt > *{animation:rise .2s ease-in-out both}
+.coltxt h3{font-size:19px;margin:0}
+.coltxt p{font-size:15px}
+
+/* placement cross-section */
+.xsec svg{max-width:380px}
+.dim{fill:none;stroke:var(--ink);stroke-width:1.2;stroke-dasharray:4 3}
+.dimt{fill:none;stroke:var(--ink);stroke-width:1.2}
+.slide.on .dropst{animation:dropin .9s ease-in-out .3s both}
+@keyframes dropin{from{transform:translateY(-40px);opacity:0}to{transform:none;opacity:1}}
+
+/* plan exercise */
+.plan{padding:8px}
+.plan svg{max-width:none}
+.lawn{fill:var(--brand-50)}
+.pgl{fill:none;stroke:var(--brand-100);stroke-width:1}
+.pat,.drv,.acp{fill:#E4E7E5;stroke:#C9CFCB;stroke-width:1.2}
+.patl{stroke:#CBD1CD;stroke-width:1}
+.mul{fill:#D8CDBF}
+.shr circle{fill:var(--brand-300)}
+.vlv{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}
+.irr{fill:none;stroke:var(--brand-500);stroke-width:1.4;stroke-dasharray:4 4}
+.dsp{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+.hse{fill:var(--surface);stroke:var(--ink);stroke-width:1.6}
+.dr{stroke:var(--brand-600);stroke-width:4}
+.hlbl{font-family:var(--font);font-size:18px;fill:var(--muted);font-weight:300}
+.plbl{font-family:var(--font);font-size:11px;fill:var(--muted);letter-spacing:.04em}
+.scale path{stroke:var(--ink);stroke-width:1.4;fill:none}
+.sp{cursor:pointer}
+.sp .c{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 3;transition:fill .18s ease-in-out}
+.sp .in{fill:none}
+.sp .hh{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.sp:hover .c{fill:var(--brand-100)}
+.sp.on .c{fill:var(--brand-600);stroke-dasharray:none;stroke:#fff;stroke-width:2}
+.sp.on .in{fill:none;stroke:#fff;stroke-width:1.4}
+.sp.good .c{fill:var(--positive)}
+.sp.bad .c{fill:var(--danger)}
+.sp.miss .c{stroke:var(--danger);stroke-width:2.4;stroke-dasharray:4 3;fill:var(--surface)}
+.slide.on .sp.miss .hh{animation:halo 2.6s ease-out infinite;fill:var(--danger)}
+.sp:focus{outline:none}.sp:focus-visible .c{stroke:var(--brand-800);stroke-width:3}
+.pld{display:grid;gap:8px;align-content:start;min-height:220px}
+.pld h3{font-size:19px;margin:0}
+.pld p{font-size:14px}
+.chip.miss,.chip.bad{background:#FDEEEE;color:#C42A2F}
+
+/* sample map */
+.mapfig svg{max-width:340px}
+.mpath{fill:none;stroke:var(--brand-300);stroke-width:1.4;stroke-dasharray:4 4}
+.mn circle{fill:var(--brand-600);stroke:#fff;stroke-width:1.5}
+.mn text{font-family:var(--font);font-size:9px;fill:#fff;font-weight:500}
+.slide.on .mn{animation:rise .2s ease-in-out both;animation-delay:calc(var(--i) * 90ms + .3s)}
+
+/* flip 6 */
+.flip.f6 button{min-height:188px}
+.flip.f6 .face{padding:18px 20px}
+.flip.f6 h3{font-size:21px}
+.flip.f6 .back{font-size:14.5px;line-height:1.5}
+
+.order button{padding:9px 14px}
+#ordFb.done{border-color:var(--brand-600);background:var(--brand-50)}
+
+@media (max-width:860px){
+  .colsteps{grid-template-columns:repeat(2,1fr)}
+  .flip.f6{grid-template-columns:1fr}
+  .flip.f6 button{min-height:170px}
+}
+@media (prefers-reduced-motion:reduce){.baitx,.cd{transition:none}}
+
+@media (min-width:861px){.slide.tight{padding-top:28px;padding-bottom:28px}.slide.tight.on{gap:12px}}
+.order{gap:7px}
+.bondc{display:flex;gap:14px;align-items:flex-start}
+.sort .row{flex-wrap:wrap;padding:8px 14px}
+.sort .row > span:first-child{flex:1 1 0;min-width:0}
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important;gap:20px!important}
+  .sp .c{r:14px}.sp .hh{r:16px}.sp .in{r:5px}
+  .door .pair .ico{transform:rotate(90deg)}
+}
+.sort{align-items:start}
+.sort .row{font-size:14.5px}
+.sort .why{font-size:12.5px}
+.slide > .tablewrap{flex-shrink:0}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">TERM-02 · Sentricon</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-wood" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M3 12h4M11 10h6M11 14h4"/></symbol>
+    <symbol id="i-station" viewBox="0 0 24 24"><path d="M5 9h14"/><path d="M7 9v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/><path d="M8 6h8v3H8z"/><path d="M3 13h2M19 13h2M10 13v4M14 13v4"/></symbol>
+    <symbol id="i-auger" viewBox="0 0 24 24"><path d="M8 3h8"/><path d="M12 3v4"/><path d="M12 7l3 2-6 3 6 3-6 3 3 2"/><path d="M12 20v1"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-molt" viewBox="0 0 24 24"><ellipse cx="9" cy="12" rx="4" ry="6"/><path d="M15 7c3 1 4 3 4 5s-1 4-4 5"/><path d="M9 6v12M6 9h6M6 15h6"/></symbol>
+    <symbol id="i-water" viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M7 18v-4a5 5 0 0 1 10 0v4"/><path d="M12 9V4M9 6l3-2 3 2"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Termite · TERM-02</span>
+        <h1 class="display a" style="--i:1">Sentricon Install &amp; Monitoring</h1>
+        <p class="lead a" style="--i:2">How a Clements technician plans, installs, maps and services Sentricon Always Active, reads every station, and explains the system and the bond to the customer.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Corteva CSS training also required</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M60 96L140 40l80 56"/><path d="M74 88v76h132V88"/><path d="M126 164v-34h28v34"/><rect x="88" y="104" width="22" height="18"/><rect x="170" y="104" width="22" height="18"/>
+          <path d="M16 164h288"/>
+          <path d="M36 164v40M244 164v40"/><rect x="28" y="168" width="16" height="40" rx="3"/><rect x="236" y="168" width="16" height="40" rx="3"/>
+          <path d="M26 166h20M234 166h20"/>
+          <path d="M36 178v24M244 178v24"/>
+          <path d="M290 236c-14 0-26-6-30-16" /><ellipse cx="296" cy="240" rx="18" ry="10"/>
+          <path d="M252 196c10 8 20 18 34 34"/>
+          <path d="M16 228c40-6 80-6 120 0s80 6 120 0"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Plan · Install · Map · Monitor · Explain</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-molt"/></svg><span>Explain how Sentricon Always Active and noviflumuron eliminate a subterranean termite colony</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-ruler"/></svg><span>Plan a layout to the Clements standard and the label: spacing, distance from the foundation, high-risk areas and obstacles</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-auger"/></svg><span>Install stations in the right order, at the right depth, flush with grade, without damaging irrigation or utilities</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-map"/></svg><span>Build the station map, count, footage and photos that support reporting, renewals and the Corteva bond</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-station"/></svg><span>Run quarterly monitoring and the annual inspection, read each station and act on activity correctly</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span>Explain the system, the bond and the customer's part accurately, and route claims and questions to the right person</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,3.8vw,44px)">A station in the ground is a promise. <span class="em">The work behind it keeps the promise.</span></h2>
+        <p class="lead a" style="--i:2">Sentricon is Clements' default protection against subterranean termites. A skipped station, a missing map or a lapsed visit leaves a home exposed and a claim undefended.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The bond depends on it</h3><p>Corteva's $1,000,000 damage bond holds only while installs follow the label and monitoring stays current. Our map and photos are what defend a claim.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>It's regulated work</h3><p>Every Sentricon account is a termite contract under Chapter 482: a written contract, a signed report after every contract inspection, and records kept at least 3 years.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-home"/></svg></div><div><h3>Customers can't see it working</h3><p>Homeowners insurance usually doesn't cover termite damage. The customer trusts that what's underground is right, and judges us by how well we explain it.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 CREDENTIALS -->
+  <section class="slide tight" data-label="Two credentials" style="gap:16px">
+    <span class="eyebrow a">Before you start</span>
+    <h2 class="a" style="--i:1">Two pieces of training, one standard</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-star"/></svg></div><h3>Corteva · Certified Sentricon Specialist (CSS)</h3><p>Corteva's own certification training, kept current as Corteva requires. Required to install and service Sentricon.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Clements · TERM-02 (this course)</h3><p>How Clements plans, installs, maps, monitors, documents and communicates on every Sentricon account. <b>It covers Clements procedures and does not replace Corteva's CSS certification.</b> You need both.</p></div>
+    </div>
+    <div class="tablewrap a" style="--i:4">
+      <table>
+        <tr><th>Task</th><th>Who can do it</th></tr>
+        <tr><td>Sell or quote Sentricon</td><td>A CSS, or a salesperson trained and supervised under a CSS</td></tr>
+        <tr><td>Install, monitor and inspect stations</td><td>A CSS, or a technician under CSS supervision</td></tr>
+        <tr><td>WDO inspections and reports</td><td>A WDO ID cardholder under a WDO certified operator, or the operator (TERM-06)</td></tr>
+      </table>
+    </div>
+    <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-users"/></svg><span>Ask your branch manager about Corteva's CSS training. Never run a Sentricon job outside CSS supervision.</span></div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one: how Sentricon works">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">How Sentricon works</h1>
+        <p class="lead a" style="--i:2">Why it matters: you can't place, service or explain a system you don't understand. Every decision in the field, from where a station goes to what you tell a worried customer, comes back to how the bait kills a colony.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>What you're up against</li><li><span>02</span>How noviflumuron works</li><li><span>03</span>Watch a colony go down</li><li><span>04</span>Always Active, liquid and the old way</li></ol>
+    </div>
+  </section>
+
+  <!-- 6 COLONY -->
+  <section class="slide" data-label="What you're up against" style="gap:16px">
+    <span class="eyebrow a">01 · What you're up against</span>
+    <h2 class="a" style="--i:1">A colony works as one animal, underground</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-route"/></svg></div><h3>Workers forage</h3><p>Blind, soft-bodied workers tunnel through soil looking for cellulose. They do the damage, and they're the ones that find a station.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>They share food</h3><p>Workers feed the queen, king, soldiers and young mouth to mouth (trophallaxis). Whatever they eat, the colony eats.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-molt"/></svg></div><h3>They molt to grow</h3><p>Like all insects they shed the old exoskeleton and grow a new one built from chitin. That's the weak point Sentricon targets.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-refresh"/></svg></div><h3>They replace losses</h3><p>Lose the queen and secondary reproductives take over. Killing the foragers you can see doesn't end the colony.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-bug"/></svg><span><b>Florida pressure:</b> native subterraneans statewide, plus invasive Formosan in most coastal counties and Asian subterranean termites as far north as Brevard County (UF/IFAS 2026). TERM-01 covers identification.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-target"/></svg><span><b>The idea:</b> a liquid treatment stops termites at a treated zone. Sentricon uses the colony's own foraging and food sharing to eliminate it.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 NOVIFLUMURON -->
+  <section class="slide" data-label="How noviflumuron works" style="gap:18px">
+    <span class="eyebrow a">02 · How noviflumuron works</span>
+    <h2 class="a" style="--i:1">Feed, share, fail to molt, collapse</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-station"/></svg></span><h3>1 · Feed</h3><p>Foragers find Recruit HD bait in the station. Corteva's studies show termites prefer it to wood, and it stays palatable in the soil for a long time.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-users"/></svg></span><h3>2 · Share</h3><p>Workers carry it home and pass it through the colony, including termites that never leave the nest.</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-molt"/></svg></span><h3>3 · Molt fails</h3><p>Noviflumuron is a chitin synthesis inhibitor, a type of insect growth regulator. When a termite tries to molt it can't form a new exoskeleton, and it dies.</p></div>
+      <div class="st top a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><h3>4 · Colony collapses</h3><p>Workers die off, no one feeds the queen and brood, and the colony is eliminated. The stations stay baited for the next one.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-clock"/></svg><span><b>Slow on purpose.</b> Termites don't die at the station, so nothing warns the rest of the colony and feeding keeps spreading. That's why elimination takes time, and why you never promise a date.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-doc"/></svg><span><b>Label facts:</b> Recruit HD termite bait, 0.5% noviflumuron, EPA Reg. No. 62719-608. For use only with service by a state-licensed pest control professional. The label is the law (FC-02).</span></div>
+    </div>
+  </section>
+
+  <!-- 8 COLONY ANIMATION -->
+  <section class="slide" data-label="Watch a colony go down" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:24px">
+      <div class="figbox colfig a" style="--i:1">
+        <svg viewBox="0 0 560 330" role="img" aria-label="Cross-section of soil beside a home: a Sentricon station, tunnels to an underground colony, and termites carrying bait back. Select a stage to see the colony decline." id="colSvg">
+          <rect class="sky" x="0" y="0" width="560" height="96"/>
+          <rect class="soil" x="0" y="96" width="560" height="234"/>
+          <path class="hwall" d="M40 96V20h120v76"/><path class="hroof" d="M28 26L100 0l72 26"/><rect class="slabx" x="34" y="92" width="132" height="10"/>
+          <text class="clbl" x="100" y="62" text-anchor="middle">Home</text>
+          <rect class="stx" x="214" y="84" width="34" height="62" rx="5"/><path class="stcap" d="M208 86h46"/><rect class="baitx" id="colBait" x="223" y="96" width="16" height="42" rx="3"/>
+          <text class="clbl sm" x="231" y="168" text-anchor="middle">Station</text>
+          <path class="tun" id="colTun" d="M246 128C300 150 330 196 392 226"/>
+          <path class="tun" d="M166 112C190 120 200 124 214 126"/>
+          <ellipse class="nest" cx="440" cy="250" rx="94" ry="54"/>
+          <g id="colDots"></g>
+          <g id="colRun"></g>
+          <text class="clbl sm" x="440" y="320" text-anchor="middle">Colony</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Watch a colony go down</span>
+        <h2 class="a" style="--i:1;font-size:28px">From day one to elimination</h2>
+        <div class="colsteps a" style="--i:2" id="colSteps"></div>
+        <div class="card coltxt a" style="--i:3" id="colTxt"></div>
+        <div class="a" style="--i:4;display:flex;gap:8px;align-items:center"><button type="button" class="btn" id="colPlay"><svg class="ico" style="width:18px;height:18px;vertical-align:-4px"><use href="#i-play"/></svg> Play</button><span class="small muted" id="colN">Stage 1 of 6</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 COMPARE -->
+  <section class="slide" data-label="Always Active, liquid and the old way" style="gap:16px">
+    <span class="eyebrow a">04 · Always Active, liquid and the old way</span>
+    <h2 class="a" style="--i:1">Know what you're installing, and what it isn't</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table>
+        <tr><th>Approach</th><th>How it works</th><th>What it means in the field</th></tr>
+        <tr><td class="y">Sentricon Always Active</td><td>Bait is in every station from installation day. Termites can start feeding as soon as they find one.</td><td>Clements' default for subterranean termites, post-construction and new construction. Quarterly checks plus an annual inspection.</td></tr>
+        <tr><td>Older monitor-first baiting</td><td>Stations held wood monitors; bait went in only after termites were found.</td><td>You may meet these on site transfers or conversions to Always Active. Treat the old map as a starting point only.</td></tr>
+        <tr><td>Liquid termiticide</td><td>A treated zone in the soil around and under the structure.</td><td>Separate service, covered in TERM-03. Liquid-treated soil changes where stations can go (Part two).</td></tr>
+      </table>
+    </div>
+    <div class="grid g2">
+      <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-x"/></svg><span><b>Never for drywood.</b> Sentricon targets subterranean termites only. Pellet frass and kick-out holes in trim are drywood; that's TERM-04, never a Sentricon sale.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span><b>Preventative or active?</b> Every account records its objective: protection with no confirmed activity, or control of confirmed active subterranean termites under a site-specific plan.</span></div>
+    </div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: plan and install">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Plan and install</h1>
+        <p class="lead a" style="--i:2">Why it matters: termites only eat bait they find. A gap in the ring, a station in the wrong soil or one sitting on an irrigation line is a weak spot for as long as the system is in the ground. Installs that drift from the label also put the bond at risk.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Inspect and plan first</li><li><span>02</span>The placement standard</li><li><span>03</span>Obstacles and special cases</li><li><span>04</span>Practice: lay out the stations</li><li><span>05</span>Practice: install in order</li><li><span>06</span>Map, number, photograph</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 PLAN -->
+  <section class="slide tight" data-label="Inspect and plan first" style="gap:14px">
+    <span class="eyebrow a">01 · Inspect and plan first</span>
+    <h2 class="a" style="--i:1">No auger touches the ground before the plan</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-search"/></svg></div><h3>Inspect</h3><ul class="dl">
+        <li>Exterior, interior, garage, attic, additions, slabs, decks</li>
+        <li>Live termites, shelter tubes, damaged wood, wings</li>
+        <li>Moisture, wood-to-soil contact, prior treatment</li>
+        <li>Drywood kept separate; unsure ID to your supervisor</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-chat"/></svg></div><h3>Ask</h3><ul class="dl">
+        <li>Irrigation lines, septic, wells, buried utilities?</li>
+        <li>Fence, gate code, pets that limit access?</li>
+        <li>HOA approval for in-ground stations?</li>
+        <li>Liquid treatment in the last 5 years? Sentricon from another company?</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-map"/></svg></div><h3>Draw</h3><ul class="dl">
+        <li>Treatment diagram of the structure and perimeter</li>
+        <li>Activity, high-risk areas, planned station spots</li>
+        <li>Hardscape, irrigation, utilities, sensitive sites</li>
+        <li>Inaccessible areas and exclusions, with the reason</li></ul></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-doc"/></svg><span><b>Answers set the account code</b> (liquid upgrade, site transfer). If what you find doesn't match the code, email technotes@clementspestcontrol.com.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Contract first.</b> The customer gets the FDACS consumer notice and the written contract before work starts (TERM-07). No signed agreement, no install.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 PLACEMENT STANDARD -->
+  <section class="slide tight" data-label="The placement standard" style="gap:14px">
+    <span class="eyebrow a">02 · The placement standard</span>
+    <h2 class="a" style="--i:1">Where every station goes, and why</h2>
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:24px;align-items:start">
+      <div class="figbox xsec a" style="--i:2">
+        <svg viewBox="0 0 360 250" role="img" aria-label="Cross-section: house wall and slab on the left, a station set 2 to 3 feet out from the foundation, 10 to 12 inches deep, top flush with the soil surface.">
+          <rect class="sky" x="0" y="0" width="360" height="110"/><rect class="soil" x="0" y="110" width="360" height="140"/>
+          <path class="hwall" d="M60 110V16"/><path class="hwall" d="M20 16h40"/><rect class="slabx" x="0" y="104" width="64" height="18"/>
+          <text class="clbl sm" x="30" y="60" text-anchor="middle">Wall</text>
+          <path class="dim" d="M64 70h138"/><path class="dimt" d="M64 64v12M202 64v12"/>
+          <text class="clbl" x="133" y="60" text-anchor="middle">2–3 ft</text>
+          <g class="dropst"><rect class="stx" x="190" y="110" width="26" height="76" rx="5"/><rect class="baitx" x="197" y="122" width="12" height="54" rx="2"/><path class="stcap" d="M184 110h38"/></g>
+          <path class="dim" d="M250 110v76"/><path class="dimt" d="M244 110h12M244 186h12"/>
+          <text class="clbl" x="262" y="152">10–12 in</text>
+          <text class="clbl sm" x="226" y="100">Top flush with grade</text>
+          <path class="forage" d="M330 230C300 210 260 196 218 172"/>
+          <circle class="term" r="3"><animateMotion dur="3.6s" repeatCount="indefinite" path="M330 230C300 210 260 196 218 172"/></circle>
+          <circle class="term" r="3"><animateMotion dur="3.6s" begin="1.8s" repeatCount="indefinite" path="M330 230C300 210 260 196 218 172"/></circle>
+        </svg>
+      </div>
+      <div class="tablewrap a" style="--i:3">
+        <table class="spec">
+          <tr><th>Spec</th><th>Clements standard</th><th>Label and notes</th></tr>
+          <tr><td>Spacing</td><td class="y">About 10 ft apart, all the way around</td><td>Label: no more than 20 ft apart where soil is accessible. 20 ft is the limit, not the target.</td></tr>
+          <tr><td>From the foundation</td><td class="y">2–3 ft out, not under the drip line</td><td>Liquid-treated foundation: label says never closer than 18 in.</td></tr>
+          <tr><td>Depth and hole</td><td class="y">10–12 in deep, 2–3 in wide</td><td>Auger to size; the station must be firmly held by soil.</td></tr>
+          <tr><td>Top of station</td><td class="y">Flush with grade</td><td>Mowers and trimmers pass over it; it can be found and opened.</td></tr>
+          <tr><td>High-risk spots</td><td class="y">Add stations</td><td>Past activity, downspouts, A/C condensate, irrigation heads, moist shaded soil, bath traps, sheds and slab additions.</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 OBSTACLES -->
+  <section class="slide tight" data-label="Obstacles and special cases" style="gap:14px">
+    <span class="eyebrow a">03 · Obstacles and special cases</span>
+    <h2 class="a" style="--i:1">Real yards aren't diagrams</h2>
+    <div class="grid g3">
+      <div class="card ob a" style="--i:2"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-water"/></svg></div><h3>Irrigation</h3></div><p>Find the heads, valve boxes and line runs before you auger; shift a station a foot rather than hit a line. Soil by sprinkler heads stays moist, so add stations near them, never on them.</p></div>
+      <div class="card ob a" style="--i:3"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-layers"/></svg></div><h3>Pavers, patios, drives</h3></div><p>Never under pavers or loose stone. Place stations in soil at both edges and map the hardscape. If a run passes 20 ft with no soil, the label allows stations set through cored concrete or asphalt: CSS and branch manager decide.</p></div>
+      <div class="card ob a" style="--i:4"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Moisture sources</h3></div><p>A/C condensate lines, downspouts, leaking spigots and low spots draw termites. Put a station beside each, in soil, not on the pad or splash block.</p></div>
+      <div class="card ob a" style="--i:5"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-sun"/></svg></div><h3>Mulch and beds</h3></div><p>Set the station in mineral soil, not in a mulch pile. Pull mulch back so the cap is visible and flush. Note mulch, fill or landscaping covering stations at every visit.</p></div>
+      <div class="card ob a" style="--i:6"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Utilities and septic</h3></div><p>Florida's 811 law exempts pest control digging 18 in or less without mechanized equipment (s. 556.108). A powered auger loses that exemption: follow branch practice and call Sunshine 811 first. Keep off septic lids and drain fields.</p></div>
+      <div class="card ob a" style="--i:7"><div class="obh"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Attached and nearby</h3></div><p>Slab additions, attached garages and porches get stations too. A fence on the line or a neighbor's yard can block access: install what the label and property allow and map the limitation.</p></div>
+    </div>
+  </section>
+
+  <!-- 15 PLACEMENT PRACTICE -->
+  <section class="slide tight" data-label="Practice: lay out the stations" style="gap:12px">
+    <div class="split" style="grid-template-columns:1.45fr .55fr;gap:20px;align-items:start">
+      <div class="figbox plan a" style="--i:1">
+        <svg viewBox="0 0 640 410" role="img" aria-label="Overhead plan of a home with patio, driveway, A/C pad, mulch bed, irrigation valve and downspout. Select candidate spots to place stations." id="plSvg">
+          <defs><pattern id="plGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="pgl"/></pattern></defs>
+          <rect class="lawn" x="0" y="0" width="640" height="410"/>
+          <rect x="0" y="0" width="640" height="410" fill="url(#plGrid)"/>
+          <rect class="pat" x="220" y="22" width="120" height="70" rx="2"/><path class="patl" d="M220 46h120M220 70h120M260 22v70M300 22v70"/>
+          <text class="plbl" x="280" y="16" text-anchor="middle">Paver patio</text>
+          <rect class="drv" x="400" y="290" width="80" height="120"/><text class="plbl" x="440" y="402" text-anchor="middle">Driveway</text>
+          <rect class="mul" x="170" y="290" width="120" height="14" rx="6"/><g class="shr"><circle cx="190" cy="297" r="8"/><circle cx="222" cy="297" r="8"/><circle cx="254" cy="297" r="8"/></g>
+          <text class="plbl" x="196" y="346" text-anchor="middle">Mulch bed</text>
+          <rect class="acp" x="506" y="152" width="32" height="34" rx="2"/><text class="plbl" x="560" y="174">A/C pad</text>
+          <rect class="vlv" x="126" y="200" width="28" height="18" rx="3"/><text class="plbl" x="122" y="236" text-anchor="end">Valve box</text>
+          <path class="irr" d="M140 218V300M140 300H40"/>
+          <circle class="dsp" cx="487" cy="84" r="7"/><text class="plbl" x="522" y="98">Downspout</text>
+          <rect class="hse" x="160" y="90" width="320" height="200"/><text class="hlbl" x="320" y="196" text-anchor="middle">House</text>
+          <path class="dr" d="M296 290h28"/><text class="plbl" x="310" y="282" text-anchor="middle">Front door</text>
+          <g class="scale"><path d="M24 380h40"/><path d="M24 375v10M64 375v10"/><text class="plbl" x="44" y="370" text-anchor="middle">5 ft</text></g>
+          <g id="plSpots"></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Practice</span>
+        <h2 class="a" style="--i:1;font-size:26px">Place the stations</h2>
+        <p class="a muted small" style="--i:2">Select every spot that belongs in the layout. Some break the standard. Then check it.</p>
+        <div class="card pld a" style="--i:3" id="plD"><span class="eyebrow">Placed</span><h3 id="plN">0 stations</h3><p>One grid square is 5 ft.</p></div>
+        <div class="a" style="--i:4;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" id="plCheck">Check my layout</button><button type="button" class="btn" id="plReset">Clear</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 INSTALL ORDER -->
+  <section class="slide tight" data-label="Practice: install in order" style="gap:14px">
+    <span class="eyebrow a">05 · Practice · install in order</span>
+    <h2 class="a" style="--i:1">Put the installation in order</h2>
+    <div class="split" style="grid-template-columns:1.35fr .65fr;gap:24px;align-items:start">
+      <div class="order a" style="--i:2" id="ord"></div>
+      <div class="grid" style="gap:12px">
+        <p class="a muted small" style="--i:3">Select the steps in the order you'd do them on a new install at a single-family home. A wrong pick shakes; try again.</p>
+        <div class="card a" style="--i:4" id="ordFb"><span class="eyebrow">Progress</span><h3 id="ordN">0 of 7 placed</h3><p>Start with the paperwork, not the auger.</p></div>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 RECORDS -->
+  <section class="slide tight" data-label="Map, number, photograph" style="gap:14px">
+    <span class="eyebrow a">06 · Map, number, photograph</span>
+    <h2 class="a" style="--i:1">If it isn't on the map, it isn't protected</h2>
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:24px;align-items:start">
+      <div class="figbox mapfig a" style="--i:2">
+        <svg viewBox="0 0 300 220" role="img" aria-label="Sample station map: house outline, a start point at the front door, stations numbered clockwise, a patio and a driveway marked.">
+          <rect class="hse" x="70" y="50" width="160" height="110"/>
+          <rect class="pat" x="120" y="20" width="60" height="30"/><rect class="drv" x="190" y="160" width="40" height="56"/>
+          <path class="dr" d="M140 160h20"/><text class="plbl" x="150" y="186" text-anchor="middle">Start</text>
+          <path class="mpath" d="M130 176H58V36h184v140h-8"/>
+          <g id="mapNums"></g>
+          <text class="hlbl" x="150" y="100" text-anchor="middle" style="font-size:13px">Numbered clockwise</text><text class="hlbl" x="150" y="118" text-anchor="middle" style="font-size:13px">from the front door</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <ol class="steps nsteps a" style="--i:3">
+          <li><span class="num">1</span><span><b>Number every station</b> from a fixed start point, in the same direction. Record any station barcode or ID with its number.</span></li>
+          <li><span class="num">2</span><span><b>Draw the map:</b> outline, hardscape, irrigation, utilities, activity, added and above-ground stations, inaccessible areas.</span></li>
+          <li><span class="num">3</span><span><b>Record the count and perimeter footage.</b> They drive the agreement, the renewal and the reports.</span></li>
+          <li><span class="num">4</span><span><b>Photograph each station</b> flush with grade, and the perimeter as installed. Photos are the foundation of bond defense.</span></li>
+          <li><span class="num">5</span><span><b>Upload it to PestPac.</b> The map is the reference for every future visit and any warranty or bond claim.</span></li>
+        </ol>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-trend"/></svg><span><b>Jessica Sanderson</b>, Routing &amp; Logistics Coordinator, runs PestPac and Sentricon reporting. She can only report what you record: the right code, station count, completed visits.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 19 PART THREE -->
+  <section class="slide forest" data-label="Part three: monitoring visits">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Monitoring visits</h1>
+        <p class="lead a" style="--i:2">Why it matters: the install is one day; protection is every visit after it. Monitoring keeps bait available, catches activity early and keeps the agreement and the bond in good standing.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The service cadence</li><li><span>02</span>Run the visit</li><li><span>03</span>Read the station</li><li><span>04</span>When you find termites</li><li><span>05</span>Practice: what do you do?</li></ol>
+    </div>
+  </section>
+
+  <!-- 20 CADENCE -->
+  <section class="slide" data-label="The service cadence" style="gap:16px">
+    <span class="eyebrow a">01 · The service cadence</span>
+    <h2 class="a" style="--i:1">Quarterly checks, an annual inspection, more when it's active</h2>
+    <div class="tl a" style="--i:2" id="tl"><span class="fill" id="tlFill"></span></div>
+    <div class="tldetail a" style="--i:3" id="tlDetail"></div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-doc"/></svg><span><b>The label's floor:</b> inspect and service at least once a year on an assigned date, no later than 30 days past it, and never more than 15 months between inspections. Clements' standard (quarterly plus annual, CW-05) is well above that floor.</span></div>
+  </section>
+
+  <!-- 21 RUN THE VISIT -->
+  <section class="slide tight" data-label="Run the visit" style="gap:14px">
+    <span class="eyebrow a">02 · Run the visit</span>
+    <h2 class="a" style="--i:1">Every station, every time</h2>
+    <div class="grid g2" style="align-items:start">
+      <ol class="steps nsteps a" style="--i:2">
+        <li><span class="num">1</span><span><b>Start the order on arrival</b> and open the station map and last visit's notes.</span></li>
+        <li><span class="num">2</span><span><b>Walk the map in order.</b> Locate every station; a station you can't find is a gap.</span></li>
+        <li><span class="num">3</span><span><b>Open each one</b> with the station tool and look: termites, feeding, mud, other insects, water, damage.</span></li>
+        <li><span class="num">4</span><span><b>Act and record</b> each station's condition, bait status and anything you replaced.</span></li>
+      </ol>
+      <ol class="steps nsteps a" style="--i:3" start="5">
+        <li><span class="num">5</span><span><b>Fix obstructions</b>: pull back mulch, reset raised stations flush, replace damaged or missing ones.</span></li>
+        <li><span class="num">6</span><span><b>Annual visit:</b> also inspect the structure for subterranean evidence, as at install.</span></li>
+        <li><span class="num">7</span><span><b>Photograph</b> activity, replacements and obstructions.</span></li>
+        <li><span class="num">8</span><span><b>Report to the customer:</b> termites present or not, whether bait was replaced, product name. Required after every contract inspection (482.226(3)).</span></li>
+      </ol>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-chat"/></svg><span><b>Two audiences.</b> PestPac Mobile notes print for the customer: plain and factual. A station you had to move, a customer obstruction to follow up, or anything else the office must act on goes to technotes@clementspestcontrol.com.</span></div>
+  </section>
+
+  <!-- 22 READ THE STATION -->
+  <section class="slide" data-label="Read the station" style="gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">03 · Read the station</span>
+      <h2 class="a" style="--i:1">Six things you'll find. Select each to flip it.</h2></div>
+      <span class="small muted a" style="--i:2" id="sgN">0 of 6 flipped</span>
+    </div>
+    <div class="flip f6 a" style="--i:2" id="sgF"></div>
+  </section>
+
+  <!-- 23 ACTIVITY -->
+  <section class="slide tight" data-label="When you find termites" style="gap:14px">
+    <span class="eyebrow a">04 · When you find termites</span>
+    <h2 class="a" style="--i:1">Activity is the system working. Handle it carefully.</h2>
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px;align-items:start">
+      <ol class="steps nsteps a" style="--i:2">
+        <li><span class="num">1</span><span><b>Disturb as little as possible.</b> Confirm they're termites, not ants, and close what you don't need open.</span></li>
+        <li><span class="num">2</span><span><b>Replace bait more than one-third consumed.</b> Per the label, gently move live termites from the old bait into the station with the new.</span></li>
+        <li><span class="num">3</span><span><b>Record and photograph</b> the station number, activity and bait status.</span></li>
+        <li><span class="num">4</span><span><b>Shorten the cycle:</b> return every 30–60 days until two consecutive visits show no activity, then back to the standard cadence.</span></li>
+        <li><span class="num">5</span><span><b>Tell the customer</b> what you found, what you did and when you'll be back.</span></li>
+      </ol>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-home"/></svg><span><b>Activity in the structure</b> (tubes on a wall, swarmers inside): photograph it, leave active tubes intact, tell your branch manager the same day. Where the label allows, a CSS places above-ground stations over active tubes or feeding sites.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-station"/></svg><span><b>Extra in-ground stations</b> near the activity are supported by the label. Add them to the map and note them in PestPac.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Never</b> spray into a station, pull bait that's being fed on, or tell the customer when the colony will be gone.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24 MONITORING DECISIONS -->
+  <section class="slide" data-label="Practice: what do you do?" style="gap:14px">
+    <span class="eyebrow a">05 · Practice · what do you do?</span>
+    <h2 class="a" style="--i:1">Five stations, five decisions</h2>
+    <div class="scen-tabs a" style="--i:2" id="pTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="pBox"></div>
+  </section>
+
+  <!-- 25 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 26 PART FOUR -->
+  <section class="slide forest" data-label="Part four: the customer and the bond">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">The customer and the bond</h1>
+        <p class="lead a" style="--i:2">Why it matters: customers never see the colony die. What they hear from you is the service. Getting the bond wrong, promising a timeline or calling a product "safe" creates problems no station can fix.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Explaining Sentricon</li><li><span>02</span>The bond and who handles what</li><li><span>03</span>Practice: say it or don't</li></ol>
+    </div>
+  </section>
+
+  <!-- 27 EXPLAIN -->
+  <section class="slide tight" data-label="Explaining Sentricon" style="gap:14px">
+    <span class="eyebrow a">01 · Explaining Sentricon</span>
+    <h2 class="a" style="--i:1">Plain words, no promises</h2>
+    <div class="door">
+      <div class="pair a" style="--i:2"><div class="then"><span class="lbl">Instead of</span>"It's totally safe for your kids and dog."</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Say</span>"The bait is sealed inside the station underground. I'm happy to give you the product name and label information."</div></div>
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">Instead of</span>"The termites will be gone in a month."</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Say</span>"It works through the whole colony, so it takes time. We'll check every 30 to 60 days until the activity stops."</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">Instead of</span>"You're covered for anything, forever."</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Say</span>"Corteva's damage bond covers new subterranean termite damage as long as your annual monitoring is current. Your agreement has the details."</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-sun"/></svg><span><b>The customer's part:</b> keep mulch, pavers, fill and planters off the caps; don't move or mow over stations; call before landscaping, additions or a pool; call if they see swarmers or tubes.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-doc"/></svg><span><b>On request</b> give the product name, active ingredient and label safety information (482.2265). Prices, extra stations and service changes go to the branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 28 BOND AND ROUTING -->
+  <section class="slide tight" data-label="The bond and who handles what" style="gap:14px">
+    <span class="eyebrow a">02 · The bond and who handles what</span>
+    <h2 class="a" style="--i:1">Know the coverage, and hand it to the right person</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="card bondc a" style="--i:2"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Corteva's $1,000,000 damage bond</h3><p>The $1,000,000 damage bond is Corteva's, not a Clements warranty. It covers new subterranean damage after installation, only while annual monitoring is current (a lapse past the 30-day grace period voids it), never existing damage. It depends on Clements staying a Certified Sentricon Specialist in good standing.</p></div></div>
+        <div class="card bondc a" style="--i:3"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-refresh"/></svg></div><div><h3>Clements retreatment warranty</h3><p>Separate from the bond: Clements retreats new subterranean activity at no charge for the term of the agreement while monitoring is current. TERM-07 covers renewals, lapses and transfers.</p></div></div>
+      </div>
+      <div class="tablewrap a" style="--i:4">
+        <table class="route">
+          <tr><th>When</th><th>Who</th></tr>
+          <tr><td>Possible termite damage, a bond or warranty claim</td><td class="y">Branch manager, the same day. The branch manager files bond claims with Corteva.</td></tr>
+          <tr><td>Pricing, added stations, service changes</td><td class="y">Branch manager</td></tr>
+          <tr><td>Renewals, billing, home sale transfer</td><td class="y">Customer service team (office)</td></tr>
+          <tr><td>PestPac and Sentricon reporting, routes</td><td class="y">Jessica Sanderson, Routing &amp; Logistics</td></tr>
+          <tr><td>Anything else the office must act on</td><td class="y">technotes@clementspestcontrol.com</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 29 SORT -->
+  <section class="slide tight" data-label="Practice: say it or don't" style="gap:12px">
+    <span class="eyebrow a">03 · Practice</span>
+    <h2 class="a" style="--i:1">Would you say this to a Sentricon customer?</h2>
+    <div class="sort a" style="--i:2" id="esort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="esCheck">Check my answers</button><span id="esFb"></span></div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide tight" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on real accounts</h2>
+    <p class="a muted small" style="--i:2;max-width:none">Your CSS supervisor or field training lead observes each of these on installs and monitoring visits before TERM-02 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Explain how noviflumuron eliminates a colony, in plain language, to a supervisor playing the customer</label></li>
+      <li><label><input type="checkbox" id="f2"> Complete a pre-install inspection and treatment diagram with irrigation, utilities and hardscape</label></li>
+      <li><label><input type="checkbox" id="f3"> Lay out a property to the standard: about 10 ft apart, 2–3 ft out, extra stations at high-risk spots, no gap over 20 ft</label></li>
+      <li><label><input type="checkbox" id="f4"> Auger and set stations 10–12 in deep, firm in mineral soil and flush with grade, without hitting irrigation or utilities</label></li>
+      <li><label><input type="checkbox" id="f5"> Produce a numbered map, count, footage and photos, entered in PestPac under the right SEN code</label></li>
+      <li><label><input type="checkbox" id="f6"> Run a monitoring visit: every station found and recorded, bait replaced as needed, customer report given</label></li>
+      <li><label><input type="checkbox" id="f7"> Handle activity: replace bait, transfer termites, shorten the cycle, report structure activity to the branch manager</label></li>
+      <li><label><input type="checkbox" id="f8"> Explain the bond, the retreatment warranty and the customer's part with no prices, promises or the word "safe"</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('term02:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('term02:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "TERM-02", "titleHtml": "Sentricon Install &amp; Monitoring", "nextHtml": "TERM-03 \u00b7 Liquid Subterranean Treatment", "passNote": "Your field sign-off with your supervisor completes the course. Corteva's Certified Sentricon Specialist training is separate and still required."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · How Sentricon works',q:'Six weeks after install, a customer calls: "You found termites eating the bait last visit. Why aren\'t they all dead yet?" What is the accurate answer?',o:['"The bait must have gone bad. We\'ll replace every station."','"Sentricon only kills the termites that touch the station."','"The bait works when termites molt, so it acts slowly on purpose. That gives workers time to share it through the whole colony. It takes time, and we\'ll keep checking until the activity stops."','"They\'ll be gone by next week, guaranteed."'],a:2,e:'Noviflumuron is a chitin synthesis inhibitor: termites die when they try to molt, not at the station. The delay lets the bait spread through the colony, queen included. Explain it, and never promise a date.'},
+    2:{t:'Checkpoint 2 · Plan and install',q:'On a new install, a 30-foot paver patio runs along the back wall with no soil between it and the house. What do you do?',o:['Lift the pavers and set the stations underneath','Place stations in soil at both edges of the patio, map the patio, and because the run without soil is over 20 ft, ask your CSS and branch manager whether in-concrete stations are warranted','Skip the back of the house, note "patio" in PestPac, and space the other stations 20 ft apart to make up for it','Set the stations on top of the pavers where you can see them'],a:1,e:'Never under pavers or loose stone. Cover both edges in soil and map the hardscape. The label allows stations set through cored concrete or asphalt where soil isn\'t accessible and the situation warrants it; with a gap over the 20 ft label maximum, that\'s a CSS and branch manager decision.'},
+    3:{t:'Checkpoint 3 · Monitoring visits',q:'On a quarterly visit, station 9 has live termites feeding and roughly half of the bait is gone. What is the correct response?',o:['Replace the bait, gently moving live termites into the station with the new bait; record and photograph it; move the account to a 30–60 day cycle; and tell the customer','Leave it alone until the bait is completely gone','Remove the station so the termites move away from the house','Apply a liquid termiticide around the station to finish them off'],a:0,e:'The label says to replace bait more than one-third depleted and to keep live termites on the new bait. Activity puts the account on a 30–60 day cycle until two consecutive visits show no activity.'},
+    4:{t:'Checkpoint 4 · The customer and the bond',q:'A Sentricon customer whose monitoring is current shows you a soft, damaged baseboard and asks, "The million-dollar bond covers this, right?" What do you do?',o:['Say yes, and tell them Clements will send someone to repair it','Tell them the bond never pays, so there\'s no point filing','Quote what the repair should cost','Photograph and document it, explain that the branch manager reviews possible damage and handles any bond claim with Corteva, and tell your branch manager the same day'],a:3,e:'The bond is Corteva\'s and covers new subterranean damage after installation while monitoring is current. You don\'t decide coverage: document it, don\'t promise or quote, and get it to the branch manager, who files claims with Corteva.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the active ingredient in the Recruit HD bait used in Sentricon Always Active stations?',o:['Fipronil','Imidacloprid','Noviflumuron','Boric acid'],a:2,e:'Recruit HD termite bait contains 0.5% noviflumuron (EPA Reg. No. 62719-608).'},
+    {k:'Multiple choice',q:'How does noviflumuron kill termites?',o:['It stops them from forming a new exoskeleton when they molt','It paralyzes them on contact at the station','It repels them away from the structure','It dehydrates them in the soil'],a:0,e:'Noviflumuron is a chitin synthesis inhibitor, a type of insect growth regulator. Termites die when they try to molt.'},
+    {k:'True or false',q:'Sentricon works slowly on purpose, so workers can share the bait through the colony before they die.',o:['True','False'],a:0,e:'Because termites don\'t die at the station, nothing warns the colony, and the bait spreads to nestmates, including the queen.'},
+    {k:'Multiple choice',q:'What is the Clements standard for station spacing?',o:['About 5 ft apart','About 10 ft apart, and never more than the label maximum of 20 ft','About 20 ft apart as the target','About 30 ft apart on large homes'],a:1,e:'Clements installs about 10 ft apart. The label limit is 20 ft where soil is accessible; it\'s a maximum, not a target. Add stations at high-risk spots.'},
+    {k:'Multiple choice',q:'How far from the foundation does Clements set stations?',o:['Touching the foundation','6 inches out','10 ft out in the lawn','2–3 ft out, not under the drip line'],a:3,e:'2–3 ft out, in mineral soil. Where the foundation soil was treated with a liquid termiticide, the label says never closer than 18 inches.'},
+    {k:'Multiple choice',q:'How deep is a Sentricon station set, and where does the top sit?',o:['4–6 in deep, top an inch above the soil','10–12 in deep, top flush with grade','18–24 in deep, top buried','Any depth, as long as it\'s hidden by mulch'],a:1,e:'10–12 in deep in firm soil, top flush with grade, so mowers pass over it and it can be found and opened.'},
+    {k:'Scenario',q:'You\'re laying out a home with an A/C condensate line dripping beside the pad. Where does a station go?',o:['On the A/C pad itself','Nowhere near it; moisture ruins the bait','In the soil beside the pad, as a high-risk spot','Under the pad, by drilling through it'],a:2,e:'Condensate keeps soil moist, which draws termites. Place a station in soil beside the pad, not on the concrete.'},
+    {k:'True or false',q:'If the stations on either side are close, it\'s fine to put a station under a paver walkway where you can\'t see it.',o:['True','False'],a:1,e:'Never under pavers or loose stone. Stations must stay unobstructed and serviceable. Place them at the edges and map the hardscape.'},
+    {k:'Multiple choice',q:'Florida\'s 811 law exempts pest control digging of 18 inches or less. When does that exemption NOT apply?',o:['When the station is set in a mulch bed','When the customer is not home','When the work is on a new-construction job','When mechanized equipment, such as a powered auger, is used'],a:3,e:'Section 556.108 exempts excavation of 18 in or less by a Chapter 482 licensee only if mechanized equipment isn\'t used. With a powered auger, follow branch practice and call Sunshine 811 first.'},
+    {k:'Multiple choice',q:'Which records must be completed at every Sentricon install?',o:['A numbered station map, station count, perimeter footage and photos of each station, uploaded to PestPac','A verbal summary to the customer only','A photo of the truck at the property','The station count only'],a:0,e:'The map, count, footage and photos are the reference for every future visit, the basis for reporting and renewals, and the foundation of bond defense.'},
+    {k:'Multiple choice',q:'What is Clements\' standard monitoring cadence for a Sentricon account with no activity?',o:['Once every two years','Only when the customer calls','Quarterly station monitoring plus an annual inspection','Monthly visits forever'],a:2,e:'Quarterly monitoring plus the annual inspection, which doubles as the label\'s required annual inspection.'},
+    {k:'Multiple choice',q:'What is the label\'s minimum service requirement for Recruit HD stations?',o:['Every station inspected weekly','No inspection is required after install','Inspection every two years','At least annually on an assigned date, no later than 30 days past it, and never more than 15 months between inspections'],a:3,e:'That is the label floor. Clements\' quarterly plus annual standard sits well above it.'},
+    {k:'Scenario',q:'When should you replace the bait in a station?',o:['When it is more than one-third consumed, or the station is damaged or compromised','Only when it is completely gone','Every visit, whether or not termites fed','Never; the bait lasts the life of the station'],a:0,e:'The label calls for replacement once bait is more than one-third depleted. Damaged, missing or compromised stations are replaced too.'},
+    {k:'Multiple choice',q:'Live termites are found in a station. How often is the account serviced until the activity stops?',o:['Once a year','Every 30–60 days, until two consecutive visits show no activity','Every day for a week','No change to the schedule'],a:1,e:'Active accounts move to a 30–60 day cycle until two consecutive clean visits, then return to the standard cadence.'},
+    {k:'Scenario',q:'A station is full of ants. No termites, bait untouched. What do you do?',o:['Spray a residual into the station','Pull the station out','Replace the bait immediately','Record it, close the station without treating it and recheck; raise repeat problems with your supervisor'],a:3,e:'Ants aren\'t termite activity. Treating in or around the station can contaminate the bait and keep termites away.'},
+    {k:'True or false',q:'Sentricon Always Active can be sold to treat drywood termites in an attic.',o:['True','False'],a:1,e:'False. Sentricon targets subterranean termites only and is never represented as a drywood treatment.'},
+    {k:'Multiple choice',q:'Who provides the $1,000,000 termite damage bond on Sentricon accounts, and what does it cover?',o:['Clements, covering all termite damage including existing damage','Corteva, covering new subterranean termite damage after installation while annual monitoring is current','The homeowner\'s insurance company, covering everything','The State of Florida, covering damage for one year'],a:1,e:'It\'s Corteva\'s bond, not a Clements warranty. It never covers damage that was already there, and a lapse past the 30-day grace period voids it.'},
+    {k:'Multiple choice',q:'Who handles a possible termite damage claim on a Sentricon account?',o:['The technician, on the spot','Jessica Sanderson in routing','The branch manager, who files bond claims with Corteva','The customer, directly with the state'],a:2,e:'Tell your branch manager the same day with photos and notes. Don\'t promise or quote repairs.'},
+    {k:'Multiple choice',q:'What does Jessica Sanderson, Routing & Logistics Coordinator, rely on from you for Sentricon reporting?',o:['Accurate PestPac entries: the right SEN code, station count and completed visits','Your personal opinion of the customer','Verbal updates at the end of the month','Nothing; reporting is automatic'],a:0,e:'Jessica runs PestPac and Sentricon reporting. She can only report what technicians record.'},
+    {k:'True or false',q:'TERM-02 covers Clements procedures and replaces Corteva\'s Certified Sentricon Specialist training.',o:['True','False'],a:1,e:'False. TERM-02 does not replace Corteva\'s CSS certification. Sentricon is installed and serviced only by a CSS or a technician under CSS supervision.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+  var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- colony elimination animation ---------- */
+  var COL=[
+    {n:'Day one',h:'Stations installed, already baited',p:'Recruit HD bait is in every station from installation. The colony is foraging in the soil and hasn\'t found a station yet.',run:0,dose:0,dead:0,bait:42},
+    {n:'Found',h:'Foragers find a station',p:'Workers tunneling for food reach the station and start feeding. They prefer the bait to wood, so they keep coming back.',run:2,dose:0,dead:0,bait:38},
+    {n:'Shared',h:'Bait spreads through the colony',p:'Workers carry the bait home and feed nestmates mouth to mouth. Nothing has died yet, so nothing warns the colony.',run:3,dose:.6,dead:0,bait:30},
+    {n:'Molts fail',h:'Termites die when they try to molt',p:'Noviflumuron blocks chitin, so molting termites can\'t form a new exoskeleton. At the visit, bait more than one-third gone is replaced.',run:2,dose:.85,dead:.45,bait:22},
+    {n:'Decline',h:'The colony can\'t keep up',p:'Workers die faster than they can be replaced. No one is left to feed the queen and brood. Feeding at the station tapers off.',run:1,dose:1,dead:.85,bait:42},
+    {n:'Eliminated',h:'Colony gone, protection stays',p:'The colony, queen included, is eliminated. The stations stay baited and monitored for the next colony that moves in. Always active.',run:0,dose:1,dead:1,bait:42}
+  ];
+  var colDots=$('#colDots'), colRun=$('#colRun'), colCur=0, colTimer=null, colSlide=$('#colSvg').closest('.slide');
+  var CDOTS=[];(function(){var s=7;function r(){s=(s*9301+49297)%233280;return s/233280}
+    for(var i=0;i<46;i++){var a=r()*Math.PI*2,d=Math.sqrt(r())*.86;var x=440+Math.cos(a)*86*d,y=250+Math.sin(a)*46*d;
+      var c=sv('circle',{cx:x.toFixed(1),cy:y.toFixed(1),r:'3.2','class':'cd'});c.dataset.o=r();colDots.appendChild(c);CDOTS.push(c)}
+    var q=sv('ellipse',{cx:'440',cy:'250',rx:'9',ry:'5.5','class':'cd queen'});q.dataset.o=1.1;colDots.appendChild(q);CDOTS.push(q)})();
+  var TUN='M246 128C300 150 330 196 392 226C330 196 300 150 246 128';
+  function colShow(n){colCur=n;var c=COL[n];
+    $$('button',$('#colSteps')).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('seen',j<n)});
+    CDOTS.forEach(function(d){var o=+d.dataset.o;d.classList.toggle('dosed',o<c.dose||(d.classList.contains('queen')&&c.dose>=.85));d.classList.toggle('dead',o<c.dead||(d.classList.contains('queen')&&c.dead>=1))});
+    var b=$('#colBait');b.setAttribute('height',c.bait);b.setAttribute('y',96+(42-c.bait));
+    colRun.innerHTML='';for(var i=0;i<c.run;i++){var t=sv('circle',{r:'3','class':'run'});
+      if(RM){var p=[[262,136],[318,172],[370,212]][i];t.setAttribute('cx',p[0]);t.setAttribute('cy',p[1])}
+      else{var am=sv('animateMotion',{dur:'3.6s',begin:(i*1.2)+'s',repeatCount:'indefinite',path:TUN});t.appendChild(am)}
+      colRun.appendChild(t)}
+    $('#colTun').classList.toggle('live',c.run>0);
+    $('#colTxt').innerHTML='<span class="eyebrow">Stage '+(n+1)+' · '+c.n+'</span><h3>'+c.h+'</h3><p>'+c.p+'</p>';
+    $('#colN').textContent='Stage '+(n+1)+' of '+COL.length}
+  COL.forEach(function(c,i){var b=mk('button',null,'<span>'+(i+1)+'</span>'+c.n);b.type='button';b.id='col'+i;b.addEventListener('click',function(){colStop();colShow(i)});$('#colSteps').appendChild(b)});
+  function colStop(){if(colTimer){clearInterval(colTimer);colTimer=null}$('#colPlay').innerHTML=ico('i-play','width:18px;height:18px;vertical-align:-4px')+' Play'}
+  function colPlay(){colStop();if(colCur===COL.length-1)colShow(0);colTimer=setInterval(function(){colShow((colCur+1)%COL.length)},3600);$('#colPlay').innerHTML=ico('i-pause','width:18px;height:18px;vertical-align:-4px')+' Pause'}
+  $('#colPlay').addEventListener('click',function(){if(colTimer)colStop();else colPlay()});
+  colShow(0);
+
+  /* ---------- placement exercise ---------- */
+  var PL=[
+    {x:140,y:90,g:1,w:'Back-left corner, 2.5 ft out. Corners are where two walls\' foraging lanes meet.'},
+    {x:140,y:170,g:1,w:'Left side, about 10 ft on from the corner station.'},
+    {x:140,y:250,g:1,w:'Left side, about 10 ft on, clear of the valve box and line.'},
+    {x:150,y:310,g:1,w:'Front-left corner, in soil just beyond the bed.'},
+    {x:232,y:319,g:1,w:'Front, just past the edge of the mulch bed, about 3 ft out in mineral soil.'},
+    {x:310,y:312,g:1,w:'Front, beside the walk to the front door.'},
+    {x:390,y:312,g:1,w:'Left edge of the driveway. A drive gets a station on each side.'},
+    {x:500,y:300,g:1,w:'Right edge of the driveway at the garage corner.'},
+    {x:500,y:212,g:1,w:'Beside the A/C pad. Condensate keeps this soil moist: a high-risk spot.'},
+    {x:500,y:134,g:1,w:'Right side, about 10 ft on.'},
+    {x:504,y:62,g:1,w:'Back-right corner beside the downspout. Roof water soaks this soil: high risk.'},
+    {x:424,y:70,g:1,w:'Back wall, about 10 ft from the corner.'},
+    {x:356,y:70,g:1,w:'Right edge of the patio, in soil.'},
+    {x:204,y:70,g:1,w:'Left edge of the patio, in soil. Edge to edge is under 20 ft, so the patio is covered.'},
+    {x:280,y:56,g:0,w:'On the paver patio. Never under pavers: it isn\'t in soil and can\'t be serviced. Use the patio edges.'},
+    {x:440,y:352,g:0,w:'In the middle of the driveway, with no soil. Stations go at both edges; a cored in-concrete station is a CSS and branch manager call only when there\'s no soil for more than 20 ft.'},
+    {x:232,y:295,g:0,w:'Against the foundation in the mulch bed. Too close (the standard is 2–3 ft out) and in mulch, not mineral soil.'},
+    {x:140,y:209,g:0,w:'On the irrigation valve box. Augering here cuts lines. Shift a foot or two into clear soil.'},
+    {x:62,y:170,g:0,w:'Ten feet out in the lawn. Too far from the foundation to intercept termites foraging along the structure.'},
+    {x:522,y:169,g:0,w:'On the A/C pad, which is concrete. Put the station beside the pad where the soil stays moist.'}
+  ];
+  var plSel=store.get('pl')||{}, plChecked=false, plG=$('#plSpots'), NG=PL.filter(function(p){return p.g}).length;
+  PL.forEach(function(p,i){var g=sv('g',{'class':'sp','tabindex':'0','role':'button','id':'pl'+i,'aria-label':'Candidate spot '+(i+1)});
+    g.appendChild(sv('circle',{'class':'hh',cx:p.x,cy:p.y,r:'12'}));g.appendChild(sv('circle',{'class':'c',cx:p.x,cy:p.y,r:'10'}));g.appendChild(sv('circle',{'class':'in',cx:p.x,cy:p.y,r:'4'}));
+    keyAct(g,function(){plClick(i)});plG.appendChild(g)});
+  function plPaint(){PL.forEach(function(p,i){var g=$('#pl'+i),on=!!plSel[i];g.classList.toggle('on',on);g.setAttribute('aria-pressed',on);
+      g.classList.toggle('bad',plChecked&&on&&!p.g);g.classList.toggle('good',plChecked&&on&&!!p.g);g.classList.toggle('miss',plChecked&&!on&&!!p.g)});
+    if(!plChecked){var n=Object.keys(plSel).filter(function(k){return plSel[k]}).length;$('#plD').innerHTML='<span class="eyebrow">Placed</span><h3>'+n+' station'+(n===1?'':'s')+'</h3><p>One grid square is 5 ft. Look for corners, both sides of hardscape and moisture sources.</p>'}}
+  function plClick(i){if(plChecked){var p=PL[i],on=!!plSel[i];
+      var tag=p.g?(on?'<span class="chip">Good spot</span>':'<span class="chip miss">Missed</span>'):(on?'<span class="chip bad">Breaks the standard</span>':'<span class="chip">Correctly skipped</span>');
+      $('#plWhy').innerHTML=tag+'<p style="margin-top:6px">'+p.w+'</p>';return}
+    plSel[i]=!plSel[i];store.set('pl',plSel);plPaint()}
+  $('#plCheck').addEventListener('click',function(){
+    if(plChecked){plChecked=false;$('#plCheck').textContent='Check my layout';plPaint();return}
+    plChecked=true;$('#plCheck').textContent='Edit layout';plPaint();
+    var good=0,bad=0;PL.forEach(function(p,i){if(plSel[i]){if(p.g)good++;else bad++}});
+    var ok=good===NG&&bad===0;
+    $('#plD').innerHTML='<span class="eyebrow">Your layout</span><h3>'+(ok?'Layout meets the standard':good+' of '+NG+' good · '+bad+' off standard')+'</h3>'+
+      '<div class="'+(ok?'fb':'fb no')+'" style="font-size:14px">'+(ok?'Every corner, both sides of the patio and the drive, and the downspout and A/C pad covered, with nothing on hardscape, mulch, valves or out in the lawn.':'Red breaks the standard; outlined was missed. Select a spot to see why.')+'</div><div id="plWhy" class="small" style="margin-top:4px"></div>'});
+  $('#plReset').addEventListener('click',function(){plSel={};store.set('pl',plSel);plChecked=false;$('#plCheck').textContent='Check my layout';plPaint()});
+  plPaint();
+
+  /* ---------- install order ---------- */
+  var ORD=['Confirm the signed agreement, account code and preventative or active','Inspect, measure and draw the diagram with planned station spots','Locate irrigation, septic and utilities (811 first for a powered auger)','Auger each marked hole 10–12 in deep','Set each station in firm mineral soil, flush with grade','Number stations on the map, record the count, photograph each one','Enter it in PestPac, give the report, explain the customer\'s part'];
+  var ORDMSG=['No signed agreement, no install.','The diagram is the plan you install from.','Know what\'s underground before the auger goes in.','Depth puts the bait where termites forage.','Firm and flush: serviceable and mower-proof.','The map and photos are the bond defense.',''];
+  var ordBox=$('#ord'), ordMix=[3,6,1,5,0,4,2], ordAt=0;
+  function ordRender(){ordBox.innerHTML='';ordAt=0;
+    ordMix.forEach(function(k){var b=mk('button',null,'<span class="num">&middot;</span><span>'+ORD[k]+'</span>');b.type='button';b.id='ord'+k;b.dataset.k=k;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.k===ordAt){b.classList.add('placed');$('.num',b).textContent=ordAt+1;ordAt++;
+          $('#ordN').textContent=ordAt===ORD.length?'Install complete':ordAt+' of '+ORD.length+' placed';
+          $('#ordFb p').textContent=ordAt===ORD.length?'Paperwork, plan, locate, dig, set, record, report. The customer leaves knowing what was installed, where, and what to do next.':ORDMSG[ordAt-1];
+          if(ordAt===ORD.length)$('#ordFb').classList.add('done')}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}});
+      ordBox.appendChild(b)});
+    $('#ordN').textContent='0 of '+ORD.length+' placed';$('#ordFb p').textContent='Start with the paperwork, not the auger.';$('#ordFb').classList.remove('done')}
+  $('#ordReset').addEventListener('click',ordRender);ordRender();
+
+  /* ---------- sample map numbers ---------- */
+  [[112,176],[72,176],[58,128],[58,80],[64,40],[112,36],[188,36],[236,40],[242,88],[242,134],[236,170],[184,176]].forEach(function(p,i){
+    var g=sv('g',{'class':'mn'});g.style.setProperty('--i',i);g.appendChild(sv('circle',{cx:p[0],cy:p[1],r:'8'}));var t=sv('text',{x:p[0],y:p[1]+3,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);$('#mapNums').appendChild(g)});
+
+  /* ---------- service cadence timeline ---------- */
+  var TL=[
+    {y:'Install',g:'Day one',i:'i-auger',h:'Stations in, mapped, photographed, recorded',p:'The map, count, footage and photos go into PestPac. The customer gets the service report and knows when you\'ll be back.'},
+    {y:'Quarterly',g:'Every 3 months',i:'i-station',h:'Station monitoring',p:'Every station opened, read and recorded. Bait more than one-third consumed is replaced, obstructions are corrected and the customer gets a report.'},
+    {y:'Annual',g:'12 months',i:'i-search',h:'Annual inspection',p:'Monitoring plus a subterranean inspection of the structure. It doubles as the label\'s required annual inspection and lines up with the renewal that keeps the bond and warranty current.'},
+    {y:'Activity',g:'Every 30–60 days',i:'i-bug',h:'Live termites found',p:'The account moves to a 30–60 day cycle: bait replaced as consumed, above-ground stations where the label allows, progress explained to the customer.'},
+    {y:'Two clean',g:'Back to standard',i:'i-check',h:'No activity two visits in a row',p:'The account returns to quarterly monitoring and the annual inspection. The stations stay baited for the next colony.'}
+  ];
+  var tl=$('#tl'), tlSeen=store.get('tl')||{};
+  function showTL(n){
+    $$('button',tl).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(tlSeen[j])b.classList.add('seen')});
+    $('#tlFill').style.width=(n/(TL.length-1)*80)+'%';
+    var t=TL[n];$('#tlDetail').innerHTML='<div class="card" style="display:flex;gap:16px;align-items:flex-start"><div class="icobox" style="margin:0">'+ico(t.i)+'</div><div><span class="eyebrow">'+t.y+' · '+t.g+'</span><h3 style="margin:4px 0 6px;font-size:20px">'+t.h+'</h3><p>'+t.p+'</p></div></div>'}
+  TL.forEach(function(t,i){var b=mk('button',null,'<span class="dot">'+ico(t.i,'width:20px;height:20px')+'</span><span class="yr">'+t.y+'</span><span class="tg">'+t.g+'</span>');b.type='button';b.id='tl'+i;
+    b.addEventListener('click',function(){tlSeen[i]=1;store.set('tl',tlSeen);showTL(i)});tl.appendChild(b)});
+  tlSeen[0]=1;showTL(0);
+
+  /* ---------- read the station flip cards ---------- */
+  var SG=[
+    {t:'Bait intact, no termites',f:'Clean station, cap seated',b:'<b>Record no activity</b> for this station, make sure the cap seats and the top is flush, and move on. A quiet station is still doing its job.'},
+    {t:'Live termites feeding',f:'Workers on the bait',b:'<b>Activity.</b> Disturb as little as possible, record and photograph it, check how much bait is gone, and move the account to a 30–60 day cycle.'},
+    {t:'Bait over one-third gone',f:'Feeding has eaten into the bait',b:'<b>Replace it</b> (label: more than one-third depleted). Gently move live termites into the station with the new bait so feeding continues. Record it.'},
+    {t:'Soil or mud packed inside',f:'No live termites seen',b:'<b>Look closer.</b> Termites may have been working the station. Check the bait for feeding, record what you see and recheck. Unsure? Ask your CSS supervisor.'},
+    {t:'Ants or other insects',f:'No termites, bait untouched',b:'<b>Not termite activity.</b> Record it. Never spray into or around the station: contaminated bait can keep termites away. Raise repeat problems with your supervisor.'},
+    {t:'Damaged, raised or buried',f:'Mower strike, mulch over the cap, or missing',b:'<b>Fix it today.</b> Replace damaged or missing stations, reset raised ones flush, pull mulch back. Update the map and ask the customer, in your notes, to keep caps clear.'}
+  ];
+  var sgF=$('#sgF'), sgSeen=store.get('sg')||{};
+  function sgCount(){var n=Object.keys(sgSeen).length;$('#sgN').textContent=n===SG.length?'All 6 flipped':n+' of 6 flipped'}
+  SG.forEach(function(v,i){var b=mk('button',null,'<span class="in"><span class="face front"><span class="icobox" style="margin:0">'+ico('i-station')+'</span><h3>'+v.t+'</h3><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">What do you do?</span></span><span class="face back"><span>'+v.b+'</span></span></span>');
+    b.type='button';b.id='sg'+i;b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');sgSeen[i]=1;store.set('sg',sgSeen);sgCount()});sgF.appendChild(b)});
+  sgCount();
+
+  /* ---------- monitoring decisions ---------- */
+  var PT=[
+    {n:'Station 7',s:'Quarterly visit. Station 7 has live workers feeding, and about half the bait is gone.',o:['Pull the bait out so you can count the termites','Replace the bait, gently moving live termites into the station with the new bait; record and photograph it; move the account to 30–60 day visits; tell the customer','Leave it; half the bait is still there','Spray into the station so the termites don\'t reach the house'],a:1,e:'More than one-third gone means replace it, keeping the feeding termites on the new bait. Activity puts the account on a 30–60 day cycle until two clean visits.'},
+    {n:'Under mulch',s:'Station 3 is buried under three inches of fresh mulch the customer spread last week.',o:['Skip it and note "not found"','Install a new station on top of the mulch','Uncover it, read and record it, reset it flush and pull the mulch back, and ask the customer in your notes to keep caps clear','Tell the customer the bond is now void'],a:2,e:'Every station gets read every visit. Correct the obstruction, record it, and ask the customer, politely and in writing, to keep caps clear. Never guess at bond status.'},
+    {n:'Paver walk',s:'Station 11 is gone. A new paver walkway now covers the spot where it was.',o:['Install a replacement in soil at the nearest edge of the walk, update the map, note it in PestPac and explain the change to the customer','Lift the new pavers and reinstall it underneath','Leave the gap; the stations on each side are close enough','Quote the customer a price for the replacement on the spot'],a:0,e:'Missing or inaccessible stations are replaced so the ring has no gap. The map must match the ground. Prices are the branch manager\'s call.'},
+    {n:'Ants',s:'Station 5 is full of ants. No termites, and the bait is untouched.',o:['Spray a residual into the station','Remove the station for good','Replace the bait','Record it, close the station without treating it, and recheck next visit; raise repeat problems with your supervisor'],a:3,e:'Ants in a station are common and aren\'t termite activity. Treating in or around the station can contaminate the bait and keep termites away.'},
+    {n:'Garage wall',s:'Annual inspection. Every station is quiet, but you find active mud tubes on the garage wall inside.',o:['Scrape off all the tubes and spray them','Photograph them and leave active tubes intact, record it, and tell your branch manager the same day; a CSS decides on above-ground stations where the label allows','Tell the customer the bond will pay for repairs','Record "no activity," since the stations are clean'],a:1,e:'Activity in the structure goes to the branch manager the same day, with photos. Active tubes are where above-ground stations can go. Never promise what the bond will pay.'}
+  ];
+  var ptDone=store.get('pt')||{};
+  function ptTabs(cur){$('#pTabs').innerHTML='';PT.forEach(function(p,i){var b=mk('button',ptDone[i]?'done':null,p.n);b.type='button';b.id='pt'+i;b.setAttribute('aria-pressed',i===cur);b.addEventListener('click',function(){showPT(i)});$('#pTabs').appendChild(b)})}
+  function showPT(n){ptTabs(n);var p=PT[n];
+    $('#pBox').innerHTML='<div class="card" style="padding:14px 20px"><p>'+p.s+'</p></div><div class="choices">'+p.o.map(function(o,i){return '<button type="button" class="choice" id="pt'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="ptFb"></div>';
+    $$('#pBox .choice').forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+      $$('#pBox .choice').forEach(function(x){x.classList.remove('wrong')});
+      if(i===p.a){b.classList.add('right');$$('#pBox .choice').forEach(function(x){x.disabled=true});ptDone[n]=1;store.set('pt',ptDone);ptTabs(n);
+        $('#ptFb').innerHTML='<div class="fb">'+p.e+(n<PT.length-1?' <button type="button" class="btn" id="ptNext" style="margin-left:8px;padding:6px 12px">Next station</button>':'')+'</div>';
+        var nx=$('#ptNext');if(nx)nx.addEventListener('click',function(){showPT(n+1)})}
+      else{b.classList.add('wrong');$('#ptFb').innerHTML='<div class="fb no">Not quite. Think about the label, the map and who needs to know.</div>'}})});
+  }
+  showPT(0);
+
+  /* ---------- say it or don't ---------- */
+  var ES=[
+    {q:'"The bait is in every station from day one."',a:'Say',w:''},
+    {q:'"Sentricon is completely safe for your kids and pets."',a:'Don\'t',w:'Never call a pesticide safe. Offer the product name and label information instead.'},
+    {q:'"Corteva\'s bond stays in force while your annual monitoring is current."',a:'Say',w:''},
+    {q:'"Please keep mulch and pavers off the station caps."',a:'Say',w:''},
+    {q:'"This will take care of the drywood termites in your attic, too."',a:'Don\'t',w:'Sentricon is for subterranean termites only. Drywood is a separate service.'},
+    {q:'"If you sell the home, let our office know so coverage can transfer."',a:'Say',w:''},
+    {q:'"Six more stations will run you about this much."',a:'Don\'t',w:'Prices and added stations go to the branch manager.'},
+    {q:'"Clements will repair any damage you already have."',a:'Don\'t',w:'The bond covers new damage after installation, never existing damage. Claims go through the branch manager.'}
+  ];
+  var es=$('#esort'), esSel={};
+  ES.forEach(function(s,i){var r=mk('div','row');r.id='esr'+i;r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="es'+i+'s" data-v="Say" aria-pressed="false">Say it</button><button type="button" id="es'+i+'d" data-v="Don\'t" aria-pressed="false">Don\'t</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){esSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});es.appendChild(r)});
+  $('#esCheck').addEventListener('click',function(){var right=0,blank=0;
+    ES.forEach(function(s,i){var r=$('#esr'+i),w=$('.why',r);if(w)w.remove();if(!esSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=esSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok)r.appendChild(mk('span','why',s.w||'This one is accurate and helpful to say.'))});
+    $('#esFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===ES.length?'<span class="fb" style="display:inline-block">All eight correct. Accurate, no promises, no prices, never "safe."</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes in red and try again.</span>');
+  });
+
+  /* ---------- slide hooks ---------- */
+  function onShow(i){if(slides[i]===colSlide){if(!RM&&!colTimer)colPlay()}else colStop()}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

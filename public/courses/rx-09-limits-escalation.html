@@ -1,0 +1,1291 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-09 Limits &amp; Escalation</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-09 components */
+.ttl{grid-template-columns:1.35fr .9fr}
+.ttl .display{font-size:clamp(34px,4.6vw,58px)}
+.ttl .lead{font-size:18px}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+.dl{list-style:none;display:grid;gap:6px;font-size:14.5px;margin-top:6px}
+.dl li{position:relative;padding-left:16px;line-height:1.45}
+.dl li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.steps.tight li{padding:8px 0;font-size:15px}
+.steps.tight .num{flex-basis:30px;height:30px}
+.hrow{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.hrow .icobox{margin:0}
+.hrow h3{margin:0}
+.hbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.ok3,.no3{display:flex;gap:8px;align-items:center}
+.ok3 .ico{color:var(--positive)}.no3 .ico{color:var(--danger)}
+.card.cc{padding:12px 14px}
+.card.cc h3{display:flex;gap:8px;align-items:center;font-size:16px;margin-bottom:4px}
+.card.cc h3 .ico{color:var(--brand-600);width:20px;height:20px;flex:0 0 20px}
+.card.cc p{font-size:13.5px}
+.nev .card.cc h3 .ico{color:var(--danger)}
+.nev{gap:10px}
+.wl{gap:10px}
+.card.hl2{background:var(--brand-50);border-color:var(--brand-300)}
+.cklist{list-style:none;display:grid;gap:6px}
+.cklist li{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-size:14px;line-height:1.4}
+.slide.on .cklist li{animation:rise .2s ease-in-out both;animation-delay:calc(var(--k,0) * 60ms + .2s)}
+.cklist .ico{color:var(--brand-600);width:20px;height:20px;margin-top:1px;flex:0 0 20px}
+.slide .tablewrap{flex-shrink:0}
+
+/* three answers */
+.ans{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow-card)}
+.ans p{font-size:14.5px;color:var(--muted);line-height:1.45}
+.ab{flex:0 0 84px;text-align:center;border-radius:var(--pill);padding:5px 0;font-size:13px;font-weight:500;letter-spacing:.02em}
+.ab.do{background:var(--brand-600);color:#fff}
+.ab.esc{background:var(--forest);color:var(--on-forest)}
+.ab.ref{background:var(--brand-100);color:var(--brand-800);border:1px solid var(--brand-300)}
+
+/* refer table */
+.rt td,.rt th{padding:7px 12px}
+.rt td{font-size:13.5px;line-height:1.38}
+.rt td.y{width:34%}
+
+/* sorter */
+.sort.cov{grid-template-columns:1fr 1fr;gap:7px}
+.sort.cov .row{padding:6px 12px;font-size:14px;line-height:1.35}
+.sort.cov .opts{flex-direction:row;gap:4px}
+.sort.cov .opts button{padding:3px 9px;font-size:12px;line-height:1.4}
+#srtFb .fb{display:inline-block;padding:6px 12px;font-size:14px}
+.why2{font-size:13px;color:var(--ink);display:block}
+.why2 b{color:var(--danger)}
+
+/* bat season */
+.season{position:relative;height:10px;border-radius:var(--pill);background:var(--brand-50);border:1px solid var(--line);margin:12px 0 8px;overflow:hidden}
+.season .band{position:absolute;top:0;bottom:0;background:var(--danger);opacity:.75;transform-origin:left;transform:scaleX(0)}
+.slide.on .season .band{animation:grow .6s ease-in-out .3s forwards}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.months button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 0;font-size:13px;font-weight:300;transition:background .18s ease-in-out,border-color .18s ease-in-out}
+.months button.mat{border-color:#F0B4B4}
+.months button.part{background:linear-gradient(90deg,var(--surface) 50%,#FDEEEE 50%)}
+.months button.part.end{background:linear-gradient(90deg,#FDEEEE 50%,var(--surface) 50%)}
+.months button.mat:not(.part){background:#FDEEEE}
+.months button[aria-pressed="true"]{background:var(--brand-600)!important;border-color:var(--brand-600);color:#fff}
+.mcard{margin-top:12px;border-left:3px solid var(--brand-600);padding:4px 0 4px 12px;animation:rise .2s ease-in-out both}
+.mcard.no{border-left-color:var(--danger)}
+.mcard h3{font-size:18px;margin-bottom:4px}
+.mcard p{font-size:14px;color:var(--muted)}
+
+/* ID check */
+.idwrap{display:grid;gap:12px}
+.iddots{display:flex;gap:6px}
+.iddots i{width:28px;height:4px;border-radius:2px;background:var(--line);transition:background .18s ease-in-out}
+.iddots i.cur{background:var(--brand-400)}
+.iddots i.ok{background:var(--positive)}
+.iddots i.no{background:var(--danger)}
+.idc{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start;animation:rise .22s ease-in-out both}
+.idc .ev{display:grid;gap:8px}
+.idc .ev li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;list-style:none}
+.idc .ev .ico{color:var(--brand-600);flex:0 0 20px;width:20px;height:20px;margin-top:2px}
+.idbtns{display:grid;gap:10px}
+.idbtns button{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:14px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.idbtns button:hover:not([disabled]){border-color:var(--brand-400)}
+.idbtns button .ico{color:var(--brand-600)}
+.idbtns button small{display:block;font-size:13px;color:var(--muted)}
+.idbtns button.right{border-color:var(--positive);background:#EAF5EE}
+.idbtns button.wrong{border-color:var(--danger);background:#FDEEEE}
+.idbtns button[disabled]{cursor:default}
+
+/* health */
+.hc{gap:10px}
+.hc .card{padding:14px 16px}
+.hc .card p{font-size:13.5px;line-height:1.45;margin-top:6px}
+.hc .eyebrow{color:var(--brand-700);letter-spacing:.06em;text-transform:none;font-size:14px;font-weight:500}
+
+/* go / no-go */
+.gng button{text-align:left;border-radius:10px;padding:8px 12px;font-size:14px}
+.gngres{animation:rise .2s ease-in-out both}
+.gngres h3{display:flex;gap:10px;align-items:center;font-size:22px;margin:4px 0 8px}
+.gngres.go{border-left:3px solid var(--positive)}
+.gngres.go h3 .ico{color:var(--positive)}
+.gngres.no{border-left:3px solid var(--danger)}
+.gngres.no h3 .ico{color:var(--danger)}
+.gngres .dl{font-size:14px}
+
+/* escalation flow */
+.flow{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;grid-template-areas:"a b c d e" "l l l l l";gap:12px 6px;align-items:center}
+.flow .outs{display:grid;gap:8px}
+.flow .lanes{grid-area:l;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:10px;border-top:1px dashed var(--brand-200)}
+.nd{display:grid;gap:3px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:12px 14px;font-weight:300;box-shadow:var(--shadow-card);transition:border-color .18s ease-in-out,background .18s ease-in-out,transform .18s ease-in-out}
+.nd b{font-weight:500;font-size:16px}
+.nd small{font-size:13px;color:var(--muted)}
+.nd .eyebrow{font-size:10px}
+.nd.top{background:var(--grad-emerald);border-color:transparent;color:#fff}
+.nd.top small,.nd.top .eyebrow{color:var(--brand-100)}
+.nd.sm{padding:6px 12px}
+.nd.sm b{font-size:14.5px}
+.nd.lane{display:flex;gap:10px;align-items:center}
+.nd.lane .ico{color:var(--brand-600);flex:0 0 22px}
+.nd.lane span{display:grid;gap:2px}
+.nd:hover{border-color:var(--brand-400)}
+.nd[aria-pressed="true"]{border-color:var(--brand-600);box-shadow:0 0 0 2px var(--brand-200)}
+.nd.top[aria-pressed="true"]{box-shadow:0 0 0 3px var(--brand-300)}
+.nd.seen:not(.top) b::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--positive);margin-left:8px;vertical-align:middle}
+.arr{width:40px;height:20px;fill:none;stroke:var(--brand-400);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.arr path:first-child{stroke-dasharray:4 4}
+.slide.on .arr path:first-child{animation:flowdash 1.8s linear infinite}
+@keyframes flowdash{to{stroke-dashoffset:-16}}
+.fd{animation:rise .2s ease-in-out both;padding:10px 18px}
+.fd h3{font-size:18px;margin-bottom:6px}
+.fd .dl{font-size:14px}
+
+/* note mock */
+.note{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:14px 16px;display:grid;gap:8px;min-height:236px}
+.note .nh{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:6px;font-size:13px;color:var(--muted)}
+.note .nh b{color:var(--ink);font-weight:500;font-size:14px}
+.note .nb{font-size:14px;line-height:1.5;font-family:var(--font);animation:rise .2s ease-in-out both}
+.note .nt{font-size:12.5px;color:var(--brand-700);background:var(--brand-50);border-radius:8px;padding:6px 10px}
+
+/* order */
+.order.two{grid-template-columns:1fr 1fr}
+.order button{font-size:14.5px;padding:9px 12px}
+
+@media (max-width:860px){
+  .sort.cov{grid-template-columns:1fr}
+  .idc{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;grid-template-areas:none}
+  .flow .lanes{grid-area:auto;grid-template-columns:1fr}
+  .arr{transform:rotate(90deg);justify-self:center}
+  .order.two{grid-template-columns:1fr}
+  .months{grid-template-columns:repeat(6,1fr)}
+  .rt td.y{width:auto}
+}
+.slide .grid > .seg{justify-self:start}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">RX-09 · Limits &amp; Escalation</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></symbol>
+    <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M7 7h10M7 11h10M7 15h10M7 19h10"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="7" cy="9" r="1.6"/><circle cx="11" cy="6" r="1.6"/><circle cx="15" cy="6.5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><path d="M8 17c0-3 2-5 4.5-5s4.5 2 4.5 5c0 2-2 2.5-4.5 2.5S8 19 8 17z"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8.3 3h7.4L21 8.3v7.4L15.7 21H8.3L3 15.7V8.3z"/><path d="M8 12h8"/></symbol>
+    <symbol id="i-fork" viewBox="0 0 24 24"><path d="M12 21v-8M12 13L6 7M12 13l6-6"/><path d="M6 11V7h4M18 11V7h-4"/></symbol>
+    <symbol id="i-roof" viewBox="0 0 24 24"><path d="M2 13L12 5l10 8"/><path d="M5 11l7-5.5 7 5.5M8 9.5h8"/><path d="M5 13v6h14v-6"/></symbol>
+    <symbol id="i-bat" viewBox="0 0 24 24"><path d="M12 9c-1 0-1.5-1-1.5-2 0 0 .8.6 1.5.6s1.5-.6 1.5-.6c0 1-.5 2-1.5 2z"/><path d="M10.5 8C8 7 5 8 2 11c2 0 3 .5 3.5 2 .8-1 2-1.2 3-.4.2-1.6 1.1-2.6 2-2.6M13.5 8c2.5-1 5.5 0 8.5 3-2 0-3 .5-3.5 2-.8-1-2-1.2-3-.4-.2-1.6-1.1-2.6-2-2.6"/><path d="M12 9v6"/></symbol>
+    <symbol id="i-med" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split ttl">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-09</span>
+        <h1 class="display a" style="--i:1">Limits &amp; Escalation</h1>
+        <p class="lead a" style="--i:2">What a Rodent Shield technician does, what we never do, and what goes to someone else. How to stop a job safely, who to call, what to tell the customer, and how to document it so the company can stand behind you.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 240" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M30 120L130 48l100 72"/><path d="M50 106v96h160v-96"/><path d="M112 202v-46h36v46"/>
+          <path d="M20 202h280"/>
+          <path d="M78 88l-6 -10M86 82l-4-12M182 88l6-10"/>
+          <path d="M226 202l34-118M246 202l34-118"/><path d="M231 184h20M236 166h20M241 148h20M246 130h20M251 112h20M256 94h20"/>
+          <path d="M70 60c14 0 22-12 22-12"/><circle cx="66" cy="62" r="5"/>
+          <path d="M150 30h40M190 30l-8-6M190 30l-8 6"/>
+          <path d="M282 46h8.6l6.1 6.1v8.6l-6.1 6.1H282l-6.1-6.1v-8.6z"/><path d="M280 56.4h12"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-check"/></svg><span>Say what is inside Rodent Shield scope, what we never do, and what goes to another team or trade</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-paw"/></svg><span>Tell commensal rodent evidence from wildlife evidence, and route wildlife (including bats) the right way</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-stop"/></svg><span>Use your stop-work authority for roofs, heights, attics, electrical damage and structural problems</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-med"/></svg><span>Handle health concerns, bait exposures and bites without giving medical advice</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-fork"/></svg><span>Escalate to the right person the same day: branch manager, or the Director of Field Operations for safety</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-doc"/></svg><span>Tell the customer what happens next and document the escalation so it protects the customer, the warranty and you</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">Knowing the limit and calling it <span class="em">is part of being a professional.</span></h2>
+        <p class="quote a" style="--i:2">"Trying to perform a proper exclusion through structural damage is how warranty failures happen."<cite>CLEMENTS RODENT CERTIFICATION TRAINING · WHAT'S NOT IN SCOPE</cite></p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-ladder"/></svg></div><div><h3>Rodent jobs are where techs get hurt</h3><p>Roofs, ladders, 120°F attics, gnawed wiring and biological hazards. Falls are a leading cause of serious workplace injury. No exclusion job is worth that.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Work outside scope fails, and the law has limits</h3><p>Sealing over rot fails in months. Roofing, structural and electrical repairs need a contractor's license. Bats and other wildlife are protected by state rules.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Customers trust a straight answer</h3><p>"I want to do this right rather than fast" keeps a customer. A guess about price, coverage or their health can cost the company the account and its reputation.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: know your scope">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Know your scope</h1>
+        <p class="lead a" style="--i:2">Every situation on a rodent job has one of three answers: do it, escalate it, or refer it. Getting that call right is what keeps the work holding and the warranty defensible.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Your lane, and the three answers</li><li><span>02</span>What we never do</li><li><span>03</span>What we refer out</li><li><span>04</span>Practice: do it, escalate, or refer?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 LANE -->
+  <section class="slide" data-label="Your lane">
+    <span class="eyebrow a">01 · Your lane, and the three answers</span>
+    <h2 class="a" style="--i:1">What a certified rodent technician does</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2"><span class="eyebrow">Inside your scope</span><ul class="dl" style="margin-top:8px">
+        <li>Inspect, identify and document evidence and entry points (all openings ½ in and larger on Plus)</li>
+        <li>Place traps and tamper-resistant, anchored bait stations</li>
+        <li>Seal entry points with approved materials: cement first, ½-inch threshold</li>
+        <li>Clean up minor droppings in small, easy-to-reach areas (about 2 ft by 2 ft), wetted first</li>
+        <li>Explain findings and conducive conditions to the customer</li>
+        <li>Small "while I'm here" repairs that are within scope, noted in the service notes</li>
+      </ul></div>
+      <div class="grid" style="gap:10px">
+        <div class="ans a" style="--i:3"><span class="ab do">Do it</span><p>Inside your scope, safe, and you've been trained for it. Do it to the Clements standard and document it.</p></div>
+        <div class="ans a" style="--i:4"><span class="ab esc">Escalate</span><p>Clements has to decide: price, scope, safety, a dispute, a warranty claim, or anything you're unsure of. Your branch manager, the same day.</p></div>
+        <div class="ans a" style="--i:5"><span class="ab ref">Refer</span><p>It belongs to someone else: the Clements wildlife team, a licensed roofer, contractor or electrician, or the customer's doctor or vet. Tell your branch manager too.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 NEVER -->
+  <section class="slide" data-label="What we never do">
+    <span class="eyebrow a">02 · What we never do</span>
+    <h2 class="a" style="--i:1">Eight hard stops, on every job, for every customer</h2>
+    <div class="grid g4 nev">
+      <div class="card cc a" style="--i:2"><h3><svg class="ico"><use href="#i-x"/></svg>Seal an exhaust vent</h3><p>Dryer, bath or kitchen exhaust, or any HVAC exhaust. Fire, carbon monoxide and moisture risk.</p></div>
+      <div class="card cc a" style="--i:3"><h3><svg class="ico"><use href="#i-x"/></svg>Foam as exclusion</h3><p>Rodents chew through it. Foam is a courtesy fix for gaps under ½ in only.</p></div>
+      <div class="card cc a" style="--i:4"><h3><svg class="ico"><use href="#i-x"/></svg>Touch gnawed wiring</h3><p>No taping, splicing or "fixing" wires. A licensed electrician does that.</p></div>
+      <div class="card cc a" style="--i:5"><h3><svg class="ico"><use href="#i-x"/></svg>Trap or seal in wildlife</h3><p>Squirrels, raccoons, opossums, bats. Never block an opening bats are using.</p></div>
+      <div class="card cc a" style="--i:6"><h3><svg class="ico"><use href="#i-x"/></svg>Walk tile or metal roofs</h3><p>Tile cracks and metal is slick. Same rule as FC-06, no exceptions.</p></div>
+      <div class="card cc a" style="--i:7"><h3><svg class="ico"><use href="#i-x"/></svg>Licensed-trade repairs</h3><p>Roofing, structural or electrical work. We are licensed for pest control, not construction.</p></div>
+      <div class="card cc a" style="--i:8"><h3><svg class="ico"><use href="#i-x"/></svg>Quote or promise</h3><p>No prices, no "you're covered," no "they'll never come back."</p></div>
+      <div class="card cc a" style="--i:9"><h3><svg class="ico"><use href="#i-x"/></svg>Push past a stop</h3><p>Unsafe access, heat or air quality ends the work for today. Finishing is never the reason to keep going.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 REFER TABLE -->
+  <section class="slide" data-label="What we refer out" style="gap:14px">
+    <span class="eyebrow a">03 · What we refer out</span>
+    <h2 class="a" style="--i:1">When the fix isn't exclusion, it isn't ours</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="rt">
+        <thead><tr><th>You find</th><th>Why it isn't Rodent Shield work</th><th>Where it goes</th></tr></thead>
+        <tbody>
+          <tr><td class="y">Roof rot past about 4–6 in, soft or compromised decking, a roof leak</td><td>Sealing over rot fails in months. Roofing work needs a licensed roofing contractor.</td><td>Roofer, through your branch manager</td></tr>
+          <tr><td class="y">Structural damage: rotted framing, remodel-level repair</td><td>Beyond a patch; needs a licensed contractor</td><td>Contractor, through your branch manager</td></tr>
+          <tr><td class="y">Wires gnawed, insulation stripped, copper showing</td><td>Fire risk. Electrical repair needs a licensed electrician.</td><td>Customer told the same visit; branch manager the same day</td></tr>
+          <tr><td class="y">Large insulation removal or replacement</td><td>Not part of the Rodent Shield program</td><td>Branch manager decides the referral</td></tr>
+          <tr><td class="y">Contamination far beyond a small cleanup</td><td>Outside our sanitation scope</td><td>Branch manager: deodorization add-on or referral</td></tr>
+          <tr><td class="y">Duplex, quad or other shared-attic building</td><td>Partial exclusion fails without a concrete firewall between units</td><td>Branch manager review before any Plus work</td></tr>
+          <tr><td class="y">Squirrels, raccoons, opossums, bats, other wildlife</td><td>Not commensal rodents; FWC rules apply</td><td>Clements wildlife team, through your branch manager</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted a" style="--i:3">Only the branch manager or the office recommends a specific outside company. You describe the problem and who should look at it.</p>
+  </section>
+
+  <!-- 8 SORTER -->
+  <section class="slide" data-label="Practice: do it, escalate, or refer" style="gap:10px;padding-top:26px;padding-bottom:26px">
+    <span class="eyebrow a">04 · Practice · do it, escalate, or refer?</span>
+    <div class="hbar a" style="--i:1"><h2>Sort each situation</h2><button type="button" class="btn primary" id="srtCheck">Check my answers</button></div>
+    <div id="srtFb" class="a" style="--i:2"></div>
+    <div class="sort cov a" style="--i:3" id="srt"></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: wildlife and health">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Wildlife and health concerns</h1>
+        <p class="lead a" style="--i:2">Not everything in an attic is a rat, and not every customer question is ours to answer. Getting the animal and the person to the right expert protects them, and protects us.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Rodent or wildlife?</li><li><span>02</span>Bats and maternity season</li><li><span>03</span>Practice: whose job is it?</li><li><span>04</span>Health concerns and exposures</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 RODENT OR WILDLIFE -->
+  <section class="slide" data-label="Rodent or wildlife" style="gap:14px">
+    <span class="eyebrow a">01 · Rodent or wildlife?</span>
+    <h2 class="a" style="--i:1">Rodent Shield covers three animals. Everything else is wildlife.</h2>
+    <p class="a muted" style="--i:2">House mice, roof rats and Norway rats. Tree squirrels are rodents too, but they are wildlife, not commensal rodents, and they are not Rodent Shield work.</p>
+    <div class="grid g3 wl">
+      <div class="card cc a" style="--i:3"><h3><svg class="ico"><use href="#i-paw"/></svg>Tree squirrels</h3><p>Active by day. Round holes about 1½–2 in chewed through fascia or soffit; nut shells in the attic. Flying squirrels are active at night.</p></div>
+      <div class="card cc a" style="--i:4"><h3><svg class="ico"><use href="#i-paw"/></svg>Raccoons</h3><p>Torn-open soffits or roof vents, heavy thumping, crushed insulation, droppings piled in one latrine spot.</p></div>
+      <div class="card cc a" style="--i:5"><h3><svg class="ico"><use href="#i-bat"/></svg>Bats</h3><p>Dusk flights from a gap, staining at the opening, crumbly droppings piled below a roost. Protected. Never block them in.</p></div>
+      <div class="card cc a" style="--i:6"><h3><svg class="ico"><use href="#i-paw"/></svg>Opossums</h3><p>Under decks, sheds and slabs, sometimes in attics. Gray, cat-sized, bare tail. May hiss or play dead.</p></div>
+      <div class="card cc a" style="--i:7"><h3><svg class="ico"><use href="#i-paw"/></svg>Armadillos, snakes, birds</h3><p>Burrows at the foundation, a snake in the garage, birds nesting in a vent. Wildlife team.</p></div>
+      <div class="card cc a hl2" style="--i:8"><h3><svg class="ico"><use href="#i-fork"/></svg>What you do</h3><p>Don't trap, handle or seal. Photograph from a distance, tell the customer the wildlife team handles it, and tell your branch manager the same day.</p></div>
+    </div>
+  </section>
+
+  <!-- 12 BATS -->
+  <section class="slide" data-label="Bats and maternity season">
+    <span class="eyebrow a">02 · Bats and maternity season</span>
+    <h2 class="a" style="--i:1">Bats are never harmed and never sealed in</h2>
+    <div class="split" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <p class="a muted" style="--i:2">Florida bats are protected. The Florida Fish and Wildlife Conservation Commission (FWC) allows bats out of a building only by exclusion with one-way devices, and <b>never during maternity season, April 16 to August 14</b>, when flightless young are inside.</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Sealing a bat opening</b> on a rodent job traps bats inside. They die in the structure or find their way into the living space, and it breaks state rules.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-mask"/></svg><span><b>Guano:</b> don't disturb, sweep or vacuum it; it can carry the fungus that causes histoplasmosis. Anyone bitten or scratched by a bat, or who touched one, needs medical or public-health advice right away.</span></div>
+      </div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Select a month · can bats be excluded?</span>
+        <div class="season" id="season" aria-hidden="true"><i class="band" style="left:calc(3/12*100% + 15/30*100%/12);width:calc(4/12*100% + 14/31*100%/12 + 15/30*100%/12)"></i></div>
+        <div class="months" id="months" role="group" aria-label="Months of the year"></div>
+        <div id="mDetail" aria-live="polite" style="min-height:118px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 ID CHECK -->
+  <section class="slide" data-label="Practice: whose job is it" style="gap:14px">
+    <span class="eyebrow a">03 · Practice · wildlife-or-rodent ID check</span>
+    <div class="hbar a" style="--i:1"><h2>Whose job is it?</h2><span class="small muted" id="idScore"></span></div>
+    <p class="a muted small" style="--i:2">Read what you find on each job and choose who handles it. A wrong pick turns red; try again.</p>
+    <div class="idwrap a" style="--i:2">
+      <div class="iddots" id="idDots" aria-hidden="true"></div>
+      <div id="idCard"></div>
+    </div>
+  </section>
+
+  <!-- 14 HEALTH -->
+  <section class="slide" data-label="Health concerns" style="gap:12px">
+    <span class="eyebrow a">04 · Health concerns and exposures</span>
+    <h2 class="a" style="--i:1">Give facts and the right number. Never a diagnosis.</h2>
+    <div class="grid g3 hc">
+      <div class="card a" style="--i:2"><span class="eyebrow">"Can we get sick from this?"</span><p>Rodents can spread salmonella, leptospirosis and rat-bite fever. In Florida, hantavirus is linked to cotton rats and rice rats, not the house mice and rats we treat. Health questions go to their doctor or the county health department.</p></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">"My dog got into the bait"</span><p>Read them the product name, active ingredient and EPA Reg. No. from the label (482.2265). Call their vet or an animal poison control line now. Call your branch manager right away.</p></div>
+      <div class="card a" style="--i:4"><span class="eyebrow">A child may have eaten bait</span><p>Trouble breathing, unresponsive or seizing: 911. Otherwise Poison Help, 1-800-222-1222, with the label in hand. Call your branch manager right away.</p></div>
+      <div class="card a" style="--i:5"><span class="eyebrow">You were bitten or scratched</span><p>Wash with soap and water right away. Tell your supervisor immediately, get medical evaluation, and file the written report the same day.</p></div>
+      <div class="card a" style="--i:6"><span class="eyebrow">Raccoon latrine or heavy guano</span><p>Don't disturb it. Raccoon droppings can carry roundworm eggs, and guano can carry histoplasmosis. Wildlife team, through your branch manager.</p></div>
+      <div class="card a" style="--i:7"><span class="eyebrow">Heavy droppings, nesting, urine</span><p>Never sweep or vacuum dry. Wet it with disinfectant first, with PPE (FC-03). Large contamination is escalated, not cleaned up.</p></div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: stop-work and safety limits">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Stop-work and safety limits</h1>
+        <p class="lead a" style="--i:2">You have the final word on whether a job can be done safely and correctly. Using that authority well, and early, is a skill the company expects of every certified tech.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Your stop-work authority</li><li><span>02</span>Practice: roofs and heights, go or no-go</li><li><span>03</span>Electrical damage and attics</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 STOP-WORK -->
+  <section class="slide" data-label="Stop-work authority">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">01 · Your stop-work authority</span>
+        <h2 class="a" style="--i:1">If it isn't safe or can't be done right, the work stops</h2>
+        <p class="a muted" style="--i:2">No customer, schedule or sale overrides it. Stopping is not a refusal: it protects you, the quality of the work and the warranty.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-stop"/></svg><span>"We'll need to come back when this is addressed." Then document the reason and tell your supervisor the same day.</span></div>
+      </div>
+      <div class="card a" style="--i:2"><span class="eyebrow">What stops the job</span><ul class="cklist" style="margin-top:8px">
+        <li style="--k:0"><svg class="ico"><use href="#i-roof"/></svg><span><b>Unsafe access.</b> Rotted decking, a ladder that can't be set or secured, a slippery or fragile roof.</span></li>
+        <li style="--k:1"><svg class="ico"><use href="#i-thermo"/></svg><span><b>Excessive heat.</b> Florida attics pass 120°F. Dizziness, cramps or confusion mean get out now.</span></li>
+        <li style="--k:2"><svg class="ico"><use href="#i-wind"/></svg><span><b>Air quality or ventilation.</b> Strong unknown odor, no airflow, a space you can't safely get out of.</span></li>
+        <li style="--k:3"><svg class="ico"><use href="#i-bolt"/></svg><span><b>Electrical surprises.</b> Live conductors where you didn't expect them, damaged wiring at the work area.</span></li>
+        <li style="--k:4"><svg class="ico"><use href="#i-users"/></svg><span><b>Customer interference</b> that creates a safety problem, such as moving your ladder or letting pets loose.</span></li>
+        <li style="--k:5"><svg class="ico"><use href="#i-search"/></svg><span><b>Conditions outside authorized scope</b>, or something you haven't been trained to handle.</span></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 18 GO / NO-GO -->
+  <section class="slide" data-label="Practice: roofs and heights" style="gap:14px">
+    <span class="eyebrow a">02 · Practice · roofs and heights, go or no-go</span>
+    <h2 class="a" style="--i:1">The entry point is at the roofline. Can you do it today?</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <p class="a muted small" style="--i:2">Select every condition that's true on this job. Your result updates as you go.</p>
+        <div class="pick gng a" style="--i:3" id="gng"></div>
+      </div>
+      <div class="a" style="--i:4" id="gngOut" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 19 ELECTRICAL & ATTIC -->
+  <section class="slide" data-label="Electrical damage and attics">
+    <span class="eyebrow a">03 · Electrical damage and attics</span>
+    <h2 class="a" style="--i:1">Two places where a rodent job turns dangerous</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="hrow"><div class="icobox"><svg class="ico"><use href="#i-bolt"/></svg></div><h3>Wiring damaged by gnawing</h3></div><ol class="steps tight">
+        <li><span class="num">1</span><span><b>Don't touch it,</b> and don't set traps or stations against it. Treat every wire as live.</span></li>
+        <li><span class="num">2</span><span><b>Smoke, burning smell or sparking:</b> everyone out, and 911.</span></li>
+        <li><span class="num">3</span><span><b>Photograph it</b> from a safe distance and note the location.</span></li>
+        <li><span class="num">4</span><span><b>Tell the customer today</b> that a licensed electrician should inspect it.</span></li>
+        <li><span class="num">5</span><span><b>Branch manager, same day.</b> Then technotes, so the office logs it.</span></li>
+      </ol></div>
+      <div class="card a" style="--i:3"><div class="hrow"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Attics and crawlspaces</h3></div><ul class="dl">
+        <li><b>No attic access:</b> we can't place interior traps (common in mobile homes). Escalate; don't cut an opening.</li>
+        <li><b>Blocked access:</b> the customer clears it. Don't move heavy or valuable items yourself.</li>
+        <li><b>Walk on joists</b> only. Sagging decking or weak joists end the inspection there.</li>
+        <li><b>Heat:</b> plan attic work for the cooler morning, take water breaks, and come down at the first sign of heat illness.</li>
+        <li><b>PPE</b> per FC-03: gloves, eye protection and a respirator where droppings or insulation are disturbed.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 20 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 21 PART FOUR -->
+  <section class="slide forest" data-label="Part four: escalate, tell, document">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Escalate, tell the customer, document</h1>
+        <p class="lead a" style="--i:2">An escalation only works if the right person hears about it the same day, the customer knows what happens next, and the record shows exactly what you found.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The escalation path</li><li><span>02</span>Telling the customer</li><li><span>03</span>Disputes and warranty claims</li><li><span>04</span>Documentation</li><li><span>05</span>Practice: steps and scenarios</li></ol>
+    </div>
+  </section>
+
+  <!-- 22 PATH -->
+  <section class="slide" data-label="The escalation path" style="gap:14px">
+    <span class="eyebrow a">01 · The escalation path</span>
+    <div class="hbar a" style="--i:1"><h2>Who you call, and when</h2><span class="small muted">Select each step on the path.</span></div>
+    <div class="flow a" style="--i:3" id="flow">
+      <button type="button" class="nd" id="nd0" data-n="0"><span class="eyebrow">Step 1</span><b>You, on site</b><small>Stop, document, tell the customer</small></button>
+      <svg class="arr" viewBox="0 0 40 20" aria-hidden="true"><path d="M2 10h32M28 4l7 6-7 6"/></svg>
+      <button type="button" class="nd top" id="nd1" data-n="1"><span class="eyebrow">Step 2 · same day</span><b>Your branch manager</b><small>Decides scope, price, claims, referrals</small></button>
+      <svg class="arr" viewBox="0 0 40 20" aria-hidden="true"><path d="M2 10h32M28 4l7 6-7 6"/></svg>
+      <div class="outs">
+        <button type="button" class="nd sm" id="nd2" data-n="2"><b>Clements follow-up</b><small>Return visit, warranty review, quote</small></button>
+        <button type="button" class="nd sm" id="nd3" data-n="3"><b>Wildlife team</b><small>Non-rodent animals, bats</small></button>
+        <button type="button" class="nd sm" id="nd4" data-n="4"><b>Licensed trade</b><small>Roofer, contractor, electrician</small></button>
+      </div>
+      <div class="lanes">
+        <button type="button" class="nd lane" id="nd5" data-n="5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Emergency</b><small>911 first, then your supervisor</small></span></button>
+        <button type="button" class="nd lane" id="nd6" data-n="6"><svg class="ico"><use href="#i-shield"/></svg><span><b>Safety concern</b><small>Director of Field Operations</small></span></button>
+        <button type="button" class="nd lane" id="nd7" data-n="7"><svg class="ico"><use href="#i-clip"/></svg><span><b>The office</b><small>technotes, so it gets logged</small></span></button>
+      </div>
+    </div>
+    <div class="a" style="--i:4" id="flowDetail" aria-live="polite"></div>
+  </section>
+
+  <!-- 23 TELL THE CUSTOMER -->
+  <section class="slide" data-label="Telling the customer">
+    <span class="eyebrow a">02 · Telling the customer</span>
+    <h2 class="a" style="--i:1">Frame it as protecting the work, not as a refusal</h2>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <ol class="steps tight a" style="--i:2">
+          <li><span class="num">1</span><span><b>Show what you found.</b> The photo, the location, in plain words.</span></li>
+          <li><span class="num">2</span><span><b>Say why it matters.</b> Sealing over it would fail, or it isn't safe today.</span></li>
+          <li><span class="num">3</span><span><b>Say what happens next</b> and who will contact them: "Your branch manager will call you today."</span></li>
+          <li><span class="num">4</span><span><b>Don't fill the gap with a guess:</b> no price, coverage decision or diagnosis.</span></li>
+        </ol>
+        <p class="quote a" style="--i:3;font-size:16px">"I want to make sure we do this right rather than fast. The rot in this section is beyond what I can properly seal. Sealing it now would just fail in six months. I'm going to flag this for our team, and we'll either come back to address it or coordinate with a roofer."<cite>CLEMENTS RODENT CERTIFICATION TRAINING</cite></p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><h3 class="ok3"><svg class="ico"><use href="#i-check"/></svg>Say</h3><ul class="dl">
+          <li>"Here's what I found, and here's the photo."</li>
+          <li>"That's a job for a licensed electrician. Please have one look at it soon."</li>
+          <li>"Our wildlife team handles bats. Please don't block that opening."</li></ul></div>
+        <div class="card a" style="--i:4"><h3 class="no3"><svg class="ico"><use href="#i-x"/></svg>Never say</h3><ul class="dl">
+          <li>"I'm not allowed to do that." (Explain why instead.)</li>
+          <li>"That'll be about..." or "That's covered."</li>
+          <li>"The last company did a terrible job."</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24 DISPUTES & WARRANTY -->
+  <section class="slide" data-label="Disputes and warranty claims">
+    <span class="eyebrow a">03 · Disputes and warranty claims</span>
+    <h2 class="a" style="--i:1">You document. The branch manager decides.</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><div class="hrow"><div class="icobox"><svg class="ico"><use href="#i-chat"/></svg></div><h3>An unhappy customer</h3></div><ul class="dl">
+        <li><b>Listen</b> and repeat back what they're upset about. Stay calm; don't argue or defend.</li>
+        <li><b>Don't blame</b> the customer, a co-worker or another company.</li>
+        <li><b>Don't promise</b> refunds, credits, free visits or extra work. That's the branch manager's call.</li>
+        <li><b>Show your work:</b> what you checked today, with photos.</li>
+        <li><b>Escalate the same day</b> and tell them when to expect the call. Complaints belong to the branch manager.</li>
+      </ul></div>
+      <div class="card a" style="--i:3"><div class="hrow"><div class="icobox"><svg class="ico"><use href="#i-shield"/></svg></div><h3>A possible warranty claim</h3></div><ul class="dl">
+        <li><b>Plus only,</b> on a 1-year or 3-year warranty. Basic carries no warranty.</li>
+        <li><b>Review is triggered</b> by continued activity in treated areas, a missed entry point within the original scope, or new activity matching the original area.</li>
+        <li><b>Not covered:</b> entry points the homeowner declined at the original service, and accounts lapsed past the 30-day grace period.</li>
+        <li><b>Your job:</b> inspect, photograph against the original entry point record, document, escalate. Never say "covered" or "not covered."</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 25 DOCUMENTATION -->
+  <section class="slide" data-label="Documentation" style="gap:14px">
+    <span class="eyebrow a">04 · Documentation</span>
+    <h2 class="a" style="--i:1">If it isn't written down, it didn't happen</h2>
+    <div class="split" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2"><span class="eyebrow">Every escalation record shows</span><ul class="dl" style="margin-top:8px">
+        <li><b>What you found:</b> location, size, condition</li>
+        <li><b>Photos:</b> a wide shot, then a close-up with a scale reference in frame</li>
+        <li><b>Why you stopped</b> or why it's out of scope</li>
+        <li><b>What you told the customer,</b> and how they responded</li>
+        <li><b>Who you notified,</b> and when</li>
+        <li><b>The plan:</b> follow-up, referral, or return visit</li></ul></div>
+      <div class="grid" style="gap:10px">
+        <div class="seg a" style="--i:3" role="group" aria-label="Note type"><button type="button" id="ntCust" aria-pressed="true">PestPac Mobile note</button><button type="button" id="ntOff" aria-pressed="false">Email to technotes</button></div>
+        <div class="note a" style="--i:4" id="note" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 ORDER -->
+  <section class="slide" data-label="Practice: escalate in order" style="gap:14px">
+    <span class="eyebrow a">05 · Practice · the escalation steps</span>
+    <div class="hbar a" style="--i:1"><h2>Put the escalation in order</h2><button type="button" class="btn" id="ordReset">Start over</button></div>
+    <p class="a muted small" style="--i:2">You've found rot past the fascia at a Plus entry point. Select the steps in order. A wrong pick shakes.</p>
+    <div class="order two a" style="--i:3" id="ord"></div>
+    <div id="ordFb" class="a" style="--i:4;min-height:48px"></div>
+  </section>
+
+  <!-- 27 SCENARIOS -->
+  <section class="slide" data-label="Practice: scenario decisions" style="gap:12px;padding-top:26px;padding-bottom:26px">
+    <span class="eyebrow a">05 · Practice · scenario decisions · what do you do?</span>
+    <div class="scen-tabs a" style="--i:2" id="vTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="vBox"></div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on real Rodent Shield jobs</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each item before RX-09 is complete. Tick each one as it's signed off.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Explain do it, escalate and refer, with one example of each from a real job</label></li>
+      <li><label><input type="checkbox" id="f2"> Identify every dryer, bath and kitchen exhaust on a property and leave them unsealed</label></li>
+      <li><label><input type="checkbox" id="f3"> Tell rodent evidence from wildlife evidence on an inspection and route wildlife correctly</label></li>
+      <li><label><input type="checkbox" id="f4"> Assess roof and ladder access before going up, and call a no-go when a condition applies</label></li>
+      <li><label><input type="checkbox" id="f5"> Find and document a condition outside scope (rot, wiring, structural) with wide and close-up photos</label></li>
+      <li><label><input type="checkbox" id="f6"> Explain an out-of-scope finding to a customer without quoting or promising</label></li>
+      <li><label><input type="checkbox" id="f7"> Escalate to the branch manager the same day and send the details to technotes</label></li>
+      <li><label><input type="checkbox" id="f8"> Name who handles safety concerns, emergencies, bait exposures and bites</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx09:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx09:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-09", "titleHtml": "Limits &amp; Escalation", "nextHtml": "RX-10 \u00b7 Scored Knowledge Check", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Know your scope',q:'Plus job: the main entry point is in fascia rotted for about a foot. The homeowner says, "Just patch it so we\'re done today." What do you do?',o:['Pack it with copper mesh and cement; that\'s the Clements standard','Fill it with foam for now and come back later','Patch it with sheet metal and tell the customer it\'s covered by the warranty','Stop at that opening, photograph it, explain that sealing over rot would fail, and escalate to your branch manager the same day for a roofer or contractor referral'],a:3,e:'Rot past about 4–6 inches is outside scope. Sealing over it fails, and roofing or structural repair needs a licensed trade. Document, explain, escalate.'},
+    2:{t:'Checkpoint 2 · Wildlife and health',q:'June follow-up: crumbly droppings are piled under a gable vent, with staining at the gap. The customer asks you to seal it today. What is right?',o:['Seal it; the droppings are probably from rats','Leave it open, explain that bats are protected and can\'t be excluded during maternity season (April 16 to August 14), ask the customer not to block it, and report it for the wildlife team through your branch manager','Sweep up the droppings so the attic is clean, then seal','Install a one-way device yourself'],a:1,e:'Crumbly guano and staining at a gap point to bats. Never seal them in, never disturb guano, and route it to the wildlife team.'},
+    3:{t:'Checkpoint 3 · Stop-work and safety limits',q:'The last entry point is at the ridge of a two-story tile roof, wet with morning dew. The homeowner offers to hold the ladder. What do you do?',o:['Document the opening from the ground, tell the customer it needs a different approach, and escalate to your branch manager','Go up once the homeowner is holding the ladder','Wait for the dew to dry, then walk the tile carefully','Foam the gap from the top of the ladder'],a:0,e:'Tile cracks and you don\'t walk it, wet or dry. A homeowner holding the ladder changes nothing. Document, explain and escalate.'},
+    4:{t:'Checkpoint 4 · Escalate, tell, document',q:'Seven months after service, a Plus customer reports new noise in the same attic area: "This is covered, right?" Best response?',o:['"Yes, everything is covered for a year."','"No, new activity isn\'t covered."','"I\'ll inspect today and photograph what I find against your original entry point record. Your branch manager reviews it and will call you about next steps."','"You\'d need the 3-year warranty for that."'],a:2,e:'Possible warranty review. You inspect, document against the original record and escalate. The branch manager decides; you never say covered or not covered.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which of these is inside a Rodent Shield technician\'s scope?',o:['Repairing gnawed wiring in the attic','Sealing a ½-inch gap at a pipe penetration with approved material and cement','Replacing rotted roof decking','Trapping a raccoon in the soffit'],a:1,e:'Sealing openings ½ inch and larger with approved materials, cement first, is core Rodent Shield work. The others belong to an electrician, a roofer or the wildlife team.'},
+    {k:'True or false',q:'You may screen a dryer vent to stop rodents if the customer asks you to.',o:['True','False'],a:1,e:'False. Dryer, bath, kitchen and HVAC exhausts are never sealed or screened: fire, carbon monoxide and moisture risk.'},
+    {k:'Multiple choice',q:'About how much rot around an entry point means the job goes to a roofer or contractor?',o:['Any visible paint damage','More than 3 feet','Rot never changes the plan','More than about 4–6 inches, or compromised decking'],a:3,e:'Past about 4–6 inches of rot, or with compromised decking, exclusion won\'t hold. Stop and escalate for a referral.'},
+    {k:'Scenario',q:'You find chewed wiring with copper showing in the attic. What do you do first?',o:['Tape it so the customer is safe','Ignore it; it\'s not pest control','Keep away from it, keep traps and stations clear of it, photograph it and tell the customer a licensed electrician should inspect it','Cut the power at the panel'],a:2,e:'Treat it as live and don\'t touch it. Document, tell the customer today, and escalate to your branch manager the same day.'},
+    {k:'Multiple choice',q:'Which animals are covered by Rodent Shield?',o:['Any animal in the attic','Rats, mice and tree squirrels','House mice, roof rats and Norway rats','Rats, mice and opossums'],a:2,e:'The three commensal rodents. Tree squirrels are rodents but they\'re wildlife, and go to the wildlife team.'},
+    {k:'Multiple choice',q:'When are bat exclusions prohibited in Florida?',o:['November through February','Only in July','Never, as long as one-way devices are used','During maternity season, April 16 to August 14'],a:3,e:'FWC prohibits bat exclusion during maternity season, April 16 to August 14, when flightless young are in the roost.'},
+    {k:'Scenario',q:'You find a round hole about 2 inches wide chewed through fascia, nut shells in the attic, and the customer hears activity in the afternoons. Whose job is it?',o:['The wildlife team: those are tree squirrel signs','Rodent Shield Plus: seal it today','Rodent Shield Basic: set six traps','Nobody; it\'s an old hole'],a:0,e:'Daytime activity, a large round chew hole and nut shells point to a tree squirrel. Refer it through your branch manager.'},
+    {k:'True or false',q:'In Florida, hantavirus is linked to cotton rats and rice rats, not the house mice and rats we usually treat.',o:['True','False'],a:0,e:'True. That doesn\'t make droppings harmless: other diseases are possible, so you always wet droppings first and never sweep or vacuum them dry.'},
+    {k:'Scenario',q:'A customer says their child may have put rodent bait in their mouth. The child seems fine. What do you do?',o:['Have them call Poison Help at 1-800-222-1222 with the label in hand, give them the product information, and call your branch manager right away','Tell them the bait is non-toxic','Tell them to wait and see','Remove the bait and leave'],a:0,e:'Poison Help (911 if the child has serious symptoms), label information on request (482.2265), and immediate escalation. Never call a pesticide safe or non-toxic.'},
+    {k:'Multiple choice',q:'You\'re bitten by a rat while clearing a trap. What is the correct response?',o:['Wash it with soap and water right away, tell your supervisor immediately, get medical evaluation, and file the written report the same day','Finish the route and mention it next week','Put on a bandage; bites don\'t need reporting','Only report it if it gets infected'],a:0,e:'Rodent bites can transmit rat-bite fever. Wash, report immediately, get evaluated, and file the same-day written report.'},
+    {k:'True or false',q:'If the homeowner holds the ladder, it\'s acceptable to walk a tile roof.',o:['True','False'],a:1,e:'False. You don\'t walk tile or metal roofs. Document from the ground and escalate.'},
+    {k:'Multiple choice',q:'Who should you contact about a safety concern, such as being asked to work around a hazard?',o:['April Williford, Director of HR','The customer','Graham Foster, Director of Field Operations, with your branch manager informed','Nobody, if you finished safely'],a:2,e:'Safety concerns go to the Director of Field Operations. Your branch manager hears about it too. HR handles payroll, benefits, PTO and HR policy only.'},
+    {k:'Multiple choice',q:'Who decides pricing, complaints, scope questions and warranty claims for your branch?',o:['The technician','The branch manager','The customer service team','The wildlife team'],a:1,e:'Services, pricing, complaints and warranty decisions belong to the branch manager.'},
+    {k:'Scenario',q:'A customer asks for a firm price on sealing three more entry points. What do you say?',o:['Give your best estimate so they can decide','Tell them it\'s free with Plus','Say the entry points are on your list and the office or branch manager will give them a price','Refuse to discuss it'],a:2,e:'Never quote prices. Document the openings and route the pricing to the service advisor or branch manager.'},
+    {k:'Multiple choice',q:'Which customer is NOT eligible for a Rodent Shield warranty review?',o:['A Plus customer with continued activity in treated areas','A Plus customer whose original documented entry point was missed','A Basic customer reporting new noise','A Plus customer with new activity in the original service area'],a:2,e:'Basic carries no warranty. Plus warranty review covers continued activity, missed entry points within the original scope, and matching new activity.'},
+    {k:'True or false',q:'Entry points the homeowner declined at the original service are covered by the Plus warranty.',o:['True','False'],a:1,e:'False. Declined entry points are documented on the service agreement and are not covered.'},
+    {k:'Multiple choice',q:'What belongs in your PestPac Mobile notes on an escalated job?',o:['A factual description of the finding and that Clements will follow up','Your opinion of the last company','An estimated price for the repair','Internal comments about the customer'],a:0,e:'PestPac Mobile notes print on the customer\'s report. Keep them factual and professional; internal details go to technotes.'},
+    {k:'Scenario',q:'The homeowner of a duplex with a shared attic wants Rodent Shield Plus on her unit. What happens?',o:['Do Plus on her half as usual','Refuse the job','Seal the shared attic from her side only','Flag it for branch manager review: partial exclusion doesn\'t work without a concrete firewall between units'],a:3,e:'Multi-unit buildings go to manager review before any Plus work.'},
+    {k:'Multiple choice',q:'Which is the best way to tell a customer you can\'t seal an opening today?',o:['"I\'m not allowed to do that."','"I want to do this right rather than fast. Sealing over this damage would fail, so I\'m flagging it, and your branch manager will call you about next steps."','"That\'s your problem, not ours."','"We can do it next week for a small fee."'],a:1,e:'Frame it as protecting the quality of the work, say who calls next, and don\'t quote or promise.'},
+    {k:'Multiple choice',q:'In what order do you handle an out-of-scope finding?',o:['Tell the branch manager next week, then photograph it','Seal what you can, then document','Call the customer\'s roofer yourself, then tell the office','Stop safely, document with photos, tell the customer, call your branch manager the same day, then send details to technotes'],a:3,e:'Stop, document, tell, escalate the same day, then log it with the office and record the plan.'}
+  ];
+
+  function ico(n){return '<svg class="ico"><use href="#'+n+'"/></svg>'}
+
+  /* ---------- do it, escalate, or refer? ---------- */
+  var SRT=[
+    {q:'Plus job: a ½-inch gap at the A/C line set, within the four included openings',a:'Do it',w:'Inside scope. Seal it with approved material, cement first, and photograph before and after.'},
+    {q:'Basic job: rub marks and a ½-inch gap at the garage door corner',a:'Do it',w:'Documenting it and presenting the Plus upgrade before you leave is your job. Basic includes no sealing, and you don\'t quote the price.'},
+    {q:'A small patch of droppings, about a foot across, under the kitchen sink',a:'Do it',w:'Minor cleanup in a small, accessible area is in scope. Wet it with disinfectant first, with PPE. Never sweep dry.'},
+    {q:'The rot around a fascia entry point runs about 10 inches along the board',a:'Refer',w:'Past about 4–6 inches of rot, sealing fails. A roofer or contractor handles it, through your branch manager.'},
+    {q:'Gnawed wire in the attic with copper showing',a:'Refer',w:'Don\'t touch it. Tell the customer a licensed electrician should inspect it, and tell your branch manager the same day.'},
+    {q:'A gray squirrel is chewing through the soffit in the afternoon',a:'Refer',w:'Tree squirrels are wildlife, not Rodent Shield work. Clements wildlife team, through your branch manager.'},
+    {q:'Bat droppings piled under a gable vent in May',a:'Refer',w:'Bats go to the wildlife team, and it\'s maternity season. Don\'t seal the vent.'},
+    {q:'The customer wants a firm price for three more entry points',a:'Escalate',w:'Never quote. The service advisor or branch manager prices it.'},
+    {q:'"Five visits and I still hear them. I want a refund."',a:'Escalate',w:'Complaints and refunds belong to the branch manager. Document today\'s findings and escalate the same day.'},
+    {q:'Plus customer, 8 months in: new noise in the same attic area',a:'Escalate',w:'Possible warranty review. Inspect, compare against the original entry point record, and the branch manager decides.'},
+    {q:'A duplex with a shared attic; the owner wants Plus on her side',a:'Escalate',w:'Multi-unit buildings go to manager review. Partial exclusion fails without a concrete firewall.'},
+    {q:'The only entry point is at the ridge of a steep barrel-tile roof',a:'Escalate',w:'You don\'t walk tile. Document it from the ground, and the branch manager decides how and whether it gets done.'}
+  ];
+  var sr=$('#srt'),srSel=store.get('srt')||{},SO=[['Do it','d'],['Escalate','e'],['Refer','r']];
+  SRT.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='sr'+i;
+    r.innerHTML='<span class="cq">'+s.q+'</span><span class="opts">'+SO.map(function(o){return '<button type="button" aria-pressed="'+(srSel[i]===o[0])+'" data-v="'+o[0]+'" id="sr'+i+o[1]+'">'+o[0]+'</button>'}).join('')+'</span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){srSel[i]=b.dataset.v;store.set('srt',srSel);$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');$('.cq',r).innerHTML=s.q})});
+    sr.appendChild(r)});
+  $('#srtCheck').addEventListener('click',function(){var right=0,blank=0;
+    SRT.forEach(function(s,i){var r=$('#sr'+i);$('.cq',r).innerHTML=s.q;if(!srSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=srSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){$('.cq',r).innerHTML='<span class="why2"><b>'+s.a+'.</b> '+s.w+'</span>'}});
+    $('#srtFb').innerHTML=blank?'<span class="fb no">Sort all twelve before checking.</span>':(right===SRT.length?'<span class="fb">All twelve. Whatever the answer, anything you escalate or refer also goes to your branch manager the same day.</span>':'<span class="fb no">'+right+' of 12. Red rows now show the right answer and why. Change your pick to see the situation again.</span>')});
+
+  /* ---------- bat season months ---------- */
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var MD=[0,0,0,{p:'s'},1,1,1,{p:'e'},0,0,0,0];
+  var band=$('#season .band');band.style.left=((3+15/30)/12*100)+'%';band.style.width=((14/30+3+14/31)/12*100)+'%';
+  var mb=$('#months');
+  MN.forEach(function(m,i){var b=document.createElement('button');b.type='button';b.id='mo'+i;b.textContent=m;b.setAttribute('aria-pressed','false');
+    if(MD[i])b.classList.add('mat');if(MD[i]&&MD[i].p){b.classList.add('part');if(MD[i].p==='e')b.classList.add('end')}
+    b.addEventListener('click',function(){showM(i)});mb.appendChild(b)});
+  function showM(i){$$('button',mb).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});store.set('mo',i);
+    var h,p,no;
+    if(i===3){no=1;h='April: open until the 15th, closed from the 16th';p='Maternity season starts April 16. From then on, no exclusion. Earlier in the month, the wildlife team decides whether there\'s time to plan one safely.'}
+    else if(i===7){no=1;h='August: closed through the 14th';p='Exclusion can resume from August 15, when the young can fly. The wildlife team schedules it.'}
+    else if(MD[i]){no=1;h=MN[i]+': maternity season, no exclusion';p='Flightless young are in the roost. Leave the openings alone, take the customer\'s details for the wildlife team, and ask the customer not to block anything.'}
+    else{h=MN[i]+': exclusion can be planned';p='Outside maternity season, the wildlife team can inspect and plan a one-way exclusion. You still never seal a bat opening on a rodent job.'}
+    $('#mDetail').innerHTML='<div class="mcard'+(no?' no':'')+'"><h3>'+h+'</h3><p>'+p+'</p></div>'}
+  var mo=store.get('mo');showM(typeof mo==='number'?mo:5);
+
+  /* ---------- wildlife-or-rodent ID check ---------- */
+  var ID=[
+    {ev:['Droppings about ½ inch, pointed at both ends, along the rafters','Dark, greasy rub marks at a gable vent','Hollowed-out citrus rinds hanging on the backyard tree'],a:0,n:'Roof rat',e:'Classic roof rat: elevated runways, rub marks, pointed droppings and hollowed fruit. That\'s Rodent Shield work.'},
+    {ev:['A pile of dark, crumbly droppings on the insulation under a gable vent','The droppings crush into shiny insect fragments','Staining around a gap at the vent'],a:1,n:'Bats',e:'Bat guano crumbles into insect parts. Don\'t disturb it, don\'t seal the gap, and send it to the wildlife team.'},
+    {ev:['A round hole about 1½–2 inches chewed through the fascia','Activity heard at dawn and late afternoon','Acorn and nut shells in the attic'],a:1,n:'Gray squirrel',e:'Daytime activity, a large round chew hole and nut shells point to a tree squirrel: a rodent, but wildlife, not Rodent Shield.'},
+    {ev:['Burrows about 3 inches wide along the slab and under a shrub','Blunt-ended droppings about ¾ inch','Activity at ground level, nothing in the attic'],a:0,n:'Norway rat',e:'Burrows at the foundation and large blunt droppings: Norway rat. A ground-level Rodent Shield job.'},
+    {ev:['A torn-open soffit and a roof vent pulled loose','Heavy thumping at night; crushed insulation','Large tubular droppings piled in one spot'],a:1,n:'Raccoon',e:'Raccoons tear things open and use a latrine spot. Don\'t touch the droppings (roundworm risk). Wildlife team.'},
+    {ev:['Rice-sized droppings in a kitchen drawer','A small nest of shredded paper behind the stove','A gap around the plumbing about the width of a pencil'],a:0,n:'House mouse',e:'Small rod-shaped droppings and a paper nest near food: house mouse. Ours.'},
+    {ev:['Scratching in the attic only at night','Small droppings, but no rub marks or runways','The customer saw a small animal glide from the oak to the roof at dusk'],a:1,n:'Flying squirrel',e:'Night activity alone doesn\'t prove a rat. A gliding animal is a flying squirrel: wildlife team.'},
+    {ev:['A cat-sized gray animal under the deck, with a bare tail','It hissed and then lay still when the dog found it','No droppings or gnawing inside the home'],a:1,n:'Opossum',e:'Opossums go to the wildlife team. Never handle one; stay clear and let the customer know who will call.'}
+  ];
+  var idI=0,idRes=store.get('idr')||{};
+  function idDots(){$('#idDots').innerHTML=ID.map(function(_,i){return '<i class="'+(idRes[i]===undefined?(i===idI?'cur':''):(idRes[i]?'ok':'no'))+'"></i>'}).join('');
+    var done=Object.keys(idRes).length,ok=Object.keys(idRes).filter(function(k){return idRes[k]}).length;$('#idScore').textContent=done?ok+' of '+done+' right first time':'8 cases'}
+  function showID(i){idI=i;idDots();var c=ID[i];
+    $('#idCard').innerHTML='<div class="card idc"><div><span class="eyebrow">Case '+(i+1)+' of '+ID.length+' · what you find</span><ul class="ev" style="margin-top:10px">'+c.ev.map(function(e){return '<li>'+ico('i-search')+'<span>'+e+'</span></li>'}).join('')+'</ul></div>'+
+      '<div class="idbtns"><button type="button" id="idA'+i+'_0" data-v="0">'+ico('i-rodent')+'<span>Rodent Shield<small>House mouse, roof rat, Norway rat: ours</small></span></button><button type="button" id="idA'+i+'_1" data-v="1">'+ico('i-paw')+'<span>Wildlife team<small>Refer through your branch manager</small></span></button><div id="idFb"></div></div></div>';
+    $$('.idbtns button').forEach(function(b){b.addEventListener('click',function(){var v=+b.dataset.v;
+      if(idRes[i]===undefined){idRes[i]=v===c.a;store.set('idr',idRes)}
+      if(v===c.a){b.classList.add('right');$$('.idbtns button').forEach(function(x){x.disabled=true});
+        var nx=i<ID.length-1;
+        $('#idFb').innerHTML='<div class="fb"><b>'+c.n+'.</b> '+c.e+(nx?' <button type="button" class="btn" id="idNext" style="margin-left:6px;padding:4px 12px">Next case</button>':' That\'s all eight.')+'</div>';
+        if(nx)$('#idNext').addEventListener('click',function(){showID(i+1)})}
+      else{b.classList.add('wrong');$('#idFb').innerHTML='<div class="fb no">Look again at the size, the timing and how the damage was made.</div>'}
+      idDots()})});
+  }
+  showID(0);
+
+  /* ---------- roof go / no-go ---------- */
+  var GN=[
+    {t:'The roof is tile',r:'Tile cracks underfoot. You don\'t walk tile roofs.'},
+    {t:'The roof is metal',r:'Metal is slick. You don\'t walk metal roofs.'},
+    {t:'Morning dew or recent rain',r:'A wet or dewy roof is a no-go until it\'s dry.'},
+    {t:'Steep pitch',r:'A steep roof is a reason not to go up (FC-06).'},
+    {t:'Soft spots or rotted decking',r:'Rot or compromised decking stops work and is a roofer referral.'},
+    {t:'The ladder can\'t be secured or reach 3 ft above the edge',r:'FC-06: the ladder must be secured and extend 3 feet above the landing.'},
+    {t:'A power line within 10 feet of the ladder path',r:'OSHA\'s 10-foot rule. The utility handles it; you don\'t set up.'},
+    {t:'Work near the edge with no fall protection',r:'OSHA requires fall protection near an unprotected edge 4 feet or more above a lower level (FC-06).'},
+    {t:'Gusting wind, thunder or lightning',r:'Weather stops all ladder and roof work.'},
+    {t:'Roof access not cleared with your supervisor',r:'Roof access is cleared with your supervisor first (FC-06).'},
+    {t:'It would take a lift, scaffold or a ladder you aren\'t trained on',r:'Beyond your equipment and training: escalate, don\'t improvise.'}
+  ];
+  var gn=$('#gng'),gSel=store.get('gng')||{};
+  GN.forEach(function(g,i){var b=document.createElement('button');b.type='button';b.id='gn'+i;b.textContent=g.t;b.setAttribute('aria-pressed',!!gSel[i]);
+    b.addEventListener('click',function(){gSel[i]=!gSel[i];b.setAttribute('aria-pressed',!!gSel[i]);store.set('gng',gSel);gOut()});gn.appendChild(b)});
+  function gOut(){var hits=GN.filter(function(_,i){return gSel[i]});
+    if(!hits.length){$('#gngOut').innerHTML='<div class="card gngres go"><span class="eyebrow">Result</span><h3>'+ico('i-check')+'Go, with the FC-06 setup</h3><ul class="dl"><li>Inspected ladder, set at 4-to-1, secured, 3 feet above the edge</li><li>Three points of contact; tools hauled up, not carried</li><li>Check the roof surface before you step on it, every time</li><li>Anything changes? Stop and come down.</li></ul></div>';return}
+    $('#gngOut').innerHTML='<div class="card gngres no"><span class="eyebrow">Result · '+hits.length+' condition'+(hits.length>1?'s':'')+'</span><h3>'+ico('i-stop')+'No-go today</h3><ul class="dl">'+hits.map(function(g){return '<li>'+g.r+'</li>'}).join('')+'</ul><p class="small" style="margin-top:10px;color:var(--ink)"><b>Next:</b> document the entry point from the ground or a safe ladder position, tell the customer it needs a return visit or a different approach, and escalate to your branch manager. Safety questions go to the Director of Field Operations.</p></div>'}
+  gOut();
+
+  /* ---------- escalation flow ---------- */
+  var FD=[
+    {h:'Step 1 · You, on site',l:['Stop the work safely. Never leave a ladder, opening or hazard half-done and unattended.','Photograph and note the condition: wide shot, then close-up with a scale reference.','Tell the customer what you found and who will contact them.']},
+    {h:'Step 2 · Your branch manager, the same day',l:['Owns services, pricing, complaints, warranty decisions and local operations for the branch.','Jason Colontrelle (Vero Beach), Adam Goetz (Stuart), Ted Travelute (Orlando), Corey Carter (Naples).','Call before you leave the property when the customer is waiting on a decision.']},
+    {h:'Outcome · a Clements follow-up',l:['A return visit when conditions are safe, or with the right equipment.','A warranty review on a Plus account, decided against the documented scope.','A quote from the service advisor for added work. Never from you on the spot.']},
+    {h:'Outcome · the Clements wildlife team',l:['Squirrels, raccoons, opossums, bats, armadillos, snakes, birds.','Trapping and exclusion under FWC rules, including the bat maternity season.','You don\'t trap, handle or seal. You report it and give the customer the next step.']},
+    {h:'Outcome · a licensed trade',l:['Roofer: rot past about 4–6 inches, compromised decking, leaks.','Contractor: structural or remodel-level repair. Electrician: gnawed or damaged wiring.','The branch manager or office recommends a company. You describe the problem.']},
+    {h:'Emergency · 911 first',l:['A fall, an electrical shock, smoke or fire, a serious bite, someone collapsed from heat.','Get help first, then tell your supervisor immediately.','Written report the same day (CW-09).']},
+    {h:'Safety concern · Graham Foster, Director of Field Operations',l:['Unsafe equipment, a hazard you\'re being asked to work around, a stop-work disagreement, a near miss.','Your branch manager hears about it too. Safety is never a "next week" conversation.','Pressure from anyone to skip a safety step is itself a safety concern.']},
+    {h:'The office · technotes@clementspestcontrol.com',l:['Anything the office must act on: scheduling a return, logging a referral, account notes.','Tech line 772-469-2566 for urgent questions while you\'re on site.','PestPac Mobile notes print on the customer\'s report. Internal details go to technotes.']}
+  ];
+  var fSeen=store.get('fl')||{};
+  function showF(n){$$('#flow .nd').forEach(function(b){var k=+b.dataset.n;b.setAttribute('aria-pressed',k===n);b.classList.toggle('seen',!!fSeen[k])});fSeen[n]=1;store.set('fl',fSeen);$('#nd'+n).classList.add('seen');
+    var d=FD[n];$('#flowDetail').innerHTML='<div class="card fd"><h3>'+d.h+'</h3><ul class="dl">'+d.l.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'}
+  $$('#flow .nd').forEach(function(b){b.addEventListener('click',function(){showF(+b.dataset.n)})});
+  showF(0);
+
+  /* ---------- note types ---------- */
+  var NT={
+    c:{h:'PestPac Mobile · service notes',s:'Prints on the customer\'s report',b:'Inspected attic and exterior. Rodent activity at the rear fascia entry point (photos attached). Wood around the opening is deteriorated for about 12 inches and cannot be sealed properly as exclusion. Discussed with homeowner. Clements will follow up regarding repair before sealing this opening. Remaining traps checked and reset.',t:'Factual and professional. No prices, no blame, no internal opinions. The customer reads every word.'},
+    o:{h:'Email · technotes@clementspestcontrol.com',s:'Internal: the office acts on it',b:'Subject: Rot at Plus entry point, follow-up needed (address, account)<br>Rear fascia entry point: rot about 12 in, soft to probe; photos uploaded to PestPac. Stopped exclusion at this opening. Homeowner informed and expecting a call. Called branch manager at 2:15 pm. Needs: return visit after repair, possible roofer referral.',t:'Who, what, where, what you did, who you called and when, and what the office needs to do next.'}
+  };
+  function showN(k){$('#ntCust').setAttribute('aria-pressed',k==='c');$('#ntOff').setAttribute('aria-pressed',k==='o');var n=NT[k];
+    $('#note').innerHTML='<div class="nh"><b>'+n.h+'</b><span>'+n.s+'</span></div><div class="nb">'+n.b+'</div><div class="nt">'+n.t+'</div>'}
+  $('#ntCust').addEventListener('click',function(){showN('c')});$('#ntOff').addEventListener('click',function(){showN('o')});showN('c');
+
+  /* ---------- order the escalation ---------- */
+  var ORD=['Stop the exclusion at that opening and make the area safe','Photograph the rot: a wide shot, then a close-up with a scale reference','Tell the customer what you found, why sealing it now would fail, and what happens next','Call your branch manager the same day','Email the details to technotes so the office logs the follow-up','Record the escalation and the plan in your service notes'];
+  var od=$('#ord'),oNext=0,oShuf=[3,0,5,2,4,1];
+  function drawOrd(){od.innerHTML='';oNext=0;$('#ordFb').innerHTML='';
+    oShuf.forEach(function(k){var b=document.createElement('button');b.type='button';b.id='ord'+k;b.innerHTML='<span class="num">&nbsp;</span><span>'+ORD[k]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(k===oNext){b.classList.add('placed');$('.num',b).textContent=k+1;oNext++;
+          if(oNext===ORD.length)$('#ordFb').innerHTML='<div class="fb">Stop, document, tell, escalate, log, record. The photos come before anything changes, and the customer never leaves without knowing who will call.</div>'}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#ordFb').innerHTML='<div class="fb no">Not yet. What has to happen before that step?</div>'}});
+      od.appendChild(b)})}
+  drawOrd();$('#ordReset').addEventListener('click',drawOrd);
+
+  /* ---------- scenario decisions ---------- */
+  var VS=[
+    {n:'Tile roof',s:'The last open entry point is at the ridge of a two-story tile roof. The homeowner says, "The last company just walked up there. It\'s fine."',o:['Walk it carefully, staying on the ridge tiles','Have the homeowner hold the ladder and go up','Explain that you don\'t walk tile roofs, document the opening from the ground, and escalate to your branch manager for the right approach','Seal it with foam from the top of the ladder as far as you can reach'],a:2,e:'Tile cracks and you could fall. Document it, tell the customer it needs a different approach, and escalate. Foam is never exclusion.'},
+    {n:'Bats in July',s:'On a Plus follow-up in July you find guano under the gable vent you planned to screen today. The customer asks you to "close it up while you\'re here."',o:['Screen the vent; the bats will find another way out','Leave the vent open, explain that bats are protected and it\'s maternity season, ask the customer not to block it, and report it for the wildlife team','Spray a repellent into the vent, then screen it','Wait until dusk and screen it after they fly out'],a:1,e:'April 16 to August 14 is maternity season: flightless young are inside. Bats are never sealed in. Wildlife team, through your branch manager.'},
+    {n:'Wiring',s:'You find chewed wiring with copper showing next to the attic runway where you planned to set traps.',o:['Don\'t touch it, set your traps away from the wiring, photograph it, tell the customer a licensed electrician should inspect it, and call your branch manager today','Wrap it in electrical tape and carry on','Set traps right on it, since that\'s where the activity is','Tell the customer it\'s probably fine'],a:0,e:'Gnawed wiring is a fire risk and electrical repair isn\'t ours. Keep devices clear of it, document, tell the customer, escalate.'},
+    {n:'Refund',s:'At the fifth follow-up: "You\'ve been out here five times and I still hear them. I want my money back."',o:['"Refunds aren\'t possible, sorry."','"I\'ll make sure you get a full refund."','"The noise is probably something else."','Listen, show what you checked today, and say your branch manager will call today; then escalate and email technotes'],a:3,e:'Stay calm, don\'t argue or promise. Show your work, escalate the same day, and tell the customer when to expect the call.'},
+    {n:'Attic heat',s:'August, 2 pm, and you\'re 40 minutes into an attic inspection. You start feeling dizzy and stop sweating.',o:['Push through; you\'re almost done','Drink water and keep working','Get out of the attic now, cool down, tell your supervisor, and report it the same day','Finish the last trap, then take a break'],a:2,e:'Dizziness and no sweat are serious heat warning signs. Stop work, get out and cool down, and call 911 if symptoms get worse. Report it to your supervisor.'},
+    {n:'Dog and bait',s:'At the first follow-up, the customer says their dog was chewing on something green in the yard near a bait station.',o:['Say the bait is safe for pets','Check the station, read them the product name, active ingredient and EPA Reg. No. from the label, tell them to call their vet or an animal poison control line now, and call your branch manager right away','Tell them to watch the dog for a few days','Remove all the stations and leave'],a:1,e:'Never call a pesticide safe. Give the label information (482.2265), get the dog to a vet now, and escalate immediately. Check whether the station was opened or moved.'}
+  ];
+  var vt=$('#vTabs'),vb=$('#vBox'),vDone=store.get('vs')||{};
+  function showV(n){
+    $$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!vDone[j])});
+    var s=VS[n];
+    vb.innerHTML='<div class="card"><span class="eyebrow">The situation</span><p style="margin-top:6px;font-size:17px">'+s.s+'</p></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="v'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="vFb"></div>';
+    $$('.choice',vb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',vb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',vb).forEach(function(x){x.disabled=true});vDone[n]=1;store.set('vs',vDone);$$('button',vt)[n].classList.add('done');
+        $('#vFb').innerHTML='<div class="fb">'+s.e+(n<VS.length-1?' <button type="button" class="btn" id="vNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#vNext');if(nx)nx.addEventListener('click',function(){showV(n+1)})}
+      else{b.classList.add('wrong');$('#vFb').innerHTML='<div class="fb no">Is that inside your scope, and is it safe? Try again.</div>'}
+    })});
+  }
+  VS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showV(i)});vt.appendChild(b)});
+  showV(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

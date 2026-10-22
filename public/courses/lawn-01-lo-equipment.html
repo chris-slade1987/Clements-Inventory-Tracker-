@@ -1,0 +1,1375 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>LAWN-01 L&amp;O Equipment</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* LAWN-01 additions */
+.steps.compact li{padding:7px 0;font-size:15px;gap:12px;line-height:1.45}
+.steps.compact .num{flex-basis:28px;height:28px;font-size:13px}
+ul.tick{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:15px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+ul.tick.two{grid-template-columns:1fr 1fr;gap:5px 14px}
+.card ul.tick li{font-size:14px}
+.g3 .card h3{margin-bottom:8px}
+.why4 .card p{font-size:14px}
+.why4 .card h3{margin-bottom:2px}
+
+/* rig diagram */
+.rig{max-width:none!important;width:100%}
+.rig .tb{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:2;stroke-linejoin:round}
+.rig .tw{fill:var(--brand-100);stroke:var(--brand-600);stroke-width:1.6;stroke-linejoin:round}
+.rig .whl circle{fill:#1D2A23}.rig .whl .hub{fill:#C9D0CC}
+.rig .tank{fill:#EEF4F0;stroke:#1F5836;stroke-width:2}
+.rig .lt2{font-family:var(--font);font-size:14px;letter-spacing:.2em;fill:var(--brand-700)}
+.rig .flowln{fill:none;stroke:#74A96E;stroke-width:3;stroke-dasharray:6 6}
+.slide.on .rig .flowln{animation:flow 1.8s linear infinite}
+.rig .ramp{stroke:#5C6B62;stroke-width:5;stroke-linecap:round}
+.wk{cursor:pointer;outline:none}
+.wk .core{fill:var(--surface);stroke:var(--brand-600);stroke-width:2}
+.wk .halo{fill:none;stroke:var(--brand-400);stroke-width:2;transform-box:fill-box;transform-origin:center}
+.slide.on .wk:not(.seen) .halo{animation:halo 2.6s ease-out infinite}
+.wk text{font-size:13px;fill:var(--brand-700);font-family:var(--font);pointer-events:none}
+.wk.seen .core{fill:var(--brand-100)}
+.wk.sel .core{fill:var(--brand-600);stroke:#fff}
+.wk.sel text{fill:#fff}
+.wk:focus-visible .core{stroke-width:3}
+#rigInfo p{line-height:1.45}
+
+/* flow schematic */
+.flow{max-width:none!important;width:100%}
+.flow .pipe{fill:none;stroke:var(--brand-200);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+.flow .pipe.live{stroke:var(--brand-500);stroke-width:3;stroke-dasharray:8 10}
+.slide.on .flow .pipe.live{animation:flow 1.8s linear infinite}
+.slide.on .flow .pipe.ret{animation-duration:2.6s}
+.flow .nd{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.8}
+.flow .nt{font-family:var(--font);font-size:13px;fill:var(--ink);text-anchor:middle}
+.ns{font-family:var(--font);font-size:11.5px;fill:var(--muted);text-anchor:middle;letter-spacing:.02em}
+@keyframes flow{to{stroke-dashoffset:-36}}
+.g4 .card h3{font-size:17px;margin-bottom:4px}
+.g4 .card p{font-size:13.5px;line-height:1.45}
+
+/* pattern picker */
+.patsvg{max-width:none!important;width:100%}
+#patDrops circle{fill:var(--brand-600);opacity:.75}
+.slide.on #patDrops circle.drift{animation:drift 2.4s ease-in-out infinite}
+@keyframes drift{0%{transform:translate(0,0);opacity:.75}100%{transform:translate(40px,-18px);opacity:0}}
+.pick button[disabled]{opacity:.4}
+#patJob p{line-height:1.45}
+
+/* spreader */
+.spr{max-width:none!important;width:100%}
+.spr .shield{opacity:0;transition:opacity .18s ease-in-out}
+.spr .defl{display:none}
+.spr.on .shield{opacity:1}
+.spr.on .throw path:first-child{d:path("M90 96L42 46Q90 34 138 46z")}
+.spr .throw path:first-child{transition:d .22s ease-in-out}
+.spr .gran circle{fill:#1F5836}
+.slide.on .spr .gran circle{animation:pop 2.2s ease-in-out infinite}
+.slide.on .spr .gran circle:nth-child(2n){animation-delay:.7s}
+.slide.on .spr .gran circle:nth-child(3n){animation-delay:1.4s}
+@keyframes pop{0%,100%{opacity:.2}50%{opacity:1}}
+.seg{justify-self:start}
+
+/* air gap */
+.ag{max-width:none!important;width:100%}
+.ag .pour path{stroke:#74A96E;stroke-width:4;stroke-dasharray:6 8;fill:none}
+.slide.on .ag .pour path{animation:fall 1.8s linear infinite}
+@keyframes fall{to{stroke-dashoffset:-28}}
+.ag .sip path{stroke:var(--danger);stroke-width:3;stroke-dasharray:6 8;fill:none}
+.slide.on .ag .sip path{animation:fall 1.8s linear infinite reverse}
+
+/* scenarios */
+.choices.sc2{grid-template-columns:1fr 1fr}
+.choices.sc2 .choice{font-size:14.5px;padding:10px 14px}
+.sort .row{font-size:14px;padding:8px 12px}
+.sort .opts button{padding:4px 10px}
+
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important}
+  ul.tick.two,.choices.sc2{grid-template-columns:1fr}
+  .g4{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide.on .rig .flowln,.slide.on .flow .pipe.live,.slide.on #patDrops circle.drift,.slide.on .spr .gran circle,.slide.on .ag .pour path,.slide.on .ag .sip path,.slide.on .wk:not(.seen) .halo{animation:none}
+}
+.spr .pave circle{fill:var(--danger);transition:opacity .18s ease-in-out}
+.spr.on .pave circle{opacity:0}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">LAWN-01 · L&amp;O Equipment</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 13l4-5"/><circle cx="12" cy="14" r="1.5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2v20M4.9 7l14.2 10M4.9 17L19.1 7M9 4l3 2 3-2M9 20l3-2 3 2"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 17a5 5 0 1 1 1-9.9A6 6 0 0 1 19 9a4 4 0 0 1 0 8z"/><path d="M8 20l1-2M12 21l1-2M16 20l1-2"/></symbol>
+    <symbol id="i-reel" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><circle cx="11" cy="11" r="2.5"/><path d="M11 4v4.5M11 13.5V18M4 11h4.5M13.5 11H18M16 16l5 5"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Lawn &amp; Ornamental · LAWN-01</span>
+        <h1 class="display a" style="--i:1">L&amp;O Equipment</h1>
+        <p class="lead a" style="--i:2">The lawn rig, the ride-on sprayer spreader, backpacks and spreaders: what every part does, how to start it, fill it, spray with it, clean it, load it and fix it, the Clements way.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 220" aria-hidden="true" style="max-width:380px;width:100%;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <circle cx="86" cy="86" r="52"/><circle cx="86" cy="86" r="34"/><circle cx="86" cy="86" r="10"/>
+        <path d="M86 34v18M86 120v18M34 86h18M120 86h18"/>
+        <path d="M50 134l-14 46M122 134l14 46M28 180h116"/>
+        <path d="M120 86c40 4 60 30 70 58s14 22 30 18"/>
+        <path d="M220 162l22-8 6 6-4 10-20 6zM232 172l-4 14"/>
+        <path d="M248 160l36-26M250 166l40-4M248 170l34 20"/>
+        <path d="M10 204h280"/>
+        <path d="M170 204l6-14 4 14M196 204l5-16 5 16M222 204l4-12 4 12M252 204l6-15 4 15M276 204l3-10 3 10"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-truck"/></svg><span>Name every part of the L&amp;O truck rig and the ride-on sprayer spreader, and say what to check on each</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-gauge"/></svg><span>Explain how mix moves from the tank to the gun: valves, strainer, pump, bypass and agitation</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span>Choose the right gun pattern and pressure for turf, shrubs and spot weeds, and know when not to spray</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-drop"/></svg><span>Fill with a legal air gap, run the daily start-up and shut-down, and clean equipment without polluting</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-box"/></svg><span>Use backpacks, handheld sprayers, rotary and drop spreaders, and load the truck and the ride-on safely</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-wrench"/></svg><span>Troubleshoot common rig problems and know what you fix, what you report and what comes out of service</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">The lawn shows <span class="em">every mistake your equipment makes.</span></h2>
+        <p class="quote a" style="--i:2">"Keeping equipment clean and in good working order to prevent malfunctions and ensure consistent application."<cite>CLEMENTS L&amp;O TRAINING · PROPER SPRAY APPLICATION</cite></p>
+      </div>
+      <div class="grid why4" style="gap:8px">
+        <div class="card a" style="--i:3;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-drop"/></svg></div><div><h3>Hundreds of gallons on board</h3><p>A rig carries far more mix than any other Clements truck. One failed fitting or overfilled tank is a spill on a customer's driveway or in a storm drain.</p></div></div></div>
+        <div class="card a" style="--i:4;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The state checks it</h3><p>FDACS rules require an air gap when you fill and locked concentrates on the truck (5E-14.106). Drift off target is illegal under Florida law (s. 487.031).</p></div></div></div>
+        <div class="card a" style="--i:5;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-eye"/></svg></div><div><h3>Customers see the stripes</h3><p>A clogged tip leaves streaks; a spreader left open on a turn leaves a burned arc. The customer looks at that lawn every day until it grows out.</p></div></div></div>
+        <div class="card a" style="--i:6;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>It can hurt you</h3><p>Pressurized hoses, hot engines, spinning reels and a heavy ride-on machine on a ramp. Habits keep you safe.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the L&amp;O rig">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The L&amp;O rig</h1>
+        <p class="lead a" style="--i:2">Why it matters: your truck is a mobile mixing and spraying system. If you know what every part does and how mix flows through it, you'll spot a problem before the lawn does.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Practice: tour the rig</li><li><span>02</span>The tank and agitation</li><li><span>03</span>Pump, valves and plumbing</li><li><span>04</span>Practice: trace the flow</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 RIG DIAGRAM -->
+  <section class="slide" data-label="Practice: tour the rig">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div class="grid" style="gap:6px"><span class="eyebrow a">01 · Practice · tour the rig</span>
+      <h2 class="a" style="--i:1">Twelve stops on the L&amp;O truck</h2></div>
+      <span class="chip a" style="--i:2" id="rigCount">0 of 12 opened</span>
+    </div>
+    <div class="split" style="grid-template-columns:2.15fr 1fr;gap:16px;align-items:start">
+      <div class="figbox a" style="--i:3;padding:6px">
+        <svg viewBox="10 56 790 226" id="rigSvg" class="rig" role="img" aria-label="Side view of the L&amp;O truck rig, ramp and ride-on sprayer spreader with twelve numbered parts">
+          <path d="M8 272H792" stroke="#A3C6AB" stroke-width="2"/>
+          <path class="tb" d="M20 238V198q0-12 12-14l58-8 34-50q5-6 13-6h30q8 0 8 8v110z"/>
+          <path class="tw" d="M128 132l-26 40h48v-40z"/>
+          <rect class="tb" x="175" y="200" width="415" height="38" rx="3"/>
+          <g class="whl"><circle cx="95" cy="246" r="24"/><circle cx="95" cy="246" r="9" class="hub"/><circle cx="505" cy="246" r="24"/><circle cx="505" cy="246" r="9" class="hub"/></g>
+          <rect class="tank" x="188" y="96" width="150" height="104" rx="38"/>
+          <path d="M226 98v100M300 98v100" stroke="#2E6F47" stroke-width="1.4"/>
+          <rect x="250" y="86" width="34" height="12" rx="3" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.4"/>
+          <text x="282" y="154" text-anchor="middle" class="lt2">MAIN TANK</text>
+          <path class="flowln" d="M404 128V70H300V86"/>
+          <path d="M338 188h24" stroke="#1F5836" stroke-width="5"/>
+          <circle cx="349" cy="188" r="6" fill="#fff" stroke="#1F5836" stroke-width="1.6"/>
+          <rect x="362" y="150" width="56" height="50" rx="6" fill="#A3C6AB" stroke="#1F5836" stroke-width="1.6"/>
+          <path d="M370 160v30M378 160v30M386 160v30" stroke="#1F5836" stroke-width="1.2"/>
+          <circle cx="404" cy="138" r="9" fill="#fff" stroke="#1F5836" stroke-width="1.6"/><path d="M404 138l4-4" stroke="#1F5836" stroke-width="1.4"/>
+          <path d="M404 147v3" stroke="#1F5836" stroke-width="2"/>
+          <path d="M418 186h12" stroke="#1F5836" stroke-width="4"/>
+          <g class="reel"><circle cx="452" cy="166" r="31" fill="#EEF4F0" stroke="#1F5836" stroke-width="1.8"/><circle cx="452" cy="166" r="22" fill="none" stroke="#4F8A5F" stroke-width="6" stroke-dasharray="3 3"/><circle cx="452" cy="166" r="7" fill="#fff" stroke="#1F5836" stroke-width="1.6"/></g>
+          <path d="M432 198l20-24 20 24" fill="none" stroke="#1F5836" stroke-width="1.6"/>
+          <path d="M472 180c18 4 22-18 24-30" fill="none" stroke="#1D2A23" stroke-width="2.4"/>
+          <path d="M498 118v82" stroke="#1F5836" stroke-width="2"/>
+          <path d="M490 134l14-6 4 4-3 9-14 4zM498 142l-3 12" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.4"/>
+          <rect x="516" y="150" width="28" height="50" rx="7" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.6"/><path d="M522 150v-8h16v8" fill="none" stroke="#1F5836" stroke-width="1.4"/>
+          <path d="M556 196l6-30h22l4 30z" fill="#DCE9DF" stroke="#1F5836" stroke-width="1.6"/><path d="M584 166l6-34" stroke="#1F5836" stroke-width="1.8"/><circle cx="564" cy="198" r="3" fill="#1D2A23"/><circle cx="580" cy="198" r="3" fill="#1D2A23"/>
+          <rect x="200" y="206" width="126" height="28" rx="3" fill="#fff" stroke="#1F5836" stroke-width="1.4"/>
+          <rect x="257" y="214" width="12" height="10" rx="2" fill="none" stroke="#1F5836" stroke-width="1.4"/>
+          <path class="ramp" d="M590 204l72 66"/>
+          <g class="sg">
+            <rect x="668" y="214" width="118" height="32" rx="6" fill="#DCE9DF" stroke="#1F5836" stroke-width="1.6"/>
+            <path d="M668 198h40l-6 18h-28z" fill="#A3C6AB" stroke="#1F5836" stroke-width="1.6"/>
+            <rect x="712" y="180" width="32" height="36" rx="10" fill="#EEF4F0" stroke="#1F5836" stroke-width="1.6"/>
+            <rect x="748" y="180" width="32" height="36" rx="10" fill="#EEF4F0" stroke="#1F5836" stroke-width="1.6"/>
+            <path d="M786 228v-58h-10" fill="none" stroke="#1F5836" stroke-width="2"/>
+            <path d="M660 250h40" stroke="#1F5836" stroke-width="2"/>
+            <circle cx="768" cy="254" r="16" fill="#1D2A23"/><circle cx="768" cy="254" r="6" fill="#C9D0CC"/>
+            <circle cx="688" cy="262" r="8" fill="#1D2A23"/>
+          </g>
+          <g id="rigLayer"></g>
+        </svg>
+      </div>
+      <div class="card a" style="--i:4;padding:16px 18px;min-height:330px" id="rigInfo"><span class="eyebrow">Your rig, part by part</span><p style="margin-top:8px;font-size:15px">Select each numbered part. You'll see what it does, what to check before your first stop, and the mistake that gets technicians in trouble.</p><p style="margin-top:8px;font-size:15px">Rigs differ from branch to branch. Your trainer will show you where each part is on your truck.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 TANK AND AGITATION -->
+  <section class="slide" data-label="The tank and agitation">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · The tank and agitation</span>
+        <h2 class="a" style="--i:1">A tank of mix is only as good as it is evenly mixed</h2>
+        <p class="a muted" style="--i:2">The main tank holds the day's liquid: water plus the products for the visit. Some products dissolve; others are particles suspended in water that settle to the bottom the moment the water stops moving. If the mix settles, the first lawn gets a dose that's too strong and the last one gets mostly water.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>What goes in the tank, how much, and in what order is set by the label and your supervisor. Mix rates and calibration are covered in <b>LAWN-09 L&amp;O Calibration &amp; Mix Rates</b>. Never state or guess a rate.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:14px 16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-arrow"/></svg>Hydraulic agitation</h3><p>Part of the pump's flow returns to the tank through the bypass line or a jet agitator, keeping the mix moving whenever the pump runs.</p></div>
+        <div class="card a" style="--i:4;padding:14px 16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-reel"/></svg>Mechanical agitation</h3><p>Some tanks have paddles on a shaft. If yours does, it runs whenever there is mix in the tank, per the manufacturer's directions.</p></div>
+        <div class="card a" style="--i:5;padding:14px 16px">
+          <span class="eyebrow">Tank habits</span>
+          <ul class="tick" style="margin-top:8px">
+            <li>Agitate before you spray and keep it running while you spray</li>
+            <li>Mix sat overnight or over lunch? Circulate it well before the first trigger pull</li>
+            <li>Lid sealed before you drive; never overfill. Overflow is a spill</li>
+            <li>Know exactly what's in the tank. A mix log or label travels with it (FC-05)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 PUMP AND PLUMBING -->
+  <section class="slide" data-label="Pump, valves and plumbing">
+    <span class="eyebrow a">03 · Pump, valves and plumbing</span>
+    <h2 class="a" style="--i:1">From the tank to the gun, and back again</h2>
+    <div class="figbox a" style="--i:2;padding:10px 12px">
+      <svg viewBox="0 0 760 150" class="flow" role="img" aria-label="Flow diagram: tank, suction valve, strainer, pump, regulator and gauge, hose reel, hose and gun, with a bypass line returning to the tank">
+        <path class="pipe" d="M120 96H640"/>
+        <path class="pipe live" d="M120 96H640"/>
+        <path class="pipe" d="M446 70V22H70V60"/>
+        <path class="pipe live ret" d="M446 70V22H70V60"/>
+        <rect class="nd" x="16" y="60" width="104" height="70" rx="22"/><text x="68" y="100" class="nt">Tank</text>
+        <circle class="nd" cx="164" cy="96" r="16"/><text x="164" y="138" class="ns">Suction valve</text>
+        <rect class="nd" x="206" y="80" width="56" height="32" rx="6"/><path d="M216 86v20M226 86v20M236 86v20M246 86v20M252 86v20" stroke="#A3C6AB" stroke-width="1.2"/><text x="234" y="138" class="ns">Strainer</text>
+        <rect class="nd" x="296" y="70" width="84" height="52" rx="8"/><text x="338" y="100" class="nt">Pump</text>
+        <rect class="nd" x="414" y="72" width="64" height="48" rx="8"/><path d="M432 104a14 14 0 1 1 28 0" fill="none" stroke="#2E6F47" stroke-width="1.6"/><path d="M446 104l7-9" stroke="#2E6F47" stroke-width="1.6"/><text x="446" y="138" class="ns">Regulator + gauge</text>
+        <circle class="nd" cx="546" cy="96" r="24"/><text x="546" y="138" class="ns">Hose reel</text>
+        <rect class="nd" x="640" y="78" width="104" height="36" rx="8"/><text x="692" y="100" class="nt">Hose + gun</text>
+        <text x="258" y="16" class="ns" style="text-anchor:middle">Bypass return to tank = agitation</text>
+      </svg>
+    </div>
+    <div class="grid g4" style="gap:10px">
+      <div class="card a" style="--i:3;padding:13px 15px"><h3>Suction valve</h3><p>Opens the tank to the pump. Open before the pump starts. A closed valve means the pump runs dry and wears out fast.</p></div>
+      <div class="card a" style="--i:4;padding:13px 15px"><h3>Strainer</h3><p>Catches debris before it reaches the pump and tips. Most "weak spray" problems start with a dirty strainer. Check it daily.</p></div>
+      <div class="card a" style="--i:5;padding:13px 15px"><h3>Pump</h3><p>Pushes mix to the gun. Know which type your rig has from your trainer. Never run it dry, and shut it off between stops.</p></div>
+      <div class="card a" style="--i:6;padding:13px 15px"><h3>Regulator and bypass</h3><p>Sets working pressure and sends extra flow back to the tank. The gauge tells you what's happening; a sudden change means something's wrong.</p></div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE: TRACE THE FLOW -->
+  <section class="slide" data-label="Practice: trace the flow">
+    <div class="split" style="grid-template-columns:.85fr 1.15fr">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">04 · Practice · trace the flow</span>
+        <h2 class="a" style="--i:1">Follow a drop of mix from the tank to the lawn</h2>
+        <p class="a muted" style="--i:2">Select the parts in the order the mix passes through them. When you troubleshoot, you'll walk this same path, starting at the tank.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span>Knowing the path is how you find a problem fast: no flow at the gun means checking the tank, the valve and the strainer before anything else.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="order a" style="--i:2" id="flowOrd"></div>
+        <div id="flowFb" class="a" style="--i:3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: putting product down">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Putting product down</h1>
+        <p class="lead a" style="--i:2">Why it matters: the gun, the boom, the backpack and the spreader decide where every drop and granule lands. The label makes you responsible for that, not the equipment.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Guns, nozzles and pressure</li><li><span>02</span>Practice: pattern picker</li><li><span>03</span>Hoses and reels</li><li><span>04</span>The SG52 sprayer spreader</li><li><span>05</span>Backpack and handheld</li><li><span>06</span>Spreaders, with practice</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 GUNS, NOZZLES, PRESSURE -->
+  <section class="slide" data-label="Guns, nozzles and pressure">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Guns, nozzles and pressure</span>
+        <h2 class="a" style="--i:1">Pattern decides where it goes. Pressure decides how far it drifts.</h2>
+        <p class="a muted" style="--i:2">Lawn spray guns have an adjustable or changeable tip that turns from a wide fan to a cone to a narrow stream. Higher pressure makes smaller droplets, and small droplets hang in the air and travel. For lawn work you want the <b>largest droplet that still covers</b>.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>Some labels name a droplet size, nozzle type or pressure limit. The label wins. Working pressure for your rig is set by your trainer from the nozzle chart.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:14px 16px"><h3>Wide fan</h3><p>A flat sheet for broadcast turf spraying. Sweep side to side at a steady walk and a steady height, slightly overlapping each pass.</p></div>
+        <div class="card a" style="--i:4;padding:14px 16px"><h3>Cone</h3><p>A hollow or full cone that wraps foliage, for shrubs and ornamentals. Work from the base up to cover leaf undersides.</p></div>
+        <div class="card a" style="--i:5;padding:14px 16px"><h3>Narrow stream</h3><p>Puts a heavy load in one spot. Rarely the right answer on a lawn: it causes runoff and uneven doses. Never use it to reach farther.</p></div>
+        <div class="bar-forest a" style="--i:6;padding:12px 16px"><svg class="ico"><use href="#i-hand"/></svg><span>Change the setting before you start a section, never mid-pass. Release the trigger when you stop, turn or talk.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 PATTERN PICKER -->
+  <section class="slide" data-label="Practice: pattern picker">
+    <span class="eyebrow a">02 · Practice · pattern picker</span>
+    <h2 class="a" style="--i:1">Set the gun for the job</h2>
+    <div class="scen-tabs a" style="--i:2" id="patTabs"></div>
+    <div class="split" style="grid-template-columns:1fr 1.05fr;gap:22px;align-items:start">
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="card" style="padding:12px 16px" id="patJob"></div>
+        <div><span class="eyebrow">Pattern</span><div class="pick" id="patPat" style="margin-top:6px"></div></div>
+        <div><span class="eyebrow">Pressure</span><div class="pick" id="patPres" style="margin-top:6px"></div></div>
+        <div style="display:flex;gap:10px;align-items:center"><button type="button" class="btn primary" id="patCheck">Check my setting</button><span class="chip" id="patScore">0 of 5 correct</span></div>
+      </div>
+      <div class="grid a" style="--i:4;gap:10px">
+        <div class="figbox" style="padding:8px"><svg viewBox="0 0 360 170" id="patSvg" class="patsvg" role="img" aria-label="Spray gun showing the selected pattern and droplet size">
+          <path d="M8 150H352" stroke="#A3C6AB" stroke-width="2"/>
+          <path d="M14 70h40l10 6v10l-10 6H40l-6 30H22l4-30h-12z" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M14 76c-8 0-10 10-6 16" fill="none" stroke="#1D2A23" stroke-width="2.4"/>
+          <g id="patShape"></g><g id="patDrops"></g>
+          <text x="200" y="166" text-anchor="middle" id="patLbl" class="ns"></text>
+        </svg></div>
+        <div id="patFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 HOSES AND REELS -->
+  <section class="slide" data-label="Hoses and reels">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Hoses and reels</span>
+        <h2 class="a" style="--i:1">A hose under pressure deserves respect</h2>
+        <p class="a muted" style="--i:2">The hose carries mix at working pressure across the customer's property. A kink, a crushed section or a worn cover can split without warning. How you pull it out and wind it back decides how long it lasts.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-hand"/></svg><span>The Clements checklist: <b>while wearing gloves</b>, properly wind up the hose to avoid kinks and damage. The outside of the hose carries residue.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:14px 16px"><span class="eyebrow">Pulling out</span>
+          <ul class="tick" style="margin-top:8px"><li>Pull only what you need, and pull it straight off the reel</li><li>Route it around beds, decorations and personal property, never over plants or across a pool deck if you can avoid it</li><li>Don't drag it over sharp edges or let a car drive over it</li><li>Watch for kids, pets and tripping hazards across walkways</li></ul></div>
+        <div class="card a" style="--i:4;padding:14px 16px"><span class="eyebrow">Winding in</span>
+          <ul class="tick" style="margin-top:8px"><li>Release pressure at the gun first if your rig calls for it</li><li>Guide it on in level, even layers with a gloved hand: no piles at one end</li><li>Keep fingers clear of the reel and the guide rollers, powered or hand-crank</li><li>Gun back in its holder, trigger locked, before the truck moves</li></ul></div>
+        <p class="a small muted" style="--i:5">Check the whole length weekly: blisters, cracks, soft spots, worn cover and weeping fittings mean it comes out of service.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 SG52 PARTS AND PRE-OP -->
+  <section class="slide" data-label="The SG52: parts and pre-op">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · The SG52 sprayer spreader</span>
+        <h2 class="a" style="--i:1">A ride-on zero-turn that sprays and spreads</h2>
+        <p class="a muted" style="--i:2">The Steel Green SG52 covers big lawns fast. It carries its own spray tanks (60 gallons, as a pair of 30-gallon tanks), spray booms, a hose reel for tight spots, a granular hopper and a control panel for speed, spray pressure and spreader settings.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>Read the operator's manual for your unit. Specs, settings and procedures in it outrank anything general in this course.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:14px 16px"><span class="eyebrow">Pre-operation check</span>
+          <ul class="tick two" style="margin-top:8px"><li>Tires properly inflated</li><li>Hoses and nozzles secure, undamaged</li><li>Engine oil level and fuel</li><li>Air filter clean</li><li>Hopper and tanks loaded correctly, lids closed</li><li>Booms fold and lock</li></ul></div>
+        <div class="card a" style="--i:4;padding:14px 16px"><span class="eyebrow">Safe operation</span>
+          <ul class="tick" style="margin-top:8px"><li>Label PPE on (FC-03), plus <b>hearing protection</b> whenever the engine runs</li><li>Brake engaged before you start; choke if needed, then let it idle a few minutes</li><li>Safe speed on slopes and rough ground; no sharp turns at speed. It can tip</li><li>Stay off steep embankments and away from the water's edge</li><li>Never leave it running unattended</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 SG52 SPRAY AND SPREAD -->
+  <section class="slide" data-label="The SG52: spraying and spreading">
+    <span class="eyebrow a">04 · The SG52 sprayer spreader</span>
+    <h2 class="a" style="--i:1">Steady speed, slight overlap, off at the turns</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-drop"/></svg>Boom spraying</h3>
+        <ul class="tick"><li>Mix agitated thoroughly before you start</li><li>Set pressure at the control panel</li><li>Lower the booms before moving forward</li><li>Consistent speed: speed changes the dose</li><li>Overlap slightly to avoid untreated gaps</li><li>Watch wind speed and direction</li></ul></div>
+      <div class="card a" style="--i:3;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-reel"/></svg>On-board hose reel</h3>
+        <ul class="tick"><li>For obstacles and tight spaces the booms can't reach</li><li>Nozzle securely attached; pressure set for spot work</li><li>Keep the nozzle moving to avoid over-applying one spot</li><li>Retract carefully to prevent tangles and damage</li></ul></div>
+      <div class="card a" style="--i:4;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-target"/></svg>Spreading granules</h3>
+        <ul class="tick"><li>Hopper free of debris and clumps</li><li>Rate and width settings from the product label</li><li>Engage the spreader once moving at a steady pace</li><li><b>Spreader off for sharp turns</b> so you don't double-dose</li><li>No granules into water, drains or the street (FC-04)</li><li>Don't spread on windy days</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span>Spraying and spreading on the same pass doubles what you must watch. Your trainer decides when you're ready to run both at once.</span></div>
+  </section>
+
+  <!-- 16 BACKPACK AND HANDHELD -->
+  <section class="slide" data-label="Backpack and handheld sprayers">
+    <span class="eyebrow a">05 · Backpack and handheld sprayers</span>
+    <h2 class="a" style="--i:1">The small-tank tools for the jobs the rig mix can't do</h2>
+    <p class="a muted" style="--i:2;max-width:none">The treatment checklist: if the tank mix calls for it, prepare a backpack sprayer or small tank mix to treat shrubs, weeds or specific problem areas. A separate tank means you never put herbicide on a shrub just because it was in the main tank.</p>
+    <div class="grid g3">
+      <div class="card a" style="--i:3;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-user"/></svg></div><h3>Electric backpack</h3><p>Battery-driven, steady pressure. Charge it overnight; check the lid seal, strainer basket, straps and wand before the route. Fill at the tailgate and slip into the straps from there.</p></div>
+      <div class="card a" style="--i:4;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>Manual backpack</h3><p>Pump the handle to keep pressure steady. Uneven pumping means uneven spray. Same checks: lid, strainer, straps, wand and shut-off valve.</p></div>
+      <div class="card a" style="--i:5;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Handheld compression</h3><p>For a few spots. Pump to working pressure, don't over-pump, and <b>release pressure before opening</b> the lid. A pressurized lid can spray you in the face.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6;padding:12px 18px"><svg class="ico"><use href="#i-clip"/></svg><span>Every small tank gets labeled with what's in it, every time (FC-02, FC-05). Rinse it at the end of the day; the rinsate goes onto a labeled site.</span></div>
+  </section>
+
+  <!-- 17 SPREADERS -->
+  <section class="slide" data-label="Rotary and drop spreaders">
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">06 · Spreaders</span>
+        <h2 class="a" style="--i:1">Rotary throws wide. Drop puts it right below.</h2>
+        <div class="figbox a" style="--i:2;padding:10px">
+          <svg viewBox="0 0 420 150" class="spr" role="img" aria-label="Top view comparing a rotary spreader's wide throw with a drop spreader's narrow band, and a deflector shield blocking throw toward a driveway">
+            <rect x="0" y="0" width="420" height="150" fill="#EEF4F0"/>
+            <rect x="0" y="0" width="420" height="22" fill="#D9DEDA"/><text x="210" y="15" text-anchor="middle" class="ns">DRIVEWAY</text>
+            <g class="throw"><path d="M90 96L30 40Q90 22 150 40z" fill="#C3DAC9" opacity=".75"/><path d="M90 96L30 40Q90 22 150 40z" class="defl" fill="#C3DAC9"/></g>
+            <path class="shield" d="M28 36Q90 18 152 36" fill="none" stroke="#1F5836" stroke-width="3"/>
+            <circle cx="90" cy="104" r="12" fill="#A3C6AB" stroke="#1F5836" stroke-width="1.6"/>
+            <path d="M90 116v28" stroke="#1F5836" stroke-width="2"/>
+            <text x="90" y="140" text-anchor="middle" class="ns" dx="40">rotary</text>
+            <rect x="268" y="44" width="80" height="18" fill="#A3C6AB" opacity=".8"/>
+            <rect x="268" y="64" width="80" height="14" rx="3" fill="#DCE9DF" stroke="#1F5836" stroke-width="1.6"/>
+            <path d="M308 78v66" stroke="#1F5836" stroke-width="2"/>
+            <text x="308" y="140" text-anchor="middle" class="ns" dx="34">drop</text>
+            <g class="gran"><circle cx="60" cy="60" r="2"/><circle cx="96" cy="48" r="2"/><circle cx="124" cy="62" r="2"/><circle cx="78" cy="74" r="2"/><circle cx="110" cy="80" r="2"/><circle cx="282" cy="52" r="2"/><circle cx="300" cy="56" r="2"/><circle cx="320" cy="50" r="2"/><circle cx="338" cy="55" r="2"/></g>
+            <g class="pave"><circle cx="52" cy="12" r="2.4"/><circle cx="84" cy="8" r="2.4"/><circle cx="118" cy="14" r="2.4"/><circle cx="140" cy="9" r="2.4"/></g>
+          </svg>
+        </div>
+        <div class="seg a" style="--i:3;justify-self:start"><button type="button" id="dfOff" aria-pressed="true">Deflector up</button><button type="button" id="dfOn" aria-pressed="false">Deflector down</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:13px 16px"><h3>Rotary (broadcast)</h3><p>Fast on open turf. Use the deflector shield along driveways, sidewalks, beds and water; several of our counties require it. Overlap passes as the bag or spreader chart directs.</p></div>
+        <div class="card a" style="--i:4;padding:13px 16px"><h3>Drop</h3><p>Exact band between the wheels, for narrow strips, side yards and next to water. Overlap the wheel tracks slightly or you'll leave stripes.</p></div>
+        <div class="card a" style="--i:5;padding:13px 16px"><span class="eyebrow">Every spreader, every time</span>
+          <ul class="tick" style="margin-top:6px"><li>Setting from the product label; calibration in LAWN-09</li><li>Fill on the turf or truck, never on pavement; close the gate first</li><li>Walk first, then open; close the gate before you stop or turn</li><li>Header strips at the ends, then back and forth between them</li><li>Sweep or blow strays back onto the turf before you leave</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 PRACTICE: WHICH SPREADER -->
+  <section class="slide" data-label="Practice: which spreader?">
+    <span class="eyebrow a">06 · Practice · which spreader?</span>
+    <h2 class="a" style="--i:1">Pick the right tool for each piece of the property</h2>
+    <div class="sort a" style="--i:2" id="sprSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="sprCheck">Check my answers</button><span id="sprFb"></span></div>
+    <p class="a small muted" style="--i:4">Fertilizer setbacks from water and the county summer blackout still apply whichever spreader you use (FC-04, LAWN-05).</p>
+  </section>
+
+  <!-- 19 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 20 PART THREE -->
+  <section class="slide forest" data-label="Part three: the daily routine">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">The daily routine</h1>
+        <p class="lead a" style="--i:2">Why it matters: most equipment failures, spills and back-siphon violations happen at the start or end of the day, when you're filling, starting up, cleaning or loading in a hurry.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Filling with an air gap</li><li><span>02</span>Practice: start-up and shut-down</li><li><span>03</span>End-of-day cleaning</li><li><span>04</span>Florida seasons</li><li><span>05</span>Loading the truck safely</li></ol>
+    </div>
+  </section>
+
+  <!-- 21 FILLING AND AIR GAP -->
+  <section class="slide" data-label="Filling with an air gap">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Filling with an air gap</span>
+        <h2 class="a" style="--i:1">The hose never goes into the tank</h2>
+        <div class="card a" style="--i:2;padding:14px 16px"><span class="eyebrow">FDACS Rule 5E-14.106(5), F.A.C.</span>
+          <p style="margin-top:6px;font-size:15px">Spray tanks may not be filled through a hose or pipe <b>protruding into the tank</b>. The fill hose must end <b>at least 2 inches above</b> the tank's fill opening, or have an effective <b>anti-siphoning device</b>, so mix can't be pulled back into the water supply.</p></div>
+        <ul class="tick a" style="--i:3">
+          <li>Park and fill away from storm drains, wells and water (FC-04)</li>
+          <li>Stay with the tank the whole time it fills. Overflow is a spill</li>
+          <li>Fill water first per the mixing order; products go in as the label directs</li>
+          <li>Hose stays clean: never lay the end in the mix or on the ground in a puddle</li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="seg a" style="--i:3;justify-self:start"><button type="button" id="agOk" aria-pressed="true">Air gap</button><button type="button" id="agBad" aria-pressed="false">Hose in the tank</button></div>
+        <div class="figbox a" style="--i:4;padding:10px">
+          <svg viewBox="0 0 320 230" class="ag" role="img" aria-label="Fill hose above the tank opening compared with a hose submerged in the tank">
+            <path d="M20 40h40v14H34v20H20z" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.6"/>
+            <text x="18" y="30" class="ns" style="text-anchor:start">water supply</text>
+            <rect x="150" y="86" width="150" height="130" rx="18" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/>
+            <rect x="196" y="76" width="40" height="12" rx="2" fill="#DCE9DF" stroke="#1F5836" stroke-width="1.6"/>
+            <path d="M152 140h146v60q0 14-14 14H166q-14 0-14-14z" fill="#A3C6AB" opacity=".7"/>
+            <g class="okg">
+              <path d="M27 74c0 40 40 10 90-30s96-10 99 0" fill="none" stroke="#1D2A23" stroke-width="5" stroke-linecap="round"/>
+              <path d="M216 46v8" stroke="#1D2A23" stroke-width="5"/>
+              <g class="pour"><path d="M216 58v66"/></g>
+              <path d="M250 56v20M246 56h8M246 76h8" stroke="#1F5836" stroke-width="1.6" fill="none"/>
+              <text x="258" y="70" class="ns" style="text-anchor:start">2 in min.</text>
+            </g>
+            <g class="badg" style="display:none">
+              <path d="M27 74c0 40 40 10 90-30s96-10 99 0v130" fill="none" stroke="#1D2A23" stroke-width="5" stroke-linecap="round"/>
+              <g class="sip"><path d="M216 160V44c-3-10-49-40-99 0S27 114 27 74"/></g>
+              <text x="160" y="226" class="ns" style="fill:#B91C1C">back-siphon into the water supply</text>
+            </g>
+          </svg>
+        </div>
+        <div class="card a" style="--i:5;padding:12px 16px" id="agInfo"><p style="font-size:14px"><b>Correct.</b> Water falls through open air into the tank. If the supply pressure drops, nothing in the tank can be pulled back up the hose.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 START-UP / SHUT-DOWN -->
+  <section class="slide" data-label="Practice: start-up and shut-down">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Practice · start-up and shut-down</span>
+        <h2 class="a" style="--i:1">Put the steps in order</h2>
+        <div class="seg a" style="--i:2;justify-self:start"><button type="button" id="suA" aria-pressed="true">Start-up</button><button type="button" id="suB" aria-pressed="false">Shut-down</button></div>
+        <p class="a muted" style="--i:3" id="suIntro">First stop of the day, at the truck. Select the steps from first to last.</p>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span>This sits inside the Clements visit: clock in, knock and inspect first; flags, door hanger and PestPac notes after (LAWN-03).</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="order a" style="--i:2" id="suOrd"></div>
+        <div id="suFb" class="a" style="--i:3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 END OF DAY -->
+  <section class="slide" data-label="End-of-day cleaning">
+    <span class="eyebrow a">03 · End-of-day cleaning</span>
+    <h2 class="a" style="--i:1">Clean it today so it works tomorrow</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-truck"/></svg>Truck rig</h3>
+        <ul class="tick"><li>Pump off, pressure released, valves closed</li><li>Clean the strainer and any clogged tips with water and a soft brush</li><li>Hose wound level; gun in its holder, trigger locked</li><li>Look over hoses and fittings for leaks or wear</li><li>Lid sealed; contents of the tank known and recorded</li></ul></div>
+      <div class="card a" style="--i:3;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-drop"/></svg>SG52</h3>
+        <ul class="tick"><li>Rinse the whole machine: booms, nozzles, hopper, wheels</li><li>Blow off moisture with compressed air to prevent rust. <b>Eye protection on</b></li><li>Check nozzles, hoses, fittings and moving parts</li><li>Check oil; look at the air filter</li><li>Weekly or per manual: grease fittings, flush tanks and hoses</li></ul></div>
+      <div class="card a" style="--i:4;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-target"/></svg>Spreaders and small tanks</h3>
+        <ul class="tick"><li>Empty the hopper back into the labeled bag; fertilizer pulls moisture and corrodes metal</li><li>Rinse, dry and lightly lubricate per the manual</li><li>Backpacks and handhelds rinsed, pressure released, batteries on charge</li><li>Tanks labeled, lids on, secured</li></ul></div>
+    </div>
+    <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-ban"/></svg><span><b>Never</b> blow out a tip with your mouth or poke it with wire or a knife. <b>Never</b> wash equipment near a storm drain, well or water. Rinse water goes into the spray tank and onto a labeled site (FC-04).</span></div>
+  </section>
+
+  <!-- 24 FLORIDA SEASONS -->
+  <section class="slide" data-label="Florida seasons">
+    <span class="eyebrow a">04 · Cleaning and storage, Florida-style</span>
+    <h2 class="a" style="--i:1">We don't winterize for months of snow. We do plan for sun, rain and the odd freeze.</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-sun"/></svg></div><h3>Heat and sun</h3><p>UV cracks hoses and seals: keep the hose on the reel, not lying in the bed. Clear grass from engine cooling fins and the air filter. Keep concentrates shaded and locked (FC-05). Hydrate.</p></div>
+      <div class="card a" style="--i:3;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-cloud"/></svg></div><h3>Rainy season</h3><p>Never apply in rain. Dry equipment after every rinse to fight rust. Keep fertilizer bags sealed and dry. Most of our counties ban nitrogen and phosphorus June 1 to Sept 30, which changes what goes in the spreader (FC-04).</p></div>
+      <div class="card a" style="--i:4;padding:16px"><div class="icobox"><svg class="ico"><use href="#i-snow"/></svg></div><h3>Cold snaps</h3><p>Central Florida gets freezes, Orlando most often. Water left in a pump, gun or line can freeze and crack it. When a freeze is forecast, follow your branch plan: drain per the manual or park the rig indoors.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:5;padding:12px 18px"><svg class="ico"><use href="#i-wrench"/></svg><span>Slow weeks are for maintenance: inspect every hose length, replace worn tips and strainer screens, grease what the manual lists, and book repairs with your supervisor.</span></div>
+  </section>
+
+  <!-- 25 LOADING -->
+  <section class="slide" data-label="Loading the truck safely" data-alert="1">
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">05 · Loading the truck safely</span>
+        <h2 class="a" style="--i:1">The ramp is where the SG52 gets dangerous</h2>
+        <ol class="steps compact a" style="--i:2">
+          <li><span class="num">1</span><span><b>Level ground</b>, truck in park, parking brake set, engine off.</span></li>
+          <li><span class="num">2</span><span><b>Ramp seated and locked</b> to the truck as designed; no gap, no wobble, clean of mud and wet grass.</span></li>
+          <li><span class="num">3</span><span><b>Everyone clear</b> of the ramp, the sides and behind the machine.</span></li>
+          <li><span class="num">4</span><span><b>Straight line, slow and steady</b>, in the direction the operator's manual specifies. Never turn on the ramp.</span></li>
+          <li><span class="num red">5</span><span><b>Brake set, engine off, strapped down</b> at the tie-down points before the truck moves.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3;padding:14px 16px"><span class="eyebrow">Everything else on the truck</span>
+          <ul class="tick" style="margin-top:8px"><li>Concentrates locked whenever the truck is unattended (5E-14.106(3))</li><li>Backpacks, spreaders and containers upright and strapped so nothing shifts, tips or leaks</li><li>Florida law requires a secured load (s. 316.520)</li><li>Gas can approved and secured; refuel engines cold, never running</li><li>Spill kit on board before you leave the branch</li></ul></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-box"/></svg><span>Storage, securing and spills: <b>FC-05</b>. Load securing and the daily walk-around: <b>FC-07</b>.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span>Don't load or unload the SG52 on your own until your supervisor has signed you off on it. If anything about the ramp or the machine doesn't look right, stop and call your supervisor.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 27 PART FOUR -->
+  <section class="slide forest" data-label="Part four: troubleshooting">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">When the rig won't cooperate</h1>
+        <p class="lead a" style="--i:2">Why it matters: a technician who can find a clogged strainer in two minutes finishes the route. One who cranks the pressure and keeps going ruins a pump, a lawn, or both.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Practice: troubleshoot the rig</li><li><span>02</span>Practice: fix it, report it or pull it</li></ol>
+    </div>
+  </section>
+
+  <!-- 28 TROUBLESHOOT -->
+  <section class="slide" data-label="Practice: troubleshoot the rig">
+    <span class="eyebrow a">01 · Practice · troubleshoot the rig</span>
+    <h2 class="a" style="--i:1">Stop. Release pressure. Check from the tank forward.</h2>
+    <div class="scen-tabs a" style="--i:2" id="tsTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="tsBox"></div>
+  </section>
+
+  <!-- 29 FIX / REPORT / PULL -->
+  <section class="slide" data-label="Practice: fix it, report it or pull it">
+    <span class="eyebrow a">02 · Practice · fix it, report it or pull it</span>
+    <h2 class="a" style="--i:1">You found it. What happens next?</h2>
+    <p class="a muted small" style="--i:2;max-width:none"><b>Fix it</b>: field fix now, note it. <b>Report</b>: supervisor today, get it scheduled. <b>Pull it</b>: stop using it, contain any leak, report now; not used until repaired.</p>
+    <div class="sort a" style="--i:3" id="fixSort"></div>
+    <div class="a" style="--i:4;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="fixCheck">Check my answers</button><span id="fixFb"></span></div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your rig</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before LAWN-01 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="lo1"> Point out every part of the truck rig and the SG52, and say what you check on each</label></li>
+      <li><label><input type="checkbox" id="lo2"> Fill the main tank with a 2-inch air gap, away from drains, and stay with it until it's full</label></li>
+      <li><label><input type="checkbox" id="lo3"> Run the start-up in order, test spray, and set the gun correctly for turf and for shrubs</label></li>
+      <li><label><input type="checkbox" id="lo4"> Shut down, release pressure, wind the hose level with gloves on, and lock the gun</label></li>
+      <li><label><input type="checkbox" id="lo5"> Set up a rotary spreader from the label setting with the deflector, and close the gate at the turns</label></li>
+      <li><label><input type="checkbox" id="lo6"> Load, brake and strap the SG52 on the ramp per the operator's manual</label></li>
+      <li><label><input type="checkbox" id="lo7"> Clean the strainer and tips, rinse and dry the SG52, and send rinse water to a labeled site</label></li>
+      <li><label><input type="checkbox" id="lo8"> Talk through a no-flow problem from the tank forward, and name what gets pulled from service</label></li>
+    </ul>
+  </section>
+
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('lawn01:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('lawn01:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "LAWN-01", "titleHtml": "L&amp;O Equipment", "nextHtml": "LAWN-02 \u00b7 L&amp;O Program &amp; Calendar", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The L&O rig',q:'You top off the main tank at lunch, then sit for 40 minutes catching up on notes. The mix includes a product made of particles suspended in water. What do you do before spraying the next lawn?',o:['Spray right away; the mix was fine before lunch','Shake the hose and gun before you start','Run the pump with the gun closed so the bypass circulates the mix, and keep agitation going while you spray','Add a little more product to make up for any settling'],a:2,e:'Suspended particles settle when the water stops moving. Circulate the mix through the bypass or agitator until it\'s even, and keep it agitated while you spray. Never add product to "make up" for anything: that\'s off-label.'},
+    2:{t:'Checkpoint 2 · Putting product down',q:'You\'re broadcasting a broadleaf herbicide on a St. Augustine lawn with azalea beds along the front. How do you set the gun?',o:['Fan pattern, low pressure for coarse droplets, aimed at the turf only and kept off the beds','Cone at high pressure so you can cover the lawn and the beds in one pass','Narrow stream so it reaches the far side of the lawn without walking','Fan at high pressure so the fine droplets cover every weed'],a:0,e:'Broadcast herbicide is turf only. A fan at low pressure makes coarse droplets that stay where you aim them. High pressure makes fine droplets that drift into the azaleas, and the checklist is clear: no herbicide on shrubs or plants.'},
+    3:{t:'Checkpoint 3 · The daily routine',q:'The tank is low and you need to fill from the customer\'s spigot, with permission. The hose barely reaches. What is the legal way to fill?',o:['Push the hose down into the tank so it can\'t slip out, and work on your notes while it fills','Hold or secure the hose end at least 2 inches above the fill opening and stay with the tank until it\'s full','Fill from the street-side storm drain area where the truck is level','Fill to the very top so you won\'t need water again today'],a:1,e:'Rule 5E-14.106(5): the fill hose must end at least 2 inches above the tank\'s fill opening, or have an effective anti-siphon device, so mix can\'t siphon back into the water supply. Never leave a filling tank, never fill near a drain, and never overfill.'},
+    4:{t:'Checkpoint 4 · Troubleshooting',q:'The pump motor is running but almost nothing comes out of the gun, and the gauge reads low. The tank is half full. What do you check first?',o:['Turn the regulator all the way up','Replace the spray gun','Call the office and skip the rest of the route','Shut the pump off, confirm the suction valve is open, then clean the strainer and check the suction fittings'],a:3,e:'Work from the tank forward. A closed suction valve, a clogged strainer or an air leak on the suction side starves the pump. Shut it off first so it doesn\'t run dry, fix the cause, and re-prime per the manual.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What does Florida Rule 5E-14.106(5) require when you fill a spray tank from a hose?',o:['The hose must reach the bottom of the tank to reduce foaming','The hose must end at least 2 inches above the fill opening, or have an effective anti-siphon device','The tank must be filled only at the branch','A second person must hold the hose'],a:1,e:'Fill hoses may not protrude into the tank. They must end at least 2 inches above the fill opening or have an anti-siphoning device, so mix can\'t flow back into the water supply.'},
+    {k:'True or false',q:'True or false: raising spray pressure is a good way to reach farther and cover more lawn in less time.',o:['True','False'],a:1,e:'False. Higher pressure makes smaller droplets, and small droplets drift. Use the working pressure your trainer sets from the nozzle chart and walk the lawn.'},
+    {k:'Multiple choice',q:'What keeps the mix agitated in a tank with hydraulic agitation?',o:['Flow returning to the tank through the bypass or a jet agitator while the pump runs','The motion of the truck while driving','Stirring the tank with a clean stick','The spray gun trigger'],a:0,e:'Part of the pump\'s flow goes back into the tank through the bypass or a jet agitator. That return flow keeps the mix moving whenever the pump runs.'},
+    {k:'Multiple choice',q:'Which part protects the pump and the spray tips from debris in the tank?',o:['The regulator','The pressure gauge','The strainer','The hose reel swivel'],a:2,e:'The strainer sits between the tank and the pump. A dirty strainer is behind many weak-spray and surging problems. Check it every day.'},
+    {k:'Scenario',q:'You start the pump at the first stop and realize the suction valve was closed. Why does that matter?',o:['It doesn\'t; the pump will open it automatically','The pump was running dry, which wears and damages it','It makes the mix stronger','It only matters with herbicide'],a:1,e:'With the suction valve closed, the pump has nothing to move and runs dry. Open the valve before you start the pump, every time.'},
+    {k:'Multiple choice',q:'Which gun pattern is right for spraying an insect product on a hedge?',o:['Narrow stream at high pressure','Fan at high pressure','No pattern; use the boom','Cone at moderate pressure, working from the base up'],a:3,e:'A cone wraps the foliage. Working from the base up reaches the leaf undersides, where many ornamental pests feed.'},
+    {k:'Scenario',q:'The wind is a steady 12 mph toward a neighbor\'s garden when you arrive. What do you do?',o:['Spray with a narrow stream so the wind can\'t catch it','Spray the upwind half of the lawn only','Hold off: wait for it to drop or reschedule, and note it','Spray at higher pressure to push through the wind'],a:2,e:'Above 10 mph, or gusty, don\'t spray (FC-04), whatever the pattern. Drift onto a non-target area is illegal and the applicator is responsible.'},
+    {k:'Multiple choice',q:'According to the Clements treatment checklist, how do you wind the hose back onto the reel?',o:['While wearing gloves, properly wound to avoid kinks and damage','As fast as possible to save time','Bare-handed, so you can feel for damage','Loosely in the truck bed, then onto the reel at the branch'],a:0,e:'Gloves on, because the outside of the hose carries residue, and wound level so it doesn\'t kink or pile at one end.'},
+    {k:'True or false',q:'True or false: it\'s acceptable to spray shrubs with the main tank mix when the tank contains herbicide, as long as you go light.',o:['True','False'],a:1,e:'False. The checklist says do not spray shrubs or plants when using herbicide. Use a separate backpack or small tank mix for the shrubs.'},
+    {k:'Multiple choice',q:'What does the SG52 carry for spraying?',o:['A single 500-gallon tank','No tank; it draws from the truck through the hose','60 gallons in a pair of 30-gallon tanks, with booms and its own hose reel','A 5-gallon backpack tank'],a:2,e:'The Steel Green SG52 carries 60 gallons as two 30-gallon tanks, plus spray booms, an on-board hose reel, a granular hopper and a control panel.'},
+    {k:'Scenario',q:'You\'re spreading granules with the SG52 and need to make a sharp turn at the end of a pass. What do you do?',o:['Turn the spreader off for the turn, then re-engage once you\'re moving straight','Slow down and keep spreading through the turn','Speed up so less product lands on the turn','Raise the rate setting to compensate'],a:0,e:'Turn the spreader off for sharp turns. Spreading through a turn double-doses the arc and can burn the turf.'},
+    {k:'Multiple choice',q:'Which personal protection does the SG52 require beyond the label PPE?',o:['A hard hat','Hearing protection whenever the engine is running','A full-face respirator at all times','Knee pads'],a:1,e:'The SG52 lesson calls for hearing protection whenever the machine is running, in addition to the PPE the product label requires (FC-03).'},
+    {k:'Multiple choice',q:'You need to fertilize a narrow turf strip between a pool deck and a lake bank. Which spreader fits best?',o:['Rotary, deflector up','The SG52 at full width','Hand-throwing from the bag','Drop spreader'],a:3,e:'A drop spreader puts the band directly under the hopper, with nothing thrown toward the water. Fertilizer setbacks from water still apply.'},
+    {k:'True or false',q:'True or false: you should open a rotary spreader\'s gate before you start walking so product is flowing when you begin.',o:['True','False'],a:1,e:'False. Start walking, then open the gate; close it before you stop or turn. Opening it while standing still dumps a pile and burns a spot.'},
+    {k:'Multiple choice',q:'Where does rinse water from cleaning spray equipment go?',o:['Back into the spray tank and onto a labeled site','Into the nearest storm drain','Onto the driveway to evaporate','Into the customer\'s garden'],a:0,e:'Rinse water is applied to a site the label allows (FC-04). Never wash equipment near a storm drain, well or water.'},
+    {k:'Scenario',q:'A spray tip is clogged at a customer\'s house. How do you clear it?',o:['Blow through it','Poke it out with a wire or pocket knife','Release pressure, remove it, and clean it with water and a soft brush; replace it if worn','Turn the pressure up to force it clear'],a:2,e:'Never use your mouth, and never use metal: it scratches the orifice and ruins the pattern. Water and a soft brush, or swap in a clean tip.'},
+    {k:'Multiple choice',q:'A freeze is forecast for the Orlando area tonight. What is the risk to your rig?',o:['None; Florida equipment doesn\'t freeze','Product in the lockbox becomes stronger','The tires lose pressure only','Water left in the pump, gun or lines can freeze and crack them, so follow the branch plan to drain or store indoors'],a:3,e:'Central Florida does get freezes. Water trapped in a pump, gun or line expands as it freezes and cracks parts. Drain per the manual or park indoors as your branch directs.'},
+    {k:'Multiple choice',q:'Before you drive up the ramp with the SG52, what must be true?',o:['The truck engine is running so you can leave quickly','The ramp is seated and locked, the ground is level, the truck is in park with the brake set, and everyone is clear','A coworker is standing behind the machine to guide it','The SG52 tanks are full so it\'s heavier and more stable'],a:1,e:'Level ground, truck in park with the brake set, ramp seated and locked, everyone clear, then a straight, slow line in the direction the operator\'s manual specifies. Never turn on the ramp.'},
+    {k:'Scenario',q:'The hose splits at a customer\'s house and mix sprays across the driveway. What comes first?',o:['Release the trigger and shut the pump off to stop the source','Call the office','Hose the driveway clean','Take photos for the report'],a:0,e:'Control the source first: trigger released, pump off. Then contain and clean up with the spill kit, keep it out of the drain, tell your supervisor immediately and file the written report the same day (FC-05).'},
+    {k:'Multiple choice',q:'Which of these should be pulled from service until it\'s repaired?',o:['A tip that needs cleaning','A hose kinked on the reel','A backpack battery that runs short by mid-afternoon','A reel swivel dripping mix onto the deck'],a:3,e:'A leak is a spill in progress. Contain it, stop using that part and report it now. The others are field fixes or a repair to schedule.'}
+  ];
+
+  var SVGNS='http://www.w3.org/2000/svg';
+  function marker(layer,x,y,n,cls,id,label){
+    var g=document.createElementNS(SVGNS,'g');g.setAttribute('class',cls);g.setAttribute('tabindex','0');g.setAttribute('role','button');g.id=id;g.setAttribute('aria-label',label);
+    g.innerHTML='<circle class="halo" cx="'+x+'" cy="'+y+'" r="14"/><circle class="core" cx="'+x+'" cy="'+y+'" r="13"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+n+'</text>';
+    layer.appendChild(g);return g;
+  }
+  function onAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- rig tour ---------- */
+  var RIG=[
+    {x:214,y:150,t:'Main tank',d:'Holds the day\'s liquid: water plus the products for the visit. The biggest volume of mix on any Clements truck; capacity varies by rig.',c:'Lid sealed, no weeping seams or fittings, level known, contents identified.',m:'Overfilling or driving with the lid loose. Either one is a spill on the road.'},
+    {x:267,y:72,t:'Lid and fill opening',d:'Where water and product go in. The fill hose stays above this opening, never inside it.',c:'Gasket clean and seated; fill strainer basket in place if your tank has one.',m:'Pushing the hose into the tank to fill faster. That breaks Rule 5E-14.106(5).'},
+    {x:349,y:212,t:'Suction valve and strainer',d:'The valve opens the tank to the pump; the strainer catches debris before it reaches the pump and tips.',c:'Valve open before the pump starts. Strainer screen clean every day.',m:'Starting the pump with the valve closed. The pump runs dry and wears out.'},
+    {x:390,y:172,t:'Pump and motor',d:'Pushes mix down the hose to the gun. On the checklist: start the pump motor at the stop, shut it off when you\'re done.',c:'If engine-driven: oil and fuel, clean air filter and cooling fins. No leaks at the pump.',m:'Leaving it running between stops, or refueling it hot.'},
+    {x:420,y:118,t:'Regulator, gauge and bypass',d:'Sets working pressure and returns extra flow to the tank. That return keeps the mix agitated.',c:'Gauge reads normal working pressure with the gun open; return line flowing.',m:'Cranking pressure up to reach farther. You get fine droplets and drift.'},
+    {x:452,y:136,t:'Hose reel',d:'Stores the spray hose and feeds mix through a swivel to the hose.',c:'Hose wound level; no kinks, blisters or worn cover; swivel not dripping.',m:'Winding it in bare-handed or letting it pile at one end.'},
+    {x:510,y:114,t:'Spray gun',d:'Adjustable tip from wide fan to cone to stream. The trigger is your shut-off.',c:'Tip clean, pattern even on a test spray, trigger lock works, holder secure.',m:'Driving with the gun loose in the bed or the trigger unlocked.'},
+    {x:263,y:252,t:'Lockbox',d:'Concentrates, product labels, SDS and the spill kit.',c:'Locks properly. Concentrates go in it whenever the truck is unattended (5E-14.106(3)).',m:'Leaving concentrates in the open bed while you\'re in the back yard.'},
+    {x:530,y:178,t:'Backpack and handheld sprayers',d:'Small, separate mixes for shrubs, spot weeds and problem areas the main tank mix shouldn\'t touch.',c:'Labeled, lid seals, strainer in place, straps and wand sound, battery charged.',m:'Using the herbicide backpack on shrubs, or an unlabeled tank.'},
+    {x:572,y:122,t:'Push spreader',d:'Rotary or drop spreader for granular fertilizer and other granules on smaller lawns and strips.',c:'Gate opens and closes fully, deflector works, wheels turn freely, hopper clean.',m:'Filling it on the driveway, or leaving the gate open on the turns.'},
+    {x:626,y:222,t:'Ramp',d:'Loads the SG52 onto the truck.',c:'Seated and locked to the truck, no cracks or bent rails, surface free of mud and wet grass.',m:'A ramp that isn\'t locked can kick out under a heavy ride-on machine.'},
+    {x:746,y:160,t:'SG52 sprayer spreader',d:'Ride-on zero-turn with 60 gallons of spray tanks (two 30s), booms, its own hose reel, a granular hopper and a control panel.',c:'Tires, oil, fuel, air filter, hoses, nozzles, hopper. Hearing protection on.',m:'Turning sharply at speed or working the edge of a slope or seawall. It can tip.'}
+  ];
+  var rigSeen=store.get('rig')||{}, rigL=$('#rigLayer');
+  RIG.forEach(function(p,i){
+    var g=marker(rigL,p.x,p.y,i+1,'wk'+(rigSeen[i]?' seen':''),'rig'+i,p.t);
+    onAct(g,function(){rigSeen[i]=1;store.set('rig',rigSeen);$$('.wk',rigL).forEach(function(m){m.classList.toggle('sel',m===g)});g.classList.add('seen');
+      $('#rigInfo').innerHTML='<span class="eyebrow">Part '+(i+1)+' of 12</span><h3 style="margin:6px 0 6px;font-size:19px">'+p.t+'</h3><p style="font-size:14.5px">'+p.d+'</p><p style="font-size:14.5px;margin-top:6px"><b>Check:</b> '+p.c+'</p><div class="callout danger" style="margin-top:10px;padding:9px 12px"><svg class="ico"><use href="#i-alert"/></svg><span style="font-size:14px">'+p.m+'</span></div>';
+      rigCount();});
+  });
+  function rigCount(){var n=Object.keys(rigSeen).length;$('#rigCount').textContent=n+' of 12 opened'+(n===12?' · tour complete':'')}
+  rigCount();
+
+  /* ---------- generic ordering ---------- */
+  function orderer(boxId,fbId,steps,mix,hints,done){
+    var box=$('#'+boxId), won=0;
+    function render(){
+      box.innerHTML='';won=0;$('#'+fbId).innerHTML='';
+      mix.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id=boxId+ix;b.innerHTML='<span class="num">·</span><span>'+steps[ix]+'</span>';
+        b.addEventListener('click',function(){
+          if(b.classList.contains('placed'))return;
+          if(+b.dataset.ix===won){b.classList.add('placed');$('.num',b).textContent=won+1;won++;
+            if(won===steps.length){$('#'+fbId).innerHTML='<div class="fb">'+done+' <button type="button" class="btn" id="'+boxId+'Again" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#'+boxId+'Again').addEventListener('click',render);}
+            else $('#'+fbId).innerHTML='';}
+          else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#'+fbId).innerHTML='<div class="fb no">Not yet. '+hints[Math.min(won,hints.length-1)]+'</div>';}
+        });box.appendChild(b);});
+    }
+    render();
+  }
+  orderer('flowOrd','flowFb',
+    ['Main tank','Suction valve','Strainer','Pump','Regulator and gauge','Hose reel and swivel','Hose','Spray gun and tip'],
+    [3,6,0,4,2,7,1,5],
+    ['Every drop starts in the same place.','What has to open before the pump can draw mix?','What protects the pump from debris?','Now something has to push the mix.','What sets the pressure and sends extra flow back to the tank?','Where is the hose stored and fed from?','What carries the mix across the yard?'],
+    'Right. And the bypass sends part of the flow from the regulator back to the tank, which keeps the mix agitated.');
+
+  /* ---------- pattern picker ---------- */
+  var PATS=['Fan','Cone','Narrow stream','Hold: don\'t spray'], PRES=['Low','Moderate','High'];
+  var JOBS=[
+    {n:'Turf spray',j:'Bimonthly liquid spray on an open St. Augustine lawn: insect and fungus products in the main tank. Calm morning.',p:0,r:1,e:'Wide fan at moderate working pressure, steady walk, steady height, slight overlap. Even coverage is the goal; there\'s no reason for high pressure.'},
+    {n:'Weed broadcast',j:'Broadleaf weed control on the turf, with flower beds along two edges.',p:0,r:0,e:'Wide fan, low pressure for coarse droplets that stay on the turf. Herbicide broadcast is turf only: never onto the beds or shrubs.'},
+    {n:'Shrubs',j:'Ornamental hedge with insect activity on the leaf undersides. The tank holds a product labeled for ornamentals, not herbicide.',p:1,r:1,e:'Cone at moderate pressure, working from the base up so the spray wraps the foliage and reaches the undersides.'},
+    {n:'Spot weeds',j:'A few weeds along a bed edge, using the backpack with a small herbicide mix.',p:0,r:0,e:'A narrow fan at low pressure, close to the target. Spot-treat the weed, not the bed. No stream: it puts too much in one place.'},
+    {n:'Wind',j:'The wind picks up to a steady 12 mph, blowing toward the neighbor\'s vegetable garden.',p:3,r:-1,e:'Stop. Above 10 mph, or gusty, you don\'t spray, whatever the pattern (FC-04). Wait for it to drop or reschedule, and note it.'}
+  ];
+  var pj=0, pSel={p:-1,r:-1}, pDone=store.get('pat')||{};
+  function pickRow(id,arr,key){var el=$('#'+id);el.innerHTML=arr.map(function(o,i){return '<button type="button" id="'+id+i+'" aria-pressed="false" data-i="'+i+'">'+o+'</button>'}).join('');
+    $$('button',el).forEach(function(b){b.addEventListener('click',function(){pSel[key]=+b.dataset.i;$$('button',el).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      if(key==='p'&&pSel.p===3){pSel.r=-1;$$('#patPres button').forEach(function(x){x.setAttribute('aria-pressed','false');x.disabled=true})}else if(key==='p'){$$('#patPres button').forEach(function(x){x.disabled=false})}
+      drawPat();$('#patFb').innerHTML='';})});}
+  pickRow('patPat',PATS,'p');pickRow('patPres',PRES,'r');
+  function drawPat(){
+    var sh=$('#patShape'),dr=$('#patDrops'),p=pSel.p,r=pSel.r,lbl='';
+    sh.innerHTML='';dr.innerHTML='';
+    if(p===0){sh.innerHTML='<path d="M70 82L340 30V134Z" fill="#C3DAC9" opacity=".55"/>';lbl='Fan';}
+    else if(p===1){sh.innerHTML='<path d="M70 82L300 44V120Z" fill="#C3DAC9" opacity=".55"/><ellipse cx="300" cy="82" rx="12" ry="38" fill="none" stroke="#74A96E" stroke-width="1.6"/>';lbl='Cone';}
+    else if(p===2){sh.innerHTML='<path d="M70 82L340 78" stroke="#74A96E" stroke-width="4"/>';lbl='Narrow stream';}
+    else if(p===3){lbl='Trigger released. Not spraying.';}
+    else lbl='Choose a pattern';
+    if(p>=0&&p<3&&r>=0){
+      var n=[14,26,48][r], rad=[4.2,2.8,1.5][r], out='';
+      for(var k=0;k<n;k++){var t=(k*37%100)/100, u=((k*53)%100)/100;
+        var x=90+t*240, spread=p===2?4:(p===1?38*t:52*t), y=82+(u-.5)*2*spread;
+        out+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad+'"'+(r===2&&k%3===0?' class="drift"':'')+'/>';}
+      dr.innerHTML=out;lbl+=' · '+PRES[r].toLowerCase()+' pressure'+(r===2?': fine droplets, drift':r===0?': coarse droplets':'');
+    }
+    $('#patLbl').textContent=lbl;
+  }
+  function showJob(n){pj=n;pSel={p:-1,r:-1};
+    $$('#patTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!pDone[j])});
+    $('#patJob').innerHTML='<span class="eyebrow">The job</span><p style="margin-top:4px;font-size:15px">'+JOBS[n].j+'</p>';
+    $$('#patPat button,#patPres button').forEach(function(b){b.setAttribute('aria-pressed','false');b.disabled=false});
+    $('#patFb').innerHTML='';drawPat();}
+  JOBS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='patT'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showJob(i)});$('#patTabs').appendChild(b)});
+  function patScore(){$('#patScore').textContent=Object.keys(pDone).length+' of 5 correct'}
+  $('#patCheck').addEventListener('click',function(){
+    var J=JOBS[pj];
+    if(pSel.p<0||(pSel.p!==3&&pSel.r<0)){$('#patFb').innerHTML='<div class="fb no">Choose a pattern and a pressure first.</div>';return;}
+    var ok=pSel.p===J.p&&(J.r<0||pSel.r===J.r);
+    if(ok){pDone[pj]=1;store.set('pat',pDone);$('#patT'+pj).classList.add('done');patScore();
+      $('#patFb').innerHTML='<div class="fb">'+J.e+(pj<JOBS.length-1?' <button type="button" class="btn" id="patNext" style="margin-left:8px;padding:4px 12px">Next job</button>':'')+'</div>';var nx=$('#patNext');if(nx)nx.addEventListener('click',function(){showJob(pj+1)});}
+    else{var hint=pSel.p===J.p?'Right pattern. Think about droplet size: what pressure keeps the spray where you want it?':(J.p===3?'Look at the conditions before the equipment.':'Think about what you\'re covering: a flat lawn, wrapped foliage, or a single spot.');
+      $('#patFb').innerHTML='<div class="fb no">Not quite. '+hint+'</div>';}
+  });
+  showJob(0);patScore();
+
+  /* ---------- deflector toggle ---------- */
+  function defl(on){$('#dfOff').setAttribute('aria-pressed',!on);$('#dfOn').setAttribute('aria-pressed',on);$('.spr').classList.toggle('on',on);}
+  $('#dfOff').addEventListener('click',function(){defl(false)});$('#dfOn').addEventListener('click',function(){defl(true)});
+
+  /* ---------- generic sort ---------- */
+  function sorter(boxId,btnId,fbId,items,opts,okMsg){
+    var box=$('#'+boxId), sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=boxId+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+opts.map(function(o,j){return '<button type="button" aria-pressed="false" data-v="'+j+'" id="'+boxId+i+'_'+j+'">'+o+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=+b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      box.appendChild(r)});
+    $('#'+btnId).addEventListener('click',function(){
+      var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+boxId+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(sel[i]===undefined){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+      });
+      $('#'+fbId).innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes under the ones in red and try again.</span>');
+    });
+  }
+  sorter('sprSort','sprCheck','sprFb',[
+    {q:'A wide, open back lawn with nothing at the edges but more turf',a:0,w:'Rotary. Open turf is what a broadcast spreader is for: fast and even with the right overlap.'},
+    {q:'The front lawn edge along the driveway and sidewalk',a:1,w:'Rotary with the deflector down on the pavement side, so granules don\'t land on the concrete and wash to the drain.'},
+    {q:'A narrow turf strip between the pool deck and a lake bank',a:2,w:'Drop. The band lands right under the hopper, nothing thrown toward the water. Fertilizer setbacks from water still apply.'},
+    {q:'A 4-foot side yard between the house and a fence',a:2,w:'Drop. A rotary would throw onto the wall, the fence and the neighbor\'s yard.'},
+    {q:'A lawn bordered by mulched flower beds',a:1,w:'Rotary with the deflector down along the beds so turf product stays on the turf.'},
+    {q:'A large commercial common area with long open runs',a:0,w:'Rotary, or the SG52 if it\'s scheduled. Open runs suit a broadcast pattern.'}
+  ],['Rotary','Rotary + deflector','Drop'],'All six correct. Broadcast where it\'s open, deflect at hard edges and beds, drop where every inch counts.');
+
+  /* ---------- air gap toggle ---------- */
+  function ag(bad){$('#agOk').setAttribute('aria-pressed',!bad);$('#agBad').setAttribute('aria-pressed',bad);
+    $('.ag .okg').style.display=bad?'none':'';$('.ag .badg').style.display=bad?'':'none';
+    $('#agInfo').innerHTML=bad?'<p style="font-size:14px"><b class="red">Violation.</b> The hose end sits below the mix. If the supply pressure drops (a main break, a hydrant opened down the street), mix is siphoned back into the customer\'s plumbing. That\'s what 5E-14.106(5) prevents.</p>':'<p style="font-size:14px"><b>Correct.</b> Water falls through open air into the tank. If the supply pressure drops, nothing in the tank can be pulled back up the hose.</p>';}
+  $('#agOk').addEventListener('click',function(){ag(false)});$('#agBad').addEventListener('click',function(){ag(true)});
+
+  /* ---------- start-up / shut-down ---------- */
+  var SU={
+    a:{i:'First stop of the day, at the truck. Select the steps from first to last.',
+      s:['Gloves and the PPE the label requires on','Look over hoses, fittings, reel and gun for leaks, cracks and kinks','Check the strainer is clean and seated','Confirm the tank level and exactly what\'s in it','Open the suction valve from the tank','Start the pump motor with the gun closed','Let the mix circulate so it\'s agitated','Test spray onto the labeled site and check the pattern'],
+      m:[4,1,7,0,5,2,6,3],
+      h:['Protection before you touch anything wet.','Look before you pressurize anything.','What protects the pump and tips?','Before you start it: what\'s in the tank?','What has to open before the pump runs?','Now you can start the pump.','Before the first trigger pull, the mix has to be...'],
+      d:'Right order. Protect yourself, inspect, know your mix, open the valve before the pump, agitate, then test.'},
+    b:{i:'Last lawn on the stop is done. Select the steps from first to last.',
+      s:['Release the trigger and lock the gun','Shut off the pump motor','Relieve pressure in the line onto the labeled site','Wind the hose onto the reel, level, with gloves on','Gun into its holder; valves closed as your rig requires','Everything stowed, locked and strapped before you drive'],
+      m:[3,0,5,2,4,1],
+      h:['Stop the spray first.','Then the pump.','The line is still pressurized. What next?','Now the hose can go back on the reel.','Where does the gun go?'],
+      d:'Right order. Spray off, pump off, pressure off, hose wound, gun stowed, load secured.'}
+  };
+  var suKey='a';
+  function suShow(k){suKey=k;$('#suA').setAttribute('aria-pressed',k==='a');$('#suB').setAttribute('aria-pressed',k==='b');$('#suIntro').textContent=SU[k].i;
+    orderer('suOrd','suFb',SU[k].s,SU[k].m,SU[k].h,SU[k].d);}
+  $('#suA').addEventListener('click',function(){suShow('a')});$('#suB').addEventListener('click',function(){suShow('b')});
+  suShow('a');
+
+  /* ---------- troubleshoot scenarios ---------- */
+  var TS=[
+    {n:'No flow',s:'At the first stop the pump motor is running, you squeeze the gun, and you get a sputter, then nothing. The tank is about a quarter full.',o:['Turn the regulator up until it pushes through','Shut the pump off, then check the suction valve is open and the strainer is clear, and re-prime per the manual','Let the pump keep running; it will catch','Swap to a different spray tip'],a:1,e:'A pump with no flow is often running dry. Shut it off, then work from the tank forward: level, suction valve, strainer, suction fittings. Running a pump dry damages it.'},
+    {n:'Surging',s:'The gauge needle jumps and the spray pulses on and off while you work the turf.',o:['Pump faster by revving the motor','Ignore it; the average is about right','Raise the pressure so the pulses smooth out','Check for a low tank, a clogging strainer or an air leak on the suction side'],a:3,e:'Surging usually means the pump is pulling air or starving: low tank, a clogging strainer or a loose suction fitting. Fix the cause; more pressure just adds drift.'},
+    {n:'Streaks',s:'Your fan pattern has a heavy stripe on one side and a gap in the middle.',o:['Stop, release pressure, remove the tip, clean it with water and a soft brush, and replace it if it\'s worn','Blow through the tip to clear it','Clear it with a pocket knife','Keep spraying and go over the lawn twice'],a:0,e:'A distorted pattern is a clogged or worn tip. Clean it with water and a soft brush, never your mouth or a metal tool, which scratches the orifice. A worn tip gets replaced.'},
+    {n:'Burst hose',s:'Halfway across a front lawn, the hose splits and mix sprays across the customer\'s driveway toward the street.',o:['Finish the lawn, then deal with it','Release the trigger and shut the pump off, then control, contain and clean up with the spill kit, keep it out of the drain, and call your supervisor','Hose the driveway down into the gutter','Tape the split and keep going'],a:1,e:'Stop the source first: trigger released, pump off. Then the 3 Cs: Control, Contain, Clean up (FC-05). Keep it out of the storm drain, tell your supervisor immediately and file the written report the same day.'},
+    {n:'Granules on the road',s:'Spreading along the street edge, you notice granules bouncing onto the asphalt and toward the curb drain.',o:['Speed up so less lands on the road','Leave them; the rain will wash them in','Close the gate, drop the deflector, sweep or blow every granule back onto the turf, then continue','Add more product to the hopper to make up for the loss'],a:2,e:'Close the gate, use the deflector on the pavement side, and put every stray granule back on the turf. A granule in the gutter ends up in the canal (FC-04).'}
+  ];
+  var tsDone=store.get('ts')||{};
+  function showTS(n){
+    $$('#tsTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!tsDone[j])});
+    var s=TS[n];
+    $('#tsBox').innerHTML='<div class="card" style="padding:12px 16px"><span class="eyebrow">The situation</span><p style="margin-top:4px;font-size:16px">'+s.s+'</p></div><div class="choices sc2">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="ts'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="tsFb"></div>';
+    $$('#tsBox .choice').forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('#tsBox .choice').forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('#tsBox .choice').forEach(function(x){x.disabled=true});tsDone[n]=1;store.set('ts',tsDone);$('#tsT'+n).classList.add('done');
+        $('#tsFb').innerHTML='<div class="fb">'+s.e+(n<TS.length-1?' <button type="button" class="btn" id="tsNext" style="margin-left:8px;padding:4px 12px">Next problem</button>':'')+'</div>';var nx=$('#tsNext');if(nx)nx.addEventListener('click',function(){showTS(n+1)});}
+      else{b.classList.add('wrong');$('#tsFb').innerHTML='<div class="fb no">Stop, release pressure, and check from the tank forward. Try again.</div>';}
+    })});
+  }
+  TS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='tsT'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showTS(i)});$('#tsTabs').appendChild(b)});
+  showTS(0);
+
+  /* ---------- fix / report / pull ---------- */
+  sorter('fixSort','fixCheck','fixFb',[
+    {q:'A spray tip is clogged and the fan is streaky',a:0,w:'Field fix: clean it with water and a soft brush, or swap in a clean tip. Note it.'},
+    {q:'The pump strainer is packed with debris',a:0,w:'Field fix: pump off, valve closed, clean the screen, reseat it.'},
+    {q:'The hose is kinked and piled at one end of the reel',a:0,w:'Field fix: pull it out and rewind it level with gloves on.'},
+    {q:'The hose cover is worn through to the reinforcement',a:2,w:'Pull it. A worn-through hose can burst under pressure. It isn\'t used until it\'s replaced.'},
+    {q:'The reel swivel is dripping mix onto the deck',a:2,w:'Pull it. A leak is a spill in progress: contain the drip and report it now.'},
+    {q:'The backpack battery no longer lasts the whole day',a:1,w:'Report it today and get a replacement scheduled. It isn\'t a safety issue.'},
+    {q:'The SG52 parking brake doesn\'t hold on the ramp',a:2,w:'Pull it. A brake that won\'t hold on a ramp is how a half-ton machine rolls off a truck.'},
+    {q:'The pressure gauge reads zero but the gun sprays normally',a:1,w:'Report it. You can finish carefully by pattern, but you\'re working without a gauge, so get it replaced soon.'}
+  ],['Fix it','Report','Pull it'],'All eight correct. Routine fixes you handle and note, repairs get reported, and anything that leaks or can fail dangerously comes out of service.');
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

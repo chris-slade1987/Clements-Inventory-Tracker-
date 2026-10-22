@@ -1,0 +1,1334 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-07 Vehicle Standards</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-07 additions */
+.steps.compact li{padding:7px 0;font-size:15px;gap:12px;line-height:1.45}
+.steps.compact .num{flex-basis:28px;height:28px;font-size:13px}
+ul.tick{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:15px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+ul.tick.rdot li::before{width:7px;height:7px;border:0;border-radius:50%;background:var(--danger);transform:none;top:8px}
+ul.tick.two{grid-template-columns:1fr 1fr;gap:5px 14px}
+ul.tick.two li{font-size:13px}
+.g3 .card ul.tick li{font-size:14px}
+.g3 .card h3{margin-bottom:8px}
+
+/* hotspot markers (cab + truck) */
+.hzbox{padding:8px}
+.hzbox svg,.truck,.mark{max-width:none;width:100%}
+.hz,.wk{cursor:pointer;outline:none}
+.hz .hit{fill:transparent}
+.hz .core,.wk .core{fill:var(--surface);stroke:var(--brand-600);stroke-width:2}
+.hz .halo,.wk .halo{fill:none;stroke:var(--brand-400);stroke-width:2;transform-box:fill-box;transform-origin:center}
+.slide.on .wk:not(.seen) .halo{animation:halo 2.6s ease-out infinite}
+.hz .halo{display:none}
+.hz text,.wk text{font-size:13px;fill:var(--brand-700);font-family:var(--font);pointer-events:none}
+.hz .core,.hz text,.hz .halo{opacity:0;transition:opacity .18s ease-in-out}
+.hz.found .core,.hz.found text{opacity:1}
+.hz.found .core{fill:var(--brand-600);stroke:#fff}
+.hz.found text{fill:#fff}
+.hz.shown .core{stroke-dasharray:4 3;stroke:var(--brand-600)}
+.hz:focus-visible .core{opacity:1;stroke-dasharray:3 3}
+.wk.seen .core{fill:var(--brand-100)}
+.wk.sel .core{fill:var(--brand-600);stroke:#fff}
+.wk.sel text{fill:#fff}
+.wk:focus-visible .core{stroke-width:3}
+.hzlist{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hzlist button{display:flex;gap:8px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;font-weight:300;color:var(--muted);min-height:36px}
+.hzlist button.on{border-color:var(--brand-600);background:var(--brand-50);color:var(--ink)}
+.hzlist .n{flex:0 0 20px;height:20px;border-radius:50%;border:1px solid var(--brand-300);display:grid;place-items:center;font-size:11px}
+.hzlist button.on .n{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+
+/* truck drawing */
+.truck .tb{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:2;stroke-linejoin:round}
+.truck .tw{fill:var(--brand-100);stroke:var(--brand-600);stroke-width:1.6;stroke-linejoin:round}
+.truck .whl circle{fill:#1D2A23}
+.truck .whl .hub{fill:#C9D0CC}
+.truck .lt2{font-family:var(--font);font-size:13px;letter-spacing:.22em;fill:var(--brand-700)}
+.slide.on .truck .whl{animation:none}
+
+/* wash figure */
+.washfig .drops path{fill:var(--brand-300);opacity:0}
+.slide.on .washfig .drops path{animation:drip 2.4s ease-in infinite}
+.slide.on .washfig .drops path:nth-child(2){animation-delay:.6s}
+.slide.on .washfig .drops path:nth-child(3){animation-delay:1.2s}
+.slide.on .washfig .drops path:nth-child(4){animation-delay:1.8s}
+@keyframes drip{0%{opacity:0;transform:translateY(-6px)}30%{opacity:.9}100%{opacity:0;transform:translateY(22px)}}
+
+/* monthly form mock */
+.formmock{padding:14px 16px}
+.formmock .lt{margin-bottom:6px}
+table.ft{min-width:0;font-size:13px}
+table.ft th{font-size:10px;letter-spacing:.08em;padding:5px 8px}
+table.ft td{padding:5px 8px}
+table.ft td:not(:first-child){width:70px;border-left:1px solid var(--line)}
+.slide.on table.ft tr:nth-child(n+2) td:nth-child(2)::after{content:"";display:block;width:10px;height:6px;margin:4px auto 0;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg);animation:fadein .22s ease-in-out both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.slide.on table.ft tr:nth-child(2) td:nth-child(2)::after{animation-delay:.5s}
+.slide.on table.ft tr:nth-child(3) td:nth-child(2)::after{animation-delay:.7s}
+.slide.on table.ft tr:nth-child(4) td:nth-child(2)::after{animation-delay:.9s}
+.slide.on table.ft tr:nth-child(5) td:nth-child(2)::after{animation-delay:1.1s}
+
+/* sort tweaks */
+.sort.one{grid-template-columns:1fr;gap:6px}
+.sort.one .row{padding:7px 12px}
+.sort .row{font-size:14px}
+
+/* rules cards */
+.rules .card{padding:16px}
+.rules .card .icobox{margin-bottom:8px;width:36px;height:36px}
+.rules .card p{font-size:14px}
+
+/* on board grid */
+.onboard{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.onboard > div{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.35;color:var(--muted)}
+.onboard .ico{color:var(--brand-600);width:20px;height:20px;margin-top:1px}
+.onboard b{display:block;color:var(--ink);font-size:14px}
+
+/* marking diagram */
+.mark .nm{transform-box:fill-box;transform-origin:left center}
+.slide.on .mark .nm{animation:wipe .7s ease-in-out .4s both}
+.slide.on .mark .dim{animation:rise .22s ease-in-out 1.1s both}
+@keyframes wipe{from{transform:scaleX(0)}to{transform:none}}
+
+/* FDACS flip cards */
+.flip.insp{grid-template-columns:repeat(4,1fr);gap:10px}
+.flip.insp button{min-height:112px}
+.flip.insp .face{padding:14px 16px;gap:6px}
+.flip.insp .back{font-size:13.5px;line-height:1.45}
+.flip.insp h3{font-size:18px}
+.flip.insp .ino{font-size:12px;color:var(--brand-600);letter-spacing:.12em}
+.flip.insp .hint{font-size:12px}
+
+/* scenario choices */
+.choices.sc2{grid-template-columns:1fr 1fr}
+.choices.sc2 .choice{font-size:15px;padding:10px 14px}
+
+@media (max-width:860px){
+  .hzlist,.onboard,ul.tick.two,.choices.sc2{grid-template-columns:1fr}
+  .flip.insp{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide.on .hz .halo,.slide.on .wk .halo,.slide.on .washfig .drops path,.slide.on .mark .nm,.slide.on .mark .dim{animation:none}
+  .washfig .drops path{opacity:.8}
+}
+
+.why4 .card p{font-size:14px}
+.why4 .card h3{margin-bottom:2px}
+#rep .row{padding:7px 12px}
+#rep .opts button{padding:4px 10px}
+@media (max-width:860px){.split{grid-template-columns:1fr!important}.choices.sc2{grid-template-columns:1fr}}
+.flip.insp .back{display:block;font-size:13px;line-height:1.42;padding:12px 14px}
+.flip.insp button{min-height:122px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">FC-07 · Vehicle Standards</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L21 2M18 5l3 3M15 8l2 2"/></symbol>
+    <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-07</span>
+        <h1 class="display a" style="--i:1">Vehicle Standards</h1>
+        <p class="lead a" style="--i:2">How to keep your truck clean, safe and legal: the daily walk-around, the Friday wash, maintenance you own, the rules on who and what rides with you, Florida's marking rule, and what to do after an accident.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 190" aria-hidden="true" style="max-width:380px;width:100%;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M40 140V112q0-8 8-9l44-5 20-28q3-4 8-4h40q6 0 6 6v28"/>
+        <path d="M166 100h96v40"/>
+        <path d="M118 74l-14 20h54V74z"/>
+        <path d="M172 100V88h24v12"/>
+        <path d="M206 100V84q0-4 4-4h36q4 0 4 4v16"/>
+        <path d="M40 140h22M106 140h94M244 140h18"/>
+        <circle cx="84" cy="142" r="20"/><circle cx="222" cy="142" r="20"/>
+        <circle cx="84" cy="142" r="6"/><circle cx="222" cy="142" r="6"/>
+        <path d="M10 172h280"/>
+        <path d="M184 116h56"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-truck"/></svg><span>Keep your vehicle to the Clements standard inside and out, and complete the Friday wash</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span>Run the daily walk-around and recognize a problem that keeps the truck parked</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-wrench"/></svg><span>Schedule routine maintenance and report vehicle problems to your supervisor the right way</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-ban"/></svg><span>Follow the rules on passengers, personal use, fuel and what may ride in a company vehicle</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-tag"/></svg><span>Explain Florida's vehicle marking rule and what an FDACS inspector checks on a vehicle</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-alert"/></svg><span>Handle an accident in a company vehicle step by step, with the written report the same day</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">Your truck is the <span class="em">first Clements a customer sees.</span></h2>
+        <p class="quote a" style="--i:2">"Your service vehicle is a reflection of this company."<cite>CLEMENTS EMPLOYEE POLICY HANDBOOK · USE OF COMPANY VEHICLES</cite></p>
+      </div>
+      <div class="grid why4" style="gap:8px">
+        <div class="card a" style="--i:3;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-star"/></svg></div><div><h3>A rolling billboard</h3><p>It sits in driveways and drives past thousands of people a day. Neighbors judge how we'll treat a home by how we treat the truck.</p></div></div></div>
+        <div class="card a" style="--i:4;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The state can inspect it</h3><p>FDACS inspectors can check a pest control vehicle in the field: your ID card, the marking, labels, locked concentrates and safety gear.</p></div></div></div>
+        <div class="card a" style="--i:5;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Neglect causes crashes</h3><p>A worn tire, a dead brake light or a loose load can hurt you or someone else, and costs Clements repairs, insurance and downtime.</p></div></div></div>
+        <div class="card a" style="--i:6;padding:13px 16px"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>It's on your record</h3><p>Monthly inspections go in your personnel file and count on your annual review. Falling below standard means a formal write-up.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the rolling billboard">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The rolling billboard</h1>
+        <p class="lead a" style="--i:2">Why it matters: before you ring the bell, the customer has already seen your truck. A dirty, cluttered vehicle tells them how carefully we'll work in their home.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The everyday standard</li><li><span>02</span>Practice: clean or not?</li><li><span>03</span>The Friday wash</li><li><span>04</span>Practice: wash it in order</li><li><span>05</span>The monthly inspection</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 EVERYDAY STANDARD -->
+  <section class="slide" data-label="The everyday standard">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">01 · The everyday standard</span>
+        <h2 class="a" style="--i:1">Clean and orderly every day, not just on Friday</h2>
+        <p class="a muted" style="--i:2">The handbook is plain: the company vehicle must be kept <b>clean inside and out, at all times</b>, with all materials well organized, properly labeled and in good repair. The outside picks up road dirt during the week and the Friday wash resets it. There's no excuse for a messy inside.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-key"/></svg><span>Once a truck is assigned to you, keeping it at standard is your job. Your supervisor inspects it monthly, and <b>Graham Foster</b>, Director of Field Operations, reviews vehicles and equipment on branch audits.</span></div>
+      </div>
+      <div class="card a" style="--i:3">
+        <span class="eyebrow">What "at standard" looks like</span>
+        <ul class="tick" style="margin-top:10px">
+          <li>Nothing on the dashboard or tucked in the visors. Paperwork lives in folders or the storage area.</li>
+          <li>At the end of every day: used gloves, towels, dirty clothing, empty containers and trash come out.</li>
+          <li>No hats or cloth on the dash. Florida sun fades them and the dash.</li>
+          <li>Equipment organized, labeled and stowed in the same place every day.</li>
+          <li>Toolbox closed and locked. The truck locked whenever you walk away, for any reason.</li>
+          <li>Glass, mirrors and lights clean enough to see and be seen.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 PRACTICE: CAB -->
+  <section class="slide" data-label="Practice: clean or not?">
+    <span class="eyebrow a">02 · Practice · clean or not?</span>
+    <h2 class="a" style="--i:1">Your supervisor opens this door. What do they find?</h2>
+    <div class="split" style="grid-template-columns:1.45fr 1fr;gap:22px;align-items:start">
+      <div class="figbox hzbox a" style="--i:2">
+        <svg viewBox="0 0 640 330" id="cabSvg" role="img" aria-label="Truck cab interior with six problems to find">
+          <rect x="0" y="0" width="640" height="330" fill="#EEF4F0"/>
+          <path d="M40 18H600L622 118H18Z" fill="#DCE9DF" stroke="#A3C6AB" stroke-width="2"/>
+          <path d="M60 100c80-30 160-26 240-6s170 12 300-14" fill="none" stroke="#A3C6AB" stroke-width="2"/>
+          <path d="M0 118H640V186Q320 206 0 186Z" fill="#D9DEDA" stroke="#5C6B62" stroke-width="1.6"/>
+          <rect x="250" y="140" width="110" height="34" rx="6" fill="#C9D0CC" stroke="#5C6B62" stroke-width="1.4"/>
+          <path d="M268 157h20M302 157h40" stroke="#5C6B62" stroke-width="1.6"/>
+          <rect x="296" y="196" width="100" height="134" rx="10" fill="#C9D0CC" stroke="#5C6B62" stroke-width="1.6"/>
+          <circle cx="326" cy="236" r="14" fill="#B4BDB8" stroke="#5C6B62" stroke-width="1.4"/><circle cx="366" cy="236" r="14" fill="#B4BDB8" stroke="#5C6B62" stroke-width="1.4"/>
+          <rect x="420" y="196" width="210" height="134" rx="24" fill="#C3CBC6" stroke="#5C6B62" stroke-width="1.6"/>
+          <path d="M440 236h170" stroke="#5C6B62" stroke-width="1.2" opacity=".5"/>
+          <rect x="0" y="298" width="296" height="32" fill="#B4BDB8"/>
+          <circle cx="180" cy="222" r="70" fill="none" stroke="#1D2A23" stroke-width="12"/>
+          <circle cx="180" cy="222" r="20" fill="#1D2A23"/>
+          <path d="M112 222H160M200 222H248M180 242V290" stroke="#1D2A23" stroke-width="10"/>
+          <g class="mess">
+            <g transform="rotate(-8 440 136)"><rect x="410" y="122" width="56" height="34" fill="#fff" stroke="#5C6B62" stroke-width="1.2"/><path d="M418 132h38M418 140h30M418 148h34" stroke="#A3C6AB" stroke-width="1.5"/></g>
+            <g transform="rotate(10 470 140)"><rect x="446" y="128" width="50" height="30" fill="#fff" stroke="#5C6B62" stroke-width="1.2"/><path d="M452 137h36M452 145h26" stroke="#A3C6AB" stroke-width="1.5"/></g>
+            <path d="M516 150c0-26 18-38 36-38s36 12 36 38zM588 150h28" fill="#2E6F47" stroke="#144229" stroke-width="1.6"/>
+            <ellipse cx="146" cy="168" rx="12" ry="6" fill="#4A4036" opacity=".7"/><ellipse cx="226" cy="178" rx="10" ry="5" fill="#4A4036" opacity=".7"/>
+            <path d="M314 196l6 44h14l6-44z" fill="#fff" stroke="#5C6B62" stroke-width="1.4"/><path d="M312 192h30" stroke="#5C6B62" stroke-width="3"/>
+            <ellipse cx="366" cy="238" rx="10" ry="7" fill="#7A5A3C" opacity=".75"/>
+            <path d="M470 252c4-14 18-18 26-10l10-16c4-5 10-1 8 4l-6 14 12-12c4-4 10 0 7 5l-12 16 10-6c4-2 8 2 5 6l-18 18c-12 10-36 6-42-19z" fill="#A3C6AB" stroke="#2E6F47" stroke-width="1.4"/>
+            <path d="M528 268h70l-6 22h-70z" fill="#fff" stroke="#5C6B62" stroke-width="1.4"/><path d="M536 276h52M534 284h48" stroke="#74A96E" stroke-width="2"/>
+            <circle cx="96" cy="312" r="11" fill="#fff" stroke="#5C6B62" stroke-width="1.4"/><path d="M90 308l10 7M100 306l-6 10" stroke="#5C6B62" stroke-width="1.2"/>
+            <rect x="212" y="304" width="44" height="14" rx="6" fill="#DCE9DF" stroke="#5C6B62" stroke-width="1.4" transform="rotate(-12 234 311)"/>
+            <path d="M150 316h30l-4 10h-24z" fill="#fff" stroke="#5C6B62" stroke-width="1.2"/>
+          </g>
+          <g class="clean" style="display:none">
+            <rect x="306" y="206" width="80" height="18" rx="3" fill="#2E6F47"/><text x="346" y="219" text-anchor="middle" font-size="10" fill="#fff" font-family="Helvetica Neue,Arial,sans-serif" letter-spacing="1">FOLDER</text>
+          </g>
+          <g id="cabLayer"></g>
+        </svg>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+          <div class="seg"><button type="button" id="cabMess" aria-pressed="true">As found</button><button type="button" id="cabClean" aria-pressed="false">To standard</button></div>
+          <span class="chip" id="cabCount">0 of 6 found</span>
+        </div>
+        <div class="card" id="cabInfo" style="padding:14px 16px;min-height:118px"><span class="eyebrow">Monthly inspection</span><p style="margin-top:6px;font-size:15px">Select anything in the cab that would cost you points. There are six.</p></div>
+        <div class="hzlist" id="cabList"></div>
+        <div><button type="button" class="btn" id="cabReveal" style="padding:7px 14px;font-size:14px">Show me all six</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FRIDAY WASH -->
+  <section class="slide" data-label="The Friday wash">
+    <span class="eyebrow a">03 · The weekly protocol</span>
+    <h2 class="a" style="--i:1">Every Friday afternoon, back at your local office</h2>
+    <div class="bar-forest a" style="--i:2;padding:12px 18px"><svg class="ico"><use href="#i-cal"/></svg><span>Wash and clean your truck when you return Friday afternoon. <b>Off on Friday? Do it Thursday afternoon.</b> Leaving for the week without cleaning it is a write-up.</span></div>
+    <div class="grid g3">
+      <div class="card a" style="--i:3;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-drop"/></svg>Exterior</h3>
+        <ul class="tick"><li>Rinse off loose dirt, then soap and water on every painted area: hood, roof, sides, bumpers</li><li>Glass and mirrors, including the backs where bugs collect</li><li>Grease and brake dust off hubcaps, tires and fender-well lips</li><li>Rinse all soap; no bug splatter left on headlights or bumper</li><li>Towel dry, including the roof line over the windows</li></ul></div>
+      <div class="card a" style="--i:4;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-truck"/></svg>Interior</h3>
+        <ul class="tick"><li>All trash out; nothing on the dash or in the visors</li><li>Vacuum the floor with seats all the way forward, then all the way back; check behind the seat</li><li>Damp-wipe dash, doors, handles, trim, steering wheel and buttons</li><li>Cup holders, console and white door jambs spotless</li><li>Floor mats shaken and wiped; floor wiped under the seats</li></ul></div>
+      <div class="card a" style="--i:5;padding:16px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--brand-600)"><use href="#i-box"/></svg>Toolbox and bed</h3>
+        <ul class="tick"><li>Aerosols organized; B&amp;G clean, no leaks in the box bottom</li><li>Lock closes and locks properly</li><li>Every label present and legible; water containers marked "H2O"</li><li>SDS and spill kit stored and complete</li><li>Empty cans, containers and waste removed</li><li>Final lap around the truck; open both doors to check</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE: WASH ORDER -->
+  <section class="slide" data-label="Practice: wash it in order">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">04 · Practice · wash it in order</span>
+        <h2 class="a" style="--i:1">Put the exterior wash in the right order</h2>
+        <p class="a muted" style="--i:2">Select the steps from first to last. Order matters: wash before the soap dries, rinse before it streaks, dry before water spots set.</p>
+        <svg class="a washfig" style="--i:3;width:100%;max-width:300px" viewBox="0 0 300 150" aria-hidden="true">
+          <path d="M30 110V88q0-6 6-7l34-4 16-22q2-3 6-3h32q5 0 5 5v22h80v31z" fill="#EEF4F0" stroke="#2E6F47" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle cx="66" cy="112" r="15" fill="#fff" stroke="#2E6F47" stroke-width="1.6"/><circle cx="182" cy="112" r="15" fill="#fff" stroke="#2E6F47" stroke-width="1.6"/>
+          <path d="M240 30q-30 10-44 34" fill="none" stroke="#74A96E" stroke-width="1.6"/>
+          <g class="drops"><path d="M150 40q4 7 0 10q-4-3 0-10z"/><path d="M170 52q4 7 0 10q-4-3 0-10z"/><path d="M130 50q4 7 0 10q-4-3 0-10z"/><path d="M190 44q4 7 0 10q-4-3 0-10z"/></g>
+          <path d="M10 130h280" stroke="#A3C6AB" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="order a" style="--i:2" id="wash"></div>
+        <div id="washFb" class="a" style="--i:3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 MONTHLY INSPECTION -->
+  <section class="slide" data-label="The monthly inspection">
+    <div class="split" style="grid-template-columns:.85fr 1.15fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">05 · The monthly inspection</span>
+        <h2 class="a" style="--i:1">Your supervisor scores the truck every month</h2>
+        <p class="a muted" style="--i:2">The completed form goes in your <b>personnel file</b> and is reflected on your <b>annual performance review</b>. A truck below the company standard gets a formal write-up, and repeated problems can lead to further discipline, up to termination.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-check"/></svg><span>If you do the Friday wash every week and the daily walk-around every morning, the monthly inspection is a formality.</span></div>
+      </div>
+      <div class="label a formmock" style="--i:3">
+        <div class="lt">Vehicle Inspection Form · what gets scored</div>
+        <table class="ft"><tr><th>Appearance</th><th>3 · Meets/exceeds</th><th>2 · Minimum</th><th>1 · Below</th></tr>
+          <tr><td>Outside appearance</td><td></td><td></td><td></td></tr>
+          <tr><td>Inside appearance</td><td></td><td></td><td></td></tr>
+          <tr><td>Toolbox organized, clean, locked</td><td></td><td></td><td></td></tr>
+          <tr><td>Truck bed organized, clean</td><td></td><td></td><td></td></tr></table>
+        <div class="lt" style="margin-top:12px">Maintenance log review</div>
+        <p style="font-size:13px">Oil change and tire rotation: last service date and next scheduled date, plus current mileage.</p>
+        <div class="lt" style="margin-top:12px">Required by FDACS, insurance and maintenance · 1 point each</div>
+        <ul class="tick two">
+          <li>ID card valid, with photo and signature</li><li>Concentrates secured in locked boxes</li>
+          <li>Containers properly labeled</li><li>PPE, spill kit, first aid kit</li>
+          <li>Signs for exterior foliage applications</li><li>B&amp;G, backpacks, spreaders clean and working</li>
+          <li>Insurance card, registration, incident packet</li><li>Oil change current or scheduled within 500 miles of due</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: inspect and maintain">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Inspect and maintain</h1>
+        <p class="lead a" style="--i:2">Why it matters: most breakdowns, and plenty of crashes, start as something a two-minute walk-around would have caught. A soft tire, a dead brake light, a strap that worked loose.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Practice: walk the truck</li><li><span>02</span>Your inspection rhythm</li><li><span>03</span>Maintenance you own</li><li><span>04</span>Practice: report it?</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 WALK-AROUND -->
+  <section class="slide" data-label="Practice: walk the truck">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div class="grid" style="gap:6px"><span class="eyebrow a">01 · Practice · the daily walk-around</span>
+      <h2 class="a" style="--i:1">Walk the truck before your first stop</h2></div>
+      <span class="chip a" style="--i:2" id="wkCount">0 of 9 checked</span>
+    </div>
+    <p class="a muted" style="--i:2;margin-top:-10px">Select each numbered point to see what to check, and what keeps the truck parked.</p>
+    <div class="split" style="grid-template-columns:1.55fr 1fr;gap:20px;align-items:start">
+      <div class="figbox a" style="--i:3;padding:10px">
+        <svg viewBox="0 0 640 270" id="wkSvg" class="truck" role="img" aria-label="Side view of a service truck with nine inspection points" style="max-width:none">
+          <path d="M10 256H630" stroke="#A3C6AB" stroke-width="2"/>
+          <path class="tb" d="M48 214V176q0-16 16-19l86-11 46-50q6-6 16-6h88q10 0 10 10v50h282q8 0 8 8v56z"/>
+          <circle cx="150" cy="222" r="42" fill="#fff"/><circle cx="500" cy="222" r="42" fill="#fff"/>
+          <path d="M108 214a42 42 0 0 1 84 0M458 214a42 42 0 0 1 84 0" fill="none" stroke="#2E6F47" stroke-width="2"/>
+          <g class="whl"><circle cx="150" cy="222" r="32"/><circle cx="150" cy="222" r="12" class="hub"/><circle cx="500" cy="222" r="32"/><circle cx="500" cy="222" r="12" class="hub"/></g>
+          <path class="tw" d="M210 102l-34 38h56v-38zM240 102v38h60v-38z"/>
+          <path d="M236 146v66M304 98v114M282 160h14M64 157l86-11" fill="none" stroke="#2E6F47" stroke-width="1.6"/>
+          <rect x="50" y="166" width="16" height="10" rx="3" fill="#DCE9DF" stroke="#2E6F47" stroke-width="1.4"/>
+          <rect x="590" y="160" width="10" height="20" rx="2" fill="#DCE9DF" stroke="#2E6F47" stroke-width="1.4"/>
+          <rect x="156" y="130" width="14" height="10" rx="2" fill="#DCE9DF" stroke="#2E6F47" stroke-width="1.4"/><path d="M170 135l10 2" stroke="#2E6F47" stroke-width="1.4"/>
+          <path d="M310 158H600" stroke="#2E6F47" stroke-width="1.2"/>
+          <rect x="316" y="126" width="36" height="24" rx="2" fill="#C3DAC9" stroke="#2E6F47" stroke-width="1.4"/>
+          <rect x="378" y="116" width="96" height="34" rx="12" fill="#EEF4F0" stroke="#2E6F47" stroke-width="1.4"/>
+          <path d="M394 116v34M458 116v34" stroke="#144229" stroke-width="2"/>
+          <circle cx="532" cy="134" r="16" fill="#EEF4F0" stroke="#2E6F47" stroke-width="1.4"/><circle cx="532" cy="134" r="5" fill="none" stroke="#2E6F47" stroke-width="1.4"/>
+          <rect x="330" y="170" width="200" height="26" rx="4" fill="#fff" stroke="#2E6F47" stroke-width="1.2"/>
+          <text x="430" y="188" text-anchor="middle" class="lt2">BUSINESS NAME</text>
+          <g id="wkLayer"></g>
+        </svg>
+      </div>
+      <div class="card a" style="--i:4;padding:16px 18px;min-height:250px" id="wkInfo"><span class="eyebrow">Before your route</span><p style="margin-top:8px;font-size:15px">Every morning, before you start your route, walk all the way around the truck and check the cab. It takes a couple of minutes. Start anywhere.</p><p style="margin-top:8px;font-size:15px">Document your checks and anything you find on the vehicle inspection log.</p></div>
+    </div>
+  </section>
+
+  <!-- 13 RHYTHM -->
+  <section class="slide" data-label="Your inspection rhythm">
+    <span class="eyebrow a">02 · Your inspection rhythm</span>
+    <h2 class="a" style="--i:1">Daily, weekly, monthly, and on schedule</h2>
+    <p class="a muted" style="--i:2">Select each point on the timeline.</p>
+    <div class="tl a" style="--i:3" id="tl"><span class="fill" id="tlFill"></span></div>
+    <div class="tldetail a" style="--i:4" id="tlDetail"></div>
+  </section>
+
+  <!-- 14 MAINTENANCE -->
+  <section class="slide" data-label="Maintenance you own">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Maintenance you own</span>
+        <h2 class="a" style="--i:1">You schedule it. Your supervisor coordinates it.</h2>
+        <ol class="steps compact a" style="--i:2">
+          <li><span class="num">1</span><span><b>Know what's due.</b> Oil changes, tire rotations and brake inspections are on your maintenance log, with last and next dates.</span></li>
+          <li><span class="num">2</span><span><b>Book it two to three weeks ahead</b> with your supervisor so it fits the route.</span></li>
+          <li><span class="num">3</span><span><b>Plan around PTO</b> so the truck is ready when you are, and isn't out of service the week you're back.</span></li>
+          <li><span class="num">4</span><span><b>Stay current.</b> The monthly inspection checks that the next oil change is done or scheduled within 500 miles of when it's due.</span></li>
+          <li><span class="num">5</span><span><b>Basic checks are yours too:</b> tire pressure, tire wear, lights and oil level, on a regular basis.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3;padding:16px 18px"><h3 style="display:flex;gap:8px;align-items:center"><svg class="ico" style="color:var(--danger)"><use href="#i-alert"/></svg>Report to your supervisor immediately</h3>
+          <ul class="tick rdot" style="margin-top:8px"><li>A warning light on the dash</li><li>Unusual sounds, vibrations or pulling</li><li>Brakes that feel soft, grab or grind</li><li>Fluid leaking under the truck</li><li>A seat belt missing or not working: supervisor <b>and</b> management, right away</li><li>Any damage or needed repair, however small</li></ul></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-ban"/></svg><span>Do not start your route with a safety problem. Report it, and wait until it's fixed or your supervisor gives you another vehicle or clear direction.</span></div>
+        <p class="a small muted" style="--i:5">Ignoring warning signs turns a cheap repair into an expensive one, and can make the truck unsafe on the road.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 PRACTICE: REPORT IT -->
+  <section class="slide" data-label="Practice: report it?">
+    <span class="eyebrow a">04 · Practice · report it?</span>
+    <h2 class="a" style="--i:1">You found it on the walk-around. Now what?</h2>
+    <p class="a muted" style="--i:2;max-width:none"><b>Handle it</b>: fix it yourself and note it. <b>Report</b>: tell your supervisor today and get it scheduled. <b>Stop</b>: report it now; the truck doesn't leave until it's fixed.</p>
+    <div class="sort a" style="--i:3" id="rep"></div>
+    <div class="a" style="--i:4;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="repCheck">Check my answers</button><span id="repFb"></span></div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: what rides in the truck">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">What rides in the truck, and what the law requires</h1>
+        <p class="lead a" style="--i:2">Why it matters: the truck is company property carrying regulated products. Who and what is inside it is a safety, insurance and legal question, not a personal one.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Rules of the vehicle</li><li><span>02</span>Practice: allowed or not?</li><li><span>03</span>Organized and on board</li><li><span>04</span>Florida's marking rule</li><li><span>05</span>The FDACS vehicle check</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 RULES -->
+  <section class="slide" data-label="Rules of the vehicle">
+    <span class="eyebrow a">01 · Rules of the vehicle</span>
+    <h2 class="a" style="--i:1">Company vehicle, company rules</h2>
+    <div class="grid g3 rules">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-truck"/></svg></div><h3>Work use only</h3><p>The vehicle is provided for your assigned service work. It is not for personal use or personal errands.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>Employees only</h3><p>Only Clements employees ride in a company vehicle: no family, friends or customers. Everyone on board wears a seat belt.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-ban"/></svg></div><h3>Never in the truck</h3><p>Alcohol or illegal drugs, even sealed, and smoking: grounds for immediate dismissal. No weapons; a small pocket knife is fine.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Locked, always</h3><p>Never leave the vehicle unlocked, at any time, for any reason. That includes a two-minute stop at a customer's door.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-fuel"/></svg></div><h3>Fuel card</h3><p>Only for your company vehicle, only on days you have scheduled work, and only at an authorized station.</p></div>
+      <div class="card a" style="--i:7"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Parking and paperwork</h3><p>Park safely, backing in when you can. Carry your license. Moving violations are yours; turn any parking ticket in to HR right away.</p></div>
+    </div>
+  </section>
+
+  <!-- 19 PRACTICE: ALLOWED -->
+  <section class="slide" data-label="Practice: allowed or not?">
+    <span class="eyebrow a">02 · Practice · allowed or not?</span>
+    <h2 class="a" style="--i:1">Sort each situation</h2>
+    <div class="sort a" style="--i:2" id="alw"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="alwCheck">Check my answers</button><span id="alwFb"></span></div>
+  </section>
+
+  <!-- 20 ON BOARD -->
+  <section class="slide" data-label="Organized and on board">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · Organized and on board</span>
+        <h2 class="a" style="--i:1">Everything has a place, and it's the same place every day</h2>
+        <p class="a muted" style="--i:2">An organized truck is faster on every stop, safer on every turn, and ready for an inspection at any moment. Equipment gets checked before you start the day's work, and anything that can move is stowed or strapped.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-box"/></svg><span>How products, concentrates, tanks and service containers are stored and secured on the truck is covered in <b>FC-05 Chemical Storage &amp; Spill Response</b>.</span></div>
+      </div>
+      <div class="card a" style="--i:3">
+        <span class="eyebrow">Must be in the truck, every day</span>
+        <div class="onboard" style="margin-top:10px">
+          <div><svg class="ico"><use href="#i-user"/></svg><span><b>FDACS employee ID card</b>valid, photo and signature</span></div>
+          <div><svg class="ico"><use href="#i-clip"/></svg><span><b>Registration and insurance card</b>plus your driver license, on you</span></div>
+          <div><svg class="ico"><use href="#i-alert"/></svg><span><b>Incident packet</b>vehicle accident form, ready to fill out</span></div>
+          <div><svg class="ico"><use href="#i-mask"/></svg><span><b>PPE</b>respirator, gloves, safety glasses</span></div>
+          <div><svg class="ico"><use href="#i-drop"/></svg><span><b>Spill kit and first aid kit</b>stocked and complete</span></div>
+          <div><svg class="ico"><use href="#i-book"/></svg><span><b>SDS and labels</b>for every product you carry</span></div>
+          <div><svg class="ico"><use href="#i-flag"/></svg><span><b>Notification signs</b>for applications to exterior foliage</span></div>
+          <div><svg class="ico"><use href="#i-wrench"/></svg><span><b>Working equipment</b>B&amp;G, backpacks, spreaders clean</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 FLORIDA MARKING -->
+  <section class="slide" data-label="Florida's marking rule">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Florida's marking rule</span>
+        <h2 class="a" style="--i:1">The business name, on both sides, in plain view</h2>
+        <div class="card a" style="--i:2;padding:16px 18px"><span class="eyebrow">FDACS Rule 5E-14.103, F.A.C.</span>
+          <ul class="tick" style="margin-top:8px"><li>Every vehicle and trailer used for pest control carries the licensee's <b>registered or trade name</b></li><li>On <b>both sides</b>, in bold letters at least <b>1½ inches high</b>, in a contrasting color, in plain view of the public</li><li>Any vehicle carrying pesticides or application equipment is marked <b>permanently</b>: paint or decals on the body</li><li>Magnetic signs are allowed only on sales vehicles that carry no pesticides or equipment</li></ul></div>
+        <p class="a small muted" style="--i:3">The rule requires the name. It does not require a license number on the vehicle.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="figbox a" style="--i:3;padding:14px">
+          <svg viewBox="0 0 320 170" class="mark" aria-hidden="true" style="max-width:none">
+            <path d="M24 120V96q0-8 8-9l40-5 22-26q3-4 9-4h44q5 0 5 5v27h140v36z" fill="#EEF4F0" stroke="#2E6F47" stroke-width="1.6" stroke-linejoin="round"/>
+            <circle cx="72" cy="124" r="16" fill="#fff" stroke="#2E6F47" stroke-width="1.6"/><circle cx="246" cy="124" r="16" fill="#fff" stroke="#2E6F47" stroke-width="1.6"/>
+            <rect class="nm" x="160" y="92" width="120" height="18" rx="2" fill="#144229"/>
+            <text x="220" y="105" text-anchor="middle" font-size="9" fill="#fff" font-family="Helvetica Neue,Arial,sans-serif" letter-spacing="2">BUSINESS NAME</text>
+            <path class="dim" d="M292 92v18M288 92h8M288 110h8" stroke="#1F5836" stroke-width="1.4" fill="none"/>
+            <text x="300" y="104" font-size="10" fill="#1F5836" font-family="Helvetica Neue,Arial,sans-serif">1½"</text>
+            <path d="M10 146h300" stroke="#A3C6AB" stroke-width="1.6"/>
+            <text x="160" y="164" text-anchor="middle" font-size="10" fill="#5C6B62" font-family="Helvetica Neue,Arial,sans-serif" letter-spacing="1.5">SAME ON THE OTHER SIDE</text>
+          </svg>
+        </div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-eye"/></svg><span><b>Your part:</b> keep the lettering clean and uncovered. Don't let ladders, hose, mud or a magnet hide it, and report peeling or damaged lettering to your supervisor.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 FDACS CHECK -->
+  <section class="slide" data-label="The FDACS vehicle check">
+    <span class="eyebrow a">05 · The FDACS vehicle check</span>
+    <h2 class="a" style="--i:1">If an inspector stops you today, would you pass?</h2>
+    <p class="a muted" style="--i:2;max-width:none">FDACS inspectors work from a standard vehicle inspection form. Select each item to see what they look for.</p>
+    <div class="flip insp a" style="--i:3" id="insp"></div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-truck"/></svg><span>Florida traffic law adds one more: every load must be secured so nothing can drop, shift, leak or blow off the vehicle (s. 316.520). Strap and stow before you move.</span></div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: accidents">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">When something goes wrong</h1>
+        <p class="lead a" style="--i:2">Why it matters: the first minutes after a crash decide whether people are safe, whether the facts are on record, and whether Clements can stand behind you. The steps are the same ones you learned in CW-06 and CW-09.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Accidents in a company vehicle</li><li><span>02</span>Practice: what would you do?</li><li><span>03</span>The same-day report</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 ACCIDENT STEPS -->
+  <section class="slide" data-label="Accidents in a company vehicle" data-alert="1">
+    <span class="eyebrow a">01 · Accidents in a company vehicle</span>
+    <h2 class="a" style="--i:1">Stop. Make it safe. Call. Document.</h2>
+    <div class="grid g2" style="gap:10px 28px">
+      <ol class="steps compact a" style="--i:2">
+        <li><span class="num red">1</span><span><b>Stop at once.</b> Check for injuries. Anyone hurt: <b class="red">call 911</b>.</span></li>
+        <li><span class="num">2</span><span><b>Make it safe.</b> Hazard lights on. If no one is hurt and the vehicle drives safely but blocks traffic, Florida law (s. 316.061) expects you to move it out of the travel lanes. Otherwise leave it where it is until police direct you.</span></li>
+        <li><span class="num">3</span><span><b>Call the police</b> for every accident, no matter how small. That's Clements policy. Stay until they're done.</span></li>
+        <li><span class="num">4</span><span><b>Call your supervisor and HR</b> right away.</span></li>
+      </ol>
+      <ol class="steps compact a" style="--i:3">
+        <li><span class="num">5</span><span><b>Photos and information:</b> damage, scene, the other driver's name, address, license, plate and insurance, and witness names and phone numbers.</span></li>
+        <li><span class="num red">6</span><span><b>Talk about fault only with the police.</b> Don't admit or assign blame to anyone else.</span></li>
+        <li><span class="num">7</span><span><b>Contain any spilled product</b> if it's safe to do so (FC-05).</span></li>
+        <li><span class="num">8</span><span><b>Complete the vehicle accident form the same day</b>, and report for post-accident drug screening when told.</span></li>
+      </ol>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-phone"/></svg><span>Pull over safely before you use your phone, even to call 911. Driving behavior, phone rules and GPS are covered next, in <b>FC-08 Driver Safety &amp; GPS</b>.</span></div>
+  </section>
+
+  <!-- 26 PRACTICE: SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do?">
+    <span class="eyebrow a">02 · Practice · what would you do?</span>
+    <h2 class="a" style="--i:1">Four situations from the road</h2>
+    <div class="scen-tabs a" style="--i:2" id="vTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="vBox"></div>
+  </section>
+
+  <!-- 27 SAME-DAY REPORT -->
+  <section class="slide" data-label="The same-day report">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · The same-day report</span>
+        <h2 class="a" style="--i:1">Supervisor right away. Written report the same day.</h2>
+        <p class="a muted" style="--i:2">The vehicle accident form is in the incident packet in your truck. Fill it out before the day ends, even if the damage looks minor and no one was hurt. Facts written down the same day hold up; memories a week later don't.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-camera"/></svg><span>Send your photos to your supervisor with the form. Keep your insurance card where you can reach it at the scene.</span></div>
+      </div>
+      <div class="card a" style="--i:3;padding:16px 18px">
+        <span class="eyebrow">What goes on the form</span>
+        <ul class="tick" style="margin-top:8px">
+          <li>Date, time and exact location</li>
+          <li>What happened, in plain facts: speeds, directions, what you saw</li>
+          <li>Other driver: full correct name, address, license number, plate and insurance company</li>
+          <li>Witnesses: full names, addresses and phone numbers</li>
+          <li>The responding agency and any report or case number the officer gives you</li>
+          <li>Damage to every vehicle and property, with photos</li>
+          <li>Injuries, and whether anyone was taken for care</li>
+        </ul>
+        <p class="small muted" style="margin-top:10px">Leave out guesses about fault. That's for the police and the insurance companies.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your truck</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before FC-07 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="v1"> Perform the daily walk-around out loud: tires, lights, glass, mirrors, fluids, cab, bed</label></li>
+      <li><label><input type="checkbox" id="v2"> Show the maintenance log and when the next oil change and rotation are due</label></li>
+      <li><label><input type="checkbox" id="v3"> Complete a Friday wash and pass a supervisor inspection of the cab, bed and toolbox</label></li>
+      <li><label><input type="checkbox" id="v4"> Show the toolbox locks, every label is legible and water containers are marked "H2O"</label></li>
+      <li><label><input type="checkbox" id="v5"> Produce your FDACS ID card, registration, insurance card and the incident packet</label></li>
+      <li><label><input type="checkbox" id="v6"> Point out the business name on both sides and explain the Florida marking rule</label></li>
+      <li><label><input type="checkbox" id="v7"> Explain the rules on passengers, personal use and the fuel card</label></li>
+      <li><label><input type="checkbox" id="v8"> Walk through the accident steps and who you call, in order</label></li>
+    </ul>
+  </section>
+
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc07:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc07:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-07", "titleHtml": "Vehicle Standards", "nextHtml": "FC-08 \u00b7 Driver Safety &amp; GPS", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The rolling billboard',q:'It\'s Thursday afternoon and you remember you\'re off tomorrow, Friday. Your truck hasn\'t been washed this week. What does the Clements standard require?',o:['Wash it first thing Monday when you\'re back','Skip a week. The monthly inspection is what counts','Wash and clean it this afternoon, Thursday, before you leave','Ask a coworker to wash it for you on Friday'],a:2,e:'Trucks are washed every Friday afternoon on return to the local office. If you have Friday off, you clean it Thursday afternoon. Leaving for the week without cleaning it is a write-up.'},
+    2:{t:'Checkpoint 2 · Inspect and maintain',q:'On your morning walk-around you find a bulge in the sidewall of a rear tire. Your first stop is at 8:30 and you\'re already running late. What do you do?',o:['Don\'t start the route. Report it to your supervisor now and wait until it\'s fixed or you\'re given direction','Drive carefully to the first stop and look at it again at lunch','Add a little air and go','Write it on your Friday wash list'],a:0,e:'A sidewall bulge can fail without warning. Any safety problem found on the walk-around gets reported right away, and the route doesn\'t start until it\'s addressed. Being late is fixable. A blowout may not be.'},
+    3:{t:'Checkpoint 3 · What the law requires',q:'Your truck carries product and a B&G sprayer every day. Which marking meets Florida Rule 5E-14.103?',o:['A magnetic Clements sign on the driver\'s door','The company license number painted on the tailgate','The business name on the rear window only','The business name on both sides, permanently applied, in bold contrasting letters at least 1½ inches high'],a:3,e:'Any vehicle carrying pesticides or application equipment must be permanently marked (paint or decals) with the licensee\'s name on both sides, in bold letters at least 1½ inches high, in a contrasting color and plain view. Magnets are only for sales vehicles carrying no pesticides or equipment.'},
+    4:{t:'Checkpoint 4 · Accidents',q:'Pulling out of a gas station, you scrape a parked car. The scuff is tiny and the owner is nowhere around. What is the right response?',o:['Leave a note on the windshield and continue your route','Buff it out yourself and mention it at the monthly inspection','Report it to your supervisor at the end of the week','Stop, photograph it, call the police, call your supervisor and HR right away, and complete the vehicle accident form the same day'],a:3,e:'Clements policy is to call the police for every accident, however small, notify your supervisor and HR immediately, document it, and file the written report the same day. Florida law (s. 316.063) also requires you to find the owner or leave your name and address on the vehicle, and to notify police.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'When must Clements trucks be washed and cleaned?',o:['Whenever the supervisor asks','Once a month before the inspection','Only when visibly dirty','Every Friday afternoon on return to the local office'],a:3,e:'Every Friday afternoon on return to the local office (Thursday afternoon if you\'re off Friday).'},
+    {k:'True or false',q:'Because trucks get dirty outside during the week, the interior only needs to be cleaned on Fridays.',o:['True','False'],a:1,e:'False. The interior stays clean and organized at all times: nothing on the dash, no used gloves, towels or trash left at the end of the day.'},
+    {k:'Multiple choice',q:'Who conducts the monthly vehicle inspection, and where does it go?',o:['Your supervisor. It goes in your personnel file and is reflected on your annual review','FDACS. It goes to the state','The fleet vendor. It goes to the insurance company','You do it yourself and keep it in the glove box'],a:0,e:'Supervisors inspect every vehicle monthly. The form goes in your personnel file and counts on your annual performance review.'},
+    {k:'Scenario',q:'During the Friday wash, which of these belongs in the toolbox and bed check?',o:['Moving the seats forward to vacuum','Drying the roof line','Checking that water containers are marked "H2O" and the SDS and spill kit are complete','Wiping the door jambs'],a:2,e:'Toolbox and bed: aerosols organized, B&G clean and not leaking, lock working, labels legible, water marked "H2O", SDS and spill kit complete, empties removed.'},
+    {k:'Multiple choice',q:'Why shouldn\'t you leave a hat or towel on the dashboard?',o:['It blocks the GPS unit','FDACS prohibits it','Sun damage fades them and the dash, and the dash must be clear','It sets off the airbag'],a:2,e:'Nothing stays on the dash. Cloth items fade in the sun, and a clear dash is part of the everyday standard.'},
+    {k:'Multiple choice',q:'Which is part of the daily walk-around?',o:['Checking tires, lights, wipers, mirrors, fluids, brakes, horn and that equipment is secured','Washing the windows','Rotating the tires','Reviewing the maintenance log with your supervisor'],a:0,e:'The walk-around covers tires, lights, windshield and wipers, mirrors, fluid levels, brakes, horn, seat belts, documents, and a secured, locked bed and toolbox.'},
+    {k:'True or false',q:'A problem found on the walk-around gets reported to your supervisor immediately, even if the truck still runs.',o:['True','False'],a:0,e:'True. Report problems to your supervisor immediately, and do not start the route with a safety concern.'},
+    {k:'Multiple choice',q:'How far ahead should you coordinate routine maintenance with your supervisor?',o:['The same morning','Only after a warning light comes on','Two to three weeks ahead, planned around PTO','Six months ahead'],a:2,e:'Book oil changes, rotations and brake inspections two to three weeks ahead, and plan around PTO so the truck is available.'},
+    {k:'Scenario',q:'You find the driver-side brake light is out before your route. What do you do?',o:['Run the route and mention it Friday','Tap the brakes harder so people notice','Use hand signals all day','Report it to your supervisor and don\'t start the route until it\'s fixed or you\'re given direction'],a:3,e:'A dead brake light is a safety defect. Report it and don\'t roll until it\'s addressed.'},
+    {k:'Multiple choice',q:'A seat belt in your truck won\'t latch. Who do you notify?',o:['No one, as long as the driver\'s belt works','Your supervisor and management, immediately','The dealership, next time you\'re nearby','FDACS'],a:1,e:'The handbook requires you to notify your supervisor and management immediately if any seat belt is missing or inoperative.'},
+    {k:'True or false',q:'You may give a customer a ride to the hardware store to pick up a part for their own repair.',o:['True','False'],a:1,e:'False. Only Clements employees may ride in a company vehicle.'},
+    {k:'Multiple choice',q:'When may you use the company fuel card?',o:['Any day, for any vehicle you drive for work','For your personal car if you used it for work','Whenever the tank is below half','Only for your company vehicle, on days with scheduled work, at an authorized station'],a:3,e:'The card is for your company vehicle only, only on scheduled workdays, and only at an authorized station.'},
+    {k:'Scenario',q:'You\'re heading home after your last stop and want to bring a sealed six-pack home in the cab. Allowed?',o:['Yes, as long as it\'s sealed','Yes, if it\'s in the bed instead of the cab','No. Transporting alcohol in a company vehicle is prohibited and is grounds for immediate dismissal','Only on Fridays'],a:2,e:'Possessing, consuming or transporting alcohol or illegal drugs in a company vehicle is prohibited, sealed or not.'},
+    {k:'True or false',q:'The company vehicle stays locked whenever you walk away from it, even for a two-minute knock at the customer\'s door.',o:['True','False'],a:0,e:'True. The vehicle is never left unlocked, at any time, for any reason. It carries regulated products and equipment.'},
+    {k:'Multiple choice',q:'Under FDACS Rule 5E-14.103, how tall must the business name lettering be?',o:['At least 1½ inches, bold and in a contrasting color','At least 6 inches','Any size, if it\'s on the tailgate','Only the license number is required'],a:0,e:'Bold letters at least 1½ inches high, in contrasting color, in plain view, on both sides of each vehicle and trailer.'},
+    {k:'True or false',q:'Florida\'s rule requires the company license number to be displayed on every pest control vehicle.',o:['True','False'],a:1,e:'False. Rule 5E-14.103 requires the licensee\'s registered or trade name on both sides. It does not require a license number on the vehicle.'},
+    {k:'Multiple choice',q:'Which item is on the FDACS vehicle inspection form?',o:['Satellite radio subscription','Pesticide concentrates secured when the vehicle is unattended','Number of stops on today\'s route','Fuel economy'],a:1,e:'FDACS checks include ID card, vehicle marking, secured concentrates, labeled containers, label-required PPE, an anti-siphon device or air gap, and signs for foliage applications.'},
+    {k:'Scenario',q:'You\'re rear-ended at a light. No one is hurt, both vehicles drive fine, and you\'re blocking a busy lane. What comes first?',o:['Stay in the lane until police arrive, whatever the traffic','Exchange numbers and leave','Argue about fault with the other driver','Hazards on and move out of the travel lanes, then call the police, your supervisor and HR'],a:3,e:'Florida law (s. 316.061) expects a reasonable effort to move a drivable vehicle out of traffic after a property-damage-only crash. Then follow Clements policy: police for every accident, supervisor and HR right away.'},
+    {k:'Multiple choice',q:'After a vehicle accident, when is the vehicle accident form due?',o:['Within 30 days','By the next monthly inspection','The same day','Only if someone was injured'],a:2,e:'Supervisor right away, written report the same day, for every accident.'},
+    {k:'Scenario',q:'The other driver says, "Let\'s not involve the police. I\'ll pay cash." What do you do?',o:['Call the police anyway, and notify your supervisor and HR','Accept the cash and skip the report','Agree, but tell your supervisor later','Leave before they change their mind'],a:0,e:'Clements policy is to call the police for every accident, no matter how small, and to report it to your supervisor and HR right away. Talk about fault only with the police.'}
+  ];
+
+  var SVGNS='http://www.w3.org/2000/svg';
+  function marker(layer,x,y,n,cls,id,label){
+    var g=document.createElementNS(SVGNS,'g');g.setAttribute('class',cls);g.setAttribute('tabindex','0');g.setAttribute('role','button');g.id=id;g.setAttribute('aria-label',label);
+    g.innerHTML='<circle class="halo" cx="'+x+'" cy="'+y+'" r="14"/><circle class="core" cx="'+x+'" cy="'+y+'" r="13"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+n+'</text>';
+    layer.appendChild(g);return g;
+  }
+  function onAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- cab: clean or not ---------- */
+  var CAB=[
+    {x:440,y:140,t:'Papers on the dash',w:'Invoices and notes piled on the dashboard. They block your view, slide around and look careless.',f:'Paperwork goes in folders or the storage area. Nothing on the dash or in the visors.'},
+    {x:552,y:132,t:'Hat on the dash',w:'A cap left on the dashboard. The sun fades it and the dash.',f:'No hats or cloth on the dash. Hang it up or take it with you.'},
+    {x:146,y:168,t:'Grease on the wheel',w:'Grease and grime on the steering wheel and buttons.',f:'Damp-wipe the wheel, dash buttons, doors and handles until no grease or oil remains.'},
+    {x:350,y:236,t:'Cup and stains',w:'An old drink cup and a dried spill in the cup holders.',f:'Trash out daily. Wipe cup holders and the console until stains are gone.'},
+    {x:500,y:254,t:'Used gloves and towel',w:'Used gloves and a dirty towel left on the seat. They may carry product residue.',f:'Used gloves, towels and dirty clothing come out at the end of every day.'},
+    {x:200,y:312,t:'Trash on the floor',w:'Wrappers and a bottle on the floorboard. A bottle can roll under the brake pedal.',f:'Sweep or vacuum the floor; nothing loose on the floorboard, ever.'}
+  ];
+  var cabFound=store.get('cab')||{}, cabL=$('#cabLayer');
+  CAB.forEach(function(h,i){
+    var g=marker(cabL,h.x,h.y,i+1,'hz'+(cabFound[i]?' found':''),'cab'+i,'Possible problem '+(i+1));
+    var hit=document.createElementNS(SVGNS,'circle');hit.setAttribute('class','hit');hit.setAttribute('cx',h.x);hit.setAttribute('cy',h.y);hit.setAttribute('r',34);g.insertBefore(hit,g.firstChild);
+    onAct(g,function(){cabFound[i]=1;store.set('cab',cabFound);g.classList.add('found');cabInfo(i);cabList();});
+  });
+  function cabInfo(i){var h=CAB[i];$('#cabInfo').innerHTML='<span class="eyebrow">Found · '+h.t+'</span><p style="margin-top:6px;font-size:15px">'+h.w+'</p><p style="margin-top:6px;font-size:15px"><b>Standard:</b> '+h.f+'</p>';}
+  function cabList(){
+    var n=Object.keys(cabFound).length;$('#cabCount').textContent=n+' of 6 found';
+    $('#cabList').innerHTML=CAB.map(function(h,i){return '<button type="button" id="cabl'+i+'" class="'+(cabFound[i]?'on':'')+'"'+(cabFound[i]?'':' disabled')+' data-i="'+i+'"><span class="n">'+(i+1)+'</span>'+(cabFound[i]?h.t:'Not found yet')+'</button>'}).join('');
+    $$('#cabList button').forEach(function(b){b.addEventListener('click',function(){cabInfo(+b.dataset.i)})});
+  }
+  function cabMode(clean){
+    $('#cabMess').setAttribute('aria-pressed',!clean);$('#cabClean').setAttribute('aria-pressed',clean);
+    $$('#cabSvg .mess').forEach(function(m){m.style.display=clean?'none':''});$$('#cabSvg .clean').forEach(function(m){m.style.display=clean?'':'none'});
+    cabL.style.display=clean?'none':'';
+    if(clean)$('#cabInfo').innerHTML='<span class="eyebrow">To standard</span><p style="margin-top:6px;font-size:15px">Dash clear, wheel clean, cup holders empty, seat and floor clear, paperwork in a folder. This is what the cab looks like at the end of every day, not just after the Friday wash.</p>';
+  }
+  $('#cabMess').addEventListener('click',function(){cabMode(false)});$('#cabClean').addEventListener('click',function(){cabMode(true)});
+  $('#cabReveal').addEventListener('click',function(){cabMode(false);CAB.forEach(function(_,i){if(!cabFound[i]){cabFound[i]=1;$('#cab'+i).classList.add('found','shown')}});store.set('cab',cabFound);cabList();
+    $('#cabInfo').innerHTML='<span class="eyebrow">All six shown</span><p style="margin-top:6px;font-size:15px">Select any item in the list to read why it costs points and what the standard is.</p>';});
+  cabList();
+
+  /* ---------- wash order ---------- */
+  var WASH=['Rinse the truck with the hose to knock off loose dirt','Wash every painted area with soap and water: hood, roof, sides, bumpers','Wash the windshield, windows and mirrors, including the backs of the mirrors','Clean grease and brake dust from hubcaps, tires and fender-well lips','Rinse all the soap off, then check headlights and bumper for bug splatter','Towel dry before water spots set, including the roof line over the windows'];
+  var wMix=[3,0,5,2,4,1], wbox=$('#wash'), won=0;
+  var wHint=['What gets the loose dirt off before you touch the paint?','Now the soap, on the biggest painted surfaces.','Glass and mirrors next, where bugs collect.','Wheels and fender wells: the greasy work.','What has to happen before the soap dries and streaks?'];
+  function renderWash(){
+    wbox.innerHTML='';won=0;$('#washFb').innerHTML='';
+    wMix.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='wash'+ix;b.innerHTML='<span class="num">·</span><span>'+WASH[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===won){b.classList.add('placed');$('.num',b).textContent=won+1;won++;
+          if(won===WASH.length){$('#washFb').innerHTML='<div class="fb">Right order. Then move inside and to the toolbox and bed, and finish with one last lap around the truck. <button type="button" class="btn" id="washAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#washAgain').addEventListener('click',renderWash);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#washFb').innerHTML='<div class="fb no">Not yet. '+wHint[Math.min(won,wHint.length-1)]+'</div>';}
+      });wbox.appendChild(b);});
+  }
+  renderWash();
+
+  /* ---------- walk-around ---------- */
+  var WK=[
+    {x:150,y:222,t:'Tires',c:'All four look properly inflated, tread isn\'t worn down, and there are no cuts, bulges or cords showing. Check the pressure regularly with a gauge.',s:'Bulge, exposed cord or a flat: don\'t drive. Call your supervisor.'},
+    {x:57,y:150,t:'Headlights and front signals',c:'Low and high beams, turn signals and hazards all work. Lenses clean.',s:'A headlight or signal out: report it before you roll.'},
+    {x:196,y:106,t:'Windshield and wipers',c:'No cracks in your line of sight. Wipers clear the glass without streaking, and the washer sprays.',s:'A crack in your view or wipers that don\'t work: report before you roll.'},
+    {x:163,y:150,t:'Mirrors',c:'Clean, uncracked, tight on the mount, and adjusted before you move.',s:'Broken or missing mirror: report before you roll.'},
+    {x:104,y:180,t:'Under the hood: fluids',c:'Oil, coolant and washer fluid at the marks. Check oil on level ground with the engine off. Look under the truck for fresh drips.',s:'Top off washer fluid yourself. Low oil or coolant, or a leak: tell your supervisor.'},
+    {x:270,y:121,t:'In the cab',c:'Brakes feel firm before you leave the lot, horn works, every seat belt latches, no warning lights after start-up. Registration, insurance card and incident packet on board; license on you.',s:'Soft brakes, a seat belt that won\'t latch, or a warning light: report before you roll.'},
+    {x:426,y:110,t:'Bed and toolbox',c:'Everything strapped or stowed so nothing can shift, fall or leak. Florida law requires a secured load (s. 316.520). Toolbox closes and locks. Tank lids tight.',s:'A broken toolbox lock means concentrates can\'t be secured when you walk away: report before you roll. Storage details: FC-05.'},
+    {x:612,y:170,t:'Rear lights',c:'Brake lights, tail lights, turn signals and reverse lights work. Have a coworker step on the brake, or check the reflection in a window or garage door.',s:'A brake light out is a safety defect: report before you roll.'},
+    {x:430,y:224,t:'Business name',c:'Name lettering on both sides is clean, intact and in plain view. Nothing (ladder, hose, mud) covers it.',s:'Peeling or damaged lettering: report it so it can be fixed. Florida requires it (Part three).'}
+  ];
+  var wkSeen=store.get('wk')||{}, wkL=$('#wkLayer');
+  WK.forEach(function(p,i){
+    var g=marker(wkL,p.x,p.y,i+1,'wk'+(wkSeen[i]?' seen':''),'wk'+i,p.t);
+    onAct(g,function(){wkSeen[i]=1;store.set('wk',wkSeen);$$('.wk',wkL).forEach(function(m){m.classList.toggle('sel',m===g)});g.classList.add('seen');
+      $('#wkInfo').innerHTML='<span class="eyebrow">Point '+(i+1)+' of 9</span><h3 style="margin:6px 0 8px;font-size:20px">'+p.t+'</h3><p style="font-size:15px">'+p.c+'</p><div class="callout danger" style="margin-top:12px;padding:10px 14px"><svg class="ico"><use href="#i-alert"/></svg><span>'+p.s+'</span></div>';
+      wkCount();});
+  });
+  function wkCount(){var n=Object.keys(wkSeen).length;$('#wkCount').textContent=n+' of 9 checked'+(n===9?' · walk-around complete':'')}
+  wkCount();
+
+  /* ---------- rhythm timeline ---------- */
+  var TL=[
+    {y:'Every morning',g:'Walk-around',i:'i-search',h:'Daily walk-around before the route',p:'Tires, lights, windshield and wipers, mirrors, fluids, brakes, horn, seat belts, documents, and a secured, locked bed and toolbox. Note it on the inspection log. Safety problem: report it and don\'t roll.'},
+    {y:'End of day',g:'Reset the cab',i:'i-lock',h:'Clear the cab and lock up',p:'Used gloves, towels, clothing, empties and trash out. Nothing left on the dash. Toolbox locked, truck locked. Park safely, backing in when you can.'},
+    {y:'Every Friday',g:'Wash and organize',i:'i-drop',h:'The weekly wash',p:'Friday afternoon on return to your local office (Thursday if you\'re off Friday): exterior, interior, toolbox and bed, then a final lap around the truck.'},
+    {y:'Every month',g:'Supervisor',i:'i-clip',h:'The monthly inspection',p:'Your supervisor scores appearance, toolbox and bed, reviews the maintenance log, and checks the FDACS and insurance items. It goes in your personnel file.'},
+    {y:'On schedule',g:'Maintenance',i:'i-wrench',h:'Oil, tires and brakes',p:'Oil changes, tire rotations and brake inspections, booked with your supervisor two to three weeks ahead and planned around PTO. Oil changes no later than 500 miles past due.'}
+  ];
+  var tl=$('#tl');
+  function showTL(n){
+    $$('button',tl).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+    $('#tlFill').style.width=(n/(TL.length-1)*80)+'%';
+    var t=TL[n];$('#tlDetail').innerHTML='<div class="card" style="display:flex;gap:16px;align-items:flex-start"><div class="icobox" style="margin:0"><svg class="ico"><use href="#'+t.i+'"/></svg></div><div><span class="eyebrow">'+t.y+' · '+t.g+'</span><h3 style="margin:4px 0 6px;font-size:20px">'+t.h+'</h3><p>'+t.p+'</p></div></div>';
+  }
+  TL.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tl'+i;b.innerHTML='<span class="dot"><svg class="ico" style="width:20px;height:20px"><use href="#'+t.i+'"/></svg></span><span class="yr">'+t.y+'</span><span class="tg">'+t.g+'</span>';
+    b.addEventListener('click',function(){b.classList.add('seen');showTL(i)});tl.appendChild(b)});
+  showTL(0);
+
+  /* ---------- generic sort ---------- */
+  function sorter(boxId,btnId,fbId,items,opts,okMsg){
+    var box=$('#'+boxId), sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=boxId+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+opts.map(function(o,j){return '<button type="button" aria-pressed="false" data-v="'+j+'" id="'+boxId+i+'_'+j+'">'+o+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=+b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      box.appendChild(r)});
+    $('#'+btnId).addEventListener('click',function(){
+      var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+boxId+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(sel[i]===undefined){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+      });
+      $('#'+fbId).innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes under the ones in red and try again.</span>');
+    });
+  }
+  sorter('rep','repCheck','repFb',[
+    {q:'Washer fluid is low',a:0,w:'Routine. Top it off yourself and note it on your log.'},
+    {q:'The ladder strap has worked loose',a:0,w:'Re-secure it before the truck moves. A loose load is illegal and dangerous.'},
+    {q:'Your oil change comes due in 300 miles',a:1,w:'Not a safety stop today, but tell your supervisor and get it booked so it\'s done on time.'},
+    {q:'The lettering on the passenger side is starting to peel',a:1,w:'Report it so it can be repaired. The name must stay in plain view on both sides.'},
+    {q:'The driver-side brake light is out',a:2,w:'A safety defect. Report it and don\'t start the route until it\'s fixed or you have direction.'},
+    {q:'A tire sidewall has a bulge',a:2,w:'A bulge can blow out without warning. The truck stays parked.'},
+    {q:'The driver\'s seat belt won\'t latch',a:2,w:'Seat belts are required for everyone. Notify your supervisor and management immediately.'},
+    {q:'The toolbox lock is broken',a:2,w:'Concentrates must be secured whenever the truck is unattended, which is every stop. Report it before you roll.'}
+  ],['Handle it','Report','Stop'],'All eight correct. Routine items you handle and note; repairs get reported and scheduled; safety defects keep the truck parked.');
+  sorter('alw','alwCheck','alwFb',[
+    {q:'A new Clements technician rides along with you for training',a:0,w:'Allowed. Clements employees may ride in a company vehicle, seat belts on.'},
+    {q:'A customer asks for a ride to the hardware store for a part',a:1,w:'Not allowed. Only Clements employees ride in a company vehicle.'},
+    {q:'Driving the truck to your child\'s Saturday game',a:1,w:'Not allowed. The vehicle is for assigned service work, not personal use.'},
+    {q:'Filling up with the company fuel card on your day off',a:1,w:'Not allowed. Fuel only on days you have scheduled work, at an authorized station.'},
+    {q:'Carrying a small pocket knife',a:0,w:'Allowed. The handbook permits a small pocket knife; other weapons are prohibited.'},
+    {q:'A sealed six-pack in the cab to take home after work',a:1,w:'Not allowed. Transporting alcohol in a company vehicle is grounds for immediate dismissal, sealed or not.'},
+    {q:'Leaving the truck unlocked while you knock at the door',a:1,w:'Not allowed. The truck is never left unlocked, for any reason.'},
+    {q:'Giving a coworker a ride back to the office after their truck goes in for service',a:0,w:'Allowed. They\'re a Clements employee, and it\'s company business.'}
+  ],['Allowed','Not allowed'],'All eight correct. Work use only, employees only, locked always, and nothing in the truck that doesn\'t belong there.');
+
+  /* ---------- FDACS flip cards ---------- */
+  var INSP=[
+    {t:'ID card',b:'Your FDACS employee <b>ID card is valid</b> and carries your photo and signature (s. 482.091). Carry it every day.'},
+    {t:'Marking',b:'The vehicle and any trailer are <b>marked with the business name</b> on both sides (Rule 5E-14.103).'},
+    {t:'Secured concentrates',b:'If the vehicle is unattended, <b>pesticide concentrates are locked up</b> (Rule 5E-14.106). That\'s why the toolbox lock matters.'},
+    {t:'Labeled containers',b:'Every pesticide container, including service containers, is <b>properly identified with its label</b>. Details in FC-02 and FC-05.'},
+    {t:'PPE on hand',b:'The <b>PPE the label requires</b> is on the truck and worn when the label says. Details in FC-03.'},
+    {t:'Anti-siphon',b:'The spray tank has an <b>air gap or anti-siphoning device</b> so product can\'t flow back into a water supply when you fill.'},
+    {t:'Foliage signs',b:'<b>Notification signs</b> are on board for applications to exterior foliage, such as lawn and ornamental work.'},
+    {t:'Category',b:'Nothing on the truck is <b>outside the categories</b> you and the company are licensed for. If in doubt, ask your supervisor.'}
+  ];
+  var ib=$('#insp');
+  INSP.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='insp'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="ino">'+String(i+1).padStart(2,'0')+'</span><h3>'+v.t+'</h3><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});ib.appendChild(b)});
+
+  /* ---------- accident scenarios ---------- */
+  var VS=[
+    {n:'The mailbox',s:'Backing out of a customer\'s driveway, you clip their mailbox and bend the post. No one comes outside.',o:['Straighten it as best you can and continue the route','Stop, photograph it, call the police and your supervisor and HR, tell the customer what happened in plain facts, and complete the form today','Leave a business card in the mailbox and go','Tell the customer you\'ll pay for a new one yourself'],a:1,e:'Property damage counts. Call the police per Clements policy, notify your supervisor and HR right away, document it, and give the customer the facts without promising payment or discussing fault. Form the same day.'},
+    {n:'Rear-ended on US-1',s:'You\'re rear-ended at a light. Nobody is hurt, both vehicles drive fine, and you\'re blocking a busy lane.',o:['Hazards on, move out of the travel lanes, then call the police, your supervisor and HR','Stay in the lane no matter what until the police arrive','Get the other driver\'s number and leave','Get out and discuss who was at fault'],a:0,e:'With no injuries and drivable vehicles, Florida law (s. 316.061) expects a reasonable effort to clear the travel lanes. Then the Clements steps: police, supervisor and HR, photos and information, report the same day.'},
+    {n:'"No police"',s:'After a minor bump in a parking lot, the other driver says, "Let\'s keep insurance out of it. I\'ll give you cash for the scratch."',o:['Take the cash. It saves everyone time','Agree, and tell your supervisor at the end of the week','Politely decline, call the police, and notify your supervisor and HR right away','Leave before it becomes an argument'],a:2,e:'Clements policy is police for every accident, no matter how small, and an immediate call to your supervisor and HR. Collect their information and keep fault talk for the police.'},
+    {n:'Leak in the bed',s:'After a low-speed collision, everyone is fine, but a jug in the bed has tipped and is leaking onto the tailgate.',o:['Ignore it; the accident report comes first','Hose it off the tailgate into the gutter','Drive to the office so it can be cleaned there','Once people are safe and police are called, put on PPE and contain it with your spill kit if it\'s safe, then tell your supervisor'],a:3,e:'People first, then make the scene safe. Contain spilled product only if it\'s safe and you have the PPE and kit for it (FC-05), and include it in what you report to your supervisor.'}
+  ];
+  var vt=$('#vTabs'), vb=$('#vBox'), vDone=store.get('vs')||{};
+  function showV(n){
+    $$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!vDone[j])});
+    var s=VS[n];
+    vb.innerHTML='<div class="card" style="padding:14px 16px"><span class="eyebrow">The situation</span><p style="margin-top:4px;font-size:16px">'+s.s+'</p></div><div class="choices sc2">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="v'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="vFb"></div>';
+    $$('.choice',vb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',vb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',vb).forEach(function(x){x.disabled=true});vDone[n]=1;store.set('vs',vDone);$$('button',vt)[n].classList.add('done');
+        $('#vFb').innerHTML='<div class="fb">'+s.e+(n<VS.length-1?' <button type="button" class="btn" id="vNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#vNext');if(nx)nx.addEventListener('click',function(){showV(n+1)});}
+      else{b.classList.add('wrong');$('#vFb').innerHTML='<div class="fb no">Think about safety first, then police, supervisor and HR, and facts on record. Try again.</div>';}
+    })});
+  }
+  VS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showV(i)});vt.appendChild(b)});
+  showV(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

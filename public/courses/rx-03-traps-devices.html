@@ -1,0 +1,1328 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-03 Traps &amp; Devices</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-03 additions */
+ul.tick{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+.tight .card{padding:14px 16px}
+.tight .card p{font-size:14px;line-height:1.5}
+.tight .card h3{font-size:17px}
+.tight .icobox{width:36px;height:36px;margin-bottom:8px}
+.steps.compact li{padding:8px 0;font-size:15px;gap:12px;line-height:1.45}
+.steps.compact .num{flex-basis:28px;height:28px;font-size:13px}
+.callout{font-size:14.5px;line-height:1.5;padding:12px 16px}
+.bar-forest{font-size:14.5px;line-height:1.5}
+
+/* device library */
+.dvlist{display:grid;gap:6px}
+.dvlist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14.5px;font-weight:300;line-height:1.25;min-height:44px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.dvlist button .ico{width:22px;height:22px;color:var(--brand-600)}
+.dvlist button.seen{border-color:var(--brand-200)}
+.dvlist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+#dvInfo{animation:rise .22s ease-in-out both}
+.dvdl{display:grid;grid-template-columns:96px 1fr;gap:9px 14px;margin:14px 0 0;font-size:14.5px}
+.dvdl dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.dvdl dd{margin:0;line-height:1.5}
+
+/* species table */
+.sptab{min-width:640px}
+.slide .tablewrap{flex-shrink:0}
+.sptab td,.sptab th{padding:9px 12px;line-height:1.45}
+.sptab td:first-child{font-weight:500;white-space:nowrap}
+
+/* neophobia bars */
+.nbar{display:grid;grid-template-columns:96px 1fr 86px;gap:10px;align-items:center;margin-top:12px;font-size:14px}
+.nbar i{display:block;height:12px;border-radius:var(--pill);background:var(--brand-100);position:relative;overflow:hidden}
+.nbar i::after{content:"";position:absolute;inset:0;width:var(--w);background:var(--grad-emerald);border-radius:var(--pill);transform-origin:left;transform:scaleX(1)}
+.slide.on .nbar i::after{animation:grow 1s ease-in-out both}
+.slide.on .nbar:nth-of-type(2) i::after{animation-delay:.2s}.slide.on .nbar:nth-of-type(3) i::after{animation-delay:.4s}
+.nbar em{font-style:normal;color:var(--muted);font-size:13px}
+#pbTl .tg{font-size:11.5px}
+.tldetail{min-height:130px}
+
+/* device picker + check visit */
+#dpBox .choices{grid-template-columns:1fr 1fr;gap:8px}
+#dpBox .choice,#cvBox .choice{padding:10px 14px;font-size:14.5px;line-height:1.4}
+.dpjob{font-size:16px;max-width:none}
+.cvico{width:64px;height:64px;margin:0}
+.cvico .ico{width:32px;height:32px}
+.cvch{grid-template-columns:1fr 1fr;gap:8px}
+#cvBox{min-height:250px}
+
+/* orientation figure */
+.orbox{padding:10px}
+.orbox svg,.sfbox svg,.plbox svg{max-width:none!important;width:100%;display:block}
+.orlbl{font-family:var(--font);font-size:13px;fill:var(--brand-800);font-weight:400}
+.orlbl.sm{font-size:12px;fill:var(--muted)}
+#orFig .trap{display:none}
+#orFig[data-s="good"] .tGood,#orFig[data-s="bad"] .tBad,#orFig[data-s="pair"] .tPair{display:inline}
+.mz{transform-box:view-box}
+.slide.on #orFig[data-s="good"] .mz{animation:mzGood 3.6s ease-in-out infinite}
+.slide.on #orFig[data-s="pair"] .mz{animation:mzPair 3.6s ease-in-out infinite}
+.slide.on #orFig[data-s="bad"] .mz{animation:mzBad 3.6s linear infinite}
+@keyframes mzGood{0%{transform:translateX(0);opacity:0}8%{opacity:1}50%,88%{transform:translateX(246px);opacity:1}100%{transform:translateX(246px);opacity:0}}
+@keyframes mzPair{0%{transform:translateX(0);opacity:0}8%{opacity:1}50%,88%{transform:translateX(190px);opacity:1}100%{transform:translateX(190px);opacity:0}}
+@keyframes mzBad{0%{transform:translateX(0);opacity:0}8%{opacity:1}90%{opacity:1}100%{transform:translateX(540px);opacity:0}}
+.tGood .bar{transform-box:fill-box;transform-origin:center}
+.slide.on #orFig[data-s="good"] .bar{animation:snap 3.6s ease-in-out infinite}
+@keyframes snap{0%,50%{transform:translateY(0)}54%,90%{transform:translateY(-58px)}100%{transform:translateY(0)}}
+#orInfo{animation:rise .22s ease-in-out both}
+@media (prefers-reduced-motion:reduce){#orFig[data-s="good"] .mz{transform:translateX(246px)}#orFig[data-s="pair"] .mz{transform:translateX(190px)}#orFig[data-s="bad"] .mz{transform:translateX(420px)}}
+
+/* placement plan */
+.plbox{padding:8px}
+.pllbl{font-family:var(--font);font-size:12px;fill:var(--brand-800)}
+.spot{cursor:pointer;outline:none}
+.spot .dot{fill:var(--surface);stroke:var(--brand-600);stroke-width:2;transition:fill .18s ease-in-out}
+.spot text{font-family:var(--font);font-size:12px;fill:var(--brand-700);font-weight:500;pointer-events:none}
+.spot .halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .spot:not(.on) .halo{animation:halo 2.6s ease-out infinite}
+.slide.on .spot:nth-of-type(2n) .halo{animation-delay:.8s}.slide.on .spot:nth-of-type(3n) .halo{animation-delay:1.6s}
+.spot.on .dot{fill:var(--brand-600)}
+.spot.on text{fill:#fff}
+.spot:focus-visible .dot{stroke-width:3.5}
+.spot.ok .dot{fill:var(--positive);stroke:var(--positive)}
+.spot.no .dot{fill:var(--danger);stroke:var(--danger)}
+.spot.miss .dot{fill:var(--surface);stroke:var(--positive);stroke-width:3;stroke-dasharray:4 3}
+.spot.ok text,.spot.no text{fill:#fff}
+#plFb .fb{font-size:14px}
+
+/* order */
+#soOrd{gap:6px}
+#soOrd button{padding:8px 12px;font-size:14px;line-height:1.4}
+
+/* seal-first figure */
+.sfbox{padding:10px}
+#sfFig .plug{opacity:0;transition:opacity .22s ease-in-out}
+#sfFig[data-s="sealed"] .plug{opacity:1}
+#sfFig[data-s="sealed"] .dead{display:none}
+#sfFig[data-s="sealed"] .pOpen{stroke-dasharray:4 5}
+#sfInfo{animation:rise .22s ease-in-out both}
+
+
+/* sort */
+#pfSort .row{padding:8px 12px;font-size:14px;align-items:center;line-height:1.35}
+#pfSort{align-items:start}
+
+/* path */
+.path .st p{font-size:13.5px;line-height:1.45}
+
+@media (max-width:860px){
+  .slide .split{grid-template-columns:1fr!important}
+  #dpBox .choices,.cvch{grid-template-columns:1fr}
+  #cvBox{grid-template-columns:1fr!important}
+  .dvdl{grid-template-columns:1fr}
+  .sort .opts{flex-wrap:wrap}
+  .nbar{grid-template-columns:80px 1fr 70px}
+  .spot text{font-size:15px}
+  #orSeg,#sfSeg{flex-wrap:wrap;border-radius:12px}
+}
+
+.steps.carc li{padding:6px 0;font-size:14.5px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">RX-03 · Traps &amp; Devices</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-trap" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/><path d="M7 7v10"/><path d="M7 12h6"/><rect x="14" y="10" width="4" height="4" rx="1"/></symbol>
+    <symbol id="i-station" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M3 12h18"/><path d="M7 19v2M17 19v2"/><circle cx="12" cy="15.5" r="1.2"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M6 9h12M6 12h12M6 15h12" stroke-dasharray="1.5 2.5"/></symbol>
+    <symbol id="i-multi" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="10" rx="1.5"/><path d="M3 12h4M17 12h4"/><path d="M9 8v10M15 8v10"/><path d="M9 4h6"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M13 8l-3 4h4l-3 4"/></symbol>
+    <symbol id="i-oneway" viewBox="0 0 24 24"><path d="M4 4v16"/><path d="M8 12h11"/><path d="M15 8l4 4-4 4"/><path d="M4 9h3M4 15h3"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="16" r="4"/><path d="M11 13l9-9"/><path d="M17 7l3 3M14.5 9.5l2 2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 13H7z"/><path d="M9 8V6a3 3 0 016 0v2"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="7" cy="9" r="1.6"/><circle cx="11" cy="6" r="1.6"/><circle cx="15" cy="6.5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><path d="M8 17c0-3 2-5 4.5-5s4.5 2 4.5 5c0 2-2 2.5-4.5 2.5S8 19 8 17z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-03</span>
+        <h1 class="display a" style="--i:1">Traps &amp; Devices</h1>
+        <p class="lead a" style="--i:2">Snap traps, multi-catch traps, glue boards, stations and one-way doors: which device fits the rodent, where it goes, how often we check it, and how we keep children and pets safe around every one.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:360px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M20 40h280"/><path d="M20 40v190"/>
+          <rect x="30" y="52" width="46" height="120" rx="4"/><path d="M30 92h46"/><rect x="42" y="56" width="22" height="14" rx="2"/><path d="M53 92v62"/>
+          <path d="M120 60c10-10 30-12 44-2"/><path d="M120 60c-6 8-4 18 6 22"/><circle cx="158" cy="58" r="3"/>
+          <path d="M126 82c20 6 44 4 60-6"/><path d="M186 76c12-6 26-4 34 6"/>
+          <rect x="190" y="150" width="104" height="58" rx="8"/><path d="M190 172h104"/><path d="M204 208v14M280 208v14"/><circle cx="242" cy="190" r="5"/>
+          <path d="M100 230h200"/><path d="M96 128c14-4 30-4 44 0"/><path d="M98 140h40"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-trap"/></svg><span>Choose the right device for the species, the location and the household: snap, multi-catch, glue board, electronic, station or one-way door</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span>Explain neophobia and run a pre-bait on a rat account instead of setting traps that rats will walk around</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span>Set a snap trap safely and place it on the runway: against the wall, perpendicular, trigger end to the wall</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-station"/></svg><span>Use exterior tamper-resistant bait stations the way the label and Clements require, and never bait before sealing</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-search"/></svg><span>Run a Rodent Shield check visit: read every device, decide reset, move or switch, and record what you found</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-shield"/></svg><span>Remove and dispose of dead rodents safely, and keep every device out of reach of children, pets and non-target animals</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">A trap in the wrong spot is a trap that <span class="em">never catches.</span></h2>
+        <p class="lead a" style="--i:2">Rodent Shield Basic is a trapping program: an inspection, up to six traps or enclosed stations, and five follow-up visits. Plus puts traps at every entry point we seal. The devices are what the customer is paying for, and they sit in a home with children and pets.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>Rodenticide is regulated</h3><p>Federal law (FIFRA) makes any use against the label a violation. Rodenticide labels set where bait may go and when it must be in a tamper-resistant station.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-paw"/></svg></div><div><h3>Children and pets come first</h3><p>A rat trap can break a small finger or a cat's paw. Bait in the open can poison a dog. Placement is a safety decision before it's a pest decision.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Customers judge the result</h3><p>A rodent that dies inside a wall, a glue board found with a live mouse on it, or a trap the family wasn't told about ends the customer's trust fast.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: choose the device">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Read the rodent, then pick the device</h1>
+        <p class="lead a" style="--i:2">Why it matters: there's no universal best trap. There's the right device for the species, the spot, the household and the access. Pick wrong and the job stalls for a week.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The device library</li><li><span>02</span>Species decides the device</li><li><span>03</span>Neophobia and pre-baiting</li><li><span>04</span>Practice: device picker</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 DEVICE LIBRARY -->
+  <section class="slide" data-label="The device library">
+    <span class="eyebrow a">01 · The device library</span>
+    <h2 class="a" style="--i:1">Seven devices. Select each one.</h2>
+    <div class="split a" style="--i:2;grid-template-columns:1fr 1.25fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <div class="dvlist" id="dvList"></div>
+        <span class="small muted" id="dvCount">0 of 7 opened</span>
+      </div>
+      <div class="card" id="dvInfo" style="min-height:360px"><span class="eyebrow">Select a device</span><p style="margin-top:8px">Each card shows what the device is best for, its limits, and the Clements rules that go with it. Training builds on RX-01 (biology) and RX-02 (inspection): you already know where the rodents are. Now decide what goes there.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 SPECIES -->
+  <section class="slide" data-label="Species decides the device">
+    <span class="eyebrow a">02 · Species decides the device</span>
+    <h2 class="a" style="--i:1">Same house, three rodents, three different plans</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="sptab">
+        <thead><tr><th>Decision</th><th>House mouse</th><th>Roof rat</th><th>Norway rat</th></tr></thead>
+        <tbody>
+          <tr><td>Trap size</td><td>Mouse snap trap, multi-catch</td><td>Rat snap trap</td><td>Rat snap trap</td></tr>
+          <tr><td>Fear of new objects</td><td>Lowest: often accepts a device in 24–48 hours</td><td>Intermediate: cautious, but investigates</td><td>Highest: avoids a new device for 5–10 days</td></tr>
+          <tr><td>Set on day one?</td><td class="y">Yes</td><td>Pre-bait strongly recommended</td><td>No: pre-bait first</td></tr>
+          <tr><td>Where devices go</td><td>Interior wall lines, behind appliances, many devices close together (short range)</td><td>Up high: attic top plates, rafters, the entry point at the roofline</td><td>Low: garage wall lines, slab edge, beside burrows outside</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-rodent"/></svg><span><b>Not sure which rodent?</b> Droppings, rub marks and where the activity is tell you (PC-07, RX-01). Decide the species before you decide the device.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span><b>Mice cache food and travel short distances.</b> More devices, closer together. Rats need fewer, bigger traps on the exact runway.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 NEOPHOBIA + PRE-BAIT -->
+  <section class="slide" data-label="Neophobia and pre-baiting">
+    <span class="eyebrow a">03 · Neophobia and pre-baiting</span>
+    <h2 class="a" style="--i:1">A trap set on day one isn't a bad trap. It's a premature one.</h2>
+    <div class="split" style="grid-template-columns:1fr 1.2fr;gap:26px;align-items:start">
+      <div class="grid a" style="--i:2;gap:10px">
+        <div class="card neo" style="padding:16px 18px">
+          <span class="eyebrow">Days before a new device is accepted</span>
+          <div class="nbar"><span>House mouse</span><i style="--w:16%"></i><em>1–2 days</em></div>
+          <div class="nbar"><span>Roof rat</span><i style="--w:45%"></i><em>Several days</em></div>
+          <div class="nbar"><span>Norway rat</span><i style="--w:92%"></i><em>5–10 days</em></div>
+        </div>
+        <div class="callout"><svg class="ico"><use href="#i-alert"/></svg><span><b>Bait shyness:</b> a rodent injured but not killed, or one that has a near miss, avoids that trap type or bait, often for life. A sprung, empty trap means switch the device type or bait at that spot.</span></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:12px">
+        <div class="tl" id="pbTl"><span class="fill" id="pbFill"></span></div>
+        <div class="tldetail" id="pbDetail"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE: DEVICE PICKER -->
+  <section class="slide" data-label="Practice: device picker">
+    <span class="eyebrow a">04 · Practice · device picker</span>
+    <h2 class="a" style="--i:1">Six jobs. Pick the right device plan for each.</h2>
+    <div class="scen-tabs a" style="--i:2" id="dpTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="dpBox"></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: placement">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Setting and placing traps</h1>
+        <p class="lead a" style="--i:2">Why it matters: rodents run the edges and repeat the same route every night. A trap two feet off the rub mark is two feet too far. Five more minutes finding the runway beats fifteen minutes placing traps in the wrong spots.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Snap trap orientation</li><li><span>02</span>Placement rules and baits</li><li><span>03</span>Practice: place traps in the attic</li><li><span>04</span>Practice: set a trap in order</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 ORIENTATION -->
+  <section class="slide" data-label="Snap trap orientation">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">01 · Snap trap orientation</span><h2 class="a" style="--i:1">The rodent has to cross the trigger</h2></div>
+      <div class="seg a" style="--i:2" id="orSeg"><button type="button" id="orBad" aria-pressed="false">Parallel, off the wall</button><button type="button" id="orGood" aria-pressed="true">Perpendicular, trigger to wall</button><button type="button" id="orPair" aria-pressed="false">Paired on a runway</button></div>
+    </div>
+    <div class="split a" style="--i:3;grid-template-columns:1.35fr 1fr;gap:24px;align-items:center">
+      <div class="figbox orbox">
+        <svg viewBox="0 0 600 250" role="img" aria-label="Top view of a wall with a rodent running along it and a snap trap" id="orFig" data-s="good">
+          <rect x="0" y="0" width="600" height="34" fill="#C3DAC9"/><path d="M0 34h600" stroke="#1F5836" stroke-width="2"/>
+          <text x="16" y="22" class="orlbl">Wall</text>
+          <path d="M20 58h560" stroke="#A3C6AB" stroke-width="1.4" stroke-dasharray="5 6" class="runway"/>
+          <text x="20" y="80" class="orlbl sm">Runway along the edge</text>
+          <g class="trap tGood"><rect x="282" y="36" width="36" height="84" rx="4" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/><rect x="290" y="40" width="20" height="16" rx="2" fill="#74A96E" stroke="#1F5836" stroke-width="1.4"/><path class="bar" d="M286 110h28" stroke="#1F5836" stroke-width="3" stroke-linecap="round"/><text x="300" y="140" text-anchor="middle" class="orlbl sm">Trigger at the wall</text></g>
+          <g class="trap tBad"><rect x="250" y="150" width="96" height="36" rx="4" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/><rect x="322" y="160" width="18" height="16" rx="2" fill="#74A96E" stroke="#1F5836" stroke-width="1.4"/><path d="M258 154v28" stroke="#1F5836" stroke-width="3" stroke-linecap="round"/><text x="298" y="210" text-anchor="middle" class="orlbl sm">18 in off the wall, trigger to the room</text></g>
+          <g class="trap tPair"><rect x="226" y="36" width="36" height="84" rx="4" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/><rect x="234" y="40" width="20" height="16" rx="2" fill="#74A96E" stroke="#1F5836" stroke-width="1.4"/><rect x="338" y="36" width="36" height="84" rx="4" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/><rect x="346" y="40" width="20" height="16" rx="2" fill="#74A96E" stroke="#1F5836" stroke-width="1.4"/><text x="300" y="140" text-anchor="middle" class="orlbl sm">Two traps, both triggers to the wall</text></g>
+          <g class="mz"><ellipse cx="40" cy="52" rx="13" ry="7" fill="#5C6B62"/><circle cx="54" cy="50" r="4" fill="#5C6B62"/><path d="M27 54c-10 2-16 6-20 2" stroke="#5C6B62" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
+        </svg>
+      </div>
+      <div class="card" id="orInfo" style="min-height:250px"></div>
+    </div>
+  </section>
+
+  <!-- 12 PLACEMENT RULES -->
+  <section class="slide" data-label="Placement rules and baits">
+    <span class="eyebrow a">02 · Placement rules and baits</span>
+    <h2 class="a" style="--i:1">On the edge, on the path, out of reach</h2>
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:22px;align-items:start">
+      <div class="grid g2 tight">
+        <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>On the runway</h3><p>Against the wall, top plate, beam or pipe the rodent runs, at the rub marks and fresh droppings. Not near the path: on it.</p></div>
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>In the attic when possible</h3><p>Ideally above the garage access. Odor stays out of the living space and devices stay away from the family.</p></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Hidden but reachable</h3><p>Indoors: behind furniture, in cabinet voids, inside enclosed stations. Never in open traffic areas.</p></div>
+        <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Leave it there</h3><p>Don't move a device between visits without a reason. A device in place two weeks catches better than a fresh one.</p></div>
+      </div>
+      <div class="grid a" style="--i:4;gap:10px">
+        <div class="card" style="padding:16px 18px"><span class="eyebrow">Bait the trap</span>
+          <ul class="tick" style="margin-top:8px">
+            <li><b>Pea-size,</b> pressed onto the pedal so it must be worked at, not grabbed</li>
+            <li><b>Match what they're eating:</b> nut spreads, fruit or seeds; soft nesting material like cotton works for mice</li>
+            <li><b>Don't switch baits</b> mid-program at a spot that's taking bait</li>
+            <li><b>Gloves on</b> to handle every trap. Human scent causes avoidance</li>
+            <li><b>No repellents</b> or strong odors on the runway</li>
+          </ul></div>
+        <div class="callout"><svg class="ico"><use href="#i-clip"/></svg><span><b>Basic:</b> up to six traps or enclosed stations in activity areas. <b>Plus:</b> targeted at or near each entry point. Quality of placement beats quantity.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 PRACTICE: ATTIC PLACEMENT -->
+  <section class="slide" data-label="Practice: place traps in the attic">
+    <span class="eyebrow a">03 · Practice · trap placement</span>
+    <h2 class="a" style="--i:1">Roof rats in the attic. Choose the six best spots.</h2>
+    <div class="split a" style="--i:2;grid-template-columns:1.55fr 1fr;gap:20px;align-items:start">
+      <div class="figbox plbox">
+        <svg viewBox="0 0 640 360" role="img" aria-label="Top-down attic plan with numbered candidate trap locations" id="plSvg">
+          <rect x="20" y="20" width="600" height="320" rx="4" fill="#F4F6F5" stroke="#1F5836" stroke-width="3"/>
+          <g stroke="#DCE9DF" stroke-width="1.2"><path d="M60 22v316M100 22v316M140 22v316M180 22v316M220 22v316M260 22v316M300 22v316M340 22v316M380 22v316M420 22v316M480 22v316M520 22v316M560 22v316M600 22v316"/></g>
+          <path d="M440 20v320" stroke="#5C6B62" stroke-width="1.6" stroke-dasharray="6 5"/>
+          <text x="230" y="352" class="pllbl" text-anchor="middle" fill="#5C6B62">over living space</text>
+          <text x="530" y="352" class="pllbl" text-anchor="middle" fill="#5C6B62">over garage</text>
+          <rect x="300" y="152" width="140" height="36" fill="#DCE9DF" stroke="#A3C6AB"/><text x="408" y="174" class="pllbl" text-anchor="middle">walkway</text>
+          <rect x="248" y="140" width="52" height="60" rx="3" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.6"/><text x="274" y="174" class="pllbl" text-anchor="middle">A/C</text>
+          <rect x="500" y="228" width="52" height="44" rx="2" fill="#fff" stroke="#1F5836" stroke-width="1.6"/><text x="526" y="285" class="pllbl" text-anchor="middle">hatch</text>
+          <path d="M100 25h170" stroke="#0B3D20" stroke-width="5" stroke-dasharray="3 6" stroke-linecap="round" opacity=".55"/><text x="186" y="14" class="pllbl" text-anchor="middle">rub marks on top plate</text>
+          <g fill="#1D2A23" opacity=".7"><circle cx="27" cy="150" r="1.8"/><circle cx="29" cy="160" r="1.6"/><circle cx="26" cy="172" r="1.8"/><circle cx="30" cy="184" r="1.6"/><circle cx="27" cy="196" r="1.8"/></g><text x="40" y="214" class="pllbl">droppings</text>
+          <path d="M28 30c10 0 22 4 26 14s-10 14-22 10" fill="none" stroke="#5C6B62" stroke-width="1.4"/><text x="64" y="46" class="pllbl">nest</text>
+          <path d="M66 340h28" stroke="#F4F6F5" stroke-width="5"/><text x="80" y="306" class="pllbl" text-anchor="middle">soffit gap</text>
+          <path d="M300 334h138" stroke="#74A96E" stroke-width="3"/><text x="404" y="322" class="pllbl" text-anchor="middle">A/C line set</text>
+          <text x="210" y="252" class="pllbl" text-anchor="middle" fill="#5C6B62">open insulation</text>
+          <g id="plLayer"></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card" id="plInfo" style="padding:14px 18px;min-height:200px"><span class="eyebrow">How it works</span><p style="margin-top:6px">Select up to six numbered spots, then check. Think edges, runways, entry points, and where people's hands and feet go.</p></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="plCheck">Check my placement</button><button type="button" class="btn" id="plReset">Clear</button><span class="small muted" id="plCount">0 of 6 placed</span></div>
+        <div id="plFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE: TRAP SET ORDER -->
+  <section class="slide" data-label="Practice: set a trap in order">
+    <div class="split" style="grid-template-columns:1fr 1.25fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">04 · Practice · set the trap</span>
+        <h2 class="a" style="--i:1">Mouse activity behind the fridge. Set a snap trap in the right order.</h2>
+        <p class="a muted" style="--i:2">Select the steps in order. On a rat account you'd stop after baiting and leave it unset to pre-bait, marked with the date.</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-hand"/></svg><span><b>Fingers clear of the jaw.</b> Hold a set trap by the back end, away from the bar. A rat trap closes hard enough to break a finger.</span></div>
+        <div id="soFb" class="a" style="--i:4"></div>
+      </div>
+      <div class="order a" style="--i:2" id="soOrd"></div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: stations and restricted devices">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Stations, glue boards and one-way doors</h1>
+        <p class="lead a" style="--i:2">Why it matters: these are the devices with rules attached. Rodenticide labels are federal law, glue boards carry a humane-handling cost, and a one-way door in the wrong place traps rodents inside.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Exterior bait stations</li><li><span>02</span>Seal first, then bait</li><li><span>03</span>Glue boards</li><li><span>04</span>Multi-catch, electronic, one-way</li><li><span>05</span>Practice: pro move or fix it?</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 EXTERIOR STATIONS -->
+  <section class="slide" data-label="Exterior bait stations">
+    <span class="eyebrow a">01 · Exterior bait stations</span>
+    <h2 class="a" style="--i:1">Tamper-resistant, anchored, locked, recorded</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <div class="grid g2 tight">
+        <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-book"/></svg></div><h3>The label decides</h3><p>Where bait may go, how far from buildings, and when a tamper-resistant station is required (anywhere children, pets or non-target animals could reach it). Read it for every product.</p></div>
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-station"/></svg></div><h3>EVO stations</h3><p>Our tamper-resistant station. Bait secured on the rod, never loose. Anchoring every exterior station is the Clements standard (PC-01, PC-03).</p></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-key"/></svg></div><h3>Locked and keyed</h3><p>Close, lock, tug-test. The key stays on you, never in the lock or on a ledge.</p></div>
+        <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Mapped and recorded</h3><p>Every station numbered, on the account, with activity recorded per station each service.</p></div>
+      </div>
+      <div class="grid a" style="--i:4;gap:10px">
+        <div class="card" style="padding:16px 18px"><span class="eyebrow">In Rodent Shield</span>
+          <ul class="tick" style="margin-top:8px">
+            <li>Exterior rodent boxes are an add-on, always offered</li>
+            <li>Required at every Plus warranty renewal and on a warranty transfer at sale</li>
+            <li>Refilled bi-monthly or quarterly; quantity set at inspection</li>
+          </ul></div>
+        <div class="callout"><svg class="ico"><use href="#i-alert"/></svg><span><b>Rules are changing.</b> EPA is still finalizing new rodenticide limits (carcass searches, station use, endangered species). They arrive on the label and in Bulletins Live! Two. The label in your hand wins.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 SEAL FIRST -->
+  <section class="slide" data-label="Seal first, then bait">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">02 · Seal first, then bait</span><h2 class="a" style="--i:1">Activity inside? Never bait outside until it's sealed.</h2></div>
+      <div class="seg a" style="--i:2" id="sfSeg"><button type="button" id="sfOpen" aria-pressed="true">Entry point open</button><button type="button" id="sfSealed" aria-pressed="false">Entry point sealed</button></div>
+    </div>
+    <div class="split a" style="--i:3;grid-template-columns:1.35fr 1fr;gap:24px;align-items:center">
+      <div class="figbox sfbox">
+        <svg viewBox="0 0 560 260" role="img" aria-label="Cross-section of a house wall with an exterior bait station and a rodent path" id="sfFig" data-s="open">
+          <path d="M0 230h560" stroke="#A3C6AB" stroke-width="2"/>
+          <path d="M300 40l130-30 130 30" fill="none" stroke="#1F5836" stroke-width="2"/>
+          <rect x="300" y="40" width="250" height="190" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/>
+          <rect x="300" y="40" width="18" height="190" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.4"/>
+          <text x="440" y="140" text-anchor="middle" class="orlbl">Inside the home</text>
+          <rect x="296" y="196" width="26" height="14" fill="#F4F6F5" class="gap"/>
+          <rect x="296" y="196" width="26" height="14" rx="2" fill="#5C6B62" class="plug"/>
+          <rect x="120" y="196" width="80" height="34" rx="5" fill="#C3DAC9" stroke="#1F5836" stroke-width="2"/><text x="160" y="250" text-anchor="middle" class="orlbl sm">Bait station</text>
+          <path class="rpath pOpen" d="M60 222 C100 222 120 214 140 214 C200 214 260 206 300 203 C330 200 340 160 318 120" fill="none" stroke="#A3C6AB" stroke-width="1.6" stroke-dasharray="4 5"/>
+          <g class="dead" opacity="0"><path d="M326 104c8-4 20-4 26 2" stroke="#DC2626" stroke-width="1.8" fill="none"/><text x="360" y="100" class="orlbl sm" style="fill:#DC2626">dies in the wall</text><animate id="deadA" attributeName="opacity" dur="4s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.8;0.88;1"/></g>
+          <g class="rz"><ellipse cx="0" cy="0" rx="11" ry="6" fill="#5C6B62"/><circle cx="12" cy="-1" r="3.6" fill="#5C6B62"/><animateMotion id="rzA" dur="4s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;0.28;0.28;1;1" keyTimes="0;0.3;0.4;0.85;1" path="M60 222 C100 222 120 214 140 214 C200 214 260 206 300 203 C330 200 340 160 318 120"/><animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.06;0.9;1"/></g>
+        </svg>
+      </div>
+      <div class="card" id="sfInfo" style="min-height:240px"></div>
+    </div>
+  </section>
+
+  <!-- 19 GLUE BOARDS -->
+  <section class="slide" data-label="Glue boards">
+    <span class="eyebrow a">03 · Glue boards</span>
+    <h2 class="a" style="--i:1">A monitoring tool, not the program</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:22px;align-items:start">
+      <div class="grid a" style="--i:2;gap:10px">
+        <div class="card" style="padding:16px 18px"><span class="eyebrow">Clements guidance (Rodent Certification Training)</span>
+          <ul class="tick" style="margin-top:8px">
+            <li><b>Use</b> for monitoring, or as a supplement where a snap trap won't fit: under appliances, behind shelving</li>
+            <li><b>Never</b> as the primary kill device in a rodent program</li>
+            <li><b>Never</b> where a child, pet or non-target animal could touch it</li>
+            <li><b>Date, number and record</b> every board; replace dusty or full ones</li>
+            <li><b>Follow the board's label</b> for placement and how often to check it</li>
+          </ul></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="callout danger"><svg class="ico"><use href="#i-heart"/></svg><span><b>Why the limit:</b> a rodent on a glue board isn't killed. It can struggle for hours, and a customer may find it alive. That's a welfare problem and a trust problem.</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-rodent"/></svg><span><b>Live rodent on a board:</b> don't leave it and don't hand it to the customer. Remove it from view and euthanize it promptly and humanely, the way your supervisor showed you in field training. Then bag and dispose of it.</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-paw"/></svg><span><b>Lizard, bird, snake or pet caught?</b> Stop and call your supervisor. Don't pull the animal off the glue. Then ask why a board was where a non-target could reach it.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 MULTI / ELECTRONIC / ONE-WAY -->
+  <section class="slide" data-label="Multi-catch, electronic, one-way">
+    <span class="eyebrow a">04 · Multi-catch, electronic and one-way devices</span>
+    <h2 class="a" style="--i:1">Useful tools, each with a catch</h2>
+    <div class="grid g3 tight">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-multi"/></svg></div><h3>Multi-catch mouse traps</h3><p>Curiosity traps that catch several mice, no bait needed. Good for commercial accounts and no-kill requests. <b>Mice only.</b> A live-catch trap holds live animals: check it at least every 24 hours, so use it only where someone can.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-bolt"/></svg></div><h3>Electronic traps</h3><p>Battery-powered traps that kill quickly, often with an indicator showing a catch. Keep them dry, check the batteries each visit, and place them like a snap trap. Use only models Clements approves.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-oneway"/></svg></div><h3>One-way doors and excluders</h3><p>Let rodents out but not back in. Fit one only on the last active entry, after every other opening is sealed, with traps kept inside for any rodent that can't leave. Never on a dryer or exhaust vent.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span><b>The 24-hour rule (CW-05):</b> Florida's wildlife rule (FWC 68A-9.010) requires live traps and snares to be checked at least every 24 hours. It covers live-capture wildlife trapping. It doesn't set the schedule for snap traps on Rodent Shield.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Bats are never trapped.</b> Bats are excluded only under the wildlife rules in CW-05. If you find bats where you planned a one-way door, stop and call your branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 21 PRACTICE: PRO OR FIX -->
+  <section class="slide" data-label="Practice: pro move or fix it">
+    <span class="eyebrow a">05 · Practice · ride-along</span>
+    <h2 class="a" style="--i:1">Your supervisor checks your devices. Pro move, or fix it?</h2>
+    <div class="sort a" style="--i:2" id="pfSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="pfCheck">Check my answers</button><span id="pfFb"></span></div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: checks, removal, safety">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Check visits, removal and safety</h1>
+        <p class="lead a" style="--i:2">Why it matters: the follow-up visits are where Rodent Shield succeeds or stalls. Every check is a decision, every carcass is a biohazard, and every device has to stay safe for the family between visits.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The Rodent Shield check schedule</li><li><span>02</span>Practice: check-visit decisions</li><li><span>03</span>Carcass removal and disposal</li><li><span>04</span>Children, pets and emergencies</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 SCHEDULE -->
+  <section class="slide" data-label="The check schedule">
+    <span class="eyebrow a">01 · The Rodent Shield check schedule</span>
+    <h2 class="a" style="--i:1">Five follow-ups. The first week is the busy one.</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-trap"/></svg></span><h3>Initial service</h3><p>Inspection, devices placed and mapped. Tell the customer when you're coming back.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-clock"/></svg></span><h3>Next day, if possible</h3><p>The first follow-up ideally happens the day after placement when the schedule allows.</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-search"/></svg></span><h3>Every other day, week one</h3><p>The high-activity window: fresh placements, rodents testing new routes after sealing.</p></div>
+      <div class="st top a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><h3>Remaining follow-ups</h3><p>Per the program: five follow-ups in Basic and Plus. More visits are extra; pricing comes from the branch.</p></div>
+    </div>
+    <div class="grid g3 tight">
+      <div class="card a" style="--i:6"><h3>Every device, every visit</h3><p>Check each one: catch, sprung, bait taken, moved, new sign nearby. Reset or replace, then record it.</p></div>
+      <div class="card a" style="--i:7"><h3>What success looks like</h3><p>Captures decline over time, noises drop off, no new sign, and the exclusion work is intact.</p></div>
+      <div class="card a" style="--i:8"><h3>When it isn't working</h3><p>Captures flat or climbing means a missed entry point. Re-inspect. On Basic, present Plus; on Plus, it's a warranty review (RX-06).</p></div>
+    </div>
+  </section>
+
+  <!-- 25 PRACTICE: CHECK VISIT -->
+  <section class="slide" data-label="Practice: check-visit decisions">
+    <span class="eyebrow a">02 · Practice · check-visit decisions</span>
+    <h2 class="a" style="--i:1">Follow-up visit. What do you do at each device?</h2>
+    <div class="scen-tabs a" style="--i:2" id="cvTabs"></div>
+    <div class="split a" style="--i:3;grid-template-columns:auto 1fr;gap:20px;align-items:start" id="cvBox"></div>
+  </section>
+
+  <!-- 26 CARCASS -->
+  <section class="slide" data-label="Carcass removal and disposal">
+    <span class="eyebrow a">03 · Carcass removal and disposal</span>
+    <h2 class="a" style="--i:1">Every dead rodent is a biohazard</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <ol class="steps compact carc a" style="--i:2">
+        <li><span class="num">1</span><span><b>PPE first:</b> nitrile gloves always; a respirator in an attic or enclosed space with built-up droppings (FC-03, RX-08).</span></li>
+        <li><span class="num">2</span><span><b>Wet it down:</b> spray the rodent, trap and nearby droppings with 1 part bleach to 9 parts water (about 1½ cups per gallon) or an EPA-registered disinfectant; let it soak about 5 minutes.</span></li>
+        <li><span class="num">3</span><span><b>Bag it:</b> rodent (or trap and rodent) into a plastic bag, spray inside, seal it, then into a second bag. Never barehanded.</span></li>
+        <li><span class="num">4</span><span><b>Dispose:</b> in the trash unless local rules require otherwise. Never leave it for the customer.</span></li>
+        <li><span class="num">5</span><span><b>Reset and record:</b> disinfect or replace the trap, reset it on the same runway, record the catch on that device.</span></li>
+        <li><span class="num">6</span><span><b>Clean up:</b> gloves off inside out, bagged; wash your hands before you touch your face, phone or food.</span></li>
+      </ol>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="callout danger"><svg class="ico"><use href="#i-wind"/></svg><span><b>Never sweep or vacuum droppings dry.</b> That puts particles in the air you breathe. Wet first, always (CDC guidance).</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-drop"/></svg><span><b>The real risks:</b> leptospirosis (urine, through cuts or eyes), rat-bite fever, salmonella. In Florida, hantavirus is tied to cotton rats and rice rats, not house mice, roof rats or Norway rats, but we treat all rodent waste as hazardous.</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-alert"/></svg><span><b>Bitten, or ill within weeks of a heavy job?</b> Tell your supervisor immediately and file a written report the same day. See a doctor and mention rodent exposure.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 KIDS, PETS, EMERGENCY -->
+  <section class="slide" data-label="Children, pets and emergencies" data-alert="1">
+    <span class="eyebrow a">04 · Children, pets and emergencies</span>
+    <h2 class="a" style="--i:1">Assume a toddler and a dog will find every device</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:22px;align-items:start">
+      <div class="grid a" style="--i:2;gap:10px">
+        <div class="card" style="padding:16px 18px"><span class="eyebrow">Prevention</span>
+          <ul class="tick" style="margin-top:8px">
+            <li>Traps in the attic, in closed voids, or inside an enclosed station where kids or pets live</li>
+            <li>Rodenticide only inside locked, anchored, tamper-resistant stations outdoors</li>
+            <li>No glue boards where a child, pet or non-target animal can reach</li>
+            <li>Count your devices in and out; nothing left behind loose</li>
+            <li>Show the customer every device on the map, and ask about pets and children before you place anything</li>
+          </ul></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="bar-forest"><svg class="ico"><use href="#i-phone"/></svg><span><b>Child or adult got into bait?</b> Call Poison Control at <b>1-800-222-1222</b> (911 if they're not breathing, seizing or unresponsive). Have the label or product name ready.</span></div>
+        <div class="callout danger"><svg class="ico"><use href="#i-paw"/></svg><span><b>Pet got into bait?</b> The owner calls their veterinarian or an animal poison control center right away. Give them the product name and active ingredient (482.2265). Anticoagulant poisoning can take days to show.</span></div>
+        <div class="callout danger"><svg class="ico"><use href="#i-hand"/></svg><span><b>Finger or paw caught in a trap?</b> Release the bar carefully and get medical or veterinary care if it's injured.</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-clip"/></svg><span>Any of these: tell your supervisor immediately and file a written report the same day.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a live Rodent Shield job</h2>
+    <p class="a muted" style="--i:2">Your field training lead will watch you do each of these before RX-03 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="so1"> Pick the device for the species, spot and household, and explain the choice</label></li>
+      <li><label><input type="checkbox" id="so2"> Set a snap trap safely: gloves, pea-size bait, fingers clear, perpendicular with the trigger to the wall</label></li>
+      <li><label><input type="checkbox" id="so3"> Run a pre-bait on a rat account: place unset, mark the date, set it on the next visit</label></li>
+      <li><label><input type="checkbox" id="so4"> Place devices on the runways, in the attic above the garage where possible, out of reach of children and pets</label></li>
+      <li><label><input type="checkbox" id="so5"> Service an exterior EVO station to standard and explain why we seal before we bait</label></li>
+      <li><label><input type="checkbox" id="so6"> Run a check visit: read every device, decide reset, move or switch, and record each one</label></li>
+      <li><label><input type="checkbox" id="so7"> Remove a dead rodent: PPE, disinfect, double-bag, dispose, reset the trap, wash hands</label></li>
+      <li><label><input type="checkbox" id="so8"> Record every device on the account and walk the customer through where each one is</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx03:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx03:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-03", "titleHtml": "Traps &amp; Devices", "nextHtml": "RX-04 \u00b7 Exclusion \u2014 Clements Standard", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Choose the device',q:'You placed rat snap traps on confirmed Norway rat runways in a garage on Monday, baited but unset. On Thursday nothing has been touched and the customer asks why you haven\'t caught anything. What do you do?',o:['Set all the triggers today so the customer sees progress','Move the traps to new spots, since these clearly aren\'t working','Leave them where they are, explain that Norway rats avoid new objects for days, and set them after the pre-bait period','Switch everything to glue boards'],a:2,e:'Norway rats are the most neophobic of the three rodents and can avoid a new device for 5–10 days. Quiet on day 3 is expected. Leave the traps in place, teach the customer the pre-bait plan, and set the triggers on the next visit.'},
+    2:{t:'Checkpoint 2 · Setting and placing',q:'On a ride-along you find a trainee\'s mouse snap trap 18 inches out from the kitchen baseboard, parallel to the wall, trigger facing the room. What do you fix?',o:['Move it onto the runway: against the wall, perpendicular, trigger end touching the wall','Nothing; mice are curious and will find it','Add more bait so the smell draws them out','Turn it so the trigger faces the wall but leave it where it is'],a:0,e:'Rodents run the edges. The trap belongs on the runway, touching the wall, perpendicular to the path with the trigger end at the wall, so the mouse has to cross the trigger. A trap off the wall is in the zone they avoid.'},
+    3:{t:'Checkpoint 3 · Stations and restricted devices',q:'A homeowner hears scratching in the attic every night. Entry points are still open. She asks you to put bait stations outside today and skip the inside work. What\'s the right response?',o:['Place the stations today; the sooner bait is out, the better','Put rodenticide in the attic instead so they die faster','Leave glue boards in the attic for her to check','Explain that we trap inside and seal the entry points first; exterior stations go in after sealing'],a:3,e:'Interior activity means inspect, trap inside and seal first (CW-05, Rodent Shield). A rodent that eats bait outside while openings are still there can get back in and die in the wall or attic.'},
+    4:{t:'Checkpoint 4 · Check visits and safety',q:'At a follow-up you find a dead roof rat in a trap in a hot attic, with built-up droppings around the trap. What\'s the correct way to handle it?',o:['Sweep the droppings into a dustpan, then pick up the rat with a paper towel','Respirator and gloves on; wet the rat, trap and droppings with disinfectant and let it soak; double-bag; dispose; reset the trap; wash your hands','Leave the rat in the trap for the homeowner and reset a new trap beside it','Vacuum the droppings with the customer\'s shop vac, then bag the rat'],a:1,e:'Never sweep or vacuum droppings dry: it puts particles in the air. PPE first, wet everything with 1 part bleach to 9 parts water (about 1½ cups per gallon) or an EPA-registered disinfectant, soak 5 minutes, double-bag, dispose in the trash unless local rules say otherwise, reset and record the trap, then wash your hands.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which rodent typically accepts a new device fastest, often within 24–48 hours?',o:['Norway rat','Roof rat','House mouse','All three are the same'],a:2,e:'House mice are curiosity-driven and have the lowest neophobia, which is why snap traps work well for mice from day one.'},
+    {k:'Multiple choice',q:'How long can a Norway rat avoid a newly placed device?',o:['5–10 days','A few hours','About 30 days','It never avoids it'],a:0,e:'Norway rats have the strongest neophobia and can avoid a new device for 5–10 days. That\'s why we pre-bait.'},
+    {k:'Multiple choice',q:'What does pre-baiting mean?',o:['Spraying repellent before placing traps','Placing a baited trap or station unset on the runway for several days, then setting it','Putting bait on the floor around the trap','Setting extra traps on day one'],a:1,e:'The device sits baited but unset so rats learn it\'s safe. Catch rates after a proper pre-bait can be more than double a day-one set.'},
+    {k:'True or false',q:'A snap trap should sit parallel to the wall with the trigger facing out into the room.',o:['True','False'],a:1,e:'False. Place it against the wall, perpendicular to the runway, with the trigger end touching the wall so the rodent has to cross it.'},
+    {k:'Scenario',q:'A mouse snap trap is sprung, the bait is gone, and there\'s no mouse. What\'s the best next step?',o:['Reset it exactly as before','Remove it; the mouse has left','Leave it sprung as a monitor','Switch to a different device type or bait at that spot'],a:3,e:'A near miss makes the rodent trap-shy, often for life. Change the mechanism (for mice, snap to multi-catch) or the bait.'},
+    {k:'Multiple choice',q:'Where does the Rodent Certification Training say traps go when possible?',o:['In the attic, ideally above the garage access','In the middle of the living room','In the customer\'s bedroom closet','On the driveway'],a:0,e:'Attic placement, ideally above the garage access, keeps odor out of the living space and devices away from the family.'},
+    {k:'Multiple choice',q:'How many traps or enclosed stations does Rodent Shield Basic include?',o:['One','Up to six, in activity areas','Unlimited','Twelve'],a:1,e:'Basic: inspection, up to six snap traps or enclosed stations in activity areas, and five follow-up visits. No exclusion and no warranty.'},
+    {k:'True or false',q:'Glue boards may be used as the primary kill device on a residential rodent program.',o:['True','False'],a:1,e:'False. Glue boards are for monitoring or as a supplement where a snap trap won\'t fit, never the primary kill device, and never where a child, pet or non-target animal could reach them.'},
+    {k:'Multiple choice',q:'Which rodent can a multi-catch (curiosity) trap be used for?',o:['Norway rats','Roof rats','All rodents','House mice only'],a:3,e:'Multi-catch traps are mice only; rats won\'t fit. Because they hold mice alive, they must be checked at least every 24 hours.'},
+    {k:'Scenario',q:'Attic activity, entry points still open, and the customer wants exterior bait stations today. Why do we seal first?',o:['A rodent that eats bait outside can get back in and die in the wall or attic','Stations don\'t work in Florida','Sealing is cheaper','The label bans stations near homes'],a:0,e:'Seal first, then bait (CW-05). Anticoagulant bait takes days to work, so a rodent with an open way in often dies inside.'},
+    {k:'Multiple choice',q:'Where must rodenticide bait be placed outdoors where children, pets or non-target animals could reach it?',o:['Loose on the ground near burrows','In a paper bag by the foundation','In a tamper-resistant bait station, as the label requires','Wherever the customer prefers'],a:2,e:'Rodenticide labels require tamper-resistant stations in those locations. Clements also anchors every exterior station and secures bait on the rod.'},
+    {k:'Multiple choice',q:'What is the Rodent Shield trap-check cadence during the first week?',o:['Once, at the end of the week','Every other day, with the first follow-up ideally the next day','Only when the customer calls','Twice a day'],a:1,e:'The first week is the high-activity window: checks every other day, with the first follow-up ideally the day after placement. Basic and Plus each include five follow-ups.'},
+    {k:'True or false',q:'Florida\'s 24-hour trap-check rule (FWC 68A-9.010) applies to live traps and snares used for wildlife.',o:['True','False'],a:0,e:'True. It requires live traps and snares to be visited at least every 24 hours. It doesn\'t set the Rodent Shield snap-trap schedule, but any live-catch device should be checked within 24 hours.'},
+    {k:'Scenario',q:'Catches at follow-up four are higher than at follow-up two on a Basic account. What does that tell you?',o:['The program is working','It\'s normal and needs no action','Rodents are still getting in. Re-inspect and present Plus','The traps are the wrong color'],a:2,e:'Captures should decline over time. Flat or climbing catches point to an open entry point. On Basic, present Plus; on Plus, it\'s a warranty review.'},
+    {k:'Multiple choice',q:'When is a one-way door or excluder used?',o:['On the first entry point found, before anything else','On the last active entry point, after every other opening is sealed, with traps kept inside','On a dryer vent','Only on bats during maternity season'],a:1,e:'Fit it too early and rodents use the other openings. Keep traps inside for any rodent that can\'t leave. Never on dryer or exhaust vents, and bats are handled only under CW-05\'s wildlife rules.'},
+    {k:'Multiple choice',q:'What\'s the first step when you find droppings around a dead rodent in a trap?',o:['Sweep them up quickly','Vacuum them','Blow them away with your breath','Wet them with disinfectant and let them soak before removal'],a:3,e:'Never sweep or vacuum droppings dry: it puts particles in the air. Wet with 1 part bleach to 9 parts water (about 1½ cups per gallon) or an EPA-registered disinfectant, soak about 5 minutes, then remove (CDC guidance).'},
+    {k:'Multiple choice',q:'How is a dead rodent bagged for disposal?',o:['In a plastic bag, sprayed with disinfectant, sealed, then placed in a second bag','Loose in the truck bed','Left for the customer','In the customer\'s compost'],a:0,e:'Gloves on, bag, disinfect, seal, double-bag, and dispose in the trash unless local rules require otherwise. Then gloves off inside out and wash your hands.'},
+    {k:'True or false',q:'In Florida, hantavirus is mainly associated with house mice, roof rats and Norway rats.',o:['True','False'],a:1,e:'False. In Florida it\'s associated with cotton rats and rice rats. We still treat all rodent droppings, urine and nests as hazardous because of leptospirosis, salmonella and other risks.'},
+    {k:'Scenario',q:'A customer\'s dog chewed into a bait block that fell out of a broken station. What happens first?',o:['Tell the customer it\'s safe for dogs','Wait to see whether the dog gets sick','The owner calls their vet or an animal poison control center now, with the product name and active ingredient; then tell your supervisor','Replace the station and leave'],a:2,e:'Anticoagulant poisoning can take days to show, so act now. Give the product name and active ingredient (482.2265), report to your supervisor immediately and file a written report the same day. Never call a pesticide safe.'},
+    {k:'Multiple choice',q:'Why shouldn\'t you move a quiet device to a new spot at every visit?',o:['Rodents need time to accept a device; one left in place is more likely to catch than one just moved','Moving devices is against the label','The customer may not notice','It wastes bait'],a:0,e:'Consistency is part of the strategy. A device that has sat for two weeks is more likely to catch than a freshly moved one. Explain that to the customer.'}
+  ];
+
+  var SVGNS='http://www.w3.org/2000/svg';
+  function ico(n){return '<svg class="ico"><use href="#'+n+'"/></svg>'}
+  function li(a){return a.map(function(x){return '<li>'+x+'</li>'}).join('')}
+  var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- device library ---------- */
+  var DV=[
+    {n:'Snap trap',i:'i-trap',w:'Interior and attic',b:'Mice from day one; rats once the pre-bait period is done. Fast kill, clear evidence of a catch, easy to check.',l:'Exposed to children and pets unless it\'s in the attic, a closed void or an enclosed station. A rodent injured but not killed becomes trap-shy.',c:'Mouse traps for mice, rat traps for rats. Against the wall, perpendicular, trigger end to the wall. Gloves on.'},
+    {n:'Enclosed trap station',i:'i-station',w:'Interior, garage, exterior',b:'Holding a snap trap where people or pets could otherwise reach it, and for perimeter monitoring.',l:'Costs more and needs a key. Rodents still need time to accept it, so pre-baiting applies.',c:'Rodent Shield Basic places up to six snap traps or enclosed stations in activity areas.'},
+    {n:'Multi-catch mouse trap',i:'i-multi',w:'Interior, mostly commercial',b:'Mice in commercial settings, light residential use, and customers who want no kill and no bait.',l:'Mice only: rats won\'t fit. Mice caught alive die inside if it isn\'t checked often, a welfare and odor problem.',c:'A live-catch trap is checked at least every 24 hours. Use it only where someone can do that.'},
+    {n:'Glue board',i:'i-board',w:'Interior monitoring',b:'Monitoring in tight spots where a snap trap won\'t fit: under appliances, behind shelving.',l:'Not humane as a primary tool. The animal can suffer for hours, and a customer may find it alive.',c:'Monitor or supplement only. Never the primary kill device, never where a child, pet or non-target animal can reach.'},
+    {n:'Electronic trap',i:'i-bolt',w:'Interior',b:'Quick kill with a catch indicator; enclosed, so it\'s tidier for customers who don\'t want to see a trap.',l:'Batteries and moisture. A dead battery is a trap that isn\'t working.',c:'Only models Clements approves. Check the batteries on every visit and place it on the runway like a snap trap.'},
+    {n:'Tamper-resistant bait station',i:'i-lock',w:'Exterior',b:'Perimeter control and long-term protection: the Rodent Shield add-on and the Plus renewal requirement.',l:'Rodenticide is regulated by the label. Bait outside while entry points are open can leave a rodent dying in a wall.',c:'EVO stations: bait on the rod, anchored, locked, numbered and recorded. Seal first, then bait.'},
+    {n:'One-way door or excluder',i:'i-oneway',w:'Exterior entry point',b:'The last active entry point after everything else is sealed, so rodents inside can leave and can\'t return.',l:'Fitted too early it does nothing; fitted on the only exit with young inside, they die in the structure.',c:'Every other opening sealed first, traps kept inside. Never on a dryer or exhaust vent. RX-04 covers the sealing.'}
+  ];
+  var dvSeen=store.get('dv')||{};
+  function dvCount(){var n=Object.keys(dvSeen).length;$('#dvCount').textContent=n+' of 7 opened'+(n===7?' · all opened':'');}
+  DV.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='dv'+i;b.setAttribute('aria-pressed','false');if(dvSeen[i])b.classList.add('seen');
+    b.innerHTML=ico(t.i)+'<span>'+t.n+'</span>';
+    b.addEventListener('click',function(){
+      $$('#dvList button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});dvSeen[i]=1;store.set('dv',dvSeen);b.classList.add('seen');dvCount();
+      var box=$('#dvInfo');box.style.animation='none';void box.offsetWidth;box.style.animation='';
+      box.innerHTML='<div style="display:flex;gap:14px;align-items:center"><div class="icobox" style="margin:0;width:52px;height:52px">'+ico(t.i)+'</div><div><span class="eyebrow">'+t.w+'</span><h3 style="font-size:22px;margin:2px 0 0">'+t.n+'</h3></div></div><dl class="dvdl"><dt>Best for</dt><dd>'+t.b+'</dd><dt>Limits</dt><dd>'+t.l+'</dd><dt>Clements</dt><dd>'+t.c+'</dd></dl>';
+    });$('#dvList').appendChild(b)});
+  dvCount();
+
+  /* ---------- pre-bait timeline ---------- */
+  var PB=[
+    {y:'Day 1',g:'Place unset',i:'i-trap',h:'Place it baited, but don\'t set it',p:'Put the trap or station on a confirmed runway with bait loaded and the trigger not engaged. Write the date on it and record the location.'},
+    {y:'Days 2–4',g:'Leave it',i:'i-eye',h:'Let them learn it\'s safe',p:'The rats investigate and eat from it. Don\'t move it, don\'t disturb the path, no repellents nearby. Quiet is normal.'},
+    {y:'Day 5–7',g:'Set it',i:'i-target',h:'Set the trigger on the next visit',p:'Now they approach without hesitation. Catch rates after a proper pre-bait can be more than double a day-one set.'},
+    {y:'Between',g:'Don\'t move it',i:'i-pin',h:'Consistency is the strategy',p:'A device that has sat two weeks without a catch is still more likely to catch than one you just moved. Explain that to the customer.'},
+    {y:'If missed',g:'Switch it',i:'i-alert',h:'Sprung and empty? Change the mechanism',p:'That rodent is now trap-shy. Switch the trap type at that spot (for mice, snap to multi-catch) or change the bait.'}
+  ];
+  var pbSeen=store.get('pb')||{};
+  function showPB(n){$$('#pbTl button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(pbSeen[j])b.classList.add('seen')});
+    $('#pbFill').style.width=(n/(PB.length-1)*80)+'%';
+    var t=PB[n];$('#pbDetail').innerHTML='<div class="card" style="display:flex;gap:16px;align-items:flex-start;padding:16px 18px"><div class="icobox" style="margin:0">'+ico(t.i)+'</div><div><span class="eyebrow">'+t.y+' · '+t.g+'</span><h3 style="margin:4px 0 6px;font-size:19px">'+t.h+'</h3><p>'+t.p+'</p></div></div>';}
+  PB.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='pb'+i;b.innerHTML='<span class="dot"><svg class="ico" style="width:20px;height:20px"><use href="#'+t.i+'"/></svg></span><span class="yr">'+t.y+'</span><span class="tg">'+t.g+'</span>';
+    b.addEventListener('click',function(){pbSeen[i]=1;store.set('pb',pbSeen);showPB(i)});$('#pbTl').appendChild(b)});
+  pbSeen[0]=1;showPB(0);
+
+  /* ---------- scenario helper (tabs + 4 choices) ---------- */
+  function scenarios(tabsId,boxId,list,key,opts){
+    var done=store.get(key)||{};
+    function show(n){
+      $$('#'+tabsId+' button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!done[j])});
+      var t=list[n];
+      var head=opts.icon?'<div class="icobox cvico">'+ico(t.i)+'</div><div class="grid" style="gap:10px">':'<div class="grid" style="gap:10px">';
+      $('#'+boxId).innerHTML=head+'<p class="dpjob">'+t.s+'</p><div class="choices '+(opts.icon?'cvch':'')+'">'+t.o.map(function(o,i){return '<button type="button" class="choice" id="'+key+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="sfb"></div></div>';
+      $$('#'+boxId+' .choice').forEach(function(b){b.addEventListener('click',function(){
+        var i=+b.dataset.i;$$('#'+boxId+' .choice').forEach(function(x){x.classList.remove('wrong')});
+        if(i===t.a){b.classList.add('right');$$('#'+boxId+' .choice').forEach(function(x){x.disabled=true});done[n]=1;store.set(key,done);$('#'+key+'t'+n).classList.add('done');
+          var nx=list.findIndex(function(_,k){return !done[k]});
+          $('#'+boxId+' .sfb').innerHTML='<div class="fb">'+t.e+(nx>=0?' <button type="button" class="btn" id="'+key+'Next" style="margin-left:8px;padding:4px 12px">Next</button>':' All '+list.length+' done.')+'</div>';
+          if(nx>=0)$('#'+key+'Next').addEventListener('click',function(){show(nx)});}
+        else{b.classList.add('wrong');$('#'+boxId+' .sfb').innerHTML='<div class="fb no">'+(t.w&&t.w[i]?t.w[i]:'Not the best plan. Think species, location and who else lives there.')+'</div>';}
+      })});
+    }
+    list.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id=key+'t'+i;b.textContent=t.n;b.addEventListener('click',function(){show(i)});$('#'+tabsId).appendChild(b)});
+    show(0);
+  }
+
+  /* ---------- device picker ---------- */
+  scenarios('dpTabs','dpBox',[
+    {n:'Kitchen mice',s:'House mice behind the refrigerator and under the sink. A toddler and a cat live in the home.',o:['Glue boards across the kitchen floor along the cabinets','Mouse snap traps inside enclosed stations on the wall lines behind the appliances','Rat snap traps set in the open under the sink','Rodenticide blocks placed loose under the sink'],a:1,e:'Mice accept new devices fast, so snap traps work from day one. Enclosed stations keep the toddler and the cat away from the trigger.',w:{0:'Glue boards are monitors only, and never where a child or pet can reach.',2:'Wrong size, and set in the open where a toddler or cat can reach.',3:'Never loose rodenticide indoors, and never where a child or pet can reach.'}},
+    {n:'Garage Norway rats',s:'Norway rat droppings along the garage wall and burrows at the slab edge. No activity inside the house.',o:['Mouse snap traps set immediately','A multi-catch trap by the garage door','Rat snap traps on the garage wall runways, baited but unset and dated, set on the next visit','Glue boards along the garage wall'],a:2,e:'Norway rats are the most wary of new objects. Pre-bait on the runway, mark the date, set the trigger after the pre-bait period. Offer exterior stations as the add-on.',w:{0:'Too small for rats, and setting on day one teaches rats to avoid them.',1:'Multi-catch traps are for mice only.',3:'Glue boards are monitors, not a rat program.'}},
+    {n:'Roof rats, Plus job',s:'Roof rat rub marks on the attic top plate and an open gap at the soffit. The customer bought Plus.',o:['Rat snap traps on the top plate runway and at the entry point, secured, starting above the garage access','Exterior bait stations only, around the foundation','One-way door on the soffit gap today, nothing inside','Mouse traps on the attic floor in the middle of each bay'],a:0,e:'Plus places traps at or near each entry point, on the runways the rats actually use, with the attic over the garage preferred. Pre-baiting is strongly recommended for roof rats too.',w:{1:'Interior activity means seal first. Exterior bait can leave a rat dying in the wall.',2:'A one-way door goes only on the last active opening after everything else is sealed, with traps inside.',3:'Wrong size and off the runway.'}},
+    {n:'Break room, no kill',s:'Commercial break room with mice. The manager wants no bait and no kill, and staff are there every day.',o:['Rat snap traps behind the vending machine','Rodenticide station under the counter','Glue boards under every table','Multi-catch mouse traps along the walls, checked at least every 24 hours by an arrangement you set up'],a:3,e:'Multi-catch traps fit a no-kill, no-bait request. Because they hold live mice, someone has to check them at least every 24 hours.',w:{0:'The customer asked for no kill, and these are the wrong size.',1:'The customer asked for no bait.',2:'Glue boards aren\'t no-kill and aren\'t a primary tool.'}},
+    {n:'Tight toe-kick',s:'You need to know whether mice are using the 1-inch space under the dishwasher toe-kick. A snap trap won\'t fit.',o:['A glue board as a monitor, dated and recorded, out of reach, checked every visit','A rat trap jammed in sideways','Rodenticide pellets pushed under the toe-kick','Nothing; skip that area'],a:0,e:'This is what glue boards are for: monitoring a tight spot a trap can\'t reach. Date it, record it, check it every visit.',w:{1:'A trap that doesn\'t sit flat on the runway won\'t fire properly.',2:'Never loose bait in a kitchen.',3:'Fresh sign there matters. Monitor it.'}},
+    {n:'"Just bait outside"',s:'Scratching in the attic every night. The homeowner asks you to "just put bait boxes outside" and skip the inside.',o:['Agree and place four exterior stations today','Explain we trap inside and seal the entry points first; exterior stations come after sealing','Put rodenticide in the attic so they die faster','Leave glue boards for the homeowner to place'],a:1,e:'Interior activity means traps inside and sealing first (CW-05). Baiting outside with openings left can mean a rodent eats, gets back in and dies in the wall.',w:{0:'That\'s how rodents end up dying inside walls.',2:'Dead rodents in the attic mean odor in the home.',3:'We place and check every device ourselves.'}}
+  ],'dp',{icon:false});
+
+  /* ---------- orientation ---------- */
+  var OR={
+    good:['Perpendicular, trigger end to the wall','Right. The rodent runs the edge, so the trap sits across its path and it has to step on the trigger to keep going. The trap touches the wall, on the runway, at the rub marks.','Mice: set it today. Rats: bait it unset first.'],
+    bad:['Parallel, 18 inches off the wall, trigger to the room','Wrong. The rodent runs straight past along the edge and never meets the trigger. Out in the room it\'s also where people, pets and feet go.','A trap two feet off the rub mark is two feet too far.'],
+    pair:['Two traps, both triggers to the wall','Right for a busy runway. Two traps a short distance apart on the same edge, each perpendicular with the trigger to the wall, catch a rodent that jumps the first one.','Use pairs for heavy activity; secure rat traps in the attic so a caught rat can\'t drag them.']
+  };
+  function orSet(k){$('#orFig').setAttribute('data-s',k);['Bad','Good','Pair'].forEach(function(x){$('#or'+x).setAttribute('aria-pressed',x.toLowerCase()===k)});
+    var o=OR[k],box=$('#orInfo');box.style.animation='none';void box.offsetWidth;box.style.animation='';
+    box.innerHTML='<span class="eyebrow">'+(k==='bad'?'Fix it':'Correct set')+'</span><h3 style="margin:6px 0;font-size:20px">'+o[0]+'</h3><p style="font-size:15px">'+o[1]+'</p><div class="callout" style="margin-top:12px"><svg class="ico"><use href="#'+(k==='bad'?'i-alert':'i-check')+'"/></svg><span>'+o[2]+'</span></div>';}
+  $('#orBad').addEventListener('click',function(){orSet('bad')});$('#orGood').addEventListener('click',function(){orSet('good')});$('#orPair').addEventListener('click',function(){orSet('pair')});
+  orSet('good');
+
+  /* ---------- attic placement ---------- */
+  var PL=[
+    {x:180,y:38,ok:1,w:'On the top plate at the rub marks: the runway itself.'},
+    {x:36,y:178,ok:1,w:'Against the wall beside fresh droppings.'},
+    {x:80,y:324,ok:1,w:'At the soffit entry point. Plus places traps at or near every entry point.'},
+    {x:604,y:250,ok:1,w:'Against the wall above the garage, by the access: odor stays out of the living space and it\'s easy to service.'},
+    {x:56,y:62,ok:1,w:'On the wall line next to the nest: the core of the activity.'},
+    {x:336,y:322,ok:1,w:'Along the A/C line set: rodents use pipes and lines as runways.'},
+    {x:180,y:200,ok:0,w:'Middle of the open floor. Rodents run the edges; out here it\'s a danger zone they go around.'},
+    {x:180,y:96,ok:0,w:'Two feet off the rub marks. Near the path isn\'t on the path.'},
+    {x:342,y:170,ok:0,w:'On the walkway in front of the air handler, where the homeowner and A/C tech put their feet and hands.'},
+    {x:526,y:250,ok:0,w:'On the hatch lid. The next hand that opens it from the ladder finds the trap.'},
+    {x:520,y:110,ok:0,w:'Mid-bay in open insulation with no sign. Off any runway and hard to find again.'}
+  ];
+  var plSel={};
+  function plCount(){$('#plCount').textContent=Object.keys(plSel).length+' of 6 placed';}
+  PL.forEach(function(p,i){var g=document.createElementNS(SVGNS,'g');g.setAttribute('class','spot');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-pressed','false');g.id='pl'+i;g.setAttribute('aria-label','Spot '+(i+1));
+    g.innerHTML='<circle class="halo" cx="'+p.x+'" cy="'+p.y+'" r="12"/><circle class="dot" cx="'+p.x+'" cy="'+p.y+'" r="11"/><text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle">'+(i+1)+'</text>';
+    function go(){
+      $$('#plLayer .spot').forEach(function(x){x.classList.remove('ok','no','miss')});$('#plFb').innerHTML='';
+      if(plSel[i]){delete plSel[i];g.classList.remove('on');g.setAttribute('aria-pressed','false');}
+      else{if(Object.keys(plSel).length>=6){$('#plFb').innerHTML='<div class="fb no">Six is the most for this job. Deselect one first.</div>';return;}plSel[i]=1;g.classList.add('on');g.setAttribute('aria-pressed','true');}
+      plCount();
+      $('#plInfo').innerHTML='<span class="eyebrow">Spot '+(i+1)+(plSel[i]?' · selected':' · removed')+'</span><p style="margin-top:6px">Selected spots: '+(Object.keys(plSel).map(function(k){return +k+1}).sort(function(a,b){return a-b}).join(', ')||'none')+'. Check when you have six.</p>';
+    }
+    g.addEventListener('click',go);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});$('#plLayer').appendChild(g)});
+  $('#plCheck').addEventListener('click',function(){
+    var n=Object.keys(plSel).length,right=0,notes=[];
+    PL.forEach(function(p,i){var g=$('#pl'+i);g.classList.remove('ok','no','miss');
+      if(plSel[i]){if(p.ok){g.classList.add('ok');right++}else{g.classList.add('no');notes.push('<b>'+(i+1)+':</b> '+p.w)}}
+      else if(p.ok&&n===6)g.classList.add('miss');});
+    if(n<6){$('#plFb').innerHTML='<div class="fb no">Place all six before checking.</div>';return;}
+    if(right===6){store.set('pl',1);$('#plInfo').innerHTML='<span class="eyebrow">All six on target</span><p style="margin-top:6px">Rub marks, droppings, the nest, the entry point, the line set and above the garage access: every trap on an edge the rats really use, none where a person\'s hand or foot goes.</p>';$('#plFb').innerHTML='<div class="fb">Six for six. That\'s Plus placement.</div>';}
+    else{$('#plInfo').innerHTML='<span class="eyebrow">'+right+' of 6 on target</span><p style="margin-top:6px;font-size:14px">'+notes.join('<br>')+'</p>';$('#plFb').innerHTML='<div class="fb no">Red spots are wrong; dashed green rings are the spots you missed. Fix them and check again.</div>';}
+  });
+  $('#plReset').addEventListener('click',function(){plSel={};$$('#plLayer .spot').forEach(function(x){x.classList.remove('on','ok','no','miss');x.setAttribute('aria-pressed','false')});plCount();$('#plFb').innerHTML='';$('#plInfo').innerHTML='<span class="eyebrow">How it works</span><p style="margin-top:6px">Select up to six numbered spots, then check. Think edges, runways, entry points, and where people\'s hands and feet go.</p>';});
+  plCount();
+
+  /* ---------- trap-set order ---------- */
+  var SO=['Put on gloves','Confirm the runway: fresh droppings, rub marks, the travel path','Press a pea-size amount of bait onto the trigger pedal','Set the bar, holding the trap by the back end with fingers clear of the jaw','Place it against the wall, perpendicular, trigger end touching the wall','Secure it or enclose it so it can\'t be dragged, reached or kicked','Record the device, location, bait and date on the order','Show the customer where it is'];
+  var soOrder=[3,6,0,5,2,7,1,4], soN=0;
+  var SOHINT=['Gloves come first: your scent and your protection.','Find the runway before you bait anything.','Bait goes on before the trap is set, never after.','Set it with your fingers clear, before it goes into position.','Now place it on the runway.','Make it safe where it sits before you walk away.','Record it before you leave the spot.','Last: the customer needs to know where every device is.'];
+  function renderSo(){
+    var box=$('#soOrd');box.innerHTML='';soN=0;$('#soFb').innerHTML='';
+    soOrder.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='so_'+ix;b.innerHTML='<span class="num">·</span><span>'+SO[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===soN){b.classList.add('placed');$('.num',b).textContent=soN+1;soN++;
+          if(soN===SO.length){store.set('so',1);$('#soFb').innerHTML='<div class="fb">Correct. Gloves, runway, bait, set, place, secure, record, tell the customer. <button type="button" class="btn" id="soAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#soAgain').addEventListener('click',renderSo);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#soFb').innerHTML='<div class="fb no">'+SOHINT[soN]+'</div>';}
+      });box.appendChild(b);});
+  }
+  renderSo();
+
+  /* ---------- seal first ---------- */
+  var SF={
+    open:['Entry point still open','The rodent feeds at the station, then goes back in through the gap it has always used. Anticoagulant bait takes days to work, so it dies in the wall or attic. The customer gets the odor, and we get the call.','CW-05: activity inside means inspect and seal first.'],
+    sealed:['Entry point sealed','With the openings sealed to the Clements standard (RX-04), a rodent that feeds outside can\'t get back in. Interior traps catch what\'s left inside; the exterior stations protect the perimeter from here on.','Seal, trap inside, then exterior stations.']
+  };
+  var sfFig=$('#sfFig');
+  function sfSet(k){sfFig.setAttribute('data-s',k);$('#sfOpen').setAttribute('aria-pressed',k==='open');$('#sfSealed').setAttribute('aria-pressed',k==='sealed');
+    var m=$('#rzA');if(m){m.setAttribute('keyPoints',k==='open'?'0;0.28;0.28;1;1':'0;0.28;0.28;0.72;0.72');}
+    var o=SF[k],box=$('#sfInfo');box.style.animation='none';void box.offsetWidth;box.style.animation='';
+    box.innerHTML='<span class="eyebrow">'+(k==='open'?'What goes wrong':'The Clements order')+'</span><h3 style="margin:6px 0;font-size:20px">'+o[0]+'</h3><p style="font-size:15px">'+o[1]+'</p><div class="callout'+(k==='open'?' danger':'')+'" style="margin-top:12px"><svg class="ico"><use href="#'+(k==='open'?'i-alert':'i-check')+'"/></svg><span>'+o[2]+'</span></div>';
+    if(RM&&sfFig.pauseAnimations){sfFig.pauseAnimations();sfFig.setCurrentTime(k==='open'?3.9:2.9);}}
+  $('#sfOpen').addEventListener('click',function(){sfSet('open')});$('#sfSealed').addEventListener('click',function(){sfSet('sealed')});
+  sfSet('open');
+
+  /* ---------- generic sort ---------- */
+  function makeSort(box,btn,fb,items,labels,okMsg){
+    var sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=box+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+labels.map(function(l,j){return '<button type="button" aria-pressed="false" data-v="'+l+'" id="'+box+i+'_'+j+'">'+l+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      $('#'+box).appendChild(r)});
+    $('#'+btn).addEventListener('click',function(){
+      var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+box+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+      });
+      $('#'+fb).innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">All '+items.length+' correct. '+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+' correct. Read the notes in red and try again.</span>');
+    });
+  }
+  makeSort('pfSort','pfCheck','pfFb',[
+    {q:'Exterior EVO station: bait on the rod, anchored, locked and tug-tested',a:'Pro move',w:'That\'s the standard for every exterior station.'},
+    {q:'Station key left in the lock while servicing the next station',a:'Fix it',w:'Keys stay clipped to you. A key in the lock is a station anyone can open.'},
+    {q:'Exterior stations placed on the first visit while attic entry points are still open',a:'Fix it',w:'Seal first, then bait outside. Otherwise a rodent can die in the wall.'},
+    {q:'Glue board as a dated, recorded monitor under the dishwasher toe-kick',a:'Pro move',w:'Monitoring a tight spot is exactly what glue boards are for.'},
+    {q:'Glue boards as the main kill device across a homeowner\'s attic',a:'Fix it',w:'Glue boards are monitors or supplements, never the primary kill device.'},
+    {q:'Live-catch multi-catch trap at a home you next visit in two days',a:'Fix it',w:'Live-catch traps need a check at least every 24 hours. Use snap traps here.'},
+    {q:'One-way door on the last active gap after every other opening is sealed, traps inside',a:'Pro move',w:'That\'s the only time a one-way door works.'},
+    {q:'Moving a quiet rat trap to a new spot at every visit "to try something"',a:'Fix it',w:'Leave devices in place. Rats need time to accept them.'},
+    {q:'Rat trap in the attic secured so a caught rat can\'t drag it into a void',a:'Pro move',w:'A dragged trap is a lost trap and a dead rat you can\'t find.'},
+    {q:'Mouse snap trap set in the open in a child\'s bedroom',a:'Fix it',w:'Kids and pets first: enclosed station, closed void or the attic.'}
+  ],['Pro move','Fix it'],'Every device safe, legal and on the runway.');
+
+  /* ---------- check visit ---------- */
+  scenarios('cvTabs','cvBox',[
+    {n:'Sprung, empty',i:'i-trap',s:'A mouse snap trap is sprung. Bait gone, no mouse.',o:['Rebait and reset it exactly the same','Pick it up; that spot is finished','Switch to a different device type at that spot, or change the bait, and record it','Add a glue board next to it as the main fix'],a:2,e:'A near miss makes a rodent trap-shy. Change the mechanism or the bait at that location.'},
+    {n:'Mouse caught',i:'i-rodent',s:'A mouse is in a snap trap on the kitchen wall line.',o:['Remove it with PPE, double-bag it, disinfect or replace the trap, reset it on the same runway, record the catch','Leave it for the homeowner to dispose of','Move the trap to a new room, since that spot is done','Throw the trap away and don\'t replace it'],a:0,e:'The runway is still active. Remove, bag and dispose safely, reset on the same spot, record the catch.'},
+    {n:'Quiet rat traps',i:'i-clock',s:'Day 3 on a Norway rat job. Pre-baited traps untouched, no catches. The customer is frustrated.',o:['Set every trigger today to show progress','Move all the traps to new spots','Switch to a different bait immediately','Leave them in place, explain neophobia and the pre-bait plan, set them on the next visit'],a:3,e:'No activity on day 3 is normal for Norway rats. Patience is the technique; teach the customer the plan.'},
+    {n:'Trap dragged',i:'i-search',s:'An attic rat trap is gone from its spot. You find it six feet away, empty.',o:['Put it back as it was','Reset it on the runway and secure it so it can\'t be dragged; consider a second trap','Replace it with a glue board','Remove it; the rat has left'],a:1,e:'A rat that drags a trap is big and active. Secure the trap, and pair it on a busy runway.'},
+    {n:'New droppings',i:'i-eye',s:'Fresh droppings along a wall where you have no device. Your current devices are quiet.',o:['Place a device on that new runway and record it','Ignore it until the next visit','Move every device to that wall','Spray repellent along the new path'],a:0,e:'New sign means a new or shifted runway. Put a device on it. Leave the others; they may still be needed.'},
+    {n:'Catches climbing',i:'i-trend',s:'Follow-up four. Catches are higher than at follow-up two.',o:['Add more traps and keep going','Tell the customer it\'s normal','Stop trapping; it isn\'t working','Re-inspect for a missed entry point; present Plus on Basic, or start a warranty review on Plus'],a:3,e:'Catches should decline. Flat or climbing means rodents are still getting in. Find the opening.'},
+    {n:'Live mouse, glue board',i:'i-board',s:'A live mouse is stuck on a monitoring glue board in the pantry. The customer is watching.',o:['Hand the board to the customer to throw out','Remove it from view and euthanize it promptly and humanely as trained, then bag and dispose of it','Leave it; it will die by the next visit','Pull the mouse off and release it outside'],a:1,e:'Never leave an animal suffering on a board. Handle it promptly, out of view, the way your supervisor trained you, then dispose of it safely.'}
+  ],'cv',{icon:true});
+
+  function onShow(i){}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

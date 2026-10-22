@@ -1,0 +1,1446 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>TERM-03 Liquid Subterranean Treatment</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* TERM-03 components */
+.elist{list-style:none;display:grid;gap:2px;font-size:15px}
+.elist li{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+.elist li:last-child{border-bottom:0}
+.elist li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.dots2{list-style:none;display:grid;gap:6px;font-size:15px}
+.dots2 li{display:flex;gap:10px}
+.dots2 li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.nsteps li{padding:8px 0;font-size:15px;gap:12px}
+.nsteps .num{flex-basis:28px;height:28px;font-size:13px}
+.chip.esc{background:#FDEEEE;color:var(--danger)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+
+/* shared soil drawing */
+.soil{fill:#EFE7DA}
+.grade{stroke:#8C6E52;stroke-width:2;fill:none}
+.hw{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.slabx{fill:var(--brand-200);stroke:var(--brand-600);stroke-width:1.2}
+.footx{fill:var(--brand-200);stroke:var(--brand-600);stroke-width:1.2}
+.block{fill:var(--brand-100);stroke:var(--brand-700);stroke-width:1.4}
+.bcell{stroke:var(--brand-400);stroke-width:1;stroke-dasharray:6 4;fill:none}
+.trench{fill:none;stroke:#8C6E52;stroke-width:1.6;stroke-dasharray:4 3}
+.rod{stroke:var(--brand-600);stroke-width:3;stroke-linecap:round;fill:none}
+.pipe{stroke:var(--muted);stroke-width:3;fill:none;stroke-linecap:round}
+.conduit{stroke:#7A5BA6;stroke-width:3;fill:none;stroke-dasharray:10 4}
+.joint{stroke:var(--ink);stroke-width:3}
+.crack{stroke:var(--ink);stroke-width:1.6;fill:none}
+.tub{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4}
+.trap{fill:#EFE7DA;stroke:#8C6E52;stroke-width:1.2}
+.wellc{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+.wellp{stroke:var(--muted);stroke-width:2;stroke-dasharray:3 3}
+.wet{fill:#9DBBD1;opacity:.8}
+.drain{fill:var(--ink);opacity:.7}
+.dim{stroke:var(--muted);stroke-width:1;fill:none}
+.dimt{font-family:var(--font);font-size:11px;fill:var(--muted);letter-spacing:.06em}
+
+/* non-repellent animation */
+.nrep svg{max-width:520px;width:100%;height:auto}
+.nsoil{fill:#EFE7DA}.ngrade{stroke:#8C6E52;stroke-width:2}
+.nslab,.nfoot{fill:var(--brand-200);stroke:var(--brand-600);stroke-width:1.2}
+.nzone{fill:var(--brand-400);opacity:.35}
+.ngap{fill:none;stroke:var(--danger);stroke-width:1.4;stroke-dasharray:4 3}
+.nlbl{font-family:var(--font);font-size:10px;letter-spacing:.16em;fill:var(--muted)}
+.ntun{stroke:#D3C3AA;stroke-width:8;fill:none;stroke-linecap:round}
+.trm ellipse{fill:#B9824A;stroke:#7A5230;stroke-width:1}
+.trm{opacity:0}
+.mode-r .r1,.mode-r .r2,.mode-n .n1,.mode-n .n2,.mode-n .n3{opacity:1}
+.slide.on .mode-r .r1{animation:tr1 4s ease-in-out infinite}
+.slide.on .mode-r .r2{animation:tr2 4s linear infinite;animation-delay:1s}
+.slide.on .mode-n .n1{animation:tn1 3.6s ease-in infinite}
+.slide.on .mode-n .n2{animation:tn1 3.6s ease-in infinite;animation-delay:1.2s}
+.slide.on .mode-n .n3{animation:tr2 3.6s linear infinite;animation-delay:.6s}
+.r1,.n1,.n2{transform:translate(30px,110px)}
+.r2,.n3{transform:translate(30px,162px)}
+@keyframes tr1{0%{transform:translate(30px,110px);opacity:1}45%{transform:translate(318px,110px)}60%{transform:translate(260px,110px);opacity:1}90%{transform:translate(160px,110px);opacity:.2}100%{transform:translate(160px,110px);opacity:0}}
+@keyframes tr2{0%{transform:translate(30px,162px);opacity:1}85%{transform:translate(470px,162px);opacity:1}100%{transform:translate(480px,162px);opacity:0}}
+@keyframes tn1{0%{transform:translate(30px,110px);opacity:1}70%{transform:translate(352px,110px);opacity:1}100%{transform:translate(356px,118px) rotate(90deg);opacity:0}}
+.nrd{display:grid;gap:10px;min-height:260px;align-content:start}
+.nrd > *,.xd > *,.lbd > *{animation:rise .2s ease-in-out both}
+.nrd h3,.lbd h3{font-size:20px;margin:0}
+
+/* plan */
+.plan svg{max-width:400px}
+.pl-house{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+.pl-gar{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.2}
+.pl-pat{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:1.2;stroke-dasharray:4 3}
+.pl-trench{fill:none;stroke:var(--brand-400);stroke-width:5;stroke-linejoin:round;stroke-dasharray:14 6}
+.slide.on .pl-trench{animation:dash14 2.8s linear infinite}
+@keyframes dash14{to{stroke-dashoffset:-40}}
+.pl-joint{stroke:var(--brand-600);stroke-width:3;stroke-dasharray:2 5;stroke-linecap:round}
+.pl-pen{fill:var(--brand-600)}
+.pl-trap{fill:none;stroke:var(--brand-600);stroke-width:2}
+.pl-duct{stroke:#7A5BA6;stroke-width:3;stroke-dasharray:10 4}
+.pl-well{fill:var(--surface);stroke:var(--danger);stroke-width:2}
+.pl-ring{fill:#FDEEEE;stroke:var(--danger);stroke-width:1.2;opacity:.9}
+.pl-ring2{fill:none;stroke:var(--danger);stroke-width:1.2;stroke-dasharray:4 3}
+.pl-act{fill:#B9824A}
+.pl-t{font-family:var(--font);font-size:10px;letter-spacing:.14em;fill:var(--muted)}
+.pl-key{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;color:var(--muted);font-size:13px}
+.pl-key span{display:flex;gap:6px;align-items:center}
+.pl-key i{display:inline-block;width:18px;height:4px;border-radius:2px}
+.pl-key .k1{background:var(--brand-400)}.pl-key .k2{background:var(--brand-600)}.pl-key .k3{background:#7A5BA6}.pl-key .k4{background:var(--danger)}.pl-key .k5{background:#B9824A;width:8px;height:8px}
+
+/* cross-section */
+.xsec{padding:8px;align-items:center}
+.xsec svg{max-width:720px;width:100%;height:auto}
+.hot{cursor:pointer}
+.hot .hc{fill:var(--forest);stroke:#fff;stroke-width:2;transition:fill .18s ease-in-out}
+.hot .hh{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hot:not(.found) .hh{animation:halo 2.6s ease-out infinite}
+.hot text{font-family:var(--font);font-size:12px;fill:#fff;font-weight:500;pointer-events:none}
+.hot.found.kT .hc{fill:var(--brand-500)}
+.hot.found.kC .hc{fill:var(--surface);stroke:var(--danger);stroke-width:3}
+.hot.found.kC text{fill:var(--danger)}
+.hot.found.kS .hc{fill:var(--danger)}
+.hot.sel .hc{stroke:var(--forest);stroke-width:3}
+.hot.found.kC.sel .hc{stroke:var(--danger);stroke-width:4}
+.hot:focus{outline:none}.hot:focus-visible .hc{stroke:var(--brand-400);stroke-width:4}
+.xd{display:grid;gap:8px;min-height:250px;align-content:start}
+.xd h3{font-size:19px;margin:0}
+
+/* scenarios */
+#sBox .choices{grid-template-columns:1fr 1fr}
+#sBox .choice{padding:10px 14px;font-size:15px}
+
+/* calculator */
+.calc{display:grid;gap:14px}
+.calc .seg{flex-wrap:wrap;border-radius:var(--radius)}
+.calc .seg button{font-size:13px;padding:7px 12px}
+.cin{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cin label{display:grid;gap:6px}
+.cin input,.cin select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);width:100%}
+.cout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cout > div{background:var(--brand-50);border:1px solid var(--brand-100);border-radius:var(--radius);padding:12px 14px;display:grid;gap:2px}
+.cout b{font-size:30px;font-weight:300;font-variant-numeric:tabular-nums;color:var(--brand-800)}
+.cout small{font-size:12px;color:var(--muted)}
+#cWhy{color:var(--ink)}
+
+/* label */
+.lblist{list-style:none;display:grid;gap:4px;margin-top:10px}
+.lblist li{padding:6px 10px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.lblist li:hover{border-color:var(--brand-200)}
+.lblist li.on{border-color:var(--brand-600);background:var(--brand-50)}
+.lbd{display:grid;gap:10px;min-height:220px;align-content:start}
+
+/* trench animation */
+.tr svg{max-width:400px}
+.tfill{fill:#D9CBB2}
+.tzone{fill:var(--brand-400);opacity:0}
+.slide.on .tzone{animation:zfill 4s ease-in-out infinite}
+@keyframes zfill{0%,20%{opacity:0}55%,85%{opacity:.4}100%{opacity:0}}
+.slide.on .tr .rod{stroke-dasharray:112;stroke-dashoffset:112;animation:rodin 4s ease-in-out infinite}
+.slide.on .tr .rod2{animation-delay:.3s}
+@keyframes rodin{0%{stroke-dashoffset:112}35%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:112}}
+
+/* wells */
+.well{display:grid;gap:10px}
+.wsvg{width:100%;height:auto;max-height:120px}
+.wz0{fill:var(--brand-100)}.wz1{fill:#F8DADA}.wz2{fill:#F2B8B8}
+.wtick{stroke:var(--danger);stroke-width:1.4;stroke-dasharray:3 3}
+.wtp{stroke:var(--forest);stroke-width:2}.wtd{fill:var(--forest)}
+#wTech{transition:transform .2s ease-in-out}
+.well input[type=range]{width:100%;accent-color:var(--brand-600)}
+#wOut{min-height:92px;display:grid;gap:4px;align-content:start}
+.wt{font-size:17px}.wt.no,.wt.mid{color:var(--danger)}.wt.ok{color:var(--positive)}
+
+/* order */
+#ordFb.done{border-color:var(--positive)}
+#ord{gap:6px}
+#ord button{padding:7px 12px;font-size:14px}
+#ord button .num{flex-basis:26px;height:26px}
+
+/* timeline */
+.tl .yr{font-size:14px}
+.tldetail{min-height:200px}
+.tldetail .card{padding:16px 20px}
+.tldetail h3{font-size:20px;margin:2px 0 8px}
+.tldetail .dots2{font-size:14.5px;gap:4px}
+
+/* record picker */
+.pick button.extra{border-color:var(--danger);color:var(--danger);background:#FDEEEE}
+.pick button{font-size:14px}
+
+/* customer */
+.rec{display:grid;grid-template-columns:96px 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:14.5px}
+.rec span{color:var(--muted)}
+
+/* say sort */
+#ssort{grid-template-columns:1fr 1fr;gap:8px}
+#ssort .row{padding:8px 12px;font-size:14px;flex-wrap:wrap}
+#ssort .row > span:first-child{flex:1 1 0;min-width:0}
+#ssort .opts button{font-size:12px;padding:4px 10px}
+#ssort .why{font-size:12px}
+
+/* path 4 */
+.path.p4{grid-template-columns:repeat(4,1fr)}
+
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important;gap:20px!important}
+  #sBox .choices,#ssort,.cin{grid-template-columns:1fr}
+  .cout{grid-template-columns:1fr 1fr 1fr}
+  .cout b{font-size:22px}
+  .xd,.nrd,.lbd,.tldetail{min-height:0}
+  .rec{grid-template-columns:1fr;gap:2px}
+  .path.p4{grid-template-columns:1fr}
+  .xsec{padding:4px}.hot .hc,.hot .hh{r:17px}.hot text{font-size:17px;transform:translateY(2px);transform-box:fill-box}
+  .tl .yr{font-size:11px}
+}
+.path.p4 .st{align-content:start}
+/* fit tweaks */
+.xd{min-height:226px}
+#sBox .choice{padding:8px 14px}
+#sBox .card{padding:12px 18px!important}
+.slide[data-label="Practice: treat or don't?"]{gap:16px}
+.pick{gap:6px}
+.pick button{padding:6px 12px}
+#rFb .fb{padding:8px 14px;font-size:14px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">TERM-03 · Liquid Subterranean</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-drill" viewBox="0 0 24 24"><path d="M3 8h11v6H3z"/><path d="M14 10h3l4 1-4 1h-3"/><path d="M6 14l-1 6h4l1-6"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8v3H8z"/><path d="M8 14h1M11.5 14h1M15 14h1M8 17.5h1M11.5 17.5h1M15 17.5h1"/></symbol>
+    <symbol id="i-well" viewBox="0 0 24 24"><path d="M5 10h14"/><path d="M7 10v10h10V10"/><path d="M12 4v6"/><path d="M8 4h8"/><path d="M10 15c1-1 3-1 4 0"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 3v4"/><path d="M8 7h8v4a4 4 0 0 1-8 0z"/><path d="M12 15v6"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Termite · TERM-03</span>
+        <h1 class="display a" style="--i:1">Liquid Subterranean Treatment</h1>
+        <p class="lead a" style="--i:2">How a Clements termite technician plans, measures and applies a full liquid treatment to an existing home: on label, around wells and utilities, and with the Florida paperwork done right.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">50–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M60 96L150 40l90 56"/><path d="M76 88v62h148V88"/><path d="M134 150v-34h32v34"/>
+          <path d="M20 150h280"/><path d="M70 150v26h22v-26"/><path d="M208 150v26h22v-26"/>
+          <path d="M54 150v26"/><path d="M44 150v20"/><path d="M246 150v26"/><path d="M256 150v20"/>
+          <path d="M30 186c20-6 40 6 60 0s40-6 60 0 40 6 60 0 40-6 60 0"/>
+          <path d="M30 206c20-6 40 6 60 0s40-6 60 0 40 6 60 0 40-6 60 0"/>
+          <path d="M40 228l8-4 8 4M120 232l8-4 8 4M200 226l8-4 8 4M264 234l8-4 8 4"/>
+          <path d="M276 112v38"/><path d="M270 108h12"/><path d="M276 100v8"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Plan · Measure · Treat · Record</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-target"/></svg><span>Explain when Clements uses a full liquid treatment, why Sentricon is the default, and who is allowed to do the work</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-bug"/></svg><span>Describe how a non-repellent termiticide works in the soil and why gaps in the treated zone matter</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-layers"/></svg><span>Plan the job: treatment diagram, critical areas, utilities, wells, drains and label volume from site measurements</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-drill"/></svg><span>Trench, rod, drill and inject to the depth, spacing and volume the label requires, without going below the footing</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-well"/></svg><span>Protect wells, cisterns, drains, water and occupants, and handle leaks, cleanup and re-entry</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-doc"/></svg><span>Complete the Florida package: contract forms, signed report, treatment notice, records and retreatment timelines</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">Hundreds of gallons, under a family's home. <span class="em">Every drop has to be right.</span></h2>
+        <p class="lead a" style="--i:2">A full liquid job is the largest pesticide application most technicians ever make. A gap lets termites through. A punctured duct or a treated well can hurt the people we came to protect.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-home"/></svg></div><div><h3>Termites only need one gap</h3><p>Subterranean termites forage through the soil around the whole slab. A skipped plumbing penetration or a short-volume segment is the way in, and the warranty call that follows.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is the law</h3><p>Using a termiticide in a way that doesn't match its label violates FIFRA and Florida Rule 5E-14.106. Termite contracts, reports and notices are set by Chapter 482 and Rule 5E-14.105.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Customers trust what they can't see</h3><p>Nobody watches what goes under the slab. Your diagram, records and photos are how the customer, your manager and FDACS know the job was done the way we said.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: when liquid, and how it works">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">When liquid, and how it works</h1>
+        <p class="lead a" style="--i:2">Why it matters: liquid is not our default. Knowing when it fits, who can do it and how the product behaves in soil keeps us from selling, or doing, the wrong job.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Sentricon first, liquid when approved</li><li><span>02</span>How a non-repellent works</li><li><span>03</span>Who does the work</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 WHEN LIQUID -->
+  <section class="slide" data-label="Sentricon first, liquid when approved" style="gap:16px">
+    <span class="eyebrow a">01 · Sentricon first, liquid when approved</span>
+    <h2 class="a" style="--i:1">Where full liquid fits in the termite program</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Sentricon Always Active</h3><p><b>The default</b> for subterranean termites, post-construction and new construction. Bait stations eliminate the colony, with Corteva's damage bond while monitoring is current (CW-05).</p></div>
+      <div class="card a" style="--i:3;border-color:var(--brand-600)"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Full liquid treatment</h3><p>An existing structure with <b>confirmed active</b> subterranean activity, where a full liquid strategy is approved. Complete, label-compliant treated zones at every accessible soil, slab and foundation interface.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>Liquid pretreat</h3><p>New construction <b>only when the builder specifies it</b> (HUD, VA or contract language). A different job with its own rules; not covered here.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Never call a partial job complete.</b> Spot treatments, skipped areas and construction limits are written up separately and never represented as a full treatment.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-users"/></svg><span><b>Pricing, payment terms and warranty for full liquid are not set yet.</b> If a customer asks, the answer is "your branch manager will go over that with you."</span></div>
+    </div>
+  </section>
+
+  <!-- 6 NON-REPELLENT -->
+  <section class="slide" data-label="How a non-repellent works">
+    <div class="split" style="grid-template-columns:1.15fr .85fr;gap:28px">
+      <div class="figbox nrep a" style="--i:1;flex-direction:column;gap:10px">
+        <div class="seg" role="group" aria-label="Termiticide type" style="align-self:center"><button type="button" id="nrA" aria-pressed="false">Repellent</button><button type="button" id="nrB" aria-pressed="true">Non-repellent</button></div>
+        <svg viewBox="0 0 520 260" role="img" aria-label="Soil cross-section showing termites meeting a treated zone along a foundation" id="nrSvg" class="mode-n">
+          <rect class="nsoil" x="0" y="60" width="520" height="200"/>
+          <path class="ngrade" d="M0 60h520"/>
+          <rect class="nslab" x="380" y="36" width="140" height="24"/><rect class="nfoot" x="380" y="60" width="40" height="56"/>
+          <rect class="nzone" x="330" y="60" width="50" height="90"/>
+          <rect class="ngap" x="330" y="150" width="50" height="22"/>
+          <text class="nlbl" x="355" y="52" text-anchor="middle">TREATED ZONE</text>
+          <text class="nlbl" x="355" y="188" text-anchor="middle">GAP</text>
+          <text class="nlbl" x="450" y="30" text-anchor="middle">SLAB</text>
+          <path class="ntun" d="M20 110H330M20 162H400"/>
+          <g class="trm r1"><ellipse cx="0" cy="0" rx="7" ry="3.2"/></g>
+          <g class="trm r2"><ellipse cx="0" cy="0" rx="7" ry="3.2"/></g>
+          <g class="trm n1"><ellipse cx="0" cy="0" rx="7" ry="3.2"/></g>
+          <g class="trm n2"><ellipse cx="0" cy="0" rx="7" ry="3.2"/></g>
+          <g class="trm n3"><ellipse cx="0" cy="0" rx="7" ry="3.2"/></g>
+          <circle class="nwood" cx="490" cy="162" r="0"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · How a non-repellent works</span>
+        <h2 class="a" style="--i:1">Termites can't tell the soil is treated</h2>
+        <div class="card a nrd" style="--i:2" id="nrD"></div>
+        <p class="small muted a" style="--i:3">Fipronil (Termidor) and imidacloprid (Premise) are common non-repellent active ingredients. Use only the termiticide Clements approves for the job, and its current label.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 WHO -->
+  <section class="slide" data-label="Who does the work" style="gap:16px">
+    <span class="eyebrow a">03 · Who does the work</span>
+    <h2 class="a" style="--i:1">Credentialed, supervised, and never alone on the first one</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>WDO employee ID card</h3><p>Required by law for WDO inspections and contract reinspections and retreatments (s. 482.091(9), 482.226(3)(b)). Clements' V5 program requires it for every termite treatment, under a WDO certified operator.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-user"/></svg></div><h3>Certified operator's plan</h3><p>The certified operator approves the treatment diagram and the product. Uncertain identification or suitability goes to supervisory review before anything is sold or scheduled.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Field sign-off first</h3><p>Under the V5 program, a Field Training Lead signs you off before you run termite jobs solo. This course is the classroom part; the sign-off at the end is the field part.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>On a GHP visit:</b> mud tubes or swarmers are photographed, left intact and escalated to your branch manager the same day. GHP techs never diagnose, quote or promise termite treatment (PC-06).</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-book"/></svg><span><b>Prerequisites:</b> labels and pesticide law (FC-02), PPE (FC-03), environmental safety (FC-04), spills (FC-05) and termite ID (TERM-01).</span></div>
+    </div>
+  </section>
+
+  <!-- 8 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 9 PART TWO -->
+  <section class="slide forest" data-label="Part two: plan the job">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Plan the job</h1>
+        <p class="lead a" style="--i:2">Why it matters: most liquid treatment failures and accidents are decided before the first hole. The diagram, the critical areas, the utilities and the volume math are the job.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The treatment diagram</li><li><span>02</span>Practice: find the critical areas</li><li><span>03</span>Before the first hole</li><li><span>04</span>Practice: treat or don't?</li><li><span>05</span>Volume from the label</li></ol>
+    </div>
+  </section>
+
+  <!-- 10 DIAGRAM -->
+  <section class="slide" data-label="The treatment diagram">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · The treatment diagram</span>
+        <h2 class="a" style="--i:1">Draw it before you drill it</h2>
+        <p class="a muted small" style="--i:2">The inspection covers every accessible area: exterior, interior, attic, garage, additions, attached slabs, decks and fences. The diagram is what the whole crew, your manager and the customer's file work from.</p>
+        <ul class="elist a" style="--i:3">
+          <li>Foundation type, slab layout and linear feet of each zone</li>
+          <li>Live termites, tubes, damage, wings and moisture, with photos</li>
+          <li>Plumbing penetrations, bath traps, expansion joints, attached slabs</li>
+          <li>Utilities, ducts, wells, cisterns, drains, sumps and water</li>
+          <li>Inaccessible areas, obstructions and exclusions, with the reason</li>
+          <li>Treatment locations and the planned volume for each zone</li>
+        </ul>
+      </div>
+      <div class="figbox plan a" style="--i:3;flex-direction:column;gap:8px">
+        <svg viewBox="0 0 380 270" role="img" aria-label="Sample treatment diagram of a slab home with zones marked">
+          <rect class="pl-house" x="60" y="40" width="220" height="150"/>
+          <rect class="pl-gar" x="60" y="130" width="80" height="60"/>
+          <rect class="pl-pat" x="190" y="190" width="90" height="44"/>
+          <path class="pl-trench" d="M52 32H288V198H52Z"/>
+          <path class="pl-joint" d="M190 190H280"/>
+          <circle class="pl-pen" cx="120" cy="80" r="5"/><circle class="pl-pen" cx="230" cy="70" r="5"/><rect class="pl-trap" x="214" y="104" width="16" height="12"/>
+          <path class="pl-duct" d="M160 46V184"/>
+          <circle class="pl-ring2" cx="330" cy="70" r="44"/><circle class="pl-ring" cx="330" cy="70" r="24"/><circle class="pl-well" cx="330" cy="70" r="7"/>
+          <path class="pl-act" d="M286 150l6-6 6 6-6 6z"/>
+          <text class="pl-t" x="110" y="160">GARAGE</text><text class="pl-t" x="236" y="216" text-anchor="middle">PATIO</text>
+          <text class="pl-t" x="330" y="128" text-anchor="middle">WELL 5 / 10 FT</text>
+        </svg>
+        <div class="pl-key small">
+          <span><i class="k1"></i>Trench and rod</span><span><i class="k2"></i>Drill and inject</span><span><i class="k3"></i>Duct in slab: no drilling</span><span><i class="k4"></i>Well buffers</span><span><i class="k5"></i>Activity</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CRITICAL AREAS -->
+  <section class="slide" data-label="Practice: find the critical areas" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.7fr 1fr;gap:20px">
+      <div class="figbox xsec a" style="--i:1">
+        <svg viewBox="0 0 720 360" role="img" aria-label="Foundation cross-section with twelve numbered critical areas" id="xSvg">
+          <rect class="soil" x="0" y="196" width="720" height="164"/>
+          <path class="grade" d="M0 196H720"/>
+          <!-- well -->
+          <rect class="wellc" x="30" y="150" width="18" height="46"/><path class="wellp" d="M39 196V340"/><path class="hw" d="M24 150h30"/>
+          <!-- condensate -->
+          <path class="pipe" d="M150 120h-28v66"/><ellipse class="wet" cx="122" cy="196" rx="20" ry="4"/>
+          <!-- exterior trench -->
+          <path class="trench" d="M100 196v14h40v-14"/>
+          <path class="rod" id="rodA" d="M110 210v44M124 210v44"/>
+          <!-- house -->
+          <rect class="block" x="140" y="70" width="20" height="120"/><path class="bcell" d="M150 76v108"/>
+          <rect class="slabx" x="140" y="190" width="420" height="14"/>
+          <path class="footx" d="M140 204h60l-10 56h-50z"/>
+          <rect class="hw" x="160" y="70" width="400" height="120"/>
+          <path class="hw" d="M160 70L360 22l200 48"/>
+          <!-- tub and trap -->
+          <path class="tub" d="M220 160h80v30h-80z"/><rect class="trap" x="262" y="190" width="22" height="14"/><path class="pipe" d="M273 190v34"/>
+          <!-- plumbing penetration -->
+          <path class="pipe" d="M390 150v74"/><rect class="hw" x="376" y="140" width="28" height="18"/>
+          <!-- crack -->
+          <path class="crack" d="M470 190l4 6-3 3 4 5"/>
+          <!-- conduit under slab -->
+          <path class="conduit" d="M190 216H520"/>
+          <!-- expansion joint and patio -->
+          <rect class="slabx" x="564" y="190" width="150" height="10"/><path class="joint" d="M562 186v22"/>
+          <path class="hw" d="M600 190v-70M690 190v-70M592 120h106"/>
+          <!-- storm drain -->
+          <rect class="drain" x="700" y="200" width="20" height="10"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Practice · find the critical areas</span>
+        <h2 class="a" style="--i:1;font-size:26px">Twelve spots that make or break the job</h2>
+        <p class="a muted small" style="--i:2">Select each numbered spot. Green is a treatment zone, a red ring needs a precaution, solid red is a stop.</p>
+        <div class="card xd a" style="--i:3" id="xD"></div>
+        <p class="small muted a" style="--i:4" id="xN">0 of 12 found</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 BEFORE THE FIRST HOLE -->
+  <section class="slide" data-label="Before the first hole" style="gap:16px">
+    <span class="eyebrow a">03 · Before the first hole</span>
+    <h2 class="a" style="--i:1">Know what's under the slab and in the ground</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Utilities</h3><p>Electrical lines and conduit, water and sewer lines. The label says don't apply until their location and type are known, and never puncture them.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Ducts in the slab</h3><p>Heat or A/C ducts and vents in or under the slab. A drilled duct carries termiticide straight into the living space.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-layers"/></svg></div><h3>The slab itself</h3><p>Post-tension cables, radiant heat, waterproofing, finished floors. If you can't confirm it's clear, you don't drill there; your supervisor decides.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-well"/></svg></div><h3>Water</h3><p>Wells, cisterns, sumps, French drains, storm drains and any surface water. Each has a label rule (Part three).</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-search"/></svg><span><b>How to find them:</b> ask the customer, look for floor registers and cleanouts, check the builder's plans or slab stamp, and get utility marking, permits or authorizations where they're required before invasive work.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-glasses"/></svg><span><b>Drilling concrete:</b> eye and hearing protection, gloves per the label, and control the dust (concrete dust contains silica). FC-03 covers your PPE.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 TREAT OR DON'T -->
+  <section class="slide" data-label="Practice: treat or don't?">
+    <span class="eyebrow a">04 · Practice · treat or don't?</span>
+    <h2 class="a" style="--i:1">You're on site with the diagram. What do you do?</h2>
+    <div class="scen-tabs a" style="--i:2" id="sTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="sBox"></div>
+  </section>
+
+  <!-- 14 CALCULATOR -->
+  <section class="slide" data-label="Volume from the label">
+    <div class="split" style="grid-template-columns:.95fr 1.05fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">05 · Volume from the label</span>
+        <h2 class="a" style="--i:1">The label sets the volume. You do the math.</h2>
+        <p class="a muted small" style="--i:2">Calculate each zone from your site measurements and record it on the diagram. Deliver the label volume to every segment, and write down any segment that wouldn't take it (refusal, obstruction, saturation) and what was approved instead.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span><b>Worked example: Termidor SC</b> (EPA Reg. No. 7969-210, 2024 accepted label). Trench, rod and sub-slab: 4 gallons of finished dilution per 10 linear feet per foot of depth. Hollow block voids: 2 gallons per 10 linear feet of footing. 0.06% = 0.8 fl oz per gallon (78 fl oz per 100 gallons).</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span>Always use the label of the product actually on your truck. Rates differ between termiticides and change between label versions.</span></div>
+      </div>
+      <div class="card calc a" style="--i:3">
+        <span class="eyebrow">Practice · label volume calculator</span>
+        <div class="seg" role="group" aria-label="Treatment zone" id="cZone"><button type="button" id="cz0" aria-pressed="true">Exterior trench and rod</button><button type="button" id="cz1" aria-pressed="false">Sub-slab injection</button><button type="button" id="cz2" aria-pressed="false">Hollow block voids</button></div>
+        <div class="cin">
+          <label for="cLF"><span class="eyebrow">Linear feet</span><input type="number" id="cLF" min="1" max="2000" value="180" inputmode="numeric"></label>
+          <label for="cD" id="cDl"><span class="eyebrow">Depth to footing (ft)</span><select id="cD"><option value="1">1</option><option value="1.5" selected>1.5</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">More than 4</option></select></label>
+        </div>
+        <div class="cout" aria-live="polite">
+          <div><span class="eyebrow">Finished dilution</span><b id="cGal">108</b><small>gallons</small></div>
+          <div><span class="eyebrow">Concentrate at 0.06%</span><b id="cOz">84</b><small>fl oz</small></div>
+          <div><span class="eyebrow">Rod or drill holes</span><b id="cHol">180</b><small>at least, 12 in apart</small></div>
+        </div>
+        <p class="small" id="cWhy"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: treat the structure">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Treat the structure</h1>
+        <p class="lead a" style="--i:2">Why it matters: a continuous treated zone, at the right depth and volume, is what stops termites. Water protection and leak control are what keep the job from becoming an incident.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Read the label first</li><li><span>02</span>Trench and rod</li><li><span>03</span>Drill and inject</li><li><span>04</span>Wells, cisterns and water</li><li><span>05</span>Practice: put the job in order</li><li><span>06</span>Leaks, cleanup and re-entry</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 LABEL -->
+  <section class="slide" data-label="Read the label first" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px;align-items:start">
+      <div class="label a" style="--i:1">
+        <div class="lt">Label excerpt · example termiticide · EPA Reg. No. 7969-210</div>
+        <p style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b style="font-size:17px">Termidor SC Termiticide/Insecticide</b><span class="sig">CAUTION</span></p>
+        <p class="small muted">Active ingredient: fipronil 9.1%</p>
+        <ul class="lblist">
+          <li data-k="0"><span class="hl">Labeled at 0.06%, 0.09% or 0.125% finished dilution</span></li>
+          <li data-k="1"><span class="hl d2">Apply 4 gallons of finished dilution per 10 linear feet per foot of depth</span></li>
+          <li data-k="2"><span class="hl d2">Trenches a minimum of 6 inches deep, no deeper than the bottom of the footing; need not be wider than 6 inches</span></li>
+          <li data-k="3"><span class="hl d3">Rod holes and slab drill holes no wider than 12 inches apart; rods do not extend below the footing</span></li>
+          <li data-k="4"><span class="hl d3">Footing more than 4 feet below grade: treat to a minimum depth of 4 feet</span></li>
+          <li data-k="5"><span class="hl d3">Do not apply within 5 feet of a well or cistern; 5 to 10 feet only by the backfill method</span></li>
+          <li data-k="6"><span class="hl d3">Do not treat water-saturated soil or during precipitation</span></li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Read the label first</span>
+        <h2 class="a" style="--i:1">Every number on the job comes from here</h2>
+        <p class="a muted small" style="--i:2">Select a label line to see what it means in the field.</p>
+        <div class="card lbd a" style="--i:3" id="lbD"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 TRENCH AND ROD -->
+  <section class="slide" data-label="Trench and rod">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="figbox tr a" style="--i:1">
+        <svg viewBox="0 0 400 300" role="img" aria-label="Animated cross-section of trenching and rodding along a foundation down to the footing">
+          <rect class="soil" x="0" y="80" width="400" height="220"/><path class="grade" d="M0 80H400"/>
+          <rect class="block" x="230" y="0" width="34" height="80"/>
+          <rect class="slabx" x="230" y="80" width="170" height="16"/>
+          <path class="footx" d="M230 96h84l-14 120h-70z"/>
+          <path class="trench" d="M168 80v24h56V80"/>
+          <rect class="tfill" x="170" y="80" width="52" height="24"/>
+          <path class="rod rod1" d="M184 104V216"/><path class="rod rod2" d="M206 104V216"/>
+          <rect class="tzone" x="168" y="104" width="62" height="112"/>
+          <path class="dim" d="M150 80v24M146 80h8M146 104h8"/><text class="dimt" x="140" y="96" text-anchor="end">6 in min</text>
+          <path class="dim" d="M150 104v112M146 216h8"/><text class="dimt" x="140" y="164" text-anchor="end">to footing</text>
+          <path class="dim" d="M184 236h22M184 232v8M206 232v8"/><text class="dimt" x="195" y="254" text-anchor="middle">12 in max</text>
+          <text class="dimt" x="272" y="270" text-anchor="middle">FOOTING</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Trench and rod</span>
+        <h2 class="a" style="--i:1">A continuous zone from grade to the footing</h2>
+        <ol class="steps nsteps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Trench</b> along the foundation wall and around piers: at least 6 inches deep, no deeper than the footing</span></li>
+          <li><span class="num">2</span><span><b>Rod</b> from the trench bottom toward the top of the footing, holes no more than 12 inches apart</span></li>
+          <li><span class="num">3</span><span><b>Apply</b> the label volume for the depth, slowly and evenly; treat the trench soil and backfill as the label directs</span></li>
+          <li><span class="num">4</span><span><b>Replace</b> soil and restore landscape within scope; don't leave treated soil exposed or piled on a hard surface</span></li>
+        </ol>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never rod below the footing</b> or through a vapor barrier or line. Hit something hard? Stop and find out what it is.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 DRILL AND INJECT -->
+  <section class="slide" data-label="Drill and inject" style="gap:14px">
+    <span class="eyebrow a">03 · Drill and inject</span>
+    <h2 class="a" style="--i:1">Under the slab, where the termites actually get in</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-drill"/></svg></div><h3>Where to drill</h3><p>Along expansion joints, cracks, and plumbing and utility penetrations through the slab, and through attached slabs (patios, porches, garage aprons) along the foundation. Holes no more than 12 inches apart.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>How much</h3><p>Sub-slab injection uses the per-linear-foot rate on the label. Bath trap openings and hollow block voids have their own rates. Watch for back-pressure and surfacing product, and record any refusal.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-plug"/></svg></div><h3>Plug and patch</h3><p>Plug holes with non-cellulose material (no wood plugs) and patch to the company standard. Clean up dust and product before you move to the next room.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-home"/></svg><span><b>Inside the home:</b> drilling through finished floors (tile, carpet, wood) is planned and agreed with the customer in advance. Pull carpet back, protect furnishings, and keep people and pets out of the room.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-search"/></svg><span><b>Bath traps:</b> the opening in the slab under a tub drain is a termite highway. Access it through the plumbing access panel, or drill the slab beside it if there isn't one.</span></div>
+    </div>
+  </section>
+
+  <!-- 20 WELLS -->
+  <section class="slide" data-label="Wells, cisterns and water" data-alert="1">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Wells, cisterns and water</span>
+        <h2 class="a" style="--i:1">Groundwater in Florida is a few feet down</h2>
+        <p class="a muted small" style="--i:2">Sandy soil and a high water table mean termiticide can reach drinking water fast. These rules come from the example label and Rule 5E-14.106; check the label you're using.</p>
+        <ul class="elist a" style="--i:3">
+          <li><span><b>Never</b> apply into or let product reach a well, cistern, sump, sewer, storm drain, gutter or surface water</span></li>
+          <li>Within 5 feet of a sump pit and pump: no application</li>
+          <li>French drains: soil must be dry before you treat; no rodding through the slab within 24 inches of the drain</li>
+          <li>No treatment of saturated soil, during rain, or where runoff can carry product</li>
+          <li>Fill tanks with an air gap of at least 2 inches or an anti-siphon device (5E-14.106(5))</li>
+          <li>Concentrates locked up whenever the truck is unattended, even when you walk around back (5E-14.106(3))</li>
+        </ul>
+      </div>
+      <div class="card well a" style="--i:3">
+        <span class="eyebrow">Practice · well distance</span>
+        <svg viewBox="0 0 360 120" aria-hidden="true" class="wsvg"><rect class="wz0" x="0" y="40" width="360" height="40"/><rect class="wz1" x="0" y="40" width="200" height="40"/><rect class="wz2" x="0" y="40" width="100" height="40"/><rect class="wellc" x="0" y="26" width="10" height="68"/><path class="wtick" d="M100 34v52M200 34v52"/><text class="dimt" x="100" y="104" text-anchor="middle">5 ft</text><text class="dimt" x="200" y="104" text-anchor="middle">10 ft</text><text class="dimt" x="300" y="104" text-anchor="middle">15 ft</text><g id="wTech"><path class="wtp" d="M0 24v72"/><circle class="wtd" cx="0" cy="20" r="6"/></g></svg>
+        <label for="wR" class="eyebrow">Distance from the well to where you'd treat</label>
+        <input type="range" id="wR" min="0" max="15" step="1" value="8" aria-describedby="wOut">
+        <div id="wOut" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 ORDER -->
+  <section class="slide" data-label="Practice: put the job in order" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">05 · Practice · put the job in order</span>
+        <h2 class="a" style="--i:1">A full liquid job, start to finish</h2>
+        <p class="a muted small" style="--i:2">Select the steps in order. A wrong pick shakes; try again.</p>
+        <div class="order a" style="--i:3" id="ord"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:4" id="ordFb"><span class="eyebrow">Progress</span><h3 id="ordN">0 of 8 placed</h3><p>Nothing happens on site until the paperwork and the plan are in place.</p></div>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 LEAKS -->
+  <section class="slide" data-label="Leaks, cleanup and re-entry" style="gap:14px">
+    <span class="eyebrow a">06 · Leaks, cleanup and re-entry</span>
+    <h2 class="a" style="--i:1">Check for leaks while you work, and before you leave</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Watch for it</h3><p>Wet spots on floors or carpet, product surfacing at joints, wall bases or drains, or an odor indoors. Check inside during sub-slab work and again when you finish.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>Stop and clean up</h3><p>Stop the application. Control, contain, clean up (FC-05). The label requires every leak outside the treatment zones to be cleaned up before you leave the site.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>Keep people out</h3><p>Residents, children and pets stay away from contaminated areas until cleanup is complete. Tell your supervisor immediately and file a written report the same day.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-door"/></svg><span><b>Re-entry:</b> people and pets stay out of the treatment area during application, and stay off treated soil until it has absorbed into the soil. People in the home are told to leave if they see signs of a leak. Follow the re-entry wording on your label.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-wind"/></svg><span><b>Air systems:</b> where the label calls for it (crawl spaces, plenums), turn off air circulation that moves air from the treatment area into living space before you treat.</span></div>
+    </div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: records, customer and closeout">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Records, customer and closeout</h1>
+        <p class="lead a" style="--i:2">Why it matters: a termite job isn't finished when the drill stops. Florida sets exactly what the customer receives, what gets posted, what we keep and how fast we respond if termites come back.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The Florida paperwork, in order</li><li><span>02</span>Practice: build the treatment record</li><li><span>03</span>Customer prep and communication</li><li><span>04</span>Practice: say it right</li><li><span>05</span>Follow-up and retreatment</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 PAPERWORK TIMELINE -->
+  <section class="slide" data-label="The Florida paperwork, in order" style="gap:16px">
+    <span class="eyebrow a">01 · The Florida paperwork, in order</span>
+    <h2 class="a" style="--i:1">Five moments, five sets of requirements</h2>
+    <div class="tl a" style="--i:2" id="tl"><span class="fill" id="tlFill"></span></div>
+    <div class="tldetail a" style="--i:3" id="tlD"></div>
+  </section>
+
+  <!-- 26 RECORD -->
+  <section class="slide" data-label="Practice: build the treatment record" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Practice · build the treatment record</span>
+        <h2 class="a" style="--i:1">What belongs on a full liquid job record?</h2>
+        <p class="a muted small" style="--i:2">Select every item that belongs in the job file and PestPac, then check. Leave out anything that doesn't.</p>
+        <div class="pick a" style="--i:3" id="rPick"></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="rCheck">Check my record</button><span id="rFb"></span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cam"/></svg><span><b>Photos</b> of activity, treated areas and patched holes are the foundation of warranty resolution. Attach them to the order; never of people, never on social media.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span><b>Manager quality audit:</b> your branch manager reviews the diagram, records, photos and customer documents before the job closes, and enters follow-up and warranty dates in PestPac.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 CUSTOMER -->
+  <section class="slide" data-label="Customer prep and communication">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Customer prep and communication</span>
+        <h2 class="a" style="--i:1">No surprises: before, during and after</h2>
+        <div class="rec a" style="--i:2"><b>Before</b><span>Clear items from walls to be treated; open access to closets, garage and the tub panel; tell us about wells, irrigation or ducts</span></div>
+        <div class="rec a" style="--i:3"><b>During</b><span>People and pets out of treatment areas; report any wet spot or odor right away</span></div>
+        <div class="rec a" style="--i:4"><b>After</b><span>Stay off treated soil until absorbed; don't disturb trenched soil; leave the notice in place</span></div>
+        <div class="rec a" style="--i:5"><b>Long term</b><span>Fix moisture, wood-to-soil contact and mulch on the slab, as noted in writing</span></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>"We'll be drilling small holes along the bathroom and the patio joint and patching them when we're done. Please keep everyone, and the dog, out of those rooms while we work. If you notice a wet spot or a smell anywhere, let me know right away."</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span><b>On request:</b> the product name, active ingredient and label safety information (s. 482.2265). Show your FDACS ID card when asked (s. 482.091).</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Never:</b> call a termiticide "safe", "harmless" or "non-toxic"; promise results; quote prices or warranty terms. Pricing and warranty go to the branch manager.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 SAY IT RIGHT -->
+  <section class="slide" data-label="Practice: say it right" style="gap:12px">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Say it, or don't say it?</h2>
+    <div class="sort a" style="--i:2" id="ssort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="ssCheck">Check my answers</button><span id="ssFb"></span></div>
+  </section>
+
+  <!-- 29 FOLLOW-UP -->
+  <section class="slide" data-label="Follow-up and retreatment" style="gap:16px">
+    <span class="eyebrow a">05 · Follow-up and retreatment</span>
+    <h2 class="a" style="--i:1">If termites come back, the clock is set by rule</h2>
+    <div class="path p4">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-doc"/></svg></span><h3>Written notice</h3><p>The owner notifies us in writing of termite activity covered by the contract.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-search"/></svg></span><h3>30 days</h3><p>Inspect within 30 calendar days of the written notice (5E-14.105(9)).</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-drop"/></svg></span><h3>90 or 180 days</h3><p>Retreat within 90 days of discovery; 180 days for commercial or multi-unit, unless access is refused or the owner postpones in writing.</p></div>
+      <div class="st top a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><h3>Document</h3><p>Signed report, products, locations, photos; follow-up dates in PestPac.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Conducive conditions in writing.</b> An exclusion clause can only be used if we gave the owner written notice of the condition within 60 days of finding it and 60 days to correct it. Note it every time.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-refresh"/></svg><span><b>Corrective treatment</b> only after confirming the identification, access, label requirements and warranty coverage. Reinspection schedule and warranty terms for full liquid: your branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a supervised job</h2>
+    <p class="a muted" style="--i:2">Your Field Training Lead or certified operator observes each of these on full liquid jobs before TERM-03 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Prepare or review a treatment diagram showing activity, critical areas, utilities, wells, drains and exclusions</label></li>
+      <li><label><input type="checkbox" id="f2"> Identify utilities, ducts and slab conditions before any drilling, trenching or rodding</label></li>
+      <li><label><input type="checkbox" id="f3"> Calculate the label volume for each zone from site measurements and record it</label></li>
+      <li><label><input type="checkbox" id="f4"> Mix at the site with an air gap, concentrates locked when unattended, PPE per the label</label></li>
+      <li><label><input type="checkbox" id="f5"> Trench and rod to label depth and spacing without going below the footing</label></li>
+      <li><label><input type="checkbox" id="f6"> Drill, inject, plug and patch penetrations, joints, bath traps and attached slabs per the label</label></li>
+      <li><label><input type="checkbox" id="f7"> Apply well, cistern, drain and saturated-soil precautions; check for and clean up leaks</label></li>
+      <li><label><input type="checkbox" id="f8"> Complete the signed report, treatment notice, records and photos, and explain prep and re-entry to the customer</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('term03:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('term03:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "TERM-03", "titleHtml": "Liquid Subterranean Treatment", "nextHtml": "TERM-04 \u00b7 Drywood Spot &amp; Whole-Home Treatment", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · When liquid, and how it works',q:'On a GHP visit you find mud tubes on the slab edge. The customer asks, "Can you just spray for termites while you\'re here?" What do you do?',o:['Treat along the slab with your backpack sprayer','Tell her liquid is always better than Sentricon','Photograph the tubes, leave them intact and tell your branch manager the same day so the termite team follows up','Quote her a price for a liquid job'],a:2,e:'GHP technicians never diagnose, quote or treat termites. Under Clements\' V5 program, full liquid work is done by a WDO ID cardholder under a certified operator, from an approved plan, and Sentricon is still Clements\' default recommendation.'},
+    2:{t:'Checkpoint 2 · Plan the job',q:'The diagram shows a private well 7 feet from the foundation on the east side. Using the example label, how is the soil near the well treated?',o:['Trench and rod normally; 7 feet is far enough','Only by the label\'s backfill method, because it is between 5 and 10 feet from the well, with the buffer marked on the diagram','Not at all; skip the whole east side without a note','Flood the soil with extra volume so it reaches the footing faster'],a:1,e:'The example label prohibits application within 5 feet of a well or cistern and allows soil 5 to 10 feet away to be treated only by the backfill method. Always check the label for the product you are using.'},
+    3:{t:'Checkpoint 3 · Treat the structure',q:'During sub-slab injection along the bathroom wall, the customer calls you inside: there is a damp spot on the bedroom carpet next door. What do you do?',o:['Finish the wall first, then look at it','Tell her it will dry on its own','Increase pressure to push the product past the leak','Stop the application, keep people and pets out of that room, contain and clean up per the label before you leave, and tell your supervisor immediately, with a written report the same day'],a:3,e:'The label requires every leak outside the treatment zones to be cleaned up before you leave, and no one reoccupies the contaminated area until cleanup is complete. Spills and exposures go to your supervisor right away, in writing the same day.'},
+    4:{t:'Checkpoint 4 · Records, customer and closeout',q:'You finish a full liquid job. What does Florida require before you leave the property?',o:['A signed report to the owner showing whether termites are present, that treatment was made and the pesticide used, and a treatment notice posted by the attic or crawl access or another readily accessible spot','Nothing; the office mails the paperwork later','A verbal summary to whoever answers the door','A sticker on the electrical panel that the technician can remove at the next visit'],a:0,e:'Section 482.226(3) requires the signed report and 482.226(5) the treatment notice: at least 3 by 5 inches, made to last 3 years, with the licensee, date, pesticide and organism. Its location is stated in the contract, and only the owner may remove it.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is Clements\' default service for subterranean termites on an existing home?',o:['Full liquid treatment','Tent fumigation','Sentricon Always Active, with full liquid only where confirmed active activity and an approved full liquid strategy call for it','Spot treatment of visible tubes'],a:2,e:'Sentricon is the default for post-construction and new construction. Full liquid is for confirmed active subterranean activity where a full liquid strategy is approved.'},
+    {k:'Multiple choice',q:'Who may perform a full liquid subterranean treatment for Clements?',o:['Any licensed GHP technician','An employee with the special WDO ID card working under a certified operator in the termite and WDO category','A CSR with Sentricon training','Any technician with a ride-along partner'],a:1,e:'Contract reinspections and retreatments require the WDO ID card (482.091(9), 482.226(3)(b)); Clements\' V5 program requires it for every termite treatment, under a WDO certified operator.'},
+    {k:'True or false',q:'With a non-repellent termiticide, small gaps in the treated zone don\'t matter, because termites carry the product back to the colony.',o:['True','False'],a:1,e:'False. Termites foraging under or around an untreated gap never contact the product. The treated zone still has to be continuous.'},
+    {k:'Multiple choice',q:'Why did older repellent barriers often fail at plumbing penetrations and joints?',o:['Termites detected the treated soil, turned away and found the untreated gaps','Repellents killed termites too fast','Repellents only work on drywood termites','The label banned treating plumbing'],a:0,e:'Repellent products push termites away, and foraging workers keep searching until they find a gap in the barrier.'},
+    {k:'Scenario',q:'Using the example label rate of 4 gallons per 10 linear feet per foot of depth, how much finished dilution does a 150-foot exterior perimeter with footings 1.5 feet deep need?',o:['60 gallons','45 gallons','90 gallons','900 gallons'],a:2,e:'150 ÷ 10 = 15 segments. 15 × 4 gallons × 1.5 feet = 90 gallons. Record planned and actual volume for every zone.'},
+    {k:'Multiple choice',q:'On the example label, how far apart may rod holes and slab drill holes be?',o:['No more than 24 inches','No more than 36 inches','Any spacing, as long as the volume is right','No more than 12 inches'],a:3,e:'Holes no more than 12 inches apart so the treated soil from each hole overlaps the next.'},
+    {k:'True or false',q:'You may rod below the bottom of the footing to make sure the soil is fully treated.',o:['True','False'],a:1,e:'False. Trenches and rods go to the footing, not below it. If the footing is more than 4 feet below grade, the example label sets a minimum treatment depth of 4 feet.'},
+    {k:'Multiple choice',q:'Before drilling a slab, the example label requires you to know the location and type of which construction elements?',o:['Paint and flooring colors','Roof trusses and soffits','Electrical lines and conduit, heat or A/C ducts and vents, and water and sewer lines','Only the main water shutoff'],a:2,e:'The label prohibits application until these are located and identified, and says never to puncture them.'},
+    {k:'Scenario',q:'You find a slab stamp in the garage: "Post-tensioned slab. Do not cut or drill." What do you do?',o:['Drill with a smaller bit','Drill along the edge only','Ignore it; the cables are deep','Don\'t drill; photograph it, stop that part of the job and get your supervisor\'s direction'],a:3,e:'The V5 program requires confirming that drilling won\'t damage post-tension systems or other concealed elements before you start.'},
+    {k:'Multiple choice',q:'Which of these is a critical area that must be treated through the slab?',o:['The attic hatch','The roof valley','The A/C condenser pad top','A bath trap, the opening in the slab around a tub drain'],a:3,e:'Bath traps, plumbing penetrations, cracks and expansion joints are direct paths from soil into the structure.'},
+    {k:'True or false',q:'Soil that is water-saturated after heavy rain can be treated if you lower the concentration.',o:['True','False'],a:1,e:'False. The label prohibits treating saturated soil or treating during precipitation. Reschedule the segment and record why.'},
+    {k:'Multiple choice',q:'Under Rule 5E-14.106(5), how must you fill a spray tank from a hose?',o:['With the hose end submerged so it fills quietly','Through any fill pipe, as long as it is quick','With the hose end at least 2 inches above the tank opening, or with an anti-siphon device','Only from a fire hydrant'],a:2,e:'The air gap or anti-siphon device keeps mix from siphoning back into the customer\'s water supply.'},
+    {k:'Scenario',q:'You walk around back to rod the rear wall. Your termiticide concentrate is in the open bed of the truck out front. What rule applies?',o:['Concentrates must be locked up whenever the service vehicle is unattended (5E-14.106(3))','No rule applies in a residential driveway','Only restricted-use products need to be locked','It\'s fine if the customer is home'],a:0,e:'Rule 5E-14.106(3) requires concentrates in unattended service vehicles to be kept under lock.'},
+    {k:'Multiple choice',q:'Before a termite contract is signed, which FDACS form must the owner or authorized agent sign?',o:['FDACS-13645 WDO inspection report','FDACS-13665 training record','Consumer Notice Form, FDACS-13692','No form is needed'],a:2,e:'Rule 5E-14.105(1) requires specific written consent on FDACS-13692 before each treatment contract.'},
+    {k:'True or false',q:'The written termite contract must be given to the owner for acceptance before any work is done and before any payment is received.',o:['True','False'],a:0,e:'True, under Rule 5E-14.105(2).'},
+    {k:'Multiple choice',q:'Under s. 482.227, what must the first page of a termite contract state in bold?',o:['Whether it is for repair and retreatment, retreatment only, or no warranty or guarantee','The technician\'s cell number','The price of the next renewal only','That the work is endorsed by FDACS'],a:0,e:'The first page states in bold one of the three warranty options, and in bold whether limitations or exclusions apply.'},
+    {k:'Multiple choice',q:'How long must Clements keep a copy of the signed report given to the customer after a contract treatment?',o:['30 days','6 months','At least 3 years','Until the next visit'],a:2,e:'Rule 5E-14.105(6) requires a copy of the signed report to be kept for at least 3 years.'},
+    {k:'Scenario',q:'A contract customer gives written notice of termite activity. What do Florida\'s retreatment rules require for a single-family home?',o:['Inspect within 30 calendar days of the written notice, and retreat within 90 days of discovery unless access is refused or the owner postpones in writing','Inspect at the next annual visit','Retreat within 180 days','Inspect within 7 days and retreat the same day'],a:0,e:'Rule 5E-14.105(9): inspect within 30 days of written notice; retreat within 90 days (180 for commercial or multi-unit).'},
+    {k:'Scenario',q:'The customer asks what the liquid treatment will cost and how long the warranty lasts. What do you say?',o:['Give the price you remember from a past job','Say there\'s a lifetime warranty','Tell her you can\'t discuss it','Explain that her branch manager will go over pricing and warranty terms, and make sure the manager follows up'],a:3,e:'Pricing, payment terms and warranty for full liquid treatment are not yet set. They go to the branch manager. Never quote prices or promise results.'},
+    {k:'True or false',q:'It\'s acceptable to tell a customer the termiticide is "safe for kids and pets once it dries."',o:['True','False'],a:1,e:'False. Never call a pesticide safe, harmless or non-toxic. Give the label\'s re-entry directions and safety information instead.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- repellent vs non-repellent ---------- */
+  var NR={r:{t:'Repellent termiticides',h:'Termites detect it and go around',p:'Older repellent products (pyrethroids, for example) push termites away. Foraging workers sense the treated soil, turn back and keep searching until they find a gap: a skipped penetration, a short-volume segment, a crack in the zone.',c:'With a repellent, one gap is all it takes. That is why older barrier jobs failed at plumbing and expansion joints.'},
+          n:{t:'Non-repellent termiticides',h:'Termites tunnel in without noticing',p:'Workers can\'t detect a non-repellent, so they forage straight into the treated soil, pick up a lethal dose and can pass it to nestmates they contact. They die over time instead of being turned away.',c:'It still has to be continuous. Termites foraging under or around an untreated gap never touch the product, so the gap below is still a way in.'}};
+  function nrShow(m){var d=NR[m];$('#nrSvg').setAttribute('class','mode-'+m);
+    $('#nrA').setAttribute('aria-pressed',m==='r');$('#nrB').setAttribute('aria-pressed',m==='n');
+    $('#nrD').innerHTML='<span class="eyebrow">'+d.t+'</span><h3>'+d.h+'</h3><p class="small">'+d.p+'</p><div class="callout" style="padding:10px 14px">'+ico('i-alert')+'<span>'+d.c+'</span></div>'}
+  $('#nrA').addEventListener('click',function(){nrShow('r')});$('#nrB').addEventListener('click',function(){nrShow('n')});nrShow('n');
+
+  /* ---------- critical areas cross-section ---------- */
+  var XS=[
+    {x:117,y:242,t:'Exterior trench and rod',k:'T',w:'The main treated zone: a trench along the foundation wall with rod holes down toward the top of the footing.',d:'Trench at least 6 inches deep, rod holes no more than 12 inches apart, label volume per 10 linear feet per foot of depth.'},
+    {x:172,y:236,t:'Thickened slab edge (footing)',k:'C',w:'Florida slab homes usually have a monolithic slab with a thickened edge. The label measures depth to the footing.',d:'Treat down to the top of the footing, never below it. Footing deeper than 4 feet: treat to a minimum of 4 feet.'},
+    {x:150,y:106,t:'Hollow block wall',k:'T',w:'Termites can travel up through the open cells of block foundations and stem walls, out of sight.',d:'Where the label and diagram call for it, treat block voids at the label rate (2 gallons per 10 linear feet of footing on the example label).'},
+    {x:96,y:176,t:'A/C condensate soaking the soil',k:'C',w:'Wet soil draws termites and won\'t accept treatment properly. Saturated soil can\'t be treated under the label.',d:'Don\'t treat saturated soil. Note the condition in writing and recommend redirecting the line away from the foundation.'},
+    {x:39,y:132,t:'Private well',k:'S',w:'A drinking-water well near the foundation. Sandy soil and shallow groundwater carry product quickly.',d:'No application within 5 feet. Between 5 and 10 feet, only the label\'s backfill method. Mark the buffers on the diagram.'},
+    {x:273,y:176,t:'Bath trap under the tub',k:'T',w:'The opening left in the slab around the tub drain is open soil inside the house: a classic termite entry.',d:'Treat through the plumbing access panel, or drill beside it if there isn\'t one, at the label rate for bath traps.'},
+    {x:414,y:176,t:'Plumbing penetration',k:'T',w:'Where pipes come up through the slab there is a gap in the concrete straight to the soil.',d:'Drill and inject around each penetration through the slab. Know where the line runs before you drill.'},
+    {x:474,y:172,t:'Crack in the slab',k:'T',w:'Termites can get through a crack thinner than a credit card.',d:'Drill along the crack, holes no more than 12 inches apart, and inject the sub-slab label volume.'},
+    {x:330,y:232,t:'Conduit and lines under the slab',k:'S',w:'Electrical conduit, water and sewer lines, and in some homes heat or A/C ducts run in or under the slab.',d:'Don\'t drill or inject until their location and type are known. Never puncture them. Can\'t confirm? Don\'t drill there; tell your supervisor.'},
+    {x:562,y:172,t:'Expansion joint at the patio',k:'T',w:'The joint where an attached slab meets the house slab is one of the most common entry points.',d:'Drill along the joint and inject. Seal and patch afterwards.'},
+    {x:648,y:172,t:'Attached patio slab',k:'T',w:'Soil along the foundation under the patio can\'t be trenched, so it is treated through the slab.',d:'Drill through the patio along the foundation, holes no more than 12 inches apart, and inject the label volume.'},
+    {x:710,y:186,t:'Storm drain at the driveway',k:'S',w:'Storm drains run straight to canals, lakes and the lagoon.',d:'Never let product, rinse water or treated soil reach a drain, gutter or surface water. Keep spoil soil off hard surfaces.'}
+  ];
+  var KN={T:'Treatment zone',C:'Precaution',S:'Stop and check'};
+  var xSvg=$('#xSvg'), xFound=store.get('xh')||{};
+  XS.forEach(function(h,i){var g=sv('g',{'class':'hot k'+h.k+(xFound[i]?' found':''),'tabindex':'0','role':'button','id':'xh'+i,'aria-label':'Spot '+(i+1)});
+    g.appendChild(sv('circle',{'class':'hh',cx:h.x,cy:h.y,r:'11'}));g.appendChild(sv('circle',{'class':'hc',cx:h.x,cy:h.y,r:'11'}));
+    var t=sv('text',{x:h.x,y:h.y+4,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);
+    keyAct(g,function(){showX(i)});xSvg.appendChild(g)});
+  function xCount(){var n=Object.keys(xFound).length;$('#xN').innerHTML=n===XS.length?'All 12 found. Seven treatment zones, two precautions and three places to stop and check, on one ordinary slab home.':n+' of 12 found'}
+  function showX(i){xFound[i]=1;store.set('xh',xFound);var h=XS[i];
+    $$('.hot',xSvg).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('found',!!xFound[j])});
+    var bad=h.k!=='T';
+    $('#xD').innerHTML='<div class="tags"><span class="chip'+(bad?' esc':'')+'">'+KN[h.k]+'</span></div><h3>'+(i+1)+' · '+h.t+'</h3><p class="small">'+h.w+'</p><div class="callout'+(h.k==='S'?' danger':'')+'" style="padding:10px 14px">'+ico(bad?'i-alert':'i-check')+'<span><b>Do:</b> '+h.d+'</span></div>';
+    xCount()}
+  $('#xD').innerHTML='<span class="eyebrow">Work it like the diagram</span><h3>Start outside at the well, then follow the slab</h3><p class="small">Exterior, footing and block wall, then the bath, plumbing and crack inside, then the patio and driveway. Read spots turn colored.</p>';
+  xCount();
+
+  /* ---------- treat or don't scenarios ---------- */
+  var SC=[
+    {n:'Well by the corner',s:'The diagram shows a private well 4 feet from the northeast corner of the house. The rest of the perimeter is open soil.',o:['Treat the corner normally; the well casing protects the water','Skip the treatment and the paperwork for that side','No application within 5 feet of the well; treat soil between 5 and 10 feet only by the label\'s backfill method; mark the buffers and any untreated segment on the diagram, and review it with your supervisor','Double the volume on either side to make up for it'],a:2,e:'The label sets the buffers: none within 5 feet, backfill method only from 5 to 10 feet. Any segment left untreated is recorded as a limitation, never hidden.'},
+    {n:'Rain overnight',s:'It rained hard overnight. Water is standing along the back wall where you planned to trench.',o:['Reschedule that segment: don\'t treat saturated soil, and record why','Treat it anyway; the product binds to soil','Use a lower concentration to avoid runoff','Treat it and leave the trench open to dry'],a:0,e:'The label prohibits treating water-saturated soil or treating where runoff can move the product. Treat the dry segments if the plan allows, and come back for the rest.'},
+    {n:'Older slab, no plans',s:'A 1970s home. The customer says the A/C "might run under the floor." There are floor registers in two bedrooms.',o:['Drill quickly and shallow so you don\'t hit anything','Stop. Locate the ducts first; if you can\'t confirm where they run, don\'t drill those areas. Note it and tell your supervisor','Inject at lower pressure near the registers','Skip the interior entirely without telling anyone'],a:1,e:'Floor registers mean ducts in or under the slab. The label requires their location to be known before you apply, and a punctured duct carries termiticide into the living space.'},
+    {n:'Customer wants a corner',s:'The customer says, "Just spray the corner where the tubes are. That counts as a full treatment, right?"',o:['Agree and write "full treatment" on the report','Treat the corner and leave without writing anything','Quote a price for the corner','Explain that a corner is not a full treatment, that partial work is always written up as partial, and have your branch manager follow up on the options'],a:3,e:'Partial or spot work is never represented as complete. Service options, pricing and warranty go to the branch manager, and Sentricon is still the default recommendation.'},
+    {n:'Post-tension stamp',s:'Inside the garage you find a stamp on the slab: "Post-tensioned slab. Do not cut or drill."',o:['Drill anyway; the cables are deep','Use a smaller bit','Don\'t drill. Stop that part of the job, photograph the stamp and get your supervisor\'s direction','Drill only along the expansion joint'],a:2,e:'Cutting a tensioned cable can injure you and damage the structure. The V5 program requires confirming that drilling won\'t damage post-tension systems before you start.'},
+    {n:'French drain',s:'A French drain runs along the side yard next to the foundation. It drizzled this morning and the gravel is damp.',o:['Treat directly into the drain gravel so it spreads','Wait until the soil is dry; the label requires dry soil at sites with French drains, and keep product out of the drain itself','Skip that side with no note','Treat at double speed to beat the rain'],a:1,e:'Drains carry product away from the treatment zone and toward water. The label requires dry soil at French drain sites, and nothing goes into a drain.'}
+  ];
+  var scDone=store.get('sc')||{};
+  function scTabs(cur){$('#sTabs').innerHTML='';SC.forEach(function(p,i){var b=mk('button',scDone[i]?'done':null,p.n);b.type='button';b.id='sct'+i;b.setAttribute('aria-pressed',i===cur);b.addEventListener('click',function(){showSC(i)});$('#sTabs').appendChild(b)})}
+  function showSC(n){scTabs(n);var p=SC[n];
+    $('#sBox').innerHTML='<div class="card" style="padding:14px 20px"><p>'+p.s+'</p></div><div class="choices">'+p.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="scFb"></div>';
+    $$('#sBox .choice').forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+      $$('#sBox .choice').forEach(function(x){x.classList.remove('wrong')});
+      if(i===p.a){b.classList.add('right');$$('#sBox .choice').forEach(function(x){x.disabled=true});scDone[n]=1;store.set('sc',scDone);scTabs(n);
+        $('#scFb').innerHTML='<div class="fb">'+p.e+(n<SC.length-1?' <button type="button" class="btn" id="scNext" style="margin-left:8px;padding:6px 12px">Next scenario</button>':'')+'</div>';
+        var nx=$('#scNext');if(nx)nx.addEventListener('click',function(){showSC(n+1)})}
+      else{b.classList.add('wrong');$('#scFb').innerHTML='<div class="fb no">Not quite. What does the label say, and what would your supervisor want to know?</div>'}})});
+  }
+  showSC(0);
+
+  /* ---------- volume calculator ---------- */
+  var cz=0;
+  function calc(){var lf=Math.max(0,Math.min(2000,parseFloat($('#cLF').value)||0));var dv=+$('#cD').value;var dep=dv>4?4:dv;var gal,why,hol;
+    $('#cDl').style.visibility=cz===2?'hidden':'visible';
+    if(cz===2){gal=lf/10*2;hol='per label';why=lf+' ft ÷ 10 = '+(lf/10)+' × 2 gal = <b>'+fmt(gal)+' gallons</b> into the block voids.'}
+    else{gal=lf/10*4*dep;hol=lf?String(Math.ceil(lf)+1):'0';why=lf+' ft ÷ 10 = '+(lf/10)+' × 4 gal × '+dep+' ft deep = <b>'+fmt(gal)+' gallons</b>.'+(dv>4?' Footing deeper than 4 ft: the label sets a minimum treatment depth of 4 ft.':'')+(cz===1?' Drill holes along walls, joints and penetrations, no more than 12 in apart.':'')}
+    $('#cGal').textContent=fmt(gal);$('#cOz').textContent=fmt(Math.round(gal*0.78));$('#cHol').textContent=hol;
+    $('#cWhy').innerHTML=why+' Record the planned and the actual volume for every zone.'}
+  function fmt(n){return (Math.round(n*10)/10).toLocaleString('en-US')}
+  $$('#cZone button').forEach(function(b,i){b.addEventListener('click',function(){cz=i;$$('#cZone button').forEach(function(x,j){x.setAttribute('aria-pressed',j===i)});calc()})});
+  $('#cLF').addEventListener('input',calc);$('#cD').addEventListener('change',calc);calc();
+
+  /* ---------- label lines ---------- */
+  var LB=[
+    {h:'Concentration',p:'The label allows 0.06%, 0.09% or 0.125% finished dilution. The certified operator\'s plan sets which one. Mix it at the site, at the truck, never in a customer\'s bucket.'},
+    {h:'Volume',p:'Every 10 linear feet of trench gets 4 gallons for each foot of depth. A 2-foot-deep footing means 8 gallons per 10 feet. Short volume leaves gaps the termites will find.'},
+    {h:'Trench size',p:'Dig at least 6 inches deep, never below the footing. Wider than 6 inches adds work without adding protection.'},
+    {h:'Hole spacing',p:'Rod holes and slab drill holes no more than 12 inches apart so the treated soil from each hole overlaps the next. Wider spacing leaves untreated soil between holes.'},
+    {h:'Deep footings',p:'If the footing is more than 4 feet below grade, treat to a minimum depth of 4 feet. Most Florida slab homes are much shallower; measure, don\'t guess.'},
+    {h:'Wells and cisterns',p:'No application within 5 feet. Between 5 and 10 feet, soil is treated only by the label\'s backfill method: removed, treated as the label directs, and put back. Never contaminate a well or cistern.'},
+    {h:'Weather and soil',p:'No treatment of water-saturated soil, during precipitation, or where conditions could move product off site. Reschedule the segment and record why.'}
+  ];
+  function showLB(k){$$('.lblist li').forEach(function(li,j){li.classList.toggle('on',j===k)});var d=LB[k];
+    $('#lbD').innerHTML='<span class="eyebrow">In the field</span><h3>'+d.h+'</h3><p class="small">'+d.p+'</p>'}
+  $$('.lblist li').forEach(function(li,j){li.setAttribute('tabindex','0');li.setAttribute('role','button');li.id='lb'+j;keyAct(li,function(){showLB(j)})});
+  $('#lbD').innerHTML='<span class="eyebrow">Signal word: CAUTION</span><h3>Harmful if swallowed, absorbed through skin or inhaled</h3><p class="small">Applicators wear long sleeves, long pants, shoes and socks, and chemical-resistant gloves per the label. Keep the current label for every product on the truck (5E-14.106(2)).</p>';
+
+  /* ---------- well distance ---------- */
+  var wR=$('#wR');
+  function showW(){var d=+wR.value,x=d*20;$('#wTech').setAttribute('transform','translate('+Math.min(x,354)+' 0)');
+    var o=d<5?{c:'no',h:'No application',p:'Within 5 feet of a well or cistern, the example label prohibits any application. Mark it on the diagram and record the untreated segment.'}:(d<10?{c:'mid',h:'Backfill method only',p:'Between 5 and 10 feet, soil may only be treated by the label\'s backfill method: the soil is removed, treated as the label directs, and put back. Follow the backfill steps on your label exactly.'}:{c:'ok',h:'Treat per the label',p:'Beyond 10 feet, standard trench and rod per the label, still with no runoff toward the well and the backflow rules at the truck.'});
+    $('#wOut').innerHTML='<p class="wt '+o.c+'"><b>'+d+' ft · '+o.h+'</b></p><p class="small muted">'+o.p+'</p>';wR.setAttribute('aria-valuetext',d+' feet, '+o.h)}
+  wR.addEventListener('input',showW);showW();
+
+  /* ---------- order the job ---------- */
+  var ORD=['Confirm the signed contract and review the approved diagram','Locate utilities, ducts, wells and drains before any hole','Brief the customer: prep, people and pets, what to report','Measure each zone and calculate the label volume','Mix at the site: air gap, concentrates locked, PPE on','Treat per the diagram: trench, rod, drill and inject','Check for leaks, clean up, plug and patch, restore soil','Signed report, notice, records and photos; manager audit'];
+  var ORDMSG=['No contract and consumer notice, no work, and no payment taken.','Nothing gets drilled until you know what\'s under it.','Customers who know what to expect can tell you about a leak.','The label volume comes from real measurements, not habit.','Backflow and unattended concentrates are both rule violations.','A continuous zone at every accessible interface.','Leaks are cleaned up before you leave the site.','The job isn\'t closed until the paperwork and the audit are done.'];
+  var ordBox=$('#ord'), ordMix=[3,6,0,5,1,7,2,4], ordAt=0;
+  function ordRender(){ordBox.innerHTML='';ordAt=0;
+    ordMix.forEach(function(k){var b=mk('button',null,'<span class="num">&middot;</span><span>'+ORD[k]+'</span>');b.type='button';b.id='ord'+k;b.dataset.k=k;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.k===ordAt){b.classList.add('placed');$('.num',b).textContent=ordAt+1;ordAt++;
+          $('#ordN').textContent=ordAt===8?'Job complete':ordAt+' of 8 placed';
+          $('#ordFb p').textContent=ordAt===8?'Paperwork and plan, locate, brief, measure, mix, treat, clean up, document. Same order on every full liquid job.':ORDMSG[ordAt-1];
+          if(ordAt===8)$('#ordFb').classList.add('done')}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}});
+      ordBox.appendChild(b)});
+    $('#ordN').textContent='0 of 8 placed';$('#ordFb p').textContent='Nothing happens on site until the paperwork and the plan are in place.';$('#ordFb').classList.remove('done')}
+  $('#ordReset').addEventListener('click',ordRender);ordRender();
+
+  /* ---------- paperwork timeline ---------- */
+  var TL=[
+    {y:'Before the contract',g:'Inspection and consent',i:'i-search',l:['Inspection and treatment diagram completed; inaccessible areas and reasons noted','Consumer Notice Form FDACS-13692 signed by the owner or authorized agent (5E-14.105(1))','Only tell a customer they have termites when there is an infestation or strong evidence of one (5E-14.104(4))']},
+    {y:'Before work or payment',g:'The written contract',i:'i-doc',l:['Written contract given for acceptance before any work and before any payment (5E-14.105(2))','First page: subterranean, drywood or both; Formosan or other invasive species named if excluded (5E-14.105(2)(e))','First page in bold: repair and retreatment, retreatment only, or no warranty; bold headings for any limitations (s. 482.227)','Second contract for the same coverage: Consumer Consent Form FDACS-13671 first (5E-14.105(8))']},
+    {y:'Treatment day',g:'Label and records',i:'i-drop',l:['Apply exactly as the label directs (5E-14.106(1), FIFRA)','Record product brand name, EPA registration number, concentration, total volume and locations','Record refusals, obstructions, inaccessible segments and approved responses','Photos of activity, treated areas and patched holes']},
+    {y:'Before you leave',g:'Report and notice',i:'i-clip',l:['Signed report to the owner: termites present or absent, whether treatment was made, and the pesticide name (s. 482.226(3))','Treatment notice next to the attic or crawl access or another readily accessible spot: at least 3 x 5 inches, lasts 3 years, with licensee name and address, date, pesticide and organism (s. 482.226(5))','The contract states where the notice is; only the property owner may remove it']},
+    {y:'After the job',g:'Audit and retention',i:'i-book',l:['Branch manager quality audit before the job closes; follow-up and warranty dates in PestPac','Copy of every signed report kept at least 3 years (5E-14.105(6))','Pest control records and contracts kept at least 2 years at the licensed location (5E-14.142(1))','Retreatment deadlines apply for the life of the contract (5E-14.105(9))']}
+  ];
+  var tl=$('#tl'), tlSeen=store.get('tl')||{};
+  TL.forEach(function(t,i){var b=mk('button',tlSeen[i]?'seen':null,'<span class="dot">'+ico(t.i)+'</span><span class="yr">'+t.y+'</span><span class="tg">'+t.g+'</span>');b.type='button';b.id='tl'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showTL(i)});tl.appendChild(b)});
+  function showTL(i){tlSeen[i]=1;store.set('tl',tlSeen);$$('#tl button').forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!tlSeen[j])});
+    $('#tlFill').style.width=(i/(TL.length-1)*80)+'%';var t=TL[i];
+    $('#tlD').innerHTML='<div class="card"><span class="eyebrow">'+(i+1)+' of 5 · '+t.g+'</span><h3>'+t.y+'</h3><ul class="dots2">'+t.l.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'}
+  showTL(0);
+
+  /* ---------- build the record ---------- */
+  var RP=[
+    {t:'Product brand name',y:1},{t:'EPA registration number',y:1},{t:'Price quoted to the customer',y:0},{t:'Finished dilution concentration',y:1},
+    {t:'Total volume applied',y:1},{t:'"Guaranteed termite-free"',y:0},{t:'Treatment locations per the diagram',y:1},{t:'Inaccessible areas and the reason',y:1},
+    {t:'Customer\'s card number',y:0},{t:'Date, address and technician',y:1},{t:'Your guess at colony size',y:0},{t:'Photos of treated areas',y:1}
+  ];
+  var rSel={};
+  RP.forEach(function(r,i){var b=mk('button',null,r.t);b.type='button';b.id='rp'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){rSel[i]=!rSel[i];b.setAttribute('aria-pressed',!!rSel[i]);b.classList.remove('miss','extra')});$('#rPick').appendChild(b)});
+  $('#rCheck').addEventListener('click',function(){var miss=0,extra=0;RP.forEach(function(r,i){var b=$('#rp'+i);b.classList.remove('miss','extra');if(r.y&&!rSel[i]){miss++;b.classList.add('miss')}if(!r.y&&rSel[i]){extra++;b.classList.add('extra')}});
+    $('#rFb').innerHTML=(!miss&&!extra)?'<span class="fb" style="display:inline-block">Complete record. Prices, promises, card numbers and guesses never go in the file.</span>':'<span class="fb no" style="display:inline-block">'+(miss?miss+' missing (red outline)':'')+(miss&&extra?' · ':'')+(extra?extra+' that don\'t belong (red fill)':'')+'</span>'});
+
+  /* ---------- say it right sort ---------- */
+  var SS=[
+    {q:'"This product has a CAUTION signal word. Here is the label safety information."',a:'Say',w:'Accurate and required on request (s. 482.2265).'},
+    {q:'"It\'s completely safe for your kids and pets."',a:'Don\'t',w:'Never call a pesticide safe, harmless or non-toxic.'},
+    {q:'"Please keep everyone out of the treated area until it has soaked into the soil."',a:'Say',w:'That is the label\'s re-entry direction in plain words.'},
+    {q:'"You\'ll never see another termite."',a:'Don\'t',w:'Never promise results.'},
+    {q:'"Your branch manager will go over pricing and warranty with you."',a:'Say',w:'Pricing and warranty for full liquid are not set; they go to the branch manager.'},
+    {q:'"It\'ll probably run about the same as your neighbor\'s job."',a:'Don\'t',w:'Never quote or estimate prices.'},
+    {q:'"If you see a wet spot or smell anything inside, tell me right away."',a:'Say',w:'Customers who know to report leaks help you catch them.'},
+    {q:'"Don\'t worry about the well. We sprayed right up to it."',a:'Don\'t',w:'Wrong and against the label: no application within 5 feet of a well.'}
+  ];
+  var ss=$('#ssort'), ssSel={};
+  SS.forEach(function(s,i){var r=mk('div','row');r.id='ssr'+i;r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="ss'+i+'y" data-v="Say" aria-pressed="false">Say it</button><button type="button" id="ss'+i+'n" data-v="Don\'t" aria-pressed="false">Don\'t</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){ssSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});ss.appendChild(r)});
+  $('#ssCheck').addEventListener('click',function(){var right=0,blank=0;
+    SS.forEach(function(s,i){var r=$('#ssr'+i),w=$('.why',r);if(w)w.remove();if(!ssSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=ssSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok)r.appendChild(mk('span','why',s.w))});
+    $('#ssFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===SS.length?'<span class="fb" style="display:inline-block">All eight correct. Honest, specific and on label.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes and try again.</span>');
+  });
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

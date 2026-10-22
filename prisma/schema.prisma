@@ -2830,6 +2830,10 @@ model CertCourse {
   order           Int // global catalog order
   courseType      String   @default("written") @map("course_type") // "written" | "field_signoff"
   contentStatus   String   @map("content_status") // "Exists" | "Partial (...)" | "None" | …
+  // URL of the hosted, interactive course page (public/courses/<code>-*.html). Set
+  // automatically by the catalog seed when a matching file exists, so the course
+  // opens from its certification pathway. Null for courses with no built content yet.
+  contentUrl      String?  @map("content_url")
   sourceNote      String?  @map("source_note")
   targetMinutes   String?  @map("target_minutes") // e.g. "45–60"
   trainingFolder  String?  @map("training_folder")

@@ -1,0 +1,1297 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-01 Pest Management &amp; IPM</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-01 components */
+/* stakes picker */
+.stk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stk button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-weight:300;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.stk button .ico{color:var(--brand-600)}
+.stk button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.stk button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.stkd{display:grid;gap:10px;align-content:start;min-height:380px}
+.stkd > *{animation:rise .2s ease-in-out both}
+.stkd h3{font-size:22px;margin:0}
+.stkd .row{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;font-size:15px;padding-top:10px;border-top:1px solid var(--line)}
+.stkd .row .ico{color:var(--brand-600)}
+.stkd .row b{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
+
+/* IPM cycle */
+.cyc{padding:8px}
+.cyc svg{max-width:440px}
+.cring{fill:none;stroke:var(--brand-100);stroke-width:10}
+.cring2{fill:none;stroke:var(--brand-400);stroke-width:2;stroke-dasharray:6 10}
+.slide.on .cring2{animation:cflow 3.6s linear infinite}
+@keyframes cflow{to{stroke-dashoffset:-64}}
+.cnode{cursor:pointer}
+.cnode circle{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;transition:fill .18s ease-in-out,stroke .18s ease-in-out}
+.cnode .cn{font-family:var(--font);font-size:15px;fill:var(--brand-700);font-weight:500;pointer-events:none}
+.cnode .cl{font-family:var(--font);font-size:15px;fill:var(--ink);font-weight:400;pointer-events:none}
+.cnode.seen circle{fill:var(--brand-50)}
+.cnode.sel circle,.cnode:hover circle{fill:var(--brand-600);stroke:var(--brand-700)}
+.cnode.sel .cn,.cnode:hover .cn{fill:#fff}
+.cnode:focus-visible{outline:none}
+.cnode:focus-visible circle{stroke-width:3}
+.cmid{font-family:var(--font);font-size:44px;font-weight:300;fill:var(--brand-700)}
+.csub{font-family:var(--font);font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+.cycd{display:grid;gap:8px;min-height:250px;align-content:start}
+.cycd > *{animation:rise .2s ease-in-out both}
+.cycd h3{font-size:22px;margin:0}
+.cycd .on-visit{background:var(--brand-50);border-left:3px solid var(--brand-600);border-radius:10px;padding:10px 14px;font-size:15px}
+
+/* threshold slider */
+.thr{display:grid;grid-template-columns:1fr 1.1fr;gap:16px;align-items:stretch}
+.thr input[type=range]{width:100%;accent-color:var(--brand-600);height:28px}
+.lvls{display:grid;grid-template-columns:repeat(5,1fr);font-size:12px;color:var(--muted);text-align:center}
+.lvls span:first-child{text-align:left}.lvls span:last-child{text-align:right}
+.meter{height:10px;border-radius:var(--pill);background:var(--brand-100);overflow:hidden}
+.meter i{display:block;height:100%;width:8%;border-radius:var(--pill);background:var(--positive);transition:width .2s ease-in-out,background .2s ease-in-out}
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--positive);border-radius:var(--radius);padding:16px 18px;display:grid;gap:6px;align-content:start;box-shadow:var(--shadow-card);transition:border-color .2s ease-in-out}
+.verdict .st{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--positive)}
+.verdict h3{font-size:20px;margin:0}
+.verdict p{font-size:15px;color:var(--muted)}
+.verdict.act{border-left-color:var(--brand-700)}.verdict.act .st{color:var(--brand-700)}
+.verdict.urgent{border-left-color:var(--danger)}.verdict.urgent .st{color:var(--danger)}
+
+/* four methods flip */
+.flip.f4{grid-template-columns:repeat(4,1fr)}
+.flip.f4 button{min-height:250px}
+.flip.f4 h3{font-size:21px}
+.flip.f4 .back{font-size:14px;line-height:1.5;gap:6px}
+
+/* conducive conditions house */
+.house{padding:10px;align-items:center}
+.house svg{max-width:520px}
+.yd{fill:var(--brand-50)}
+.hw{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.hr{fill:var(--brand-100);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.gap{fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round;opacity:0;transition:opacity .2s ease-in-out}
+.gap.lit{opacity:1}
+.mulch{fill:var(--brand-300);stroke:var(--brand-500);stroke-width:1}
+.shrub circle{fill:var(--brand-400);stroke:var(--brand-600);stroke-width:1.4}
+.shrub path{stroke:var(--brand-700);stroke-width:2;fill:none}
+.water{stroke:var(--brand-400);stroke-width:3;fill:none}
+.drop{fill:var(--brand-400);opacity:0}
+.slide.on .drop{animation:drip 2.4s ease-in infinite}
+.slide.on .drop.d2{animation-delay:1.2s}
+@keyframes drip{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(18px)}}
+.hot{cursor:pointer}
+.hot .hc{fill:var(--forest);stroke:#fff;stroke-width:2;transition:fill .18s ease-in-out}
+.hot .hh{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hot:not(.found) .hh{animation:halo 2.6s ease-out infinite}
+.hot text{font-family:var(--font);font-size:12px;fill:#fff;font-weight:500;pointer-events:none}
+.hot.found .hc{fill:var(--brand-500)}
+.hot.sel .hc{fill:var(--brand-700);stroke:var(--brand-200);stroke-width:3}
+.hot:focus-visible{outline:none}
+.hot:focus-visible .hc{stroke:var(--brand-400);stroke-width:4}
+.hd{display:grid;gap:8px;min-height:230px;align-content:start}
+.hd > *{animation:rise .2s ease-in-out both}
+.hd h3{font-size:20px;margin:0}
+.hd .tags{display:flex;gap:6px;flex-wrap:wrap}
+
+/* root cause */
+#rcBox .choices{grid-template-columns:1fr 1fr}
+#rcBox .choice{padding:10px 14px;font-size:15px}
+
+/* service-line explorer */
+.ipmd{display:grid;gap:10px;align-content:start;min-height:440px}
+.ipmd > *{animation:rise .2s ease-in-out both}
+.ipmd h3{font-size:22px;margin:0}
+.ipmd dl{display:grid;grid-template-columns:150px 1fr;gap:0;margin:0;font-size:15px}
+.ipmd dt,.ipmd dd{padding:9px 0;border-top:1px solid var(--line);margin:0}
+.ipmd dt{display:flex;gap:8px;align-items:flex-start;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+.ipmd dt .ico{width:18px;height:18px;color:var(--brand-600);margin-top:-2px}
+#svl button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+#svl button{padding:9px 12px}
+
+/* note builder */
+#note button.ok{background:var(--positive);border-color:var(--positive);color:#fff}
+.door .then,.door .now{font-size:14px}
+
+@media (max-width:860px){
+  .stk,.thr,#rcBox .choices{grid-template-columns:1fr}
+  .flip.f4{grid-template-columns:1fr}
+  .flip.f4 button{min-height:210px}
+  .ipmd dl{grid-template-columns:1fr}
+  .ipmd dd{border-top:0;padding-top:0}
+  .stkd,.ipmd{min-height:0}
+}
+.cnode:focus,.hot:focus{outline:none}
+#note button.extra{background:#FDEEEE;border-color:var(--danger);color:var(--danger)}
+@media (max-width:860px){.split{grid-template-columns:1fr!important;gap:20px!important}.house svg,.cyc svg{max-width:100%}}
+@media (max-width:860px){.hot .hc,.hot .hh{r:15px}.hot text{font-size:14px}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 28</span><span class="code-chip">FC-01 · Pest Management &amp; IPM</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 11 11 5 20 5c0 9-6 15-14 15"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-mist" viewBox="0 0 24 24"><path d="M4 20V10h4v10"/><path d="M8 13h3"/><path d="M14 9l2-1M14 13h3M14 17l2 1M19 7l1-.5M20 13h1M19 19l1 .5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 7c0-1.5 1-2 1-3M14 7c0-1.5 1-2 1-3"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><path d="M4 17h2M18 17h2M12 9V7"/></symbol>
+    <symbol id="i-seal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h7M14 12h7"/><path d="M10 10l2 2-2 2M14 10l-2 2 2 2"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M7 21V11h6v10z"/><path d="M8 11V8h4v3M10 8V5h5"/><path d="M18 4l2-1M18 6h3M18 8l2 1"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-01</span>
+        <h1 class="display a" style="--i:1">Pest Management &amp; IPM</h1>
+        <p class="lead a" style="--i:2">Why pests matter, how pest control moved from spraying on a schedule to solving problems at the source, and how IPM runs through every Clements service.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M160 22a108 108 0 0 1 93.5 54"/><path d="M247 70l7 7 2-10"/>
+          <path d="M262 158a108 108 0 0 1-93 72"/><path d="M176 224l-8 6 8 6"/>
+          <path d="M66 190A108 108 0 0 1 70 76"/><path d="M62 82l8-7 3 10"/>
+          <circle cx="150" cy="124" r="52"/><path d="M187 161l42 42"/><path d="M196 170l-6 6M222 196l-6 6"/>
+          <path d="M126 146c0-30 20-48 48-48 0 28-18 48-48 48z"/><path d="M126 146l30-30"/>
+          <circle cx="288" cy="118" r="5"/><path d="M283 112l-6-6M293 112l6-6M282 122h-8M294 122h8"/>
+          <circle cx="40" cy="134" r="3"/><circle cx="30" cy="146" r="2"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Inspect · Identify · Prevent · Target · Evaluate</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-leaf"/></svg><span>Explain the role pests play in nature, and when an insect or animal becomes a pest</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span>Describe why pest management protects public health, property and food</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-refresh"/></svg><span>Contrast old-school reactive spraying with integrated pest management (IPM)</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span>Walk through the IPM cycle: inspect, identify, monitor, decide, prevent, treat, evaluate</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-layers"/></svg><span>Choose between cultural, mechanical, biological and chemical controls, and combine them</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-check"/></svg><span>Apply IPM on pest, lawn, termite, rodent and mosquito services, and document it</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">We are paid to <span class="em">solve the problem</span>, not to spray.</h2>
+        <p class="lead a" style="--i:2">Anyone can buy a can of bug spray. Customers trust Clements because our people find out why pests are there and make the fix last. IPM is how professionals think, and it is the foundation for every course that follows.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>It's part of your license to work</h3><p>Florida law (s. 482.091) requires every employee ID cardholder to complete classroom training in pesticide safety, IPM and pest control law, then continuing training every year.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>It protects people and the environment</h3><p>Finding the source means fewer, better-placed applications: less exposure for families, pets, pollinators, waterways and you.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-star"/></svg></div><div><h3>It keeps customers</h3><p>Results that last mean fewer callbacks and customers who stay for years. A customer who understands what you found trusts you with the next problem.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: pests and people">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Pests and people</h1>
+        <p class="lead a" style="--i:2">Why it matters: you can't manage something you don't understand. Knowing what a pest does in nature, and what it does in a home, tells you where to look and what's at stake.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The role of pests in the ecosystem</li><li><span>02</span>When does it become a pest?</li><li><span>03</span>What's at stake</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 ECOSYSTEM -->
+  <section class="slide" data-label="Pests in the ecosystem" style="gap:16px">
+    <span class="eyebrow a">01 · The role of pests in the ecosystem</span>
+    <h2 class="a" style="--i:1">Pests aren't "bad." They're in the wrong place, in the wrong numbers.</h2>
+    <p class="a muted" style="--i:2;max-width:none">Outdoors, most of the animals we manage break down dead material, recycle nutrients and feed birds, lizards and fish. They become pests when their numbers or location conflict with people's health, property or comfort.</p>
+    <div class="door">
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">In nature · termites</span>Recycle fallen trees and dead wood back into soil</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">In a home</span>Eat the framing, trim and cabinets of a house</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">In nature · cockroaches and ants</span>Scavenge dead insects and plant debris; food for wildlife</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">In a home</span>Contaminate food and surfaces and trigger allergies and asthma</div></div>
+      <div class="pair a" style="--i:5"><div class="then"><span class="lbl">In nature · rodents</span>Spread seeds; prey for owls, hawks and snakes</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">In a home</span>Spread disease, chew wiring and nest in insulation</div></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-leaf"/></svg><span>That's why our goal is to <b>keep pests below the level where they cause harm, while protecting everything else</b>: lady beetles, bees, butterflies and the animals that eat pests for us.</span></div>
+  </section>
+
+  <!-- 6 STAKES PICKER -->
+  <section class="slide" data-label="What's at stake">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · What's at stake</span>
+        <h2 class="a" style="--i:1">Public health, property and food</h2>
+        <p class="a muted" style="--i:2">Pest management is a public health job. Select each pest to see what it puts at risk.</p>
+        <div class="stk a" style="--i:3" id="stk"></div>
+      </div>
+      <div class="card stkd a" style="--i:4" id="stkD"></div>
+    </div>
+  </section>
+
+  <!-- 7 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 8 PART TWO -->
+  <section class="slide forest" data-label="Part two: reactive to IPM">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">From reactive spraying to IPM</h1>
+        <p class="lead a" style="--i:2">Why it matters: spraying on autopilot treats symptoms. The pests come back, the customer calls back, and the chemical load keeps growing. IPM breaks that loop.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>How the industry changed</li><li><span>02</span>What IPM is, and isn't</li><li><span>03</span>The IPM cycle</li><li><span>04</span>Inspection and identification</li><li><span>05</span>Monitoring and thresholds</li><li><span>06</span>Practice: reactive or IPM?</li></ol>
+    </div>
+  </section>
+
+  <!-- 9 THEN AND NOW -->
+  <section class="slide" data-label="How the industry changed">
+    <span class="eyebrow a">01 · How the industry changed</span>
+    <h2 class="a" style="--i:1">Old-school reactive control vs. modern IPM</h2>
+    <div class="door">
+      <div class="pair a" style="--i:2"><div class="then"><span class="lbl">Reactive</span>Wait for pests to show up, then spray</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">IPM</span>Inspect and monitor so problems are caught early, or prevented</div></div>
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">Reactive</span>Same broadcast treatment everywhere, every visit, "just in case"</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">IPM</span>The right product placed where the pest lives, feeds and travels</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">Reactive</span>Pesticide is the first and only tool</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">IPM</span>Exclusion, sanitation and habitat changes first; pesticide as one targeted tool</div></div>
+      <div class="pair a" style="--i:5"><div class="then"><span class="lbl">Reactive</span>Ignores the conditions that invited the pest in</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">IPM</span>Finds and fixes the root cause, and tells the customer their part</div></div>
+      <div class="pair a" style="--i:6"><div class="then"><span class="lbl">Reactive</span>Quick knockdown, then the problem returns</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">IPM</span>Long-term results, fewer callbacks, less resistance</div></div>
+    </div>
+  </section>
+
+  <!-- 10 WHAT IPM IS -->
+  <section class="slide" data-label="What IPM is">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">02 · What IPM is, and isn't</span>
+        <h2 class="a" style="--i:1">A decision-making process, not a product</h2>
+        <p class="quote a" style="--i:2">"An effective and environmentally sensitive approach to pest management that relies on a combination of common-sense practices."<cite>U.S. EPA · INTEGRATED PEST MANAGEMENT PRINCIPLES</cite></p>
+        <p class="a muted" style="--i:3">EPA describes four tiers: <b>set action thresholds, monitor and identify, prevent, and control</b>, starting with the least risky methods that work.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-x"/></svg><span><b>Myth: "IPM means no pesticides."</b> Pesticides are still a key tool. IPM uses them when and where they're needed, at label rates.</span></div>
+        <div class="callout danger a" style="--i:4"><svg class="ico"><use href="#i-x"/></svg><span><b>Myth: "IPM just means spraying less."</b> It means thinking first. Sometimes the right call is more work: sealing, trimming, adding monitors.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Myth: "IPM is only for farms."</b> It began in agriculture. Today it's the standard for homes, schools, restaurants and lawns.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>The Clements version:</b> inspect, identify, and solve the problem, not just the symptom.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 IPM CYCLE -->
+  <section class="slide" data-label="The IPM cycle">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="figbox cyc a" style="--i:1">
+        <svg viewBox="-92 -14 544 388" role="img" aria-label="The IPM cycle: eight steps arranged in a loop" id="cycSvg">
+          <circle class="cring" cx="180" cy="180" r="140"/>
+          <circle class="cring2" cx="180" cy="180" r="140"/>
+          <text class="cmid" x="180" y="176" text-anchor="middle" id="cMid">IPM</text>
+          <text class="csub" x="180" y="202" text-anchor="middle" id="cSub">SELECT A STEP</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · The IPM cycle</span>
+        <h2 class="a" style="--i:1">Eight steps, every visit, in a loop</h2>
+        <p class="a muted small" style="--i:2">Select each step on the cycle. Evaluating leads straight back to inspecting on the next visit.</p>
+        <div class="card cycd a" style="--i:3" id="cycD"></div>
+        <p class="small muted a" style="--i:4" id="cycN">0 of 8 steps viewed</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 INSPECT AND IDENTIFY -->
+  <section class="slide" data-label="Inspection and identification">
+    <span class="eyebrow a">04 · Inspection and identification</span>
+    <h2 class="a" style="--i:1">Wrong ID, wrong treatment. Every time.</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-bug"/></svg></div><h3>German vs. American roach</h3><p><b>German:</b> small, breeds indoors in kitchens and bathrooms. Calls for sanitation, gel bait and monitors inside. <b>American:</b> large, lives outdoors, in sewers and damp areas. Calls for exterior work, moisture fixes and sealing.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Subterranean vs. drywood termite</h3><p><b>Subterranean:</b> mud tubes, nests in soil. Sentricon or liquid. <b>Drywood:</b> pellet frass and tiny exit holes, no soil contact. Spot or whole-home treatment. Sentricon never treats drywood.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-leaf"/></svg></div><h3>Chinch bugs vs. drought vs. fungus</h3><p>A yellow-brown patch in St. Augustine can be any of the three. Check the edge where brown meets green for chinch bugs, look for a fungal ring, and check irrigation coverage before you treat.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span><b>Inspect where pests live, not where they're seen:</b> under sinks and appliances, behind outlets, attics, soffits, foundations, mulch beds, the edge of damaged turf.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-eye"/></svg><span><b>Tools:</b> flashlight, inspection mirror, glue-board monitors, a hand lens, and the Pest ID chart. Not sure what it is? Photograph it and ask your supervisor before you treat.</span></div>
+    </div>
+  </section>
+
+  <!-- 13 THRESHOLD SLIDER -->
+  <section class="slide" data-label="Monitoring and thresholds">
+    <span class="eyebrow a">05 · Monitoring and action thresholds</span>
+    <h2 class="a" style="--i:1">How many is too many? It depends on where you are.</h2>
+    <p class="a muted small" style="--i:2">An action threshold is the level of pest activity that justifies action. Monitoring tells you where you are against it. Pick a setting, then move the slider.</p>
+    <div class="scen-tabs a" style="--i:3" id="thTabs"></div>
+    <div class="thr a" style="--i:4">
+      <div class="card" style="display:grid;gap:12px">
+        <label for="thR" class="eyebrow" id="thQ">Pest activity found</label>
+        <input type="range" id="thR" min="0" max="4" step="1" value="0" aria-describedby="thV">
+        <div class="lvls" aria-hidden="true"><span>None</span><span>One or two</span><span>A few</span><span>Regular</span><span>Heavy</span></div>
+        <div class="meter" aria-hidden="true"><i id="thM"></i></div>
+      </div>
+      <div class="verdict" id="thV" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE SORT -->
+  <section class="slide" data-label="Practice: reactive or IPM">
+    <span class="eyebrow a">06 · Practice</span>
+    <h2 class="a" style="--i:1">Reactive or IPM? Sort each habit.</h2>
+    <div class="sort a" style="--i:2" id="sort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="sortCheck">Check my answers</button><span id="sortFb"></span></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: the IPM toolbox">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">The IPM toolbox</h1>
+        <p class="lead a" style="--i:2">Why it matters: a technician with only a sprayer has one answer for every problem. A technician with the full toolbox picks the fix that works and lasts.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Four methods of control</li><li><span>02</span>Find the conducive conditions</li><li><span>03</span>Targeted chemical control</li><li><span>04</span>Practice: what's the root cause?</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 FOUR METHODS -->
+  <section class="slide" data-label="Four methods of control">
+    <span class="eyebrow a">01 · Four methods of control</span>
+    <h2 class="a" style="--i:1">IPM combines methods. Select each to flip it.</h2>
+    <div class="flip f4 a" style="--i:2" id="mflip"></div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-layers"/></svg><span><b>The best results stack methods:</b> seal the gap (mechanical), remove the food (cultural), and place bait where the colony feeds (chemical), while sparing the predators already working for you (biological).</span></div>
+  </section>
+
+  <!-- 18 CONDUCIVE CONDITIONS -->
+  <section class="slide" data-label="Find the conducive conditions">
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px">
+      <div class="figbox house a" style="--i:1">
+        <svg viewBox="0 0 480 290" role="img" aria-label="A house exterior with eight conducive conditions to find" id="houseSvg">
+          <rect class="yd" x="0" y="250" width="480" height="40"/>
+          <path class="hw" d="M110 250V124h240v126"/>
+          <path class="hr" d="M92 126L230 42l138 84z"/>
+          <path class="gap" d="M296 82l10 6"/>
+          <rect class="hw" x="200" y="172" width="44" height="74"/><path class="gap" d="M200 249h44"/>
+          <rect class="hw" x="132" y="150" width="40" height="34"/><rect class="hw" x="280" y="150" width="40" height="34"/>
+          <path class="hw" d="M350 200h10"/><rect class="hw" x="360" y="214" width="46" height="36" rx="3"/><path class="hw" d="M360 200v14"/><circle class="gap" cx="350" cy="200" r="5"/>
+          <path class="hw" d="M164 212h10v8"/><circle class="drop" cx="174" cy="228" r="2.4"/><circle class="drop d2" cx="174" cy="228" r="2.4"/>
+          <rect class="mulch" x="256" y="238" width="94" height="12" rx="3"/>
+          <g class="shrub"><circle cx="86" cy="214" r="26"/><circle cx="110" cy="196" r="20"/><path d="M118 186l14-14"/></g>
+          <path class="hw" d="M418 214h28l-3 36h-22z"/><path class="hw" d="M414 214h36"/><rect class="hw" x="452" y="242" width="16" height="8" rx="2"/>
+          <path class="hw" d="M34 236h30l-3 14H37z"/><path class="water" d="M38 240h22"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Find the conducive conditions</span>
+        <h2 class="a" style="--i:1">Eight things invite pests in. Find them.</h2>
+        <p class="a muted small" style="--i:2">Conducive conditions give pests food, water, shelter or a way inside. Select each numbered spot. Every one is a recommendation you can make.</p>
+        <div class="card hd a" style="--i:3" id="hD"></div>
+        <p class="small muted a" style="--i:4" id="hN">0 of 8 found</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 TARGETED CHEMICAL -->
+  <section class="slide" data-label="Targeted chemical control">
+    <span class="eyebrow a">03 · Targeted chemical control</span>
+    <h2 class="a" style="--i:1">When you treat: right pest, product, place and amount</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Right pest</h3><p>Confirm the ID first. The pest decides the product and formulation.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Right product</h3><p>Baits for insects that share food. Non-repellents where a repellent would scatter a colony.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Right place</h3><p>Cracks, crevices, voids and harborage, where pests contact it and people, pets and pollinators don't.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-scale"/></svg></div><h3>Right amount</h3><p>Label rate, never more. Extra product doesn't work better. It's illegal and adds risk.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-refresh"/></svg><span><b>Prevent resistance.</b> Repeated use of one product, or sub-lethal doses, leaves only the toughest pests alive. Follow label rates and the product rotation your supervisor sets.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-book"/></svg><span><b>The label is the law.</b> Every application follows the label's site, rate and directions. FC-02 covers labels and pesticide law in depth.</span></div>
+    </div>
+  </section>
+
+  <!-- 20 ROOT CAUSE -->
+  <section class="slide" data-label="Practice: root cause">
+    <span class="eyebrow a">04 · Practice · what's the root cause?</span>
+    <h2 class="a" style="--i:1">The pests keep coming back. Why?</h2>
+    <div class="scen-tabs a" style="--i:2" id="rcTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="rcBox"></div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: IPM at Clements">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">IPM in every Clements service</h1>
+        <p class="lead a" style="--i:2">Why it matters: IPM isn't an extra service we sell. It's how every recurring visit should run, whether you're treating a kitchen, a lawn, a foundation, an attic or a backyard.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>IPM across our service lines</li><li><span>02</span>Document it: the service note</li><li><span>03</span>Bring the customer in</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 SERVICE LINES -->
+  <section class="slide" data-label="IPM across our service lines">
+    <div class="split" style="grid-template-columns:.62fr 1.38fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · IPM across our service lines</span>
+        <h2 class="a" style="--i:1">Same cycle, five services</h2>
+        <div class="blist a" style="--i:2" id="svl"></div>
+      </div>
+      <div class="card ipmd a" style="--i:3" id="svD"></div>
+    </div>
+  </section>
+
+  <!-- 24 SERVICE NOTE -->
+  <section class="slide" data-label="Document it">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Document it</span>
+        <h2 class="a" style="--i:1">Your service note is the evaluate step</h2>
+        <p class="a muted small" style="--i:2">The next technician, the office and the customer all rely on it. A good note in PestPac Mobile lets anyone see what was found, what was done and what changed since last time. FC-10 covers the app itself.</p>
+        <div class="door a" style="--i:3">
+          <div class="then"><span class="lbl">Weak note</span>"Sprayed. All good."</div>
+          <div class="now"><span class="lbl">Strong note</span>"German roaches under dishwasher, light activity. Grease buildup behind stove. Gel bait placed in hinge and motor area. Advised customer to clean behind stove; monitor left under sink. Recheck next visit."</div>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a" style="--i:2">Practice · build the note</span>
+        <p class="a" style="--i:3">Select everything that belongs in a professional service note.</p>
+        <div class="pick a" style="--i:4" id="note"></div>
+        <div class="a" style="--i:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="noteCheck">Check my note</button></div>
+        <div id="noteFb" class="a" style="--i:6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 CUSTOMER -->
+  <section class="slide" data-label="Bring the customer in">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">03 · Bring the customer in</span>
+        <h2 class="a" style="--i:1">IPM works best as a partnership</h2>
+        <p class="a muted" style="--i:2">Half of the conditions you find are the customer's to fix: the leaky spigot, the pet food left out, the shrubs against the wall. Tell them what you found, what you did and what they can do, in plain language and without blame.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>"I found ants trailing in from the shrub touching your back wall. I placed bait where they're feeding. If you can trim that branch back, it cuts off their highway into the house."</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-check"/></svg><span><b>Do</b> explain the conducive conditions you found and show the customer when you can.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-check"/></svg><span><b>Do</b> say we use EPA-registered products applied according to the label.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-check"/></svg><span><b>Do</b> pass questions about added services or pricing to your branch manager.</span></div>
+        <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-x"/></svg><span><b>Don't</b> call any product "completely safe," "natural so it's harmless" or "non-toxic." Claims must match the label.</span></div>
+        <div class="callout danger a" style="--i:7"><svg class="ico"><use href="#i-x"/></svg><span><b>Don't</b> promise a pest-free home forever. Promise the process: inspect, treat, follow up.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 27 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your route</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each of these during ride-alongs before FC-01 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Complete a full exterior inspection and point out at least three conducive conditions</label></li>
+      <li><label><input type="checkbox" id="f2"> Correctly identify the target pest at three stops before choosing a treatment</label></li>
+      <li><label><input type="checkbox" id="f3"> Read monitors or bait stations and explain what the activity tells you</label></li>
+      <li><label><input type="checkbox" id="f4"> Explain why the action threshold differs in a home kitchen and a restaurant kitchen</label></li>
+      <li><label><input type="checkbox" id="f5"> Recommend an exclusion or sanitation fix to a customer in plain language</label></li>
+      <li><label><input type="checkbox" id="f6"> Make a targeted application at label rate, placed where it reaches the pest</label></li>
+      <li><label><input type="checkbox" id="f7"> Write a PestPac service note covering findings, conditions, treatment and recommendations</label></li>
+      <li><label><input type="checkbox" id="f8"> Walk through the IPM cycle on a real callback and say what you would change</label></li>
+    </ul>
+  </section>
+
+  <!-- 28 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc01:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc01:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-01", "titleHtml": "Pest Management &amp; IPM", "nextHtml": "FC-02 \u00b7 Labels &amp; Pesticide Law", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Pests and people',q:'A homeowner asks you to "kill every bug in the yard," including the lady beetles and bees on her flowers. What is the best response?',o:['Agree and treat every plant in the yard','Tell her bees and lady beetles are none of our business','Explain that we target the pests causing problems, and that lady beetles and pollinators actually help keep pests down, so we protect them','Tell her insects outdoors never cause problems'],a:2,e:'Most insects do useful work outdoors. IPM keeps pests below the level where they cause harm while protecting beneficial insects, pollinators and the animals that eat pests.'},
+    2:{t:'Checkpoint 2 · Reactive to IPM',q:'At a restaurant account, the glue-board monitor under the dish station shows two German cockroaches. Last month it showed none. What is the IPM response?',o:['Nothing yet. Two roaches is under any threshold','Fog the whole kitchen right away','Double the product rate on the usual baseboard spray','Inspect to find the harborage and source, point out sanitation issues to the manager, place bait where they hide, add monitors and document it'],a:3,e:'In a commercial kitchen the threshold for German cockroaches is essentially zero. Inspect, find the source, fix the conditions, treat in the harborage, and keep monitoring. Never exceed the label rate.'},
+    3:{t:'Checkpoint 3 · The IPM toolbox',q:'Ghost ants keep trailing into a kitchen. You find a shrub touching the back wall and a pet food bowl left out all day. Which plan is IPM?',o:['Spray a repellent along every baseboard and leave','Recommend trimming the shrub off the wall and picking up pet food between meals, and place bait where the ants are feeding','Tell the customer to buy ant spray','Treat the whole lawn'],a:1,e:'IPM combines methods: cultural (trim the shrub, remove the food) with targeted chemical control (bait the colony shares). Repellent sprays can scatter ant colonies and make the problem worse.'},
+    4:{t:'Checkpoint 4 · IPM at Clements',q:'This is the third ant callback at the same GHP home in two months. What should you do first?',o:['Find out why: read the past service notes, ask the customer what and where, inspect for the source and conducive conditions, then adjust the approach','Spray the same areas again, a little heavier','Tell the customer this is normal and nothing more can be done','Recommend a different company'],a:0,e:'Repeated callbacks mean the approach isn\'t reaching the root cause. Evaluate: review the notes, inspect, find the source, change the plan, educate the customer and document it.'},
+    5:{t:'Checkpoint 5',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which statement about pests in the ecosystem is accurate?',o:['Pests have no useful role in nature','Many pests decompose dead material and feed other animals; they become pests when their numbers or location conflict with people','All insects should be eliminated around a home','Only termites have a role in nature'],a:1,e:'Pests aren\'t inherently bad. Termites recycle dead wood, cockroaches scavenge, rodents feed predators. They become pests in the wrong place or the wrong numbers.'},
+    {k:'Multiple choice',q:'Which best describes integrated pest management?',o:['Spraying every surface on every visit','Using no pesticides at all','A decision-making process that combines inspection, identification, thresholds, prevention and targeted control','A product sold only to farms'],a:2,e:'EPA describes IPM as an effective and environmentally sensitive approach built on common-sense practices: thresholds, monitoring and identification, prevention and control.'},
+    {k:'True or false',q:'IPM means never using pesticides.',o:['True','False'],a:1,e:'False. Pesticides are a key IPM tool, used when and where they\'re needed, at label rates, alongside non-chemical methods.'},
+    {k:'Multiple choice',q:'What is an action threshold?',o:['The maximum amount of product allowed on the label','The number of stops on a route','The time a product takes to dry','The level of pest activity that justifies taking action'],a:3,e:'An action threshold is the pest level at which action is warranted. Monitoring tells you where you are against it.'},
+    {k:'Scenario',q:'You see one German cockroach in a restaurant kitchen and one in a home\'s garage next to an open door. Which statement is correct?',o:['The restaurant threshold is essentially zero because of food safety and health inspections; the home still needs follow-up, but the setting changes the urgency','Both are below any threshold','Neither matters until there are ten','Only the home needs action'],a:0,e:'Thresholds depend on the setting. Food-handling businesses have near-zero tolerance for cockroaches. In a home, one sighting means inspect and monitor.'},
+    {k:'Multiple choice',q:'Which of these is mechanical (physical) control?',o:['Introducing a natural predator','Changing the irrigation schedule','Applying a gel bait','Installing a door sweep and sealing a gap around a pipe'],a:3,e:'Mechanical or physical control blocks, traps or removes pests: door sweeps, sealing, screens, traps, vacuums.'},
+    {k:'Multiple choice',q:'Trimming shrubs off the house, pulling mulch back from the foundation and fixing a leaky spigot are examples of:',o:['Chemical control','Biological control','Cultural control (sanitation and habitat change)','Reactive control'],a:2,e:'Cultural control changes the environment so it is less hospitable: removing food, water, shelter and bridges into the structure.'},
+    {k:'Multiple choice',q:'Which is an example of biological control?',o:['Lady beetles feeding on aphids','A glue-board monitor','A perimeter liquid treatment','A door sweep'],a:0,e:'Biological control uses living natural enemies (predators, parasites and pathogens) to keep pests down. Protecting the ones already present is part of it.'},
+    {k:'Scenario',q:'A customer hears rodents in the attic every night. What should happen before bait stations go out?',o:['Nothing; bait first','Spray the attic','Inspect and seal the entry points, then trap, then bait outside','Tell the customer to wait a month'],a:2,e:'Seal first, then bait. Baiting while openings are still there can leave a rodent dying inside a wall. This is how Rodent Shield works.'},
+    {k:'True or false',q:'Using more than the label rate is acceptable when an infestation is severe.',o:['True','False'],a:1,e:'False. Exceeding the label rate is illegal under FIFRA, adds risk and doesn\'t work better. It can also speed up resistance.'},
+    {k:'Multiple choice',q:'Why does identifying a termite matter before recommending a service?',o:['Subterranean termites are treated with Sentricon or liquid; drywood need spot or whole-home treatment. Sentricon never treats drywood','It doesn\'t; all termites get the same treatment','Drywood termites are only treated with Sentricon','Identification is only needed for WDO reports'],a:0,e:'The pest decides the treatment. Mud tubes point to subterranean termites; pellet frass and exit holes point to drywood.'},
+    {k:'Scenario',q:'A St. Augustine lawn has a spreading yellow-brown patch. What should you do before treating?',o:['Treat the whole yard for chinch bugs right away','Tell the customer to water more','Apply extra fertilizer','Inspect the edge where brown meets green for chinch bugs, check for a fungal ring and irrigation coverage, then treat what you confirm'],a:3,e:'Chinch bugs, fungus and drought can all look alike. Identify first, then treat the confirmed cause.'},
+    {k:'Multiple choice',q:'Which habit is reactive, not IPM?',o:['Placing monitors to see where activity is coming from','Recommending sealing a gap at the AC line','Spraying every baseboard on every visit whether or not there is activity','Reading past service notes before a callback'],a:2,e:'Routine broadcast treatment with no activity and no inspection is the reactive, "just in case" approach IPM replaces.'},
+    {k:'Multiple choice',q:'What is the source of most mosquitoes in a Florida backyard?',o:['Tall grass alone','Standing water in containers, saucers, clogged gutters and plants that hold water','Mulch beds','Exterior lights'],a:1,e:'Mosquitoes breed in standing water. Source reduction (dumping and removing standing water) is the prevention step that makes misting service work better.'},
+    {k:'True or false',q:'In IPM, a callback is a signal to find out why the treatment isn\'t working, not just to spray again.',o:['True','False'],a:0,e:'True. Evaluation is part of the cycle. Repeated activity means the root cause hasn\'t been addressed.'},
+    {k:'Multiple choice',q:'Why are baits often the best choice for ants and German cockroaches?',o:['They are the cheapest product','They repel the pests','They never need to be placed carefully','Workers carry the bait back and share it, so it reaches pests you can\'t treat directly'],a:3,e:'Social insects share food, so a well-placed bait reaches the colony. Repellent sprays can scatter some ant colonies into new nests.'},
+    {k:'Multiple choice',q:'What belongs in a professional service note?',o:['Only the word "serviced"','Your opinion of how clean the customer is','What you found and where, conducive conditions, what you applied and where, and what you recommended','The customer\'s payment details'],a:2,e:'A good note lets the next technician and the office see the findings, what was done, and what the customer was asked to do.'},
+    {k:'Scenario',q:'A customer asks, "Is this product completely safe for my kids?" What is the best answer?',o:['"Yes, it\'s totally safe."','"It\'s natural, so it can\'t hurt anyone."','"We use EPA-registered products and apply them according to the label. Here\'s what the label says about re-entry and keeping kids and pets away until it dries."','"I don\'t know."'],a:2,e:'Never make safety claims. Describe how we use EPA-registered products according to the label, and share the label\'s directions.'},
+    {k:'Multiple choice',q:'Which group of tasks makes up the prevention step of IPM?',o:['Exclusion, sanitation and habitat modification','Fogging, broadcast spraying and dusting','Billing, scheduling and routing','Selling add-on services'],a:0,e:'Prevention removes what pests need: a way in (exclusion), food and water (sanitation) and shelter (habitat changes).'},
+    {k:'True or false',q:'Florida requires every pest control employee ID cardholder\'s training to include integrated pest management.',o:['True','False'],a:0,e:'True. Section 482.091 requires 4 hours of classroom training in pesticide safety, IPM and pest control laws within six months of your card being issued, then at least 2 hours every year.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  function replay(el){el.style.animation='none';el.offsetHeight;el.style.animation=''}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- what's at stake ---------- */
+  var STK=[
+    {n:'Cockroaches',i:'i-bug',r:[['i-heart','Health','Allergens in droppings and shed skins trigger allergies and asthma, especially in children. Roaches carry bacteria such as Salmonella onto surfaces.'],['i-food','Food','They contaminate food, dishes and prep surfaces. In a restaurant, one sighting can cost a health inspection.'],['i-home','Property','Odor and staining in heavy infestations; customers are embarrassed to have guests over.']]},
+    {n:'Rats and mice',i:'i-rodent',r:[['i-heart','Health','Urine and droppings can spread diseases such as hantavirus, leptospirosis and salmonellosis.'],['i-alert','Property','They gnaw wiring (a fire risk), pipes and insulation, and nest in attics and walls.'],['i-food','Food','They contaminate pantry and stored food, and far more than they eat.']]},
+    {n:'Mosquitoes',i:'i-mist',r:[['i-heart','Health','They can transmit diseases such as West Nile virus and dengue, both reported in Florida, and heartworm in dogs and cats.'],['i-home','Home life','Heavy biting keeps families out of their own yards.'],['i-drop','Source','They breed in standing water, often right on the property.']]},
+    {n:'Termites',i:'i-home',r:[['i-alert','Property','They eat wood from the inside, often for years before anyone notices. Damage can cost a homeowner tens of thousands of dollars.'],['i-shield','Insurance','Termite damage is typically not covered by homeowner\'s insurance, so prevention is the protection.'],['i-book','Regulation','Termite work is the most tightly regulated work we do in Florida.']]},
+    {n:'Fire ants',i:'i-target',r:[['i-heart','Health','Painful stings that blister; some people have severe allergic reactions that need emergency care.'],['i-home','Property','Mounds in lawns and play areas; colonies can nest in electrical boxes and AC units.'],['i-users','People and pets','Children and pets are stung most often.']]},
+    {n:'Lawn pests',i:'i-leaf',r:[['i-leaf','Property','Chinch bugs, sod webworms and mole crickets can kill sections of turf in weeks.'],['i-scale','Cost','Replacing dead sod costs far more than protecting a healthy lawn.'],['i-sun','Florida','Our heat and long growing season mean pest pressure nearly year-round.']]}
+  ];
+  var stk=$('#stk'), stkSeen=store.get('stk')||{};
+  function showStk(i){
+    $$('button',stk).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);if(stkSeen[j])b.classList.add('seen')});
+    var s=STK[i];
+    $('#stkD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(s.i)+'</div><h3>'+s.n+'</h3></div>'+s.r.map(function(r,k){return '<div class="row" style="animation-delay:'+(k*60)+'ms">'+ico(r[0])+'<span><b>'+r[1]+'</b>'+r[2]+'</span></div>'}).join('');
+  }
+  STK.forEach(function(s,i){var b=mk('button',null,ico(s.i)+'<span>'+s.n+'</span>');b.type='button';b.id='stk'+i;b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){stkSeen[i]=1;store.set('stk',stkSeen);showStk(i)});stk.appendChild(b)});
+  showStk(0);
+
+  /* ---------- IPM cycle ---------- */
+  var CYC=[
+    {l:'Inspect',h:'Inspect',p:'Look for pests, damage, entry points and conducive conditions before doing anything else. Inspect where pests live, not only where they\'re seen.',v:'Walk the exterior at the start of every visit. Check under sinks, behind appliances and the attic when there is activity inside.'},
+    {l:'Identify',h:'Identify the pest',p:'Know exactly what it is: species, where it nests, what it eats, how it travels. The right control depends on the right identification.',v:'German or American roach? Ghost ant or fire ant? Subterranean or drywood termite? Not sure? Photograph it and ask your supervisor before you treat.'},
+    {l:'Monitor',h:'Monitor',p:'Track activity over time with glue-board monitors, bait consumption, Sentricon station checks and your notes, so you catch problems early and know whether treatments work.',v:'Check and replace monitors. Read the last visit\'s notes before you start.'},
+    {l:'Threshold',h:'Decide against the threshold',p:'Compare what you found with the action threshold for that setting. Then decide whether to act, with what, and where.',v:'One American roach on a patio is not the same as one German roach in a restaurant kitchen.'},
+    {l:'Exclude',h:'Prevent: exclusion',p:'Keep pests out: seal gaps and penetrations, door sweeps, screens, rodent entry points of ½ inch or larger, and no wood touching soil.',v:'Note every gap you find. Seal what is within the scope of the service and recommend the rest.'},
+    {l:'Sanitation',h:'Prevent: sanitation',p:'Take away food, water and shelter: grease and crumbs, pet food, standing water, clutter, leaks, mulch against the foundation, plants touching the house.',v:'Tell the customer what you found and what they can do. Many sanitation fixes are theirs to make.'},
+    {l:'Treat',h:'Targeted treatment',p:'When action is warranted, use the least-risk option that works: the right product and formulation, at label rate, placed where it reaches the pest.',v:'Bait in harborage, crack-and-crevice work and a perimeter band at label rate. Not a broadcast spray "just in case."'},
+    {l:'Evaluate',h:'Evaluate and document',p:'Did it work? Confirm results, record findings and treatment, and adjust the plan if activity continues. Then the cycle starts again.',v:'Write a clear PestPac note. A callback is feedback: find out why before you retreat.'}
+  ];
+  var cs=$('#cycSvg'), cySeen=store.get('cyc')||{};
+  var LP=[[180,-2,'middle'],[311,66,'start'],[352,186,'start'],[311,306,'start'],[180,374,'middle'],[49,306,'end'],[8,186,'end'],[49,66,'end']];
+  CYC.forEach(function(c,i){var a=(-90+i*45)*Math.PI/180,x=180+140*Math.cos(a),y=180+140*Math.sin(a);
+    var g=sv('g',{'class':'cnode','tabindex':'0','role':'button','id':'cy'+i,'aria-label':'Step '+(i+1)+': '+c.l});
+    g.appendChild(sv('circle',{cx:x.toFixed(1),cy:y.toFixed(1),r:'22'}));
+    var t=sv('text',{'class':'cn',x:x.toFixed(1),y:(y+5).toFixed(1),'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);
+    var l=sv('text',{'class':'cl',x:LP[i][0],y:LP[i][1],'text-anchor':LP[i][2]});l.textContent=c.l;g.appendChild(l);
+    if(cySeen[i])g.classList.add('seen');
+    keyAct(g,function(){showCyc(i)});cs.appendChild(g)});
+  function showCyc(i){
+    cySeen[i]=1;store.set('cyc',cySeen);
+    $$('.cnode',cs).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('seen',!!cySeen[j])});
+    var c=CYC[i];$('#cMid').textContent=i+1;$('#cSub').textContent=c.l.toUpperCase();
+    $('#cycD').innerHTML='<span class="eyebrow">Step '+(i+1)+' of 8</span><h3>'+c.h+'</h3><p>'+c.p+'</p><div class="on-visit"><b>On a Clements visit:</b> '+c.v+'</div>'+(i<7?'<div><button type="button" class="btn" id="cyNext" style="padding:6px 14px">Next step</button></div>':'<div class="small muted">Evaluate feeds the next inspection. That loop is what makes IPM work.</div>');
+    var nx=$('#cyNext');if(nx)nx.addEventListener('click',function(){showCyc(i+1)});
+    var n=Object.keys(cySeen).length;$('#cycN').textContent=n===8?'All 8 steps viewed.':n+' of 8 steps viewed';
+  }
+  $('#cycD').innerHTML='<span class="eyebrow">Start here</span><h3>Select step 1 on the cycle</h3><p>Each step builds on the one before. Skipping straight to "treat" is the reactive habit IPM replaces.</p><div><button type="button" class="btn primary" id="cyStart" style="padding:6px 14px">Start with Inspect</button></div>';
+  $('#cyStart').addEventListener('click',function(){showCyc(0)});
+  $('#cycN').textContent=Object.keys(cySeen).length+' of 8 steps viewed';
+
+  /* ---------- threshold slider ---------- */
+  var TH=[
+    {n:'Restaurant kitchen · German roaches',q:'German roaches found on monitors and inspection',L:[
+      ['ok','Monitor','No activity. Keep watching.','Check glue boards at the dish station, under prep tables and near the water heater. Note sanitation issues for the manager.'],
+      ['urgent','Act now','Over threshold. Here it is essentially zero.','Food businesses are inspected by the state. Find the harborage, bait where they hide, report sanitation issues to the manager, add monitors and document it.'],
+      ['urgent','Act now','Active infestation.','Thorough inspection of equipment, drains and voids; targeted baiting in every harborage; written sanitation findings for the manager; follow-up scheduled.'],
+      ['urgent','Act now · escalate','Established population.','Everything above, and tell your supervisor today. A cleanout plan and more frequent service may be needed.'],
+      ['urgent','Act now · escalate','Heavy infestation. The account is at risk.','Supervisor and branch manager involved the same day. Food safety comes first; document every finding and recommendation.']]},
+    {n:'Home exterior · ants on the patio',q:'Ants found outdoors around the home',L:[
+      ['ok','Monitor','Nothing to act on.','Normal perimeter service. Watch for trails heading toward doors and windows.'],
+      ['ok','Monitor','Below threshold. A few foragers outside are normal.','Outdoor ants are part of the landscape. Note it and check whether trails lead into the house.'],
+      ['act','Look closer','Approaching threshold.','Follow the trail to the nest or the entry point. Check for plants touching the house and gaps at doors and windows.'],
+      ['act','Treat, targeted','Over threshold: trails are entering the home.','Bait or a non-repellent where the trail enters and where they feed. Recommend trimming and sealing.'],
+      ['act','Treat and fix the cause','Heavy activity, possibly nesting in the structure.','Targeted treatment plus a root-cause search: moisture, wall voids, landscape bridges. Document it and recheck.']]},
+    {n:'St. Augustine lawn · chinch bugs',q:'Chinch bugs found at the edge of yellowing turf',L:[
+      ['ok','Monitor','Healthy turf.','Program treatments continue. Scout hot, sunny edges by driveways and sidewalks, where chinch bugs usually start.'],
+      ['ok','Confirm and watch','A few bugs, no damage yet.','Note the spot and recheck. Too much nitrogen and poor watering both favor chinch bugs; mention it to the customer.'],
+      ['act','Treat, targeted','Damage is starting where bugs are confirmed.','Treat the confirmed area at label rate and note it for the next visit.'],
+      ['act','Treat and advise','Patches are spreading.','Treat the confirmed areas, check irrigation coverage, and explain to the customer what to watch for.'],
+      ['urgent','Treat and escalate','Severe damage. Turf is dying.','Treat, document with photos and tell your supervisor. Dead turf may need replacing; route that conversation to the branch manager.']]},
+    {n:'Home · rodent signs inside',q:'Rodent signs found inside the home',L:[
+      ['ok','Monitor','No signs inside.','If the home has exterior bait stations, service them on schedule and note consumption.'],
+      ['urgent','Act','Over threshold. Any rodent sign inside counts.','Droppings, gnaw marks or noises mean inspect inside and out, find every entry point ½ inch or larger, and present Rodent Shield. Seal before baiting.'],
+      ['urgent','Act','Active rodents inside.','Inspection, exclusion and trapping at entry points and activity areas. No interior baiting with open entry points.'],
+      ['urgent','Act','Regular activity in the living space.','Everything above, plus health concerns: don\'t disturb droppings or nesting material without the right PPE (FC-03).'],
+      ['urgent','Act · escalate','Heavy infestation.','Tell your supervisor. Large openings or roof damage may need a contractor before sealing can be finished.']]}
+  ];
+  var thT=$('#thTabs'), thR=$('#thR'), thK=0;
+  function showTh(){
+    var t=TH[thK],lv=+thR.value,L=t.L[lv];
+    $$('button',thT).forEach(function(b,j){b.setAttribute('aria-pressed',j===thK)});
+    $('#thQ').textContent=t.q;
+    var col=L[0]==='ok'?'var(--positive)':(L[0]==='act'?'var(--brand-700)':'var(--danger)');
+    var m=$('#thM');m.style.width=((lv+1)*20)+'%';m.style.background=col;
+    var v=$('#thV');v.className='verdict '+(L[0]==='ok'?'':L[0]);
+    v.innerHTML='<span class="st">'+L[1]+'</span><h3>'+L[2]+'</h3><p>'+L[3]+'</p>';
+    thR.setAttribute('aria-valuetext',['None','One or two','A few','Regular','Heavy'][lv]+'. '+L[1]);
+  }
+  TH.forEach(function(t,i){var b=mk('button',null,t.n);b.type='button';b.id='th'+i;b.addEventListener('click',function(){thK=i;thR.value=0;showTh()});thT.appendChild(b)});
+  thR.addEventListener('input',showTh);
+  showTh();
+
+  /* ---------- reactive or IPM sort ---------- */
+  var SORT=[
+    {q:'Sprays every baseboard on every visit, whether or not there\'s activity',a:'Reactive',w:'Routine treatment with no inspection or activity is the "just in case" habit IPM replaces.'},
+    {q:'Places monitors under the sink to see where roaches are coming from',a:'IPM',w:'Monitoring tells you where the pests are and whether treatment is working.'},
+    {q:'Treats the whole yard for "bugs" without identifying the pest',a:'Reactive',w:'Identify first. The pest decides the product, the place and whether to treat at all.'},
+    {q:'Recommends trimming shrubs that touch the house',a:'IPM',w:'Removing a bridge into the structure is cultural control and prevention.'},
+    {q:'Re-sprays on a callback without asking what the customer saw or where',a:'Reactive',w:'A callback is feedback. Find out what, where and why before you treat.'},
+    {q:'Seals a gap at the AC line before setting rodent traps',a:'IPM',w:'Exclusion before baiting: seal first, then trap and bait.'},
+    {q:'Confirms drywood frass and exit holes before recommending a termite service',a:'IPM',w:'Correct identification decides the service. Sentricon never treats drywood.'},
+    {q:'Uses the strongest product, at extra strength, "to be sure"',a:'Reactive',w:'More product isn\'t better, and exceeding the label rate is illegal. It also builds resistance.'}
+  ];
+  var sb=$('#sort'), sortSel={};
+  SORT.forEach(function(s,i){var r=mk('div','row','<span>'+s.q+'</span><span class="opts"><button type="button" aria-pressed="false" data-v="Reactive" id="so'+i+'r">Reactive</button><button type="button" aria-pressed="false" data-v="IPM" id="so'+i+'i">IPM</button></span>');r.id='srow'+i;
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){sortSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});
+    sb.appendChild(r)});
+  $('#sortCheck').addEventListener('click',function(){var right=0,blank=0;
+    SORT.forEach(function(s,i){var r=$('#srow'+i),w=$('.why',r);if(w)w.remove();if(!sortSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=sortSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=mk('span','why');d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d)}});
+    $('#sortFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===SORT.length?'<span class="fb" style="display:inline-block">All eight correct. IPM inspects, identifies and prevents; reactive control sprays and hopes.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes under the ones in red and try again.</span>');
+  });
+
+  /* ---------- four methods flip ---------- */
+  var MF=[
+    {t:'Cultural',i:'i-leaf',f:'Change the environment so pests can\'t thrive.',b:'<b>Examples:</b> sanitation, fixing leaks and moisture, trimming plants off the house, pulling mulch back, sealed food storage, correct mowing height, irrigation and fertilizer. Often the customer\'s part.'},
+    {t:'Mechanical and physical',i:'i-seal',f:'Block, trap or remove the pest.',b:'<b>Examples:</b> door sweeps, screens, sealing penetrations and rodent entry points, snap traps, glue-board monitors, vacuuming, web removal. Foam alone doesn\'t stop rodents; they chew through it.'},
+    {t:'Biological',i:'i-bug',f:'Let living natural enemies do the work.',b:'<b>Examples:</b> lady beetles and lacewings eating aphids, parasitic wasps, beneficial nematodes, and the birds, lizards and spiders that eat pests. We protect them by targeting our applications.'},
+    {t:'Chemical',i:'i-spray',f:'Pesticides: targeted, at label rate.',b:'<b>Examples:</b> baits, crack-and-crevice treatment, perimeter bands, granules, insect growth regulators and termite bait. Used when monitoring shows action is needed, in the least-risk form that works.'}
+  ];
+  var mf=$('#mflip'), mfSeen=store.get('mf')||{};
+  MF.forEach(function(v,i){var b=mk('button',null,'<span class="in"><span class="face front"><span class="icobox">'+ico(v.i)+'</span><h3>'+v.t+'</h3><span class="muted" style="font-size:15px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>');
+    b.type='button';b.id='mf'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+' control. Select to flip');
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');mfSeen[i]=1;store.set('mf',mfSeen)});mf.appendChild(b)});
+
+  /* ---------- conducive conditions house ---------- */
+  var HS=[
+    {x:96,y:178,t:'Shrubs touching the house',w:'Branches and plants against the walls or roof are a highway for ants, roaches and rodents, and they hold moisture against the structure.',f:'Trim plants back so nothing touches the walls or roof.',m:['Cultural']},
+    {x:304,y:230,t:'Mulch piled against the foundation',w:'Thick mulch holds moisture and hides activity. It shelters roaches and ants and is conducive to subterranean termites.',f:'Keep mulch thin and pulled back so the foundation stays visible and dry.',m:['Cultural','Termite']},
+    {x:222,y:266,t:'Gap under the door',g:'g3',w:'Daylight under a door lets in roaches, ants, spiders and even mice.',f:'Install or replace the door sweep or threshold.',m:['Mechanical','Exclusion']},
+    {x:186,y:212,t:'Leaky spigot at the wall',w:'Constant moisture at the foundation draws roaches, ants and termites. Sprinklers hitting the wall do the same.',f:'Repair the leak and aim sprinklers away from the house.',m:['Cultural']},
+    {x:336,y:184,t:'Unsealed gap at the AC line',g:'g5',w:'Gaps where lines and pipes enter the wall are common entry points for rodents and insects.',f:'Seal with approved materials. For rodents, foam alone is not exclusion.',m:['Mechanical','Exclusion']},
+    {x:282,y:66,t:'Opening at the roofline',g:'g6',w:'Gaps at soffits, eaves and roof returns let rats and squirrels into attics. A rat can squeeze through about ½ inch.',f:'Document and photograph entry points ½ inch or larger and seal them (Rodent Shield Plus).',m:['Mechanical','Exclusion']},
+    {x:432,y:198,t:'Open trash and pet food',w:'Food left outside feeds rodents, roaches, ants and flies, and draws them toward the house.',f:'Lids on trash cans, bins away from the wall, pet food picked up between meals.',m:['Cultural','Sanitation']},
+    {x:49,y:216,t:'Standing water in a bucket',w:'Mosquitoes breed in small amounts of standing water, and in Florida heat they can go from egg to adult in about a week.',f:'Tip and toss standing water at least once a week. Clean gutters and flush water-holding plants.',m:['Cultural','Source reduction']}
+  ];
+  var gapEls=$$('#houseSvg .gap'),GAPS={g6:gapEls[0],g3:gapEls[1],g5:gapEls[2]};
+  var hs=$('#houseSvg'), hFound=store.get('hs')||{};
+  HS.forEach(function(h,i){var g=sv('g',{'class':'hot'+(hFound[i]?' found':''),'tabindex':'0','role':'button','id':'hs'+i,'aria-label':'Condition '+(i+1)});
+    g.appendChild(sv('circle',{'class':'hh',cx:h.x,cy:h.y,r:'11'}));g.appendChild(sv('circle',{'class':'hc',cx:h.x,cy:h.y,r:'11'}));
+    var t=sv('text',{x:h.x,y:h.y+4,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);
+    keyAct(g,function(){showH(i)});hs.appendChild(g);if(hFound[i]&&h.g)GAPS[h.g].classList.add('lit')});
+  function hCount(){var n=Object.keys(hFound).length;$('#hN').textContent=n===8?'All 8 found. Each one is a recommendation that keeps pests out without a drop of product.':n+' of 8 found'}
+  function showH(i){
+    hFound[i]=1;store.set('hs',hFound);var h=HS[i];
+    $$('.hot',hs).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('found',!!hFound[j])});
+    if(h.g)GAPS[h.g].classList.add('lit');
+    $('#hD').innerHTML='<span class="eyebrow">Condition '+(i+1)+' of 8</span><h3>'+h.t+'</h3><p class="small">'+h.w+'</p><div class="callout" style="padding:10px 14px">'+ico('i-check')+'<span><b>Fix:</b> '+h.f+'</span></div><div class="tags">'+h.m.map(function(m){return '<span class="chip">'+m+'</span>'}).join('')+'</div>';
+    hCount();
+  }
+  $('#hD').innerHTML='<span class="eyebrow">Inspect like a pro</span><h3>Start anywhere on the house</h3><p class="small">Look for food, water, shelter and ways in. The pulsing numbers mark eight conditions a good exterior inspection catches.</p>';
+  hCount();
+
+  /* ---------- root cause scenarios ---------- */
+  var RC=[
+    {n:'Roaches every visit',s:'German roaches are back in a home\'s kitchen at every visit, even though the baseboards are sprayed each time. There\'s grease behind the stove, cardboard boxes under the sink and dishes left out overnight.',o:['The spray isn\'t strong enough; use more product','Food, grease and cardboard are feeding and hiding the population, and baseboard spray never reaches it','The customer needs a different technician','They come from the neighbors; nothing can be done'],a:1,e:'German roaches live where food, water and harborage are. Recommend cleaning behind the stove and removing cardboard, place gel bait in the harborage, and leave monitors to track progress.'},
+    {n:'Odor after bait boxes',s:'Bait boxes went out around a home last month. Now there\'s a bad odor in a bedroom wall, and scratching continues in the attic.',o:['Rodents are getting in through unsealed openings; one ate bait and died inside. Inspect and seal first','Add more bait boxes','Put bait in the attic','Tell the customer the smell will go away'],a:0,e:'Seal first, then bait. Baiting while entry points are open can leave a rodent dying in a wall. Inspect, seal the entry points, trap inside, then bait outside.'},
+    {n:'Ants spreading',s:'Ghost ants trailed across one bathroom counter. The last visit sprayed a repellent around the window. Now there are trails in three rooms.',o:['Use a stronger repellent','Ants just like bathrooms','The repellent split the colony into new nests; switch to bait or a non-repellent where they feed, and find the shrub or line they use to get in','Seal the bathroom window only'],a:2,e:'Repellents can make some ant colonies split and spread. Bait where they feed so the colony shares it, and remove the bridge they use to get inside.'},
+    {n:'Mosquitoes worse',s:'A misting customer says mosquitoes are worse this month. The system is cycling. You find a clogged gutter, toys holding rainwater and bromeliads full of water.',o:['Double the mist cycles','The system is broken and needs replacing','Nothing can be done in rainy season','They\'re breeding on the property: reduce the standing water, show the customer, and check the nozzles and tank'],a:3,e:'Source reduction is prevention. Remove breeding sites, teach the customer to tip and toss weekly, and confirm the system is working.'},
+    {n:'Brown lawn',s:'A customer insists a brown patch in his St. Augustine needs a chinch bug treatment. At the edge of the patch you find no chinch bugs, and that zone\'s sprinkler head is broken.',o:['Treat for chinch bugs because he asked','Apply fungicide to the whole yard','Water stress from the broken sprinkler is the likely cause: document it, tell the customer and keep checking for pests','Fertilize heavily to green it up'],a:2,e:'Identify before you treat. Spraying for a pest that isn\'t there wastes product and doesn\'t fix the lawn. The fix here is irrigation.'}
+  ];
+  var rt=$('#rcTabs'), rb=$('#rcBox'), rDone=store.get('rc')||{};
+  function showRC(n){
+    $$('button',rt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!rDone[j])});
+    var s=RC[n];
+    rb.innerHTML='<div class="card" style="padding:14px 18px"><span class="eyebrow">The situation</span><p style="margin-top:4px;font-size:16px">'+s.s+'</p></div><p class="small muted">What is the root cause, and the right fix?</p><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="rc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="rcFb"></div>';
+    $$('.choice',rb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',rb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',rb).forEach(function(x){x.disabled=true});rDone[n]=1;store.set('rc',rDone);$$('button',rt)[n].classList.add('done');
+        $('#rcFb').innerHTML='<div class="fb">'+s.e+(n<RC.length-1?' <button type="button" class="btn" id="rcNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#rcNext');if(nx)nx.addEventListener('click',function(){showRC(n+1)});}
+      else{b.classList.add('wrong');$('#rcFb').innerHTML='<div class="fb no">That treats the symptom, not the cause. Look at the conditions in the situation and try again.</div>';}
+    })});
+  }
+  RC.forEach(function(s,i){var b=mk('button');b.type='button';b.id='rct'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showRC(i)});rt.appendChild(b)});
+  showRC(0);
+
+  /* ---------- service-line explorer ---------- */
+  var RW=[['i-search','Inspect and identify'],['i-gauge','Monitor'],['i-shield','Prevent'],['i-target','Target'],['i-doc','Evaluate']];
+  var SV=[
+    {n:'General Household Pest',s:'GHP · every other month',i:'i-home',r:[
+      'An exterior walk-around at the start of every visit for entry points, harborage and activity. Interior on the initial service and whenever there is activity inside.',
+      'Webs, bait consumption, monitors and the customer\'s report: is it better or worse than last time?',
+      'Remove webs at the eaves every visit. Point out plants touching the house, gaps and moisture, and recommend fixes.',
+      'Perimeter liquid band and granular band at label rate. Inside: crack-and-crevice work and pea-size gel bait placements where pests hide.',
+      'Pests between visits get a callback within 24 hours. Use it to find out why, not just to retreat. Record it in PestPac.']},
+    {n:'Lawn & Ornamental',s:'L&O · recurring program',i:'i-leaf',r:[
+      'Look at turf and shrubs every visit. Lawn problems fall into four groups (pests, fungus, nutrition and weeds), and you need to know which before you treat.',
+      'Scout hot, sunny edges for chinch bugs, watch for fungal rings in cool, humid months, and note weed pressure by area.',
+      'Healthy turf resists pests. Mowing height and irrigation matter. Fertilizer follows county rules, including summer nitrogen and phosphorus bans in many counties.',
+      'Seasonal program treatments, plus treatment of problems you have confirmed rather than guessed at.',
+      'Record findings by area. Tell the customer about irrigation or mowing issues you see.']},
+    {n:'Termite',s:'Sentricon, liquid, drywood',i:'i-bug',r:[
+      'Subterranean (mud tubes, swarmers) or drywood (pellet frass, exit holes)? The answer decides the service.',
+      'Sentricon stations are checked quarterly, with an annual inspection. That monitoring keeps the protection active.',
+      'Moisture control, no wood touching soil, and mulch and soil kept back from the foundation and siding.',
+      'Sentricon bait that termites share through the colony. Drywood spot or whole-home treatment where it fits.',
+      'Document findings exactly. Termite and WDO reports are regulated, and the written contract is the promise.']},
+    {n:'Rodent',s:'Rodent Shield program',i:'i-rodent',r:[
+      '"Inside, or only outside?" Inspect the attic, roofline and every entry point ½ inch or larger.',
+      'Five follow-up visits to check traps and remove rodents. Exterior bait station consumption shows outside pressure.',
+      'Exclusion first: seal entry points with approved materials, cement first. Foam is not exclusion. Point out food sources and clutter.',
+      'Traps at entry points and activity areas inside. Enclosed, locked bait stations outside, once the home is sealed.',
+      'Document and photograph entry points. New activity? Look for a new opening before adding bait.']},
+    {n:'Mosquito',s:'MistAway misting',i:'i-mist',r:[
+      'Walk the yard for breeding sites: buckets, saucers, toys, clogged gutters, bromeliads, birdbaths and low spots that hold water.',
+      'Customer feedback and your own observations at refill visits, about every quarter.',
+      'Source reduction. Customers tip and toss standing water at least once a week; many backyard mosquitoes breed close to where they bite.',
+      'The system mists the perimeter and foliage at dawn and dusk, when mosquitoes are most active.',
+      'Check nozzles, pressure and tank level at each refill. Worse activity? Look for new breeding sites before changing anything.']}
+  ];
+  var svl=$('#svl'), svSeen=store.get('sv')||{};
+  function showSV(i){
+    svSeen[i]=1;store.set('sv',svSeen);
+    $$('button',svl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!svSeen[j])});
+    var s=SV[i];
+    $('#svD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(s.i)+'</div><div><span class="eyebrow">'+s.s+'</span><h3>'+s.n+'</h3></div></div><dl>'+RW.map(function(r,k){return '<dt>'+ico(r[0])+r[1]+'</dt><dd>'+s.r[k]+'</dd>'}).join('')+'</dl>';
+  }
+  SV.forEach(function(s,i){var b=mk('button',null,ico(s.i,'color:var(--brand-600)')+'<span>'+s.n+'<small>'+s.s+'</small></span>');b.type='button';b.id='sv'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showSV(i)});svl.appendChild(b)});
+  showSV(0);
+
+  /* ---------- note builder ---------- */
+  var NT=[
+    {t:'Pest found, where and how much',ok:1},
+    {t:'"Customer\'s house is filthy"',ok:0,w:'Describe conditions objectively: "grease buildup behind stove."'},
+    {t:'Conducive conditions you saw',ok:1},
+    {t:'"Serviced" and nothing else',ok:0,w:'A one-word note tells the next technician nothing.'},
+    {t:'Products applied and where',ok:1},
+    {t:'Customer\'s card number for next time',ok:0,w:'Never put payment or personal data in service notes.'},
+    {t:'What you asked the customer to do',ok:1},
+    {t:'"Same as last time" without checking',ok:0,w:'Inspect and record what you actually found today.'},
+    {t:'Follow-up needed next visit',ok:1}
+  ];
+  var nb=$('#note'), nSel={};
+  NT.forEach(function(n,i){var b=mk('button');b.type='button';b.id='nt'+i;b.textContent=n.t;b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){nSel[i]=!nSel[i];b.setAttribute('aria-pressed',!!nSel[i]);b.classList.remove('miss','extra','ok')});nb.appendChild(b)});
+  $('#noteCheck').addEventListener('click',function(){var miss=0,extra=[];
+    NT.forEach(function(n,i){var b=$('#nt'+i);b.classList.remove('miss','extra','ok');
+      if(n.ok&&!nSel[i]){miss++;b.classList.add('miss')}
+      else if(!n.ok&&nSel[i]){extra.push(n.w);b.classList.add('extra')}
+      else if(n.ok&&nSel[i])b.classList.add('ok')});
+    $('#noteFb').innerHTML=(!miss&&!extra.length)?'<div class="fb">That\'s a professional note: findings, conditions, treatment, recommendations and follow-up. Anyone reading it knows exactly where this account stands.</div>':'<div class="fb no">'+(miss?miss+' item'+(miss>1?'s':'')+' missing (outlined in red). ':'')+(extra.length?extra.join(' '):'')+'</div>';
+  });
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

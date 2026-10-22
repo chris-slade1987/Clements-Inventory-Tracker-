@@ -1,0 +1,1382 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-07 Documentation &amp; Return Visits</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-07 Documentation & Return Visits */
+.slide.on.tight{gap:14px}
+.slide.tight{padding:30px 48px}
+.dots-list{list-style:none;display:grid;gap:5px;margin-top:6px;font-size:14.5px}
+.dots-list li{display:flex;gap:10px}
+.dots-list li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.steps.tight li{padding:8px 0;font-size:15px}
+.steps.tight .num{flex-basis:28px;height:28px;font-size:13px}
+.meter{height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .22s ease-in-out}
+
+/* blist detail */
+#raList{gap:6px}
+#raList button{padding:8px 14px}
+#raList button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+#raDetail .ex{margin-top:10px;background:var(--brand-50);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink)}
+
+/* property diagram */
+.pdfig{padding:10px}
+.pdfig svg{max-width:none;width:100%}
+.pd-house{fill:var(--brand-50);stroke:var(--brand-600);stroke-width:1.6}
+.pd-gar{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.2}
+.pd-wall{fill:none;stroke:var(--brand-400);stroke-width:1.2}
+.pd-tree{fill:none;stroke:var(--brand-400);stroke-width:1.4}
+.pd-ac{fill:var(--surface);stroke:var(--brand-400);stroke-width:1.2}
+.pd-t{font-family:var(--font);font-size:10px;fill:var(--muted);font-weight:300}
+.pdm{cursor:pointer}
+.pdm circle.core{stroke:#fff;stroke-width:2;transition:stroke .18s ease-in-out}
+.pdm.ep circle.core{fill:var(--forest)}
+.pdm.t circle.core{fill:var(--brand-500)}
+.pdm text{font-family:var(--font);font-size:9px;fill:#fff;font-weight:500;pointer-events:none}
+.pdm circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pdm.ep circle.halo{animation:halo 2.8s ease-out infinite}
+.pdm.sel circle.core{stroke:var(--brand-300);stroke-width:4}
+.pdm.seen:not(.sel) circle.core{stroke:var(--brand-200)}
+.pdm:focus-visible{outline:none}
+.pdm:focus-visible circle.core{stroke:var(--brand-300);stroke-width:4}
+
+/* photo sequence */
+.phfig{padding:10px}
+.phfig svg{max-width:none;width:100%}
+.ph-frame{fill:var(--surface);stroke:var(--line)}
+.ph-zoom{transition:transform .22s ease-in-out;transform-origin:150px 118px}
+.ph-wall{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4}
+.ph-win{fill:var(--surface);stroke:var(--brand-400);stroke-width:1.2}
+.ph-pipe{fill:none;stroke:var(--brand-700);stroke-width:2.4;stroke-linecap:round}
+.ph-gap{fill:var(--ink);stroke:var(--brand-700);stroke-width:1;transition:fill .22s ease-in-out}
+.ph-gap.sealed{fill:#C9CFCB;stroke:#9AA59E}
+.ph-rub{fill:none;stroke:var(--ink);stroke-width:1.2;opacity:.6;transition:opacity .22s}
+.ph-scale{fill:var(--surface);stroke:var(--ink);stroke-width:.8;opacity:0;transition:opacity .22s ease-in-out}
+.ph-scale.on{opacity:1}
+.ph-zoom.z0{transform:scale(1)}
+.ph-zoom.z1{transform:scale(2)}
+.ph-zoom.z2{transform:scale(4.2)}
+
+/* sort tweaks */
+#wrSort,#naSort{grid-template-columns:1fr;gap:5px}
+#wrSort .row,#naSort .row{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:6px 12px;font-size:14.5px}
+#wrSort .why,#naSort .why{grid-column:1/-1;font-size:12.5px}
+#wrSort .opts button,#naSort .opts button{padding:4px 10px}
+
+/* build the record */
+#brScen p{font-size:15px;color:var(--ink)}
+#brScen .chip{margin-bottom:8px}
+#brPick{gap:6px}
+#brPick button{padding:6px 12px;font-size:13.5px}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.miss[aria-pressed="true"],.pick button.extra[aria-pressed="true"]{background:#FDEEEE;color:var(--danger);border-color:var(--danger)}
+#brFb .fb,#rcFb .fb,#dsFb .fb{font-size:14px;padding:10px 14px}
+
+/* follow-up timeline (6 stops) */
+#fuTl{grid-template-columns:repeat(6,1fr)}
+#fuTl::before{left:8.33%;right:8.33%}
+#fuTl .fill{left:8.33%}
+#fuDetail{min-height:150px}
+#fuDetail .card{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+#fuDetail .card h3{grid-column:1/-1}
+#fuDetail .card .eyebrow{grid-column:1/-1}
+
+/* return visit grid */
+.rv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rv-s{display:flex;gap:10px;align-items:flex-start;background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow-card)}
+.rv-s .n{flex:0 0 30px;height:30px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:13px;font-variant-numeric:tabular-nums}
+.rv-s h3{font-size:15.5px;margin-bottom:4px}
+.rv-s p{font-size:13.5px;color:var(--muted);line-height:1.45}
+.slide.on .rv-s{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms + .15s)}
+
+/* order exercise */
+#ovList{gap:6px}
+#ovList button{padding:7px 12px;font-size:14.5px}
+.ov-n{font-size:52px;line-height:1;font-variant-numeric:tabular-nums;color:var(--brand-700);margin:6px 0}
+
+/* captures chart */
+.trfig svg{max-width:none;width:100%}
+.tr-ax{stroke:var(--line);stroke-width:1.2;fill:none}
+.tr-t{font-family:var(--font);font-size:10px;fill:var(--muted)}
+.tr-b{fill:var(--brand-500);transition:y .22s ease-in-out,height .22s ease-in-out}
+.tr-b.hi{fill:var(--danger)}
+.tr-l{font-family:var(--font);font-size:10px;fill:var(--muted);text-anchor:middle}
+.tr-v{font-family:var(--font);font-size:11px;fill:var(--ink);text-anchor:middle;font-weight:500}
+.tr-line{fill:none;stroke:var(--brand-700);stroke-width:1.4;stroke-dasharray:4 4}
+.slide.on .tr-line{animation:dash 1.6s linear infinite}
+
+/* decisions */
+#dsCh .choice{padding:10px 14px;font-size:15px}
+#dsScen p{font-size:15px;color:var(--ink)}
+
+/* close-out checker */
+.eod{display:grid;gap:6px}
+.eod-r{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;font-size:14px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.eod-r b{font-weight:500}
+.eod-r small{display:block;color:var(--muted);font-size:12.5px}
+.eod-r .seg button{padding:5px 12px;font-size:13px}
+.eod-r.na{opacity:.5}
+.co-v h3{font-size:22px;margin:6px 0}
+.co-v.ok{border-color:var(--positive)}
+.co-v.no{border-color:var(--danger)}
+.co-v ul{margin-top:6px}
+
+/* matform + record */
+.matform{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.mf-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--grad-forest);color:var(--on-forest);padding:9px 14px;font-size:14px}
+.mf-head .ico{color:var(--mint)}
+.mf-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:6px 14px;border-top:1px solid var(--line);font-size:14px}
+.mf-row span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.mf-row b{font-weight:400}
+.rec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.rec-h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 14px;background:var(--brand-50)}
+.rec-r{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:6px 14px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.45}
+.rec-r span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.rec-r b{font-weight:400}
+.rec-r b.blank{color:var(--danger)}
+#rcPick button{padding:6px 12px;font-size:13.5px}
+
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important}
+  .slide.tight{padding:28px 20px}
+  .rv{grid-template-columns:1fr}
+  #fuDetail .card{grid-template-columns:1fr}
+  #fuTl .tg{display:none}
+  .mf-row,.rec-r{grid-template-columns:1fr;gap:2px}
+  #wrSort .row,#naSort .row{grid-template-columns:1fr}
+  .sort .opts{flex-wrap:wrap}
+  .eod-r{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.ph-zoom,.tr-b{transition:none}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">RX-07 · Documentation &amp; Return Visits</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8v3M9.5 8v4M13 8v3M16.5 8v4M20 8v3"/></symbol>
+    <symbol id="i-trap" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="6" rx="1.5"/><path d="M6 13c0-4 3-7 6-7s6 3 6 7"/><path d="M12 13v-3"/></symbol>
+    <symbol id="i-plan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 11h8v9M11 4v4M15 11h6"/></symbol>
+    <symbol id="i-gate" viewBox="0 0 24 24"><path d="M4 21V5M20 21V5M4 9h16M4 15h16M8 9v6M12 9v6M16 9v6"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.7"/><path d="M4 4v4h4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-07</span>
+        <h1 class="display a" style="--i:1">Documentation &amp; Return Visits</h1>
+        <p class="lead a" style="--i:2">The Rodent Shield record that backs every warranty, the five follow-up visits that finish the job, and how to know when it is done.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 220" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <rect x="30" y="22" width="132" height="176" rx="8"/><path d="M76 16h40v14H76z"/>
+          <path d="M52 64l44-30 44 30v62H52z"/><path d="M84 126v-28h24v28"/>
+          <circle cx="58" cy="140" r="5"/><path d="M58 135v10M53 140h10"/><circle cx="140" cy="74" r="5"/><path d="M135 74h10"/>
+          <path d="M48 160h96M48 172h70M48 184h84"/>
+          <rect x="190" y="30" width="104" height="70" rx="6"/><path d="M190 48h104M214 22v14M270 22v14"/>
+          <path d="M204 62h12M226 62h12M248 62h12M270 62h12M204 80h12M226 80h12M248 80h12"/><path d="M272 76l6 6 10-10"/>
+          <rect x="190" y="132" width="104" height="30" rx="4"/><path d="M204 132c0-22 16-36 38-36s38 14 38 36"/><path d="M242 132v-16"/>
+          <rect x="204" y="176" width="52" height="34" rx="4"/><circle cx="230" cy="193" r="9"/><path d="M212 176l5-7h26l5 7"/>
+          <path d="M270 186h28M270 198h20"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-clip"/></svg><span>Build a complete Rodent Shield record: diagram, entry-point log, photos, materials, trap log and notes</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cam"/></svg><span>Photograph every entry point to the three-photo standard, before and after, and label it to match the log</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-pen"/></svg><span>Keep customer-facing notes, technotes@ messages and internal records in the right place</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-cal"/></svg><span>Explain the five follow-up visits and run every return visit the same way: check, reset, re-inspect, record</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-gate"/></svg><span>Handle a no-access visit without losing the record or the customer's trust</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-check"/></svg><span>Decide when a job is ready to close, when it is not, and record it correctly in PestPac</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(28px,3.6vw,44px)">A job that isn't documented <span class="em">isn't covered.</span></h2>
+        <p class="lead a" style="--i:2">Clements can't back a warranty claim on an entry point nobody photographed. The record you make on day one is what every later visit, renewal and dispute is measured against.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>It is the warranty</h3><p>On Plus, the documented entry points are the scope of the warranty. Sealed but not photographed means it can't be verified at renewal.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>It is the legal record</h3><p>Any rodenticide you place is a pesticide application. Florida rule 5E-14.142 expects the record within two working days, kept at least two years.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-users"/></svg></div><div><h3>It is the hand-off</h3><p>The tech who checks traps isn't always the one who set them. A clear trap log means the next visit starts where the last one ended.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the Rodent Shield record">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The Rodent Shield record</h1>
+        <p class="lead a" style="--i:2">Why it matters: the record is the foundation of every future warranty visit. Six parts, the same on every job, so anyone at Clements can pick it up and understand it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Six parts of the record</li><li><span>02</span>The inspection diagram</li><li><span>03</span>The three-photo rule</li><li><span>04</span>Materials and the trap log</li><li><span>05</span>Who reads what</li><li><span>06</span>Practice: build the visit record</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 SIX PARTS -->
+  <section class="slide" data-label="Six parts of the record">
+    <span class="eyebrow a">01 · Six parts of the record</span>
+    <h2 class="a" style="--i:1">What goes into every Rodent Shield job. Select each part.</h2>
+    <div class="split" style="grid-template-columns:1fr 1.25fr;gap:24px;align-items:start">
+      <div class="blist a" style="--i:2" id="raList"></div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3" id="raDetail"></div>
+        <p class="small muted a" style="--i:4" id="raCount">0 of 6 viewed</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 DIAGRAM -->
+  <section class="slide tight" data-label="The inspection diagram">
+    <span class="eyebrow a">02 · The inspection diagram</span>
+    <h2 class="a" style="--i:1">One sketch, one numbering system. Select a marker.</h2>
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:24px;align-items:start">
+      <div class="figbox a pdfig" style="--i:2">
+        <svg viewBox="0 0 420 270" id="pdSvg" role="group" aria-label="Sample property diagram">
+          <rect x="70" y="40" width="250" height="170" class="pd-house"/>
+          <path d="M70 120h110v90M180 40v50M250 120h70" class="pd-wall"/>
+          <rect x="250" y="120" width="70" height="90" class="pd-gar"/>
+          <text x="120" y="88" class="pd-t">Living</text><text x="122" y="170" class="pd-t">Kitchen</text><text x="268" y="172" class="pd-t">Garage</text><text x="200" y="66" class="pd-t">Attic above</text>
+          <path d="M330 210c20-8 30-30 40-60" class="pd-tree"/><circle cx="372" cy="138" r="22" class="pd-tree"/><text x="350" y="104" class="pd-t">Palm</text>
+          <rect x="20" y="150" width="34" height="22" rx="3" class="pd-ac"/><text x="20" y="188" class="pd-t">A/C</text>
+          <path d="M10 240h400" class="pd-wall" style="stroke-dasharray:4 5"/><text x="12" y="258" class="pd-t">Street</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3" id="pdDetail"><span class="eyebrow">Select a marker on the diagram</span><p style="margin-top:6px"><b>EP</b> markers are entry points. <b>T</b> markers are traps and stations. The numbers match the logs, the photo labels and the entry point PDF.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-plan"/></svg><span>Mark north or the street side, every entry point, every trap and station, and conditions like a palm on the roof. Never renumber on a later visit: new finds get the next number.</span></div>
+        <p class="small muted a" style="--i:5" id="pdCount">0 of 8 markers viewed</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 THREE PHOTO -->
+  <section class="slide tight" data-label="The three-photo rule">
+    <span class="eyebrow a">03 · The three-photo rule</span>
+    <h2 class="a" style="--i:1">Every entry point: wide, approach, close-up. Before and after.</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="seg a" style="--i:2;justify-self:start" id="phSeg"></div>
+        <div class="figbox a phfig" style="--i:3">
+          <svg viewBox="0 0 300 190" aria-hidden="true">
+            <rect x="1" y="1" width="298" height="188" rx="8" class="ph-frame"/>
+            <g id="phZoom" class="ph-zoom">
+              <rect x="20" y="40" width="260" height="130" class="ph-wall"/><path d="M20 40l130-30 130 30" class="ph-wall"/>
+              <rect x="40" y="80" width="40" height="50" class="ph-win"/><rect x="220" y="90" width="34" height="80" class="ph-win"/>
+              <path d="M150 170v-56h40" class="ph-pipe"/>
+              <circle cx="150" cy="118" r="7" class="ph-gap" id="phGap"/>
+              <path d="M137 110l4 3M161 124l3 4" class="ph-rub" id="phRub"/>
+              <g id="phScale" class="ph-scale"><rect x="128" y="132" width="44" height="7" rx="1"/><path d="M134 132v3M139 132v4M145 132v3M150 132v4M156 132v3M161 132v4M167 132v3"/></g>
+            </g>
+          </svg>
+        </div>
+        <p class="small muted a" style="--i:4" id="phCap"></p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3" id="phDetail"></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-ruler"/></svg><span><b>Scale in every close-up.</b> A ruler parallel to the opening, or a coin beside it. Without a size reference the photo proves nothing.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-cam"/></svg><span>Timestamp on, in focus, lit with your flashlight. <b>Never delete a before photo.</b> Same spot, same angle for the after.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 MATERIALS + TRAP LOG -->
+  <section class="slide tight" data-label="Materials and the trap log">
+    <span class="eyebrow a">04 · Materials and the trap log</span>
+    <h2 class="a" style="--i:1">What you used, and what every device did</h2>
+    <div class="grid g2" style="gap:18px;align-items:start">
+      <div class="matform a" style="--i:2">
+        <div class="mf-head"><span>Entry-point log · one line per opening</span><svg class="ico" style="width:20px;height:20px"><use href="#i-list"/></svg></div>
+        <div class="mf-row"><span>Number</span><b>EP-3, never renumbered</b></div>
+        <div class="mf-row"><span>Location</span><b>Exact spot: "NE corner, A/C line-set at wall"</b></div>
+        <div class="mf-row"><span>Size</span><b>Measured, ½ in and larger drives scope</b></div>
+        <div class="mf-row"><span>Status</span><b>Active or old · sealed, declined or open</b></div>
+        <div class="mf-row"><span>Material</span><b>Per the program table: cement, Xcluder or copper mesh, hardware cloth, sheet metal</b></div>
+        <div class="mf-row"><span>Date sealed</span><b>And who sealed it</b></div>
+      </div>
+      <div class="matform a" style="--i:3">
+        <div class="mf-head"><span>Trap log · every device, every visit</span><svg class="ico" style="width:20px;height:20px"><use href="#i-trap"/></svg></div>
+        <div class="mf-row"><span>Number</span><b>T-1, T-2 … matches the diagram</b></div>
+        <div class="mf-row"><span>Type</span><b>Snap trap or enclosed bait station</b></div>
+        <div class="mf-row"><span>Location</span><b>"Attic, above garage hatch"</b></div>
+        <div class="mf-row"><span>Result</span><b>Capture (species) · sprung empty · bait taken · untouched · missing</b></div>
+        <div class="mf-row"><span>Action</span><b>Reset · re-baited · moved (to where) · removed</b></div>
+        <div class="mf-row"><span>Bait</span><b>Product brand name and amount, for any rodenticide</b></div>
+      </div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Rodenticide is a pesticide application.</b> Record brand name, amount, target and location in PestPac's material fields, the way FC&#8209;10 teaches. Follow the product label for station type, placement and servicing.</span></div>
+  </section>
+
+  <!-- 9 WHO READS WHAT -->
+  <section class="slide tight" data-label="Who reads what">
+    <span class="eyebrow a">05 · Who reads what</span>
+    <h2 class="a" style="--i:1">Customer note, technotes@ or the record fields? Sort each item.</h2>
+    <div class="sort a" style="--i:2" id="wrSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="wrCheck">Check my answers</button><span id="wrFb"></span></div>
+  </section>
+
+  <!-- 10 BUILD THE RECORD -->
+  <section class="slide tight" data-label="Practice: build the visit record">
+    <span class="eyebrow a">06 · Practice · build the visit record</span>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="scen-tabs a" style="--i:1" id="brTabs"></div>
+        <div class="card a" style="--i:2" id="brScen"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.2vw,26px)">Select everything this visit's record needs.</h2>
+        <div class="pick a" style="--i:2" id="brPick"></div>
+        <div class="a" style="--i:3"><button type="button" class="btn primary" id="brCheck">Check</button></div>
+        <div id="brFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 12 PART TWO -->
+  <section class="slide forest" data-label="Part two: the follow-up visits">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Five follow-ups, done the same way</h1>
+        <p class="lead a" style="--i:2">Why it matters: the first week is when rodents hit the traps and test the seals. Missed or rushed checks mean dead rodents left in an attic, a seal that failed unnoticed and a customer who stops trusting the plan.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The follow-up schedule</li><li><span>02</span>Set expectations</li><li><span>03</span>Every return visit, step by step</li><li><span>04</span>Practice: order the visit</li><li><span>05</span>Read the captures</li><li><span>06</span>Re-inspect the seals</li></ol>
+    </div>
+  </section>
+
+  <!-- 13 TIMELINE -->
+  <section class="slide" data-label="The follow-up schedule">
+    <span class="eyebrow a">01 · The follow-up schedule</span>
+    <h2 class="a" style="--i:1">Basic and Plus both include five follow-up visits. Select each one.</h2>
+    <div class="tl a" style="--i:2" id="fuTl"><i class="fill" id="fuFill"></i></div>
+    <div class="tldetail a" style="--i:3" id="fuDetail"></div>
+    <p class="small muted a" style="--i:4">Program sources: Rodent Shield Final Review V2 (May 18, 2026) and Rodent Certification Training (May 2026). Spacing after week one: confirm with your branch manager.</p>
+  </section>
+
+  <!-- 14 EXPECTATIONS -->
+  <section class="slide" data-label="Set expectations">
+    <span class="eyebrow a">02 · Set expectations</span>
+    <h2 class="a" style="--i:1">Tell the customer the plan before you leave day one</h2>
+    <div class="grid g3" style="gap:14px;align-items:stretch">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-cal"/></svg></div><h3>When we're back</h3><p>Give the cadence up front: the first week is the busy window, then the visits spread out. Put the next visit date in your notes every time.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>What we need</h3><p>Access to the attic hatch and every trap location. Gate codes, pets and who will be home go to the office so the next visit isn't a no-access.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><h3>What not to do</h3><p>Don't move or reset traps, and don't open bait stations. Call us if you hear new activity or a trap goes off. Keep children and pets away from devices.</p></div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-users"/></svg><span><b>Who comes back may change.</b> At some branches a different technician runs the follow-ups. Your record is how they know what you did.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-headset"/></svg><span><b>Visits beyond five are billed.</b> Never quote the charge or promise extra visits. Pricing questions go to the branch manager.</span></div>
+    </div>
+  </section>
+
+  <!-- 15 RETURN VISIT PATH -->
+  <section class="slide tight" data-label="Every return visit">
+    <span class="eyebrow a">03 · Every return visit, step by step</span>
+    <h2 class="a" style="--i:1">Same eight steps, every follow-up</h2>
+    <div class="rv a" style="--i:2">
+      <div class="rv-s" style="--i:0"><span class="n">1</span><div><h3>Read the last record</h3><p>Diagram, trap log and notes in PestPac before you knock. Start the order on arrival.</p></div></div>
+      <div class="rv-s" style="--i:1"><span class="n">2</span><div><h3>Ask the customer</h3><p>Noises, droppings, smells since last time? Where and when?</p></div></div>
+      <div class="rv-s" style="--i:2"><span class="n">3</span><div><h3>Check every device</h3><p>In log order, PPE on. Record each result, including untouched.</p></div></div>
+      <div class="rv-s" style="--i:3"><span class="n">4</span><div><h3>Remove captures</h3><p>Wet with disinfectant, double-bag, dispose. Never handle bare-handed. RX-08 covers the method.</p></div></div>
+      <div class="rv-s" style="--i:4"><span class="n">5</span><div><h3>Reset or move</h3><p>Reset, re-bait per label, or move toward fresh activity. Log the new spot.</p></div></div>
+      <div class="rv-s" style="--i:5"><span class="n">6</span><div><h3>Re-inspect the seals</h3><p>Every sealed EP: intact, gnawed or breached? After photo if anything changed.</p></div></div>
+      <div class="rv-s" style="--i:6"><span class="n">7</span><div><h3>Look for new activity</h3><p>Fresh droppings, rub marks, new gaps. New find gets the next EP number.</p></div></div>
+      <div class="rv-s" style="--i:7"><span class="n">8</span><div><h3>Record and report</h3><p>Captures, new activity, seals holding, next visit. Complete before you drive.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 16 ORDER -->
+  <section class="slide tight" data-label="Practice: order the visit">
+    <span class="eyebrow a">04 · Practice · order the visit</span>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.2vw,26px)">Follow-up #2. Select the steps in the order you'd do them.</h2>
+        <div class="order a" style="--i:2" id="ovList"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3;text-align:center"><span class="eyebrow">Placed</span><div class="ov-n" id="ovN">0 / 8</div><div class="meter"><i id="ovBar"></i></div></div>
+        <div id="ovFb" class="a" style="--i:4"></div>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ovReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 CAPTURES -->
+  <section class="slide" data-label="Read the captures">
+    <span class="eyebrow a">05 · Read the captures</span>
+    <h2 class="a" style="--i:1">The trap log tells you if the job is working</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:center">
+      <div class="grid" style="gap:10px">
+        <div class="seg a" style="--i:2;justify-self:start" id="trSeg"></div>
+        <div class="figbox a trfig" style="--i:3">
+          <svg viewBox="0 0 320 180" aria-label="Captures per follow-up visit" role="img" id="trSvg">
+            <path d="M40 150h270" class="tr-ax"/><path d="M40 20v130" class="tr-ax"/>
+            <text x="14" y="34" class="tr-t">More</text><text x="14" y="150" class="tr-t">0</text>
+          </svg>
+        </div>
+      </div>
+      <div class="card a" style="--i:4" id="trOut"></div>
+    </div>
+  </section>
+
+  <!-- 18 SEALS -->
+  <section class="slide tight" data-label="Re-inspect the seals">
+    <span class="eyebrow a">06 · Re-inspect the seals</span>
+    <h2 class="a" style="--i:1">Is the exclusion holding? Check every sealed entry point.</h2>
+    <div class="grid g3" style="gap:12px;align-items:stretch">
+      <div class="card a" style="--i:2"><span class="chip">Intact</span><h3 style="margin-top:8px">Holding</h3><p>Cement sound, no gnawing, no fresh rub marks. Note "EP-1 to EP-4 intact" in the log.</p></div>
+      <div class="card a" style="--i:3"><span class="chip">Pressure</span><h3 style="margin-top:8px">Gnawed, not through</h3><p>Rodents are testing it. Photograph, repair, log the repair and keep a trap on that route.</p></div>
+      <div class="card a" style="--i:4"><span class="chip">Breached</span><h3 style="margin-top:8px">Open again</h3><p>Photograph from the original spot, reseal, log it. On Plus, tell your branch manager: it may be warranty work.</p></div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="card a" style="--i:5"><span class="eyebrow">Plus · warranty review is triggered when</span><ul class="dots-list">
+        <li>Activity continues in treated areas</li>
+        <li>A missed entry point turns up within the original scope</li>
+        <li>The customer reports new activity matching the original service area</li></ul></div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-clip"/></svg><span><b>Declined points aren't covered.</b> They're on the service agreement with the homeowner's acknowledgment. Check it before you call something a failure.</span></div>
+        <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-alert"/></svg><span><b>Vents stay open.</b> Dryer and exhaust vents are never sealed or screened, even when the customer asks. Note their condition only.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 20 PART THREE -->
+  <section class="slide forest" data-label="Part three: decisions in the field">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Decisions at the return visit</h1>
+        <p class="lead a" style="--i:2">Why it matters: most return visits are routine. The ones that aren't, a breached seal, a locked gate, a new hole, decide whether the customer renews or calls a competitor.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Practice: return-visit decisions</li><li><span>02</span>No-access visits</li><li><span>03</span>Practice: no-access, do or don't</li></ol>
+    </div>
+  </section>
+
+  <!-- 21 DECISIONS -->
+  <section class="slide tight" data-label="Practice: return-visit decisions">
+    <span class="eyebrow a">01 · Practice · return-visit decisions</span>
+    <div class="scen-tabs a" style="--i:1" id="dsTabs"></div>
+    <div class="split" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2" id="dsScen"></div>
+      <div class="grid" style="gap:10px">
+        <div class="choices a" style="--i:3" id="dsCh"></div>
+        <div id="dsFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 NO ACCESS -->
+  <section class="slide tight" data-label="No-access visits">
+    <span class="eyebrow a">02 · No-access visits</span>
+    <h2 class="a" style="--i:1">Nobody home, gate locked. Prove you came, then get back fast.</h2>
+    <div class="path a" style="--i:2">
+      <div class="st" style="--i:0"><span class="n"><svg class="ico"><use href="#i-clock"/></svg></span><h3>Start the order</h3><p>On arrival, as always. The start time is your proof of the attempt.</p></div>
+      <div class="st" style="--i:1"><span class="n"><svg class="ico"><use href="#i-phone"/></svg></span><h3>Knock, then call</h3><p>From the parked truck. No answer? Call the tech line for help reaching them.</p></div>
+      <div class="st" style="--i:2"><span class="n"><svg class="ico"><use href="#i-cam"/></svg></span><h3>Do what you can reach</h3><p>Exterior stations you can access. Photo of the locked gate or hatch you couldn't.</p></div>
+      <div class="st top" style="--i:3"><span class="n"><svg class="ico"><use href="#i-mail"/></svg></span><h3>Record, reschedule</h3><p>Door hanger, a factual note, and technotes@ to rebook the soonest date.</p></div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-thermo"/></svg><span><b>Unchecked traps can't wait long.</b> A capture left in a Florida attic decays fast and brings odor and flies. Ask for the earliest slot, not the next convenient one.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-headset"/></svg><span><b>Does it count as one of the five?</b> Not your call. Note what was and wasn't checked; the branch manager decides.</span></div>
+    </div>
+  </section>
+
+  <!-- 23 NO ACCESS SORT -->
+  <section class="slide tight" data-label="Practice: no-access, do or don't">
+    <span class="eyebrow a">03 · Practice · no-access, do or don't</span>
+    <h2 class="a" style="--i:1">The customer isn't home for follow-up #3. Do it or don't?</h2>
+    <div class="sort a" style="--i:2" id="naSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="naCheck">Check my answers</button><span id="naFb"></span></div>
+  </section>
+
+  <!-- 24 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 25 PART FOUR -->
+  <section class="slide forest" data-label="Part four: close-out and PestPac">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Closing out and recording it</h1>
+        <p class="lead a" style="--i:2">Why it matters: closing too early leaves rodents behind and a warranty claim waiting. Closing without a clean record leaves the renewal tech with nothing to compare against.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>When to close out</li><li><span>02</span>Closing the job</li><li><span>03</span>Recording in PestPac</li><li><span>04</span>Practice: is this record complete?</li></ol>
+    </div>
+  </section>
+
+  <!-- 26 CLOSE CHECKER -->
+  <section class="slide tight" data-label="When to close out">
+    <span class="eyebrow a">01 · When to close out</span>
+    <h2 class="a" style="--i:1">Fifth follow-up. Is this job ready to close? Set what you found.</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <div class="seg a" style="--i:2;justify-self:start" id="coTier"></div>
+        <div class="eod a" style="--i:3" id="coList"></div>
+      </div>
+      <div class="card a co-v" style="--i:4" id="coOut"></div>
+    </div>
+  </section>
+
+  <!-- 27 CLOSING THE JOB -->
+  <section class="slide tight" data-label="Closing the job">
+    <span class="eyebrow a">02 · Closing the job</span>
+    <h2 class="a" style="--i:1">The last visit leaves a complete record and a clear next step</h2>
+    <div class="grid g2" style="gap:16px;align-items:start">
+      <div class="card a" style="--i:2"><span class="eyebrow">At the final visit</span>
+        <ol class="steps tight" style="margin-top:4px">
+          <li><span class="num">1</span><span>Account for <b>every device</b> on the trap log: removed, or left in place and recorded</span></li>
+          <li><span class="num">2</span><span>Final check and photos of <b>every sealed entry point</b></span></li>
+          <li><span class="num">3</span><span>Walk the customer through the results and leave the <b>post-service summary</b> (Basic) or <b>documentation package</b> (Plus)</span></li>
+          <li><span class="num">4</span><span>Offer <b>deodorization</b> and <b>exterior rodent boxes</b> as leads, never with a price</span></li>
+        </ol></div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>Plus:</b> explain what the warranty covers (the documented, sealed entry points), that declined points aren't covered, and that the office reaches out before renewal.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-trend"/></svg><span><b>Basic:</b> if entry points were found, present Plus before you leave. Basic has no exclusion and no warranty.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-mail"/></svg><span><b>Leads and changes go to technotes@:</b> upgrade interest, add-ons, rodent box refill schedule, anything the office must act on.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 PESTPAC -->
+  <section class="slide tight" data-label="Recording in PestPac">
+    <span class="eyebrow a">03 · Recording in PestPac</span>
+    <h2 class="a" style="--i:1">Photos, fields and notes on the order, before you leave</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:22px;align-items:start">
+      <ol class="steps tight a" style="--i:2">
+        <li><span class="num">1</span><span><b>Start the order on arrival</b> and open last visit's notes and attachments</span></li>
+        <li><span class="num">2</span><span><b>Attach photos</b> to the order, labeled to match: "EP-3 Foundation NE corner · Before"</span></li>
+        <li><span class="num">3</span><span><b>Materials fields:</b> every rodenticide by brand name, amount and location</span></li>
+        <li><span class="num">4</span><span><b>Note:</b> activity level (none, light, moderate, heavy), captures, seals, next visit</span></li>
+        <li><span class="num">5</span><span><b>Check every thumbnail</b> uploaded, then complete before you drive</span></li>
+      </ol>
+      <div class="grid" style="gap:10px">
+        <div class="matform a" style="--i:3">
+          <div class="mf-head"><span>Rodent Shield codes in PestPac</span></div>
+          <div class="mf-row"><span>Rodent Deposit</span><b>Posted by CSRs at booking for the deposit. Not a field code.</b></div>
+          <div class="mf-row"><span>Rodent3</span><b>Marks 3-year warranty accounts; renewal set to 36 months by the office.</b></div>
+          <div class="mf-row"><span>Visit codes</span><b>Initial, follow-up, extra visit, no-access: <span class="chip">to be confirmed</span></b></div>
+        </div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-headset"/></svg><span>Unsure which service code or order to use? Ask your branch manager or Routing &amp; Logistics. Never guess a code.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 29 RECORD CHECKER -->
+  <section class="slide tight" data-label="Practice: is this record complete?">
+    <span class="eyebrow a">04 · Practice · is this record complete?</span>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="scen-tabs a" style="--i:1" id="rcTabs"></div>
+        <div class="rec a" style="--i:2" id="rcRec"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.2vw,26px)">Select every problem with this record, or "Complete".</h2>
+        <div class="pick a" style="--i:2" id="rcPick"></div>
+        <div class="a" style="--i:3"><button type="button" class="btn primary" id="rcCheck">Check</button></div>
+        <div id="rcFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on real Rodent Shield jobs</h2>
+    <p class="a muted" style="--i:2">Your field training lead observes each of these with you before RX-07 is complete.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Draw an inspection diagram with numbered entry points and devices that matches the logs</label></li>
+      <li><label><input type="checkbox" id="f2"> Photograph an entry point to the three-photo standard with scale, before and after sealing</label></li>
+      <li><label><input type="checkbox" id="f3"> Complete the entry-point log and entry point PDF, including any declined points</label></li>
+      <li><label><input type="checkbox" id="f4"> Upload and label photos on the PestPac order and record any rodenticide in the material fields</label></li>
+      <li><label><input type="checkbox" id="f5"> Run a full follow-up: every device checked, captures handled, traps reset, seals re-inspected</label></li>
+      <li><label><input type="checkbox" id="f6"> Write a customer-facing note and send an office matter to technotes@</label></li>
+      <li><label><input type="checkbox" id="f7"> Explain the five follow-up visits and what the customer should and shouldn't do</label></li>
+      <li><label><input type="checkbox" id="f8"> Explain when to close a job, and the next step when it isn't ready</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx07:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx07:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-07", "titleHtml": "Documentation &amp; Return Visits", "nextHtml": "RX-08 \u00b7 Rodent Field Safety", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The Rodent Shield record',q:'On a Plus job you seal EP-3 at the A/C line-set, then take one close-up after photo with no ruler. What is the problem?',o:['Nothing. One clear photo of the finished repair is enough','The photo should have gone in the customer note instead of on the order','Without the before set and a scale reference, EP-3 can\'t be verified at renewal or defended in a warranty question','Photos are only required for entry points the customer declines'],a:2,e:'Every entry point gets the three-photo set (wide, approach, close-up with scale) before sealing, and a matching after photo from the same spot. A sealed point without that record can\'t be verified later.'},
+    2:{t:'Checkpoint 2 · Return visits',q:'Follow-up #3 on a Plus job. T-2 holds a roof rat. The cement at EP-1 has fresh gnaw marks but isn\'t through. What do you do?',o:['Remove the capture safely, reset T-2, photograph and repair EP-1, keep a trap on that route, log both and tell the customer','Reset T-2 and move on. The seal is still holding','Pack foam over EP-1 for extra protection','Pull T-2 out, since the seals are doing the work'],a:0,e:'Gnawing means rodents are testing the seal. Repair it with program materials, photograph it, keep pressure on that route with a trap, and record and report everything.'},
+    3:{t:'Checkpoint 3 · No-access visits',q:'Follow-up #2. The gate is locked, nobody answers, and the traps are in the attic. What is the right sequence?',o:['Leave and come back on next week\'s route','Ask the neighbor to let you into the garage so you can reach the attic','Post the follow-up as completed, since you made the trip','Start the order, knock and call, service exterior stations you can reach, photograph the locked gate, leave a door hanger, write a factual note and email technotes@ for the soonest reschedule'],a:3,e:'Prove the attempt (order start time, photo, door hanger), do only what you can reach without entering a locked area, and get the visit rebooked quickly. Unchecked attic traps can\'t wait for next week.'},
+    4:{t:'Checkpoint 4 · Close-out',q:'Fifth follow-up on a Plus job. Captures have gone 3, 3, 2, 3, 3. The customer still hears scratching at night. Every sealed entry point is intact. What now?',o:['Close the job. All five visits are done','Don\'t close. Re-inspect for a missed entry point, including the roofline, document anything new and tell your branch manager. Continued activity in treated areas triggers warranty review','Add exterior bait and close the job','Tell the customer the noise is normal and will stop on its own'],a:1,e:'Flat captures and continued noises mean rodents are still getting in. Five visits done isn\'t the same as job done. The branch manager decides the warranty or additional-visit path.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'How many follow-up visits are included in Rodent Shield Basic and Plus?',o:['Three for Basic, five for Plus','Five for both','Five for Basic, none for Plus','As many as it takes, at no charge'],a:1,e:'Both tiers include five follow-up visits (Rodent Shield Final Review V2). Visits beyond five are billed; pricing questions go to the branch manager.'},
+    {k:'Multiple choice',q:'During the first week after traps are set, how often are traps checked?',o:['Once, at the end of the week','Daily, including weekends','Every other day, with the first check ideally the next day','Only when the customer calls'],a:2,e:'The first week is the high-activity window: checks every other day, the first one ideally the next day when the schedule allows.'},
+    {k:'Multiple choice',q:'What are the three photos every entry point needs?',o:['Wide (establishing), approach, and close-up with a scale reference','Front of the house, the customer and the truck','A close-up from three different angles','Before, during and after, all close-ups'],a:0,e:'Establishing (6 to 10 ft), approach (3 to 5 ft) and close-up (12 to 24 in) with a ruler or coin in frame. Then the after photo from the same spot.'},
+    {k:'True or false',q:'It is fine to delete the before photos once the after photos are uploaded.',o:['True','False'],a:1,e:'False. Before and after photos both go on the PestPac order. The before photo is your proof of the original condition and scope.'},
+    {k:'Multiple choice',q:'Why does every close-up need a ruler or coin in the frame?',o:['It makes the photo look professional','It proves a licensed tech took it','PestPac rejects photos without one','It shows the opening\'s real size, which makes the photo useful as evidence later'],a:3,e:'Without a scale reference, a photo can\'t establish the size of the opening and has little value in a warranty question.'},
+    {k:'Scenario',q:'On a later visit you find a new gap. The log already has EP-1 to EP-4. What do you call it?',o:['EP-5, marked on the diagram and photographed','EP-1, since it is the most important now','Nothing. New gaps aren\'t logged after day one','Renumber everything so the new one fits in order around the house'],a:0,e:'Never renumber. New finds get the next number so the logs, photo labels and entry point PDF stay matched.'},
+    {k:'Multiple choice',q:'Which of these belongs in the customer-facing PestPac note?',o:['"The last tech missed this hole."','"Two roof rats removed from attic traps. All sealed entry points are holding. Next visit Thursday."','The customer\'s new gate code','A discount you think the office should give'],a:1,e:'Notes print on the inspection report. Results, condition of the work and the next visit belong there. Gate codes and anything the office must act on go to technotes@. No blame, no pricing.'},
+    {k:'Multiple choice',q:'A customer at a follow-up wants to upgrade from Basic to Plus. Where does that go?',o:['In the customer note only','Nowhere. They can call the office','To technotes@clementspestcontrol.com as a lead, and tell the customer who will follow up','Quote the Plus price yourself'],a:2,e:'Leads and anything the office must act on go to technotes@. Never quote prices.'},
+    {k:'Scenario',q:'On a Basic inspection you find three entry points. The customer hasn\'t signed for Plus. How do you handle the entry point details?',o:['Document them fully in the internal record, present a Plus upgrade, and don\'t hand over the entry point list before a contract is signed','Write every location in the customer note','Seal them with foam as a courtesy','Ignore them; Basic doesn\'t include exclusion'],a:0,e:'Document every entry point internally and present Plus before leaving. The training keeps the list internal until a Plus contract is signed, when it becomes the scope of work.'},
+    {k:'True or false',q:'Entry points the homeowner declines are covered by the Plus warranty if they were documented.',o:['True','False'],a:1,e:'False. Declined points are documented on the service agreement with the homeowner\'s acknowledgment, and they are not covered.'},
+    {k:'Multiple choice',q:'At a follow-up, the cement at EP-2 is gnawed but not through. What is the right response?',o:['Leave it; it is still closed','Cover it with foam','Photograph, repair with program materials, log the repair and keep a trap on that route','Remove the nearest trap'],a:2,e:'Gnawing means pressure on the seal. Repair and record it, and keep a trap working that route.'},
+    {k:'Multiple choice',q:'On a Plus account, which of these triggers warranty review?',o:['The customer wants deodorization','Activity continues in treated areas, a missed entry point within original scope, or new activity matching the original service area','A declined entry point lets rodents in','The customer sells the house'],a:1,e:'Those three are the program\'s warranty triggers. Declined points aren\'t covered. Tell your branch manager; they decide the path.'},
+    {k:'Scenario',q:'Captures across five follow-ups went 1, 2, 3, 4, 5. What does that tell you?',o:['The job is working well','The traps are in the wrong place but rodents aren\'t getting in','The customer is moving traps','Rodents are still getting in. Look for an open or missed entry point and tell your branch manager'],a:3,e:'Success looks like captures declining toward none. Flat or climbing captures mean an entry route is still open.'},
+    {k:'Multiple choice',q:'A homeowner asks you to put screen over the dryer vent because she thinks rats use it. What do you say?',o:['Explain that dryer and exhaust vents are never sealed or screened (fire and moisture risk), note its condition, and check the real entry points','Screen it with hardware cloth','Seal it with cement','Seal it this once since she asked'],a:0,e:'Vents must vent. Clements never seals or screens dryer or exhaust vents under any tier.'},
+    {k:'True or false',q:'If a no-access trip happens, you decide whether it counts as one of the five follow-ups.',o:['True','False'],a:1,e:'False. Record what was and wasn\'t checked. Your branch manager decides how the visit is counted.'},
+    {k:'Multiple choice',q:'Where does a rodenticide placed in an exterior station get recorded?',o:['In the customer note only','In PestPac\'s material fields: brand name, amount, target and location','Nowhere, because it is inside a locked station','On a sticky note in the truck'],a:1,e:'Rodenticide is a pesticide application. Florida rule 5E-14.142 expects the record, and Clements records every product in the structured fields.'},
+    {k:'Scenario',q:'Fifth follow-up on a Basic job: no captures for two visits, no new signs, the customer reports no noises. Entry points were found on day one. What do you do?',o:['Schedule more free visits to be safe','Close without saying anything','Close out: account for every device, final note and post-service summary, and present Plus because entry points remain open','Seal the entry points as a courtesy'],a:2,e:'The job meets the close-out signs. Basic has no exclusion or warranty, so open entry points mean presenting Plus before you leave.'},
+    {k:'Multiple choice',q:'When should photos be uploaded to the PestPac order?',o:['At the end of the week','Before you leave the job site, or immediately on return if there is no signal','Only when a warranty claim comes in','Whenever you have time'],a:1,e:'Upload before you leave, check every thumbnail, then complete the order. Don\'t let photos pile up on your phone.'},
+    {k:'Multiple choice',q:'What is the Rodent3 code in PestPac?',o:['The code for the third follow-up visit','A code techs post when they find a third entry point','A code that marks 3-year warranty accounts so the office sets the renewal to 36 months','The code for a no-access visit'],a:2,e:'Rodent3 flags 3-year warranty accounts because PestPac defaults renewals to 12 months. The office applies it and sets the date.'},
+    {k:'True or false',q:'A customer\'s husband moved trap T-3 into a hall closet. You should relocate it to a safe, effective spot out of reach of children and pets, log the move and explain why.',o:['True','False'],a:0,e:'True. Placement is your call, made for safety and effectiveness. Every move gets logged so the next visit finds the device.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  var SVGNS='http://www.w3.org/2000/svg';
+
+  /* ---------- six parts of the record ---------- */
+  var RA=[
+    {n:'Inspection diagram',i:'i-plan',s:'Where everything is',p:'A simple sketch of the property: rooms, attic, garage, street side. Every entry point (EP) and every trap or station (T) is marked with its number. Conditions that matter, like a palm touching the roof or shrubs on the wall, go on it too.',x:'Same numbers on the diagram, the logs, the photo labels and the entry point PDF.'},
+    {n:'Entry-point log',i:'i-list',s:'Every opening, every visit',p:'One line per opening: number, exact location, measured size, active or old, and what happened to it (sealed, declined or left open). Gaps ½ inch and larger drive the Plus scope; record what you find.',x:'Plus: this list is the warranty reference. Declined points also go on the service agreement with the homeowner\'s acknowledgment.'},
+    {n:'Before and after photos',i:'i-cam',s:'Proof of the work',p:'The three-photo set for each entry point before any sealing: wide, approach, close-up with a scale reference. After sealing, the close-up and approach again from the same spot.',x:'Labeled to match the log, for example "EP-3 Foundation NE corner · Before", and uploaded to the PestPac order.'},
+    {n:'Materials used',i:'i-box',s:'What went where',p:'Exclusion materials by entry point (cement, Xcluder or copper mesh, hardware cloth, sheet metal), and every rodenticide by brand name and amount in PestPac\'s material fields.',x:'Courtesy fixes count too: note them in the service notes even when there is no charge.'},
+    {n:'Trap log',i:'i-trap',s:'Every device, every visit',p:'Each trap and station by number, type and location, with that visit\'s result and what you did: capture and species, sprung empty, bait taken, untouched or missing; reset, re-baited, moved or removed.',x:'Untouched is a result. Write it down. It tells the next tech a device may be in the wrong spot.'},
+    {n:'Notes, by audience',i:'i-pen',s:'Customer, office, record',p:'The PestPac note prints on the customer\'s inspection report. Anything the office must act on goes to technotes@. Logs, photos and the entry point PDF are the job record.',x:'Every note ends with the next visit date, so the customer and the next tech both know the plan.'}
+  ];
+  var ral=$('#raList'), raSeen=store.get('ra')||{};
+  function showRA(n){raSeen[n]=1;store.set('ra',raSeen);$$('button',ral).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('seen',!!raSeen[j])});
+    var r=RA[n];$('#raDetail').innerHTML='<span class="eyebrow">Part '+(n+1)+' of 6 · '+r.s+'</span><h3 style="margin-top:4px">'+r.n+'</h3><p>'+r.p+'</p><div class="ex">'+r.x+'</div>';
+    var c=Object.keys(raSeen).length;$('#raCount').textContent=c+' of 6 viewed'+(c===6?'. That is the full record.':'');}
+  RA.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='ra'+i;b.innerHTML=ico(r.i)+'<span>'+r.n+'<small>'+r.s+'</small></span>';b.addEventListener('click',function(){showRA(i)});ral.appendChild(b)});
+  showRA(0);
+
+  /* ---------- property diagram ---------- */
+  var PD=[
+    {k:'EP-1',c:'ep',x:70,y:161,h:'A/C line-set penetration, west wall',p:'¾ in gap around the refrigerant lines. Active: rub marks and fresh droppings below. Sealed with Xcluder and color-matched cement.'},
+    {k:'EP-2',c:'ep',x:300,y:210,h:'Garage door, bottom east corner',p:'1 in gap where the seal is chewed. Active. Sealed with hardware cloth and cement, screwed in place.'},
+    {k:'EP-3',c:'ep',x:320,y:70,h:'Soffit return, east roofline',p:'1½ in opening where palm fronds touch the roof. Active roof rat route. Sealed. Recommend trimming the palm off the roof.'},
+    {k:'EP-4',c:'ep',x:205,y:40,h:'Gable vent gap, north',p:'Gap at the vent frame. Closed with hardware cloth, not solid sealant, so the vent still breathes.'},
+    {k:'T-1',c:'t',x:285,y:140,h:'Snap trap · attic above garage hatch',p:'On the runway near EP-3. Placing attic traps above the garage keeps odors out of the living space.'},
+    {k:'T-2',c:'t',x:290,y:72,h:'Snap trap · attic at east soffit',p:'Inside EP-3, on the rub-marked top plate.'},
+    {k:'T-3',c:'t',x:130,y:150,h:'Snap trap · attic above kitchen',p:'Droppings along the ceiling joists over the kitchen.'},
+    {k:'T-4',c:'t',x:36,y:212,h:'Exterior bait station · by the A/C pad',p:'Tamper-resistant station, anchored. Record the rodenticide brand and amount every time it is serviced.'}
+  ];
+  var pds=$('#pdSvg'), pdSeen=store.get('pd')||{};
+  PD.forEach(function(m,i){var g=document.createElementNS(SVGNS,'g');g.setAttribute('class','pdm '+m.c);g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('id','pd'+i);g.setAttribute('aria-label',m.k+': '+m.h);
+    g.innerHTML='<circle class="halo" cx="'+m.x+'" cy="'+m.y+'" r="11"/><circle class="core" cx="'+m.x+'" cy="'+m.y+'" r="'+(m.c==='ep'?13:12)+'"/><text x="'+m.x+'" y="'+(m.y+3)+'" text-anchor="middle">'+m.k+'</text>';
+    function go(){pdSeen[i]=1;store.set('pd',pdSeen);$$('.pdm',pds).forEach(function(x,j){x.classList.toggle('sel',j===i);x.classList.toggle('seen',!!pdSeen[j])});
+      $('#pdDetail').innerHTML='<span class="eyebrow">'+(m.c==='ep'?'Entry-point log':'Trap log')+' · '+m.k+'</span><h3 style="margin-top:4px">'+m.h+'</h3><p>'+m.p+'</p>';
+      var c=Object.keys(pdSeen).length;$('#pdCount').textContent=c+' of 8 markers viewed'+(c===8?'. Every number has a matching log line.':'');}
+    g.addEventListener('click',go);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});pds.appendChild(g)});
+  $$('.pdm',pds).forEach(function(x,j){x.classList.toggle('seen',!!pdSeen[j])});
+
+  /* ---------- three-photo sequence ---------- */
+  var PH=[
+    {n:'Wide',z:0,s:0,sealed:0,h:'1 · Establishing shot · 6 to 10 ft',p:'Shows where the entry point is on the house. Anyone looking at it should be able to walk up and find it.',c:'Sample: EP-1, west wall, A/C line-set.'},
+    {n:'Approach',z:1,s:0,sealed:0,h:'2 · Approach shot · 3 to 5 ft',p:'The opening in its immediate area, with nearby objects that show its size.',c:'Rub marks visible beside the pipe.'},
+    {n:'Close-up',z:2,s:1,sealed:0,h:'3 · Close-up · 12 to 24 in, with scale',p:'The exact opening in sharp focus with a ruler or coin in frame: gap, gnaw and rub marks, the surrounding material.',c:'Before photo. Taken before any material goes in.'},
+    {n:'After',z:2,s:1,sealed:1,h:'After · same spot, same angle',p:'Close-up and approach again after sealing, from where you stood for the before. The comparison shows the quality of the repair.',c:'After photo. Sealed with Xcluder and color-matched cement.'}
+  ];
+  var phs=$('#phSeg');
+  function showPH(n){$$('button',phs).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var p=PH[n];
+    $('#phZoom').setAttribute('class','ph-zoom z'+p.z);$('#phScale').setAttribute('class','ph-scale'+(p.s?' on':''));$('#phGap').setAttribute('class','ph-gap'+(p.sealed?' sealed':''));$('#phRub').style.opacity=p.sealed?0:.6;
+    $('#phDetail').innerHTML='<span class="eyebrow">Photo '+(n+1)+' of 4</span><h3 style="margin-top:4px">'+p.h+'</h3><p>'+p.p+'</p>';$('#phCap').textContent=p.c;}
+  PH.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.id='ph'+i;b.textContent=p.n;b.addEventListener('click',function(){showPH(i)});phs.appendChild(b)});
+  showPH(0);
+
+  /* ---------- generic sort ---------- */
+  function mkSort(box,rows,opts,btn,fb,done){var ans={};
+    rows.forEach(function(r,i){var d=document.createElement('div');d.className='row';d.innerHTML='<span>'+r.q+'</span><span class="opts">'+opts.map(function(o,j){return '<button type="button" id="'+box.id+i+'_'+j+'" aria-pressed="false">'+o+'</button>'}).join('')+'</span>';
+      $$('.opts button',d).forEach(function(b,j){b.addEventListener('click',function(){ans[i]=j;$$('.opts button',d).forEach(function(x,k){x.setAttribute('aria-pressed',k===j)});d.classList.remove('ok','no');var w=$('.why',d);if(w)w.remove();})});box.appendChild(d)});
+    btn.addEventListener('click',function(){var ds=$$('.row',box),ok=0,blank=0;
+      ds.forEach(function(d,i){d.classList.remove('ok','no');var w=$('.why',d);if(w)w.remove();if(ans[i]===undefined){blank++;return}
+        var r=ans[i]===rows[i].a;if(r)ok++;d.classList.add(r?'ok':'no');var s=document.createElement('span');s.className='why';s.innerHTML=rows[i].w;d.appendChild(s)});
+      var n=rows.length;fb.innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+n+' first.</span>':'<span class="fb'+(ok===n?'':' no')+'" style="display:inline-block">'+ok+' of '+n+'. '+(ok===n?done:'Read the reasons, change your answers and check again.')+'</span>'});}
+
+  mkSort($('#wrSort'),[
+    {q:'"Two roof rats removed from attic traps. All four sealed entry points are holding. Next visit Thursday."',a:0,w:'Results, condition of the work and the next visit: exactly what the customer\'s report should say.'},
+    {q:'The customer gives you a new gate code',a:1,w:'An account change the office must make: technotes@.'},
+    {q:'The homeowner asks about upgrading from Basic to Plus',a:1,w:'A lead the office follows up: technotes@. Tell the customer who will call. Never quote the price.'},
+    {q:'Close-up of EP-2 with a ruler, before sealing',a:2,w:'Labeled and attached to the order, and part of the entry point record.'},
+    {q:'Entry point locations on a Basic job, before any Plus contract',a:2,w:'Documented fully in the record, but kept internal until a Plus contract is signed. Not in the customer note.'},
+    {q:'Rodenticide added to station T-4, by brand name and amount',a:2,w:'PestPac\'s material fields, the pesticide record Florida expects.'},
+    {q:'"Please keep the attic hatch clear for Thursday\'s visit."',a:0,w:'A request the customer needs to read: customer note.'}
+  ],['Customer note','technotes@','Record fields'],$('#wrCheck'),$('#wrFb'),'Each item is where its reader will find it.');
+
+  /* ---------- build the visit record ---------- */
+  var BRB=['Inspection diagram','Entry-point log','Before photo sets','After photos','Materials used','Trap log','Customer note + next visit','Declined points on agreement','Plus lead to technotes@','Entry point PDF to homeowner'];
+  var BR=[
+    {n:'Plus · initial service',s:'Rodent Shield Plus, day one. You inspect, seal EP-1 to EP-4 with program materials, set six snap traps in the attic and one exterior bait station. The homeowner declines sealing a fifth opening, EP-5.',a:[0,1,2,3,4,5,6,7,9],e:'Day one of Plus needs the full record: diagram, log, before and after photos, materials, trap log, the declined point on the service agreement, the entry point PDF and a note with the next visit. No upgrade lead; they already bought Plus.'},
+    {n:'Plus · follow-up #2',s:'Two captures in T-1 and T-3, both reset. The cement at EP-2 was gnawed; you photographed it, repaired it and photographed it again. Nothing moved, no new entry points.',a:[1,2,3,4,5,6],e:'Log the EP-2 repair, the before and after photos of it, the repair material, every trap result and a note with the next visit. The diagram doesn\'t change because nothing moved.'},
+    {n:'Basic · initial service',s:'Rodent Shield Basic, day one. Six snap traps set (no bait), three open entry points found. Nothing sealed. The homeowner is interested in Plus.',a:[0,1,2,5,6,8],e:'Diagram, entry-point log and before photos of the three openings (kept internal), the trap log, the customer note and a Plus lead to technotes@. Nothing was sealed and no rodenticide was used, so no after photos, materials or PDF.'}
+  ];
+  var brN=0, brSel={}, brDone=store.get('br')||{};
+  function showBR(n){brN=n;brSel={};$$('#brTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!brDone[j])});
+    $('#brScen').innerHTML='<span class="chip">Scenario '+(n+1)+' of 3</span><h3>'+BR[n].n+'</h3><p>'+BR[n].s+'</p>';
+    $('#brPick').innerHTML=BRB.map(function(o,i){return '<button type="button" id="brp'+i+'" aria-pressed="false">'+o+'</button>'}).join('');
+    $$('#brPick button').forEach(function(b,i){b.addEventListener('click',function(){if(brSel[i])delete brSel[i];else brSel[i]=1;b.setAttribute('aria-pressed',!!brSel[i]);$$('#brPick button').forEach(function(x){x.classList.remove('miss','extra')});$('#brFb').innerHTML=''})});
+    $('#brFb').innerHTML='';}
+  BR.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='brt'+i;b.textContent=r.n;b.addEventListener('click',function(){showBR(i)});$('#brTabs').appendChild(b)});
+  $('#brCheck').addEventListener('click',function(){var r=BR[brN],picked=Object.keys(brSel).map(Number);if(!picked.length){$('#brFb').innerHTML='<div class="fb no">Select the parts this record needs.</div>';return}
+    var miss=r.a.filter(function(x){return !brSel[x]}), extra=picked.filter(function(x){return r.a.indexOf(x)<0}), ok=!miss.length&&!extra.length;
+    $$('#brPick button').forEach(function(x,j){x.classList.toggle('miss',miss.indexOf(j)>-1);x.classList.toggle('extra',extra.indexOf(j)>-1)});
+    if(ok){brDone[brN]=1;store.set('br',brDone);$$('#brTabs button')[brN].classList.add('done')}
+    $('#brFb').innerHTML='<div class="fb'+(ok?'':' no')+'"><b>'+(ok?'Complete record. ':'Not quite. '+(miss.length?miss.length+' missing (outlined red). ':'')+(extra.length?extra.length+' not needed. ':''))+'</b>'+r.e+(ok&&brN<BR.length-1?' <button type="button" class="btn" id="brNext" style="margin-left:6px;padding:4px 12px">Next scenario</button>':'')+'</div>';
+    var nx=$('#brNext');if(nx)nx.addEventListener('click',function(){showBR(brN+1)});});
+  showBR(0);
+
+  /* ---------- follow-up timeline ---------- */
+  var FU=[
+    {y:'Day 0',g:'Initial service',w:'The inspection visit',d:'Inspection, diagram, entry-point log and photos, sealing on Plus, traps and stations set.',r:'The full record. Plus: entry point PDF and documentation package. Tell the customer the follow-up plan.'},
+    {y:'FU 1',g:'Next day if possible',w:'Ideally the day after',d:'First check when the schedule allows. Rats are wary of new objects and may avoid traps for a few days; mice investigate faster.',r:'Every device result, captures by species, any trap moved.'},
+    {y:'FU 2',g:'Every other day',w:'Week one',d:'The high-activity window. Excluded rodents look for another way in, so check seals as closely as traps.',r:'Trap log, seal status, new signs, next visit date.'},
+    {y:'FU 3',g:'Every other day',w:'Week one',d:'Finish week one. Move untouched traps toward fresh activity. Captures should already be falling.',r:'Trap log, moves on the diagram, seal status.'},
+    {y:'FU 4',g:'After week one',w:'Spaced out',d:'Visits spread out after the first week. Spacing is set by the program and branch: confirm with your branch manager.',r:'Trend check: are captures declining toward none?'},
+    {y:'FU 5',g:'Last included visit',w:'Close-out decision',d:'Decide: close the job, or don\'t (Part four). Visits beyond five are billed; the branch manager handles that.',r:'Final device status, final seal photos, summary or documentation package.'}
+  ];
+  var ftl=$('#fuTl'), fuSeen=store.get('fu')||{};
+  function showFU(n){fuSeen[n]=1;store.set('fu',fuSeen);$$('button',ftl).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('seen',!!fuSeen[j])});
+    $('#fuFill').style.width=(n/5*83.34)+'%';var f=FU[n];
+    $('#fuDetail').innerHTML='<div class="card"><span class="eyebrow">'+f.y+' · '+f.w+'</span><h3>'+f.g+'</h3><p><b>What happens.</b> '+f.d+'</p><p><b>Record.</b> '+f.r+'</p></div>';}
+  FU.forEach(function(f,i){var b=document.createElement('button');b.type='button';b.id='fu'+i;b.innerHTML='<span class="dot">'+(i===0?ico('i-clip','width:20px;height:20px'):i)+'</span><span class="yr">'+f.y+'</span><span class="tg">'+f.g+'</span>';b.addEventListener('click',function(){showFU(i)});ftl.appendChild(b)});
+  showFU(0);
+
+  /* ---------- order the visit ---------- */
+  var OV=['Read last visit\'s diagram, trap log and notes; start the order on arrival','Ask the customer what they\'ve noticed since the last visit','Check every device in log order, PPE on, and record each result','Remove captures: wet with disinfectant, double-bag, dispose','Reset, re-bait per label, or move traps toward fresh activity','Re-inspect every sealed entry point','Look for new activity and new entry points','Record, tell the customer the results and next visit, complete the order'];
+  var ovMix=[4,1,6,0,7,2,5,3], ovPos=0;
+  function ovRender(){var l=$('#ovList');l.innerHTML='';ovPos=0;
+    ovMix.forEach(function(k,i){var b=document.createElement('button');b.type='button';b.id='ov'+i;b.innerHTML='<span class="num">·</span><span>'+OV[k]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(k===ovPos){b.classList.add('placed');$('.num',b).textContent=ovPos+1;ovPos++;ovUp(ovPos===8?{t:'<b>That\'s the visit.</b> Read first, check everything, handle captures safely, reset, re-inspect, look for new signs, then record and report.'}:null)}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');ovUp({no:1,t:'Not next. '+['Start with the record from last time, before you knock.','Talk to the customer before you start checking.','Check every device before you start changing things.','Handle captures before you reset the trap.','Reset and move traps after captures are handled.','Re-inspect the seals once the traps are done.','Look for new signs after checking the known ones.','Recording comes last, before you drive.'][ovPos]})}});l.appendChild(b)});ovUp();}
+  function ovUp(f){$('#ovN').textContent=ovPos+' / 8';$('#ovBar').style.width=(ovPos/8*100)+'%';$('#ovFb').innerHTML=f?'<div class="fb'+(f.no?' no':'')+'">'+f.t+'</div>':'';}
+  $('#ovReset').addEventListener('click',ovRender);ovRender();
+
+  /* ---------- captures trend ---------- */
+  var TR=[
+    {n:'Declining',v:[4,3,1,1,0],ok:1,h:'This is what working looks like',p:'Captures fall visit by visit and the customer hears less. The population is coming down and the seals are holding. Keep to the schedule and close out when the signs agree.'},
+    {n:'Flat',v:[2,2,3,2,2],ok:0,h:'Something is still letting them in',p:'Steady captures mean new rodents keep arriving. Re-inspect for a missed or reopened entry point, including the roofline. On Plus, tell your branch manager: continued activity in treated areas triggers warranty review.'},
+    {n:'Climbing',v:[1,2,3,4,5],ok:0,h:'An open route, or a bigger population',p:'Rising captures need action now: full re-inspection, new entry points documented and photographed, traps moved to the activity, and your branch manager informed the same day.'},
+    {n:'Zero',v:[0,0,0,0,0],ok:0,h:'Zero captures isn\'t automatically good news',p:'No captures and no signs: good. No captures but fresh droppings or noises: the traps are off the runway. Rats are wary of new objects; move traps onto rub-marked edges and log the moves.'}
+  ];
+  var trs=$('#trSvg'), trB=[];
+  for(var ti=0;ti<5;ti++){var x=62+ti*50;var r=document.createElementNS(SVGNS,'rect');r.setAttribute('x',x);r.setAttribute('width',30);r.setAttribute('y',150);r.setAttribute('height',0);r.setAttribute('rx',3);r.setAttribute('class','tr-b');trs.appendChild(r);
+    var t=document.createElementNS(SVGNS,'text');t.setAttribute('x',x+15);t.setAttribute('y',166);t.setAttribute('class','tr-l');t.textContent='FU '+(ti+1);trs.appendChild(t);
+    var v=document.createElementNS(SVGNS,'text');v.setAttribute('x',x+15);v.setAttribute('y',144);v.setAttribute('class','tr-v');trs.appendChild(v);trB.push([r,v]);}
+  var trLine=document.createElementNS(SVGNS,'path');trLine.setAttribute('class','tr-line');trs.appendChild(trLine);
+  var trseg=$('#trSeg');
+  function showTR(n){$$('button',trseg).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var d=TR[n],pts=[];
+    d.v.forEach(function(val,i){var h=val*24,y=150-h;trB[i][0].setAttribute('y',y);trB[i][0].setAttribute('height',h);trB[i][0].setAttribute('class','tr-b'+(d.ok?'':' hi'));trB[i][1].setAttribute('y',y-7);trB[i][1].textContent=val;pts.push((77+i*50)+' '+y)});
+    trLine.setAttribute('d','M'+pts.join(' L'));
+    $('#trOut').innerHTML='<span class="eyebrow">'+d.n+' captures · '+d.v.join(', ')+'</span><h3 style="margin-top:4px">'+d.h+'</h3><p>'+d.p+'</p>';}
+  TR.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tr'+i;b.textContent=t.n;b.addEventListener('click',function(){showTR(i)});trseg.appendChild(b)});
+  showTR(0);
+
+  /* ---------- return-visit decisions ---------- */
+  var DS=[
+    {n:'Gnawed seal',s:'<b>Plus · follow-up #2.</b> T-1 holds a roof rat. The cement at EP-3 has fresh gnaw marks but isn\'t through.',o:['Reset T-1 and move on; the seal held','Photograph EP-3, repair it with program materials, log the repair, keep a trap on that route and tell the customer','Pack foam over EP-3 for extra protection','Remove T-1 so the rodents stop testing the seal'],a:1,e:'Gnawing is pressure on the seal. Repair and photograph it, keep a trap working the route, record everything and tell the customer. Foam is not exclusion.'},
+    {n:'New gap on Basic',s:'<b>Basic · follow-up #3.</b> You find a ¾ inch gap at the garage door corner with fresh rub marks. Nothing has been sealed on this job.',o:['Seal it with foam as a courtesy','Leave it; Basic doesn\'t include exclusion','Document it as the next EP number with photos, present the Plus upgrade, and send the lead to technotes@','Quote the customer a price to seal it'],a:2,e:'Basic has no exclusion and no warranty. Document the opening, present Plus, and send the lead. Never quote a price.'},
+    {n:'Still hearing it',s:'<b>Plus · follow-up #4.</b> Captures have gone 2, 2, 2, 2. The customer still hears scratching at night. Every sealed EP is intact.',o:['Re-inspect for a missed entry point, including the roofline, document anything new and tell your branch manager','Tell the customer it\'s normal and will stop','Add more traps and say nothing','Plan to close at the next visit regardless'],a:0,e:'Flat captures plus noises mean rodents are still getting in. On Plus, continued activity in treated areas triggers warranty review. The branch manager decides the path.'},
+    {n:'Can I see the list?',s:'<b>Basic · follow-up #1.</b> The homeowner hasn\'t decided on Plus and asks you to text her the list of every hole you found so "her handyman can take a look."',o:['Text her the full entry-point list and photos','Explain the findings in general terms, explain that Plus makes the documented list the scope of work and warranty reference, and send the lead to technotes@','Refuse to talk about entry points','Tell her the handyman will do it wrong'],a:1,e:'The training keeps the entry-point list internal until a Plus contract is signed. Be honest about what you found, in general terms, and stay professional.'},
+    {n:'Trap moved',s:'<b>Plus · follow-up #2.</b> T-3 isn\'t where the log says. The customer\'s husband moved it into a hall closet "to get it out of the way."',o:['Leave it in the closet and update nothing','Remove it from the job','Relocate it to a safe, effective spot out of reach of children and pets, log the move, update the diagram and explain why','Ask the customer to move it back himself'],a:2,e:'Placement is your call, for safety and effectiveness. Every move gets logged and drawn so the next visit can find it.'}
+  ];
+  var dsN=0, dsDone=store.get('ds')||{};
+  function showDS(n){dsN=n;$$('#dsTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!dsDone[j])});var d=DS[n];
+    $('#dsScen').innerHTML='<span class="eyebrow">Scenario '+(n+1)+' of '+DS.length+'</span><p style="margin-top:6px">'+d.s+'</p><p class="small muted" style="margin-top:8px">What do you do?</p>';
+    $('#dsCh').innerHTML=d.o.map(function(o,i){return '<button type="button" class="choice" id="ds'+n+'_'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('');$('#dsFb').innerHTML='';
+    $$('#dsCh .choice').forEach(function(b,i){b.addEventListener('click',function(){$$('#dsCh .choice').forEach(function(x){x.classList.remove('right','wrong')});
+      if(i===d.a){b.classList.add('right');dsDone[n]=1;store.set('ds',dsDone);$$('#dsTabs button')[n].classList.add('done');
+        $('#dsFb').innerHTML='<div class="fb"><b>Right. </b>'+d.e+(n<DS.length-1?' <button type="button" class="btn" id="dsNext" style="margin-left:6px;padding:4px 12px">Next scenario</button>':'')+'</div>';var nx=$('#dsNext');if(nx)nx.addEventListener('click',function(){showDS(n+1)});}
+      else{b.classList.add('wrong');$('#dsFb').innerHTML='<div class="fb no"><b>Not the best choice.</b> Think about the record, the customer and what the program allows, then try again.</div>';}})});}
+  DS.forEach(function(d,i){var b=document.createElement('button');b.type='button';b.id='dst'+i;b.textContent=d.n;b.addEventListener('click',function(){showDS(i)});$('#dsTabs').appendChild(b)});
+  showDS(0);
+
+  /* ---------- no-access sort ---------- */
+  mkSort($('#naSort'),[
+    {q:'Start the order on arrival',a:0,w:'The start time is your record that you came.'},
+    {q:'Climb the fence to reach the backyard stations',a:1,w:'Never enter a locked or fenced area without the customer\'s permission.'},
+    {q:'Service exterior stations you can reach without entering a locked area',a:0,w:'Do what you can reach, and record exactly which devices were and weren\'t checked.'},
+    {q:'Ask a neighbor to let you into the garage',a:1,w:'Only the customer (or someone they authorized) gives access.'},
+    {q:'Photograph the locked gate and leave a door hanger',a:0,w:'Proof of the attempt, and the customer knows you came.'},
+    {q:'Post the trap log as if the attic traps were checked',a:1,w:'Never record work you didn\'t do. Falsified records are grounds for license discipline and termination.'},
+    {q:'Email technotes@ to rebook the soonest date',a:0,w:'The office reschedules and contacts the customer. Ask for the earliest slot.'},
+    {q:'Wait for next week\'s route to come back',a:1,w:'Unchecked attic traps can\'t wait. Captures decay fast in Florida heat.'}
+  ],['Do','Don\'t'],$('#naCheck'),$('#naFb'),'You protected the record and the customer.');
+
+  /* ---------- close-out checker ---------- */
+  var CO=[
+    {t:'All five follow-ups completed',s:'Every included visit done and recorded',no:'Not yet. Keep to the schedule; the close-out decision is made at the fifth visit.'},
+    {t:'No new signs of activity',s:'No fresh droppings, rub marks or gnawing',no:'Find the source: re-inspect for missed or reopened entry points and move traps to the activity.'},
+    {t:'Noises stopped or clearly reduced',s:'What the customer reports',no:'Ask where and when, inspect those areas and the roofline, and record what you find.'},
+    {t:'Captures declining to none',s:'Not flat or climbing',no:'Flat or climbing captures mean rodents are still getting in.'},
+    {t:'Every sealed entry point intact',s:'Plus only',no:'Repair and photograph it, and tell your branch manager: it may be warranty work.',plus:1}
+  ];
+  var coTier=1, coA=[1,1,1,1,1];
+  var coSeg=$('#coTier');
+  ['Basic','Plus'].forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='cot'+i;b.textContent=t;b.addEventListener('click',function(){coTier=i;coRender()});coSeg.appendChild(b)});
+  function coRender(){$$('button',coSeg).forEach(function(b,j){b.setAttribute('aria-pressed',j===coTier)});
+    var l=$('#coList');l.innerHTML='';
+    CO.forEach(function(c,i){var na=c.plus&&!coTier;var d=document.createElement('div');d.className='eod-r'+(na?' na':'');
+      d.innerHTML='<span><b>'+c.t+'</b><small>'+(na?'Not applicable on Basic: no exclusion':c.s)+'</small></span><span class="seg">'+(na?'':'<button type="button" id="co'+i+'y" aria-pressed="'+(coA[i]===1)+'">Yes</button><button type="button" id="co'+i+'n" aria-pressed="'+(coA[i]===0)+'">No</button>')+'</span>';
+      if(!na){$$('button',d).forEach(function(b,j){b.addEventListener('click',function(){coA[i]=j?0:1;coRender()})})}l.appendChild(d)});
+    var fails=CO.map(function(c,i){return (c.plus&&!coTier)||coA[i]?null:i}).filter(function(x){return x!==null});
+    var o=$('#coOut');
+    if(!fails.length){o.className='card co-v ok';o.innerHTML='<span class="eyebrow">Verdict</span><h3>Ready to close</h3><p>Account for every device, take final photos of the seals, walk the customer through the results and leave the '+(coTier?'documentation package. Explain the warranty and that declined points aren\'t covered.':'post-service summary. If entry points were found, present Plus before you leave.')+'</p>';}
+    else{o.className='card co-v no';o.innerHTML='<span class="eyebrow">Verdict</span><h3>Don\'t close yet</h3><ul class="dots-list">'+fails.map(function(i){return '<li>'+CO[i].no+'</li>'}).join('')+'</ul><p class="small" style="margin-top:8px">'+(fails.length===1&&fails[0]===0?'':(coTier?'Tell your branch manager. On Plus, continued activity can trigger warranty review; they decide the path.':'Additional visits are billed and set up by the branch manager. Present Plus if entry points are open.'))+'</p>';}}
+  coRender();
+
+  /* ---------- is this record complete? ---------- */
+  var RCO=['Trap log','Entry points','Photos','Materials','Customer note','Next visit','Complete'];
+  var RC=[
+    {n:'Record 1',f:[['Trap log','T-1 roof rat, removed, reset · T-2 sprung empty, reset · T-3 to T-6 untouched'],['Entry points','EP-1 to EP-4 intact'],['Photos','No changes to photograph'],['Materials','None used'],['Customer note','Removed one roof rat from the attic. All sealed entry points are holding. Please keep the attic hatch clear.'],['Next visit','']],a:[5],e:'No next visit date. The customer and the next technician both need it, on every follow-up.'},
+    {n:'Record 2',f:[['Trap log','Checked traps'],['Entry points','Looked fine'],['Photos','EP-2 · After'],['Materials','Color-matched cement, EP-2'],['Customer note','Repaired a gnawed seal at the garage door and reset traps. Next visit Tuesday.'],['Next visit','Tue 10/27']],a:[0,1,2],e:'"Checked traps" and "looked fine" don\'t say what each device did or which seals were checked. And a repair needs a before photo as well as the after.'},
+    {n:'Record 3',f:[['Trap log','T-1 to T-4 untouched · T-5 moved from garage to attic above kitchen (fresh droppings)'],['Entry points','EP-1 to EP-4 intact · new gap EP-5, east soffit, ¾ in, reported to branch manager'],['Photos','EP-5 wide, approach, close-up with scale'],['Materials','Station T-6: rodenticide by label brand name · 2 blocks'],['Customer note','No captures today. We found and photographed a new opening at the east roofline and moved one trap to fresh activity. Your branch manager will follow up.'],['Next visit','Thu 10/29']],a:[6],e:'Complete: every device, every seal, the new find numbered and photographed, the bait by brand and amount, a clear note and the next visit.'},
+    {n:'Record 4',f:[['Trap log','T-1 roof rat, reset · T-2 to T-4 untouched'],['Entry points','EP-1 to EP-3 intact'],['Photos','No changes to photograph'],['Materials','Rodent bait'],['Customer note','The last tech missed this hole. I\'ll ask the office to knock 15% off your bill.'],['Next visit','Mon 11/2']],a:[3,4],e:'"Rodent bait" isn\'t a brand name or an amount. And the note blames a coworker and promises a discount: no blame, never pricing, and never promises in a customer note.'}
+  ];
+  var rcSel={}, rcDone=store.get('rc')||{}, rcN=0;
+  function showRC(n){rcN=n;rcSel={};$$('#rcTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!rcDone[j])});
+    var r=RC[n];$('#rcRec').innerHTML='<div class="rec-h"><span class="eyebrow">Follow-up record · '+r.n+'</span><span class="small muted">Sample account · example data</span></div>'+r.f.map(function(f){return '<div class="rec-r"><span>'+f[0]+'</span><b class="'+(f[1]?'':'blank')+'">'+(f[1]||'(blank)')+'</b></div>'}).join('');
+    $('#rcPick').innerHTML=RCO.map(function(o,i){return '<button type="button" id="rcp'+i+'" aria-pressed="false">'+o+'</button>'}).join('');
+    $$('#rcPick button').forEach(function(b,i){b.addEventListener('click',function(){if(i===6){rcSel={6:1}}else{delete rcSel[6];if(rcSel[i])delete rcSel[i];else rcSel[i]=1}
+      $$('#rcPick button').forEach(function(x,j){x.setAttribute('aria-pressed',!!rcSel[j]);x.classList.remove('miss','extra')});$('#rcFb').innerHTML=''})});
+    $('#rcFb').innerHTML='';}
+  RC.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='rct'+i;b.textContent=r.n;b.addEventListener('click',function(){showRC(i)});$('#rcTabs').appendChild(b)});
+  $('#rcCheck').addEventListener('click',function(){var r=RC[rcN],picked=Object.keys(rcSel).map(Number);if(!picked.length){$('#rcFb').innerHTML='<div class="fb no">Select at least one, or Complete.</div>';return}
+    var ok=picked.length===r.a.length&&r.a.every(function(x){return rcSel[x]});
+    $$('#rcPick button').forEach(function(x,j){x.classList.remove('miss','extra');if(r.a.indexOf(j)>-1&&!rcSel[j])x.classList.add('miss');if(rcSel[j]&&r.a.indexOf(j)<0)x.classList.add('extra')});
+    if(ok){rcDone[rcN]=1;store.set('rc',rcDone);$$('#rcTabs button')[rcN].classList.add('done')}
+    $('#rcFb').innerHTML='<div class="fb'+(ok?'':' no')+'"><b>'+(ok?'Correct. ':'Not quite. ')+'</b>'+r.e+(ok&&rcN<RC.length-1?' <button type="button" class="btn" id="rcNext" style="margin-left:6px;padding:4px 12px">Next record</button>':'')+'</div>';
+    var nx=$('#rcNext');if(nx)nx.addEventListener('click',function(){showRC(rcN+1)});});
+  showRC(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

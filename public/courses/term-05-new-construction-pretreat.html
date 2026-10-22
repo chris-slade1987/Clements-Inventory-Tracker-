@@ -1,0 +1,1290 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>TERM-05 New-Construction Pretreat</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* TERM-05 components */
+.dl2{list-style:none;display:grid;gap:5px;font-size:15px;margin-top:12px}
+.dl2 li{position:relative;padding-left:16px}
+.dl2 li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.path2.top{border-color:var(--brand-300);background:linear-gradient(160deg,#FFFFFF,var(--brand-50))}
+.nsteps li{padding:9px 0;font-size:15px}
+.nsteps .num{flex-basis:28px;height:28px}
+
+/* construction timeline */
+.ct{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.ct::before{content:"";position:absolute;left:6%;right:6%;top:21px;height:2px;background:var(--brand-100)}
+.ctfill{position:absolute;left:6%;top:21px;height:2px;background:var(--brand-600);width:0;transition:width .22s ease-in-out}
+.ct button{position:relative;z-index:1;display:grid;justify-items:center;gap:6px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.ct .dot{width:42px;height:42px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.ct button.seen .dot{border-color:var(--brand-600);background:var(--brand-50)}
+.ct button[aria-pressed="true"] .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.ct .yr{font-size:14px;line-height:1.2}
+.ct .tg{font-size:12px;color:var(--muted);line-height:1.2}
+.ctd{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:200px;align-content:start}
+.ctd > *{animation:rise .2s ease-in-out both}
+.ctl{display:grid;gap:8px;align-content:start;padding:16px 18px}
+.ctl p{font-size:15px;color:var(--ink)}
+.ctl.top{border-color:var(--brand-300);background:linear-gradient(160deg,#FFFFFF,var(--brand-50))}
+.ctw{grid-column:1/-1;display:flex;gap:12px;align-items:baseline;font-size:15px}
+
+/* rain figure */
+.rainfig{padding:10px}
+.rainfig svg{max-width:460px;width:100%;height:auto}
+.soil{fill:#EFE9DE}
+.slabc{fill:#D9DEDA;stroke:var(--muted);stroke-width:1;transition:opacity .22s ease-in-out}
+.vr{stroke:var(--forest);stroke-width:3;transition:opacity .22s ease-in-out}
+.treated{fill:var(--brand-300);transition:opacity .4s ease-in-out}
+.leach{stroke:var(--brand-300);stroke-width:6;stroke-linecap:round;opacity:0;transition:opacity .4s ease-in-out}
+.drops{stroke:var(--brand-500);stroke-width:2;stroke-linecap:round;opacity:0;transition:opacity .22s ease-in-out}
+.flab{font-family:var(--font);font-size:11px;letter-spacing:.08em;fill:var(--muted)}
+#rainSvg.st1 .slabc,#rainSvg.st1 .vr,#rainSvg.st2 .slabc{opacity:0}
+#rainSvg.st1 .drops{opacity:1}
+#rainSvg.st1 .treated{opacity:.35}
+#rainSvg.st1 .leach{opacity:.6}
+.slide.on #rainSvg.st1 .drops{animation:fall 1.8s linear infinite}
+@keyframes fall{from{transform:translateY(-8px)}to{transform:translateY(40px)}}
+.dig{fill:#E2D6C2;stroke:var(--danger);stroke-width:1.4;stroke-dasharray:4 3;opacity:0;transition:opacity .22s ease-in-out}
+#rainSvg.st2 .dig{opacity:1}
+.rsd{display:grid;gap:8px;align-content:start;min-height:230px}
+.rsd > *{animation:rise .2s ease-in-out both}
+.rsd h3{font-size:20px;margin:0}
+.rsd p{font-size:15px;color:var(--ink)}
+
+/* zones */
+.zfig{padding:10px;align-items:center}
+.zfig svg{max-width:640px;width:100%;height:auto}
+.grade{stroke:var(--muted);stroke-width:1}
+.wall{stroke:var(--brand-700);stroke-width:6;fill:none;stroke-linecap:round}
+.ven{stroke:var(--muted);stroke-width:5;stroke-dasharray:6 3}
+.slabp{fill:#D9DEDA;stroke:var(--muted);stroke-width:1}
+.zt{fill:var(--brand-300);opacity:.8}
+.ztv{stroke:var(--brand-300);stroke-width:8;opacity:.8}
+.ztx{stroke:var(--brand-300);stroke-width:5;opacity:.8}
+.pipe{stroke:var(--forest);stroke-width:4;fill:none}
+.sleeve{fill:none;stroke:var(--brand-700);stroke-width:1.4}
+.box{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4}
+.patio{fill:#D9DEDA;stroke:var(--muted);stroke-width:1}
+.plant{fill:none;stroke:var(--brand-500);stroke-width:1.6}
+.zpin{cursor:pointer}
+.zpin circle.core{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;transition:fill .18s ease-in-out}
+.zpin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .zpin:not(.seen) circle.halo{animation:halo 2.6s ease-out infinite}
+.zpin text{font-family:var(--font);font-size:12px;fill:var(--brand-700);font-weight:500;pointer-events:none}
+.zpin.seen circle.core{fill:var(--brand-50)}
+.zpin.sel circle.core,.zpin:hover circle.core{fill:var(--brand-600)}
+.zpin.sel text,.zpin:hover text{fill:#fff}
+.zpin:focus{outline:none}.zpin:focus-visible circle.core{stroke-width:3}
+.zd{display:grid;gap:10px;align-content:start;min-height:290px}
+.zd > *{animation:rise .2s ease-in-out both}
+.zd h3{font-size:19px;margin:0}
+.zd p{font-size:15px;color:var(--ink)}
+
+/* label example */
+.label .hl{font-weight:400}
+
+/* calculator */
+.calc{display:grid;gap:12px}
+.calc .field{max-width:none}
+.cout{display:grid;gap:8px}
+.crow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px}
+.crow b{font-size:22px;font-weight:300;font-variant-numeric:tabular-nums;color:var(--brand-700)}
+.crow small{grid-column:1/-1;color:var(--muted);font-size:13px}
+.crow.tot{background:var(--forest);color:var(--on-forest);border-color:var(--forest)}
+.crow.tot b{color:#fff;font-size:26px}
+.crow.tot small{color:var(--mint)}
+
+/* documents */
+.dflip button{min-height:200px}
+.dflip .back{font-size:14px;padding:18px 20px}
+
+/* compact sorts */
+#rSort .row,#tsort .row{padding:8px 12px}
+.sfb:empty{display:none}
+#ordFb.done{border-color:var(--positive)}
+
+@media (max-width:860px){
+  .ct{grid-template-columns:repeat(4,1fr);row-gap:14px}
+  .ct::before,.ctfill{display:none}
+  .ctd{grid-template-columns:1fr}
+  .dflip{grid-template-columns:1fr}
+}
+
+#pBox .choice,#bBox .choice{padding:9px 14px;font-size:15px}
+#pBox .choices,#bBox .choices{gap:7px}
+#ord button{padding:7px 12px;font-size:14px}
+.lab4 .card{padding:14px 16px}
+.lab4 .card p{font-size:14px}
+.lab4 .icobox{width:34px;height:34px;margin-bottom:8px}
+.calc{gap:8px}
+.check label{padding:8px 12px;font-size:14px}
+#ord{gap:6px}
+.calc .field input{padding:7px 10px}
+#rSort .row:has(.why),#tsort .row:has(.why){flex-wrap:wrap}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 28</span><span class="code-chip">TERM-05 · New-Construction Pretreat</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8a3.5 3.5 0 0 1 0 7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M8 3v4M16 3v4M8 14h2M14 14h2"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-wood" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M3 12h4M11 10h6M11 14h4"/></symbol>
+    <symbol id="i-cert" viewBox="0 0 24 24"><path d="M5 3h10l4 4v8"/><path d="M5 3v18h7"/><path d="M8 8h6M8 11.5h7"/><circle cx="17" cy="17" r="3"/><path d="M15.5 19.5L15 22l2-1 2 1-.5-2.5"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8v3H8z"/><path d="M8.5 14h1M11.5 14h1M14.5 14h1M8.5 17.5h1M11.5 17.5h1M14.5 17.5h1"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-station" viewBox="0 0 24 24"><path d="M8 4h8v3H8z"/><path d="M9 7v13h6V7"/><path d="M3 11h18"/><path d="M11 12v5M13 12v5"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M4 20l7-7"/><path d="M11 13l3-3 2 2-3 3z"/><path d="M16 10l2-2"/><path d="M19 4v1M21 6h-1M20 9h1M17 3h1"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Termite · TERM-05</span>
+        <h1 class="display a" style="--i:1">New-Construction Pretreat</h1>
+        <p class="lead a" style="--i:2">Protecting a home from subterranean termites before it's built: when each step happens on the job, how to treat the soil to the label, and the paperwork the building department, the builder and the State expect from us.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M70 120V64M70 64h150M220 64v56M110 64v56M150 64v56M190 64v56"/>
+          <path d="M60 64l85-38 85 38"/>
+          <path d="M40 150h240"/><path d="M48 132h224v18H48z"/>
+          <path d="M48 150v22h20v-22M252 150v22h20v-22"/>
+          <path d="M20 190h280"/>
+          <path d="M30 206c20-6 40 6 60 0s40 6 60 0 40 6 60 0 40 6 60 0"/>
+          <path d="M30 222c20-6 40 6 60 0s40 6 60 0 40 6 60 0 40 6 60 0"/>
+          <path d="M226 110l22-22M248 88l10-10 6 6-10 10z"/><path d="M262 76l6-6"/>
+          <path d="M238 122l-6 8M246 122l-2 10M254 120l2 10"/>
+          <rect x="288" y="164" width="12" height="26" rx="2"/><path d="M288 172h12"/>
+          <rect x="8" y="164" width="12" height="26" rx="2"/><path d="M8 172h12"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Ready · Treat · Protect · Record</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-station"/></svg><span>Explain Clements' two new-construction paths: Sentricon by default, liquid soil pretreat only when the builder specifies it</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span>Place every step on the construction timeline, from permit and contract to final grade and the certificate of occupancy</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-check"/></svg><span>Decide whether a slab site is ready to treat, and stop the job when it isn't</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-spray"/></svg><span>Apply a liquid pretreat to the label: mixed on site, the right volume in the right zones, protected from rain and disturbance</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-cert"/></svg><span>Complete the treatment certificate, Certificate of Compliance, treatment notice and 3-year records correctly</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-phone"/></svg><span>Handle builder and superintendent calls professionally, without quoting prices or bending the rules</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4vw,46px)">Once the concrete is poured, <span class="em">there is no second chance.</span></h2>
+        <p class="lead a" style="--i:2">A pretreat goes under a slab nobody will see again. If it's skipped, diluted by rain or torn up by the plumber, the family who buys that house inherits the risk, and Florida is one of the highest termite-pressure states in the country.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-building"/></svg></div><div><h3>No certificate, no occupancy</h3><p>The Florida Building Code requires termite protection on new buildings. The building department won't sign off until our Certificate of Compliance is in.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>Some of the strictest rules we work under</h3><p>FDACS Rule 5E-14 sets how the product is mixed, how much goes down, what we record and how long we keep it. Inspectors can and do audit pretreat records.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-users"/></svg></div><div><h3>Builders hire the crew they trust</h3><p>Superintendents run tight schedules. Showing up when the slab is ready, treating right and turning the paperwork around fast is how we keep the account.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: new construction at Clements">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">New construction at Clements</h1>
+        <p class="lead a" style="--i:2">Why it matters: the builder decides what method goes into the permit, and we have to know which path we're on before anyone mixes a tank or sets a station.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Two paths, one goal</li><li><span>02</span>From the call to the job</li><li><span>03</span>Practice: which path?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 TWO PATHS -->
+  <section class="slide" data-label="Two paths, one goal" style="gap:16px">
+    <span class="eyebrow a">01 · Two paths, one goal</span>
+    <h2 class="a" style="--i:1;font-size:30px">Any registered method meets the code. We lead with Sentricon.</h2>
+    <div class="grid g2">
+      <div class="card path2 top a" style="--i:2">
+        <div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-station"/></svg></div><div><span class="chip">Clements default</span><h3 style="margin-top:4px">Sentricon Always Active</h3></div></div>
+        <ul class="dl2"><li>Stations installed at <b>perimeter completion</b>, after final grade and landscaping</li><li>No slab soil treatment or trenching; nothing to wash out</li><li>Corteva's damage bond (not a Clements warranty) from install: new subterranean damage, while annual monitoring is current (30-day grace)</li><li>Coded <b>SEN-NEW INST</b> in PestPac, builder accounts only</li></ul>
+      </div>
+      <div class="card path2 a" style="--i:3">
+        <div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-spray"/></svg></div><div><span class="chip">Builder-specified only</span><h3 style="margin-top:4px">Liquid soil pretreat</h3></div></div>
+        <ul class="dl2"><li>When the builder's contract or financing (HUD, VA, a lender) calls for it</li><li>Termiticide applied to the soil before the slab is poured, then a final grade treatment outside</li><li>Staged: often two or more visits, not one</li><li>Coded <b>T-SOIL</b> (slab) and <b>T-FINAL</b> (final grade)</li></ul>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-wood"/></svg><span><b>Optional companion:</b> borate on bare framing after dry-in, before drywall. It covers drywood termites and decay fungi that Sentricon doesn't. Check with your branch manager first.</span></div>
+      <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-chat"/></svg><span><b>The talking track:</b> do the pretreat the builder expects, every time. The branch manager or sales presents Sentricon as the upgrade for their buyers. Never quote a price.</span></div>
+    </div>
+  </section>
+
+  <!-- 6 CALL TO JOB -->
+  <section class="slide" data-label="From the call to the job">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · From the call to the job</span>
+        <h2 class="a" style="--i:1">What has to be in place before you roll</h2>
+        <ol class="steps nsteps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Builder account:</b> company, billing contact, and the master agreement for multi-lot builders</span></li>
+          <li><span class="num">2</span><span><b>Job site:</b> exact address and lot number, plus the superintendent's phone</span></li>
+          <li><span class="num">3</span><span><b>Permit number:</b> mandatory, in the order notes before treatment</span></li>
+          <li><span class="num">4</span><span><b>Size and scope:</b> square footage of the slab or pour, and what it is (home, addition, porch)</span></li>
+          <li><span class="num">5</span><span><b>Ready date:</b> when the site will be graded, compacted and plumbed</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>Who can treat:</b> a certified operator in the termite and WDO category, or an employee with an FDACS identification card working under one (s. 482.091). Sentricon installs need a Certified Sentricon Specialist or a tech they supervise.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-route"/></svg><span><b>Scheduling and reporting</b> run through Routing & Logistics (Jessica Sanderson). <b>Pricing and builder terms</b> come from your branch manager. Office follow-ups go to technotes@clementspestcontrol.com.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Attached to an existing house?</b> The Florida new-construction warranty rule only covers new construction that doesn't attach to an existing structure (5E-14.105(3)(d)). An addition is a different contract: route it to your branch manager.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 PRACTICE WHICH PATH -->
+  <section class="slide" data-label="Practice: which path?" style="gap:14px">
+    <span class="eyebrow a">03 · Practice · which path?</span>
+    <h2 class="a" style="--i:1">Five new-construction calls. What happens next?</h2>
+    <div class="scen-tabs a" style="--i:2" id="pTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="pBox"></div>
+  </section>
+
+  <!-- 8 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 9 PART TWO -->
+  <section class="slide forest" data-label="Part two: the construction timeline">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The construction timeline</h1>
+        <p class="lead a" style="--i:2">Why it matters: a pretreat is all about timing. Treat too early and the soil gets disturbed. Show up late and the slab is already poured. Each step has a window, and the code spells most of them out.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Eight steps, two tracks</li><li><span>02</span>Practice: put it in order</li><li><span>03</span>Ready to treat?</li><li><span>04</span>Rain and the slab pour</li></ol>
+    </div>
+  </section>
+
+  <!-- 10 TIMELINE -->
+  <section class="slide" data-label="Eight steps, two tracks" style="gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">01 · Eight steps, two tracks</span>
+      <h2 class="a" style="--i:1">When does each step happen?</h2></div>
+      <span class="small muted a" style="--i:2" id="ctN">0 of 8 viewed</span>
+    </div>
+    <div class="ct a" style="--i:2" id="ct"><i class="ctfill" id="ctFill"></i></div>
+    <div class="ctd a" style="--i:3" id="ctD"></div>
+  </section>
+
+  <!-- 11 ORDER -->
+  <section class="slide" data-label="Practice: put it in order" style="gap:10px">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Practice · put it in order</span>
+        <h2 class="a" style="--i:1">A builder-specified liquid pretreat, start to finish</h2>
+        <div class="order a" style="--i:3" id="ord"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:4" id="ordFb"><span class="eyebrow">Progress</span><h3 id="ordN">0 of 8 placed</h3><p>Nothing goes in the ground until the paperwork is right.</p></div>
+        <p class="a muted small" style="--i:5">Select the steps in the order they happen on the job. A wrong pick shakes; try again.</p>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 READY TO TREAT -->
+  <section class="slide" data-label="Ready to treat?" style="gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">03 · Practice · ready to treat?</span>
+      <h2 class="a" style="--i:1">Walk the slab before you mix a drop</h2></div>
+      <div class="scen-tabs a" style="--i:2" id="rTabs"></div>
+    </div>
+    <p class="a small muted" style="--i:2" id="rIntro"></p>
+    <div class="sort a" style="--i:3" id="rSort"></div>
+    <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="rCheck">Check the site</button><span id="rFb"></span></div>
+  </section>
+
+  <!-- 13 RAIN AND POUR -->
+  <section class="slide" data-label="Rain and the slab pour">
+    <div class="split" style="grid-template-columns:1.05fr .95fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Rain and the slab pour</span>
+        <h2 class="a" style="--i:1">Treated soil has to stay put until the concrete covers it</h2>
+        <div class="figbox rainfig a" style="--i:2">
+          <svg viewBox="0 0 420 210" role="img" aria-label="Cross-section of a slab site showing treated soil, the vapor retarder and rain" id="rainSvg">
+            <g class="drops" id="rDrops"><path d="M160 14l-6 14M220 8l-6 14M280 16l-6 14M340 6l-6 14M390 14l-6 14M190 40l-6 14M250 36l-6 14M310 44l-6 14M370 38l-6 14"/></g>
+            <rect class="slabc" id="rSlab" x="140" y="96" width="250" height="26"/>
+            <path class="vr" id="rVr" d="M130 124h270"/>
+            <rect class="soil" x="0" y="126" width="420" height="84"/>
+            <rect class="treated" id="rTreat" x="130" y="126" width="270" height="22"/>
+            <path class="dig" id="rDig" d="M220 126h80v34l-12 10h-56l-12-10z"/>
+            <path class="leach" id="rLeach" d="M160 150v30M210 150v42M260 150v34M310 150v44M360 150v30"/>
+            <text class="flab" x="8" y="113">Concrete slab</text>
+            <text class="flab" x="8" y="128">6-mil vapor retarder</text>
+            <text class="flab" x="8" y="143">Treated soil</text>
+          </svg>
+        </div>
+        <div class="seg a" style="--i:3" role="group" aria-label="Choose a scenario"><button type="button" id="rs0" aria-pressed="true">Covered</button><button type="button" id="rs1" aria-pressed="false">Rain first</button><button type="button" id="rs2" aria-pressed="false">Dug after</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card rsd a" style="--i:3" id="rsD"></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-rain"/></svg><span><b>Check the forecast and the soil.</b> Don't treat saturated soil or into rain; follow the label. Coordinate with the superintendent so the retarder goes down right behind you.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-layers"/></svg><span><b>Rebar, chairs and inspections</b> happen after treatment. That work must not penetrate or disturb the treated soil (FBC R318.1.4).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 15 PART THREE -->
+  <section class="slide forest" data-label="Part three: the liquid pretreat">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Doing the liquid pretreat right</h1>
+        <p class="lead a" style="--i:2">Why it matters: termites only need a gap the width of a pencil lead. A barrier that's thin, patchy or missing at a pipe is a doorway. The label sets the rate; the rule makes us mix it on site and prove what went down.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Where the treatment goes</li><li><span>02</span>The label and the mixing rules</li><li><span>03</span>Practice: volume calculator</li><li><span>04</span>Final grade and Sentricon at completion</li></ol>
+    </div>
+  </section>
+
+  <!-- 16 ZONES -->
+  <section class="slide" data-label="Where the treatment goes" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.45fr 1fr;gap:22px">
+      <div class="figbox zfig a" style="--i:1">
+        <svg viewBox="0 0 600 330" role="img" aria-label="Cross-section of a slab foundation with seven treatment zones to select" id="zSvg">
+          <rect class="soil" x="0" y="190" width="600" height="140"/>
+          <path class="grade" d="M0 190h600"/>
+          <path class="wall" d="M120 60v120M480 60v120"/>
+          <path class="wall" d="M110 60h380"/>
+          <path class="ven" d="M100 70v118"/>
+          <path class="slabp" d="M120 180h360v22H120z"/>
+          <path class="slabp" d="M100 180h40v70h-40z"/><path class="slabp" d="M460 180h40v70h-40z"/>
+          <rect class="zt" x="140" y="202" width="320" height="20"/>
+          <path class="ztv" d="M94 190v66M506 190v66"/>
+          <path class="pipe" d="M250 120v120"/><rect class="sleeve" x="244" y="176" width="12" height="30"/>
+          <path class="box" d="M330 182h40v24h-40z"/><path class="pipe" d="M350 206v34"/>
+          <path class="patio" d="M500 182h90v10h-90z"/>
+          <path class="ztx" d="M506 192h84"/>
+          <path class="ztx" d="M8 192h86"/>
+          <path class="plant" d="M30 190c-6-18 2-30 14-32 12 2 20 14 14 32"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Where the treatment goes</span>
+        <h2 class="a" style="--i:1;font-size:28px">Seven zones. Select each one.</h2>
+        <div class="card zd a" style="--i:2" id="zD"></div>
+        <p class="small muted a" style="--i:3" id="zN">0 of 7 viewed</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 LABEL RULES -->
+  <section class="slide" data-label="The label and the mixing rules" style="gap:14px">
+    <span class="eyebrow a">02 · The label and the mixing rules</span>
+    <h2 class="a" style="--i:1">Rule 5E-14.106: four lines every pretreat tech knows</h2>
+    <div class="grid g4 lab4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-doc"/></svg></div><h3>Label rate, every time</h3><p>Apply the exact amount, concentration and treatment areas the label designates for pre-construction (5E-14.106(6)).</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Mix at the site</h3><p>From the original formulation, at the treatment site, immediately before you apply it. No pre-mixed tanks from the shop (5E-14.106(7)).</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-truck"/></svg></div><h3>Label in the vehicle</h3><p>A copy of the registered label rides in the truck you apply from (5E-14.106(8)).</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-layers"/></svg></div><h3>A second product is allowed</h3><p>After a full primary treatment, a second product labeled for new construction may be added per its label (5E-14.106(9)).</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="label a" style="--i:6"><div class="lt">Example only · Termidor SC (EPA Reg. 7969-210) pre-construction directions</div><span class="hl">0.06% finished dilution: 0.8 fl oz per gallon of water.</span> <span class="hl d2">Horizontal barrier: 1 gallon per 10 sq ft</span> (coarse fill such as washed gravel takes more; see label). <span class="hl d3">Vertical barrier: 4 gallons per 10 linear ft per foot of depth.</span> Always read the label on the container you're using.</div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-shield"/></svg><span><b>Field Core still applies:</b> concentrates locked in an unattended truck, anti-siphon fill with a 2 inch air gap, PPE per label (FC-02, FC-03, FC-05). Respect label setbacks from wells and water, and never let runoff leave the pad.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 CALCULATOR -->
+  <section class="slide" data-label="Practice: volume calculator" style="gap:10px">
+    <span class="eyebrow a">03 · Practice · volume calculator</span>
+    <h2 class="a" style="--i:1">Measure it, calculate it, record it</h2>
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:24px;align-items:start">
+      <div class="card calc a" style="--i:2">
+        <div class="field"><label class="eyebrow" for="cA">Slab area (sq ft)</label><input id="cA" type="number" min="0" step="10" value="2400"></div>
+        <div class="field"><label class="eyebrow" for="cP">Foundation perimeter (linear ft)</label><input id="cP" type="number" min="0" step="5" value="220"></div>
+        <div class="field"><label class="eyebrow" for="cD">Depth to footing (ft)</label><input id="cD" type="number" min="0" step="0.5" value="1"></div>
+        <div class="seg" role="group" aria-label="Fill type"><button type="button" id="cF0" aria-pressed="true">Soil or sand fill</button><button type="button" id="cF1" aria-pressed="false">Coarse gravel fill</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="cout a" style="--i:3" id="cOut"></div>
+      </div>
+      <div class="callout a" style="--i:4;grid-column:1/-1"><svg class="ico"><use href="#i-doc"/></svg><span>Uses the Termidor SC example rates. The numbers you calculate on site are the numbers you record: <b>total square footage, product, percent concentration and total volume</b> (5E-14.106(8)).</span></div>
+    </div>
+  </section>
+
+  <!-- 19 FINAL GRADE -->
+  <section class="slide" data-label="Final grade and Sentricon at completion" style="gap:10px">
+    <span class="eyebrow a">04 · Final grade and Sentricon at completion</span>
+    <h2 class="a" style="--i:1">The last step outside, after the landscapers leave</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2">
+        <div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Final grade treatment (T-FINAL)</h3></div>
+        <ul class="dl2"><li>After construction is complete, <b>including initial landscaping and irrigation</b> (R318.1.6)</li><li>Concrete overpour and mortar along the foundation removed first (R318.1.5)</li><li>Soil within 1 foot of the sidewalls and under exterior concrete treated; vertical barrier at the foundation</li><li>Soil disturbed afterward is retreated</li><li>Required before final building approval when soil treatment is the method (FBC 105.10)</li></ul>
+      </div>
+      <div class="card a" style="--i:3">
+        <div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-station"/></svg></div><h3>Sentricon at perimeter completion</h3></div>
+        <ul class="dl2"><li>Installed before final building approval (R318.1.7), once grade and landscaping are done so stations aren't buried or dug up</li><li>Clements standard (TERM-02): about 10 ft apart (label maximum 20 ft), 2 to 3 ft off the foundation (never closer than 18 in to liquid-treated soil), 10 to 12 in deep, flush with grade</li><li>Station count, linear footage and map uploaded to PestPac</li><li>Photograph every station and the perimeter as installed</li></ul>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-flag"/></svg><span><b>Clements practice (CSR process):</b> we perform a final only where we did the initial pretreat. If another company did the slab, route the request to your branch manager.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-drop"/></svg><span><b>Point out conducive conditions to the builder now:</b> condensate lines, sprinkler risers and downspouts must discharge at least 1 foot from the wall (R318.5).</span></div>
+    </div>
+  </section>
+
+  <!-- 20 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 21 PART FOUR -->
+  <section class="slide forest" data-label="Part four: paperwork and the builder">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Certificates, records and the builder</h1>
+        <p class="lead a" style="--i:2">Why it matters: the building department only sees the treatment through our paperwork, and FDACS only sees it through our records. If it isn't written down correctly, legally it didn't happen.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Six documents</li><li><span>02</span>What the record must show</li><li><span>03</span>Practice: builder calls</li><li><span>04</span>Practice: certificate and records check</li></ol>
+    </div>
+  </section>
+
+  <!-- 22 DOCUMENTS FLIP -->
+  <section class="slide" data-label="Six documents" style="gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">01 · Six documents</span>
+      <h2 class="a" style="--i:1">Who gets what, and when. Select each to flip it.</h2></div>
+      <span class="small muted a" style="--i:2" id="dcN">0 of 6 flipped</span>
+    </div>
+    <div class="flip dflip a" style="--i:2" id="dcF"></div>
+  </section>
+
+  <!-- 23 RECORDS -->
+  <section class="slide" data-label="What the record must show" style="gap:14px">
+    <span class="eyebrow a">02 · What the record must show</span>
+    <h2 class="a" style="--i:1">Three years, and every number has to add up</h2>
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px;align-items:start">
+      <div class="tablewrap a" style="--i:2">
+        <table class="ptab">
+          <tr><th>Every preventive new-construction treatment</th><th>Where it comes from</th></tr>
+          <tr><td>Date of treatment and address of the property</td><td>Service order, permit, lot number</td></tr>
+          <tr><td>Total square footage of the structure treated</td><td>Your measurement on site</td></tr>
+          <tr><td>Pesticide used</td><td>The container in your truck</td></tr>
+          <tr><td>Percent concentration of the mix applied</td><td>Label and your mix</td></tr>
+          <tr><td>Total volume applied</td><td>Your tank count</td></tr>
+          <tr><td>Termiticide purchased or available, area and sites treated</td><td>Company purchase and job records</td></tr>
+        </table>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span><b>Keep for at least 3 years.</b> General pest records are 2 years, but preventive treatments for new construction are 3 (5E-14.106(8), 5E-14.142(1), s. 482.051(5)).</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>Does it add up?</b> 2,400 sq ft at 1 gallon per 10 sq ft is about 240 gallons under the slab. A record showing 60 gallons tells an inspector the job was short.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-doc"/></svg><span><b>In PestPac:</b> permit number in the order notes; signed paperwork scanned into the account's Documents section, labeled with address and treatment date.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24 BUILDER CALLS -->
+  <section class="slide" data-label="Practice: builder calls" style="gap:14px">
+    <span class="eyebrow a">03 · Practice · builder calls</span>
+    <h2 class="a" style="--i:1">The superintendent is on the phone. What do you do?</h2>
+    <div class="scen-tabs a" style="--i:2" id="bTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="bBox"></div>
+  </section>
+
+  <!-- 25 RECORDS CHECK -->
+  <section class="slide" data-label="Practice: certificate and records check" style="gap:12px">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Certificate and records check: true or false?</h2>
+    <div class="sort a" style="--i:2" id="tsort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="tsCheck">Check my answers</button><span id="tsFb"></span></div>
+  </section>
+
+  <!-- 26 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 27 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a job site</h2>
+    <p class="a muted small" style="--i:2">Your supervisor observes each of these on new-construction jobs before TERM-05 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Confirm the permit number, builder contact and path (Sentricon or builder-specified liquid) before the visit</label></li>
+      <li><label><input type="checkbox" id="f2"> Run the ready-to-treat check and stop the job, calling the superintendent, when the site isn't ready</label></li>
+      <li><label><input type="checkbox" id="f3"> Mix the termiticide at the site immediately before application, with the current label in the vehicle</label></li>
+      <li><label><input type="checkbox" id="f4"> Measure the slab and perimeter; apply the label rate to the horizontal, vertical and penetration zones</label></li>
+      <li><label><input type="checkbox" id="f5"> Recognize rain, saturated soil or disturbed soil, and retreat or reschedule</label></li>
+      <li><label><input type="checkbox" id="f6"> Complete the posting-board certificate and the record: date, address, sq ft, product, percent, volume</label></li>
+      <li><label><input type="checkbox" id="f7"> Perform a final grade treatment or a Sentricon install at perimeter completion, documented in PestPac</label></li>
+      <li><label><input type="checkbox" id="f8"> Explain the Certificate of Compliance, treatment notice, warranty timing and 3-year records to your supervisor</label></li>
+    </ul>
+  </section>
+
+  <!-- 28 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('term05:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('term05:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "TERM-05", "titleHtml": "New-Construction Pretreat", "nextHtml": "TERM-06 \u00b7 WDO Inspections &amp; Reporting", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · New construction at Clements',q:'Builder A, starting a detached home, has no preference on termite protection. Builder B says the buyer\'s HUD-backed loan requires a liquid soil pretreat. How do the two jobs go?',o:['Both get liquid soil pretreats, because that\'s what the building department expects','Both get Sentricon; Clements doesn\'t do liquid pretreats','A gets the Clements default, Sentricon at perimeter completion; B gets the builder-specified liquid pretreat done to the label, with Sentricon offered as an upgrade','A waits until a buyer is found; B needs the branch manager\'s approval to use liquid'],a:2,e:'Sentricon Always Active is the default for new construction. Liquid soil pretreat is done only when the builder specifies it, and then it\'s done exactly right. Sentricon is offered as an upgrade, never a condition.'},
+    2:{t:'Checkpoint 2 · The construction timeline',q:'You finish a liquid pretreat at 2 pm. The crew planned to lay the vapor retarder at 4, but a thunderstorm soaks the pad at 3. The pour is tomorrow morning. What is required?',o:['Nothing; the product was already applied','A heavier final grade treatment to make up for it','A note on the posting board that it rained','Retreatment before the retarder goes down and the slab is poured, recorded as its own application'],a:3,e:'Rain on treated soil before the vapor retarder is placed requires retreatment (FBC R318.1.4). Coordinate with the superintendent and your supervisor, retreat, and record both applications.'},
+    3:{t:'Checkpoint 3 · Doing the liquid pretreat right',q:'To save time, a technician wants to mix the pretreat tank at the shop before driving to a 2,400 sq ft slab, and estimates "about 100 gallons should cover it." What is wrong?',o:['The termiticide must be mixed at the site right before application, and about 240 gallons are needed for the horizontal barrier alone at the example label rate of 1 gallon per 10 sq ft','Nothing, as long as the record says 100 gallons','Only the volume; mixing at the shop is fine','Only the mixing; the label lets you choose any volume'],a:0,e:'Rule 5E-14.106(7) requires mixing at the treatment site immediately before application, and 5E-14.106(6) requires the label\'s amount, concentration and treatment areas. 2,400 sq ft at 1 gal per 10 sq ft is about 240 gallons before the vertical barrier.'},
+    4:{t:'Checkpoint 4 · Certificates, records and the builder',q:'A superintendent asks you to sign the termite Certificate of Compliance today so the inspection passes, promising you can treat on Monday. What do you do?',o:['Sign it; Monday is only a few days away','Sign it and date it Monday','Decline politely. The certificate states the treatment is complete, so it\'s issued only after we treat. Offer the earliest available time and tell your branch manager','Let the superintendent sign it for us'],a:2,e:'The Certificate of Compliance tells the building department the structure "has received a complete treatment." Signing it before treating is a false certificate, and it puts your license, the company\'s license and the buyer at risk.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is Clements\' default termite protection for new construction?',o:['Liquid soil pretreat on every job','Borate on the framing only','Sentricon Always Active installed at perimeter completion','Nothing until termites show up'],a:2,e:'Sentricon is the default (SEN-NEW INST). Liquid soil pretreat is done only when the builder specifies it.'},
+    {k:'Multiple choice',q:'Who issues the termite Certificate of Compliance to the building department?',o:['The licensed pest control company that did the treatment','The builder','The building inspector','The homeowner'],a:0,e:'FBC 1816.1 and R318.1 require the licensed pest control company to issue it when the treatment is complete.'},
+    {k:'True or false',q:'Initial soil treatment inside the foundation can be done before backfill and compaction are finished.',o:['True','False'],a:1,e:'False. Initial soil treatment comes after all excavation, backfill and compaction are complete (R318.1.1).'},
+    {k:'Multiple choice',q:'What protects treated soil from rain until the slab is poured?',o:['A layer of mulch','A minimum 6-mil vapor retarder','A second coat of termiticide','Nothing is needed'],a:1,e:'Treated soil is covered with at least a 6-mil vapor retarder. Rain before it\'s placed means retreatment (R318.1.4).'},
+    {k:'Scenario',q:'After you treat, the plumber re-digs a drain line inside the footing. The pour is in two days. What do you do?',o:['Nothing; the rest of the slab is treated','Treat the exterior heavier at final grade','Ask the builder to note it on the permit','Retreat the disturbed soil before the pour and record it'],a:3,e:'Soil disturbed after the initial treatment must be retreated, including boxed or formed areas (R318.1.2).'},
+    {k:'Multiple choice',q:'Under Rule 5E-14.106(7), where must a pretreat termiticide be mixed?',o:['At the shop, the night before','At the treatment site, immediately before application','Anywhere, if the tank is labeled','At the supplier'],a:1,e:'Mixed from the original formulation at the treatment site, immediately prior to application.'},
+    {k:'True or false',q:'A copy of the registered label must be carried in the vehicle used for a new-construction pretreat.',o:['True','False'],a:0,e:'True: 5E-14.106(8).'},
+    {k:'Multiple choice',q:'How long must records of preventive termite treatments for new construction be kept?',o:['1 year','2 years','At least 3 years','Only until the house sells'],a:2,e:'At least 3 years (5E-14.106(8), 5E-14.142(1), s. 482.051(5)). General pest control records are 2 years.'},
+    {k:'Multiple choice',q:'Which set of details must the pretreat record include?',o:['Customer\'s credit card and the price','Date, address, total square footage, pesticide, percent concentration and total volume','Only the date and the technician\'s name','The weather and the builder\'s schedule'],a:1,e:'5E-14.106(8) lists date, address, total square footage, pesticide, percent concentration and total volume, plus termiticide purchase records.'},
+    {k:'Scenario',q:'When is the final grade (exterior) treatment done on a liquid pretreat job?',o:['The same day as the slab treatment','Before the walls go up','After construction is complete, including initial landscaping and irrigation','Only if the owner asks'],a:2,e:'R318.1.6 places the exterior vertical barrier after construction, landscaping and irrigation. Soil disturbed afterward is retreated.'},
+    {k:'Multiple choice',q:'What must happen before the exterior soil treatment at final grade?',o:['Concrete overpour and mortar along the foundation are removed','The homeowner moves in','The warranty expires','The posting board is taken down'],a:0,e:'R318.1.5: overpour or mortar along the foundation perimeter is removed before exterior soil treatment.'},
+    {k:'Multiple choice',q:'When Sentricon is the new-construction method, when must the signed bait-system contract reach the building official?',o:['After the certificate of occupancy','When the first station is checked','Within a year of closing','Before the slab is poured'],a:3,e:'R318.1.7 requires the contract for installation, maintenance and monitoring before the slab is poured. Stations go in before final building approval.'},
+    {k:'True or false',q:'The treatment notice may be removed by the builder once the house is finished.',o:['True','False'],a:1,e:'False. Only the property owner may remove it (s. 482.226(5)).'},
+    {k:'Multiple choice',q:'Where is the treatment notice posted?',o:['On the mailbox','Inside the electrical panel door, always','Next to the attic or crawl access, or another readily accessible spot, as the contract states','On the front window'],a:2,e:'s. 482.226(5): at least 3 x 5 inches, lasting at least 3 years, next to the attic or crawl access or another readily accessible area. The contract states where.'},
+    {k:'Multiple choice',q:'Within what time must the new-construction warranty be issued to the owner or agent?',o:['30 days of the initial or final treatment date named in the contract','90 days of closing','1 year of the treatment','Before the slab is poured'],a:0,e:'5E-14.105(3)(a): within 30 days, for at least 1 year from the treatment date specified in the contract.'},
+    {k:'Multiple choice',q:'After the first year, how long can the owner keep renewing a new-construction pretreat warranty?',o:['No renewals are allowed','Annually for at least 4 more years','Only once','For life, automatically'],a:1,e:'5E-14.105(3)(b): the owner may extend annually for no less than 4 additional years.'},
+    {k:'Scenario',q:'A builder starting ten homes wants one agreement instead of ten contracts before each slab. What does the rule allow?',o:['Nothing; each home needs its own contract first','A verbal agreement','Contracts written after each home sells','A master agreement signed before treatment, or an assignable contract issued on each property at completion'],a:3,e:'5E-14.105(3)(c) allows a master agreement before treatment or an assignable contract on completion.'},
+    {k:'True or false',q:'A slab addition attached to an existing home falls under the same new-construction warranty rule as a detached new home.',o:['True','False'],a:1,e:'False. 5E-14.105(3) applies only to new construction that doesn\'t attach to or adjoin an existing structure. Route additions to the branch manager.'},
+    {k:'Scenario',q:'At the slab, you find form boards and a cardboard box inside the footing and paper-wrapped pipe sleeves. The superintendent says to go ahead. What do you do?',o:['Hold the treatment until the cellulose is removed and the sleeves are replaced; tell the superintendent and the office','Treat over it; the termiticide will handle it','Treat and note it on the posting board','Remove the sleeves yourself and treat'],a:0,e:'Cardboard, wood forms and other cellulose must be removed from the foundation area (R318.6.2, R318.6.3), and sleeves through the slab can\'t contain cellulose (R318.2). The site isn\'t ready.'},
+    {k:'Scenario',q:'A builder asks what Clements charges per square foot for pretreats. What do you say?',o:['Quote last year\'s rate','Offer to beat any competitor','"Our branch manager handles builder pricing. I\'ll have them call you today." Then tell the branch manager','Say you don\'t know and hang up'],a:2,e:'Technicians never quote prices or negotiate. Builder pricing and terms come from the branch manager.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- scenario choice tabs (shared) ---------- */
+  function scenTabs(tabsSel,boxSel,DATA,key,wrongMsg,nextLbl){
+    var done=store.get(key)||{};
+    function tabs(cur){var t=$(tabsSel);t.innerHTML='';DATA.forEach(function(p,i){var b=mk('button',done[i]?'done':null,p.n);b.type='button';b.id=key+'t'+i;b.setAttribute('aria-pressed',i===cur);b.addEventListener('click',function(){show(i)});t.appendChild(b)})}
+    function show(n){tabs(n);var p=DATA[n],box=$(boxSel);
+      box.innerHTML='<div class="card" style="padding:14px 20px"><p>'+p.s+'</p></div><div class="choices">'+p.o.map(function(o,i){return '<button type="button" class="choice" id="'+key+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="sfb"></div>';
+      $$('.choice',box).forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+        $$('.choice',box).forEach(function(x){x.classList.remove('wrong')});
+        if(i===p.a){b.classList.add('right');$$('.choice',box).forEach(function(x){x.disabled=true});done[n]=1;store.set(key,done);tabs(n);
+          $('.sfb',box).innerHTML='<div class="fb">'+p.e+(n<DATA.length-1?' <button type="button" class="btn" id="'+key+'Next" style="margin-left:8px;padding:6px 12px">'+nextLbl+'</button>':'')+'</div>';
+          var nx=$('#'+key+'Next');if(nx)nx.addEventListener('click',function(){show(n+1)})}
+        else{b.classList.add('wrong');$('.sfb',box).innerHTML='<div class="fb no">'+(p.w&&p.w[i]?p.w[i]:wrongMsg)+'</div>'}})});
+    }
+    show(0);
+  }
+
+  /* ---------- which path? ---------- */
+  scenTabs('#pTabs','#pBox',[
+    {n:'No preference',s:'A builder calls about a new single-family home on a vacant lot. "Whatever termite protection the county needs. We don\'t have a preference."',o:['Schedule a liquid soil pretreat; that\'s what most builders use','Clements\' default applies: Sentricon installed at perimeter completion, with the branch manager handling terms and the builder account','Tell the builder termite protection is optional','Quote the builder a price over the phone'],a:1,e:'With no builder specification, Clements leads with Sentricon Always Active (SEN-NEW INST). Terms and pricing come from the branch manager, never from the field.'},
+    {n:'VA financing',s:'A superintendent says the buyer\'s VA loan requires a liquid soil pretreat, and it\'s written into their contract.',o:['Refuse; Clements only does Sentricon on new construction','Talk the builder out of it before agreeing','Do the builder-specified liquid pretreat (T-SOIL, then T-FINAL) to the label, and let sales present Sentricon to the buyer at closeout','Do half liquid and half Sentricon'],a:2,e:'Builder-specified liquid jobs are done exactly as the builder expects. Sentricon is presented as an upgrade, not a condition.'},
+    {n:'Room addition',s:'A homeowner is adding a slab family room onto her existing house and the contractor asks for a "new construction pretreat."',o:['Treat it as a standard new-construction job with a new-construction warranty','Skip it; additions don\'t need termite protection','Have the CSR book it as a WDO inspection','Route it to the branch manager: the new-construction warranty rule doesn\'t cover work that attaches to an existing structure, so the contract has to be scoped differently'],a:3,e:'5E-14.105(3) applies only to new construction that doesn\'t physically attach to or adjoin an existing structure. The work can still be treated, but the branch manager scopes the contract.'},
+    {n:'Ten-lot builder',s:'A builder is starting ten homes in one subdivision and wants one agreement, not ten separate contracts before each slab.',o:['Not allowed; each home needs its own contract signed first','A master agreement with the builder before treatment, or an assignable contract issued on each property at completion (5E-14.105(3)(c))','Verbal agreement is enough for builders','Treat now and write contracts after the homes sell'],a:1,e:'For multiple properties under one owner, Florida allows a master agreement signed before treatment, or an assignable contract issued when each treatment is complete. Builder accounts run on the master agreement.'},
+    {n:'No permit yet',s:'The builder wants you out tomorrow morning but says the permit number "isn\'t posted yet; it\'s coming."',o:['Treat now and add the permit number later','Hold the job: the permit number goes in the order notes before treatment, and the certificate is tied to that permit','Treat, but leave the certificate blank','Let the builder sign for the permit'],a:1,e:'No permit number, no treatment. The treatment certificate and Certificate of Compliance are filed against the permit, so the job waits until it\'s confirmed.'}
+  ],'pt','Not quite. Think about the builder\'s specification and what the rule allows.','Next call');
+
+  /* ---------- construction timeline ---------- */
+  var CT=[
+    {n:'Permit & contract',t:'Before ground work',i:'i-doc',
+     L:'Permit number confirmed and in the order notes. Builder account and master agreement in place. T-SOIL order scheduled for the ready date.',
+     S:'A signed contract for installation, maintenance and monitoring goes to the building official <b>before the slab is poured</b> (R318.1.7). County certificate forms call for at least 5 years from the certificate of occupancy.',
+     W:'Builder, CSR, branch manager'},
+    {n:'Site prep',t:'Builder',i:'i-ruler',
+     L:'Builder removes roots, stumps, cardboard and trash inside the foundation and 1 ft beyond, finishes excavation, backfill and compaction, roughs in plumbing and sets permanent plastic or metal forms for tub traps (R318.1.1, R318.1.3, R318.6).',
+     S:'Same site prep by the builder. Nothing goes in the ground for Sentricon yet.',
+     W:'Builder'},
+    {n:'Slab treatment',t:'Liquid only',i:'i-spray',
+     L:'Mix on site. Treat the soil inside the foundation (horizontal), the footing and stem walls (vertical), every pipe penetration and box-out. Fill in the posting-board certificate.',
+     S:'No soil treatment. When a bait system is the method, the code\'s soil-treatment steps (R318.1.1 to 1.6) don\'t apply.',
+     W:'Clements tech'},
+    {n:'Vapor retarder',t:'Same day',i:'i-layers',
+     L:'At least 6-mil vapor retarder over the treated soil to stop rain dilution. <b>Rain before it goes down means retreat.</b> Rebar work must not disturb the treated soil (R318.1.4).',
+     S:'The builder still lays the vapor retarder for the slab; it isn\'t part of our Sentricon work.',
+     W:'Builder'},
+    {n:'Slab pour',t:'Inspection',i:'i-building',
+     L:'The building inspector checks the job-site posting board for our treatment certificate (FBC 105.10). Concrete seals the treated soil.',
+     S:'The bait-system contract must already be on file with the building official by now.',
+     W:'Builder, inspector'},
+    {n:'Vertical build',t:'Weeks to months',i:'i-home',
+     L:'Any soil disturbed after treatment (a re-dug plumbing line, an added pad) has to be retreated (R318.1.2). Optional borate on framing after dry-in, before drywall.',
+     S:'Optional borate on framing after dry-in and before drywall, if the builder buys it.',
+     W:'Builder, Clements'},
+    {n:'Final grade',t:'After landscaping',i:'i-sun',
+     L:'After landscaping and irrigation: overpour removed, then treat soil within 1 ft of the walls and under exterior concrete, with a vertical barrier at the foundation (T-FINAL).',
+     S:'<b>Perimeter completion:</b> install stations to the Clements standard and the label (TERM-02), map them and photograph each one (SEN-NEW INST).',
+     W:'Clements tech'},
+    {n:'Certificate & CO',t:'Closeout',i:'i-cert',
+     L:'Certificate of Compliance to the building department; treatment notice posted; warranty to the owner within 30 days of the initial or final treatment date named in the contract.',
+     S:'Certificate of Compliance filed; stations installed before final approval. The homeowner takes over monitoring at occupancy with the bond in place.',
+     W:'Clements, building department'}
+  ];
+  var ct=$('#ct'),ctSeen=store.get('ct')||{};
+  function ctCount(){var n=Object.keys(ctSeen).length;$('#ctN').textContent=n===8?'All 8 viewed':n+' of 8 viewed'}
+  function ctShow(k){ctSeen[k]=1;store.set('ct',ctSeen);ctCount();
+    $$('#ct button').forEach(function(b,j){b.setAttribute('aria-pressed',j===k);b.classList.toggle('seen',!!ctSeen[j])});
+    $('#ctFill').style.width=(k/7*84)+'%';
+    var c=CT[k];
+    $('#ctD').innerHTML='<div class="card ctl"><span class="eyebrow">'+ico('i-spray','width:16px;height:16px;vertical-align:-3px')+' Liquid pretreat · builder-specified</span><p>'+c.L+'</p></div><div class="card ctl top"><span class="eyebrow">'+ico('i-station','width:16px;height:16px;vertical-align:-3px')+' Sentricon · Clements default</span><p>'+c.S+'</p></div><div class="ctw"><span class="eyebrow">Step '+(k+1)+' · who</span><b>'+c.W+'</b></div>'}
+  CT.forEach(function(c,i){var b=mk('button',ctSeen[i]?'seen':null,'<span class="dot">'+ico(c.i)+'</span><span class="yr">'+c.n+'</span><span class="tg">'+c.t+'</span>');b.type='button';b.id='ct'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){ctShow(i)});ct.appendChild(b)});
+  ctShow(0);
+
+  /* ---------- order the steps ---------- */
+  var ORD=['Confirm the permit number and builder account','Builder finishes backfill, compaction and plumbing rough-in','Walk the slab: the ready-to-treat check','Mix on site; treat horizontal, vertical and penetration zones','Fill in the certificate on the job-site posting board','Builder lays the vapor retarder and pours the slab','After landscaping and irrigation: final grade treatment','Certificate of Compliance, treatment notice, warranty within 30 days'];
+  var ORDMSG=['Paperwork first: no permit number, no treatment.','The code says soil treatment comes after all excavation, backfill and compaction.','If the site isn\'t ready, you don\'t treat.','Mixed on site, immediately before application.','Inspectors look for it on the board before the pour.','The retarder protects the treated soil until concrete covers it.','The exterior barrier waits until the landscapers are done.'];
+  var ordBox=$('#ord'), ordMix=[4,1,6,0,7,3,5,2], ordAt=0;
+  function ordRender(){ordBox.innerHTML='';ordAt=0;
+    ordMix.forEach(function(k){var b=mk('button',null,'<span class="num">&middot;</span><span>'+ORD[k]+'</span>');b.type='button';b.id='ord'+k;b.dataset.k=k;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.k===ordAt){b.classList.add('placed');$('.num',b).textContent=ordAt+1;ordAt++;
+          $('#ordN').textContent=ordAt===8?'Job complete':ordAt+' of 8 placed';
+          $('#ordFb p').textContent=ordAt===8?'That\'s the job: paperwork, site prep, ready check, treat, certificate, retarder and pour, final grade, closeout. Two or more visits, never one.':ORDMSG[ordAt-1];
+          if(ordAt===8)$('#ordFb').classList.add('done')}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}});
+      ordBox.appendChild(b)});
+    $('#ordN').textContent='0 of 8 placed';$('#ordFb p').textContent='Nothing goes in the ground until the paperwork is right.';$('#ordFb').classList.remove('done')}
+  $('#ordReset').addEventListener('click',ordRender);ordRender();
+
+  /* ---------- ready to treat? ---------- */
+  var RS=[
+    {n:'Lot 14',d:'Monolithic slab, 2,100 sq ft. The superintendent says "we\'re ready." Mark each observation Ready or Not ready.',
+     it:[{q:'Permit number confirmed and in the order notes',a:'R',w:''},
+         {q:'Pad compacted, plumbing roughed in and tested',a:'R',w:''},
+         {q:'Two form boards and a cardboard box left inside the footing',a:'N',w:'Cardboard and wood forms inside the foundation must be removed before treatment (R318.6.2, R318.6.3).'},
+         {q:'Tub trap boxed out with permanent plastic forms',a:'R',w:''},
+         {q:'Pipe sleeves are paper-wrapped insulation',a:'N',w:'Sleeves through a slab can\'t contain cellulose (R318.2).'},
+         {q:'Dry soil, no rain forecast before the retarder goes down',a:'R',w:''}],
+     v:'Not ready: two items. Ask the superintendent to pull the wood and cardboard and replace the paper sleeves, then treat. Note it in the order and tell the office.'},
+    {n:'Lot 22',d:'Stem wall and slab, 2,600 sq ft, poured tomorrow at 7 am. Mark each observation Ready or Not ready.',
+     it:[{q:'Permit posted at the site; number matches the order',a:'R',w:''},
+         {q:'Backfill inside the stem walls still being placed and compacted',a:'N',w:'Initial soil treatment comes after all excavation, backfill and compaction (R318.1.1).'},
+         {q:'Plumbing complete; sleeves are thin-wall plastic, clamped',a:'R',w:''},
+         {q:'Standing water across the low corner after last night\'s storm',a:'N',w:'Don\'t treat saturated or flooded soil; follow the label and reschedule.'},
+         {q:'Vapor retarder rolls on site for right after treatment',a:'R',w:''},
+         {q:'Job-site posting board installed',a:'R',w:''}],
+     v:'Not ready. Backfill isn\'t finished and part of the pad is under water. Call the superintendent, agree on a new time, and let the office know the pour may move.'}
+  ];
+  var rCur=0,rSel={};
+  function rTabs(){$('#rTabs').innerHTML='';RS.forEach(function(r,i){var b=mk('button',store.get('rs'+i)?'done':null,r.n);b.type='button';b.id='rt'+i;b.setAttribute('aria-pressed',i===rCur);b.addEventListener('click',function(){rCur=i;rShow()});$('#rTabs').appendChild(b)})}
+  function rShow(){rTabs();var r=RS[rCur],box=$('#rSort');box.innerHTML='';$('#rIntro').textContent=r.d;$('#rFb').innerHTML='';
+    r.it.forEach(function(s,i){var key=rCur+'_'+i,row=mk('div','row');row.id='rr'+key;
+      row.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="r'+key+'y" data-v="R" aria-pressed="'+(rSel[key]==='R')+'">Ready</button><button type="button" id="r'+key+'n" data-v="N" aria-pressed="'+(rSel[key]==='N')+'">Not ready</button></span>';
+      $$('button',row).forEach(function(b){b.addEventListener('click',function(){rSel[key]=b.dataset.v;$$('button',row).forEach(function(x){x.setAttribute('aria-pressed',x===b)});row.classList.remove('ok','no');var w=$('.why',row);if(w)w.remove()})});
+      box.appendChild(row)})}
+  $('#rCheck').addEventListener('click',function(){var r=RS[rCur],right=0,blank=0;
+    r.it.forEach(function(s,i){var key=rCur+'_'+i,row=$('#rr'+key),w=$('.why',row);if(w)w.remove();if(!rSel[key]){blank++;row.classList.remove('ok','no');return}
+      var ok=rSel[key]===s.a;if(ok)right++;row.classList.toggle('ok',ok);row.classList.toggle('no',!ok);if(!ok)row.appendChild(mk('span','why',s.a==='N'?s.w:'This one is fine. Look for what actually stops the job.'))});
+    if(blank){$('#rFb').innerHTML='<span class="fb no" style="display:inline-block">Mark all six first.</span>';return}
+    if(right===r.it.length){store.set('rs'+rCur,1);rTabs();$('#rFb').innerHTML='<span class="fb" style="display:inline-block">'+r.v+'</span>'}
+    else $('#rFb').innerHTML='<span class="fb no" style="display:inline-block">'+right+' of 6. Read the notes in red and try again.</span>'});
+  rShow();
+
+  /* ---------- rain and the slab pour ---------- */
+  var RN=[
+    {h:'Covered, then poured',p:'You treat, the crew lays the 6-mil vapor retarder right behind you, and the slab is poured on schedule. The treated layer stays intact under the concrete.',r:'Done right. Record the job and fill in the posting-board certificate.'},
+    {h:'Rain before the retarder',p:'An afternoon storm hits after you treat but before the vapor retarder is down. Rain dilutes and moves the termiticide out of the treated zone.',r:'The code is clear: rainfall before the retarder is placed means <b>retreatment is required</b> (R318.1.4). Call the superintendent and your supervisor, retreat, and record both applications.'},
+    {h:'Plumber digs after',p:'The day after your treatment, the plumber re-digs a drain line inside the footing. The soil they moved is no longer treated.',r:'Soil disturbed after the initial treatment must be retreated, including boxed or formed areas (R318.1.2). Retreat the disturbed area and record it before the pour.'}
+  ];
+  function rnShow(k){[0,1,2].forEach(function(j){$('#rs'+j).setAttribute('aria-pressed',j===k)});
+    var svg=$('#rainSvg');svg.setAttribute('class','st'+k);
+    $('#rsD').innerHTML='<span class="eyebrow">Scenario</span><h3>'+RN[k].h+'</h3><p>'+RN[k].p+'</p><div class="fb'+(k?' no':'')+'">'+RN[k].r+'</div>'}
+  [0,1,2].forEach(function(j){$('#rs'+j).addEventListener('click',function(){rnShow(j)})});
+  rnShow(0);
+
+  /* ---------- treatment zones ---------- */
+  var ZN=[
+    {n:'Horizontal barrier',x:300,y:212,i:'i-layers',d:'All soil under the slab, inside the foundation perimeter, treated after excavation, backfill and compaction are complete. This is most of your volume.',r:'Label rate per square foot (Termidor SC example: 1 gal per 10 sq ft).'},
+    {n:'Footings and stem walls',x:94,y:236,i:'i-ruler',d:'A vertical barrier along the inside and outside of footings and foundation walls, where termites follow the concrete edge up to the wood.',r:'Label rate per linear foot per foot of depth (example: 4 gal per 10 ft per ft).'},
+    {n:'Pipe penetrations',x:250,y:166,i:'i-drop',d:'Every pipe through the slab is a highway. Treat the soil around it. Sleeves must have no cellulose; with soil treatment they are thin-wall (0.010 in max), clamped, and no termiticide goes inside the sleeve (R318.2).',r:'Treat around, not inside, the sleeve.'},
+    {n:'Tub trap box-out',x:350,y:170,i:'i-box',d:'Openings for tub and shower traps use permanent plastic or metal forms deep enough that nobody has to dig after treatment (R318.1.3). If the soil there is disturbed later, it gets retreated.',r:'Check the form before you treat; disturbed soil means retreat.'},
+    {n:'Masonry and veneer',x:100,y:96,i:'i-building',d:'Block cells and veneer air gaps must be clear of wood and other cellulose before concrete goes in (R318.3). A supplemental pour that creates a hidden cold joint at the veneer ledge needs supplemental treatment or an approved barrier (R318.4).',r:'Look for debris in cells and gaps; flag cold joints.'},
+    {n:'Exterior perimeter',x:40,y:206,i:'i-sun',d:'At final grade: soil within 1 foot of the sidewalls plus a vertical barrier at the foundation, after landscaping and irrigation are in and overpour is removed (R318.1.5, R318.1.6).',r:'T-FINAL visit. Disturbed soil afterward is retreated.'},
+    {n:'Under exterior concrete',x:545,y:176,i:'i-home',d:'Patios, porches, walks and driveways that adjoin the house: soil under exterior concrete within 1 foot of the structure is treated before that concrete is poured (R318.1.6).',r:'Often a separate pour, so often a separate visit.'}
+  ];
+  var zSvg=$('#zSvg'),zSeen=store.get('zn')||{};
+  function zCount(){var n=Object.keys(zSeen).length;$('#zN').textContent=n===7?'All 7 viewed':n+' of 7 viewed'}
+  function zShow(k){zSeen[k]=1;store.set('zn',zSeen);zCount();$$('#zSvg .zpin').forEach(function(g,j){g.classList.toggle('sel',j===k);g.classList.toggle('seen',!!zSeen[j])});
+    var z=ZN[k];$('#zD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(z.i)+'</div><h3>'+(k+1)+' · '+z.n+'</h3></div><p>'+z.d+'</p><div class="callout" style="padding:10px 14px;font-size:14px">'+ico('i-check')+'<span>'+z.r+'</span></div>'}
+  ZN.forEach(function(z,i){var g=sv('g',{'class':'zpin'+(zSeen[i]?' seen':''),'tabindex':'0','role':'button','id':'zp'+i,'aria-label':(i+1)+'. '+z.n});
+    g.appendChild(sv('circle',{'class':'halo',cx:z.x,cy:z.y,r:'13'}));g.appendChild(sv('circle',{'class':'core',cx:z.x,cy:z.y,r:'13'}));
+    var t=sv('text',{x:z.x,y:z.y+4,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);keyAct(g,function(){zShow(i)});zSvg.appendChild(g)});
+  $('#zD').innerHTML='<span class="eyebrow">Treatment zones</span><h3>Select a number on the cross-section</h3><p>Every zone where soil meets the structure needs the label rate. Missing one leaves a doorway.</p>';zCount();
+
+  /* ---------- volume calculator ---------- */
+  var cFill=0;
+  function fmt(n){return n.toLocaleString('en-US',{maximumFractionDigits:0})}
+  function calc(){var A=Math.max(0,+$('#cA').value||0),P=Math.max(0,+$('#cP').value||0),D=Math.max(0,+$('#cD').value||0);
+    var hr=cFill?1.5:1, H=A/10*hr, V=P/10*4*D, T=H+V, oz=T*0.8;
+    $('#cOut').innerHTML='<div class="crow"><span>Horizontal barrier</span><b>'+fmt(H)+' gal</b><small>'+fmt(A)+' sq ft &divide; 10 &times; '+hr+' gal</small></div>'+
+      '<div class="crow"><span>Vertical barrier</span><b>'+fmt(V)+' gal</b><small>'+fmt(P)+' ft &divide; 10 &times; 4 gal &times; '+D+' ft deep</small></div>'+
+      '<div class="crow tot"><span>Total finished mix at 0.06%</span><b>'+fmt(T)+' gal</b><small>about '+fmt(oz)+' fl oz of concentrate at 0.8 fl oz per gallon</small></div>'+
+      '<p class="small muted">Penetrations, box-outs and exterior concrete add to this. Coarse fill uses a higher label rate.</p>'}
+  ['#cA','#cP','#cD'].forEach(function(s){$(s).addEventListener('input',calc)});
+  [0,1].forEach(function(j){$('#cF'+j).addEventListener('click',function(){cFill=j;$('#cF0').setAttribute('aria-pressed',j===0);$('#cF1').setAttribute('aria-pressed',j===1);calc()})});
+  calc();
+
+  /* ---------- documents flip ---------- */
+  var DC=[
+    {t:'Treatment certificate',f:'On the job-site posting board',b:'<b>Duplicate copies</b> on the weather-resistant posting board as each treatment is done: one for the permit holder, one for the permit file. Shows product, applicator, time and date, location, area treated, percent concentration and gallons (FBC 105.10).'},
+    {t:'Certificate of Compliance',f:'To the building department',b:'<b>Issued by the licensed pest control company</b> when treatment is complete: "The building has received a complete treatment for the prevention of subterranean termites..." Required before final approval and the certificate of occupancy (R318.1).'},
+    {t:'Bait-system contract',f:'Before the slab is poured',b:'<b>For Sentricon jobs,</b> a signed contract for installation, maintenance and monitoring goes to the building official before the slab pour, and stations go in before final approval (R318.1.7). County forms call for at least 5 years from the CO.'},
+    {t:'Treatment notice',f:'3 x 5 in, lasts 3 years',b:'<b>Posted next to the attic or crawl access</b>, or another readily accessible spot: our name and address, treatment date, pesticide and the organism treated. The contract states where it is. Only the owner may remove it (s. 482.226(5)).'},
+    {t:'Warranty contract',f:'Within 30 days',b:'<b>Issued to the owner within 30 days</b> of the initial or final treatment date named in the contract, for at least 1 year, with the owner able to renew annually for at least 4 more years (5E-14.105(3)). It follows s. 482.227 wording.'},
+    {t:'Treatment records',f:'Kept 3 years',b:'<b>Date, address, total square footage, pesticide, percent concentration and total volume</b>, plus termiticide purchase records. Kept for at least 3 years at the licensed location (5E-14.106(8), 5E-14.142(1)).'}
+  ];
+  var dcF=$('#dcF'),dcSeen=store.get('dc')||{};
+  function dcCount(){var n=Object.keys(dcSeen).length;$('#dcN').textContent=n===6?'All 6 flipped':n+' of 6 flipped'}
+  DC.forEach(function(v,i){var b=mk('button',null,'<span class="in"><span class="face front"><h3>'+v.t+'</h3><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">What, who and when?</span></span><span class="face back"><span>'+v.b+'</span></span></span>');
+    b.type='button';b.id='dc'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');dcSeen[i]=1;store.set('dc',dcSeen);dcCount()});dcF.appendChild(b)});
+  dcCount();
+
+  /* ---------- builder calls ---------- */
+  scenTabs('#bTabs','#bBox',[
+    {n:'Pour at 7 am',s:'4:30 pm: "It rained on the pad an hour after your guy treated. The retarder isn\'t down. Pour\'s at 7 tomorrow. We\'re fine, right?"',o:['"You\'re fine, the product binds fast."','"Rain before the vapor retarder means it has to be retreated. Let me get my supervisor and see how early we can be there before the pour."','"Pour anyway and we\'ll treat around the outside later."','"That\'s your problem; we already treated."'],a:1,e:'Rain before the retarder requires retreatment (R318.1.4). Be helpful about the schedule, but don\'t bend the rule. Record both applications.'},
+    {n:'"Just sign it"',s:'"We\'re behind. Can you sign the termite certificate now so the inspector passes the slab? You can treat Monday."',o:['Sign it; the builder is a good account','Sign it but date it Monday','Decline politely: the certificate states the treatment is complete, so it is signed only after we treat. Offer the earliest time and loop in your branch manager','Have the builder sign it instead'],a:2,e:'Signing for a treatment that hasn\'t happened is a false certificate. That puts your license, the company\'s license and the buyer at risk. Offer the schedule, not the signature.'},
+    {n:'Plumbing repair',s:'"The plumber had to dig up a section inside the footing to fix a drain after you treated yesterday. Slab\'s Thursday."',o:['Nothing needed; the rest of the slab is treated','Treat only if the inspector notices','Ask the builder to pour extra concrete there','Schedule a retreat of the disturbed soil before the pour, and record it'],a:3,e:'Soil disturbed after the initial treatment must be retreated (R318.1.2). Small area, same rules, same record.'},
+    {n:'Price check',s:'"What are you guys charging per square foot for pretreats now? The other company is cheaper."',o:['Give the rate you remember from the old price sheet','"I\'m not the right person for pricing. I\'ll have our branch manager call you today." Then tell the branch manager','Match the competitor\'s price on the spot','Tell him the other company cuts corners'],a:1,e:'Techs never quote prices or negotiate. Builder pricing and terms belong to the branch manager, and you never run down a competitor.'},
+    {n:'Paperwork request',s:'"The lender needs a copy of the termite paperwork for Lot 9 before closing."',o:['Text a photo of the posting-board copy from your phone','Tell them to ask the county','Have the office send it: signed paperwork is scanned into the account\'s Documents section, and the CSR emails it and notes who received it','Write up a new certificate from memory'],a:2,e:'Documents live in PestPac. The office sends them to the requester and notes it on the account. Email technotes@ if you have paper copies that still need to be uploaded.'}
+  ],'bc','Not quite. Think about the rule, the record and who owns that decision.','Next call');
+
+  /* ---------- true or false sort ---------- */
+  var TS=[
+    {q:'Pretreat records are kept for at least 3 years',a:'T',w:'True: 5E-14.106(8) and 5E-14.142(1).'},
+    {q:'The builder issues the Certificate of Compliance',a:'F',w:'False: the licensed pest control company issues it to the building department.'},
+    {q:'You may mix the tank at the shop to save time on site',a:'F',w:'False: mix at the treatment site immediately before application (5E-14.106(7)).'},
+    {q:'A label copy must be in the application vehicle',a:'T',w:'True: 5E-14.106(8).'},
+    {q:'The warranty is issued within 30 days of the treatment date named in the contract',a:'T',w:'True: 5E-14.105(3)(a).'},
+    {q:'The Sentricon contract can wait until the stations go in',a:'F',w:'False: it goes to the building official before the slab is poured (R318.1.7).'},
+    {q:'Anyone at the property can remove the treatment notice',a:'F',w:'False: only the property owner may remove it (s. 482.226(5)).'},
+    {q:'The record shows square footage, product, percent and total volume',a:'T',w:'True: plus date and address.'},
+    {q:'A new-construction warranty must run at least 1 year',a:'T',w:'True, and the owner can renew annually for at least 4 more years.'},
+    {q:'The final grade treatment is done before landscaping',a:'F',w:'False: after construction is complete, including initial landscaping and irrigation (R318.1.6).'}
+  ];
+  var ts=$('#tsort'),tsSel={};
+  TS.forEach(function(s,i){var r=mk('div','row');r.id='tsr'+i;r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="ts'+i+'t" data-v="T" aria-pressed="false">True</button><button type="button" id="ts'+i+'f" data-v="F" aria-pressed="false">False</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){tsSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});ts.appendChild(r)});
+  $('#tsCheck').addEventListener('click',function(){var right=0,blank=0;
+    TS.forEach(function(s,i){var r=$('#tsr'+i),w=$('.why',r);if(w)w.remove();if(!tsSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=tsSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok)r.appendChild(mk('span','why',s.w))});
+    $('#tsFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all ten before checking.</span>':(right===TS.length?'<span class="fb" style="display:inline-block">All ten correct. You know the paperwork.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 10. Read the notes in red and try again.</span>');
+  });
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

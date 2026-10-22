@@ -1,0 +1,1284 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CW-10 Our Systems</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* CW-10 · Our Systems: system map, PestPac account mock, flow, schedule-code anatomy, builder, matcher, email mock */
+.dots-list{list-style:none;display:grid;gap:6px;margin-top:8px;font-size:14.5px;line-height:1.5}
+.dots-list li{position:relative;padding-left:16px}
+.dots-list li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.card h3{margin-bottom:2px}
+
+/* system map */
+.sysmap{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:stretch}
+.lanes{display:grid;gap:10px}
+.lane{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+.lane > span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.lane .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative}
+.lane .tiles button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--grad-card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:300;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.lane .tiles button .ico{color:var(--brand-600)}
+.lane .tiles button small{display:block;color:var(--muted);font-size:12px}
+.lane .tiles button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.lane .tiles button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.lane .link{position:absolute;left:calc(50% - 10px);top:50%;width:20px;height:2px;background:repeating-linear-gradient(90deg,var(--brand-400) 0 4px,transparent 4px 8px);background-size:16px 2px}
+.slide.on .lane .link{animation:flowx 1.8s linear infinite}
+@keyframes flowx{to{background-position:16px 0}}
+.sysd h3{font-size:22px;margin:6px 0 4px}
+.sysd dl{display:grid;grid-template-columns:96px 1fr;gap:6px 12px;margin:10px 0 0;font-size:14.5px}
+.sysd dt{color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding-top:3px}
+.sysd dd{margin:0}
+
+/* PestPac account mock */
+.acct{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.acct-head{background:var(--grad-forest);color:var(--on-forest);padding:12px 16px;display:grid;gap:2px}
+.acct-head .eyebrow{color:var(--mint)}
+.acct-head b{font-weight:400}
+.acct-tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line);background:var(--canvas)}
+.acct-tabs button{border:0;background:none;padding:9px 12px;font-size:13px;border-bottom:2px solid transparent}
+.acct-tabs button[aria-pressed="true"]{border-bottom-color:var(--brand-600);color:var(--brand-700);background:var(--surface)}
+.acct-tabs button.seen:not([aria-pressed="true"])::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--brand-400);margin-left:6px;vertical-align:middle}
+.acct-body{padding:14px 16px;font-size:14.5px;display:grid;gap:8px;min-height:190px}
+.acct-body .row{display:grid;grid-template-columns:130px 1fr;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.acct-body .row span:first-child{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.acct-body .note{background:var(--brand-50);border-radius:8px;padding:8px 12px;font-size:14px}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:0;position:relative}
+.flow button{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:4px 2px;position:relative;font-weight:300;font-size:13px;text-align:center;line-height:1.3}
+.flow button .dot{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--brand-600);transition:background .2s ease-in-out,border-color .2s ease-in-out,color .2s ease-in-out;position:relative;z-index:1}
+.flow button::before{content:"";position:absolute;top:27px;left:-50%;width:100%;height:2px;background:var(--line)}
+.flow button:first-child::before{display:none}
+.flow button.done::before,.flow button[aria-pressed="true"]::before{background:var(--brand-400)}
+.flow button.done .dot{border-color:var(--brand-400);background:var(--brand-50)}
+.flow button[aria-pressed="true"] .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.flow button small{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+#flowDetail{display:flex;gap:16px;align-items:flex-start;min-height:120px}
+#flowDetail h3{font-size:20px;margin:4px 0 6px}
+
+/* code anatomy */
+.code-big{display:flex;gap:6px;font-size:clamp(34px,4.4vw,54px);font-weight:300;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.code-big span{padding:2px 10px 6px;border-radius:10px;border-bottom:4px solid}
+.seg1{background:#E5EFE8;border-color:var(--brand-800)!important}
+.seg2{background:var(--brand-50);border-color:var(--brand-600)!important}
+.seg3{background:#F0F4F1;border-color:var(--brand-400)!important}
+.seg4{background:#F6F8F7;border-color:var(--brand-300)!important}
+.slide.on .code-big span{animation:rise .22s ease-in-out both}
+.slide.on .code-big .seg2{animation-delay:.35s}.slide.on .code-big .seg3{animation-delay:.7s}.slide.on .code-big .seg4{animation-delay:1.05s}
+.code-key{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.code-key div{display:grid;gap:2px;font-size:13px}
+.code-key i{display:block;height:4px;border-radius:2px;margin-bottom:4px}
+.code-key .k1{background:var(--brand-800)}.code-key .k2{background:var(--brand-600)}.code-key .k3{background:var(--brand-400)}.code-key .k4{background:var(--brand-300)}
+.code-key span{color:var(--muted)}
+
+/* builder */
+.builder{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:start}
+.brow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.brow > .eyebrow{min-width:84px}
+.pick.mon{gap:5px}
+.pick.mon button{padding:5px 9px;font-size:12px}
+.seg button{padding:6px 12px;font-size:13px}
+.code-out{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:14px 18px;display:grid;gap:4px}
+.code-out .eyebrow{color:var(--mint)}
+.code-out b{font-weight:300;font-size:34px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.months span{font-size:10px;letter-spacing:.06em;text-align:center;padding:8px 0;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--muted);transition:background .2s ease-in-out,color .2s ease-in-out,border-color .2s ease-in-out}
+.months span.on{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+
+/* channel picker */
+.chan{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chan button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:9px 12px;font-size:14px;font-weight:300;line-height:1.35}
+.chan button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+
+/* matcher */
+.match{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+.match .q{display:grid;gap:10px}
+.match .q .card p{font-size:18px}
+.match .sys{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.match .sys button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-size:14.5px;font-weight:300}
+.match .sys button .ico{color:var(--brand-600)}
+.match .sys button.right{border-color:var(--positive);background:#EAF5EE}
+.match .sys button.wrong{border-color:var(--danger);background:#FDEEEE}
+.match .prog{display:flex;gap:5px}
+.match .prog i{flex:1;height:5px;border-radius:3px;background:var(--brand-100)}
+.match .prog i.ok{background:var(--positive)}.match .prog i.cur{background:var(--brand-400)}
+
+/* meter */
+.meter{height:8px;border-radius:var(--pill);background:var(--brand-100);overflow:hidden;margin-top:10px}
+.meter i{display:block;height:100%;width:0;background:var(--brand-600);transition:width .2s ease-in-out,background .2s ease-in-out}
+
+/* email mock */
+.mail{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);font-size:14.5px;overflow:hidden}
+.mail .mh{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:3px;background:var(--canvas)}
+.mail .mh div{display:flex;gap:8px;flex-wrap:wrap}
+.mail .mh .lab{color:var(--muted);width:56px;flex:0 0 56px;font-size:13px}
+.mail .mb{padding:12px 16px 14px;display:grid;gap:8px;line-height:1.5}
+.mail .hot{display:inline;line-height:inherit;border:0;background:none;padding:0 2px;font:inherit;text-align:left;border-radius:4px;border-bottom:1px dashed transparent;cursor:pointer}
+.mail .hot:hover{border-bottom-color:var(--brand-400)}
+.mail .hot.found{background:#FDEEEE;border-bottom:1px solid var(--danger)}
+.mail .hot.fine{background:var(--brand-50)}
+.mail .btnlink{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:6px 14px;font-weight:400}
+.mail .att{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+.phlog{display:grid;gap:6px;margin-top:10px;font-size:13.5px;max-height:300px;overflow:auto}
+.phlog div{border-left:3px solid var(--danger);padding:2px 0 2px 10px}
+.phlog div.fine{border-left-color:var(--brand-400);color:var(--muted)}
+
+#sBox .choices,#dBox .choices{grid-template-columns:1fr 1fr}
+#pflip button{min-height:168px}
+#pflip h3{font-size:20px}
+@media (max-width:860px){
+  #sBox .choices,#dBox .choices{grid-template-columns:1fr}
+  .sysmap,.builder,.match,.chan{grid-template-columns:1fr}
+  .lane{grid-template-columns:1fr}
+  .lane .link{display:none}
+  .flow{grid-template-columns:repeat(4,1fr);row-gap:12px}
+  .flow button::before{display:none}
+  .code-key{grid-template-columns:1fr 1fr}
+  .match .sys,.lane .tiles{grid-template-columns:1fr}
+  .months{grid-template-columns:repeat(6,1fr)}
+  .acct-body .row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.slide.on .lane .link{animation:none}.slide.on .code-big span{animation:none}}
+
+.slide.on.tight{gap:14px}
+#pflip .face{padding:16px 18px;gap:6px}
+.tight .callout{padding:11px 16px}
+.builder > *,.sysmap > *,.match > *{min-width:0}
+@media (max-width:860px){.builder .seg{flex-wrap:wrap;border-radius:12px}.brow > .eyebrow{min-width:0;flex-basis:100%}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 27</span><span class="code-chip">CW-10 · Our Systems</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4"/><path d="M11 11l8-8M16 6l2 2M14 8l2 2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M3 19h18l-2-4H5z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M16.5 7.5c-.6-1.5-2.3-2.5-4.5-2.5-2.5 0-4.5 1.4-4.5 3.3 0 4.4 9 2.4 9 7 0 1.9-2 3.2-4.5 3.2-2.3 0-4.1-1-4.8-2.6"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Clements Way · CW-10</span>
+        <h1 class="display a" style="--i:1">Our Systems</h1>
+        <p class="lead a" style="--i:2">PestPac, Google Workspace, Google Chat, Paychex Flex and CanopyOS: what each one is for, who uses it, how to read a PestPac schedule code, and how to keep every account and every customer's information safe.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">4 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 200" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <rect x="18" y="58" width="110" height="72" rx="6"/><path d="M6 146h134l-12-16H18z"/>
+          <path d="M36 80h52M36 94h74M36 108h40"/>
+          <rect x="250" y="44" width="52" height="94" rx="8"/><path d="M266 54h20M270 128h12"/><path d="M262 74h28M262 88h20M262 102h24"/>
+          <circle cx="190" cy="92" r="26"/><path d="M180 92l7 7 14-14"/>
+          <path d="M140 92h24M216 92h34"/>
+          <path d="M190 118v34"/><rect x="164" y="152" width="52" height="34" rx="4"/><path d="M172 162l18 12 18-12"/>
+          <path d="M190 66V52"/><path d="M180 30V22a10 10 0 0120 0v8"/><rect x="174" y="30" width="32" height="22" rx="3"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-grid"/></svg><span>Name each Clements system, what it's for and who uses it</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clip"/></svg><span>Explain what lives in a PestPac account and how a new customer flows from signed agreement to finished service</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-cal"/></svg><span>Read and build a PestPac service schedule code like BJAN4THUR</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-chat"/></svg><span>Pick the right channel (email, Google Chat, phone) and write to company standards</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-key"/></svg><span>Protect your accounts with strong unique passwords, 2-Step Verification and locked devices</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-search"/></svg><span>Spot a phishing message, protect customer data, and report a problem fast</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(28px,3.6vw,44px)">Your login opens the door to <span class="em">thousands of customers' homes.</span></h2>
+        <p class="quote a" style="--i:2">"As an employee of Clements you are in a position of trust."<cite>CLEMENTS EMPLOYEE POLICY HANDBOOK · CONFIDENTIAL NATURE OF OUR WORK</cite></p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-door"/></svg></div><div><h3>Customers trust us with more than pests</h3><p>Our records hold names, addresses, phone numbers, gate and lockbox notes, pets, schedules and billing details. In the wrong hands that tells someone when a home is empty and how to get in.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The law expects us to protect it</h3><p>Florida's Information Protection Act (s. 501.171, F.S.) requires businesses to take reasonable measures to protect customers' personal information and to notify them within 30 days of a breach.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>The record is the proof</h3><p>What gets posted in PestPac is how we show what was done, where and when. Late, wrong or missing entries mean missed services, billing errors and work we can't back up.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the systems we run on">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The systems we run on</h1>
+        <p class="lead a" style="--i:2">Every service starts and ends in a system. When you know what each one does, you stop guessing, you stop double entry, and customers stop falling through the cracks.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The system map</li><li><span>02</span>Inside PestPac</li><li><span>03</span>From signed agreement to finished service</li><li><span>04</span>Reading schedule codes</li><li><span>05</span>Practice: decode and build</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 SYSTEM MAP -->
+  <section class="slide" data-label="The system map">
+    <span class="eyebrow a">01 · The system map</span>
+    <h2 class="a" style="--i:1">Six tools, three jobs. Select each one.</h2>
+    <div class="sysmap a" style="--i:2">
+      <div class="lanes" id="sysLanes"></div>
+      <div class="card sysd" id="sysDetail"><span class="eyebrow">Select a system</span><p style="margin-top:8px">Each card shows what the system is for, who uses it, and where you'll learn more.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 INSIDE PESTPAC -->
+  <section class="slide" data-label="Inside PestPac">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Inside PestPac</span>
+        <h2 class="a" style="--i:1">One customer, one account, one source of truth</h2>
+        <p class="a muted" style="--i:2">PestPac is our customer and field service system. If it isn't in PestPac, as far as the company is concerned it didn't happen. Select a part of the account.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-users"/></svg><span><b>Who works in it:</b> CSRs (accounts and changes), Routing &amp; Logistics (new agreements, routes, reporting), Finance (billing), branch managers, and technicians through PestPac Mobile.</span></div>
+      </div>
+      <div class="acct a" style="--i:3">
+        <div class="acct-head"><span class="eyebrow">Customer account · example</span><b>Sample Customer · 1234 Example Ln</b></div>
+        <div class="acct-tabs" id="acctTabs"></div>
+        <div class="acct-body" id="acctBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FLOW -->
+  <section class="slide" data-label="Agreement to service">
+    <span class="eyebrow a">03 · From signed agreement to finished service</span>
+    <h2 class="a" style="--i:1">Every hand-off runs through PestPac</h2>
+    <div class="flow a" style="--i:2" id="flow"></div>
+    <div class="card a" style="--i:3" id="flowDetail"></div>
+    <div class="a" style="--i:4;display:flex;gap:10px"><button type="button" class="btn" id="flowPrev">Previous step</button><button type="button" class="btn primary" id="flowNext">Next step</button></div>
+  </section>
+
+  <!-- 8 CODE ANATOMY -->
+  <section class="slide" data-label="Schedule codes">
+    <span class="eyebrow a">04 · Reading schedule codes</span>
+    <h2 class="a" style="--i:1">A schedule code tells you when a customer gets serviced</h2>
+    <div class="split" style="grid-template-columns:1.1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:14px">
+        <div class="code-big a" style="--i:2" aria-label="B JAN 4 THUR">
+          <span class="seg1">B</span><span class="seg2">JAN</span><span class="seg3">4</span><span class="seg4">THUR</span>
+        </div>
+        <div class="code-key a" style="--i:3">
+          <div><i class="k1"></i><b>Cycle</b><span>How often</span></div>
+          <div><i class="k2"></i><b>Month</b><span>The month the cycle starts</span></div>
+          <div><i class="k3"></i><b>Week</b><span>Which week of the month</span></div>
+          <div><i class="k4"></i><b>Day</b><span>Which weekday</span></div>
+        </div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-cal"/></svg><span><b>BJAN4THUR</b> = bi-monthly (every other month) starting in January, on the 4th Thursday: January, March, May, July, September and November.</span></div>
+      </div>
+      <div class="tablewrap a" style="--i:3"><table style="min-width:0">
+        <thead><tr><th>Cycle</th><th>Means</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td class="y">M</td><td>Monthly, every month</td><td>Starts with M <span class="chip">format to confirm</span></td></tr>
+          <tr><td class="y">B</td><td>Bi-monthly, every other month (6 a year)</td><td>BJAN4THUR</td></tr>
+          <tr><td class="y">Q</td><td>Quarterly, every third month (4 a year)</td><td>QJAN2TUES</td></tr>
+          <tr><td class="y">A</td><td>Annual, once a year</td><td>A-FEB2TUES</td></tr>
+        </tbody></table>
+        <p class="small muted" style="padding:10px 12px;border-top:1px solid var(--line)">Weekdays are written MON, TUES, WED, THUR, FRI. Week 4 means the 4th of that weekday in the month, not the last.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 DECODE PRACTICE -->
+  <section class="slide" data-label="Practice: decode a code">
+    <span class="eyebrow a">05 · Practice · decode it</span>
+    <h2 class="a" style="--i:1">What does this code mean for the customer?</h2>
+    <div class="scen-tabs a" style="--i:2" id="dTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="dBox"></div>
+  </section>
+
+  <!-- 10 BUILDER -->
+  <section class="slide" data-label="Practice: build a code">
+    <span class="eyebrow a">05 · Practice · build it</span>
+    <h2 class="a" style="--i:1">Build the code for the request</h2>
+    <div class="builder a" style="--i:2">
+      <div class="card" style="display:grid;gap:12px">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><span class="eyebrow" id="bReqN">Request 1 of 3</span><button type="button" class="btn" id="bSkip" style="padding:4px 12px;font-size:13px">Next request</button></div>
+        <p style="font-size:17px" id="bReq"></p>
+        <div class="brow"><span class="eyebrow">Cycle</span><div class="seg" id="bCyc"></div></div>
+        <div class="brow"><span class="eyebrow">Start month</span><div class="pick mon" id="bMon"></div></div>
+        <div class="brow"><span class="eyebrow">Week</span><div class="seg" id="bWk"></div><span class="eyebrow" style="margin-left:8px">Day</span><div class="seg" id="bDay"></div></div>
+      </div>
+      <div class="grid" style="gap:12px;align-content:start">
+        <div class="code-out"><span class="eyebrow">Your code</span><b id="bCode">—</b></div>
+        <div class="months" id="bStrip"></div>
+        <p class="small muted" id="bCount">Pick a cycle and start month to see the service months.</p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="bCheck">Check my code</button></div>
+        <div id="bFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 12 PART TWO -->
+  <section class="slide forest" data-label="Part two: communicating">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Communicating, and your own accounts</h1>
+        <p class="lead a" style="--i:2">A message to a customer is written on Clements letterhead, even when it's an email. Using the right channel the right way is what keeps the hub and the branches working as one.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Email and calendar</li><li><span>02</span>Google Chat and choosing a channel</li><li><span>03</span>Paychex Flex and CanopyOS</li><li><span>04</span>Practice: which system do I use?</li></ol>
+    </div>
+  </section>
+
+  <!-- 13 EMAIL -->
+  <section class="slide" data-label="Email and calendar">
+    <span class="eyebrow a">01 · Email and calendar · Google Workspace</span>
+    <h2 class="a" style="--i:1">Your @clementspestcontrol.com account</h2>
+    <div class="grid g2" style="gap:14px;align-items:start">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-mail"/></svg></div><h3>Gmail: write it like letterhead</h3><ul class="dots-list">
+        <li>Company email is company property, for company business. Messages are company records and may be reviewed. Don't expect privacy in it.</li>
+        <li>With customers and vendors: proper grammar and punctuation. <b>No ALL CAPS, slang or emoji.</b></li>
+        <li>Use the company standard signature block. HR has the format.</li>
+        <li>Reply to office email during the business day, and clear anything left by end of day.</li>
+        <li>Never write anything you wouldn't want read aloud. Email can be forwarded, misdirected or used in a lawsuit.</li></ul></div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-cal"/></svg></div><h3>Google Calendar</h3><p>Meetings, trainings and appointments live here. Accept or decline invitations so the organizer knows, keep your own calendar current, and check it at the start of each day.</p></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-headset"/></svg><span><b>Technician notes for the office</b> go to the Customer Service Team at <b>technotes@clementspestcontrol.com</b>. Urgent? Call the tech line, 772-469-2566.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CHAT + CHANNELS -->
+  <section class="slide" data-label="Choosing a channel">
+    <span class="eyebrow a">02 · Google Chat and choosing a channel</span>
+    <h2 class="a" style="--i:1">Right message, right channel</h2>
+    <div class="split" style="grid-template-columns:1fr 1.2fr;gap:26px;align-items:start">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-chat"/></svg></div><h3>Google Chat: quick and internal</h3><ul class="dots-list">
+        <li>Fast questions and updates between coworkers and teams.</li>
+        <li>Same professional standards as email. Chat is a company record too.</li>
+        <li>Share only the customer details the other person needs. Never card numbers.</li>
+        <li>Not for decisions that need a paper trail, and never while driving.</li></ul></div>
+      <div class="grid" style="gap:10px">
+        <p class="a muted small" style="--i:3">Select a situation to see the best channel.</p>
+        <div class="chan a" style="--i:4" id="chan"></div>
+        <div class="callout a" style="--i:5" id="chanOut"><svg class="ico"><use href="#i-arrow"/></svg><span>Select a situation.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 PAYCHEX + CANOPY -->
+  <section class="slide" data-label="Paychex Flex and CanopyOS">
+    <span class="eyebrow a">03 · Your own accounts</span>
+    <h2 class="a" style="--i:1">Paychex Flex and CanopyOS</h2>
+    <div class="grid g2" style="gap:14px;align-items:stretch">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-dollar"/></svg></div><h3>Paychex Flex · payroll and HR self-service</h3><ul class="dots-list">
+        <li>Pay stubs, tax forms, direct deposit and your personal details</li>
+        <li>PTO requests: office staff at least 2 weeks ahead, technicians at least 3 weeks, HOA technicians 2 months</li>
+        <li>Benefits and 401(k) plan details</li>
+        <li>Questions go to HR, April Williford. CW-08 covers pay and benefits in full.</li></ul>
+        <p class="small" style="margin-top:10px;color:var(--danger)">Direct deposit changes are a favorite scam target. Make them only inside Paychex Flex, never from a link.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-grid"/></svg></div><h3>CanopyOS · our internal ERP</h3><ul class="dots-list">
+        <li>Built for Clements by Chris Slade, our COO</li>
+        <li>Role-based: what you see depends on your position. Managers see more than a new hire, by design</li>
+        <li>Your certifications live here, including this course, plus the live company directory</li>
+        <li>Your login is yours. Seeing something you shouldn't? Tell your supervisor, don't explore it</li></ul>
+        <p class="small muted" style="margin-top:10px">CanopyOS is new and growing. Expect features to be added, and say so when something is confusing.</p></div>
+    </div>
+  </section>
+
+  <!-- 16 MATCHER -->
+  <section class="slide" data-label="Practice: which system">
+    <span class="eyebrow a">04 · Practice · which system do I use?</span>
+    <h2 class="a" style="--i:1">Match each task to the system</h2>
+    <div class="match a" style="--i:2" id="match"></div>
+  </section>
+
+  <!-- 17 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 18 PART THREE -->
+  <section class="slide forest" data-label="Part three: security">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Keeping accounts and customers safe</h1>
+        <p class="lead a" style="--i:2">Most breaches at small companies don't start with a hacker breaking in. They start with someone being tricked into opening the door. You are the strongest lock we have.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Passwords and 2-Step Verification</li><li><span>02</span>Phishing red flags</li><li><span>03</span>Practice: spot the phish</li><li><span>04</span>Devices and customer data</li><li><span>05</span>When something goes wrong</li></ol>
+    </div>
+  </section>
+
+  <!-- 19 PASSWORDS -->
+  <section class="slide tight" data-label="Passwords and 2-Step Verification">
+    <span class="eyebrow a">01 · Passwords and 2-Step Verification</span>
+    <h2 class="a" style="--i:1">Long, unique, never shared, backed by a second step</h2>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-key"/></svg><span><b>Long beats clever.</b> Use a passphrase of at least 15 characters, like four unrelated words. Federal guidance (NIST SP 800-63B) favors length over symbol swaps.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-grid"/></svg><span><b>One account, one password.</b> Never reuse your PestPac, Google, Paychex or CanopyOS password anywhere else. A breach on one site gets tried everywhere.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-users"/></svg><span><b>Never share a login</b>, not with a coworker, a supervisor or anyone who calls or emails. Everything done under your login is recorded as you.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-phone"/></svg><span><b>Turn on 2-Step Verification</b> wherever it's offered. A stolen password alone won't get in. Approve only prompts you started.</span></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><span class="eyebrow">Try it · how long would it hold?</span>
+          <div class="field" style="margin-top:10px"><label for="pwIn" class="small muted">Type a made-up example. Never your real password.</label><input id="pwIn" autocomplete="off" spellcheck="false" placeholder="e.g. mango ladder cobalt river"></div>
+          <div class="meter" aria-hidden="true"><i id="pwBar"></i></div>
+          <p class="small" id="pwOut" style="margin-top:8px">Nothing typed here is saved or sent anywhere.</p></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-lock"/></svg><span>Locked out? Use the system's reset, or ask your supervisor who manages access. No one legitimate will ever ask you for your password.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 PHISHING FLAGS -->
+  <section class="slide tight" data-label="Phishing red flags">
+    <span class="eyebrow a">02 · Phishing red flags</span>
+    <h2 class="a" style="--i:1">Phishing: a message built to make you act before you think</h2>
+    <p class="a muted" style="--i:2">It arrives by email, text, Google Chat or phone. It may use a real coworker's name or a company we really use, like Paychex or Google. Select each flag.</p>
+    <div class="flip a" style="--i:3" id="pflip"></div>
+  </section>
+
+  <!-- 21 SPOT THE PHISH -->
+  <section class="slide" data-label="Practice: spot the phish">
+    <div class="split" style="grid-template-columns:1.35fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Practice · spot the phish</span>
+        <div class="scen-tabs a" style="--i:1" id="phTabs"></div>
+        <div class="mail a" style="--i:2" id="phMail"></div>
+      </div>
+      <div class="grid" style="gap:12px;align-content:start">
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.4vw,28px)">Select every red flag in the message</h2>
+        <div class="card a" style="--i:2"><span class="eyebrow" id="phCount">0 of 0 found</span><div class="meter" style="margin-top:8px"><i id="phBar"></i></div><div id="phLog" class="phlog"></div></div>
+        <button type="button" class="btn a" style="--i:3;justify-self:start" id="phReveal">Show all flags</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 DEVICES + DATA -->
+  <section class="slide tight" data-label="Devices and customer data">
+    <span class="eyebrow a">04 · Devices and customer data</span>
+    <h2 class="a" style="--i:1">Lock it, guard it, share only what's needed</h2>
+    <div class="grid g3 a" style="--i:2;gap:14px">
+      <div class="card"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Lock every device</h3><ul class="dots-list"><li>Screen lock on your phone, tablet and computer, with a PIN or biometric</li><li>Lock your computer when you step away (Windows key + L)</li><li>Lock the truck, and never leave a phone or laptop in view</li><li>Install updates when prompted</li></ul></div>
+      <div class="card"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Customer information stays in our systems</h3><ul class="dots-list"><li>Look up only the accounts your work requires</li><li>Never give one customer's details to another person, even a neighbor or "family member"</li><li>No photos of customers' homes on social media, per the handbook</li><li>No customer lists in personal email or personal apps</li></ul></div>
+      <div class="card"><div class="icobox"><svg class="ico"><use href="#i-dollar"/></svg></div><h3>Payment details</h3><ul class="dots-list"><li>Never write down, text, email or chat a full card number</li><li>Take payment only through the approved company process</li><li>Billing questions go to Finance &amp; Accounting</li><li>Never read card details aloud where others can hear</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-phone"/></svg><span><b>Company devices and accounts are company property</b> and may be monitored. Personal phones used for work follow the same professional standards. Lost or stolen device: tell your supervisor <b>immediately</b>.</span></div>
+  </section>
+
+  <!-- 23 WHEN SOMETHING GOES WRONG -->
+  <section class="slide" data-label="When something goes wrong" data-alert="1">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">05 · When something goes wrong</span>
+        <h2 class="a" style="--i:1">Clicked a bad link? Lost a phone? Speed matters more than blame.</h2>
+        <p class="a muted" style="--i:2">Criminals move within minutes of getting a password. The person who reports a mistake right away is protecting the company. The one who hides it is giving the attacker time.</p>
+        <div class="callout warn a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span>Never try to "fix it quietly" first. Report, then follow instructions.</span></div>
+      </div>
+      <div class="card a" style="--i:2"><ol class="steps">
+        <li><span class="num red">1</span><span><b>Stop.</b> Don't enter anything else, don't reply, don't forward the message to coworkers.</span></li>
+        <li><span class="num red">2</span><span><b>Tell your supervisor now</b>, by phone or in person. Say what you clicked, entered or lost, and when.</span></li>
+        <li><span class="num">3</span><span><b>Change the password</b> for that account from a device you trust, and anywhere you reused it.</span></li>
+        <li><span class="num">4</span><span><b>Report the message</b> in Gmail (the three-dot menu, then Report phishing) so it's flagged.</span></li>
+        <li><span class="num">5</span><span><b>Watch for follow-up:</b> unexpected 2-Step prompts, password reset emails, or changes in Paychex Flex. Report them too.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 24 SECURITY SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do">
+    <span class="eyebrow a">Practice · security in real life</span>
+    <h2 class="a" style="--i:1">What would you do?</h2>
+    <div class="scen-tabs a" style="--i:2" id="sTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="sBox"></div>
+  </section>
+
+  <!-- 25 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 26 SIGN-OFF -->
+  <section class="slide" data-label="Onboarding sign-off" data-cp="4">
+    <span class="eyebrow a">Onboarding application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your own accounts</h2>
+    <p class="a muted" style="--i:2">Your supervisor will go through each of these with you before CW-10 is complete. Never type or say a password out loud while doing them. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Sign in to your @clementspestcontrol.com Google account and turn on 2-Step Verification</label></li>
+      <li><label><input type="checkbox" id="s2"> Set up the company standard email signature block (format from HR)</label></li>
+      <li><label><input type="checkbox" id="s3"> Send your supervisor a Google Chat message and accept a Google Calendar invitation</label></li>
+      <li><label><input type="checkbox" id="s4"> Sign in to Paychex Flex and find your pay stubs and the PTO request screen</label></li>
+      <li><label><input type="checkbox" id="s5"> Sign in to CanopyOS and find your certification path</label></li>
+      <li><label><input type="checkbox" id="s6"> Show your supervisor the PestPac or PestPac Mobile screens your role uses</label></li>
+      <li><label><input type="checkbox" id="s7"> Decode three real schedule codes from an account or route</label></li>
+      <li><label><input type="checkbox" id="s8"> Lock your devices, and explain how you'd report a phishing message or lost device</label></li>
+    </ul>
+  </section>
+
+  <!-- 27 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('cw10:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('cw10:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "CW-10", "titleHtml": "Our Systems", "nextHtml": "Your position certification", "passNote": "Your onboarding sign-off with your supervisor completes the course and the Clements Way."};
+  var SIGNOFF_LABEL="Onboarding sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The systems we run on',q:'A customer on QJAN2TUES calls in March asking why no one has come out yet this month. What\'s the right answer?',o:['A visit was missed; send a technician today','Her service runs every month, so check the route','Her quarterly service runs in January, April, July and October on the 2nd Tuesday, so her next visit is in April','Annual customers are serviced in March'],a:2,e:'Q is quarterly, starting in January: January, April, July, October. No March visit is due. If she wants a different schedule, that\'s an agreement change for the office.'},
+    2:{t:'Checkpoint 2 · Communicating',q:'After a service, the customer tells you she wants her service moved to a different day. What do you do?',o:['Tell her you\'ll remember and change it next time','Message a random coworker on Google Chat','Change the schedule code yourself in PestPac Mobile','Email technotes@clementspestcontrol.com so the Customer Service Team can follow up, and tell her who will contact her'],a:3,e:'Schedule changes are made by the office. Send it to the Customer Service Team at technotes@clementspestcontrol.com (your PestPac notes go to the customer, so keep them customer-facing), and tell the customer the office will follow up.'},
+    3:{t:'Checkpoint 3 · Security',q:'An email from "Paychex" says your direct deposit is suspended and you must sign in through its link within 24 hours. What should you do?',o:['Don\'t click. Report it as phishing in Gmail, tell your supervisor, and check Paychex Flex by opening the app yourself','Click the link but don\'t enter your bank details','Reply asking whether it\'s real','Forward it to coworkers to warn them'],a:0,e:'Urgency, a threat to your pay and a login link are three red flags. Never use the link. Open Paychex Flex yourself to check, report the message, and let your supervisor know.'},
+    4:{t:'Checkpoint 4',q:'',o:[],a:-1}
+  };
+  var NCP=4;
+  var Q=[
+    {k:'Multiple choice',q:'What is PestPac used for at Clements?',o:['Payroll and PTO','Customer accounts, agreements, schedules, service orders and billing','Internal instant messaging','Company training courses'],a:1,e:'PestPac is our customer and field service system.'},
+    {k:'Multiple choice',q:'Where do you request PTO and view your pay stubs?',o:['PestPac','Google Chat','CanopyOS','Paychex Flex'],a:3,e:'Paychex Flex is our payroll and HR self-service system.'},
+    {k:'Multiple choice',q:'What does the B in BJAN4THUR stand for?',o:['Bi-monthly, every other month','Biweekly, every two weeks','Basic service','Billing month'],a:0,e:'B is bi-monthly. Starting in January, that\'s six services a year in the odd months.'},
+    {k:'Scenario',q:'A customer is on BFEB1MON. In which months is she serviced?',o:['January, March, May, July, September, November','February only','February, April, June, August, October, December','Every month'],a:2,e:'Bi-monthly starting in February is the even months, on the 1st Monday.'},
+    {k:'Multiple choice',q:'Which code means one service a year, in February, on the 2nd Tuesday?',o:['QFEB2TUES','A-FEB2TUES','BFEB2TUES','FEB2TUES'],a:1,e:'A is annual. Annual codes are written A-FEB2TUES.'},
+    {k:'True or false',q:'In a schedule code, the number is the week of the month. QMAR3WED means the 3rd Wednesday.',o:['True','False'],a:0,e:'True. Cycle, start month, week of the month, weekday.'},
+    {k:'Multiple choice',q:'Who enters new customer agreements in PestPac?',o:['Each technician','Routing & Logistics','HR','The customer, online'],a:1,e:'Routing & Logistics enters new agreements and builds the routes.'},
+    {k:'Multiple choice',q:'According to the handbook, when does a technician log in and out of an appointment in PestPac Mobile?',o:['Log in on arrival, log out on completion before moving to the next stop','Log everything in at the end of the day','Log in when leaving the previous stop','Only log out, never log in'],a:0,e:'Log in on arrival, record notes during the service, log out on completion before driving to the next stop.'},
+    {k:'Multiple choice',q:'Where should technician notes the office needs to act on be sent?',o:['A personal text to the branch manager','Google Chat to whoever is online','technotes@clementspestcontrol.com, the Customer Service Team','They don\'t need to be sent anywhere'],a:2,e:'Technician notes go to the Customer Service Team at technotes@clementspestcontrol.com, Keep your PestPac notes customer-facing; they print on the customer\'s inspection report.'},
+    {k:'True or false',q:'Emoji, slang and ALL CAPS are fine in emails to customers if the message is friendly.',o:['True','False'],a:1,e:'False. The handbook prohibits ALL CAPS, slang and emoji when communicating with customers, potential customers and vendors.'},
+    {k:'Multiple choice',q:'What is CanopyOS?',o:['A Google product for chat','Our payroll provider','Clements\' internal ERP, with role-based views, where certifications and the company directory live','The technicians\' route app'],a:2,e:'CanopyOS was built for Clements by Chris Slade. What you see depends on your role.'},
+    {k:'Scenario',q:'You have a safety emergency at a customer\'s property. Which channel do you use?',o:['Email','Google Chat','A Calendar invitation','A phone call, right away'],a:3,e:'Anything urgent or safety related is a phone call. Never wait on a chat or email reply.'},
+    {k:'Multiple choice',q:'Which password is strongest?',o:['Clements2026!','P@ssw0rd','four unrelated words, like mango ladder cobalt river','Your dog\'s name and birthday'],a:2,e:'Length wins. A passphrase of 15+ characters with no company name or personal details is far harder to guess.'},
+    {k:'True or false',q:'It\'s acceptable to share your PestPac login with a trusted coworker who is locked out.',o:['True','False'],a:1,e:'False. Never share a login. Everything done under it is recorded as you. Locked-out accounts get reset through proper channels.'},
+    {k:'Scenario',q:'You get a 2-Step Verification prompt on your phone that you didn\'t start. What does it most likely mean?',o:['Someone has your password and is trying to sign in','Google is testing your phone','Your phone needs an update','Nothing; tap Yes to clear it'],a:0,e:'Deny it, change your password and tell your supervisor.'},
+    {k:'Multiple choice',q:'An email from "Chris Slade" at a personal Gmail address asks you to buy gift cards and send the codes, and says not to call. What is it?',o:['A real request; do it quickly','A phishing scam: don\'t reply, report it and tell your supervisor','A request to handle Monday','Something to forward to coworkers'],a:1,e:'A personal address, secrecy, gift cards and "don\'t call" are all red flags. Any gift card request by email or text is a scam.'},
+    {k:'Multiple choice',q:'How can you check where a link really goes before you trust it?',o:['Click it quickly and close the page','Reply and ask','Hover on a computer or press and hold on a phone to preview it. Better yet, open the app or a bookmark yourself','Links are always safe in company email'],a:2,e:'Preview the real address. For anything involving a login, go to the site or app yourself.'},
+    {k:'Scenario',q:'A neighbor says she\'s the customer\'s daughter and asks for the gate code and service day. What do you do?',o:['Politely decline and refer her to the customer or our office','Give her the service day only','Give both if she knows the customer\'s name','Show her the account on your phone'],a:0,e:'Schedules and access notes are confidential. You can\'t verify who she is.'},
+    {k:'True or false',q:'Under Florida\'s Information Protection Act, businesses must take reasonable measures to protect customers\' personal information.',o:['True','False'],a:0,e:'True. Section 501.171, Florida Statutes, also requires notifying affected customers of a breach, generally within 30 days.'},
+    {k:'Scenario',q:'You realize you entered your Google password on a fake login page. What\'s the first thing to do?',o:['Wait and see if anything happens','Delete the email and say nothing','Stop, tell your supervisor right away, then change the password from a trusted device','Turn off 2-Step Verification'],a:2,e:'Speed matters more than blame. Report it immediately, change the password, and watch for unusual prompts or changes.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+
+  /* ---------- system map ---------- */
+  var SYS=[
+    {lane:'Customers and service',items:[
+      {id:'pp',n:'PestPac',s:'Customer and field service system',i:'i-clip',what:'Our CRM and field service system. Every customer account, service location, agreement, schedule, service order, technician comment and invoice lives here.',who:'CSRs, Routing &amp; Logistics, Finance, branch managers and sales. Technicians use it through PestPac Mobile.',use:'Look up, create and update customer records. Enter new agreements, build routes, post and bill work.',more:'Covered on the next slides. Your role-specific training goes deeper.'},
+      {id:'ppm',n:'PestPac Mobile',s:'Technicians\' app',i:'i-phone',what:'The PestPac app on a technician\'s phone. The day\'s service orders arrive here, and what the technician posts flows straight back into the customer\'s PestPac account.',who:'Technicians (required by the handbook), and anyone who performs service in the field.',use:'Log in to each appointment on arrival, record notes and products during the service, log out on completion before moving to the next stop.',more:'FC-10 · PestPac Mobile, in the field certification.'}]},
+    {lane:'Communication',items:[
+      {id:'gm',n:'Gmail and Calendar',s:'Google Workspace',i:'i-mail',what:'Company email and calendar on your @clementspestcontrol.com Google account.',who:'Every employee.',use:'Email with the office, customers and vendors. Meeting and training invitations. Technician notes for the office go to technotes@clementspestcontrol.com.',more:'Part two of this course.'},
+      {id:'gc',n:'Google Chat',s:'Internal messaging',i:'i-chat',what:'Instant messaging inside our Google Workspace: one-to-one messages and team spaces.',who:'Every employee, for internal conversations.',use:'Quick questions and updates between coworkers and teams. Not for customers, and never while driving.',more:'Part two of this course.'}]},
+    {lane:'You and the company',items:[
+      {id:'px',n:'Paychex Flex',s:'Payroll and HR self-service',i:'i-dollar',what:'Our payroll and HR provider\'s portal and app.',who:'Every employee, for their own pay and HR information. Questions go to HR.',use:'Pay stubs, tax forms, direct deposit, PTO requests, benefits and 401(k) details.',more:'CW-08 · Pay, benefits and PTO.'},
+      {id:'co',n:'CanopyOS',s:'Our internal ERP',i:'i-grid',what:'The internal system Chris Slade built for Clements. Role-based: each person sees the tools for their position.',who:'Every employee. Managers and leadership have expanded views.',use:'Your training and certifications (including this course) and the live company directory. More tools are being added.',more:'You are in it now.'}]}
+  ];
+  var lanes=$('#sysLanes'), sysSeen=store.get('sys')||{};
+  function selSys(it,btn){
+    $$('.tiles button',lanes).forEach(function(b){b.setAttribute('aria-pressed',b===btn)});btn.classList.add('seen');sysSeen[it.id]=1;store.set('sys',sysSeen);
+    $('#sysDetail').innerHTML='<span class="eyebrow">'+it.s+'</span><h3>'+it.n+'</h3><dl><dt>What it is</dt><dd>'+it.what+'</dd><dt>Who uses it</dt><dd>'+it.who+'</dd><dt>Used for</dt><dd>'+it.use+'</dd><dt>Learn more</dt><dd>'+it.more+'</dd></dl>';
+  }
+  SYS.forEach(function(l,li){var row=document.createElement('div');row.className='lane';row.innerHTML='<span>'+l.lane+'</span><div class="tiles">'+(li===0?'<i class="link" aria-hidden="true"></i>':'')+'</div>';
+    l.items.forEach(function(it){var b=document.createElement('button');b.type='button';b.id='sys_'+it.id;b.setAttribute('aria-pressed','false');if(sysSeen[it.id])b.classList.add('seen');
+      b.innerHTML=ico(it.i)+'<span>'+it.n+'<small>'+it.s+'</small></span>';b.addEventListener('click',function(){selSys(it,b)});$('.tiles',row).appendChild(b)});
+    lanes.appendChild(row)});
+
+  /* ---------- PestPac account mock ---------- */
+  var ACCT=[
+    {t:'Customer',rows:[['Account','Account number, name, type (residential or commercial)'],['Contact','Phone numbers and email address on file'],['Branch','Which branch services the account']],n:'CSRs set up and correct customer details. If a customer gives you new contact information, pass it to the office so the account is updated.'},
+    {t:'Location',rows:[['Service address','Where the work is done, which can differ from the billing address'],['Access notes','Gate or lockbox instructions, pets, where to park'],['Instructions','Customer preferences and areas of concern']],n:'Access notes are some of the most sensitive data we hold. They tell someone how to get into a home. Never share them outside the job.'},
+    {t:'Agreement',rows:[['Service','What the customer bought (pest control, lawn, termite and so on)'],['Schedule code','When service happens, e.g. QJAN2TUES'],['Start','The initial service and the start of the recurring schedule']],n:'Routing &amp; Logistics enters new agreements. A wrong code or start date means a missed or duplicate visit.'},
+    {t:'Service orders',rows:[['Order','One scheduled visit on a technician\'s route'],['Status','Open, completed, rescheduled'],['Route','Which technician and which day']],n:'Service orders are generated from the agreement and routed to the technician\'s PestPac Mobile.'},
+    {t:'History',rows:[['Visits','Every completed service, by date and technician'],['Products','What was applied and where'],['Tech comments','What was done, what was found, recommendations']],n:'Technician comments go to customers with an email on file in their inspection report. Write them clearly and professionally.'},
+    {t:'Billing',rows:[['Invoices','Charges for each service or agreement'],['Payments','Payments received and balance due'],['Method','Billing method on file, stored securely']],n:'Billing questions, adjustments and payment problems go to Finance &amp; Accounting. Never write down or repeat full card numbers.'}
+  ];
+  var at=$('#acctTabs'), aSeen=store.get('acct')||{};
+  function showAcct(n){$$('button',at).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(aSeen[j])b.classList.add('seen')});
+    var a=ACCT[n];$('#acctBody').innerHTML=a.rows.map(function(r){return '<div class="row"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'<div class="note">'+a.n+'</div>';}
+  ACCT.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.id='acct'+i;b.textContent=a.t;b.addEventListener('click',function(){aSeen[i]=1;store.set('acct',aSeen);showAcct(i)});at.appendChild(b)});
+  aSeen[0]=1;showAcct(0);
+
+  /* ---------- agreement-to-service flow ---------- */
+  var FLOW=[
+    {t:'Sold',who:'Sales',i:'i-star',h:'The customer signs an agreement',p:'The sale is made and the agreement is signed. Nothing happens for the customer until it reaches PestPac correctly.'},
+    {t:'Entered',who:'Routing &amp; Logistics',i:'i-clip',h:'The agreement is entered in PestPac',p:'Routing &amp; Logistics enters the new agreement: services, location, start date and the schedule code. This is the step where most downstream errors start, so details matter.'},
+    {t:'Routed',who:'Routing &amp; Logistics',i:'i-route',h:'The service lands on a route',p:'The schedule code places each visit on the right week and day, and the service order is assigned to a technician\'s route.'},
+    {t:'Dispatched',who:'Technician',i:'i-phone',h:'The order appears in PestPac Mobile',p:'The technician sees the day\'s stops, the customer\'s notes, access instructions and history before arriving.'},
+    {t:'Serviced',who:'Technician',i:'i-check',h:'The work is posted as it happens',p:'Log in on arrival, record products and comments during the service, log out on completion before driving to the next stop. Accurate times prove the work was done.'},
+    {t:'Reported',who:'Automatic',i:'i-mail',h:'The customer gets an inspection report',p:'Customers with an email on file receive an inspection report with the technician\'s comments. It is often the only written word they get from us.'},
+    {t:'Billed',who:'Finance and CSRs',i:'i-dollar',h:'Billing and follow-up',p:'Finance bills the completed work. CSRs handle account questions and changes. Anything the technician flagged comes back to the office through technotes@clementspestcontrol.com.'}
+  ];
+  var fw=$('#flow'), fcur=0;
+  function showFlow(n){fcur=n;$$('button',fw).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',j<n)});
+    var f=FLOW[n];$('#flowDetail').innerHTML='<div class="icobox" style="margin:0">'+ico(f.i)+'</div><div><span class="eyebrow">Step '+(n+1)+' of 7 · '+f.who+'</span><h3>'+f.h+'</h3><p>'+f.p+'</p></div>';
+    $('#flowPrev').disabled=n===0;$('#flowNext').disabled=n===FLOW.length-1;}
+  FLOW.forEach(function(f,i){var b=document.createElement('button');b.type='button';b.id='fl'+i;b.innerHTML='<span class="dot">'+ico(f.i,'width:20px;height:20px')+'</span><span>'+f.t+'</span><small>'+f.who.replace('Routing &amp; Logistics','R&amp;L')+'</small>';b.addEventListener('click',function(){showFlow(i)});fw.appendChild(b)});
+  $('#flowPrev').addEventListener('click',function(){if(fcur>0)showFlow(fcur-1)});
+  $('#flowNext').addEventListener('click',function(){if(fcur<FLOW.length-1)showFlow(fcur+1)});
+  showFlow(0);
+
+  /* ---------- decode practice ---------- */
+  var DEC=[
+    {c:'QJAN2TUES',o:['Every month on the 2nd Tuesday, starting in January','January, April, July and October, on the 2nd Tuesday','Twice a year, in January and July, on a Tuesday','January only, on the 2nd Tuesday'],a:1,e:'Q is quarterly: every third month starting in January, so January, April, July and October. 2TUES is the 2nd Tuesday of each of those months.'},
+    {c:'BFEB1MON',o:['February only, on the 1st Monday','Every other week on Mondays','February, April, June, August, October and December, on the 1st Monday','The 1st of every month'],a:2,e:'B is bi-monthly, every other month. Starting in February, that is the even months. 1MON is the 1st Monday.'},
+    {c:'A-FEB2TUES',o:['Once a year, in February, on the 2nd Tuesday','Every February and August','Every other month, starting February','Two services in February'],a:0,e:'A is annual: one service a year, in February, on the 2nd Tuesday.'},
+    {c:'QMAR3WED',o:['March, May, July, on the 3rd Wednesday','March only','Every Wednesday in March','March, June, September and December, on the 3rd Wednesday'],a:3,e:'Quarterly starting in March: March, June, September, December. 3WED is the 3rd Wednesday.'}
+  ];
+  var dt=$('#dTabs'), db=$('#dBox'), dDone=store.get('dec')||{};
+  function showD(n){
+    $$('button',dt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!dDone[j])});
+    var s=DEC[n];
+    db.innerHTML='<div class="code-out" style="justify-self:start;min-width:320px"><span class="eyebrow">Schedule code</span><b>'+s.c+'</b></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="d'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="dFb"></div>';
+    $$('.choice',db).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',db).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',db).forEach(function(x){x.disabled=true});dDone[n]=1;store.set('dec',dDone);$$('button',dt)[n].classList.add('done');
+        $('#dFb').innerHTML='<div class="fb">'+s.e+(n<DEC.length-1?' <button type="button" class="btn" id="dNext" style="margin-left:8px;padding:4px 12px">Next code</button>':'')+'</div>';var nx=$('#dNext');if(nx)nx.addEventListener('click',function(){showD(n+1)});}
+      else{b.classList.add('wrong');$('#dFb').innerHTML='<div class="fb no">Read it in order: cycle letter, start month, week number, weekday. Try again.</div>';}
+    })});
+  }
+  DEC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='dt'+i;b.textContent=s.c;b.addEventListener('click',function(){showD(i)});dt.appendChild(b)});
+  showD(0);
+
+  /* ---------- code builder ---------- */
+  var MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var CYC=[['B','Bi-monthly'],['Q','Quarterly'],['A','Annual']], WK=['1','2','3','4'], DAY=['MON','TUES','WED','THUR','FRI'];
+  var REQ=[
+    {q:'A new quarterly customer: first service in February, then on the 3rd Wednesday each time.',c:'Q',m:'FEB',w:'3',d:'WED'},
+    {q:'Bi-monthly service in the odd months (January, March, May and so on), on the 1st Friday.',c:'B',m:'JAN',w:'1',d:'FRI'},
+    {q:'One annual service each April, on the 2nd Monday.',c:'A',m:'APR',w:'2',d:'MON'}
+  ];
+  var bs={c:null,m:null,w:null,d:null}, rq=0;
+  function segBuild(el,arr,key,lab){arr.forEach(function(v){var val=Array.isArray(v)?v[0]:v;var b=document.createElement('button');b.type='button';b.id='b'+key+val;b.setAttribute('aria-pressed','false');b.textContent=Array.isArray(v)?v[0]+' · '+v[1]:v;
+    b.addEventListener('click',function(){bs[key]=val;$$('button',el).forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderB()});el.appendChild(b)})}
+  segBuild($('#bCyc'),CYC,'c');segBuild($('#bMon'),MON,'m');segBuild($('#bWk'),WK,'w');segBuild($('#bDay'),DAY,'d');
+  var strip=$('#bStrip');MON.forEach(function(m){var s=document.createElement('span');s.textContent=m;strip.appendChild(s)});
+  function codeOf(o){return (o.c||'_')+(o.c==='A'?'-':'')+(o.m||'___')+(o.w||'_')+(o.d||'___')}
+  function renderB(){
+    $('#bCode').textContent=codeOf(bs);$('#bFb').innerHTML='';
+    var on=[];if(bs.c&&bs.m){var st=MON.indexOf(bs.m),step=bs.c==='B'?2:bs.c==='Q'?3:12;for(var k=0;k<12;k+=step)on.push((st+k)%12);}
+    $$('span',strip).forEach(function(s,j){s.classList.toggle('on',on.indexOf(j)>-1)});
+    $('#bCount').textContent=on.length?on.length+' service'+(on.length>1?'s':'')+' a year'+(bs.w&&bs.d?', each on the '+['1st','2nd','3rd','4th'][+bs.w-1]+' '+{MON:'Monday',TUES:'Tuesday',WED:'Wednesday',THUR:'Thursday',FRI:'Friday'}[bs.d]+'.':'.'):'Pick a cycle and start month to see the service months.';
+  }
+  function loadReq(n){rq=n;bs={c:null,m:null,w:null,d:null};$$('.builder .seg button, .builder .pick button').forEach(function(b){b.setAttribute('aria-pressed','false')});
+    $('#bReq').textContent=REQ[n].q;$('#bReqN').textContent='Request '+(n+1)+' of '+REQ.length;renderB();}
+  $('#bSkip').addEventListener('click',function(){loadReq((rq+1)%REQ.length)});
+  $('#bCheck').addEventListener('click',function(){
+    var r=REQ[rq],want=codeOf(r),got=codeOf(bs);
+    if(!bs.c||!bs.m||!bs.w||!bs.d){$('#bFb').innerHTML='<div class="fb no">Choose a cycle, month, week and day first.</div>';return;}
+    if(got===want){var done=store.get('bld')||{};done[rq]=1;store.set('bld',done);$('#bFb').innerHTML='<div class="fb">Correct: <b>'+want+'</b>.'+(rq<REQ.length-1?' Select Next request for the next one.':' You built all three.')+'</div>';}
+    else{var hint=bs.c!==r.c?'Check the cycle letter.':bs.m!==r.m?'Check the start month.':bs.w!==r.w?'Check the week number.':'Check the weekday.';$('#bFb').innerHTML='<div class="fb no">Not yet. '+hint+'</div>';}
+  });
+  loadReq(0);
+
+  /* ---------- channel picker ---------- */
+  var CH=[
+    {s:'A safety problem or emergency at a customer\'s property',c:'Phone, right away',i:'i-phone',w:'Call your supervisor or the office. Never wait on an email or chat reply for anything urgent or safety related.'},
+    {s:'A quick question for a coworker about today',c:'Google Chat',i:'i-chat',w:'Fast, internal and informal enough, but still professional.'},
+    {s:'Service notes the office needs to act on',c:'technotes@clementspestcontrol.com',i:'i-mail',w:'Email the Customer Service Team, and make sure the details are also in your PestPac comments.'},
+    {s:'Confirming a decision or approval in writing',c:'Email',i:'i-mail',w:'Email creates a record both sides can refer back to. For example, PTO callback coverage is confirmed by email to the branch manager and HR.'},
+    {s:'Setting up a meeting or training session',c:'Google Calendar invitation',i:'i-cal',w:'An invitation puts it on everyone\'s calendar, and RSVPs show who is coming.'},
+    {s:'A customer wants to update the card on file',c:'Transfer to the office',i:'i-headset',w:'Customer service and Finance handle payment details through the approved process. Never take card numbers by chat, text or email.'}
+  ];
+  var chb=$('#chan');
+  CH.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.id='ch'+i;b.setAttribute('aria-pressed','false');b.textContent=c.s;
+    b.addEventListener('click',function(){$$('button',chb).forEach(function(x){x.setAttribute('aria-pressed',x===b)});$('#chanOut').innerHTML=ico(c.i)+'<span><b>'+c.c+'.</b> '+c.w+'</span>'});chb.appendChild(b)});
+
+  /* ---------- which system matcher ---------- */
+  var MS=[['PestPac','i-clip'],['PestPac Mobile','i-phone'],['Gmail','i-mail'],['Google Calendar','i-cal'],['Google Chat','i-chat'],['Paychex Flex','i-dollar'],['CanopyOS','i-grid']];
+  var MQ=[
+    {q:'You want to see last week\'s pay stub.',a:5,e:'Pay stubs, tax forms and direct deposit are in Paychex Flex.'},
+    {q:'You\'ve just arrived at a customer\'s home for service.',a:1,e:'Log in to the appointment in PestPac Mobile on arrival, before you start.'},
+    {q:'A new customer\'s agreement needs to be entered so service can start.',a:0,e:'Routing &amp; Logistics enters new agreements in PestPac.'},
+    {q:'You need to take your next certification course.',a:6,e:'Training and certifications live in CanopyOS.'},
+    {q:'You need to request three days of PTO next month.',a:5,e:'PTO requests go through Paychex Flex, 2 weeks ahead for office staff, 3 weeks for technicians and 2 months for HOA technicians.'},
+    {q:'You have a quick question for a coworker at the corporate office.',a:4,e:'Google Chat is for quick internal questions.'},
+    {q:'You\'re invited to the monthly safety meeting.',a:3,e:'Accept or decline the Google Calendar invitation so the organizer knows.'},
+    {q:'A vendor needs a professional written reply about an order.',a:2,e:'Gmail, written like letterhead: proper grammar, no slang or emoji.'},
+    {q:'You need to check a customer\'s service history and past technician comments.',a:0,e:'Service history and comments are in the customer\'s PestPac account (PestPac Mobile shows it to technicians in the field).'},
+    {q:'You need a coworker\'s current title from the company directory.',a:6,e:'CanopyOS keeps the live company directory.'}
+  ];
+  var mt=$('#match'), mi=0, mOk=store.get('mok')||{};
+  function showM(){
+    var q=MQ[mi];
+    mt.innerHTML='<div class="q"><div class="prog" aria-hidden="true">'+MQ.map(function(_,j){return '<i class="'+(mOk[j]?'ok':(j===mi?'cur':''))+'"></i>'}).join('')+'</div><span class="eyebrow">Task '+(mi+1)+' of '+MQ.length+'</span><div class="card"><p>'+q.q+'</p></div><div id="mFb"></div></div><div class="sys">'+MS.map(function(s,j){return '<button type="button" id="ms'+mi+'_'+j+'" data-j="'+j+'">'+ico(s[1])+'<span>'+s[0]+'</span></button>'}).join('')+'</div>';
+    $$('.sys button',mt).forEach(function(b){b.addEventListener('click',function(){
+      var j=+b.dataset.j;$$('.sys button',mt).forEach(function(x){x.classList.remove('wrong')});
+      if(j===q.a){b.classList.add('right');$$('.sys button',mt).forEach(function(x){x.disabled=true});mOk[mi]=1;store.set('mok',mOk);$('.prog i',mt)&&($$('.prog i',mt)[mi].className='ok');
+        var n=Object.keys(mOk).length;
+        $('#mFb').innerHTML='<div class="fb">'+q.e+'</div><div style="margin-top:10px">'+(mi<MQ.length-1?'<button type="button" class="btn primary" id="mNext">Next task</button>':'<span class="fb" style="display:inline-block">'+(n===MQ.length?'All ten matched.':'Done. '+n+' of 10 matched on the first try or later.')+'</span> <button type="button" class="btn" id="mAgain">Start over</button>')+'</div>';
+        var nx=$('#mNext');if(nx)nx.addEventListener('click',function(){mi++;showM()});var ag=$('#mAgain');if(ag)ag.addEventListener('click',function(){mi=0;mOk={};store.set('mok',mOk);showM()});}
+      else{b.classList.add('wrong');$('#mFb').innerHTML='<div class="fb no">Not that one. Think about what the task is for: customers and service, communication, or your own pay and training.</div>';}
+    })});
+  }
+  showM();
+
+  /* ---------- password length demo ---------- */
+  var pw=$('#pwIn');
+  pw.addEventListener('input',function(){
+    var v=pw.value,L=v.length,low=v.toLowerCase(),bad=/password|clements|pestpac|qwerty|letmein|welcome|admin|1234|abcd/.test(low)||/^(\d+)$/.test(v)||/(spring|summer|fall|winter)\d{2,4}/.test(low);
+    var pct,msg,col;
+    if(!L){pct=0;msg='Nothing typed here is saved or sent anywhere.';col='var(--brand-600)'}
+    else if(bad){pct=12;msg='Weak: it contains a word, pattern or number run attackers try first.';col='var(--danger)'}
+    else if(L<10){pct=25;msg=L+' characters. Weak: short passwords fall to automated guessing quickly.';col='var(--danger)'}
+    else if(L<15){pct=58;msg=L+' characters. Better, but aim for 15 or more. Add another word.';col='var(--brand-400)'}
+    else{pct=100;msg=L+' characters. Strong length. Keep it unique to this one account, and pair it with 2-Step Verification.';col='var(--positive)'}
+    $('#pwBar').style.width=pct+'%';$('#pwBar').style.background=col;$('#pwOut').textContent=msg;
+  });
+
+  /* ---------- phishing flags flip ---------- */
+  var PF=[
+    {t:'Urgency or threats',i:'i-clock',f:'"Act within 24 hours or else."',b:'Pressure is the scammer\'s main tool: your pay will be held, the boss needs it now. <b>Slow down</b> and verify by phone.'},
+    {t:'The sender is off',i:'i-user',f:'Right name, wrong address.',b:'Look at the actual address, not the display name. Lookalike domains (paychex-flexsecure.com) and personal Gmail accounts using a leader\'s name are classic signs.'},
+    {t:'Links that lie',i:'i-link',f:'The text says one thing, the link goes elsewhere.',b:'Hover on a computer, or press and hold on a phone, to preview where a link really goes. <b>Better:</b> open the app or a saved bookmark yourself.'},
+    {t:'Asks for logins, codes or money',i:'i-key',f:'Passwords, 2-Step codes, gift cards, bank changes.',b:'No legitimate company, coworker or leader will ask for your password or a verification code. Gift card requests by email or text are always a scam.'},
+    {t:'Unexpected attachments',i:'i-clip',f:'"Invoice.zip", "Deposit_Form.html".',b:'Don\'t open attachments you weren\'t expecting, especially .zip, .html, .exe or files that ask you to "enable content". Confirm with the sender another way.'},
+    {t:'Generic or slightly wrong',i:'i-search',f:'"Dear Employee." Odd spelling or tone.',b:'Real messages from people who know you use your name and sound like them. Generic greetings, odd wording and "can\'t talk" excuses are warning signs.'}
+  ];
+  var pfl=$('#pflip');
+  PF.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='pf'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox" style="margin:0">'+ico(v.i)+'</span><h3>'+v.t+'</h3><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});pfl.appendChild(b)});
+
+  /* ---------- spot the phish ---------- */
+  function hot(id,txt){return '<button type="button" class="hot" data-h="'+id+'">'+txt+'</button>'}
+  var PH=[
+    {n:'Email 1 · Payroll notice',
+     html:function(){return '<div class="mh"><div><span class="lab">From</span>'+hot('from','Paychex Payroll &lt;payroll@paychex-flexsecure.com&gt;')+'</div><div><span class="lab">To</span>'+hot('to','you@clementspestcontrol.com')+'</div><div><span class="lab">Subject</span>'+hot('subj','<b>ACTION REQUIRED: Direct Deposit Suspended</b>')+'</div><div><span class="lab">Date</span>'+hot('date','Tue 9:14 AM')+'</div></div><div class="mb"><p>'+hot('greet','Dear Employee,')+'</p><p>We were unable to verify your direct deposit account. '+hot('threat','Your next paycheck will be held unless you verify within 24 hours.')+'</p><p>'+hot('ask','Sign in with your Paychex username and password and confirm your bank routing and account number')+' to restore payment.</p><p>'+hot('link','<span class="btnlink">Verify My Account</span> <span class="small muted">(link preview: paychex-flex.verify-login.co/auth)</span>')+'</p><p>'+hot('att','<span class="att">'+ico('i-clip','width:16px;height:16px')+'Deposit_Form.html</span>')+'</p><p>'+hot('sig','Thank you,<br>Paychex Support Team')+'</p></div>'},
+     f:{from:'Lookalike domain. Paychex does not send from "paychex-flexsecure.com". Check the real address, not the display name.',subj:'All-caps urgency in the subject is designed to make you panic and click.',greet:'Generic greeting. A real notice about your pay would use your name.',threat:'A deadline plus a threat to your paycheck: classic pressure.',ask:'Asking for your password and bank details. No legitimate company asks for these by email.',link:'The button goes to "verify-login.co", not Paychex. Open the Paychex Flex app yourself instead.',att:'An unexpected .html attachment can open a fake login page or run code.'},
+     d:{to:'Your own company address being on the To line is normal.',date:'A weekday morning timestamp tells you nothing either way.',sig:'A sign-off is normal, though anyone can type "Support Team".'}},
+    {n:'Email 2 · A favor from the boss',
+     html:function(){return '<div class="mh"><div><span class="lab">From</span>'+hot('from','Chris Slade &lt;chris.slade.coo.office@gmail.com&gt;')+'</div><div><span class="lab">To</span>'+hot('to','you@clementspestcontrol.com')+'</div><div><span class="lab">Subject</span>'+hot('subj','Quick favor')+'</div><div><span class="lab">Date</span>'+hot('date','Fri 4:52 PM')+'</div></div><div class="mb"><p>'+hot('urg','Are you at your desk? I need this handled before 5.')+'</p><p>I\'m in back-to-back meetings and need you to take care of something '+hot('secret','discreetly, please keep this between us')+'.</p><p>'+hot('gift','Buy five $100 gift cards for a customer appreciation, scratch the backs and email me photos of the codes.')+' I\'ll reimburse you Monday.</p><p>'+hot('nocall','Don\'t call, I can\'t talk right now.')+'</p><p>'+hot('sig','Chris<br><span class="small muted">Sent from my iPhone</span>')+'</p></div>'},
+     f:{from:'A personal Gmail address using a leader\'s name. Company leaders email from @clementspestcontrol.com. Display names are easy to fake.',urg:'Late-Friday urgency so you act before anyone can check.',secret:'Secrecy is a red flag. Real requests can be confirmed openly.',gift:'Gift card codes are untraceable cash. Any gift card request by email or text is a scam, no matter whose name is on it.',nocall:'"Don\'t call" stops you from verifying. Call the person at a number you already have.'},
+     d:{to:'Your company address is expected.',subj:'"Quick favor" is vague, but a subject line alone isn\'t the giveaway here. The request is.',date:'The time matters only with the "before 5" pressure, which you can flag in the body.',sig:'"Sent from my iPhone" is common in real email too. Judge the request, not the signature.'}}
+  ];
+  var pt=$('#phTabs'), pm=$('#phMail'), pcur=0, pFound={};
+  function phUpdate(){var p=PH[pcur],tot=Object.keys(p.f).length,got=Object.keys(pFound[pcur]||{}).filter(function(k){return p.f[k]}).length;
+    $('#phCount').textContent=got+' of '+tot+' red flags found'+(got===tot?' · complete':'');$('#phBar').style.width=(got/tot*100)+'%';
+    if(got===tot)$$('button',pt)[pcur].classList.add('done');}
+  function logPh(k){var p=PH[pcur],fl=p.f[k];var d=document.createElement('div');if(!fl)d.className='fine';d.innerHTML=(fl?'<b>Red flag.</b> '+fl:'<b>Not a red flag.</b> '+p.d[k]);$('#phLog').prepend(d)}
+  function showPh(n){pcur=n;pFound[n]=pFound[n]||{};$$('button',pt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+    pm.innerHTML=PH[n].html();$('#phLog').innerHTML='';
+    $$('.hot',pm).forEach(function(h,j){h.id='ph'+n+'_'+j;var k=h.dataset.h;
+      if(pFound[n][k])h.classList.add(PH[n].f[k]?'found':'fine');
+      h.addEventListener('click',function(){if(pFound[n][k])return;pFound[n][k]=1;h.classList.add(PH[n].f[k]?'found':'fine');logPh(k);phUpdate()})});
+    phUpdate();}
+  PH.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.id='pht'+i;b.textContent=p.n;b.addEventListener('click',function(){showPh(i)});pt.appendChild(b)});
+  $('#phReveal').addEventListener('click',function(){var p=PH[pcur];$$('.hot',pm).forEach(function(h){var k=h.dataset.h;if(p.f[k]&&!pFound[pcur][k]){pFound[pcur][k]=1;h.classList.add('found');logPh(k)}});phUpdate()});
+  showPh(0);
+
+  /* ---------- security scenarios ---------- */
+  var SS=[
+    {n:'The locked-out coworker',s:'A coworker is locked out of PestPac and has entries to finish before the end of the day. She asks to use your login "just this once."',o:['Log in for her and let her work','Text her your password so she can do it herself','Decline, and help her contact her supervisor to get her access reset','Share it, then change your password tomorrow'],a:2,e:'Never share a login. Everything done under your login is recorded as you. A locked-out account gets reset through the supervisor or whoever manages access.'},
+    {n:'The "support" call',s:'A caller says he\'s from Google support. Your account has "suspicious activity" and he needs the 6-digit code that was just texted to you.',o:['Read him the code so he can secure the account','Hang up, don\'t share the code, and tell your supervisor. Then change your password','Ask him to email you first, then share it','Give him half the code'],a:1,e:'A code you didn\'t request means someone has your password and is trying to get in. Sharing it hands them your account. Real support never asks for it.'},
+    {n:'The neighbor at the gate',s:'While you\'re servicing a home, a woman next door says she\'s the customer\'s daughter. She asks what day we usually come and for the gate code, so she can "let herself in."',o:['Give her the schedule but not the code','Politely decline, and suggest she contact the customer or our office','Give both; she knows the customer\'s name','Show her the account notes in PestPac Mobile'],a:1,e:'Customer schedules and access notes are confidential. You can\'t verify who she is. Be polite, share nothing, and refer her to the customer or the office.'},
+    {n:'The prompt you didn\'t start',s:'You\'re eating lunch and your phone shows a Google sign-in prompt: "Is this you trying to sign in?" You aren\'t signing in anywhere.',o:['Tap Yes to make it go away','Ignore it','Tap No, change your password, and tell your supervisor','Turn off 2-Step Verification so it stops'],a:2,e:'An unexpected prompt means someone has your password. Deny it, change the password, and report it so the company can check for other activity.'}
+  ];
+  var st=$('#sTabs'), sbx=$('#sBox'), sDone=store.get('sec')||{};
+  function showS(n){
+    $$('button',st).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!sDone[j])});
+    var s=SS[n];
+    sbx.innerHTML='<div class="card"><span class="eyebrow">The situation</span><p style="margin-top:6px;font-size:17px">'+s.s+'</p></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="sFb"></div>';
+    $$('.choice',sbx).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',sbx).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',sbx).forEach(function(x){x.disabled=true});sDone[n]=1;store.set('sec',sDone);$$('button',st)[n].classList.add('done');
+        $('#sFb').innerHTML='<div class="fb">'+s.e+(n<SS.length-1?' <button type="button" class="btn" id="sNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#sNext');if(nx)nx.addEventListener('click',function(){showS(n+1)});}
+      else{b.classList.add('wrong');$('#sFb').innerHTML='<div class="fb no">Which choice keeps the account and the customer\'s information safe? Try again.</div>';}
+    })});
+  }
+  SS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='st'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showS(i)});st.appendChild(b)});
+  showS(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

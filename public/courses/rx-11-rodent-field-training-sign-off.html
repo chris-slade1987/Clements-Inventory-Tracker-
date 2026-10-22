@@ -1,0 +1,1358 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-11 Rodent Field Training &amp; Sign-Off</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* TERM-FLD · termite field training */
+.row-ic{display:flex;gap:14px;align-items:flex-start}
+.row-ic .icobox{margin:0;flex:0 0 40px}
+.dl{list-style:none;display:grid;gap:6px;margin-top:8px}
+.dl li{position:relative;padding-left:16px;font-size:15px;color:var(--ink)}
+.dl li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.card.law h3{font-size:20px;margin-top:4px}
+.mini{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;font-size:14px;color:var(--muted)}
+.mini .big{font-size:40px;font-weight:300;line-height:1;color:var(--brand-600);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.path .st .n{font-size:13px}
+.who5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.who5 .card{padding:16px}
+.who5 h3{font-size:16px}
+.who5 p{font-size:14px}
+
+/* day explorer */
+.dayrail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}
+.dayrail button{display:grid;gap:2px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;position:relative;overflow:hidden;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.dayrail button b{font-weight:500;font-size:15px}
+.dayrail button span{font-size:13px;color:var(--muted)}
+.dayrail button::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--brand-600);transform:scaleX(0);transform-origin:left;transition:transform .2s ease-in-out}
+.dayrail button.seen::after{transform:scaleX(.35);background:var(--brand-300)}
+.dayrail button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.dayrail button[aria-pressed="true"]::after{transform:scaleX(1);background:var(--brand-600)}
+.daycard{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px 22px;display:grid;gap:16px;animation:fadeup .2s ease-out}
+.daycard p{font-size:15px;color:var(--ink);margin-top:4px}
+.dayhead{display:flex;gap:20px;justify-content:space-between;align-items:flex-end}
+.dayhead h3{font-size:22px;margin-top:4px}
+.wheel{flex:0 0 220px;display:grid;gap:6px}
+.hbar{height:8px;border-radius:var(--pill);background:var(--brand-100);overflow:hidden}
+.hbar i{display:block;height:100%;background:var(--brand-600);border-radius:var(--pill);transition:width .5s ease-in-out}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* schedule cards */
+.sched ol{list-style:none;display:grid;gap:8px;margin:8px 0 0;padding:0}
+.sched li{display:grid;grid-template-columns:62px 1fr;gap:8px;font-size:14px;color:var(--ink);line-height:1.45}
+.sched li b{font-weight:500;color:var(--brand-700);font-variant-numeric:tabular-nums}
+
+/* checklist order */
+#ckOrder{gap:7px}
+#ckOrder button{padding:9px 14px;font-size:15px}
+
+/* form mock */
+.formmock{background:#fff;border:1px solid var(--ink);border-radius:6px;box-shadow:var(--shadow-card);padding:12px;display:grid;gap:6px}
+.fmtop{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px}
+.fmrow{display:grid;grid-template-columns:1fr 1fr 90px;gap:8px;font-size:11px;color:var(--muted)}
+.fmrow span{border-bottom:1px solid var(--muted);padding:10px 0 2px}
+.fsec{display:grid;gap:1px;text-align:left;background:transparent;border:1px dashed var(--brand-200);border-radius:6px;padding:8px 12px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.fsec b{font-weight:500;font-size:14px}
+.fsec span{font-size:12px;color:var(--muted)}
+.fsec:hover{border-color:var(--brand-400);background:var(--brand-50)}
+.fsec.seen{border-style:solid}
+.fsec[aria-pressed="true"]{border:1px solid var(--brand-600);background:var(--brand-50);box-shadow:0 0 0 3px rgba(46,111,71,.12)}
+
+/* tracker */
+.trk{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:start}
+.trk > *{min-width:0}
+.trkt{width:100%;font-size:14px}
+.trkt td{padding:6px 10px;vertical-align:middle}
+.trkt input{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%;min-width:0}
+.trkt input[type=number]{max-width:84px}
+.hcell{font-variant-numeric:tabular-nums;font-weight:500;color:var(--brand-700);text-align:right}
+.tot{display:flex;gap:10px;align-items:baseline}
+.tot b{font-size:44px;font-weight:300;line-height:1;color:var(--brand-600);font-variant-numeric:tabular-nums}
+.tot span{color:var(--muted);font-size:14px}
+.tot.sm b{font-size:28px}
+
+/* signature table */
+.sgt{font-size:14px}
+.sgt td{padding:8px 12px}
+
+/* sorts */
+#ctSort,#spSort{gap:6px}
+#ctSort .row,#spSort .row{font-size:14px;padding:7px 12px}
+#ctSort .why,#spSort .why{display:block;font-size:12px;margin-top:2px;line-height:1.35}
+#ctSort .opts button,#spSort .opts button{padding:4px 11px;white-space:nowrap}
+
+/* scenarios */
+.rdch{grid-template-columns:1fr 1fr}
+.rdch .choice{padding:10px 14px;font-size:15px}
+
+/* sign-off */
+.sohead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.sotot{display:grid;justify-items:end;line-height:1.1;flex:0 0 auto}
+.sotot b{font-size:26px;font-weight:300;color:var(--brand-600);font-variant-numeric:tabular-nums}
+.sotot span{font-size:12px;color:var(--muted)}
+.sogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sog{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px 6px;min-width:0;transition:border-color .18s ease-in-out}
+.sog.done{border-color:var(--positive)}
+.sogh{display:flex;gap:8px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:2px}
+.sogh b{font-weight:500;font-size:13px}
+.sogh span{font-size:12px;color:var(--muted)}
+.sogh em{margin-left:auto;font-style:normal;font-size:12px;color:var(--brand-600);font-variant-numeric:tabular-nums}
+.sog.done .sogh em{color:var(--positive)}
+.sog ul{list-style:none;margin:0;padding:0;display:grid}
+.sog label{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.35;padding:3px 0;cursor:pointer}
+.sog input{accent-color:var(--brand-600);width:15px;height:15px;margin-top:1px;flex:0 0 auto}
+.sog small{font-size:10.5px;color:var(--muted);letter-spacing:.04em;white-space:nowrap}
+
+@media (max-width:860px){
+  .who5,.dayrail,.trk,.rdch,.sogrid{grid-template-columns:1fr}
+  .dayhead{flex-direction:column;align-items:stretch}
+  .wheel{flex:none}
+  .sohead{flex-direction:column;align-items:flex-start}
+  .sotot{justify-items:start}
+}
+.draw.ttl path,.draw.ttl rect,.draw.ttl circle{stroke-dasharray:720;stroke-dashoffset:720}
+@media (prefers-reduced-motion:reduce){.draw.ttl path,.draw.ttl rect,.draw.ttl circle{stroke-dashoffset:0}.daycard{animation:none}.hbar i,.dayrail button::after{transition:none}}
+
+.slide.snug.on{gap:14px}
+.slide.so{padding:22px 40px}
+.slide.so h2{font-size:26px}
+.sog label{font-size:12px;line-height:1.3;padding:2px 0}
+.sog{padding:6px 10px 4px}
+@media (max-width:860px){.slide.so{padding:28px 20px}}
+.slide.so.on{gap:10px}
+.fsec{padding:6px 12px}
+.formmock{gap:5px}
+.slide.so{padding:16px 40px 18px}.sogh{padding-bottom:3px}.sog ul{gap:0}
+.slide.so .sog label{padding:1px 0}
+.trkt{min-width:0}
+@media (min-width:861px){.trk{grid-template-columns:1.6fr 1fr}}
+.trkt th{padding:8px 8px}
+.trkt td{padding:5px 8px}
+.trkt input[type=time]{width:128px}
+.trkt input[type=number]{width:64px}
+.trkt td:first-child{white-space:nowrap}
+@media (max-width:860px){.trkt{min-width:520px}}
+
+/* rig explorer */
+.rig{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px}
+.rigart{display:block;width:100%;height:auto;stroke:var(--brand-600);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rig .hot{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;border:1px solid var(--brand-600);background:var(--surface);color:var(--brand-700);font-size:13px;font-weight:500;display:grid;place-items:center;padding:0;transition:background .18s ease-in-out,color .18s ease-in-out,box-shadow .18s ease-in-out}
+.rig .hot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--brand-300);animation:ping 2.4s ease-in-out infinite}
+.rig .hot.seen{background:var(--brand-100)}
+.rig .hot.seen::after{animation:none;opacity:0}
+.rig .hot[aria-pressed="true"]{background:var(--brand-600);color:#fff;box-shadow:0 0 0 4px rgba(46,111,71,.16)}
+@keyframes ping{0%{transform:scale(.9);opacity:.9}70%{transform:scale(1.35);opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.rig .hot::after{animation:none}}
+#ckOrder button{padding:7px 14px;font-size:14.5px}
+#lwSort{gap:6px}
+#lwSort .row{font-size:14px;padding:7px 12px}
+#lwSort .why{display:block;font-size:12px;margin-top:2px;line-height:1.35}
+#lwSort .opts button{padding:4px 11px;white-space:nowrap}
+.rules{gap:10px}
+.rules .card.rule{padding:12px 16px}
+.rules .card.rule h3{font-size:17px}
+.rules .card.rule p{font-size:14px;margin-top:2px}
+/* TERM-FLD additions */
+#ctSort,#crSort,#coSort{gap:6px}
+#crSort .row,#coSort .row{font-size:14px;padding:7px 12px}
+#crSort .why,#coSort .why{display:block;font-size:12px;margin-top:2px;line-height:1.35}
+#crSort .opts button,#coSort .opts button{padding:4px 11px;white-space:nowrap}
+#crSort .opts{display:flex;gap:6px;flex:0 0 auto}
+#lqOrder{gap:7px}
+#lqOrder button{padding:8px 14px;font-size:14.5px}
+.rig .lab{position:absolute;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);pointer-events:none;white-space:nowrap}
+.tgt{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tgt label{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.tgt input{font:inherit;font-size:14px;width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.dayrail button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:860px){#crSort .row{flex-direction:column;align-items:flex-start}.rig .lab{font-size:9px}}
+/* RX-11 additions */
+.dayrail.ph4{grid-template-columns:repeat(4,1fr)}
+#phSort,#coSort,#ctSort{gap:6px}
+#phSort .row{font-size:14px;padding:7px 12px}
+#phSort .why{display:block;font-size:12px;margin-top:2px;line-height:1.35}
+#phSort .opts button{padding:4px 11px;white-space:nowrap}
+#inOrder{gap:7px}
+#inOrder button{padding:8px 14px;font-size:14.5px}
+.mopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mopts .btn{padding:8px 10px;font-size:14px;text-align:center}
+.phx{display:grid;gap:6px}
+.phr{display:grid;grid-template-columns:64px 1fr 70px;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.phr b{font-weight:500;color:var(--brand-700);font-variant-numeric:tabular-nums;text-align:right;font-size:13px}
+.trkt select{font:inherit;font-size:14px;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.trkt input[type=time]{width:118px}
+@media (max-width:860px){#phSort .row{flex-direction:column;align-items:flex-start}.trkt{min-width:600px}}
+.trkt input[type=time]{width:108px}
+.trkt select{padding:5px 4px}
+#phSort .row{padding:6px 12px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 29</span><span class="code-chip">RX-11 · Rodent Field Training</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.6 1.7-2.3 3-2.3s2.4.7 3 2.3"/><path d="M14 10h4M14 13h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15h6M9 18h4"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/><path d="M4 20h16"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10"/><path d="M5 7h14"/><path d="M5 7l-3 6a3 3 0 006 0zM19 7l-3 6a3 3 0 006 0z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M7 7h10M7 11h10M7 15h10M7 19h10"/></symbol>
+    <symbol id="i-mesh" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"/></symbol>
+    <symbol id="i-trap" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="6" rx="1"/><path d="M6 13c0-4 3-7 7-7"/><path d="M14 16h4"/><circle cx="7" cy="16" r="1"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-11</span>
+        <h1 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Rodent Field Training &amp; Sign-Off</h1>
+        <p class="lead a" style="--i:2">Supervised Rodent Shield jobs in Vero Beach that turn RX-01 to RX-10 into work you can do on your own, from the first walk-around to the last follow-up.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min · 20–30 field hours</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw ttl a" style="--i:2;max-width:360px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 300 260" aria-hidden="true">
+        <path d="M10 214h280"/>
+        <path d="M60 214v-92h150v92"/>
+        <path d="M44 124l91-62 91 62"/>
+        <path d="M118 104l17-12 17 12v14h-34z"/><path d="M124 108h22M124 113h22M130 100v18M140 100v18"/>
+        <rect x="80" y="146" width="34" height="30"/><path d="M97 146v30M80 161h34"/>
+        <rect x="160" y="166" width="26" height="48"/>
+        <path d="M74 214v-10h10v10"/><path d="M76 207h6"/>
+        <rect x="128" y="186" width="20" height="16" rx="1"/><path d="M128 191.3h20M128 196.6h20M134.6 186v16M141.3 186v16"/>
+        <path d="M232 214l26-136M262 214l26-136"/><path d="M236 194h30M240 172h30M244 150h30M248 128h30M252 106h30"/>
+        <path d="M18 214c0-14 10-22 24-22 8 0 15 5 17 12l-7 2"/><circle cx="31" cy="198" r="2.5"/><path d="M44 214c5 0 10 3 10 8"/>
+        <rect x="196" y="204" width="28" height="10" rx="1"/><path d="M200 204c0-6 5-10 11-10"/>
+        <path d="M226 120c-8-14-2-30 10-36M236 84c4 10 2 24-6 34"/><path d="M226 120v94" stroke-dasharray="3 5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of Rodent Shield field training you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-scale"/></svg><span>Explain why trapping, baiting <b>and</b> exclusion are all pest control under Florida law, and what has to be in place before you run a Rodent Shield job alone</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cal"/></svg><span>Work through the three phases, shadow, assisted and supervised independence, and know what gates each step forward</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span>Run a systematic inspection, read the signs, measure entry points and call the job Basic or Plus</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-mesh"/></svg><span>Match every opening to the approved material, cement first, and seal it to the Clements standard, on the ground and at height</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-trap"/></svg><span>Place and service traps the way the rodent actually travels, and run a complete follow-up visit safely</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-pen"/></svg><span>Log your phase hours honestly, pass the Practical Field Assessment and know who signs what before certification</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">A patch that fails <span class="em">fails the warranty.</span></h2>
+        <p class="lead a" style="--i:2">Rats test every repair, every night. Foam in the wrong place, a cloth patch with no overlap or a missed roofline gap shows up as a callback within months, and on a Plus account it lands on the warranty.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Customers are told you're certified</h3><p>The Rodent Shield certification is a Clements standard, above state licensing, that sales and customer materials can point to. It has to mean something on every job.</p></div></div></div>
+        <div class="card a" style="--i:4"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-file"/></svg></div><div><h3>Your photos are the warranty record</h3><p>The entry point PDF and PestPac photos from the first visit define what's covered. Declined points, courtesy repairs and limits all have to be on file.</p></div></div></div>
+        <div class="card a" style="--i:5"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Attics, roofs and biohazards</h3><p>Rodent jobs put you on ladders, in attics well over 120°F and around droppings and urine that carry disease. The safe way is the only way you'll be signed off.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WHERE IT FITS -->
+  <section class="slide" data-label="Where this course fits">
+    <span class="eyebrow a">Where this course fits</span>
+    <h2 class="a" style="--i:1">The last step of the Rodent Exclusion module</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><span class="n">CW</span><h3>The Clements Way</h3><p>CW-01 to CW-10. Who we are, what we sell (Rodent Shield in CW-05), policies and safety basics.</p></div>
+      <div class="st a" style="--i:3"><span class="n">FC</span><h3>Field Core</h3><p>FC-01 to FC-11. Labels and law, PPE and respirators, ladders, PestPac Mobile, the service visit.</p></div>
+      <div class="st a" style="--i:4"><span class="n">RX</span><h3>Rodent courses</h3><p>RX-01 to RX-09, 4–5 hours of self-study, then the RX-10 scored knowledge check at 80%.</p></div>
+      <div class="st top a" style="--i:5"><span class="n">FLD</span><h3>Field training</h3><p>This course. 20–30 supervised hours in Vero Beach, the Practical Field Assessment, then certification.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span>Field training starts <b>after you pass RX-10</b>. Certification needs the written check, the field sign-off and operations approval.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-book"/></svg><span>This course doesn't re-teach RX-01 to RX-09. It shows how the field hours run, what your lead will watch and what has to be on file before you work alone.</span></div>
+    </div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one: the law, the hours and who trains you">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The law, the hours and who trains you</h1>
+        <p class="lead a" style="--i:2">Why it matters: "it's only sealing holes" is not how Florida sees it. Rodent work is licensed pest control, and Clements adds its own certification on top. You need both keys before you work alone.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>What Florida requires</li><li><span>02</span>Practice: does it count?</li><li><span>03</span>Who's who in your training</li></ol>
+    </div>
+  </section>
+
+  <!-- 6 THE LAW -->
+  <section class="slide" data-label="What Florida requires">
+    <span class="eyebrow a">01 · What Florida requires</span>
+    <h2 class="a" style="--i:1">Exclusion is pest control, even with no pesticide</h2>
+    <div class="grid g2">
+      <div class="card law a" style="--i:2"><span class="eyebrow">Statute · Fla. Stat. 482.021</span><h3>What counts as pest control</h3><ul class="dl">
+        <li>Any <b>method or device</b> used to prevent or control a pest in, on or under a structure: sealing entry points is a method</li>
+        <li>Any <b>pesticide or mechanical device</b> used against rodents: traps and bait stations</li>
+        <li>Inspecting for an infestation is pest control too</li>
+        <li>Structural rodent work falls in the <b>general household pest (GHP)</b> category; rodenticide baiting always needs it</li></ul></div>
+      <div class="card law a" style="--i:3"><span class="eyebrow">Statute 482.091(3) · Rule 5E-14.1421</span><h3>Field training before solo work</h3><ul class="dl">
+        <li>At least <b>5 days</b> of field training in the category, under a certified operator, before you inspect or apply alone</li>
+        <li><b>40 hours</b>, recorded on FDACS-13665 and kept 2 years. For GHP, that's PC-FLD</li>
+        <li>A separate state <b>limited wildlife certificate</b> (482.157) allows nonchemical rodent control only. You work under our GHP license instead</li></ul></div>
+    </div>
+    <div class="grid g3">
+      <div class="mini a" style="--i:4"><b class="big">5</b><span>days and 40 hours of state GHP field training (PC-FLD)</span></div>
+      <div class="mini a" style="--i:5"><b class="big">20–30</b><span>Rodent Shield field hours, a Clements standard</span></div>
+      <div class="mini a" style="--i:6"><b class="big">0</b><span>solo Rodent Shield jobs before sign-off and approval</span></div>
+    </div>
+  </section>
+
+  <!-- 7 PRACTICE DOES IT COUNT -->
+  <section class="slide" data-label="Practice: does it count?">
+    <span class="eyebrow a">02 · Practice</span>
+    <h2 class="a" style="--i:1">Does it count toward your Rodent Shield field hours?</h2>
+    <p class="a muted small" style="--i:2;margin-top:-8px;max-width:none">Supervised rodent work with your field training lead counts. Breaks, self-study, other services and solo work don't. Operations makes the final call on edge cases, so ask.</p>
+    <div class="sort a" style="--i:3" id="ctSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="ctCheck">Check my answers</button><span id="ctFb"></span></div>
+  </section>
+
+  <!-- 8 WHO'S WHO -->
+  <section class="slide" data-label="Who's who">
+    <span class="eyebrow a">03 · Who's who in your training</span>
+    <h2 class="a" style="--i:1">Five people have a part in your sign-off</h2>
+    <div class="who5">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-user"/></svg></div><h3>You, the candidate</h3><p>Passed RX-10. Show up in uniform with PPE, keep a written question log, practice every step, sign an honest record.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>Field training lead, Vero Beach</h3><p>Holds the Rodent Shield supervisor certification and at least 10 completed Plus jobs. Trains you, logs hours, marks the assessment.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>Your branch manager</h3><p>Makes sure you finish field training before Rodent Shield launches at your branch, and schedules your time in Vero Beach.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-shield"/></svg></div><h3>Operations</h3><p>Reviews the supervisor's sign-off sheet with your RX-10 result and approves certification.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-file"/></svg></div><h3>HR</h3><p>Logs the Vero Beach field training sign-off in your training file.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:7"><svg class="ico"><use href="#i-phone"/></svg><span>Training schedule: coordinate with the Vero Beach field training lead through your branch manager or Graham Foster, Director of Field Operations. Training file and HR policy: April Williford, Director of HR &amp; Administrative Affairs.</span></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: three phases, one standard">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Three phases, one standard</h1>
+        <p class="lead a" style="--i:2">Why it matters: the phases catch gaps before they become habits. You watch before you touch materials, you work with a coach before you work alone, and nobody advances on hours alone.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Shadow, assist, work independently</li><li><span>02</span>Practice: which phase?</li><li><span>03</span>Practice: the inspection walk</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 PHASE EXPLORER -->
+  <section class="slide" data-label="Shadow, assist, work independently">
+    <span class="eyebrow a">01 · Shadow, assist, work independently</span>
+    <h2 class="a" style="--i:1">Each phase has a model, a focus and a gate</h2>
+    <div class="dayrail ph4 a" style="--i:2" id="dayRail"></div>
+    <div class="a" style="--i:3" id="dayBox"></div>
+  </section>
+
+  <!-- 12 WHICH PHASE -->
+  <section class="slide" data-label="Practice: which phase?">
+    <span class="eyebrow a">02 · Practice</span>
+    <h2 class="a" style="--i:1">Which phase is this?</h2>
+    <p class="a muted small" style="--i:2;margin-top:-8px;max-width:none">Phase 1: your lead works. Phase 2: you work, your lead coaches. Phase 3: you work alone, your lead scores.</p>
+    <div class="sort a" style="--i:3" id="phSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="phCheck">Check my answers</button><span id="phFb"></span></div>
+  </section>
+
+  <!-- 13 INSPECTION ORDER -->
+  <section class="slide" data-label="Practice: the inspection walk">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Practice · the inspection walk</span>
+        <h2 class="a" style="--i:1">The systematic inspection</h2>
+        <p class="a muted" style="--i:2">Your lead runs this walk on every Phase 1 job, and you'll run it alone in Phase 3 (RX-02). Select the steps in order.</p>
+        <div class="card a" style="--i:3"><span class="eyebrow">Why the order matters</span><p style="margin-top:6px">The customer's account is your first evidence. Outside first shows you how they get in. The attic is last because it needs a respirator, and by then you know what you're looking for from the inside.</p></div>
+        <div id="inFb" class="a" style="--i:4"></div>
+      </div>
+      <div class="order a" style="--i:3" id="inOrder"></div>
+    </div>
+  </section>
+
+  <!-- 14 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 15 PART THREE -->
+  <section class="slide forest" data-label="Part three: exclusion, traps and follow-up">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Exclusion, traps and follow-up to standard</h1>
+        <p class="lead a" style="--i:2">Why it matters: these are the skills your lead marks Pass or Fail. The right material on the right opening, a trap on the actual path, and a follow-up that proves the work is holding.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Practice: match the material</li><li><span>02</span>The exclusion rules</li><li><span>03</span>Traps and follow-up visits</li><li><span>04</span>Practice: OK or fix it?</li><li><span>05</span>Staying safe on rodent jobs</li></ol>
+    </div>
+  </section>
+
+  <!-- 16 MATERIAL MATCH -->
+  <section class="slide" data-label="Practice: match the material">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Practice · match the material</span>
+        <h2 class="a" style="--i:1">Seven openings on one house</h2>
+        <p class="a muted small" style="--i:2;margin:0;max-width:none">Select each numbered opening and pick what your lead expects to see, per the Rodent Shield materials standard (RX-04).</p>
+        <div class="rig a" style="--i:3" id="mat">
+          <svg viewBox="0 0 560 300" aria-hidden="true" class="rigart">
+            <path d="M20 270h520"/>
+            <path d="M70 270V130h330v140"/>
+            <path d="M50 132l185-92 185 92"/>
+            <path d="M210 80l25-14 25 14v18h-50z" style="stroke:var(--brand-300)"/><path d="M218 86h34M218 92h34" style="stroke:var(--brand-300)"/>
+            <path d="M400 270V170h120v100" style="stroke:var(--brand-400)"/><path d="M400 170l60-30 60 30" style="stroke:var(--brand-400)"/>
+            <path d="M412 270v-70h96v70" style="stroke:var(--brand-300)"/><path d="M412 218h96M412 236h96M412 254h96" style="stroke:var(--brand-200)"/>
+            <rect x="110" y="160" width="60" height="50" style="stroke:var(--brand-300)"/><path d="M140 160v50M110 185h60" style="stroke:var(--brand-300)"/>
+            <rect x="250" y="180" width="40" height="90" style="stroke:var(--brand-300)"/>
+            <path d="M330 222h-30" style="stroke:var(--brand-400)"/><rect x="336" y="232" width="44" height="38" rx="3" style="stroke:var(--brand-400)"/><path d="M330 222v18h6" style="stroke:var(--brand-400)"/>
+            <path d="M92 270v-22h10" style="stroke:var(--brand-400)"/>
+            <circle cx="200" cy="232" r="9" style="stroke:var(--brand-400)"/><path d="M193 232h14" style="stroke:var(--brand-400)"/>
+            <path d="M150 222l6 8-4 10 5 6" style="stroke:var(--brand-300)"/>
+            <rect x="300" y="140" width="22" height="26" style="stroke:var(--brand-300)"/><path d="M304 160h14" style="stroke:var(--brand-300)"/>
+          </svg>
+          <span class="lab" style="left:30%;top:94%">Slab</span><span class="lab" style="left:83%;top:52%">Garage</span><span class="lab" style="left:64%;top:94%">A/C</span>
+        </div>
+      </div>
+      <div class="grid" style="gap:10px;align-content:start">
+        <div class="card a" style="--i:3" id="matDet"></div>
+        <p class="small muted a" style="--i:4;margin:0" id="matCount">0 of 7 openings matched</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 EXCLUSION RULES -->
+  <section class="slide snug" data-label="The exclusion rules">
+    <span class="eyebrow a">02 · The exclusion rules</span>
+    <h2 class="a" style="--i:1">What your lead checks on every sealed opening</h2>
+    <div class="grid g2 rules">
+      <div class="card rule a" style="--i:2"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><div><h3>Cement first, color-matched</h3><p>Cement is the primary material for every opening 1/2 inch and larger. Foam is a courtesy fix under 1/2 inch only: not billed, not warranted, never primary.</p></div></div></div>
+      <div class="card rule a" style="--i:3"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-mesh"/></svg></div><div><h3>Overlap and fasten</h3><p>1/4 inch galvanized hardware cloth overlaps at least 1 inch on every side; a sheet metal or wood patch at least 1.5 inches. Screws or staples, never adhesive. Edges sealed with cement.</p></div></div></div>
+      <div class="card rule a" style="--i:4"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><div><h3>Vents breathe</h3><p>Never cover or screen a dryer vent, bath or kitchen exhaust, HVAC exhaust or attic ventilation: fire, carbon monoxide and moisture risk. Gable vents get hardware cloth, never solid sealant.</p></div></div></div>
+      <div class="card rule a" style="--i:5"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-file"/></svg></div><div><h3>Document the scope</h3><p>Plus includes a set number of entry points; extra points are priced by the service advisor, never by you. Declined points go on the agreement with the homeowner's acknowledgment. Courtesy repairs go in the notes.</p></div></div></div>
+      <div class="card rule a" style="--i:6"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-search"/></svg></div><div><h3>1/2 inch is the line</h3><p>Rats need 1/2 inch, mice 1/4 inch. Every opening 1/2 inch and up is documented and drives the exclusion scope. Measure it; don't eyeball it.</p></div></div></div>
+      <div class="card rule a" style="--i:7"><div class="row-ic"><div class="icobox"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Know where it stops</h3><p>Roof rot past about 4–6 inches, soft decking, structural or remodel-level repair, and large insulation jobs are referred out. Stop, photograph, escalate the same day (RX-09).</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- 18 TRAPS AND FOLLOW-UP -->
+  <section class="slide snug" data-label="Traps and follow-up visits">
+    <span class="eyebrow a">03 · Traps and follow-up visits</span>
+    <h2 class="a" style="--i:1">Place for the rodent, then prove the work holds</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><span class="eyebrow">Placement</span><h3 style="margin:4px 0 6px">On the path, on the edge</h3><ul class="dl">
+        <li>Gloves on: human scent causes avoidance</li>
+        <li>On the wall, trigger end toward it</li>
+        <li>Attic first where possible, ideally above the garage</li>
+        <li>Out of reach of kids and pets; exterior stations tamper-resistant, anchored, baited per label</li></ul></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Patience</span><h3 style="margin:4px 0 6px">Neophobia sets the timing</h3><ul class="dl">
+        <li>Norway rats avoid new objects 5–10 days: pre-bait unset, set next visit</li>
+        <li>Mice usually accept a new trap within 24–48 hours</li>
+        <li>Don't move devices or switch baits without a reason</li>
+        <li>Disturbed but no catch: change the trap type or bait there</li></ul></div>
+      <div class="card a" style="--i:4"><span class="eyebrow">Follow-up</span><h3 style="margin:4px 0 6px">Every visit, every trap</h3><ul class="dl">
+        <li>Every other day in week one; five follow-ups in Basic and Plus</li>
+        <li>Check every trap, bag and remove carcasses, reset in active areas</li>
+        <li>Recheck every sealed point for new gnawing or a reopened gap</li>
+        <li>Tell the customer what's next; document it</li></ul></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span><b>Plus warranty:</b> 1-year or 3-year, chosen at the original service (3-year can't be added later), 30-day grace period, transferable within 30 days of a sale. Bait stations required to renew or transfer.</span></div>
+      <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span>Never quote prices or promise "they'll never come back." Warranty, renewal and pricing questions go to the branch manager or service advisor (RX-06).</span></div>
+    </div>
+  </section>
+
+  <!-- 19 OK OR FIX -->
+  <section class="slide" data-label="Practice: OK or fix it?">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">On a Plus job and its follow-ups: OK or fix it?</h2>
+    <div class="sort a" style="--i:2" id="coSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="coCheck">Check my answers</button><span id="coFb"></span></div>
+  </section>
+
+  <!-- 20 SAFETY -->
+  <section class="slide snug" data-label="Staying safe on rodent jobs">
+    <span class="eyebrow a">05 · Staying safe on rodent jobs</span>
+    <h2 class="a" style="--i:1">Your lead stops the job for any of these</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-mask"/></svg></div><h3>Droppings and nests</h3><p>N95 or P100 and gloves before attic entry, fit test current (FC-03). <b>Never dry-sweep or vacuum droppings.</b> Wet them with 1 part bleach to 9 parts water (about 1½ cups per gallon) or an EPA-registered disinfectant, soak, then bag and seal.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-heart"/></svg></div><h3>Bites and disease</h3><p>Leptospirosis, rat-bite fever and salmonella are real risks. In Florida, hantavirus is linked to cotton rats and rice rats, not our three house rodents, but every dropping is a biohazard. Bite or scratch: wash, report the same day, see a doctor.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-thermo"/></svg></div><h3>Attic heat</h3><p>Summer attics can pass 130°F. Exclusion in the morning, water about every 15 to 20 minutes, a check-in when you're up there, and you stop at the first cramp, dizziness or nausea.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-ladder"/></svg><span><b>Ladders and roofs (FC-06):</b> 4-to-1, secured, 3 ft above the edge, 10 ft from power lines, three points of contact. No tile or metal roofs; wet, soft or steep roofs stop the job; fall protection near an edge at 4 ft or more.</span></div>
+      <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Stop-work authority is yours.</b> Heat, bad air, rot, unsafe access: stop, photograph, explain it to the customer and tell your supervisor the same day. Injuries get a same-day written report.</span></div>
+    </div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: hours, assessment, certification">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Hours, assessment and certification</h1>
+        <p class="lead a" style="--i:2">Why it matters: your phase hours and the assessment are what operations sees when it approves you, and your name goes on the certified list customers hear about. Every line has to be true.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>How field hours are logged</li><li><span>02</span>Practice: your phase hour tracker</li><li><span>03</span>The assessment and who signs</li><li><span>04</span>Practice: ready or not?</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 HOW HOURS ARE LOGGED -->
+  <section class="slide" data-label="How field hours are logged">
+    <span class="eyebrow a">01 · How field hours are logged</span>
+    <h2 class="a" style="--i:1">From the job site to your training file</h2>
+    <div class="path">
+      <div class="st a" style="--i:2"><span class="n">1</span><h3>Log real times</h3><p>Actual start and end times for each session with your lead. Subtract lunch and breaks.</p></div>
+      <div class="st a" style="--i:3"><span class="n">2</span><h3>Tag the phase</h3><p>Every hour belongs to Phase 1, 2 or 3. The sign-off sheet asks for each phase total.</p></div>
+      <div class="st a" style="--i:4"><span class="n">3</span><h3>Both sign, same day</h3><p>You and your lead sign the day's record. The hours go in the CanopyOS field-hour log.</p></div>
+      <div class="st top a" style="--i:5"><span class="n">4</span><h3>Sign-off sheet</h3><p>Dates, total and phase hours, assessment result and the lead's signature go to management with your RX-10 result.</p></div>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-cal"/></svg><span><b>The plan:</b> Phase 1 about 10 hours, Phase 2 about 12, Phase 3 about 8. The certification program states 20–30 field hours in total; operations confirms your target.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-clock"/></svg><span><b>Minimums, not targets.</b> Not ready at the end of a phase? The phase is extended. Certification is never awarded on hours alone.</span></div>
+      <div class="callout a" style="--i:8"><svg class="ico"><use href="#i-search"/></svg><span>Rodent Shield hours are their own record. Your state GHP hours (PC-FLD) are logged separately on FDACS-13665.</span></div>
+    </div>
+  </section>
+
+  <!-- 24 TRACKER -->
+  <section class="slide" data-label="Practice: your phase hour tracker">
+    <span class="eyebrow a">02 · Practice · your phase hour tracker</span>
+    <h2 class="a" style="--i:1">Enter your sessions and check the totals</h2>
+    <div class="trk a" style="--i:2">
+      <div class="grid" style="gap:12px;align-content:start;min-width:0"><div class="tablewrap"><table class="trkt" id="trkT"><thead><tr><th>#</th><th>Phase</th><th>Start</th><th>End</th><th>Breaks</th><th>Hours</th></tr></thead><tbody></tbody></table></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="trkSample">Load sample sessions</button><button type="button" class="btn" id="trkClear">Clear</button></div></div>
+      <div class="grid" style="gap:12px;align-content:start">
+        <div class="card" style="display:grid;gap:10px">
+          <div class="tgt"><span class="eyebrow">Rodent Shield totals</span><label for="trkTgt">Hour target <input type="number" id="trkTgt" min="20" max="60" step="1" value="30"></label></div>
+          <div class="tot"><b id="trkH">0.00</b><span>of <b id="trkTg" style="font-size:inherit;color:inherit;font-weight:500">30</b> hours</span></div>
+          <div class="hbar" aria-hidden="true"><i id="trkBar"></i></div>
+          <div class="phx" id="trkP"></div>
+          <div id="trkS"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 ASSESSMENT AND SIGNATURES -->
+  <section class="slide" data-label="The assessment and who signs">
+    <span class="eyebrow a">03 · The assessment and who signs</span>
+    <h2 class="a" style="--i:1">Phase 3 is a test, and every item must pass</h2>
+    <div class="tablewrap a" style="--i:2"><table class="sgt">
+      <thead><tr><th>Record</th><th>Who signs</th><th>When</th><th>What it says</th></tr></thead>
+      <tbody>
+        <tr><td><b>Phase 1 and 2 advancement checklists</b></td><td>Field training lead</td><td>End of each phase</td><td>You can do every criterion without prompting</td></tr>
+        <tr><td><b>Daily hour record</b></td><td>You and your lead</td><td>End of each session</td><td>The times and phase are accurate</td></tr>
+        <tr><td><b>Practical Field Assessment</b></td><td>Field training lead, in real time</td><td>During Phase 3 jobs</td><td>Pass on all 17 competencies. Any Fail needs a written remediation plan and re-evaluation</td></tr>
+        <tr><td><b>Supervisor sign-off sheet</b> (RX-11)</td><td>Field training lead</td><td>Hours and assessment complete</td><td>You're recommended for certification</td></tr>
+        <tr><td><b>Rodent Shield certification</b></td><td>Operations approves; HR logs it</td><td>After RX-10 and field sign-off</td><td>You may run Basic and Plus jobs alone</td></tr>
+      </tbody></table></div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-eye"/></svg><span><b>In Phase 3 your lead is an evaluator.</b> No coaching and no answers during the job, just notes and a debrief after. They step in only for safety, then document it.</span></div>
+      <div class="callout danger a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never sign a blank, pre-filled or inflated record.</b> If a skill never came up, it's practiced in a supervised session before sign-off. Nobody certifies around a gap.</span></div>
+    </div>
+  </section>
+
+  <!-- 26 READY OR NOT -->
+  <section class="slide" data-label="Practice: ready or not?">
+    <span class="eyebrow a">04 · Practice · ready to go solo?</span>
+    <h2 class="a" style="--i:1">Make the call</h2>
+    <div class="scen-tabs a" style="--i:2" id="rdTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="rdBox"></div>
+  </section>
+
+  <!-- 27 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 28 SIGN-OFF -->
+  <section class="slide snug so" data-label="Field sign-off" data-cp="5">
+    <div class="sohead">
+      <div><span class="eyebrow a">Field application · supervisor sign-off</span>
+      <h2 class="a" style="--i:1">The Rodent Shield field sign-off</h2>
+      <p class="a muted small" style="--i:2;margin:2px 0 0;max-width:none">Your lead ticks an item only after watching you do it to standard. Groups follow the phases; days are approximate at about 8 hours a day. All 36 are required.</p></div>
+      <div class="sotot a" style="--i:1"><b id="soCount">0 of 36</b><span>observed</span></div>
+    </div>
+    <div class="sogrid a" style="--i:3">
+      <div class="sog" data-g="1"><div class="sogh"><b>Days 1–2</b><span>Phase 1 · signs and inspection</span><em id="sog1">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="p1a"> <span>Named 5+ signs of activity; told fresh from old <small>RX-01</small></span></label></li>
+        <li><label><input type="checkbox" id="p1b"> <span>Identified the species from droppings, rubs and sounds <small>RX-01</small></span></label></li>
+        <li><label><input type="checkbox" id="p1c"> <span>Followed the systematic inspection, no areas skipped <small>RX-02</small></span></label></li>
+        <li><label><input type="checkbox" id="p1d"> <span>Measured entry points; 1/2 in and up, active or old <small>RX-02</small></span></label></li>
+        <li><label><input type="checkbox" id="p1e"> <span>Respirator, seal check and gloves before attic entry <small>FC-03</small></span></label></li>
+        <li><label><input type="checkbox" id="p1f"> <span>Kept a written question log after each job</span></label></li>
+      </ul></div>
+      <div class="sog" data-g="2"><div class="sogh"><b>Days 1–2</b><span>Phase 1 · scope and materials</span><em id="sog2">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="p1g"> <span>Called Basic or Plus from the findings <small>RX-06</small></span></label></li>
+        <li><label><input type="checkbox" id="p1h"> <span>Named every approved material and its opening size <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p1i"> <span>Explained why vents are never sealed, unprompted <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p1j"> <span>Set snap traps safely: gloves, edge, trigger to wall <small>RX-03</small></span></label></li>
+        <li><label><input type="checkbox" id="p1k"> <span>PestPac photos and entry point PDF complete <small>FC-10</small></span></label></li>
+        <li><label><input type="checkbox" id="p1l"> <span>Explained the Basic and Plus scope as to a homeowner <small>RX-06</small></span></label></li>
+      </ul></div>
+      <div class="sog" data-g="3"><div class="sogh"><b>Days 2–3</b><span>Phase 2 · exclusion</span><em id="sog3">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="p2a"> <span>1/2–1 in: fill fabric packed tight, cement edges <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2b"> <span>1–4 in: hardware cloth, 1 in overlap, fastened <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2c"> <span>4–8 in: patch backed with cloth, 1.5 in overlap <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2d"> <span>Over 8 in or irregular: custom foam-backed cloth <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2e"> <span>Installed a vent guard: size, fasteners, edge seal <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2f"> <span>Masonry repair (stucco, mortar or block), color-matched <small>RX-04</small></span></label></li>
+      </ul></div>
+      <div class="sog" data-g="4"><div class="sogh"><b>Days 2–3</b><span>Phase 2 · height, follow-up, customer</span><em id="sog4">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="p2g"> <span>Ladder at 4-to-1, footing, three points of contact <small>FC-06</small></span></label></li>
+        <li><label><input type="checkbox" id="p2h"> <span>Sealed a gable, soffit or roofline opening at height <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p2i"> <span>Follow-up: every trap checked, bagged, reset, assessed <small>RX-07</small></span></label></li>
+        <li><label><input type="checkbox" id="p2j"> <span>Wetted droppings before removal; no dry sweeping <small>RX-08</small></span></label></li>
+        <li><label><input type="checkbox" id="p2k"> <span>Explained warranty, renewal and declined points <small>RX-06</small></span></label></li>
+        <li><label><input type="checkbox" id="p2l"> <span>Offered add-ons where they fit; quoted no prices <small>RX-05</small></span></label></li>
+      </ul></div>
+      <div class="sog" data-g="5"><div class="sogh"><b>Days 3–4</b><span>Phase 3 · practical assessment</span><em id="sog5">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="p3a"> <span>Ran a Plus job alone, inspection to documentation <small>RX-02</small></span></label></li>
+        <li><label><input type="checkbox" id="p3b"> <span>Fabricated a large or irregular patch alone <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p3c"> <span>Masonry repair and an elevated point, unassisted <small>RX-04</small></span></label></li>
+        <li><label><input type="checkbox" id="p3d"> <span>Ran a follow-up visit start to finish alone <small>RX-07</small></span></label></li>
+        <li><label><input type="checkbox" id="p3e"> <span>Stopped and escalated unsafe or out-of-scope work <small>RX-09</small></span></label></li>
+        <li><label><input type="checkbox" id="p3f"> <span>Documentation package with no missing fields <small>RX-07</small></span></label></li>
+      </ul></div>
+      <div class="sog" data-g="6"><div class="sogh"><b>Final</b><span>Record and approval</span><em id="sog6">0/6</em></div><ul>
+        <li><label><input type="checkbox" id="fna"> <span>Phase 1 and Phase 2 advancement checklists signed</span></label></li>
+        <li><label><input type="checkbox" id="fnb"> <span>Practical Field Assessment: every competency Pass</span></label></li>
+        <li><label><input type="checkbox" id="fnc"> <span>Field hour target met; phase hours on the sheet</span></label></li>
+        <li><label><input type="checkbox" id="fnd"> <span>RX-01 to RX-09 complete; RX-10 passed at 80% <small>RX-10</small></span></label></li>
+        <li><label><input type="checkbox" id="fne"> <span>State GHP field training and FDACS ID card on file <small>PC-FLD</small></span></label></li>
+        <li><label><input type="checkbox" id="fnf"> <span>Sign-off sheet to management; operations approves</span></label></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 29 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx11:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx11:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-11", "titleHtml": "Rodent Field Training &amp; Sign-Off", "nextHtml": "Rodent Shield certification complete", "passNote": "Your Rodent Shield certification is complete after supervisor sign-off."};
+  var SIGNOFF_LABEL="Field training sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The law and the hours',q:'A new tech says exclusion uses no pesticide, so it isn\'t pest control and he can seal entry points alone after one ride-along. What\'s right?',o:['He\'s right; only rodenticide baiting is regulated','He\'s right if he only does Basic jobs','Exclusion is pest control under 482.021. He needs his state GHP field training, the Rodent Shield field hours and sign-off before solo Rodent Shield work','He can work alone once he has his FDACS ID card'],a:2,e:'Chapter 482 defines pest control as any method or device used to prevent or control pests in or on a structure, including mechanical devices for rodents. Sealing entry points is a method. State field training (482.091(3)) and the Clements Rodent Shield sign-off both come first.'},
+    2:{t:'Checkpoint 2 · The phases',q:'You\'re 11 hours into Phase 1, past the plan. You can call the scope and name every material, but you still need prompting to explain why dryer and exhaust vents are never sealed. What happens?',o:['You stay in Phase 1 until you can explain it unprompted; hours are minimums, not targets','You move to Phase 2 because the hours are done','You skip ahead to Phase 3 to catch up','You re-take RX-10 instead'],a:0,e:'Every Phase 1 advancement item must be checked before Phase 2. The field guide is direct: if a candidate can\'t explain scope and safety exclusions, they aren\'t ready to touch materials.'},
+    3:{t:'Checkpoint 3 · Exclusion and follow-up',q:'A 3/4 inch gap surrounds a plumbing pipe at the slab. The homeowner says a can of foam would do. What does your lead expect to see?',o:['Low-expansion foam, finished flush','Xcluder fill fabric or copper mesh packed tightly, every edge sealed with color-matched cement','Duct tape over the gap until the next visit','Hardware cloth glued over the pipe'],a:1,e:'1/2 to 1 inch openings get fill fabric or copper mesh plus cement. Foam is never primary exclusion, and hardware cloth is fastened with screws or staples, never adhesive.'},
+    4:{t:'Checkpoint 4 · Assessment and certification',q:'Phase 3 is done: 30 hours logged, 16 of 17 competencies Pass, one Fail on the hardware cloth overlap. What happens next?',o:['Certified; one item doesn\'t matter','Your lead changes it to Pass if you promise to improve','Start the whole program over','A written remediation plan, more supervised practice, then re-evaluation before the sign-off sheet goes to management'],a:3,e:'Every assessment item must be Pass for field sign-off. Any Fail needs a documented remediation plan and re-evaluation. Hours alone never certify anyone.'},
+    5:{t:'Checkpoint 5',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Under Fla. Stat. 482.021, which of these is pest control?',o:['Only spraying a pesticide','Only rodenticide baiting','Trapping, baiting and sealing entry points to keep rodents out of a structure','None of it; rodents are wildlife'],a:2,e:'The definition covers any method or device used to prevent or control pests in, on or under a structure, and mechanical devices used against rodents.'},
+    {k:'True or false',q:'True or false: the Clements Rodent Shield certification is a state license.',o:['True','False'],a:1,e:'False. It\'s a Clements standard on top of state requirements. Your state GHP field training and FDACS ID card are separate.'},
+    {k:'Multiple choice',q:'How many field hours does the certification program set for Rodent Shield field training?',o:['20–30 hours with the Vero Beach field training lead','4–5 hours','40 hours of self-study','No field hours'],a:0,e:'The program sets 4–5 hours of self-study plus 20–30 supervised field hours in Vero Beach. The supervisor field guide plans about 30. Operations confirms your target.'},
+    {k:'Multiple choice',q:'What happens in Phase 1?',o:['You work alone while your lead scores you','You do the work with your lead coaching','Your lead does all the work; you watch, ask questions and document under direction','You sell Plus upgrades'],a:2,e:'Phase 1 is shadowing, about 10 hours. You build the mental model of a job before you touch materials.'},
+    {k:'Scenario',q:'During Phase 3 you ask your lead which material to use. What should happen?',o:['They tell you right away','They note the question and debrief after the job','They take over the job','They end your training'],a:1,e:'In Phase 3 the lead is an evaluator, not a trainer: no coaching or answers during the job unless safety is at stake.'},
+    {k:'True or false',q:'True or false: reaching the hour target means you advance to the next phase.',o:['True','False'],a:1,e:'False. Hours are minimums. You advance only when every advancement criterion is checked.'},
+    {k:'Multiple choice',q:'What is the primary exclusion material for openings 1/2 inch and larger?',o:['Expanding foam','Steel wool','Caulk','Cement, color-matched to the home'],a:3,e:'Cement first. Foam is a courtesy fix under 1/2 inch only, not billed and not warranted.'},
+    {k:'Multiple choice',q:'An opening is 2½ inches. What goes in it?',o:['1/4 inch galvanized hardware cloth, at least 1 inch overlap, screwed or stapled, edges sealed with cement','Foam','A sheet metal patch with no backing','Copper mesh alone'],a:0,e:'1 to 4 inch openings get hardware cloth plus cement. Never adhesive.'},
+    {k:'Scenario',q:'A homeowner asks you to screen the dryer vent because they hear rats near it. What do you do?',o:['Screen it with hardware cloth','Foam around the flap','Explain that dryer and exhaust vents are never covered or screened under any tier, check for other entry points and note it','Seal it with cement'],a:2,e:'Covering a dryer or exhaust vent creates fire, carbon monoxide and moisture risks. It\'s excluded from every Rodent Shield tier.'},
+    {k:'Multiple choice',q:'What is the minimum gap a rat can use?',o:['1/8 inch','1/2 inch','2 inches','A quarter\'s width'],a:1,e:'Rats need about 1/2 inch; house mice about 1/4 inch. Measure, don\'t guess.'},
+    {k:'Scenario',q:'On a Norway rat job, why do you place traps unset on the first visit?',o:['To save bait','So the customer can move them','Because the label requires it','Norway rats avoid new objects for 5–10 days, so pre-baiting raises catches once the trigger is set'],a:3,e:'Rats are neophobic, and RX-03 puts Norway rats at 5 to 10 days. Explain the plan so the customer knows the quiet first days are expected.'},
+    {k:'Multiple choice',q:'Where does a snap trap go?',o:['Against the wall on the travel path, trigger end toward the wall','In the middle of the floor','Three feet from the rub marks','Anywhere the customer can see it'],a:0,e:'Rodents run the edge. A trap off the path is a trap they walk around. And never where a child or pet can reach.'},
+    {k:'Multiple choice',q:'How often are traps checked in the first week of a Rodent Shield job?',o:['Once','Every other day','Never; wait for the customer to call','Hourly'],a:1,e:'Every other day in the high-activity first week, ideally starting the day after placement, then the rest of the five follow-ups.'},
+    {k:'Scenario',q:'You find heavy droppings in an attic. How do you remove them?',o:['Sweep them up wearing gloves','Vacuum them','Leave them','Respirator and gloves on, wet them with disinfectant, let it soak, then remove, bag and seal'],a:3,e:'Dry sweeping or vacuuming puts particles in the air. Wet first, then bag and seal before carrying anything through the house.'},
+    {k:'True or false',q:'True or false: in Florida, hantavirus is mainly linked to cotton rats and rice rats rather than roof rats, Norway rats or house mice.',o:['True','False'],a:0,e:'True. You still treat every dropping as a biohazard, because leptospirosis, salmonella and rat-bite fever are real risks.'},
+    {k:'Multiple choice',q:'How do you set an extension ladder?',o:['As steep as possible','Flat against the gutter','At 4-to-1: 1 foot out for every 4 feet of height, secured, with three points of contact on the way up','At any angle if someone holds it'],a:2,e:'FC-06: inspect it, set it at 4-to-1, secure it, keep three points of contact and stay off the top cap.'},
+    {k:'Scenario',q:'At the roofline you find soft decking and rot that runs about a foot. What do you do?',o:['Seal over it with cement','Patch it with sheet metal and move on','Foam it as a courtesy','Stop, photograph it, explain it to the customer professionally and escalate to your branch manager the same day'],a:3,e:'Roof rot past about 4–6 inches and compromised decking are out of scope and refer to a roofer or contractor. Sealing over it fails the warranty.'},
+    {k:'Multiple choice',q:'A homeowner declines sealing two of the entry points you found. What happens?',o:['Seal them anyway','The declined points go on the original agreement with the homeowner\'s acknowledgment, and they aren\'t covered by the warranty','Leave them off the paperwork','Charge for them anyway'],a:1,e:'Declined entry points must be documented, because they\'re outside the warranty scope.'},
+    {k:'Scenario',q:'Your branch wants you running Basic jobs alone before your field sign-off. What\'s the rule?',o:['No solo Rodent Shield work, Basic or Plus, until field training is signed off and operations approves','Basic is fine because it has no exclusion','Fine if the branch manager agrees','Fine after 20 hours'],a:0,e:'The program says technicians aren\'t dispatched for solo Rodent Shield work until field training is signed off.'},
+    {k:'Multiple choice',q:'When is your Rodent Shield certification complete?',o:['When you reach 30 hours','When you pass this knowledge check','When your branch manager says so','After RX-10 is passed, every assessment item is Pass, your lead signs the sign-off sheet and operations approves'],a:3,e:'Written and field requirements must both be met, then operations approves and HR logs it in your training file.'}
+  ];
+
+  /* ---------- generic sort (any number of options) ---------- */
+  function buildSort(box,btn,fbEl,list,opts,key,msgAll){
+    var sel=store.get(key)||{};
+    list.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=key+'row'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+opts.map(function(o,j){return '<button type="button" aria-pressed="'+(sel[i]===o)+'" data-v="'+o+'" id="'+key+i+'_'+j+'">'+o+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;store.set(key,sel);$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      box.appendChild(r)});
+    btn.addEventListener('click',function(){
+      var right=0,blank=0;
+      list.forEach(function(s,i){var r=$('#'+key+'row'+i),w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.firstChild.appendChild(d);}
+      });
+      var n=list.length;
+      fbEl.innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+n+' before checking.</span>':(right===n?'<span class="fb" style="display:inline-block">All '+n+' correct. '+msgAll+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+n+'. Read the notes under the ones in red and try again.</span>');
+    });
+  }
+
+  /* ---------- generic scenario tabs ---------- */
+  function buildScen(tabs,box,list,key,hint){
+    var done=store.get(key)||{};
+    function show(n){
+      $$('button',tabs).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!done[j])});
+      var s=list[n];
+      box.innerHTML='<div class="card" style="padding:14px 20px"><span class="eyebrow">The situation</span><p style="margin-top:6px;font-size:17px;color:var(--ink)">'+s.s+'</p></div><div class="choices rdch">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="'+key+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="'+key+'Fb"></div>';
+      var fb=$('#'+key+'Fb');
+      $$('.choice',box).forEach(function(b){b.addEventListener('click',function(){
+        var i=+b.dataset.i;$$('.choice',box).forEach(function(x){x.classList.remove('wrong')});
+        if(i===s.a){b.classList.add('right');$$('.choice',box).forEach(function(x){x.disabled=true});done[n]=1;store.set(key,done);$$('button',tabs)[n].classList.add('done');
+          fb.innerHTML='<div class="fb">'+s.e+(n<list.length-1?' <button type="button" class="btn" id="'+key+'Next" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#'+key+'Next');if(nx)nx.addEventListener('click',function(){show(n+1)});}
+        else{b.classList.add('wrong');fb.innerHTML='<div class="fb no">'+hint+'</div>';}
+      })});
+    }
+    list.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id=key+'t'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){show(i)});tabs.appendChild(b)});
+    show(0);
+  }
+
+  /* ---------- does it count ---------- */
+  buildSort($('#ctSort'),$('#ctCheck'),$('#ctFb'),[
+    {q:'A Phase 1 shadow job with your field training lead in Vero Beach',a:'Counts',w:'Supervised Rodent Shield work with the field training lead is exactly what the hours are for, even when you\'re only watching.'},
+    {q:'The 30-minute lunch break',a:'Doesn\'t count',w:'Breaks are not training time. Subtract them from the session.'},
+    {q:'Reading RX-04 again at home the night before',a:'Doesn\'t count',w:'Self-study is the 4–5 hours of written courses. Field hours are supervised work on real jobs.'},
+    {q:'A GHP route day with no rodent work',a:'Doesn\'t count',w:'That time counts toward GHP, not toward Rodent Shield field training.'},
+    {q:'Mixing cement and sealing a pipe gap with your lead beside you',a:'Counts',w:'Hands-on exclusion under supervision is Phase 2 work. Log it.'},
+    {q:'Checking traps alone while your lead is at another job',a:'Doesn\'t count',w:'Unsupervised work isn\'t training, and you can\'t run Rodent Shield work alone until you\'re signed off.'},
+    {q:'A supervised practice session on masonry when no job needed it',a:'Counts',w:'The field guide calls for supervised practice when a skill doesn\'t come up on a job. It\'s logged like any session.'},
+    {q:'Same-day debrief of a Phase 3 job with your lead',a:'Counts',w:'A supervised review of the day\'s work is part of the training session. Log the real time.'}
+  ],['Counts','Doesn\'t count'],'ct','Supervised rodent work counts. Breaks, self-study, other services and solo work don\'t.');
+
+  /* ---------- phase explorer ---------- */
+  var DAYS=[
+    {n:'Phase 1',m:'Shadow',f:'About 10 hours',c:'RX-01, RX-02, RX-03, RX-06',pct:5,goal:'Watch how a Rodent Shield job flows, start to finish.',tr:'Does all the work and talks you through it: signs of activity, the inspection walk, Basic or Plus scope, every approved material, trap placement.',you:'Ask questions, fill in the PestPac photos and entry point PDF under direction, keep a written question log after each job.',obs:'Gate: name 5+ signs, call the scope, name every material, explain the vent rule unprompted, set traps safely, complete a documentation package.'},
+    {n:'Phase 2',m:'Assisted',f:'About 12 hours',c:'RX-04, RX-05, RX-07, FC-06',pct:55,goal:'Do the work yourself, with your lead right beside you.',tr:'Works alongside you and corrects in real time, before mistakes become habits. Steps in at once if you reach for a vent.',you:'Seal every hole-size category, install a vent guard, do a masonry repair, work at height, run a follow-up, present the warranty.',obs:'Gate: the right material for every size unprompted, one vent guard, one masonry repair, safe ladder work, one elevated seal, a full follow-up, a complete package.'},
+    {n:'Phase 3',m:'Supervised independence',f:'About 8 hours',c:'RX-02 to RX-09',pct:100,goal:'Work alone while your lead evaluates.',tr:'Stands back, doesn\'t coach or answer questions, marks the Practical Field Assessment in real time and debriefs after. Steps in only for safety.',you:'Run a Plus job, a large or irregular opening, masonry and an elevated point, and a full follow-up visit, all on your own.',obs:'All 17 assessment competencies marked Pass. Any Fail means a written remediation plan and re-evaluation.'},
+    {n:'Sign-off',m:'Certification',f:'Paperwork and approval',c:'RX-10, RX-11',pct:100,goal:'Turn the field work into a certification.',tr:'Completes the sign-off sheet: dates, total and phase hours, assessment result, signature and supervisor certification number.',you:'Make sure your hours are accurate, your RX-10 pass is on file, and your state GHP training and ID card are in place.',obs:'Operations approves, HR logs it in your training file, and you can run Basic and Plus jobs alone.'}
+  ];
+  var dr=$('#dayRail'),db=$('#dayBox'),dSeen=store.get('dy')||{};
+  function showDay(n){
+    $$('button',dr).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);if(dSeen[j])b.classList.add('seen')});
+    var d=DAYS[n];
+    db.innerHTML='<div class="daycard"><div class="dayhead"><div><span class="eyebrow">'+d.n+' · '+d.m+' · '+d.f+' · '+d.c+'</span><h3>'+d.goal+'</h3></div><div class="wheel"><span class="eyebrow">You do the work</span><div class="hbar"><i style="width:'+d.pct+'%"></i></div></div></div>'+
+      '<div class="grid g3"><div><span class="eyebrow">Your lead</span><p>'+d.tr+'</p></div><div><span class="eyebrow">You</span><p>'+d.you+'</p></div><div><span class="eyebrow">'+(n<3?'Before you move on':'Done when')+'</span><p>'+d.obs+'</p></div></div>'+
+      '<p class="small muted" style="margin:0">Hours are minimums. If you aren\'t ready at the end of a phase, the phase is extended. Your lead picks varied properties so every skill comes up.</p></div>';
+  }
+  DAYS.forEach(function(d,i){var b=document.createElement('button');b.type='button';b.id='dy'+i;b.innerHTML='<b>'+d.n+'</b><span>'+d.m+'</span>';
+    b.addEventListener('click',function(){dSeen[i]=1;store.set('dy',dSeen);showDay(i)});dr.appendChild(b)});
+  showDay(0);
+
+  /* ---------- which phase ---------- */
+  buildSort($('#phSort'),$('#phCheck'),$('#phFb'),[
+    {q:'Your lead seals a soffit gap; you photograph it and fill in the PDF',a:'Phase 1',w:'Your lead does the work and you document under direction: that\'s shadowing.'},
+    {q:'You pack fill fabric into a pipe gap; your lead coaches',a:'Phase 2',w:'You do the work with your lead close enough to correct you: assisted.'},
+    {q:'You run a follow-up alone; your lead won\'t answer questions',a:'Phase 3',w:'No coaching, questions saved for the debrief: supervised independence.'},
+    {q:'You name signs of activity while your lead does the work',a:'Phase 1',w:'Building awareness while your lead works is Phase 1.'},
+    {q:'Your lead stops you to fix the overlap on your hardware cloth',a:'Phase 2',w:'Real-time correction happens in Phase 2. In Phase 3 your lead steps in only for safety.'},
+    {q:'Your lead marks the assessment as you seal a gable vent',a:'Phase 3',w:'The assessment is marked in real time during Phase 3 jobs.'},
+    {q:'First block wall patch you cut and fasten, lead alongside',a:'Phase 2',w:'Handling tools and materials yourself with a coach beside you is Phase 2.'},
+    {q:'You watch your lead explain Basic and Plus to a homeowner',a:'Phase 1',w:'Observing the customer conversation is part of shadowing. You present it yourself in Phase 2.'}
+  ],['Phase 1','Phase 2','Phase 3'],'ph','You know what each phase looks like from the inside.');
+
+  /* ---------- inspection order ---------- */
+  var IN=[
+    {t:'Review account history and the season; gear and ladder check',r:0},
+    {t:'Greet the customer; have them show you the activity',r:1},
+    {t:'Walk the full exterior perimeter at a steady pace',r:2},
+    {t:'Vegetation: palms, branches on the roof, fruit, feeders',r:3},
+    {t:'Roofline from the ground: gable vents, soffits, stacks',r:4},
+    {t:'Garage and outbuildings: sweeps, corners, stored items',r:5},
+    {t:'Interior, starting at the kitchen',r:6},
+    {t:'Respirator on, then the attic or crawlspace',r:7}
+  ];
+  var INS=[IN[4],IN[1],IN[7],IN[3],IN[0],IN[6],IN[2],IN[5]];
+  var inb=$('#inOrder'),inNext=0;
+  function buildIN(){
+    inb.innerHTML='';inNext=0;$('#inFb').innerHTML='';
+    INS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='io'+i;b.innerHTML='<span class="num">&nbsp;</span><span>'+s.t+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(s.r===inNext){b.classList.add('placed');$('.num',b).textContent=inNext+1;inNext++;
+          if(inNext===IN.length){$('#inFb').innerHTML='<div class="fb">That\'s the walk. Photograph and note as you go, and start near the reported activity without stopping there. <button type="button" class="btn" id="inReset" style="margin-left:6px;padding:4px 12px">Try again</button></div>';$('#inReset').addEventListener('click',buildIN);store.set('io',1);}
+          else $('#inFb').innerHTML='';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#inFb').innerHTML='<div class="fb no">Not yet. What comes before that step?</div>';}
+      });inb.appendChild(b)});
+  }
+  buildIN();
+
+  /* ---------- match the material ---------- */
+  var MO=['Foam, courtesy','Fill + cement','Cloth + cement','Patch + cloth','Custom cloth','Never seal'];
+  var MT=[
+    {x:27.5,y:77,a:'Foam, courtesy',t:'3/8 inch crack in the stucco',e:'Under 1/2 inch, a rat can\'t use it. Foam is allowed as a courtesy fix on a suitable surface: not billed, not warranted. Note it in the service notes.'},
+    {x:16.5,y:83,a:'Fill + cement',t:'3/4 inch gap around a plumbing pipe at the slab',e:'1/2 to 1 inch: pack Xcluder fill fabric or copper mesh tightly, then seal every edge with color-matched cement. No compressible gaps left.'},
+    {x:59,y:74,a:'Cloth + cement',t:'2½ inch open chase where the A/C lines enter',e:'1 to 4 inches: 1/4 inch galvanized hardware cloth, at least 1 inch overlap on every side, screwed or stapled, edges sealed with cement.'},
+    {x:35.7,y:77,a:'Patch + cloth',t:'6 inch hole where an old, disconnected pipe was removed',e:'4 to 8 inches: a galvanized sheet metal or wood patch backed with hardware cloth, at least 1.5 inch overlap, screwed in, finished with color-matched cement. Confirm it\'s not an active vent first.'},
+    {x:71.4,y:56.5,a:'Custom cloth',t:'Irregular 10 inch gap where the garage roof meets the wall',e:'Irregular or over 8 inches: custom-cut foam-backed hardware cloth, secured on all sides and finished with cement. It\'s priced as a surcharge line item by the program, not by you. Ladder rules apply.'},
+    {x:55.5,y:51,a:'Never seal',t:'Dryer vent with the flap stuck open',e:'No material on any dryer, exhaust or HVAC vent under any tier: fire, carbon monoxide and moisture risk. Photograph the stuck damper and tell the customer.'},
+    {x:42,y:28,a:'Cloth + cement',t:'Gable vent with a torn screen',e:'Hardware cloth fastened over the opening so the attic still breathes, with only the frame edges sealed. Never solid sealant across a vent face.'}
+  ];
+  var mat=$('#mat'),mDone=store.get('mt')||{};
+  function mCount(){var k=Object.keys(mDone).length;$('#matCount').textContent=k+' of '+MT.length+' openings matched'+(k===MT.length?'. Photograph every opening before and after.':'');}
+  function showM(n){var s=MT[n];$$('.hot',mat).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+    $('#matDet').innerHTML='<span class="eyebrow">Opening '+(n+1)+' of '+MT.length+'</span><h3 style="margin:6px 0 10px">'+s.t+'</h3><div class="mopts">'+MO.map(function(o,j){return '<button type="button" class="btn" id="mo'+n+'_'+j+'" data-v="'+o+'">'+o+'</button>'}).join('')+'</div><div id="moFb" style="margin-top:10px"></div>';
+    $$('.mopts button').forEach(function(b){b.addEventListener('click',function(){var fb=$('#moFb');
+      if(b.dataset.v===s.a){mDone[n]=1;store.set('mt',mDone);$$('.hot',mat)[n].classList.add('seen');fb.innerHTML='<div class="fb">'+s.e+(n<MT.length-1?' <button type="button" class="btn" id="moNext" style="margin-left:6px;padding:4px 12px">Next opening</button>':'')+'</div>';var nx=$('#moNext');if(nx)nx.addEventListener('click',function(){showM(n+1)});mCount();}
+      else fb.innerHTML='<div class="fb no">Not that one. Check the size against the materials table, and ask whether it\'s a vent.</div>';})});
+  }
+  MT.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.className='hot'+(mDone[i]?' seen':'');b.id='mh'+i;b.style.left=s.x+'%';b.style.top=s.y+'%';b.textContent=i+1;b.setAttribute('aria-label','Opening '+(i+1)+': '+s.t);b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){showM(i)});mat.appendChild(b)});
+  showM(0);mCount();
+
+  /* ---------- OK or fix it ---------- */
+  buildSort($('#coSort'),$('#coCheck'),$('#coFb'),[
+    {q:'Filled a 3/4 inch soffit gap with foam because cement was in the other truck',a:'Fix it',w:'Foam is never primary exclusion; rats chew through it. Openings 1/2 inch and up get cement. Come back with the right material.'},
+    {q:'Pre-baited unset traps on a Norway rat job; set them on the next visit',a:'OK',w:'Norway rats avoid new objects for 5–10 days. Pre-baiting is the protocol, and you explain it to the customer.'},
+    {q:'Moved every trap after two quiet days to show the customer some effort',a:'Fix it',w:'Moving devices resets acceptance. Leave them on the path and explain why patience is the strategy.'},
+    {q:'Swept attic droppings into a dustpan, wearing gloves',a:'Fix it',w:'Dry sweeping puts particles in the air you breathe. Respirator on, wet with disinfectant, let it soak, then remove and bag.'},
+    {q:'Declined entry points listed on the agreement, with the homeowner\'s acknowledgment',a:'OK',w:'Declined points aren\'t covered by the warranty, so they must be documented on the original agreement.'},
+    {q:'Hardware cloth over a bath exhaust vent to keep roof rats out',a:'Fix it',w:'No material on any exhaust, dryer or HVAC vent, under any tier. Remove it and tell your lead.'},
+    {q:'Courtesy repair on a starting gnaw at a door sweep, noted in service notes',a:'OK',w:'"While I\'m here" repairs within scope build trust. Note them even when there\'s no charge.'},
+    {q:'Carcasses bagged and sealed before carrying them through the house',a:'OK',w:'Bag and seal nest material and carcasses before they go through living areas, then wash up.'}
+  ],['OK','Fix it'],'co','That\'s the standard your lead marks in Phase 3.');
+
+  /* ---------- phase hour tracker (configurable target) ---------- */
+  var tb=$('#trkT tbody'), NR=6, trk=store.get('trk')||[], tgtIn=$('#trkTgt'), PS=[10,12,8];
+  var tg0=store.get('tgt');if(tg0&&+tg0>=20&&+tg0<=60)tgtIn.value=tg0;
+  function hrs(st,en,br){if(!st||!en)return 0;var a=st.split(':'),b=en.split(':');var m=(+b[0]*60+ +b[1])-(+a[0]*60+ +a[1])-(+br||0);return m>0?m/60:0}
+  for(var r=0;r<NR;r++){var tr=document.createElement('tr');var v=trk[r]||{};var ph=v.p||'1';
+    tr.innerHTML='<td>'+(r+1)+'</td><td><select id="tk'+r+'p" aria-label="Session '+(r+1)+' phase">'+[1,2,3].map(function(k){return '<option value="'+k+'"'+(String(k)===String(ph)?' selected':'')+'>P'+k+'</option>'}).join('')+'</select></td><td><input type="time" id="tk'+r+'s" aria-label="Session '+(r+1)+' start" value="'+(v.s||'')+'"></td><td><input type="time" id="tk'+r+'e" aria-label="Session '+(r+1)+' end" value="'+(v.e||'')+'"></td><td><input type="number" min="0" max="240" step="5" id="tk'+r+'b" aria-label="Session '+(r+1)+' break minutes" value="'+(v.b!=null?v.b:'')+'"></td><td class="hcell" id="tk'+r+'h">0.00</td>';
+    tb.appendChild(tr);}
+  var pbox=$('#trkP');
+  pbox.innerHTML=[0,1,2].map(function(k){return '<div class="phr"><span>Phase '+(k+1)+'</span><div class="hbar"><i id="tp'+k+'"></i></div><b id="tq'+k+'">0.0 / 10</b></div>'}).join('');
+  function calc(){var tot=0,ph=[0,0,0],any=false;trk=[];
+    var T=Math.min(60,Math.max(20,+tgtIn.value||30));store.set('tgt',T);$('#trkTg').textContent=T;
+    var pt=PS.map(function(x){return Math.round(x*T/30*2)/2});
+    for(var r=0;r<NR;r++){var p=$('#tk'+r+'p').value,s=$('#tk'+r+'s').value,e=$('#tk'+r+'e').value,b=$('#tk'+r+'b').value;trk.push({p:p,s:s,e:e,b:b});var h=hrs(s,e,b);$('#tk'+r+'h').textContent=h.toFixed(2);tot+=h;ph[+p-1]+=h;if(h>0)any=true;}
+    store.set('trk',trk);
+    $('#trkH').textContent=tot.toFixed(2);$('#trkBar').style.width=Math.min(100,tot/T*100)+'%';
+    for(var k=0;k<3;k++){$('#tp'+k).style.width=Math.min(100,ph[k]/pt[k]*100)+'%';$('#tq'+k).textContent=ph[k].toFixed(1)+' / '+pt[k];}
+    var short=[0,1,2].filter(function(k){return ph[k]<pt[k]});
+    var msg;
+    if(!any)msg='<div class="fb no">Enter the phase, start, end and break minutes for each session with your lead.</div>';
+    else if(tot>=T&&!short.length)msg='<div class="fb"><b>Hours met:</b> '+tot.toFixed(2)+' hours, every phase at or above plan. Sign-off still needs both advancement checklists and an all-Pass assessment.</div>';
+    else if(tot>=T)msg='<div class="fb no"><b>Total met, phases uneven.</b> Phase '+short.map(function(k){return k+1}).join(' and ')+' is under plan. Your lead decides if the gate criteria are met; hours alone never are.</div>';
+    else msg='<div class="fb no"><b>In progress.</b> '+(T-tot).toFixed(2)+' hours to the '+T+'-hour target.</div>';
+    msg+='<p class="small muted" style="margin:6px 0 0">'+(T===30?'Set to 30, the top of the 20–30 program range (the supervisor field guide plans 30). Operations confirms your target.':'Set to '+T+'. Phase plans scale from 10, 12 and 8; operations confirms.')+'</p>';
+    $('#trkS').innerHTML=msg;}
+  $$('input,select',tb).forEach(function(x){x.addEventListener('input',calc);x.addEventListener('change',calc)});
+  tgtIn.addEventListener('change',function(){if(+tgtIn.value<20)tgtIn.value=20;if(+tgtIn.value>60)tgtIn.value=60;calc()});tgtIn.addEventListener('input',calc);
+  $('#trkSample').addEventListener('click',function(){
+    var S=[['1','07:30','15:30',30],['1','07:30','10:30',0],['2','11:00','15:30',0],['2','07:30','15:30',30],['3','07:30','12:00',0],['3','07:30','11:30',0]];
+    S.forEach(function(d,r){$('#tk'+r+'p').value=d[0];$('#tk'+r+'s').value=d[1];$('#tk'+r+'e').value=d[2];$('#tk'+r+'b').value=d[3]});calc();});
+  $('#trkClear').addEventListener('click',function(){$$('input',tb).forEach(function(x){x.value=''});$$('select',tb).forEach(function(x){x.value='1'});calc();});
+  calc();
+
+  /* ---------- ready or not scenarios ---------- */
+  buildScen($('#rdTabs'),$('#rdBox'),[
+    {n:'No masonry yet',s:'You have 31 hours and every assessment item is Pass except masonry. No job in Phase 3 needed a stucco or mortar repair.',o:['Sign off; the hours are complete','Skip it; masonry is rare','Do a supervised masonry practice session, then have it re-evaluated before sign-off','Promise to learn it on your first solo job'],a:2,e:'The field guide is clear: if a scenario doesn\'t come up, practice it in a supervised session before sign-off. Nobody certifies around a gap.'},
+    {n:'The exhaust vent',s:'In Phase 3 you start fastening hardware cloth over a bathroom exhaust vent. Your lead stops you.',o:['Finish it; the lead shouldn\'t intervene in Phase 3','Expect it to be documented, the vent rule reviewed, and possibly more Phase 2 time before Phase 3 continues','Ask the lead to leave it off the record','Use foam on the vent instead'],a:1,e:'A safety issue is the one time the lead steps in during Phase 3. It\'s documented, and the lead decides whether you go back to Phase 2.'},
+    {n:'"What will the extra holes cost?"',s:'On a Phase 3 Plus job you find six entry points. The homeowner asks what the extra two will cost and whether rats will ever come back.',o:['Explain what you found, that the extra points are quoted under the program by the service advisor or branch manager, and make no promises','Quote what you think is fair','Say the warranty covers anything that ever gets in','Seal all six and sort out the price later'],a:0,e:'You never quote prices or promise results. Additional entry points are quoted under the program, and the documented list sets the warranty scope.'},
+    {n:'"Start Monday"',s:'Your branch wants you running Basic jobs on your own next week. You have 18 hours logged and haven\'t started Phase 3.',o:['Start; Basic has no exclusion','Start, and finish Phase 3 later','Run them, logging the hours as training','Tell your branch manager you aren\'t signed off yet, and schedule the rest of your field time in Vero Beach'],a:3,e:'No solo Rodent Shield work, Basic or Plus, until field training is signed off and operations approves. Solo hours never count as training.'}
+  ],'rd','Think about the gates, the scope rules and what "signed off" means. Try again.');
+
+  /* ---------- sign-off counter ---------- */
+  function soCount(){var all=$$('.sog input'),n=all.filter(function(x){return x.checked}).length;$('#soCount').textContent=n+' of '+all.length;
+    $$('.sog').forEach(function(g){var ins=$$('input',g),k=ins.filter(function(x){return x.checked}).length;$('#sog'+g.dataset.g).textContent=k+'/'+ins.length;g.classList.toggle('done',k===ins.length)});}
+  $$('.sog input').forEach(function(x){x.addEventListener('change',soCount)});
+  setTimeout(soCount,0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

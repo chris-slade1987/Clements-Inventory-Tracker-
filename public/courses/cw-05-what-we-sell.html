@@ -1,0 +1,1377 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CW-05 What We Sell</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* CW-05 components */
+.svlist{gap:6px}
+.svlist button{padding:8px 12px}
+.svlist button .ico{color:var(--brand-600)}
+.svlist button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.svd{min-height:360px;display:grid;gap:10px;align-content:start;animation:rise .22s ease-in-out both}
+.svd h3{font-size:24px;margin:0}
+.svd .tag{display:flex;gap:6px;flex-wrap:wrap}
+.svd dl{display:grid;grid-template-columns:120px 1fr;gap:8px 16px;margin:4px 0 0;font-size:15px}
+.svd dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.svd dd{margin:0}
+.svd .say{background:var(--brand-50);border-left:3px solid var(--brand-600);border-radius:10px;padding:10px 14px;font-size:15px}
+
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:10px 0 14px}
+.months span{display:grid;justify-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.months i{width:100%;height:26px;border-radius:6px;background:var(--brand-50);border:1px solid var(--line)}
+.months span.on i{background:var(--grad-emerald);border-color:transparent;transform:scaleY(0);transform-origin:bottom}
+.slide.on .months span.on i{animation:mgrow .3s ease-in-out forwards;animation-delay:calc(var(--k) * 120ms + .3s)}
+@keyframes mgrow{to{transform:scaleY(1)}}
+.cbflow{display:grid;gap:8px}
+.cbflow div{display:flex;gap:10px;align-items:center;font-size:15px}
+.cbflow .num{flex-basis:28px;height:28px}
+
+.plan svg,.sen svg{max-width:100%}
+.plan,.sen,.mist{padding:10px}
+.yard{fill:var(--brand-50);stroke:var(--brand-200);stroke-width:1}
+.house{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+.plbl{font-family:var(--font);font-size:12px;fill:var(--muted)}
+.plbl.sm{font-size:9px}
+.gran{fill:none;stroke:var(--brand-300);stroke-width:14;stroke-dasharray:2 5;opacity:.7}
+.liq{fill:none;stroke:var(--brand-400);stroke-width:12;opacity:.45}
+.eave{fill:none;stroke:var(--brand-700);stroke-width:3;opacity:0}
+.bst{fill:var(--forest);stroke:none}
+.plan .lit{opacity:1!important}
+.plan .liq.lit{opacity:.9!important;stroke:var(--brand-500)}
+.plan .gran.lit{stroke:var(--brand-500)}
+.plan .eave.lit{animation:blink 1.8s ease-in-out infinite}
+.plan .bst.lit{fill:var(--brand-500);stroke:var(--forest);stroke-width:2}
+@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
+.slide.on .liq{animation:liqpulse 3.2s ease-in-out infinite}
+@keyframes liqpulse{0%,100%{stroke-width:10}50%{stroke-width:14}}
+.hs{cursor:pointer}
+.hs circle{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;transition:fill .18s ease-in-out}
+.hs text{font-family:var(--font);font-size:11px;fill:var(--brand-700);font-weight:500;pointer-events:none}
+.hs.sel circle,.hs:hover circle{fill:var(--brand-600)}
+.hs.sel text,.hs:hover text{fill:#fff}
+.steplist{gap:6px}
+.steplist button{padding:7px 12px;font-size:15px}
+.steplist button .num{flex:0 0 26px;height:26px;font-size:12px}
+.steplist button small{display:block;color:var(--muted);font-size:12px}
+.steplist button[aria-pressed="true"]::after{content:"";}
+#ghpDetail{min-height:96px}
+
+.lotot{display:flex;gap:14px;align-items:center;background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.lotot .big{font-size:48px;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+.lcal{display:grid;gap:0;padding:14px 18px}
+.lrow{display:grid;grid-template-columns:1.7fr repeat(4,1fr);align-items:center;border-bottom:1px solid var(--line);min-height:54px}
+.lrow:last-of-type{border-bottom:0}
+.lrow.head{min-height:30px}
+.lrow.head span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center}
+.lrow > span:first-child{font-size:15px;line-height:1.25}
+.lrow > span:first-child small{display:block;font-size:12px;color:var(--muted)}
+.lrow > span{display:flex;justify-content:center;align-items:center}
+.lrow > span:first-child{display:block}
+.lrow .span4{grid-column:span 4;position:relative;justify-content:space-around}
+.lrow .bar{position:absolute;left:4%;right:4%;top:50%;height:2px;background:var(--brand-200)}
+.lrow em{width:16px;height:16px;border-radius:50%;background:var(--brand-600);position:relative;transform:scale(0)}
+.lrow em.star{background:var(--surface);border:2px solid var(--brand-600)}
+.slide.on .lrow em{animation:pop .25s ease-in-out forwards}
+.slide.on .lrow:nth-child(2) em{animation-delay:.15s}.slide.on .lrow:nth-child(3) em{animation-delay:.3s}.slide.on .lrow:nth-child(4) em{animation-delay:.45s}.slide.on .lrow:nth-child(5) em{animation-delay:.6s}
+@keyframes pop{to{transform:scale(1)}}
+
+.flip.f4{grid-template-columns:repeat(4,1fr)}
+.flip.f4 button{min-height:230px}
+.flip.f4 h3{font-size:21px}
+.flip.f4 .back{font-size:14px;line-height:1.5}
+
+.tlist{list-style:none;display:grid;gap:0;margin:6px 0 8px}
+.tlist li{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.tlist li:last-child{border-bottom:0}
+.tlist li span{color:var(--muted)}
+
+.sen .sring{fill:none;stroke:var(--brand-200);stroke-width:1;stroke-dasharray:3 4}
+.sta circle{r:6px;fill:var(--surface);stroke:var(--brand-700);stroke-width:2}
+.hot{fill:none;stroke:var(--brand-400);stroke-width:2;transform-box:fill-box;transform-origin:center}
+.slide.on .hot{animation:halo 2.4s ease-out infinite}
+.colony circle:first-child{fill:var(--brand-100);stroke:var(--brand-600);stroke-width:1.4}
+.colony circle{fill:var(--brand-700)}
+.slide.on .colony{animation:fade 4.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes fade{0%,40%{opacity:1;transform:scale(1)}80%{opacity:.25;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
+.trail{fill:none;stroke:var(--brand-300);stroke-width:1.4;stroke-dasharray:2 4}
+.term{fill:var(--ink)}
+.steps.tight li{padding:9px 0;font-size:15px}
+.sen ~ div .steps li,.steps li{font-size:15px;padding:10px 0}
+
+.wphr{display:grid;gap:2px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:10px 14px;font-size:14px}
+.wphr b{font-size:16px}
+.wphr span{color:var(--muted)}
+
+.rflow li{font-size:15px;padding:10px 0}
+.rflow li{animation:rise .22s ease-in-out both;animation-delay:calc(var(--k,0) * 80ms)}
+.rs .card{padding:16px 18px}
+.ticks{list-style:none;display:grid;gap:5px;margin:8px 0;font-size:14px}
+.ticks li{display:flex;gap:8px;align-items:flex-start}
+.ticks li::before{content:"";flex:0 0 16px;height:16px;margin-top:3px;border-radius:50%;background:var(--brand-600) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.ticks li.n{color:var(--muted)}
+.ticks li.n::before{background:var(--line) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 5l6 6M11 5l-6 6' fill='none' stroke='%235C6B62' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center/16px no-repeat}
+
+.mist svg{max-width:100%}
+.mist .ground{stroke:var(--brand-300);stroke-width:1.4;fill:none}
+.mist .house{fill:var(--surface)}
+.mist path.house{fill:none}
+.unit{fill:var(--forest)}
+.line{stroke:var(--brand-600);stroke-width:1.6;fill:none;stroke-dasharray:4 3}
+.slide.on .line{animation:dash 1.2s linear infinite}
+.fence{stroke:var(--brand-200);stroke-width:2;fill:none}
+.noz circle{fill:var(--brand-700)}
+.spray path{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .spray path{animation:puff 2.6s ease-in-out infinite}
+.slide.on .spray path:nth-child(2){animation-delay:.3s}.slide.on .spray path:nth-child(3){animation-delay:.6s}.slide.on .spray path:nth-child(4){animation-delay:.9s}
+.mist .spray path{transform:none}
+@keyframes puff{0%,30%{opacity:0}55%{opacity:.9}100%{opacity:0}}
+
+.pick.static span{border:1px solid var(--brand-200);background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+
+.route{list-style:none;display:grid;gap:0;margin-top:8px}
+.route li{display:grid;grid-template-columns:1fr 1.1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.route li:last-child{border-bottom:0}
+.route li span{color:var(--muted)}
+.route li b{font-weight:400;color:var(--ink)}
+
+.mtcard{display:flex;gap:16px;align-items:flex-start;min-height:120px;animation:rise .22s ease-in-out both}
+.mtcard .who{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mtcard p{font-size:18px;color:var(--ink);margin-top:4px;max-width:70ch}
+.mtpick button{display:inline-flex;gap:8px;align-items:center;padding:9px 16px;font-size:15px}
+.mtpick button .ico{width:18px;height:18px}
+.mtpick button.right{background:var(--positive);border-color:var(--positive);color:#fff}
+.mtpick button.wrong{border-color:var(--danger);color:var(--danger);background:#FDEEEE}
+.mtpick button[disabled]{cursor:default}
+
+@media (max-width:860px){
+  .flip.f4{grid-template-columns:1fr 1fr}
+  .flip.f4 button{min-height:240px}
+  .tlist li,.route li{grid-template-columns:1fr;gap:2px}
+  .svd dl{grid-template-columns:1fr;gap:2px}
+  .svd{min-height:0}
+  .months span b{display:none}
+  .lrow{grid-template-columns:1.2fr repeat(4,1fr)}
+  .lrow.head span{font-size:9px;letter-spacing:.06em}
+}
+@media (max-width:480px){.flip.f4{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.months span.on i,.lrow em{transform:none}.colony{opacity:1}}
+@media (min-width:861px){.slide{padding:32px 56px}.slide.on{gap:16px}}
+.svlist button{padding:6px 12px}
+.svlist{gap:5px}
+.cc{padding:16px 18px}
+.cc h3{display:flex;gap:10px;align-items:center;font-size:17px}
+.cc h3 .ico{color:var(--brand-600)}
+.cc p{font-size:14px}
+#ghpDetail{min-height:0}
+.tlist li{padding:6px 0}
+.rflow li{padding:8px 0}
+.mist{padding:6px 10px}
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important;gap:18px!important}
+  .lrow{grid-template-columns:1.5fr repeat(4,1fr)}
+  .lcal{padding:12px}
+  .mtpick button{padding:7px 12px;font-size:14px}
+  .wphr,.callout{font-size:14px}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">CW-05 · What We Sell</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 11 11 5 20 5c0 9-6 15-14 15"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-mist" viewBox="0 0 24 24"><path d="M4 20V10h4v10"/><path d="M8 13h3"/><path d="M14 9l2-1M14 13h3M14 17l2 1M19 7l1-.5M20 13h1M19 19l1 .5"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="7" cy="9" r="1.6"/><circle cx="11" cy="6" r="1.6"/><circle cx="15" cy="6.5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><path d="M8 17c0-3 2-5 4.5-5s4.5 2 4.5 5c0 2-2 2.5-4.5 2.5S8 19 8 17z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Clements Way · CW-05</span>
+        <h1 class="display a" style="--i:1">What We Sell</h1>
+        <p class="lead a" style="--i:2">Every service line Clements offers, how each one works, and how to point a customer to the right one without guessing, overpromising or quoting a price.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 210" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M10 150H310"/>
+          <path d="M90 150V92l50-38 50 38v58"/><path d="M78 100l62-48 62 48"/><path d="M128 150v-30h24v30"/><rect x="100" y="104" width="18" height="16"/><rect x="162" y="104" width="18" height="16"/>
+          <path d="M24 150c2-8 4-12 6-14M32 150c1-6 3-10 6-12M44 150c0-6 2-10 4-12M224 150c2-8 4-12 6-14M236 150c1-6 3-10 6-12M248 150c0-6 2-10 4-12"/>
+          <rect x="60" y="150" width="12" height="22"/><rect x="208" y="150" width="12" height="22"/>
+          <path d="M66 182c20 8 50 10 74 10s54-2 74-10"/>
+          <path d="M268 150V98"/><path d="M262 98h12"/><path d="M276 92c6-3 10-3 14 0M276 84c8-5 14-5 20 0"/>
+          <circle cx="40" cy="44" r="14"/><path d="M40 20v6M40 62v6M16 44h6M58 44h6"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-home"/></svg><span>Explain General Household Pest service: how often we come, what we treat and what happens between visits</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-leaf"/></svg><span>Name the parts of our standard Lawn &amp; Ornamental program and the problems it controls</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-bug"/></svg><span>Tell apart our termite services: Sentricon, liquid, drywood, new construction and WDO inspections</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-rodent"/></svg><span>Describe Rodent Shield Basic and Plus, mosquito misting, and wildlife removal and exclusion</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-target"/></svg><span>Match a customer's problem to the service that fits it</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-shield"/></svg><span>Describe warranties accurately, never quote prices, and send the customer to the right person</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">Customers ask <span class="em">whoever is in front of them.</span></h2>
+        <p class="a muted" style="--i:2">A technician at a GHP stop gets asked about termites. A CSR taking a billing call hears about rats in the attic. A salesperson on a lawn estimate is asked about mosquitoes. Every one of us needs to know the whole menu.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-trend"/></svg></div><div><h3>A missed question is a missed customer</h3><p>If you can't explain a service, the customer calls someone who can. Knowing the lineup turns a passing question into a scheduled inspection.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clip"/></svg></div><div><h3>What you say becomes a promise</h3><p>Florida law requires termite warranties to be spelled out in writing, and pesticide claims must match the label. A careless "it's guaranteed" or "it's totally safe" can put the company at legal risk.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>The right fix the first time</h3><p>Baiting outside a home that still has open entry points can leave a dead rodent in the wall. Matching the problem to the right service protects the customer and our name.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 EXPLORER -->
+  <section class="slide" data-label="Service-line explorer">
+    <span class="eyebrow a">The big picture · service-line explorer</span>
+    <h2 class="a" style="--i:1">Seven service lines. Select each one.</h2>
+    <div class="split a" style="--i:2;grid-template-columns:.8fr 1.4fr;gap:24px;align-items:start">
+      <div class="blist svlist" id="svList"></div>
+      <div class="card svd" id="svDetail"></div>
+    </div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one: recurring services">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The recurring core: pest and lawn</h1>
+        <p class="lead a" style="--i:2">Most of our customers are on General Household Pest or Lawn &amp; Ornamental service. These recurring programs are the heart of Clements, and the reason customers stay with us for years.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>General Household Pest</li><li><span>02</span>Inside a GHP visit</li><li><span>03</span>The lawn program</li><li><span>04</span>What lawn service controls</li></ol>
+    </div>
+  </section>
+
+  <!-- 6 GHP -->
+  <section class="slide" data-label="General Household Pest">
+    <span class="eyebrow a">01 · General Household Pest (GHP, or PC)</span>
+    <h2 class="a" style="--i:1">Recurring protection, on a reliable schedule</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-clock"/></svg><span><b>Every other month (EOM)</b> is standard, on the same day and time each visit (say, the second Tuesday at 9:30). Some older and acquired accounts run monthly, quarterly or yearly.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-home"/></svg><span><b>First visit: inside and out.</b> After that, the exterior, plus the interior on request or when there is activity inside.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-phone"/></svg><span><b>Problems between visits?</b> Recurring customers get a <b>callback</b> within 24 hours to retreat, at no extra charge.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-check"/></svg><span><b>One-time services</b> (no recurring plan) carry a <b>30-day warranty</b> only.</span></div>
+      </div>
+      <div class="card a" style="--i:3">
+        <span class="eyebrow">A year of EOM service</span>
+        <div class="months" id="eom" aria-label="Six visits a year, every other month"></div>
+        <div class="cbflow">
+          <div><span class="num">1</span><span>Customer sees activity between visits</span></div>
+          <div><span class="num">2</span><span>Callback scheduled within 24 hours</span></div>
+          <div><span class="num">3</span><span>Technician retreats the problem area</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 GHP VISIT -->
+  <section class="slide" data-label="Inside a GHP visit">
+    <span class="eyebrow a">02 · Inside a GHP visit</span>
+    <h2 class="a" style="--i:1">Select each step of a standard exterior service</h2>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:24px;align-items:start">
+      <div class="figbox plan a" style="--i:2">
+        <svg viewBox="0 0 360 250" role="img" aria-label="Overhead plan of a home showing the liquid perimeter band, granular band, eaves and bait stations">
+          <rect class="yard" x="6" y="6" width="348" height="238" rx="10"/>
+          <rect class="gran" id="pGran" x="62" y="44" width="236" height="162" rx="14"/>
+          <rect class="liq" id="pLiq" x="84" y="64" width="192" height="122" rx="8"/>
+          <rect class="house" x="100" y="78" width="160" height="94" rx="3"/>
+          <path class="eave" id="pEave" d="M100 78h160v94H100z"/>
+          <rect class="bst" id="pB1" x="72" y="52" width="10" height="8" rx="1"/><rect class="bst" id="pB2" x="278" y="190" width="10" height="8" rx="1"/>
+          <text x="180" y="130" text-anchor="middle" class="plbl">Home</text>
+          <g class="hs" data-s="0"><circle cx="40" cy="30" r="11"/><text x="40" y="34" text-anchor="middle">1</text></g>
+          <g class="hs" data-s="1"><circle cx="180" cy="64" r="11"/><text x="180" y="68" text-anchor="middle">2</text></g>
+          <g class="hs" data-s="2"><circle cx="62" cy="125" r="11"/><text x="62" y="129" text-anchor="middle">3</text></g>
+          <g class="hs" data-s="3"><circle cx="260" cy="100" r="11"/><text x="260" y="104" text-anchor="middle">4</text></g>
+          <g class="hs" data-s="4"><circle cx="300" cy="210" r="11"/><text x="300" y="214" text-anchor="middle">5</text></g>
+          <g class="hs" data-s="5"><circle cx="150" cy="150" r="11"/><text x="150" y="154" text-anchor="middle">6</text></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="kit steplist a" style="--i:3" id="ghpSteps"></div>
+        <div class="callout a" style="--i:4" id="ghpDetail"><svg class="ico"><use href="#i-search"/></svg><span>Select a step on the plan or in the list.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 L&O PROGRAM -->
+  <section class="slide" data-label="The lawn program">
+    <span class="eyebrow a">03 · Lawn &amp; Ornamental (L&amp;O)</span>
+    <h2 class="a" style="--i:1">The standard lawn care program</h2>
+    <div class="split" style="grid-template-columns:.85fr 1.2fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <p class="a muted" style="--i:2">Lawn problems fall into four groups: <b>pests, fungus, nutrition and weeds</b>. Most lawn customers are on the full recurring program; some choose individual treatments or frequencies.</p>
+        <div class="lotot a" style="--i:3"><span class="big" id="loCount">0</span><span>scheduled treatments a year on the full program, covering turf <i>and</i> the plants and shrubs around it</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Fertilizer follows county rules.</b> Many Florida counties, including Indian River, St. Lucie and Martin, ban nitrogen and phosphorus fertilizer June 1 to September 30. Applications are timed and formulated to comply.</span></div>
+      </div>
+      <div class="card a lcal" style="--i:3">
+        <div class="lrow head"><span></span><span>Spring</span><span>Summer</span><span>Fall</span><span>Winter</span></div>
+        <div class="lrow"><span><b>Liquid sprays</b><small>6 · every other month</small></span><span class="span4"><i class="bar"></i><em class="d6"></em><em class="d6"></em><em class="d6"></em><em class="d6"></em><em class="d6"></em><em class="d6"></em></span></div>
+        <div class="lrow"><span><b>Weed control</b><small>3 · broadcast, turf only</small></span><span><em></em></span><span><em></em></span><span></span><span><em></em></span></div>
+        <div class="lrow"><span><b>Turf fertilizer</b><small>3 · slow-release granular</small></span><span><em></em></span><span><em class="star"></em></span><span><em></em></span><span></span></div>
+        <div class="lrow"><span><b>Shrub fertilizer</b><small>2 · granular, plants and shrubs</small></span><span><em></em></span><span></span><span><em></em></span><span></span></div>
+        <p class="small muted" style="margin-top:8px">Liquid sprays target seasonal pests, disease and fungus on turf and plants. Weed control is a broadcast spray for broadleaf weeds. <span class="em">Summer turf feeding</span> must meet local ordinance windows and blends.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 L&O PESTS -->
+  <section class="slide" data-label="What lawn service controls">
+    <span class="eyebrow a">04 · What lawn service controls</span>
+    <h2 class="a" style="--i:1">Four problems every employee should recognize</h2>
+    <p class="a muted" style="--i:2">These are the ones customers describe on the phone and point to in the yard. Select each card. The L&amp;O ID chart in your onboarding folder shows many more.</p>
+    <div class="flip f4 a" style="--i:3" id="loFlip"></div>
+    <p class="small muted a" style="--i:4">Ornamental pests on the chart include aphids, scale, mealybugs, whiteflies, thrips, spider mites and caterpillars. Turf pests also include mole crickets, armyworms, white grubs, billbugs and fire ants.</p>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: termites">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Protecting the structure: termites</h1>
+        <p class="lead a" style="--i:2">A termite problem can cost a homeowner tens of thousands of dollars, and termite work is the most tightly regulated thing we do. Getting the words right matters as much as getting the treatment right.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Know the termite</li><li><span>02</span>Sentricon Always Active</li><li><span>03</span>Our other termite services</li><li><span>04</span>WDO inspections and warranties</li><li><span>05</span>Practice: what can you promise?</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 TERMITE TYPES -->
+  <section class="slide" data-label="Know the termite">
+    <span class="eyebrow a">01 · Know the termite</span>
+    <h2 class="a" style="--i:1">The service depends on which termite it is</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:2"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-pin"/></svg></div><div><h3>Subterranean (including Formosan)</h3><p>Nest in the soil and travel up through mud tubes. Signs: mud tubes on the foundation, swarmers, damaged wood. Treated with <b>Sentricon</b> or <b>liquid</b>.</p></div></div></div>
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-box"/></svg></div><div><h3>Drywood</h3><p>Live inside the wood, with no soil contact. Signs: small piles of pellets (frass) and tiny exit holes. Treated with <b>drywood spot</b> or <b>whole-home</b>.</p></div></div></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Sentricon never treats drywood termites.</b> And we don't offer tent fumigation: Clements does not perform, sell or refer it.</span></div>
+      </div>
+      <div class="card a" style="--i:3">
+        <span class="eyebrow">Our termite services</span>
+        <ul class="tlist">
+          <li><b>Sentricon Always Active</b><span>Bait stations for subterranean termites. Our preferred service for existing homes.</span></li>
+          <li><b>Full liquid treatment</b><span>A complete liquid barrier where subterranean termites are confirmed active.</span></li>
+          <li><b>Drywood spot treatment</b><span>Foam injection in one small, defined area.</span></li>
+          <li><b>Drywood whole-home</b><span>Bora-Care on all accessible wood, preventative or corrective.</span></li>
+          <li><b>New construction</b><span>Sentricon by default; liquid soil pretreat only if the builder specifies it.</span></li>
+          <li><b>WDO inspection</b><span>The state inspection report used in home sales.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 SENTRICON -->
+  <section class="slide" data-label="Sentricon Always Active">
+    <span class="eyebrow a">02 · Sentricon Always Active</span>
+    <h2 class="a" style="--i:1">The bait that termites take home to the colony</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:26px;align-items:start">
+      <div class="figbox sen a" style="--i:2">
+        <svg viewBox="0 0 320 250" role="img" aria-label="Overhead view of a home ringed by Sentricon stations. Termites travel from a colony in the soil to a station, feed, and carry bait back to the colony.">
+          <rect class="yard" x="4" y="4" width="312" height="242" rx="10"/>
+          <rect class="house" x="96" y="70" width="128" height="96" rx="3"/>
+          <text x="160" y="122" text-anchor="middle" class="plbl">Home</text>
+          <rect class="sring" x="72" y="46" width="176" height="144" rx="10"/>
+          <g class="sta"><circle cx="72" cy="80"/><circle cx="72" cy="150"/><circle cx="118" cy="46"/><circle cx="202" cy="46"/><circle cx="248" cy="80"/><circle cx="248" cy="150"/><circle cx="118" cy="190"/><circle cx="202" cy="190"/></g>
+          <circle class="hot" cx="202" cy="190" r="9"/>
+          <g class="colony" id="colony"><circle cx="276" cy="226" r="16"/><circle cx="270" cy="222" r="2"/><circle cx="281" cy="229" r="2"/><circle cx="276" cy="218" r="2"/></g>
+          <path class="trail" d="M262 220 C240 214 222 204 206 194"/>
+          <circle class="term t1" r="2.6"><animateMotion dur="3.6s" repeatCount="indefinite" path="M262 220 C240 214 222 204 206 194 C222 204 240 214 262 220"/></circle>
+          <circle class="term t2" r="2.6"><animateMotion dur="3.6s" begin="1.2s" repeatCount="indefinite" path="M262 220 C240 214 222 204 206 194 C222 204 240 214 262 220"/></circle>
+          <circle class="term t3" r="2.6"><animateMotion dur="3.6s" begin="2.4s" repeatCount="indefinite" path="M262 220 C240 214 222 204 206 194 C222 204 240 214 262 220"/></circle>
+          <text x="256" y="242" text-anchor="end" class="plbl sm">Colony</text>
+          <text x="20" y="20" class="plbl sm">Stations about 10 ft apart, 2–3 ft from the foundation</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <ol class="steps a" style="--i:3">
+          <li><span class="num">1</span><span><b>Stations go in the soil</b> around the home, baited (noviflumuron) from day one.</span></li>
+          <li><span class="num">2</span><span><b>Termites prefer the bait to wood</b> and share it through the colony, queen included.</span></li>
+          <li><span class="num">3</span><span><b>The colony is eliminated</b> and the stations keep protecting. We check them quarterly, plus an annual inspection.</span></li>
+        </ol>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>The $1,000,000 damage bond is Corteva's, not a Clements warranty.</b> It covers new subterranean damage after installation, only while annual monitoring is current (a lapse past the 30-day grace period voids it), never existing damage. Clements adds no-charge retreatment on top.</span></div>
+        <p class="small muted a" style="--i:5">Only a Certified Sentricon Specialist (or someone they supervise) sells and services Sentricon. Damage claims go to your branch manager.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 TERMITE MATRIX -->
+  <section class="slide" data-label="Other termite services">
+    <span class="eyebrow a">03 · Our other termite services</span>
+    <h2 class="a" style="--i:1">Which treatment fits which situation</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table>
+        <thead><tr><th>Service</th><th>Targets</th><th>When it fits</th><th>Warranty</th></tr></thead>
+        <tbody>
+          <tr><td class="y">Sentricon Always Active</td><td>Subterranean</td><td>Active subterranean termites, or a customer who wants ongoing protection</td><td>Corteva damage bond plus Clements retreatment, while monitoring is current</td></tr>
+          <tr><td class="y">Full liquid treatment</td><td>Subterranean</td><td>Confirmed active subterranean termites where a full liquid strategy is approved. Never a partial or spot job.</td><td>Terms not yet set. Ask your branch manager.</td></tr>
+          <tr><td class="y">Drywood spot</td><td>Drywood</td><td>Active drywood in one area: 10 or fewer exit holes, frass in one spot</td><td>Retreatment only: 30-day retreat of the listed locations</td></tr>
+          <tr><td class="y">Drywood whole-home</td><td>Drywood</td><td>Whole-structure protection (preventative), or active drywood that is accessible but too much for a spot (corrective)</td><td>Retreatment only: entire structure, one year, renewable</td></tr>
+          <tr><td class="y">New construction</td><td>Subterranean</td><td>Builder jobs. Sentricon by default; liquid soil pretreat only when the builder specifies it.</td><td>At least one year, renewable for up to four more years (Florida rule)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Widespread, hidden or recurring drywood</b> is beyond what spot or whole-home treatment can fix. We document it and tell the customer honestly; we don't sell a treatment that can't work. We also never clean up frass or repair damage.</span></div>
+  </section>
+
+  <!-- 15 WDO + WARRANTY -->
+  <section class="slide" data-label="WDO and warranties">
+    <span class="eyebrow a">04 · WDO inspections and termite warranties</span>
+    <h2 class="a" style="--i:1">Inspections are regulated. So are the words "warranty" and "guarantee."</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="card cc a" style="--i:2"><h3><svg class="ico"><use href="#i-search"/></svg>WDO real estate inspections</h3><p><b>WDO means wood-destroying organisms:</b> termites, wood-decaying fungi and wood-boring beetles. Buyers, sellers and lenders order a WDO inspection during a home sale. The results go on the state form <b>FDACS-13645</b>, and only a WDO ID cardholder or WDO certified operator may perform one. Reports are kept at least three years.</p></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>WDO inspection policy and pricing are still being finalized. Take the details and route the request. Don't quote a price or a turnaround time.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a" style="--i:3">Every termite contract states one of these, in bold, on page one (Florida Statute 482.227)</span>
+        <div class="wphr a" style="--i:4"><b>For Repair and Retreatment</b><span>The company retreats and repairs new damage.</span></div>
+        <div class="wphr a" style="--i:5"><b>For Retreatment Only</b><span>The company retreats but does not repair damage. All of our drywood work is retreatment only.</span></div>
+        <div class="wphr a" style="--i:6"><b>No Warranty or Guarantee</b><span>No warranty on the work performed.</span></div>
+        <p class="small muted a" style="--i:7">If a contract has any conditions or exclusions, it may never use "full" or "unlimited" with "warranty" or "guarantee." The written contract is the promise, so point customers to it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 PRACTICE SAY -->
+  <section class="slide" data-label="Practice: what can you promise">
+    <span class="eyebrow a">05 · Practice · what can you promise?</span>
+    <h2 class="a" style="--i:1">OK to say, or don't say? Sort each statement.</h2>
+    <div class="sort a" style="--i:2" id="say"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="sayCheck">Check my answers</button><span id="sayFb"></span></div>
+  </section>
+
+  <!-- 17 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 18 PART THREE -->
+  <section class="slide forest" data-label="Part three: rodent, mosquito, wildlife">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Rodents, mosquitoes and wildlife</h1>
+        <p class="lead a" style="--i:2">These calls are often urgent and emotional: something is in the attic, the kids can't play outside, an animal is under the house. Knowing the right first question calms the customer and sends the job to the right place.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Rodents: inside or outside?</li><li><span>02</span>Rodent Shield Basic and Plus</li><li><span>03</span>Mosquito misting</li><li><span>04</span>Wildlife removal and exclusion</li></ol>
+    </div>
+  </section>
+
+  <!-- 19 RODENT DECISION -->
+  <section class="slide" data-label="Rodents: inside or outside">
+    <span class="eyebrow a">01 · Rodents</span>
+    <h2 class="a" style="--i:1">The most important rodent question</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:14px">
+        <p class="quote a" style="--i:2">"Are you hearing or seeing rodents inside your home, or only outside?"</p>
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-door"/></svg></div><div><h3>Exclusion before baiting</h3><p>Rodents use openings to carry food into attics. If we put out bait stations while openings are still there, a rodent can eat the bait, get back inside and die in a wall. That means odor, health risk and an unhappy customer. Seal first, then bait.</p></div></div></div>
+      </div>
+      <div class="card a" style="--i:3">
+        <div class="seg" role="group" aria-label="Where is the activity?" id="rdSeg"><button type="button" id="rdIn" aria-pressed="true">Inside (or both)</button><button type="button" id="rdOut" aria-pressed="false">Outside only</button></div>
+        <ol class="steps rflow" id="rdFlow" style="margin-top:8px"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 RODENT SHIELD -->
+  <section class="slide" data-label="Rodent Shield">
+    <span class="eyebrow a">02 · The Rodent Shield program</span>
+    <h2 class="a" style="--i:1">Two tiers, and only one carries a warranty</h2>
+    <div class="grid g2 rs">
+      <div class="card a" style="--i:2"><span class="eyebrow">Rodent Shield Basic</span><h3 style="margin-top:4px">Elimination</h3><ul class="ticks">
+        <li class="y">Full interior and exterior inspection</li><li class="y">Traps and enclosed bait stations in activity areas</li><li class="y">Five follow-up visits to check traps and remove rodents</li><li class="y">Written summary of findings for the homeowner</li><li class="n">No exclusion or sealing work</li><li class="n">No warranty and no renewal</li></ul>
+        <p class="small muted">Fits when no structural entry points are found, or the customer wants to start with elimination.</p></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Rodent Shield Plus</span><h3 style="margin-top:4px">Elimination and exclusion</h3><ul class="ticks">
+        <li class="y">Every entry point ½ inch or larger documented and photographed</li><li class="y">Entry points sealed with approved materials, cement first</li><li class="y">Traps placed at the entry points, five follow-up visits</li><li class="y">Documentation package for the homeowner</li><li class="y">1-year or 3-year warranty, chosen at the original service</li><li class="y">Warranty transfers to a buyer if the home sells (within 30 days)</li></ul>
+        <p class="small muted">If a Basic inspection finds entry points, the technician presents Plus before leaving.</p></div>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-check"/></svg><span><b>Add-ons:</b> deodorization, A/C chase sealing and exterior rodent bait boxes. Bait boxes are required to renew a Plus warranty. <b>Foam is not exclusion;</b> rodents chew through it. The 3-year warranty can't be added later. Residential accounts need a credit card deposit before scheduling; commercial accounts do not.</span></div>
+  </section>
+
+  <!-- 21 MOSQUITO -->
+  <section class="slide" data-label="Mosquito misting">
+    <span class="eyebrow a">03 · Mosquito misting</span>
+    <h2 class="a" style="--i:1">An automatic system that treats the yard at dawn and dusk</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="figbox mist a" style="--i:2">
+          <svg viewBox="0 0 320 170" role="img" aria-label="A misting unit beside the home feeds a line of nozzles along the fence and shrubs, which release short bursts of mist">
+            <path class="ground" d="M6 150H314"/>
+            <rect class="house" x="14" y="62" width="70" height="88"/><path class="house" d="M8 66l46-36 46 36"/>
+            <rect class="unit" x="92" y="122" width="22" height="28" rx="3"/>
+            <path class="line" d="M114 132H300"/>
+            <path class="fence" d="M120 150V96M170 150V96M220 150V96M270 150V96M116 108H306M116 128H306"/>
+            <g class="noz"><circle cx="145" cy="104" r="3"/><circle cx="195" cy="104" r="3"/><circle cx="245" cy="104" r="3"/><circle cx="295" cy="104" r="3"/></g>
+            <g class="spray"><path d="M140 96c-4-6-4-12 0-16M145 94v-16M150 96c4-6 4-12 0-16"/><path d="M190 96c-4-6-4-12 0-16M195 94v-16M200 96c4-6 4-12 0-16"/><path d="M240 96c-4-6-4-12 0-16M245 94v-16M250 96c4-6 4-12 0-16"/><path d="M290 96c-4-6-4-12 0-16M295 94v-16M300 96c4-6 4-12 0-16"/></g>
+            <text x="103" y="164" text-anchor="middle" class="plbl sm">Unit</text>
+            <text x="210" y="164" text-anchor="middle" class="plbl sm">Nozzles along fence and foliage</text>
+          </svg>
+        </div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span><b>Standard program:</b> two short cycles a day, about 7:00 am and 7:00 pm, when mosquitoes are most active. The customer can trigger an extra cycle with a remote before guests arrive.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <p class="a muted" style="--i:2">We install and service <b>MistAway</b> systems, a line that came with the Knockout acquisition. Refill service runs about every quarter, with nozzle and pressure checks.</p>
+        <div class="card a" style="--i:3"><span class="eyebrow">Two concentrates, same price to the customer</span>
+          <div class="seg" style="margin-top:8px" role="group" aria-label="Concentrate" id="mcSeg"><button type="button" id="mcA" aria-pressed="true">Sector (recommended)</button><button type="button" id="mcB" aria-pressed="false">Stop the Bugs (natural)</button></div>
+          <p id="mcTxt" class="small" style="margin-top:10px;max-width:none"></p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Warranty:</b> 12 months on new parts we install and the related labor, plus MistAway's 1-year parts warranty. Not covered: landscaper damage, lines cut by other contractors, or refills and setting changes outside our service.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 WILDLIFE -->
+  <section class="slide" data-label="Wildlife">
+    <span class="eyebrow a">04 · Wildlife removal and exclusion</span>
+    <h2 class="a" style="--i:1">Nuisance wildlife, handled the way Florida law requires</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:2"><span class="eyebrow">Animals we handle</span><div class="pick static" style="margin-top:8px"><span>Rats and mice</span><span>Raccoons</span><span>Opossums</span><span>Armadillos</span><span>Squirrels</span><span>Bats</span><span>Birds</span><span>Snakes</span></div>
+          <p style="margin-top:10px">Inspection, trapping and removal, one-way devices, sealing entry points, cleanup, deodorizing and insulation replacement. Every job starts with an inspection and a graph of what will be sealed.</p></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Bitten, scratched or touched a bat?</b> That person needs medical or public-health guidance right away. Never approach an aggressive, injured or possibly rabid animal.</span></div>
+      </div>
+      <div class="card a" style="--i:3"><ol class="steps tight">
+        <li><span class="num">1</span><span><b>Traps are checked at least every 24 hours.</b> Florida Fish and Wildlife Conservation Commission (FWC) rules require it.</span></li>
+        <li><span class="num">2</span><span><b>Bats are never harmed.</b> They are excluded with one-way devices, and never during maternity season, April 16 to August 14.</span></li>
+        <li><span class="num">3</span><span><b>Protected species</b> (alligators, bears, marine turtles, migratory birds) go to the proper agency.</span></li>
+        <li><span class="num">4</span><span><b>No promises</b> about relocation or catching every animal. Release is limited by law.</span></li>
+        <li><span class="num">5</span><span><b>The warranty covers only the sealing we did</b>, as shown on the graph. New openings aren't covered.</span></li>
+      </ol></div>
+    </div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: commercial and matching">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Commercial, and the right service for the right customer</h1>
+        <p class="lead a" style="--i:2">Knowing the menu is half the job. The other half is listening to the problem, recommending the service that fits, and getting the customer to the person who can quote and schedule it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Commercial service</li><li><span>02</span>Where the question goes</li><li><span>03</span>Practice: which service fits?</li><li><span>04</span>Practice: the customer conversation</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 COMMERCIAL -->
+  <section class="slide" data-label="Commercial service">
+    <span class="eyebrow a">01 · Commercial service</span>
+    <h2 class="a" style="--i:1">Pest control for businesses</h2>
+    <p class="a muted" style="--i:2">Restaurants, offices, warehouses, retail and multi-family properties. The pests are familiar; the setting is not. A business's reputation and inspections ride on our work.</p>
+    <div class="grid g3">
+      <div class="card cc a" style="--i:3"><h3><svg class="ico"><use href="#i-clock"/></svg>Around the business</h3><p>Service is planned around operating hours, deliveries and food prep, so customers and employees aren't disrupted.</p></div>
+      <div class="card cc a" style="--i:4"><h3><svg class="ico"><use href="#i-clip"/></svg>Records that hold up</h3><p>Food businesses are inspected by the state. Accurate service records, products used and findings support the account when an inspector asks.</p></div>
+      <div class="card cc a" style="--i:5"><h3><svg class="ico"><use href="#i-search"/></svg>Prevention first</h3><p>Monitoring, sanitation and exclusion recommendations matter as much as treatment. We report conditions the business needs to fix.</p></div>
+      <div class="card cc a" style="--i:6"><h3><svg class="ico"><use href="#i-users"/></svg>The right contact</h3><p>We work through the owner, property manager or facilities contact, who may not be the person on site.</p></div>
+      <div class="card cc a" style="--i:7"><h3><svg class="ico"><use href="#i-building"/></svg>Multi-unit buildings</h3><p>Rodent work in duplexes, quads and apartments goes to a manager first. Sealing one unit doesn't work without a firewall between units.</p></div>
+      <div class="card cc a" style="--i:8"><h3><svg class="ico"><use href="#i-route"/></svg>Same services, adapted</h3><p>Rodent, termite, mosquito and wildlife work all apply to businesses. Commercial rodent accounts don't need a deposit.</p></div>
+    </div>
+  </section>
+
+  <!-- 26 ROUTING -->
+  <section class="slide" data-label="Where the question goes">
+    <span class="eyebrow a">02 · Where the question goes</span>
+    <h2 class="a" style="--i:1">Explain the service. Leave the price to the quote.</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-x"/></svg><span><b>Don't quote prices,</b> even a ballpark. Pricing depends on the inspection, the size of the home and the program. Sales courses cover pricing for the people who quote.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-check"/></svg><span><b>Do explain</b> what the service is, how it works and how often we come, in plain language.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-chat"/></svg><span><b>Do capture</b> what the customer is seeing, where, and for how long, and whether they own the property. Then tell them who will follow up.</span></div>
+      </div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Who handles what</span>
+        <ul class="route">
+          <li><span>Wants a quote or a new service</span><b>Your branch manager or customer service; a quote follows the inspection</b></li>
+          <li><span>Questions about services, treatment options or pricing</span><b>Your branch manager</b></li>
+          <li><span>Existing account, billing or scheduling</span><b>The customer service team at the corporate office</b></li>
+          <li><span>Possible termite damage claim (Sentricon)</span><b>Branch manager files it with Corteva</b></li>
+          <li><span>Aggressive, injured or possibly rabid animal</span><b>Stay away; emergency services, animal control or FWC</b></li>
+        </ul>
+        <p class="small muted">Main office 772-562-6450 · Customer line 1-844-606-BUGS</p></div>
+    </div>
+  </section>
+
+  <!-- 27 MATCH -->
+  <section class="slide" data-label="Practice: which service fits">
+    <span class="eyebrow a">03 · Practice · which service fits this customer?</span>
+    <div class="qhead a" style="--i:1"><h2 id="mtTitle">Customer 1 of 8</h2><div class="dots" id="mtDots" aria-hidden="true"></div></div>
+    <div class="card mtcard a" style="--i:2" id="mtCard"></div>
+    <div class="pick mtpick a" style="--i:3" id="mtPick" role="group" aria-label="Choose a service line"></div>
+    <div class="a" style="--i:4" id="mtFb"></div>
+  </section>
+
+  <!-- 28 CONVERSATION -->
+  <section class="slide" data-label="Practice: the customer conversation">
+    <span class="eyebrow a">04 · Practice · the customer conversation</span>
+    <h2 class="a" style="--i:1">What would you say?</h2>
+    <div class="scen-tabs a" style="--i:2" id="vTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="vBox"></div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Onboarding sign-off" data-cp="5">
+    <span class="eyebrow a">Onboarding application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it in your first weeks</h2>
+    <p class="a muted" style="--i:2">Your supervisor will go through each of these with you before CW-05 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Explain GHP to your supervisor: frequency, first visit, callbacks and the one-time warranty</label></li>
+      <li><label><input type="checkbox" id="s2"> Name the parts of the standard lawn program and two problems it controls</label></li>
+      <li><label><input type="checkbox" id="s3"> Explain how Sentricon works and describe the damage bond correctly</label></li>
+      <li><label><input type="checkbox" id="s4"> Tell the difference between subterranean and drywood termites and the service for each</label></li>
+      <li><label><input type="checkbox" id="s5"> Explain Rodent Shield Basic versus Plus, and why we seal before we bait</label></li>
+      <li><label><input type="checkbox" id="s6"> Describe mosquito misting and two wildlife rules we must follow</label></li>
+      <li><label><input type="checkbox" id="s7"> Role-play a customer asking about a service you don't perform, and route it correctly without quoting a price</label></li>
+      <li><label><input type="checkbox" id="s8"> Locate the Pest ID and Lawn &amp; Ornamental ID charts and know where to find program details</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('cw05:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('cw05:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "CW-05", "titleHtml": "What We Sell", "nextHtml": "CW-06 \u00b7 Company Policies", "passNote": "Your onboarding sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Onboarding sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Pest and lawn',q:'A recurring GHP customer calls on Thursday. Ants are trailing across her kitchen counter, and her next service is three weeks away. What should happen?',o:['She waits for her next scheduled service','She buys a one-time service at full price','A callback is scheduled within 24 hours so a technician can retreat, at no extra charge','She is told to pick up ant bait at the hardware store'],a:2,e:'Recurring customers get a callback within 24 hours when pests show up between visits. It is a big part of what they pay for.'},
+    2:{t:'Checkpoint 2 · Termites',q:'A Sentricon customer asks: "So if termites ever damage my house, you\'ll pay for it no matter what, right?" What is the accurate answer?',o:['"Yes, everything is covered for life."','"No, we don\'t cover any damage."','"Clements will repair any damage, including what\'s already there."','"Your system carries Corteva\'s damage bond for new subterranean termite damage after installation, as long as your annual monitoring stays current. Your agreement spells out the details."'],a:3,e:'The $1,000,000 bond is Corteva\'s, not a Clements warranty. It covers new subterranean damage after install, only while monitoring is current, and not damage that was already there.'},
+    3:{t:'Checkpoint 3 · Rodent, mosquito, wildlife',q:'A homeowner hears scratching in the attic every night and asks you to "just put some bait boxes outside." What is the best response?',o:['Explain that activity inside means we inspect and seal the entry points first, because baiting while openings are still there can leave a rodent dying inside the walls','Agree and have bait boxes installed this week','Recommend mosquito misting','Tell him to set his own traps first'],a:0,e:'Inside activity calls for inspection and exclusion (Rodent Shield). Seal first, then bait. Baiting with open entry points risks rodents dying inside the home.'},
+    4:{t:'Checkpoint 4 · Commercial and matching',q:'While you are at a residential stop, the manager of the restaurant next door asks how much Clements charges for monthly service. What do you do?',o:['Give him a ballpark so he doesn\'t go elsewhere','Explain that we do commercial pest control, get his name and contact information, and pass it along so the office can schedule an inspection and a quote','Tell him Clements only does homes','Promise him the same price as the homeowner'],a:1,e:'Explain the service, don\'t quote a price, capture the contact and route it. A quote follows an inspection.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the standard frequency for General Household Pest service?',o:['Monthly','Quarterly','Every other month','Yearly'],a:2,e:'Every other month (EOM), on the same day and time each visit. Some legacy and acquired accounts are on other frequencies.'},
+    {k:'Multiple choice',q:'A customer who is not on a recurring plan buys a one-time service. What warranty comes with it?',o:['30 days','90 days','One year','None'],a:0,e:'One-time services carry a 30-day warranty only.'},
+    {k:'True or false',q:'After the initial GHP visit, our standard is to treat the exterior, and the interior on request or when the customer sees activity inside.',o:['True','False'],a:0,e:'True. The first visit treats inside and out; after that, exterior, with interior on request or when there is activity inside.'},
+    {k:'Multiple choice',q:'How soon is a callback scheduled when a recurring GHP customer has pests between visits?',o:['At the next scheduled visit','Within a week','Within 72 hours','Within 24 hours'],a:3,e:'Within 24 hours.'},
+    {k:'Multiple choice',q:'Which of these is NOT part of the standard lawn care program?',o:['Six liquid sprays a year','Monthly interior pest treatment','Three weed control treatments','Granular fertilizer for turf and shrubs'],a:1,e:'The lawn program is six liquid sprays, three weed control treatments, three turf fertilizations and two shrub fertilizations. Interior pest treatment is GHP.'},
+    {k:'Scenario',q:'A Martin County lawn customer asks for an extra nitrogen fertilizer application in July. What should they hear?',o:['"Sure, we\'ll add it on your next visit."','"Fertilizer never helps in summer."','"Many counties here, including Martin, ban nitrogen and phosphorus fertilizer June 1 to September 30. We time and formulate our applications to follow those rules."','"You can apply it yourself."'],a:2,e:'Treasure Coast counties restrict nitrogen and phosphorus fertilizer from June 1 to September 30. We follow local ordinances.'},
+    {k:'Multiple choice',q:'Chinch bugs mainly attack which grass, and what does the damage look like?',o:['St. Augustine; yellow or brown patches that look like drought stress','Bermuda; white powder on the blades','Zoysia; black sooty coating','Any grass; circular rings with a smoky edge'],a:0,e:'Chinch bugs attack St. Augustine and cause yellowing or browning patches that can be mistaken for drought.'},
+    {k:'Multiple choice',q:'A customer finds mud tubes running up the foundation. Which termite does this point to?',o:['Drywood','Subterranean','Dampwood','No termite; mud tubes are from wasps'],a:1,e:'Subterranean termites, including Formosan, nest in soil and travel through mud tubes.'},
+    {k:'True or false',q:'Sentricon can be sold as a treatment for drywood termites.',o:['True','False'],a:1,e:'False. Sentricon targets subterranean termites and is never represented as a drywood treatment.'},
+    {k:'Multiple choice',q:'Who provides the $1,000,000 termite damage bond on Sentricon accounts?',o:['Clements Pest Control','The customer\'s homeowner\'s insurance','Corteva, the manufacturer of Sentricon','The State of Florida'],a:2,e:'It is a manufacturer-backed bond from Corteva, not a Clements warranty. Clements adds its own retreatment warranty.'},
+    {k:'Multiple choice',q:'When does the Sentricon damage bond stay in force?',o:['Forever, once installed','Only during the first year','Only if the home is sold','As long as the annual monitoring is paid and current'],a:3,e:'The bond covers new subterranean damage after install while monitoring is current. A lapse past the 30-day grace period voids it.'},
+    {k:'Multiple choice',q:'An inspector finds drywood termites in one kitchen cabinet: six exit holes and a small pile of frass. Which service fits?',o:['Drywood spot treatment','Sentricon Always Active','Tent fumigation','Mosquito misting'],a:0,e:'Active drywood in one area with 10 or fewer exit holes fits a spot treatment. Whole-home is an option if the customer wants whole-structure coverage.'},
+    {k:'Multiple choice',q:'What is Clements\' default termite service for new construction?',o:['Liquid soil pretreat on every job','Sentricon installed at the new home; liquid soil pretreat only when the builder specifies it','Tent fumigation before closing','Nothing until termites appear'],a:1,e:'Sentricon at perimeter completion is the default. Liquid pretreats are done on builder-specified jobs only.'},
+    {k:'True or false',q:'Clements offers tent fumigation for drywood termites.',o:['True','False'],a:1,e:'False. Clements does not perform, sell or refer tent fumigation at this time.'},
+    {k:'Multiple choice',q:'Florida requires the first page of a termite contract to state one of three warranty terms in bold. Which of these is one of them?',o:['Full Lifetime Guarantee','Unlimited Warranty','For Retreatment Only','Satisfaction Guaranteed'],a:2,e:'The three are "For Repair and Retreatment," "For Retreatment Only" and "No Warranty or Guarantee." "Full" or "unlimited" can\'t be used when there are conditions or exclusions.'},
+    {k:'Multiple choice',q:'Which Rodent Shield tier includes a warranty?',o:['Basic','Plus','Both','Neither'],a:1,e:'Only Plus, with a 1-year or 3-year option chosen at the time of the original service. Basic has no warranty.'},
+    {k:'Scenario',q:'During a Rodent Shield Basic inspection, the technician finds three open entry points. What should happen?',o:['Ignore them; Basic doesn\'t include sealing','Seal them with foam as a courtesy','Bait outside right away','Present a Rodent Shield Plus upgrade before leaving the property'],a:3,e:'A Basic inspection that reveals entry points should always prompt a same-visit Plus conversation. Foam is not an exclusion material.'},
+    {k:'Multiple choice',q:'What is the standard program on a mosquito misting system?',o:['Two short mist cycles a day, about 7:00 am and 7:00 pm','One long cycle at noon','Continuous misting all day','Once a week'],a:0,e:'Two short cycles a day at dawn and dusk, when mosquitoes are most active, plus an on-demand remote boost.'},
+    {k:'Multiple choice',q:'In Florida, when can bats NOT be excluded from a building?',o:['December through February','Any time it rains','During maternity season, April 16 to August 14','Only on weekends'],a:2,e:'FWC prohibits bat exclusions during maternity season, April 16 to August 14. Bats are never harmed.'},
+    {k:'Scenario',q:'At a GHP stop, the homeowner asks what Sentricon would cost for her house. What do you say?',o:['Give the price you remember from another job','Tell her it\'s too expensive','Say you have no idea and move on','Explain how Sentricon works, that the price depends on an inspection of her home, and offer to have the office schedule one'],a:3,e:'Explain the service, don\'t quote, and route the request so an inspection and quote can follow.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+
+  /* ---------- service-line explorer ---------- */
+  var SV=[
+    {n:'General Household Pest',s:'GHP or PC · recurring',i:'i-home',tags:['Residential','Recurring','Most common'],
+     w:'Interior and exterior treatment for common household pests such as ants, roaches and spiders.',
+     h:'Every other month on the same day and time. First visit inside and out, then exterior, with interior on request.',
+     p:'A callback within 24 hours if pests show up between visits. One-time services carry a 30-day warranty.',
+     say:'"We\'re out every other month, and if anything shows up in between, call us and we come back."'},
+    {n:'Lawn & Ornamental',s:'L&O · recurring',i:'i-leaf',tags:['Turf','Shrubs','Recurring'],
+     w:'Lawn and landscape care: liquid sprays for pests, disease and fungus, weed control, and granular fertilizer.',
+     h:'The full program is 6 liquid sprays, 3 weed control treatments, 3 turf and 2 shrub fertilizations a year.',
+     p:'Treatments follow the season and Florida\'s fertilizer rules. Some customers choose individual treatments.',
+     say:'"We take care of the whole yard: the bugs, the weeds, the fungus and the feeding."'},
+    {n:'Termite',s:'Sentricon, liquid, drywood, WDO',i:'i-bug',tags:['Subterranean','Drywood','Regulated'],
+     w:'Sentricon bait stations, full liquid treatment, drywood spot and whole-home treatment, new construction and WDO inspections.',
+     h:'Sentricon stations are checked quarterly with an annual inspection. Other services are scoped at an inspection.',
+     p:'Exactly what the written contract says. Sentricon carries Corteva\'s damage bond while monitoring is current.',
+     say:'"Let\'s get an inspector out to see which termite it is. That decides the treatment."'},
+    {n:'Rodent',s:'Rodent Shield program',i:'i-rodent',tags:['Exclusion','Trapping','Bait stations'],
+     w:'Rodent Shield: inspection and trapping, plus sealing entry points on Plus. Exterior bait stations for prevention.',
+     h:'Inspection, then five follow-up visits. Bait stations are refilled on a regular schedule.',
+     p:'Plus only: a 1-year or 3-year warranty on the documented entry points. Basic has no warranty.',
+     say:'"Are you hearing them inside the home, or only outside?"'},
+    {n:'Mosquito',s:'MistAway misting systems',i:'i-mist',tags:['Installed system','Automatic'],
+     w:'MistAway automatic misting systems installed along the yard\'s perimeter, fence lines and foliage.',
+     h:'Two short mist cycles a day at dawn and dusk. Refill service about every quarter.',
+     p:'12 months on new parts we install and the labor tied to them, plus MistAway\'s 1-year parts warranty.',
+     say:'"The system treats your yard automatically every morning and evening, and you can boost it before guests come."'},
+    {n:'Wildlife',s:'Removal and exclusion',i:'i-paw',tags:['FWC rules','Exclusion'],
+     w:'Removal and exclusion of nuisance animals: raccoons, squirrels, opossums, armadillos, bats, birds, snakes and rodents.',
+     h:'Inspection and graph, traps checked at least every 24 hours, then sealing the entry points.',
+     p:'Covers only the sealing we did, as shown on the graph. Capturing every animal is not guaranteed.',
+     say:'"Please don\'t touch the animal or the traps. We check them at least once a day."'},
+    {n:'Commercial',s:'Pest control for businesses',i:'i-building',tags:['Restaurants','Offices','Multi-family'],
+     w:'Pest control for restaurants, offices, warehouses, retail and multi-family properties.',
+     h:'Scheduled around the business, with service records ready for inspectors.',
+     p:'Set by the commercial service agreement.',
+     say:'"Who is the best contact for the property, and when is service least disruptive for you?"'}
+  ];
+  var svl=$('#svList'), svSeen=store.get('sv')||{};
+  function showSV(i){
+    $$('button',svl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);if(svSeen[j])b.classList.add('seen')});
+    var s=SV[i],d=$('#svDetail');d.style.animation='none';d.offsetHeight;d.style.animation='';
+    d.innerHTML='<div style="display:flex;gap:14px;align-items:center"><div class="icobox" style="margin:0">'+ico(s.i)+'</div><div><span class="eyebrow">'+s.s+'</span><h3>'+s.n+'</h3></div></div><div class="tag">'+s.tags.map(function(t){return '<span class="chip">'+t+'</span>'}).join('')+'</div><dl><dt>What it is</dt><dd>'+s.w+'</dd><dt>How it runs</dt><dd>'+s.h+'</dd><dt>What we promise</dt><dd>'+s.p+'</dd></dl><div class="say"><b>Say it simply:</b> '+s.say+'</div>';
+  }
+  SV.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='sv'+i;b.setAttribute('aria-pressed','false');b.innerHTML=ico(s.i)+'<span>'+s.n+'<small>'+s.s+'</small></span>';
+    b.addEventListener('click',function(){svSeen[i]=1;store.set('sv',svSeen);showSV(i)});svl.appendChild(b)});
+  showSV(0);
+
+  /* ---------- EOM months ---------- */
+  var MO=['J','F','M','A','M','J','J','A','S','O','N','D'], eom=$('#eom'), eomK=0;
+  MO.forEach(function(m,i){var on=i%2===1;eom.insertAdjacentHTML('beforeend','<span class="'+(on?'on':'')+'" style="--k:'+(on?eomK++:0)+'"><i></i>'+m+'</span>')});
+
+  /* ---------- GHP visit plan ---------- */
+  var GS=[
+    {t:'Inspect the exterior',m:'2–3 min',l:[],d:'Walk the home looking for entry points, breeding sites and places pests hide. This tells you where to focus.'},
+    {t:'Perimeter liquid treatment',m:'4–5 min',l:['pLiq'],d:'A liquid band up to 3 feet up the foundation and 6–10 feet out onto the ground, plus thresholds, window frames, plants touching the house and trash areas.'},
+    {t:'Granular band',m:'4–5 min',l:['pGran'],d:'Granular insecticide spread in a 2–3 foot band around the home, with the spreader set to the label rate. Granules break down more slowly than liquid, so they last longer.'},
+    {t:'Remove spider webs',m:'3–4 min',l:['pEave'],d:'Brush webs from the eaves on every visit. Webs are the most visible sign of pests, so removing them shows the customer the value of the service.'},
+    {t:'Service bait stations',m:'If included',l:['pB1','pB2'],d:'Gloves on, unlock the station, bag old bait, add fresh bait per the label and lock it again so children and pets can\'t get in. Eaten bait means rodent activity.'},
+    {t:'Interior, when needed',m:'Initial or on request',l:[],d:'Talk with the customer, then treat cracks and crevices, baseboards and around windows and doors, with pea-size gel bait placements for roaches and ants.'}
+  ];
+  var gl=$('#ghpSteps');
+  function showGS(i){
+    $$('button',gl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i)});
+    $$('.plan .hs').forEach(function(h){h.classList.toggle('sel',+h.dataset.s===i)});
+    ['pLiq','pGran','pEave','pB1','pB2'].forEach(function(id){$('#'+id).classList.toggle('lit',GS[i].l.indexOf(id)>-1)});
+    $('#ghpDetail').innerHTML=ico('i-check')+'<span><b>'+(i+1)+'. '+GS[i].t+'</b> · '+GS[i].m+'. '+GS[i].d+'</span>';
+  }
+  GS.forEach(function(g,i){var b=document.createElement('button');b.type='button';b.id='gs'+i;b.setAttribute('aria-pressed','false');b.innerHTML='<span class="num">'+(i+1)+'</span><span>'+g.t+' <span class="muted small">· '+g.m+'</span></span>';b.addEventListener('click',function(){showGS(i)});gl.appendChild(b)});
+  $$('.plan .hs').forEach(function(h){h.setAttribute('tabindex','0');h.setAttribute('role','button');h.setAttribute('aria-label','Step '+(+h.dataset.s+1)+': '+GS[+h.dataset.s].t);
+    h.addEventListener('click',function(){showGS(+h.dataset.s)});h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();showGS(+h.dataset.s)}})});
+  showGS(0);
+
+  /* ---------- lawn count-up ---------- */
+  function loCount(){var el=$('#loCount'),T=14,t0=null;if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=T;return}
+    function st(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/1200);el.textContent=Math.round(T*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(st)}requestAnimationFrame(st)}
+
+  /* ---------- lawn flip cards ---------- */
+  var LO=[
+    {t:'Chinch bugs',i:'i-bug',f:'Tiny black insects with white wings.',b:'<b>Damage:</b> yellow or brown patches in St. Augustine that look like drought stress.<br><b>When:</b> hot, dry late spring and summer, but possible year-round in Florida.<br><b>We:</b> treat with our seasonal liquid sprays.'},
+    {t:'Sod webworms',i:'i-target',f:'Small caterpillars that become moths.',b:'<b>Damage:</b> they chew grass blades, leaving small, irregular brown patches.<br><b>When:</b> spring and summer, especially after heavy rain.<br><b>Note:</b> seeing moths doesn\'t always mean the lawn is at risk.'},
+    {t:'Brown patch (large patch)',i:'i-drop',f:'A fungal disease of St. Augustine and Zoysia.',b:'<b>Looks like:</b> circular brown patches, often with a smoky gray ring at the edge.<br><b>When:</b> cooler, humid weather below about 80 degrees; in Florida usually November through March.<br><b>We:</b> fungus treatments in the liquid program.'},
+    {t:'Weeds',i:'i-leaf',f:'Broadleaf, grassy and sedge weeds.',b:'<b>Common ones:</b> dollarweed, spurge, chamberbitter (broadleaf); crabgrass, goosegrass (grassy); nutsedge, kyllinga (sedge).<br><b>We:</b> broadcast weed control on turf three times a year.'}
+  ];
+  var lf=$('#loFlip'),loSeen=store.get('lo')||{};
+  LO.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='lo'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox">'+ico(v.i)+'</span><h3>'+v.t+'</h3><span class="muted" style="font-size:15px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');loSeen[i]=1;store.set('lo',loSeen)});lf.appendChild(b)});
+
+  /* ---------- say / don't say sort ---------- */
+  var SAY=[
+    {q:'"Your Sentricon system carries a damage bond from Corteva, as long as monitoring stays current."',a:'OK',w:''},
+    {q:'"Don\'t worry, our termite warranty is full and unlimited."',a:'No',w:'Florida law bars "full" or "unlimited" when a warranty has any conditions. Point to the written contract.'},
+    {q:'"This product is completely safe for your kids and pets."',a:'No',w:'Never make safety claims about pesticides. Say we apply EPA-registered products according to the label, and share the label\'s directions.'},
+    {q:'"If pests show up between visits, call us and we\'ll schedule a callback within 24 hours."',a:'OK',w:''},
+    {q:'"Sentricon will take care of the drywood termites in your cabinets."',a:'No',w:'Sentricon targets subterranean termites only. Drywood needs a spot or whole-home treatment.'},
+    {q:'"A service advisor will give you a price after the inspection."',a:'OK',w:''},
+    {q:'"We\'ll catch every raccoon on the property, guaranteed."',a:'No',w:'Wildlife behavior can\'t be guaranteed, and the packet says so. Promise the process, not the result.'},
+    {q:'"Your written contract spells out exactly what the warranty covers."',a:'OK',w:''}
+  ];
+  var sy=$('#say'),sySel={};
+  SAY.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='sy'+i;
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" aria-pressed="false" data-v="OK" id="sy'+i+'o">OK to say</button><button type="button" aria-pressed="false" data-v="No" id="sy'+i+'n">Don\'t say</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){sySel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});
+    sy.appendChild(r)});
+  $('#sayCheck').addEventListener('click',function(){var right=0,blank=0;
+    SAY.forEach(function(s,i){var r=$('#sy'+i),w=$('.why',r);if(w)w.remove();if(!sySel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=sySel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.a==='OK'?'This one is accurate and fine to say.':s.w;r.style.flexWrap='wrap';r.appendChild(d)}});
+    $('#sayFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===SAY.length?'<span class="fb" style="display:inline-block">All eight correct. Describe what the contract and the label say, and nothing more.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes under the ones in red and try again.</span>');
+  });
+
+  /* ---------- rodent flow ---------- */
+  var RF={in:[
+    ['Inspect inside and out','attic, roofline and every entry point ½ inch or larger.'],
+    ['Seal the entry points (Rodent Shield Plus)','small openings we handle; roof damage or large openings may need a contractor first.'],
+    ['Set traps where the activity is','usually the attic, at or near the entry points.'],
+    ['Five follow-up visits','to check traps and remove rodents as they run out of stored food.'],
+    ['Then add exterior bait stations','for ongoing prevention, now that the home is sealed.']],
+   out:[
+    ['Inspect the property and the structure','to confirm nothing is getting inside.'],
+    ['Place enclosed exterior bait stations','where rodents travel: hedges and along the building.'],
+    ['Keep them locked','tamper-resistant stations protect children and pets.'],
+    ['Refill on a schedule','every other month or quarterly.'],
+    ['Openings found?','Then it is an inside job: seal first, then bait.']]};
+  function showRF(w){$('#rdIn').setAttribute('aria-pressed',w==='in');$('#rdOut').setAttribute('aria-pressed',w==='out');
+    $('#rdFlow').innerHTML=RF[w].map(function(r,i){return '<li style="--k:'+i+'"><span class="num">'+(i+1)+'</span><span><b>'+r[0]+'</b>: '+r[1]+'</span></li>'}).join('')}
+  $('#rdIn').addEventListener('click',function(){showRF('in')});$('#rdOut').addEventListener('click',function(){showRF('out')});showRF('in');
+
+  /* ---------- mosquito concentrates ---------- */
+  var MC={A:'<b>Sector:</b> a conventional insecticide (permethrin with PBO). It kills on contact and leaves a residual that keeps working between cycles. Our recommendation for most yards.',
+          B:'<b>Stop the Bugs:</b> a plant-based option. It mainly repels and knocks mosquitoes down, breaks down faster in sunlight and doesn\'t last as long, so the system may run more often. Good for customers who want a natural product.'};
+  function showMC(x){$('#mcA').setAttribute('aria-pressed',x==='A');$('#mcB').setAttribute('aria-pressed',x==='B');$('#mcTxt').innerHTML=MC[x]+' Either way, we describe performance only as the label allows.'}
+  $('#mcA').addEventListener('click',function(){showMC('A')});$('#mcB').addEventListener('click',function(){showMC('B')});showMC('A');
+
+  /* ---------- which service fits ---------- */
+  var MT=[
+    {w:'Homeowner, by phone',p:'"We keep seeing ants in the kitchen and spiders on the lanai. I\'d like someone to come out regularly."',a:0,e:'Recurring household pests inside and out: General Household Pest service, every other month, with callbacks in between.'},
+    {w:'Homeowner, at a GHP stop',p:'"My St. Augustine has yellow patches that look dried out, even though I water."',a:1,e:'Yellow patches in St. Augustine that look like drought are a classic sign of chinch bugs. That\'s Lawn & Ornamental.'},
+    {w:'Homeowner, by phone',p:'"There are little piles of what look like tiny pellets under my kitchen cabinet."',a:2,e:'Pellets (frass) and tiny holes point to drywood termites. A termite inspection decides between spot and whole-home treatment.'},
+    {w:'Homeowner, by phone',p:'"We hear scratching in the attic every night around two in the morning."',a:3,e:'Night-time activity inside the attic is a rodent call: inspection, then sealing and trapping through Rodent Shield.'},
+    {w:'Homeowner, during a lawn estimate',p:'"We can\'t sit by the pool in the evening. We get eaten alive."',a:4,e:'Evening biting around the yard is what a mosquito misting system is built for: automatic dawn and dusk cycles.'},
+    {w:'Homeowner, by phone',p:'"Something is digging under the porch at night, and an animal got into the soffit."',a:5,e:'Digging animals and an animal in the soffit are nuisance wildlife: inspection, trapping under FWC rules, and exclusion.'},
+    {w:'Restaurant manager',p:'"The health inspector is coming next month and we\'ve seen a few roaches near the dish area."',a:6,e:'A business with inspection pressure needs commercial service, scheduled around operations, with records that hold up.'},
+    {w:'Home seller, by phone',p:'"We\'re selling the house, and the buyer\'s lender wants a termite inspection report."',a:2,e:'That\'s a WDO real estate inspection on form FDACS-13645, part of our termite services. Policy and pricing are still being set, so route it.'}
+  ];
+  var mi=0, mDone=store.get('mt')||{};
+  function mtDots(){$('#mtDots').innerHTML=MT.map(function(_,j){return '<i class="'+(j===mi&&!mDone[j]?'cur':(mDone[j]?'ok':''))+'"></i>'}).join('')}
+  function showMT(n){mi=n;var m=MT[n];$('#mtTitle').textContent='Customer '+(n+1)+' of '+MT.length;mtDots();
+    var c=$('#mtCard');c.style.animation='none';c.offsetHeight;c.style.animation='';
+    c.innerHTML='<div class="icobox" style="margin:0">'+ico('i-chat')+'</div><div><span class="who">'+m.w+'</span><p>'+m.p+'</p></div>';
+    $('#mtPick').innerHTML=SV.map(function(s,j){return '<button type="button" id="mt'+n+'_'+j+'" data-j="'+j+'">'+ico(s.i)+s.n+'</button>'}).join('');
+    $('#mtFb').innerHTML='<p class="small muted">Which service line fits this customer best?</p>';
+    if(mDone[n])mark(n,m.a,true);
+    $$('#mtPick button').forEach(function(b){b.addEventListener('click',function(){var j=+b.dataset.j;
+      if(j===m.a){mDone[n]=1;store.set('mt',mDone);mark(n,j,false)}
+      else{$$('#mtPick button').forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('#mtFb').innerHTML='<div class="fb no">Not quite. Listen to what the customer is actually describing, and try again.</div>'}})});
+  }
+  function mark(n,j,quiet){$$('#mtPick button').forEach(function(x){x.disabled=true;x.classList.remove('wrong');if(+x.dataset.j===j)x.classList.add('right')});mtDots();
+    var last=n===MT.length-1, all=MT.every(function(_,q){return mDone[q]});
+    $('#mtFb').innerHTML='<div class="fb">'+MT[n].e+' <button type="button" class="btn" id="mtNext" style="margin-left:8px;padding:4px 12px">'+(last?(all?'Start over':'Back to the first'):'Next customer')+'</button></div>';
+    $('#mtNext').addEventListener('click',function(){if(last&&all){mDone={};store.set('mt',mDone)}showMT(last?0:n+1)});}
+  showMT(0);
+
+  /* ---------- conversation scenarios ---------- */
+  var VS=[
+    {n:'The price question',s:'At a GHP stop, the homeowner asks: "How much do you charge for that Sentricon thing my neighbor has?"',o:['Give her a ballpark from another job you remember','Tell her to look it up online','Explain how Sentricon works, that the price depends on an inspection of her home, and offer to have the office schedule one','Tell her it\'s probably too expensive for her'],a:2,e:'Explain the service in plain language, don\'t quote, and route the request. Pricing follows an inspection, and the customer hears who will follow up.'},
+    {n:'The safety question',s:'While you treat the perimeter, a customer asks: "Is that stuff safe for my dog?"',o:['"It\'s totally safe. You could practically drink it."','"We use EPA-registered products and apply them according to the label. The label says when pets can go back on treated areas, and I\'m happy to walk you through it."','"I have no idea."','"No, it\'s poison. Keep him inside for a week."'],a:1,e:'Never make safety claims, and never scare the customer. Describe what we use and how we apply it, and share the label\'s directions.'},
+    {n:'The out-of-scope question',s:'On a billing call in June, a customer adds: "We have bats in the roof. Can someone come seal them out tonight?"',o:['Book an exclusion for tonight','Suggest she buy a poison for them','Tell her to cover the holes herself','Explain that bats are protected and can\'t be excluded during maternity season, April 16 to August 14, take her details so the wildlife team can inspect and plan, and ask her not to block the openings'],a:3,e:'Bats are never harmed and can\'t be excluded during maternity season. Take the details, set expectations honestly and route it.'}
+  ];
+  var vt=$('#vTabs'), vb=$('#vBox'), vDone=store.get('vals')||{};
+  function showV(n){
+    $$('button',vt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!vDone[j])});
+    var s=VS[n];
+    vb.innerHTML='<div class="card"><span class="eyebrow">The situation</span><p style="margin-top:6px;font-size:17px;max-width:none">'+s.s+'</p></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="v'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="vFb"></div>';
+    $$('.choice',vb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',vb).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',vb).forEach(function(x){x.disabled=true});vDone[n]=1;store.set('vals',vDone);$$('button',vt)[n].classList.add('done');
+        $('#vFb').innerHTML='<div class="fb">'+s.e+(n<VS.length-1?' <button type="button" class="btn" id="vNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#vNext');if(nx)nx.addEventListener('click',function(){showV(n+1)});}
+      else{b.classList.add('wrong');$('#vFb').innerHTML='<div class="fb no">Think about what is accurate, what protects the customer, and who should handle it. Try again.</div>';}
+    })});
+  }
+  VS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='vt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showV(i)});vt.appendChild(b)});
+  showV(0);
+
+  function onShow(i){if(slides[i].dataset.label==='The lawn program')loCount();}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

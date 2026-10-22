@@ -1,0 +1,1661 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>RX-01 Rodent Biology &amp; Behavior</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* RX-01 components */
+.lb{font-family:var(--font);font-size:11px;fill:var(--ink);font-weight:400}
+.lb.b{font-weight:500;fill:var(--brand-700)}
+.lb.t{fill:var(--muted);font-size:10.5px}
+.ax{fill:none;stroke:var(--line);stroke-width:1.4}
+.grd{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+
+/* rodent line art */
+.r-pt{fill:#EEF4F0;stroke:#0B3D20;stroke-width:1.5;stroke-linejoin:round}
+.r-ear{fill:#C3DAC9}
+.r-tl,.r-lg{fill:none;stroke:#0B3D20;stroke-linecap:round;stroke-linejoin:round}
+.r-lg{stroke-width:1.6}
+.r-ey{fill:#0B3D20}
+.r-wh{fill:none;stroke:#4F8A5F;stroke-width:1;stroke-linecap:round}
+.r-wh.on{stroke:#2E6F47;stroke-width:1.8}
+
+/* explorer */
+.exc{display:grid;gap:6px;align-content:start;padding:14px 16px}
+.exc > *{animation:rise .2s ease-in-out both}
+.exh{display:flex;gap:10px;align-items:center}
+.exh h3{font-size:17px;margin:0}
+.exsv{width:96px;flex:0 0 96px}
+.exsv svg{width:100%;height:auto;display:block}
+.exv{font-size:22px;color:var(--brand-700);line-height:1.2}
+.exc p{font-size:14px;line-height:1.45}
+.exbar{position:relative;height:8px;border-radius:var(--pill);background:var(--brand-100);overflow:hidden}
+.exbar i,.exbar b{position:absolute;top:0;bottom:0;transform-origin:left;animation:grow .5s .1s ease-out both}
+.exbar i{background:var(--brand-600)}
+.exbar b{background:var(--brand-300)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pick button.seen:not([aria-pressed="true"]){border-color:var(--brand-300)}
+
+/* anatomy */
+.anfig svg{max-width:440px;max-height:220px}
+.anring{fill:none;stroke:#2E6F47;stroke-width:2}
+.anring2{fill:none;stroke:#74A96E;stroke-width:1.6;transform-box:fill-box;transform-origin:center;opacity:0}
+.slide.on .anring2{animation:ring 2.2s ease-out infinite}
+@keyframes ring{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+.kit button[aria-pressed="true"]::after{content:none}
+.kit button{padding:8px 14px}
+.and{display:grid;gap:6px;padding:14px 18px;min-height:132px;align-content:start}
+.and > *{animation:rise .2s ease-in-out both}
+.and p{font-size:15px;color:var(--ink)}
+.seg{flex-wrap:wrap;justify-self:start;width:max-content;max-width:100%}
+
+/* teeth */
+.thfig svg{max-width:340px}
+.sk{fill:#EEF4F0;stroke:#0B3D20;stroke-width:1.5;stroke-linejoin:round}
+.sk2{fill:none;stroke:#74A96E;stroke-width:1.4}
+.inc{fill:#C3DAC9;stroke:#0B3D20;stroke-width:1.5;stroke-linejoin:round}
+.enam{fill:none;stroke:#2E6F47;stroke-width:3;stroke-linecap:round}
+.grow{fill:none;stroke:#74A96E;stroke-width:1.4;stroke-dasharray:4 4}
+.inc-s{fill:none;stroke:#C3DAC9;stroke-width:8;stroke-linecap:round}
+.gdot{fill:#2E6F47;offset-path:path("M168 72c24 0 46 10 60 26c16 10 20 28 10 44");opacity:0}
+.slide.on .gdot{animation:gmove 2.4s ease-in-out infinite}
+@keyframes gmove{0%{offset-distance:0%;opacity:0}15%{opacity:1}85%{opacity:1}100%{offset-distance:100%;opacity:0}}
+
+/* sort */
+.sort.one{grid-template-columns:1fr;gap:6px}
+.sort.one .row{padding:7px 12px;font-size:14px;flex-wrap:wrap}
+.sort .why{font-size:12.5px}
+
+/* senses */
+.snfig svg{max-width:340px;max-height:170px}
+.sn-z{fill:none;stroke:transparent;stroke-width:2}
+.sn-z.on{stroke:#2E6F47;stroke-dasharray:4 4}
+.slide.on .sn-z.on{animation:spin 4s linear infinite}
+@keyframes spin{to{stroke-dashoffset:-32}}
+.sn-w{fill:none;stroke:transparent;stroke-width:1.6;stroke-linecap:round}
+.sn-w.on{stroke:#4F8A5F}
+.slide.on .sn-w.on{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.sn-map{fill:none;stroke:transparent;stroke-width:1.6;stroke-dasharray:3 3}
+.sn-map.on{stroke:#2E6F47}
+.tth{fill:#fff;stroke:#0B3D20;stroke-width:1.2}
+.snd{display:grid;gap:8px;padding:14px 18px;align-content:start;min-height:170px}
+.snd > *{animation:rise .2s ease-in-out both}
+.snd p,.nfd p,.ppd p,.xfd p{font-size:14.5px;color:var(--ink)}
+.snimp{display:flex;gap:10px;align-items:flex-start;font-size:14px;background:var(--brand-50);border-radius:10px;padding:10px 12px}
+.snimp .ico{color:var(--brand-600);width:20px;height:20px;margin-top:1px}
+
+/* place the device */
+.pdbox svg{max-width:none;width:100%}
+.pd-wall{fill:#fff;stroke:#0B3D20;stroke-width:2.4}
+.pd-door{stroke:#fff;stroke-width:4}
+.pd-door + text{fill:var(--muted)}
+.pd-gap{stroke:#fff;stroke-width:4}
+.pd-obj{fill:#EEF4F0;stroke:#A3C6AB;stroke-width:1.4}
+.pd-run{fill:none;stroke:#74A96E;stroke-width:1.4;stroke-dasharray:5 5}
+.slide.on .pd-run{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.pd-rub path{stroke:#1F5836;stroke-width:4;stroke-linecap:round;opacity:.5}
+.pd-rat{fill:#0B3D20;stroke:#fff;stroke-width:2;pointer-events:none}
+.pd-spot{cursor:pointer}
+.pd-spot .c{fill:#fff;stroke:#2E6F47;stroke-width:1.6;transition:fill .18s ease-in-out}
+.pd-spot .h{fill:none;stroke:#74A96E;stroke-width:1.2;opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pd-spot .h{animation:ring 2.6s ease-out infinite}
+.pd-spot text{font-family:var(--font);font-size:11px;font-weight:500;fill:#1F5836;pointer-events:none}
+.pd-spot.good .c{fill:#1F7A45;stroke:#1F7A45}.pd-spot.good text{fill:#fff}
+.pd-spot.bad .c{fill:#FDEEEE;stroke:var(--danger)}.pd-spot.bad text{fill:var(--danger)}
+.pd-spot:focus{outline:none}.pd-spot:focus-visible .c{stroke-width:3}
+.pdc{padding:12px 16px;display:grid;gap:4px}
+.pdc p{font-size:14px}
+.pdn{font-size:30px;color:var(--brand-700);line-height:1.1;font-variant-numeric:tabular-nums}
+#pdSide .fb{animation:rise .2s ease-in-out both;font-size:14px}
+
+/* neophobia */
+.nffig svg,.ppfig svg,.xffig svg{max-width:none;width:100%}
+.nf-o,.xf-o{fill:none;stroke:#C3DAC9;stroke-width:1.6}
+.nf-l,.xf-l{fill:none;stroke:#2E6F47;stroke-width:3;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:400;animation:drawl 1.2s ease-in-out forwards}
+@keyframes drawl{to{stroke-dashoffset:0}}
+.nf-m{stroke:#74A96E;stroke-width:1.2;stroke-dasharray:3 4}
+.nfd,.xfd,.ppd{display:grid;gap:8px;padding:14px 18px;align-content:start}
+.nfd > *,.xfd > *{animation:rise .2s ease-in-out both}
+
+/* scenarios */
+.bsc{padding:12px 16px}
+.bsc p{font-size:15px;color:var(--ink)}
+#bsBox .choice{padding:10px 14px;font-size:15px}
+.bsfig{flex-direction:column;align-items:center;gap:4px}
+.bsfig svg{max-width:280px}
+.bss{padding:12px 16px;display:grid;gap:4px}
+
+/* hotspot scenes */
+.abbox svg,.nsbox svg{max-width:none;width:100%}
+.gr{stroke:#74A96E;stroke-width:1.6}
+.wat{fill:#DCE9DF}
+.hs-h{fill:none;stroke:#0B3D20;stroke-width:1.6;stroke-linejoin:round}
+.hs-r{fill:none;stroke:#0B3D20;stroke-width:1.8;stroke-linejoin:round}
+.hs-att{stroke:#A3C6AB;stroke-width:1.2}
+.hs-ins{fill:none;stroke:#C3DAC9;stroke-width:3}
+.hs-wire{fill:none;stroke:#4F8A5F;stroke-width:1.2}
+.hs-tr{fill:none;stroke:#4F8A5F;stroke-width:3;stroke-linecap:round}
+.hs-fr{fill:none;stroke:#74A96E;stroke-width:2;stroke-linecap:round}
+.hs-skirt{fill:none;stroke:#A3C6AB;stroke-width:2;stroke-linecap:round}
+.hs-arc{fill:none;stroke:#74A96E;stroke-width:1.4;stroke-dasharray:4 4}
+.slide.on .hs-arc{animation:dash 1.2s linear infinite}
+.hs-obj{fill:#EEF4F0;stroke:#A3C6AB;stroke-width:1.2}
+.hs-cn{fill:#EEF4F0;stroke:#74A96E;stroke-width:1.4}
+.hs-fruit{fill:#A3C6AB;stroke:#2E6F47;stroke-width:1}
+.hs-hedge{fill:#DCE9DF;stroke:#74A96E;stroke-width:1.4}
+.hs-bur{fill:none;stroke:#1F5836;stroke-width:1.8;stroke-linecap:round}
+.hs{cursor:pointer}
+.hs .c{fill:#fff;stroke:#2E6F47;stroke-width:1.6;transition:fill .18s ease-in-out}
+.hs .h{fill:none;stroke:#74A96E;stroke-width:1.2;opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hs:not(.seen) .h{animation:ring 2.6s ease-out infinite}
+.hs text{font-family:var(--font);font-size:11px;font-weight:500;fill:#1F5836;pointer-events:none}
+.hs.seen .c{fill:#DCE9DF}
+.hs.sel .c{fill:#2E6F47;stroke:#2E6F47}.hs.sel text{fill:#fff}
+.hs:focus{outline:none}.hs:focus-visible .c{stroke-width:3}
+.hsd{display:grid;gap:6px;padding:14px 18px}
+.hsd > *{animation:rise .2s ease-in-out both}
+.hsd h3{font-size:19px;margin:0}
+.hsd p{font-size:14.5px;color:var(--ink)}
+.hsl{display:grid;gap:4px}
+.hsl span{font-size:13px;color:var(--muted);padding:4px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
+.hsl span.seen{border-color:var(--brand-200);color:var(--ink)}
+.hsl span.on{border-color:var(--brand-600);background:var(--brand-50);color:var(--brand-700)}
+
+/* gap gauge */
+.ggfig svg{max-width:400px}
+.gg-fl{stroke:#0B3D20;stroke-width:2}
+.gg-dr{fill:#EEF4F0;stroke:#0B3D20;stroke-width:1.6}
+.gg-gap{stroke:#74A96E;stroke-width:1;stroke-dasharray:3 3}
+.gg-sk ellipse{stroke-width:1.6;transition:fill .18s ease-in-out}
+.gg-sk.fit ellipse{fill:#EAF5EE;stroke:#1F7A45}
+.gg-sk.no ellipse{fill:#fff;stroke:#A3C6AB;stroke-dasharray:3 3}
+.gg-dim{stroke:#2E6F47;stroke-width:1.2;fill:none}
+.gg-run ellipse{fill:#0B3D20}
+.slide.on .gg-run{animation:slip 3s ease-in-out infinite}
+@keyframes slip{0%{transform:translateX(150px);opacity:0}15%{opacity:1}75%{opacity:1}100%{transform:translateX(-20px);opacity:0}}
+.gg{display:grid;gap:6px}
+.gg input{width:100%;accent-color:var(--brand-600)}
+.gg b{color:var(--brand-700);font-weight:500;letter-spacing:0;text-transform:none;font-size:13px}
+.ggr{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:9px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.ggr b{margin-left:auto;font-size:13px}
+.ggr.fit{border-color:var(--positive);background:#EAF5EE}.ggr.fit b{color:var(--positive)}
+.ggr.no .ico{color:var(--muted)}.ggr.fit .ico{color:var(--positive)}
+.ggr.no b{color:var(--muted)}
+.ggd{display:grid;gap:6px;padding:14px 18px}
+.ggd > *{animation:rise .2s ease-in-out both}
+.ggd p{font-size:14.5px;color:var(--ink)}
+
+/* range */
+.rgfig svg{max-width:400px}
+.rg-lot{fill:#F4F6F5;stroke:#A3C6AB;stroke-width:1.2;stroke-dasharray:4 4}
+.rg-hs,.rg-hs2{fill:#fff;stroke:#0B3D20;stroke-width:1.6}
+.rg-hs2{stroke:#A3C6AB}
+.rg-tr{fill:#DCE9DF;stroke:#74A96E;stroke-width:1.4}
+.rg-cn{stroke:#A3C6AB;stroke-width:6}
+.rg-sc{stroke:#0B3D20;stroke-width:2}
+.rg-c{fill:rgba(46,111,71,.07);stroke:#2E6F47;stroke-width:1.4;transform-box:fill-box;transform-origin:center;animation:ringin .6s ease-out both}
+.rg-c.r2{fill:rgba(46,111,71,.04);stroke-dasharray:5 4;animation-delay:.12s}
+.rg-c.r3{fill:none;stroke:#74A96E;stroke-dasharray:2 4;animation-delay:.24s}
+@keyframes ringin{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+.rg-n{fill:#0B3D20}
+.slide.on .rg-n{animation:pulse 1.8s ease-in-out infinite}
+.rgd{display:grid;gap:6px;padding:14px 18px}
+.rgd > *{animation:rise .2s ease-in-out both}
+.rgd dl{margin:0;font-size:14px;line-height:1.45}
+.rgd dt{display:flex;gap:6px;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:6px;border-top:1px solid var(--line)}
+.rgd dt:first-child{border-top:0;padding-top:0}
+.rgd dt .ico{width:16px;height:16px;color:var(--brand-600)}
+.rgd dd{margin:2px 0 6px}
+
+/* population */
+.pp-l{fill:none;stroke:#2E6F47;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pp-d{fill:#0B3D20}
+.ppstat{display:grid;gap:2px;padding:14px 18px}
+.ppstat .big{font-size:44px;line-height:1.05;color:var(--brand-700);font-variant-numeric:tabular-nums}
+.ppstat .eyebrow b{color:var(--brand-700);font-weight:500}
+
+/* seasons */
+.ssc{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:start;padding:16px 20px}
+.ssc h3{margin:4px 0 6px}
+.ssc p{font-size:15px}
+
+/* flip */
+.flip.f6 button{min-height:176px}
+.flip.f6 h3{font-size:20px}
+.flip.f6 .face{padding:16px 18px;gap:6px}
+
+/* exclusion first */
+.xf-l{stroke-width:3.2}
+
+/* customer quotes */
+.cq{display:grid;gap:6px;padding:16px 18px;align-content:start}
+.cq p{font-size:15px;color:var(--ink);line-height:1.5}
+.nev{list-style:none;display:grid;gap:4px;margin-top:6px;font-size:14px}
+.nev li{display:flex;gap:8px;align-items:flex-start}
+.nev .ico{color:var(--danger);width:18px;height:18px;margin-top:2px}
+
+@media (max-width:860px){
+  .exsv{width:80px;flex-basis:80px}
+  .ssc{grid-template-columns:1fr}
+  .flip.f6 button{min-height:160px}
+}
+@media (prefers-reduced-motion:reduce){.nf-l,.xf-l{stroke-dashoffset:0}.rg-c{animation:none}.exbar i,.exbar b{animation:none}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">RX-01 · Rodent Biology</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-tooth" viewBox="0 0 24 24"><path d="M8 3h8v9c0 4-1.5 8-4 9-2.5-1-4-5-4-9z"/><path d="M12 6v14"/></symbol>
+    <symbol id="i-ear" viewBox="0 0 24 24"><path d="M7 10a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-6 0"/><path d="M10 10a2 2 0 0 1 4 0"/></symbol>
+    <symbol id="i-palm" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="M12 9C9 5 5 5 3 7M12 9c3-4 7-4 9-2M12 9c-4-1-7 1-8 4M12 9c4-1 7 1 8 4M12 9c-1-3 0-5 1-6"/></symbol>
+    <symbol id="i-jump" viewBox="0 0 24 24"><path d="M3 20h5M16 20h5"/><path d="M5 18C7 6 17 6 19 18" stroke-dasharray="2 3"/><path d="M16 15l3 3 2-4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.15fr .85fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Rodent Exclusion · RX-01</span>
+        <h1 class="display a" style="--i:1">Rodent Biology &amp; Behavior</h1>
+        <p class="lead a" style="--i:2">Know the animal before you touch the house. How roof rats, Norway rats and house mice are built, sense, breed, travel and nest in Florida homes, and why that biology is the reason Rodent Shield starts with exclusion.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">50–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center;gap:6px">
+        <svg class="draw" viewBox="0 0 360 230" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M20 206h320" pathLength="400"/>
+          <path d="M40 206V112l90-62 90 62v94" pathLength="400"/>
+          <path d="M28 120l102-74 102 74" pathLength="400"/>
+          <path d="M112 96h36v22h-36z" pathLength="400"/><path d="M118 100v14M124 100v14M130 100v14M136 100v14M142 100v14" pathLength="400"/>
+          <path d="M290 206V108" pathLength="400"/>
+          <path d="M290 108c-18-14-40-12-56-2M290 108c16-18 40-18 54-6M290 108c-6-20 0-34 10-42M290 108c-24-2-38 12-44 26M290 108c22 0 36 12 40 26" pathLength="400"/>
+          <path d="M246 116c-14 2-24 0-36 4" pathLength="400"/>
+          <path d="M152 74c6-6 16-6 20 0 2 4 0 8-4 9h-14c-4 0-5-5-2-9z" pathLength="400"/>
+          <circle cx="164" cy="70" r="3" pathLength="400"/>
+          <path d="M174 80c14 2 26-4 34-12" pathLength="400"/>
+          <path d="M70 186c4-8 14-12 24-10 8 2 12 8 12 12H70z" pathLength="400"/><path d="M106 188c8 0 14 4 18 10" pathLength="400"/>
+          <path d="M64 186l-6-2M64 188l-7 1" pathLength="400"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Species · Senses · Behavior · Exclusion</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-rodent"/></svg><span>Compare roof rats, Norway rats and house mice by body, habits, breeding, range and nest site, including juvenile rats that look like mice</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-ear"/></svg><span>Explain how rodent senses, wall-hugging and spatial memory decide where devices go and why they stay put</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clock"/></svg><span>Use neophobia in rats and curiosity in mice to set expectations for trapping and for the customer</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-ruler"/></svg><span>State what each species can climb, jump, swim, gnaw and squeeze through, and judge a gap by species</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-palm"/></svg><span>Find likely nesting sites in Florida homes and yards, and read seasonal pressure such as the fall push-in</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-lock"/></svg><span>Explain, in plain words, why biology makes exclusion the first step of every Rodent Shield job</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(28px,3.6vw,44px)">The animal decides the job. <span class="em">Not the product.</span></h2>
+        <p class="lead a" style="--i:2">Every Rodent Shield decision, from where you inspect to what you seal to how long you wait, comes from how these animals live. Get the biology wrong and the job fails, however hard you work.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span>A Clements Rodent Shield Certification tells customers their technician went through structured training above state licensing. This course is where that starts.</span></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Fire, damage and contamination</h3><p>Constantly growing teeth mean constant gnawing: wiring (a documented fire cause), A/C lines, insulation soaked with urine, food and surfaces contaminated with droppings.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>Real disease risk, stated accurately</h3><p>Salmonella, leptospirosis and rat-bite fever. In Florida, hantavirus is linked to native cotton rats and rice rats, not these three. Never sweep or vacuum droppings dry: wet them with disinfectant first (CDC). Field safety is RX-08.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-chat"/></svg></div><div><h3>Trust comes from explaining, not alarming</h3><p>"Five mice today can be fifty by summer" is true and calm. A tech who can explain the animal sells the right fix and keeps the customer when traps are quiet for a week.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the three rodents">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Climber, digger, squeezer</h1>
+        <p class="lead a" style="--i:2">Why it matters: three commensal rodents cause nearly every rodent call we run. They live in different parts of the house, eat differently and breed at different speeds. PC-07 taught you to tell them apart; here you learn what makes each one tick.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Species comparison explorer</li><li><span>02</span>Anatomy that matters in the field</li><li><span>03</span>Teeth and gnawing</li><li><span>04</span>Practice: can it chew through?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 EXPLORER -->
+  <section class="slide" data-label="Species comparison explorer" style="gap:12px">
+    <span class="eyebrow a">01 · Species comparison explorer</span>
+    <h2 class="a" style="--i:1">Pick a trait. See all three side by side.</h2>
+    <div class="pick a" style="--i:2" id="exPick"></div>
+    <div class="grid g3 a" style="--i:3" id="exCols"></div>
+    <p class="small muted a" style="--i:4;max-width:none" id="exSrc"></p>
+  </section>
+
+  <!-- 6 ANATOMY -->
+  <section class="slide" data-label="Anatomy in the field">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Anatomy that matters in the field</span>
+        <h2 class="a" style="--i:1;font-size:28px">Beyond the field guide. Select each feature.</h2>
+        <div class="seg a" style="--i:2" id="anSeg"></div>
+        <div class="figbox anfig a" style="--i:3" id="anFig"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="kit a" style="--i:3" id="anKit"></div>
+        <div class="card and a" style="--i:4" id="anD"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 TEETH -->
+  <section class="slide" data-label="Teeth and gnawing">
+    <div class="split" style="grid-template-columns:.85fr 1.15fr;gap:28px">
+      <div class="figbox thfig a" style="--i:2">
+        <svg viewBox="0 0 300 220" role="img" aria-label="Side view of a rat skull showing upper and lower incisors growing from the root and wearing against each other into a chisel edge">
+          <path class="sk" d="M36 122C30 84 64 52 118 48c56-4 104 14 136 42 10 9 10 18 0 20l-34 4-150 12c-20 2-32 4-34-4z"/>
+          <circle class="sk2" cx="150" cy="80" r="15"/><path class="sk2" d="M60 100c10-6 24-8 36-6"/>
+          <path class="sk" d="M70 136c24 22 90 30 150 20l18-8c-40 4-110 4-150-18z"/>
+          <path class="grow" d="M168 72c24 0 46 10 60 26"/>
+          <path class="inc-s" d="M228 98c16 10 20 28 10 44"/><path class="enam" d="M234 96c16 10 20 30 9 47"/>
+          <path class="grow" d="M150 150c30 4 56 2 74-4"/>
+          <path class="inc-s" d="M214 150c12 0 22-4 26-10"/>
+          <circle class="gdot" r="3.2"/>
+          <text class="lb" x="150" y="30" text-anchor="middle">Incisors grow from deep roots for life</text><text class="lb" x="260" y="80" text-anchor="end">root</text>
+          <text class="lb" x="252" y="196" text-anchor="end">Hard enamel front, softer back:</text>
+          <text class="lb" x="252" y="210" text-anchor="end">gnawing keeps a chisel edge</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Teeth and gnawing</span>
+        <h2 class="a" style="--i:1;font-size:28px">A rat's teeth grow about 5 inches a year</h2>
+        <p class="a muted" style="--i:2">UF/IFAS puts rat incisor growth at 4½ to 5½ inches a year. The animal has to gnaw every day to keep its teeth short and sharp, so it chews whether it is hungry or not.</p>
+        <div class="grid g2">
+          <div class="card a" style="--i:3;padding:14px 16px"><h3>What that means on site</h3><p>Fresh gnawing on wiring, PVC, door sweeps, A/C line insulation, fascia and fruit. Rat gnaw marks are wider and deeper than mouse marks; fine, shallow scratches point to mice.</p></div>
+          <div class="card a" style="--i:4;padding:14px 16px"><h3>Fresh or old?</h3><p>Fresh: pale wood, sharp edges, chips nearby. Old: darkened, weathered, dust in the grooves. Fresh gnawing at a gap means that entry is active.</p></div>
+        </div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-lock"/></svg><span><b>Why foam is not exclusion:</b> a rodent will chew through foam, caulk, rubber and wood. Rodent Shield seals with cement and metal for exactly this reason (materials in RX-04).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 CHEW SORT -->
+  <section class="slide" data-label="Practice: can it chew through?">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Practice · can it chew through?</span>
+        <h2 class="a" style="--i:1;font-size:28px">Gnaws through, or holds?</h2>
+        <p class="a muted small" style="--i:2">Sort each material for a determined rat working at an edge. Then check your answers.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>Rodent-resistant materials per UF/IFAS: 26-gauge or heavier sheet metal, 19-gauge or heavier hardware cloth with openings of ¼ in or less, mortared brick, cured cement mortar and concrete.</span></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="chCheck">Check my answers</button><span id="chFb"></span></div>
+      </div>
+      <div class="sort one a" style="--i:3" id="chSort"></div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: senses and behavior">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">How a rodent reads your house</h1>
+        <p class="lead a" style="--i:2">Why it matters: a trap placed where the rodent doesn't travel, or set before a rat trusts it, catches nothing. Most failed rodent jobs fail here. Understanding senses and behavior is what makes every device placement work.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Five senses and a map</li><li><span>02</span>Practice: place the device</li><li><span>03</span>Neophobia vs. curiosity</li><li><span>04</span>Practice: behavior scenarios</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 SENSES -->
+  <section class="slide" data-label="Five senses and a map">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Five senses and a map</span>
+        <h2 class="a" style="--i:1;font-size:28px">Weak eyes. Everything else is sharp.</h2>
+        <div class="kit a" style="--i:2" id="snKit"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="figbox snfig a" style="--i:3" id="snFig"></div>
+        <div class="card snd a" style="--i:4" id="snD"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 PLACE DEVICE -->
+  <section class="slide" data-label="Practice: place the device">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">02 · Practice · place the device</span>
+        <h2 class="a" style="--i:1;font-size:26px">Watch the runway, then pick the best spot for a trap</h2>
+        <div class="figbox pdbox a" style="--i:2"><svg viewBox="0 0 520 300" role="img" aria-label="Garage floor plan with a rodent running along the walls and six possible device spots" id="pdSvg"></svg></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px" id="pdSide"></div>
+    </div>
+  </section>
+
+  <!-- 13 NEOPHOBIA -->
+  <section class="slide" data-label="Neophobia vs. curiosity">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Neophobia vs. curiosity</span>
+        <h2 class="a" style="--i:1;font-size:28px">Rats fear new things. Mice investigate them.</h2>
+        <div class="seg a" style="--i:2" id="nfSeg"></div>
+        <div class="figbox nffig a" style="--i:3"><svg viewBox="0 0 460 210" role="img" aria-label="Chart of how quickly each species approaches a new device over 14 days" id="nfSvg"></svg></div>
+        <p class="small muted a" style="--i:4">Illustration of typical behavior, not measured data. UF/IFAS: rats may take a week to approach a new trap; mice usually approach the first night.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card nfd a" style="--i:3" id="nfD"></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span><b>Bait shyness:</b> a rat that is hurt but not killed, or has a near miss, may avoid that device or bait for life. Don't just reset it: change the device type or bait at that spot (RX-03).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 SCENARIOS -->
+  <section class="slide" data-label="Practice: behavior scenarios">
+    <div class="split" style="grid-template-columns:1.15fr .85fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Practice · behavior scenarios</span>
+        <h2 class="a" style="--i:1;font-size:28px">What would the animal do? What do you do?</h2>
+        <div class="scen-tabs a" style="--i:2" id="bsTabs"></div>
+        <div class="grid a" style="--i:3;gap:8px" id="bsBox"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="figbox bsfig a" style="--i:3" id="bsFig"></div>
+        <div class="card bss a" style="--i:4" id="bsScore"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: abilities, needs, numbers">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Athletes that multiply</h1>
+        <p class="lead a" style="--i:2">Why it matters: customers think a gap is too small, a wall too high or a palm too far away. Knowing what these animals can actually do, how far they travel and how fast they breed is how you find the real entry and explain the urgency.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Climb, jump, swim</li><li><span>02</span>What can it get through?</li><li><span>03</span>Food, water and range</li><li><span>04</span>Breeding and population growth</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 ABILITIES -->
+  <section class="slide" data-label="Climb, jump, swim">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">01 · Climb, jump, swim</span>
+        <h2 class="a" style="--i:1;font-size:26px">Seven ways in that customers don't expect. Select each marker.</h2>
+        <div class="figbox abbox a" style="--i:2"><svg viewBox="0 0 560 300" role="img" aria-label="Side view of a Florida home with seven numbered rodent abilities" id="abSvg"></svg></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px" id="abD"></div>
+    </div>
+  </section>
+
+  <!-- 18 GAP GAUGE -->
+  <section class="slide" data-label="What can it get through?">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · What can it get through?</span>
+        <h2 class="a" style="--i:1;font-size:28px">If the skull fits, the body follows</h2>
+        <div class="figbox ggfig a" style="--i:2"><svg viewBox="0 0 320 200" role="img" aria-label="Gap gauge showing the selected opening against mouse and rat skull widths" id="ggSvg"></svg></div>
+        <div class="gg a" style="--i:3"><label for="ggR" class="eyebrow">Gap width: <b id="ggV">1/4 in</b></label><input type="range" id="ggR" min="0" max="9" step="1" value="2"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="grid" style="gap:8px" id="ggRows"></div>
+        <div class="card ggd" id="ggD"></div>
+        <p class="small muted">Mouse ¼ in: CDC ("the width of a pencil"). Rat ½ in, especially young rats: UC IPM and UF/IFAS. Household comparisons mislead: a dime is about ¾ in across, three times what a mouse needs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 RANGE -->
+  <section class="slide" data-label="Food, water and range">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Food, water and range</span>
+        <h2 class="a" style="--i:1;font-size:28px">How far from the nest? It depends who's eating.</h2>
+        <div class="seg a" style="--i:2" id="rgSeg"></div>
+        <div class="figbox rgfig a" style="--i:3"><svg viewBox="0 0 340 240" role="img" aria-label="Top view of a home and yard with the selected species' typical foraging range drawn around its nest" id="rgSvg"></svg></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card rgd a" style="--i:3" id="rgD"></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>Use the range on every inspection.</b> Mouse droppings in a drawer: the nest is close, usually within 10–30 ft. Roof rat in the attic: the food may be the neighbor's mango tree.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 POPULATION -->
+  <section class="slide" data-label="Breeding and population growth">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">04 · Breeding and population growth</span>
+        <h2 class="a" style="--i:1;font-size:26px">One pair, one year, nothing in the way</h2>
+        <div class="seg a" style="--i:2" id="ppSeg"></div>
+        <div class="figbox ppfig a" style="--i:3"><svg viewBox="0 0 520 230" role="img" aria-label="Animated chart of population growth from one breeding pair over 12 months" id="ppSvg"></svg></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="ppPlay">Play the year</button><span class="small muted" id="ppNote">Simplified model from UF/IFAS breeding figures, assuming half of all pups survive and food is unlimited. Real populations level off when food, water or shelter run out.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card ppstat a" style="--i:3"><span class="eyebrow">Month <b id="ppM">0</b></span><div class="big" id="ppN">2</div><span class="small muted">animals on the property (model)</span></div>
+        <div class="card ppd a" style="--i:4" id="ppD"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: Florida and Rodent Shield">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Florida biology, Clements approach</h1>
+        <p class="lead a" style="--i:2">Why it matters: Florida has no winter that knocks rodents back. Palms, fruit trees, canals and attics keep pressure on all year. That is why Rodent Shield closes the house first, and why you have to be able to explain it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Where they nest in Florida homes</li><li><span>02</span>Seasonal pressure</li><li><span>03</span>Biology drives the program</li><li><span>04</span>Exclusion first: see why</li><li><span>05</span>Talking biology with customers</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 NEST SITES -->
+  <section class="slide" data-label="Where they nest in Florida">
+    <div class="split" style="grid-template-columns:1.3fr .7fr;gap:20px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">01 · Where they nest in Florida homes</span>
+        <h2 class="a" style="--i:1;font-size:26px">Nine places to check on a Florida property. Select each marker.</h2>
+        <div class="figbox nsbox a" style="--i:2"><svg viewBox="0 0 600 300" role="img" aria-label="Cut-away of a Florida home and yard with nine numbered nesting sites" id="nsSvg"></svg></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px" id="nsD"></div>
+    </div>
+  </section>
+
+  <!-- 24 SEASONS -->
+  <section class="slide" data-label="Seasonal pressure" style="gap:18px">
+    <span class="eyebrow a">02 · Seasonal pressure</span>
+    <h2 class="a" style="--i:1">Pressure shifts with the seasons. It never stops. Select each.</h2>
+    <div class="tl a" style="--i:3" id="ssTl"><span class="fill" id="ssFill"></span></div>
+    <div class="tldetail a" style="--i:4" id="ssD"></div>
+  </section>
+
+  <!-- 25 BIOLOGY DRIVES -->
+  <section class="slide" data-label="Biology drives the program" style="gap:16px">
+    <span class="eyebrow a">03 · Biology drives the program</span>
+    <h2 class="a" style="--i:1">Six facts, six Rodent Shield rules. Select each to flip it.</h2>
+    <div class="flip f6 a" style="--i:2" id="bdFlip"></div>
+  </section>
+
+  <!-- 26 EXCLUSION FIRST -->
+  <section class="slide" data-label="Exclusion first">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">04 · Exclusion first: see why</span>
+        <h2 class="a" style="--i:1;font-size:26px">Same attic, three plans. Run each for 12 weeks.</h2>
+        <div class="seg a" style="--i:2" id="xfSeg"></div>
+        <div class="figbox xffig a" style="--i:3"><svg viewBox="0 0 520 220" role="img" aria-label="Chart comparing roof rats in the attic over 12 weeks under three plans" id="xfSvg"></svg></div>
+        <p class="small muted a" style="--i:4">Illustration of the principle with simple assumptions, not a prediction for any home.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card xfd a" style="--i:3" id="xfD"></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-lock"/></svg><span><b>Seal before you bait.</b> Bait with entry points open can leave a rodent dying in a wall or attic: odor, flies and an unhappy customer (CW-05).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 CUSTOMERS -->
+  <section class="slide" data-label="Talking biology with customers" style="gap:14px">
+    <span class="eyebrow a">05 · Talking biology with customers</span>
+    <h2 class="a" style="--i:1">Grounded in biology, never scare tactics</h2>
+    <div class="grid g3">
+      <div class="card cq a" style="--i:2"><span class="eyebrow">"Why no catches yet?"</span><p>"Rats are wary of anything new on their path. We let them get used to the devices first, then the catches come. Moving them now would start the clock over."</p></div>
+      <div class="card cq a" style="--i:3"><span class="eyebrow">"How did they get in?"</span><p>"Roof rats are climbers. A rat can squeeze through a gap about half an inch wide, so we check the roofline, the vents and where that palm touches the roof."</p></div>
+      <div class="card cq a" style="--i:4"><span class="eyebrow">"Will they come back?"</span><p>"If we only trap, more can move in from the neighborhood. If we seal the entry points and trap what's inside, the house stays closed. That's why we seal first."</p></div>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-chat"/></svg><span>Pricing and tier questions go to the service advisor or branch manager. Describe what you found and why it matters; never quote a price or promise a result. Tiers, warranty and renewals are covered in CW-05 and RX-06.</span></div>
+      <div class="card a" style="--i:6;padding:14px 18px"><span class="eyebrow">Never say</span><ul class="nev">
+        <li><svg class="ico"><use href="#i-x"/></svg>"You'll get hantavirus" or any other scare line</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>"They'll never come back," or any promise or price</li>
+        <li><svg class="ico"><use href="#i-x"/></svg>That a bait or product is safe, harmless or non-toxic</li></ul>
+        <p class="small muted" style="margin-top:6px">PestPac Mobile notes print on the customer's report. Office actions go to technotes@clementspestcontrol.com.</p></div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it in the field</h2>
+    <p class="a muted" style="--i:2">Your supervisor or the Rodent Shield field training lead observes each of these on live jobs before RX-01 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Name the species on a live account from the evidence (droppings, rub marks, gnawing, nest site, sounds) and explain the reasoning</label></li>
+      <li><label><input type="checkbox" id="f2"> Tell a juvenile rat from an adult house mouse by head, feet and tail, on a specimen or photo</label></li>
+      <li><label><input type="checkbox" id="f3"> Trace a travel route along walls, rafters or fence lines and point to where a device belongs on it</label></li>
+      <li><label><input type="checkbox" id="f4"> Measure gaps and say which species each could admit, using the ½ in and ¼ in thresholds</label></li>
+      <li><label><input type="checkbox" id="f5"> Find likely nesting sites on the property: attic, palms, vines, A/C chase, burrows or appliances</label></li>
+      <li><label><input type="checkbox" id="f6"> Point out climbing routes to the roof: palms, limbs, wires, downspouts, rough walls</label></li>
+      <li><label><input type="checkbox" id="f7"> Explain neophobia and the waiting period to a customer in plain, calm words</label></li>
+      <li><label><input type="checkbox" id="f8"> Explain to a customer why Rodent Shield seals entry points first, without quoting prices or promising results</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('rx01:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('rx01:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "RX-01", "titleHtml": "Rodent Biology &amp; Behavior", "nextHtml": "RX-02 \u00b7 Inspection &amp; Entry Point Assessment", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{"t":"Checkpoint 1 · The three rodents","q":"A \"mouse\" caught in a Stuart garage has a big head, oversized hind feet and a thick tail. Droppings nearby are blunt and about ½ in. What is it?","o":["An adult house mouse: anything that small is a mouse","A young Norway rat. Adults are breeding nearby, so inspect low for burrows and ½ in gaps","A roof rat: all Florida rats are roof rats","It doesn't matter: every rodent gets the same service"],"a":1,"e":"A head and hind feet too big for the body, plus a thick tail, mean a young rat. A mouse has small feet, a slender tail and ¼ in droppings. A young Norway rat means a breeding population at ground level, which changes where you inspect and seal."},
+    2:{"t":"Checkpoint 2 · Senses and behavior","q":"Day 4 of a roof rat job: no catches on traps along a rub-marked rafter. The customer wants them moved to the middle of the attic floor. What do you do?","o":["Move them to the middle of the floor","Spray repellent on the rafter to push rats toward the traps","Leave them on the runway and explain that rats avoid new objects for days and ignore devices off the edge","Switch every trap to a new bait today"],"a":2,"e":"Rats are neophobic and run edges. Moving devices into open floor restarts acceptance and puts them where rats don't walk. Repellents and bait switches also reset acceptance."},
+    3:{"t":"Checkpoint 3 · Abilities and numbers","q":"\"The gap under my garage door is only half an inch, and the palm is ten feet from the house. Nothing can get in.\" What is accurate?","o":["They're right: rats need at least an inch","Only the door matters; rats can't climb palms","Only mice matter in a garage","Young rats fit under ½ in and mice need about ¼ in. Roof rats climb palms and can leap from branches to a roof. Check both"],"a":3,"e":"UC IPM and UF/IFAS: rats fit under a ½ in gap; CDC: mice about ¼ in. Roof rats are agile climbers, and UF/IFAS notes a rat can leap about 8 ft from a branch 15 ft above a roof."},
+    4:{"t":"Checkpoint 4 · Florida and Rodent Shield","q":"October, Naples: new night scratching overhead, a palm on the roof, fallen avocados, curved ½ in attic droppings, a soffit gap. Which plan fits?","o":["Roof rats: document entries ½ in and up, recommend sealing first with traps inside, note the palm and fruit","Bait stations in the attic only; no sealing needed","Norway rats from the canal: treat the burrows","Quote Plus on the spot and promise they won't return"],"a":0,"e":"Season, sounds, droppings, palm and fruit all point to roof rats. Rodent Shield closes the entries and traps what is inside; baiting with entries open risks a rodent dying in the attic. Never quote or promise."},
+    5:{"t":"","q":"","o":[],"a":-1}
+  };
+  var NCP=5;
+  var Q=[
+    {"k":"Multiple choice","q":"Which rodent does UF/IFAS describe as the most abundant and damaging rodent pest in Florida?","o":["Norway rat","House mouse","Roof rat","Cotton rat"],"a":2,"e":"UF/IFAS calls the roof rat the worst and most abundant rodent pest in Florida. It nests high in attics, palms and vines and breeds year-round with peaks in spring and fall."},
+    {"k":"True or false","q":"A house mouse can get through a gap about ¼ inch wide, roughly the width of a pencil.","o":["True","False"],"a":0,"e":"CDC: mice can fit through a hole the width of a pencil, about ¼ inch. Rats, especially young rats, can get through about ½ inch."},
+    {"k":"Multiple choice","q":"Which feature best separates a roof rat from a Norway rat?","o":["Roof rat: tail longer than head and body, large ears, pointed nose. Norway rat: tail shorter than head and body, small ears, blunt nose","Roof rats are always brown and Norway rats always black","Norway rats have longer tails than roof rats","Only droppings can separate them"],"a":0,"e":"Tail length versus head and body, ear size and nose shape separate the two rats. Color varies and is not reliable."},
+    {"k":"Scenario","q":"You find a few dozen ¼ in, rod-shaped droppings in a kitchen drawer. Where is the nest most likely?","o":["In the neighbor's yard","In the attic over the garage","In a burrow along the foundation","Close by, typically within 10 to 30 feet: an appliance, cabinet void or wall behind the kitchen"],"a":3,"e":"House mice usually stay within 10 to 30 feet of the nest (UF/IFAS). Mouse evidence in a drawer points to a nest nearby."},
+    {"k":"Multiple choice","q":"Why do rats gnaw on wiring, PVC and wood even when they are not hungry?","o":["To mark territory with scent","Their incisors grow for life, about 4½ to 5½ inches a year, and gnawing keeps them worn down and sharp","They are attracted to the taste of plastic","Only sick rats gnaw"],"a":1,"e":"Rodent incisors never stop growing. UF/IFAS puts rat incisor growth at 4½ to 5½ inches a year, so gnawing is constant."},
+    {"k":"True or false","q":"Foam sealant alone is acceptable exclusion for a ½ inch rat entry point.","o":["True","False"],"a":1,"e":"Rodents chew through foam. Rodent Shield uses cement and metal for entry points ½ inch and larger; foam is only a courtesy for small gaps and is never the exclusion."},
+    {"k":"Multiple choice","q":"What does \"thigmotaxis\" mean for device placement?","o":["Rodents travel in contact with walls and edges, so devices go tight to the wall on the runway","Rodents prefer bright light, so put devices in the open","Rodents follow food smells across open floors","Rodents avoid edges"],"a":0,"e":"Thigmotaxis is the instinct to keep contact with a surface while moving. Rodents run walls, rafters and edges. A device a few feet off the wall is outside their path."},
+    {"k":"Scenario","q":"A customer's attic has an active rodent route. They ask if spraying a strong repellent along it will help your traps. What is the best answer?","o":["Yes, it drives them into the traps","Yes, spray every rafter","No: strong odors on the route can make rodents reroute away from the devices. We keep the route undisturbed so they keep using it","Only if it's a natural product"],"a":2,"e":"Rodents rely on scent and familiar routes. Strong odors can push them off the path and away from the devices. Keep the route undisturbed."},
+    {"k":"Multiple choice","q":"Which species usually investigates a new device within the first night or two?","o":["Norway rat","Roof rat","House mouse","All three equally"],"a":2,"e":"Mice are curious and usually approach new objects the first night (UF/IFAS). Both rats are neophobic and may avoid a new device for several days to a week or more."},
+    {"k":"True or false","q":"On a rat job, moving devices to a new spot every visit is the best way to speed up catches.","o":["True","False"],"a":1,"e":"Rats remember their routes and distrust new objects. Moving a device restarts the acceptance period. Leave devices on the runway unless there is a strong reason to move them."},
+    {"k":"Scenario","q":"A trap at a station was set off and is empty, with fur on the bar. What should you assume?","o":["The trap works fine; reset it as is","Move the trap to the middle of the room","Stop trapping that area","The rat may now be trap-shy toward that device; change the device type or bait at that spot"],"a":3,"e":"A near miss or injury can cause lasting bait or trap shyness. Change the device type or bait at that location rather than resetting the same thing."},
+    {"k":"Multiple choice","q":"According to UF/IFAS, about how high can a rat jump straight up?","o":["About 6 inches","About 12 inches","About 36 inches","About 8 feet"],"a":2,"e":"UF/IFAS: rats can jump about 36 in vertically and 48 in horizontally, and reach about 15 in up a wall. That is why a \"high\" gap is still a real gap."},
+    {"k":"Multiple choice","q":"Which rat is the stronger swimmer and is most associated with canals, seawalls and burrows in Florida?","o":["Roof rat","Norway rat","House mouse","None of them swim"],"a":1,"e":"Norway rats are strong swimmers that burrow at ground level and are most common along coasts and canals (UF/IFAS, UC IPM). Roof rats swim too but are the climbers."},
+    {"k":"True or false","q":"House mice can get most of the water they need from their food and do not need to drink every day.","o":["True","False"],"a":0,"e":"Mice need very little free water and can get most of it from food. Rats need water daily, about an ounce, so water sources matter more on rat accounts."},
+    {"k":"Scenario","q":"A customer says, \"It's just two mice. What's the rush?\" Which answer is accurate and calm?","o":["\"They'll overrun your house by next week.\"","\"Mice don't breed indoors.\"","\"Mice breed at about six weeks old and have a litter every few weeks, so two can become dozens within a few months. Closing the entry points now keeps this small.\"","\"Two mice are nothing to worry about.\""],"a":2,"e":"House mice mature at about 6 weeks, carry for about 3 weeks and have litters of 5 to 6, up to about 8 litters a year. Explain the math without exaggerating."},
+    {"k":"Multiple choice","q":"In Florida, hantavirus has been linked mainly to which rodents?","o":["Roof rats","Norway rats","House mice","Native cotton rats and rice rats"],"a":3,"e":"Florida's hantavirus findings involve native field rodents such as cotton rats and rice rats. Roof rats, Norway rats and house mice still carry Salmonella, leptospirosis and rat-bite fever, so droppings are wetted with disinfectant first, never swept dry (CDC)."},
+    {"k":"Scenario","q":"October, Vero Beach: a customer just started hearing light, fast scratching in the ceiling at night. Queen palms touch the roof. What is your first thought?","o":["Norway rats from the canal","Roof rats in the fall push-in, entering at the roofline","House mice in the kitchen","Squirrels; rodents are never active at night"],"a":1,"e":"Fall push-in, light rapid movement overhead at night and palms touching the roof are the classic roof rat pattern. Inspect the roofline and attic."},
+    {"k":"Multiple choice","q":"Why does Rodent Shield seal entry points before relying on bait?","o":["Bait is more expensive than cement","Sealing is faster than trapping","With entries open, more rodents keep moving in from outside, and a baited rodent can die in a wall or attic. Sealing closes the house, then trapping clears what is inside","Bait is not allowed in Florida"],"a":2,"e":"Trapping alone fights a population that keeps refilling from the neighborhood. Sealing stops new arrivals; trapping removes what is inside. Baiting with entries open risks a rodent dying inside the structure."},
+    {"k":"True or false","q":"Rodent Shield documents entry points ½ inch or larger because that is the size a rat can use.","o":["True","False"],"a":0,"e":"The Rodent Shield program documents entry points ½ inch or larger as the warranty reference record. That threshold matches what a rat, especially a young one, can squeeze through."},
+    {"k":"Scenario","q":"A customer asks what the Rodent Shield Plus warranty costs and whether rats will ever come back. What do you do?","o":["Give your best estimate of the price","Promise they will never come back with Plus","Explain what you found and why sealing matters, and have the service advisor or branch manager handle tier, price and warranty questions. Never promise results","Tell them to search online for prices"],"a":2,"e":"Techs describe findings and the biology. Pricing, tiers and warranty terms go to the service advisor or branch manager. Never quote prices or promise results."}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  function r(n){return Math.round(n*10)/10}
+  var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function slideOf(el){while(el&&!(el.classList&&el.classList.contains('slide')))el=el.parentNode;return el}
+  function onNow(el){var s=slideOf(el);return s&&s.classList.contains('on')}
+
+  /* =========================================================
+     Rodent line art (original drawing, side view, head left)
+     o: rx, ry body radii · ear radius · nose 'p'|'b' · tail ratio · ft foot scale · tw tail width · hs head scale
+     ========================================================= */
+  function rod(o){
+    var rx=o.rx,ry=o.ry,hs=o.hs||1,hl=(o.nose==='p'?50:38)*hs,by=110,bx=14+.82*rx+hl,fx=bx-rx*.82,nx=fx-hl,ny=by-ry*.15,s='',P={},ft=o.ft||1;
+    var T=o.tail*(2*rx+hl),sx=bx+rx*.96,sy=by+ry*.25;
+    s+='<path class="r-tl" style="stroke-width:'+(o.tw||2.2)+'" d="M'+r(sx)+' '+r(sy)+'C'+r(sx+T*.35)+' '+r(sy+16)+' '+r(sx+T*.6)+' '+r(sy-24)+' '+r(sx+T*.86)+' '+r(sy-6)+'"/>';
+    P.tail=[r(sx+T*.55),r(sy-6)];
+    var fy=by+ry*.88;
+    s+='<path class="r-lg" d="M'+r(bx-rx*.5)+' '+r(fy)+'l-4 '+r(7*ft)+'h'+r(8*ft)+'M'+r(bx+rx*.45)+' '+r(fy)+'l-4 '+r(8*ft)+'h'+r(13*ft)+'"/>';
+    P.feet=[r(bx+rx*.45+4*ft),r(fy+8*ft)];
+    s+='<ellipse class="r-pt" cx="'+r(bx)+'" cy="'+by+'" rx="'+rx+'" ry="'+ry+'"/>';
+    var c1=o.nose==='p'?[nx+hl*.35,by-ry*1.02,nx+hl*.45,by+ry*.5]:[nx+3,by-ry*.95,nx+3,by+ry*.62];
+    s+='<path class="r-pt" d="M'+r(fx+8)+' '+r(by-ry*.92)+'Q'+r(c1[0])+' '+r(c1[1])+' '+r(nx)+' '+r(ny)+'Q'+r(c1[2])+' '+r(c1[3])+' '+r(fx+10)+' '+r(by+ry*.62)+'Z"/>';
+    s+='<circle class="r-pt r-ear" cx="'+r(fx+6)+'" cy="'+r(by-ry*.92)+'" r="'+o.ear+'"/>';
+    s+='<circle class="r-ey" cx="'+r(nx+hl*.5)+'" cy="'+r(by-ry*.42)+'" r="2.4"/><circle class="r-ey" cx="'+r(nx+1)+'" cy="'+r(ny)+'" r="2"/>';
+    s+='<path class="r-wh" d="M'+r(nx+6)+' '+r(ny)+'l-15-7M'+r(nx+6)+' '+r(ny+1)+'l-17 2M'+r(nx+6)+' '+r(ny+2)+'l-14 9"/>';
+    P.nose=[r(nx+5),r(ny)];P.ear=[r(fx+6),r(by-ry*.92)];P.body=[r(bx+rx*.15),r(by)];P.head=[r(nx+hl*.55),r(by-ry*.3)];
+    P.end=sx+T*.86;
+    return {s:s,P:P};
+  }
+  var SP={
+    roof:{rx:56,ry:24,ear:13,nose:'p',tail:1.15,ft:1,tw:2},
+    nor:{rx:66,ry:31,ear:8,nose:'b',tail:.8,ft:1.25,tw:3},
+    mouse:{rx:42,ry:20,ear:13,nose:'p',tail:1,ft:.75,tw:1.6},
+    young:{rx:40,ry:19,ear:9,nose:'b',tail:.9,ft:1.55,tw:2.8,hs:1.25}
+  };
+  function rodSvg(k,extra,vb,label){var g=rod(SP[k]);return '<svg viewBox="'+(vb||'0 0 360 176')+'" role="img" aria-label="'+(label||'Rodent line drawing')+'">'+g.s+(extra?extra(g.P):'')+'</svg>'}
+
+  /* =========================================================
+     01 Species comparison explorer
+     ========================================================= */
+  var EXN=[['roof','Roof rat','Rattus rattus · the climber'],['nor','Norway rat','Rattus norvegicus · the burrower'],['mouse','House mouse','Mus musculus · the squeezer']];
+  var EX=[
+    {n:'Body',u:'oz',max:18,src:'Weights: UC IPM (rats), UF/IFAS (mouse). Basic ID is in PC-07.',
+      v:[[5,10,'5–10 oz','Slender. Head and body 6–8 in; tail longer still. Large ears, pointed nose. Usually dark gray to black, sometimes brown.'],[7,18,'7–18 oz','Heavy and stocky, up to about a pound. Head and body 7–10 in; tail shorter. Small ears, blunt nose. Brown, paler belly.'],[.5,.5,'about ½ oz','Small and light. Head and body 2½–3½ in; tail about as long. Large ears for its size, small feet. Gray-brown.']]},
+    {n:'Breeding',u:'pups a year',max:84,src:'UF/IFAS (ENY-224, SSWEC120); UC IPM. Pups born per female before losses: litter size x litters per year.',
+      v:[[20,40,'about 20–40 born','Mature at 3–4 months. Gestation 21–23 days. Litters of 5–8, about 4–5 a year. In Florida, breeds year-round with peaks in spring and fall.'],[32,84,'about 30–80 born','Mature at about 3 months. Gestation about 3 weeks. Litters of 8–12, up to 7 a year. UC IPM: a female typically weans 20 or more young a year.'],[30,48,'about 30–45 born','Mature at about 6 weeks. Gestation 19–21 days. Litters of 5–6, up to about 8 a year. The fastest to build numbers indoors.']]},
+    {n:'Lifespan',u:'months',max:24,src:'UF/IFAS ENY-224: about one year for each species in the wild.',
+      v:[[9,12,'about 1 year','Most wild roof rats live about a year. In that year a female can raise several litters.'],[9,12,'about 1 year','About a year in the wild. Short life, fast turnover: the population replaces itself constantly.'],[9,12,'about 1 year','About a year in the wild. Short-lived, but a female can start breeding at six weeks old.']]},
+    {n:'Food and water',u:'oz food a day',max:1.2,src:'UF/IFAS ENY-224; Texas A&amp;M AgriLife Rodent IPM.',
+      v:[[.5,1,'½–1 oz a day','Loves fruit, nuts and seeds: citrus, avocado, mango, bird seed, pet food, snails. Needs water daily. Caches food.'],[1,1,'about 1 oz a day','Eats almost anything: grain, meat, garbage, pet food. Drinks about 1 oz of water daily. Feeds on site; rarely caches.'],[.1,.1,'about 1/10 oz a day','Nibbles many tiny meals. Needs very little free water; gets most from food. Caches constantly near the nest.']]},
+    {n:'Range',u:'ft from nest',max:300,src:'UF/IFAS ENY-224 (100–150 ft rats, 10–30 ft mice); UC IPM (roof rats 300 ft or more; Norway 100–500 ft).',
+      v:[[100,300,'100–300 ft','Typically 100–150 ft, and routinely 300 ft or more for food. The food source may be next door.'],[100,150,'100–150 ft','Usually 100–150 ft; can range farther when food is scarce. Follows ground runways and burrow trails.'],[10,30,'10–30 ft','Stays close: usually 10–30 ft from the nest. Evidence means the nest is near.']]},
+    {n:'Nest',u:'',max:0,src:'UF/IFAS, UC IPM, Clements Rodent Certification Training.',
+      v:[[0,0,'Up high','Attics, soffits, wall and ceiling voids, palm frond skirts, dense vines, hollow trees, even old parrot nests.'],[0,0,'In the ground','Burrows about 18 in deep along foundations, under slabs, sheds, decks, woodpiles and canal banks. Several openings.'],[0,0,'Close to food','Wall voids, cabinets, drawers, behind and inside appliances, stored boxes in garages.']]},
+    {n:'Entry gap',u:'in',max:.6,src:'CDC (mouse ¼ in); UC IPM and UF/IFAS (rats ½ in, especially young rats).',
+      v:[[.5,.5,'about ½ in','Usually enters at the roofline: soffits, gable vents, roof returns, A/C chase, limbs and palms touching the roof.'],[.5,.5,'about ½ in','Usually enters low: slab cracks, garage door corners, ground-level utility penetrations, drains.'],[.25,.25,'about ¼ in','Anywhere: plumbing and wiring penetrations, door gaps, weep holes, A/C lines.']]},
+    {n:'Temperament',u:'',max:0,src:'UF/IFAS; UC IPM notes neophobia may be stronger in roof rats.',
+      v:[[0,0,'Very cautious','Strongly wary of new objects; may avoid a device for a week or more. Agile and quick to flee.'],[0,0,'Cautious, bolder','Wary of new objects, but aggressive toward other rats. UF/IFAS: Norway rats drive roof rats out; the two are seldom in the same building.'],[0,0,'Curious','Explores new objects, often the first night. Short trips, many visits.']]},
+    {n:'Florida pressure',u:'',max:0,src:'UF/IFAS: roof rat is the most abundant rodent pest in Florida; Norway rats most common along coasts and canals.',
+      v:[[0,0,'Very high','Our number one rodent call. Palms, fruit trees, vines and attics. The fall push-in.'],[0,0,'Local','Canals, seawalls, retention ponds, dumpsters, poor garbage storage. Less common than roof rats.'],[0,0,'Year-round','Indoors in kitchens, garages and condos all year; pushes in when weather cools.']]}
+  ];
+  var exSel=store.get('ex')||0,exSeen=store.get('exs')||{};
+  function exShow(i){
+    exSel=i;exSeen[i]=1;store.set('ex',i);store.set('exs',exSeen);var t=EX[i];
+    [].forEach.call($('#exPick').children,function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!exSeen[j])});
+    $('#exCols').innerHTML=EXN.map(function(sp,j){var v=t.v[j],bar='';
+      if(t.max){var a=Math.max(2,v[0]/t.max*100),b=Math.max(a,v[1]/t.max*100);bar='<div class="exbar" aria-hidden="true"><i style="left:0;width:'+r(a)+'%"></i><b style="left:'+r(a)+'%;width:'+r(b-a)+'%"></b></div>'}
+      return '<div class="card exc"><div class="exh"><div class="exsv">'+rodSvg(sp[0],null,'0 0 360 176',sp[1])+'</div><div><h3>'+sp[1]+'</h3><span class="small muted">'+sp[2].split(' · ')[1]+'</span></div></div><span class="eyebrow">'+t.n+'</span><div class="exv">'+v[2]+'</div>'+bar+'<p>'+v[3]+'</p></div>'}).join('');
+    $('#exSrc').innerHTML='Sources: '+t.src;
+  }
+  EX.forEach(function(t,i){var b=mk('button',null,t.n);b.type='button';b.id='ex'+i;b.addEventListener('click',function(){exShow(i)});$('#exPick').appendChild(b)});
+  exShow(exSel);
+
+  /* =========================================================
+     02 Anatomy
+     ========================================================= */
+  var ANS=[['roof','Roof rat'],['nor','Norway rat'],['mouse','House mouse'],['young','Young rat']];
+  var ANF=[['tail','Tail','i-ruler'],['ear','Ears','i-ear'],['head','Nose and head','i-eye'],['feet','Feet','i-boot'],['body','Body and color','i-rodent']];
+  var AN={
+    roof:{tail:'Longer than head and body combined. Pulled forward along the back, it reaches past the snout (UC IPM). Thin and evenly dark.',ear:'Large and thin. Pulled forward, they reach to the eyes.',head:'Pointed nose on a slender head.',feet:'In proportion to the body, with a strong grip for climbing wires, fronds and rafters.',body:'Slender, about 5–10 oz. Usually dark gray to black, but brown roof rats with pale bellies are common. Color alone is not an ID.'},
+    nor:{tail:'Shorter than head and body. Pulled forward, it reaches about the middle of the skull (UC IPM). Thick and scaly, dark above, paler below.',ear:'Small and close to the head. Pulled forward, they don\'t reach the eyes.',head:'Blunt nose on a heavy, broad head.',feet:'Large and strong: built for digging burrows.',body:'Heavy and stocky, about 7–18 oz. Brown with a paler belly. Coarse fur.'},
+    mouse:{tail:'About as long as head and body, thin, with little hair.',ear:'Large for the size of the head.',head:'Small head with a pointed nose.',feet:'Small and dainty. Compare this to a young rat.',body:'About ½ oz, gray-brown, often paler underneath.'},
+    young:{tail:'Thicker than a mouse tail. On a young roof rat it is already longer than the body.',ear:'On a young Norway rat, small for the head.',head:'The giveaway: the head looks too big for the body.',feet:'Hind feet look oversized for the body. A mouse\'s feet are small.',body:'Can weigh the same as an adult mouse. A young rat means adults are breeding nearby, and its droppings point to rats, not mice.'}
+  };
+  var anS=0,anF=0;
+  function anDraw(){
+    var k=ANS[anS][0],f=ANF[anF][0];
+    $('#anFig').innerHTML=rodSvg(k,function(P){var p=P[f];return '<circle class="anring" cx="'+p[0]+'" cy="'+p[1]+'" r="16"/><circle class="anring2" cx="'+p[0]+'" cy="'+p[1]+'" r="16"/>'},'0 0 360 176','Line drawing of a '+ANS[anS][1].toLowerCase()+', '+ANF[anF][1].toLowerCase()+' highlighted');
+    [].forEach.call($('#anSeg').children,function(b,j){b.setAttribute('aria-pressed',j===anS)});
+    [].forEach.call($('#anKit').children,function(b,j){b.setAttribute('aria-pressed',j===anF)});
+    $('#anD').innerHTML='<span class="eyebrow">'+ANS[anS][1]+' · '+ANF[anF][1]+'</span><p>'+AN[k][f]+'</p>'+(anS===3?'<p class="small muted">Young rat vs. adult mouse is the most common ID mistake on rodent calls.</p>':'');
+  }
+  ANS.forEach(function(s,i){var b=mk('button',null,s[1]);b.type='button';b.id='anS'+i;b.addEventListener('click',function(){anS=i;anDraw()});$('#anSeg').appendChild(b)});
+  ANF.forEach(function(f,i){var b=mk('button',null,ico(f[2])+'<span>'+f[1]+'</span>');b.type='button';b.id='anF'+i;b.addEventListener('click',function(){anF=i;anDraw()});$('#anKit').appendChild(b)});
+  anDraw();
+
+  /* =========================================================
+     04 Chew sort
+     ========================================================= */
+  var CH=[
+    ['Expanding foam sealant',0,'Chewed through easily. Courtesy only for small gaps, never exclusion.'],
+    ['Cured cement mortar, properly mixed',1,'Holds. Cement is the Rodent Shield primary material, color-matched to the home.'],
+    ['Rubber or vinyl door sweep',0,'Chewed, especially at the corners. A common garage entry.'],
+    ['¼ in galvanized hardware cloth, 19-gauge or heavier',1,'Holds, when overlapped and fastened. Used for larger openings and vents.'],
+    ['Wood fascia and soffit trim',0,'Gnawed, especially at existing edges and rot.'],
+    ['Aluminum window or vent screen',0,'Too thin. Rats tear and chew through it.'],
+    ['Galvanized sheet metal, 26-gauge or heavier',1,'Holds. Used to patch larger openings and protect gnaw-prone edges.'],
+    ['PVC pipe and wire insulation',0,'Gnawed. Chewed wiring is a fire risk.'],
+    ['Silicone or acrylic caulk alone',0,'Chewed out of the gap. It seals edges, it doesn\'t stop rodents.']
+  ];
+  var chA=store.get('ch')||{};
+  CH.forEach(function(c,i){
+    var row=mk('div','row','<span>'+c[0]+'</span><span class="opts"><button type="button" id="ch'+i+'_0" data-v="0">Gnaws through</button><button type="button" id="ch'+i+'_1" data-v="1">Holds</button></span><span class="why" hidden>'+c[2]+'</span>');
+    [].forEach.call(row.querySelectorAll('.opts button'),function(b){b.setAttribute('aria-pressed',chA[i]===+b.dataset.v);b.addEventListener('click',function(){chA[i]=+b.dataset.v;store.set('ch',chA);[].forEach.call(row.querySelectorAll('.opts button'),function(x){x.setAttribute('aria-pressed',x===b)});row.classList.remove('ok','no');row.querySelector('.why').hidden=true})});
+    $('#chSort').appendChild(row);
+  });
+  $('#chCheck').addEventListener('click',function(){
+    var ok=0,done=0;[].forEach.call($('#chSort').children,function(row,i){var a=chA[i];row.classList.remove('ok','no');if(a===undefined)return;done++;var good=a===CH[i][1];if(good)ok++;row.classList.add(good?'ok':'no');row.querySelector('.why').hidden=false});
+    $('#chFb').innerHTML=done<CH.length?'<span class="small muted">'+(CH.length-done)+' still to sort.</span>':'<span class="small"><b>'+ok+' of '+CH.length+'</b> correct. '+(ok===CH.length?'Exactly why Rodent Shield seals with cement and metal.':'Read the notes on the red rows.')+'</span>';
+  });
+
+  /* =========================================================
+     Senses
+     ========================================================= */
+  var SN=[
+    ['vision','Vision','Weakest sense','i-eye','Poor detail and limited color vision. They pick up movement and changes in light, but open space feels exposed and unsafe.','Devices go on the edge, where the rodent feels covered. A device in open floor gets walked around.'],
+    ['smell','Smell','Exceptional','i-wind','Finds food, recognizes family, predators and routes. Marks its paths with urine and oily skin secretions: the dark rub marks you look for.','Glove up to place and service devices. No repellents on the runway. Once a bait is accepted, don\'t swap it.'],
+    ['hear','Hearing','Excellent, ultrasonic','i-ear','Hears sounds above our range and calls to other rodents ultrasonically. Detects small structural sounds and vibrations.','Customer sound reports are evidence: light, fast scratching overhead at night is roof rat; heavier thumping low is Norway rat; quick rustling in kitchen walls is mouse.'],
+    ['touch','Touch and whiskers','Reads every surface','i-hand','Whiskers (vibrissae) and guard hairs read walls, edges and air currents constantly. Rodents keep body contact with surfaces as they move: thigmotaxis.','Follow the rub marks: they show the runway. Devices sit tight to it, flush with the wall or rafter.'],
+    ['taste','Taste','Learns from bad meals','i-cup','Samples new food cautiously. A rodent that gets sick after eating something links the illness to that food and avoids it.','This is bait shyness. A sublethal dose or a near miss can teach a rat to avoid that bait or device. Change it rather than repeat it.'],
+    ['map','Spatial memory','Remembers the map','i-route','Builds a mental map of routes, food, water and escape paths, then runs the same runways for weeks.','Leave devices in place between visits. Anything new or moved on the route is treated with suspicion again.']
+  ];
+  var snSel=0,snSeen=store.get('sn')||{};
+  function snFig(k){
+    var on=function(x){return k===x?' on':''};
+    return '<svg viewBox="0 0 320 170" role="img" aria-label="Rat head with the selected sense highlighted">'+
+      '<path class="r-pt" d="M300 120C300 70 250 40 190 40c-40 0-70 18-100 40-20 14-44 26-64 32 10 10 30 16 60 18 40 4 90 10 150 8 30-1 54-6 54-18z"/>'+
+      '<circle class="r-pt" cx="214" cy="40" r="26"/><circle class="sn-z'+on('hear')+'" cx="214" cy="40" r="34"/>'+
+      '<path class="sn-w'+on('hear')+'" d="M246 18c8 6 12 14 12 22M256 8c12 9 18 20 18 32"/>'+
+      '<circle class="r-ey" cx="150" cy="72" r="5"/><circle class="sn-z'+on('vision')+'" cx="150" cy="72" r="16"/>'+
+      '<circle class="r-ey" cx="30" cy="112" r="4"/><circle class="sn-z'+on('smell')+'" cx="30" cy="112" r="16"/>'+
+      '<path class="sn-w'+on('smell')+'" d="M8 96c-6 4-6 10 0 14M2 88c-10 8-10 22 0 30"/>'+
+      '<path class="r-wh'+on('touch')+'" d="M46 112l-40-20M46 116l-44 2M46 120l-38 22M50 108l-30-30"/>'+
+      '<path class="r-pt" d="M60 128c10 10 30 12 50 6"/><path class="tth" d="M64 128v12h6v-10"/><circle class="sn-z'+on('taste')+'" cx="70" cy="134" r="16"/>'+
+      '<path class="sn-map'+on('map')+'" d="M150 22h30v-14h40v14h30M180 8l-14-6"/><circle class="sn-z'+on('map')+'" cx="186" cy="68" r="26"/>'+
+      '</svg>';
+  }
+  function snShow(i){
+    snSel=i;snSeen[i]=1;store.set('sn',snSeen);var s=SN[i];
+    [].forEach.call($('#snKit').children,function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!snSeen[j])});
+    $('#snFig').innerHTML=snFig(s[0]);
+    $('#snD').innerHTML='<span class="eyebrow">'+s[1]+' · '+s[2]+'</span><p>'+s[4]+'</p><div class="snimp">'+ico('i-target')+'<span><b>In the field:</b> '+s[5]+'</span></div>';
+  }
+  SN.forEach(function(s,i){var b=mk('button',null,ico(s[3])+'<span>'+s[1]+'<small>'+s[2]+'</small></span>');b.type='button';b.id='sn'+i;b.addEventListener('click',function(){snShow(i)});$('#snKit').appendChild(b)});
+  snShow(0);
+
+  /* =========================================================
+     Practice: place the device
+     ========================================================= */
+  var PD=[
+    {x:40,y:150,ok:1,t:'Tight to the left wall, on the runway',f:'Best spot. Fresh rub marks run along this wall. The device sits flush against it, so the rodent runs straight into it.'},
+    {x:120,y:150,ok:0,t:'About three feet off the wall',f:'Off the path. To a rodent, open floor feels exposed. It will keep to the wall and walk past this device.'},
+    {x:270,y:236,ok:0,t:'In the open, beside the car',f:'No evidence and no edge. Rodents don\'t cross open floor if they can avoid it.'},
+    {x:40,y:262,ok:1,t:'Corner where the runway turns',f:'Excellent. Corners concentrate traffic: the rodent turns here every trip, tight to both walls.'},
+    {x:330,y:274,ok:0,t:'Middle of the garage door opening',f:'Wrong spot. Car and foot traffic, rain and pets, and no wall to guide the rodent in.'},
+    {x:206,y:39,ok:0,t:'On top of the storage shelf',f:'Off the route. The runway passes along the shelf base. Only place up high where there is evidence up high.'}
+  ];
+  var pdA=store.get('pd')||{};
+  var PDP='M190 266H40V70H244V40H470V120';
+  function pdBuild(){
+    var s='<rect class="pd-wall" x="22" y="22" width="476" height="258" rx="4"/>'+
+      '<path class="pd-door" d="M180 280h300"/><text class="lb" x="330" y="296" text-anchor="middle">Garage door</text>'+
+      '<path class="pd-gap" d="M498 104v34"/><text class="lb" x="492" y="98" text-anchor="end">Door to house</text>'+
+      '<rect class="pd-obj" x="60" y="24" width="170" height="30" rx="2"/><text class="lb" x="120" y="44" text-anchor="middle">Shelving</text>'+
+      '<rect class="pd-obj" x="200" y="100" width="190" height="110" rx="26"/><text class="lb" x="295" y="160" text-anchor="middle">Car</text>'+
+      '<circle class="pd-obj" cx="470" cy="236" r="22"/><text class="lb" x="470" y="240" text-anchor="middle">Heater</text>'+
+      '<path class="pd-run" id="pdRun" d="'+PDP+'"/>'+
+      '<g class="pd-rub"><path d="M32 100v30M32 160v30M32 210v26"/></g><text class="lb" x="30" y="94" text-anchor="start" style="font-size:10px">rub marks</text>';
+    PD.forEach(function(p,i){var st=pdA[i]===undefined?'':(p.ok?' good':' bad');
+      s+='<g class="pd-spot'+st+'" id="pd'+i+'" tabindex="0" role="button" aria-label="Spot '+'ABCDEF'[i]+': '+p.t+'"><circle class="h" cx="'+p.x+'" cy="'+p.y+'" r="15"/><circle class="c" cx="'+p.x+'" cy="'+p.y+'" r="11"/><text x="'+p.x+'" y="'+(p.y+4)+'" text-anchor="middle">'+'ABCDEF'[i]+'</text></g>'});
+    s+='<circle class="pd-rat" id="pdRat" r="6" cx="190" cy="266"/>';
+    $('#pdSvg').innerHTML=s;
+    PD.forEach(function(p,i){keyAct($('#pd'+i),function(){pdA[i]=1;store.set('pd',pdA);pdBuild();pdSide(i)})});
+  }
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+  function pdSide(last){
+    var found=PD.filter(function(p,i){return p.ok&&pdA[i]}).length;
+    var h='<div class="card pdc"><span class="eyebrow">How to play</span><p>The dot is the rodent. Watch where it travels, then select spots A to F. Find the two best places for a trap.</p></div>';
+    if(last!=null){var p=PD[last];h+='<div class="fb'+(p.ok?'':' no')+'"><b>'+'ABCDEF'[last]+' · '+p.t+'.</b> '+p.f+'</div>'}
+    h+='<div class="card pdc"><span class="eyebrow">Best spots found</span><div class="pdn">'+found+' of 2</div>'+(found===2?'<p class="small">Both found. On the runway, flush to the wall, and at the turns.</p>':'<p class="small muted">Hint: follow the dashed line.</p>')+'</div>';
+    $('#pdSide').innerHTML=h;
+  }
+  pdBuild();pdSide(null);
+  (function(){var t0=null,run=$('#pdRun'),rat=$('#pdRat'),L=0;
+    function step(ts){
+      if(!document.body.contains(rat)){rat=$('#pdRat');run=$('#pdRun');L=0}
+      if(rat&&run&&onNow(rat)&&!RM){if(!L)L=run.getTotalLength();if(t0==null)t0=ts;var k=((ts-t0)%4000)/4000,pt=run.getPointAtLength(k*L);rat.setAttribute('cx',r(pt.x));rat.setAttribute('cy',r(pt.y))}
+      requestAnimationFrame(step)}
+    requestAnimationFrame(step)})();
+
+  /* =========================================================
+     Neophobia chart
+     ========================================================= */
+  var NF=[
+    {k:'mouse',n:'House mouse',m:1,s:.5,t:'Curious',d:'Usually investigates a new device the first night (UF/IFAS). Snap traps set on day one work well on mice.',f:'Use more devices, closer together: a mouse\'s range is only 10–30 ft. Expect early catches.'},
+    {k:'nor',n:'Norway rat',m:5.5,s:1.1,t:'Neophobic',d:'Detours around new objects and watches for days before using them. A trap set on day one and expected to catch tomorrow is a common reason rat jobs disappoint.',f:'Place devices on the runway and give them time. The Clements training protocol pre-baits rat devices unset, then sets them on the next visit (RX-03).'},
+    {k:'roof',n:'Roof rat',m:7,s:1.3,t:'Strongly wary',d:'Wary of new objects like the Norway rat. Clements training expects Norway rats to take longest to accept devices (5–10 days); with either rat, leave traps in place at least a week before moving them (UF/IFAS).',f:'Same rule: on the runway, gloved, undisturbed. A quiet first week is normal. Explain it to the customer before they call.'}
+  ];
+  var nfSel=0;
+  function nfX(d){return 46+d/14*394}function nfY(p){return 176-p/100*150}
+  function nfPath(o){var s='';for(var d=0;d<=14;d+=.25){var p=100/(1+Math.exp(-(d-o.m)/o.s));s+=(d?'L':'M')+r(nfX(d))+' '+r(nfY(p))}return s}
+  function nfDraw(){
+    var o=NF[nfSel],s='<path class="ax" d="M46 26V176H440"/>';
+    for(var d=0;d<=14;d+=2)s+='<text class="lb t" x="'+nfX(d)+'" y="192" text-anchor="middle">'+d+'</text>';
+    s+='<text class="lb t" x="243" y="206" text-anchor="middle">Days since the device was placed</text>';
+    s+='<text class="lb t" x="40" y="30" text-anchor="end">High</text><text class="lb t" x="40" y="178" text-anchor="end">None</text>';
+    s+='<text class="lb t" x="14" y="104" text-anchor="middle" transform="rotate(-90 14 104)">Use of device</text>';
+    NF.forEach(function(x,i){if(i!==nfSel)s+='<path class="nf-o" d="'+nfPath(x)+'"/><text class="lb t" x="'+r(nfX(x.m)+(x.k==='roof'?8:-8))+'" y="'+r(nfY(x.k==='roof'?36:64))+'" text-anchor="'+(x.k==='roof'?'start':'end')+'">'+x.n+'</text>'});
+    if(o.k!=='mouse'){s+='<path class="nf-m" d="M'+nfX(1)+' 26V176"/><text class="lb" x="'+(nfX(1)+4)+'" y="40">Placed, baited, unset</text><path class="nf-m" d="M'+nfX(6)+' 26V176"/><text class="lb" x="'+(nfX(6)+4)+'" y="56">Next visit: set it</text>'}
+    else s+='<path class="nf-m" d="M'+nfX(.2)+' 26V176"/><text class="lb" x="'+nfX(3)+'" y="150">Dashed line: trap set on day one</text>';
+    s+='<path class="nf-l" d="'+nfPath(o)+'" pathLength="400"/>';
+    $('#nfSvg').innerHTML=s;
+    [].forEach.call($('#nfSeg').children,function(b,j){b.setAttribute('aria-pressed',j===nfSel)});
+    $('#nfD').innerHTML='<span class="eyebrow">'+o.n+' · '+o.t+'</span><p>'+o.d+'</p><div class="snimp">'+ico('i-target')+'<span><b>In the field:</b> '+o.f+'</span></div>';
+  }
+  NF.forEach(function(o,i){var b=mk('button',null,o.n);b.type='button';b.id='nf'+i;b.addEventListener('click',function(){nfSel=i;nfDraw()});$('#nfSeg').appendChild(b)});
+  nfDraw();
+
+  /* =========================================================
+     Practice: behavior scenarios
+     ========================================================= */
+  var BS=[
+    {n:'Pantry mice',sp:'mouse',s:'Orlando condo. Mouse droppings in the pantry. You place three stations along the pantry wall this morning. What will the mice most likely do?',o:['Avoid the stations for a week or more','Investigate them tonight or tomorrow, so expect activity at the next check','Leave the condo because of the new objects'],a:1,e:'Mice are curious and usually investigate new objects the first night. Their short range means several stations close together work best.'},
+    {n:'Seawall rats',sp:'nor',s:'Stuart, home on a canal. Burrows along the seawall and garage slab. The customer wants traps set today and expects results by tomorrow. What do you tell them?',o:['"You\'ll have catches by tomorrow morning."','"These are Norway rats. They avoid anything new for several days, so the first visits may be quiet. That\'s expected, and we\'ll keep the devices on their runways."','"Rats don\'t go into traps, so we\'ll skip trapping."'],a:1,e:'Norway rats are neophobic. Setting expectations up front prevents the "nothing\'s happening" call and keeps devices from being moved too early.'},
+    {n:'Bird feeder',sp:'roof',s:'Vero Beach. Roof rat activity in the attic. A bird feeder hangs four feet from the lanai and seed covers the ground. What does the biology say?',o:['The feeder is unrelated: rats only eat fruit','The feeder is a nightly food source that keeps rats on the property. Recommend moving it away from the house and cleaning up spilled seed','Put a bait station inside the feeder'],a:1,e:'Roof rats eat seeds and travel well over 100 ft for food. Food close to the house anchors activity. Say it factually, not as blame.'},
+    {n:'Moved traps',sp:'roof',s:'Day 5 of a roof rat job. The homeowner moved your attic traps to "better spots" in the middle of the insulation. What happens to the program?',o:['Nothing changes','The acceptance period restarts and the traps now sit off the runway. Move them back to the rub-marked edges and explain why','The rats will be curious about the new spots and go straight in'],a:1,e:'Rats distrust anything new or moved on a familiar route, and they travel edges. Moving devices costs days. Explain kindly and put them back on the runway.'},
+    {n:'Neighbor\'s rats',sp:'roof',s:'Naples. You have cleared the attic and sealed the entries. The neighbor has palms full of roof rats and fallen mangoes. The customer asks if they need to worry.',o:['"No, rats never travel between yards."','"The neighborhood matters. Roof rats range 100 ft or more. With your entry points sealed, your house stays closed, and exterior stations give ongoing protection."','"Yes, they\'ll be back inside next week no matter what."'],a:1,e:'Rodents ignore property lines. Exclusion keeps the house closed; exterior bait stations protect against re-invasion. Honest, calm and accurate.'}
+  ];
+  var bsSel=0,bsA=store.get('bs')||{};
+  function bsShow(i){
+    bsSel=i;var c=BS[i];
+    [].forEach.call($('#bsTabs').children,function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('done',bsA[j]!==undefined)});
+    var h='<div class="card bsc"><span class="eyebrow">Scenario '+(i+1)+' of '+BS.length+'</span><p>'+c.s+'</p></div><div class="choices">';
+    c.o.forEach(function(o,j){h+='<button type="button" class="choice" id="bs'+i+'_'+j+'" data-j="'+j+'"><span class="k">'+'ABC'[j]+'</span><span>'+o+'</span></button>'});
+    h+='</div><div id="bsFb"></div>';$('#bsBox').innerHTML=h;
+    $('#bsFig').innerHTML=rodSvg(c.sp,null,'0 0 360 176',c.sp==='mouse'?'House mouse':(c.sp==='nor'?'Norway rat':'Roof rat'))+'<span class="eyebrow bscap">'+(c.sp==='mouse'?'House mouse':(c.sp==='nor'?'Norway rat':'Roof rat'))+'</span>';
+    function mark(j){[].forEach.call($('#bsBox').querySelectorAll('.choice'),function(x){var k=+x.dataset.j;x.classList.toggle('right',k===c.a);x.classList.toggle('wrong',k===j&&j!==c.a)});
+      $('#bsFb').innerHTML='<div class="fb'+(j===c.a?'':' no')+'"><b>'+(j===c.a?'Right. ':'Not the best answer. ')+'</b>'+c.e+'</div>'}
+    if(bsA[i]!==undefined)mark(bsA[i]);
+    [].forEach.call($('#bsBox').querySelectorAll('.choice'),function(b){b.addEventListener('click',function(){var j=+b.dataset.j;bsA[i]=j;store.set('bs',bsA);mark(j);bsScore();[].forEach.call($('#bsTabs').children,function(t,k){t.classList.toggle('done',bsA[k]!==undefined)})})});
+  }
+  function bsScore(){var n=0,ok=0;BS.forEach(function(c,i){if(bsA[i]!==undefined){n++;if(bsA[i]===c.a)ok++}});
+    $('#bsScore').innerHTML='<span class="eyebrow">Your score</span><div class="pdn">'+ok+' of '+BS.length+'</div><p class="small muted">'+(n<BS.length?(BS.length-n)+' scenario'+(BS.length-n>1?'s':'')+' to go.':'All done. Biology first, then the conversation.')+'</p>'}
+  BS.forEach(function(c,i){var b=mk('button',null,c.n);b.type='button';b.id='bst'+i;b.addEventListener('click',function(){bsShow(i)});$('#bsTabs').appendChild(b)});
+  bsShow(0);bsScore();
+
+  /* =========================================================
+     Abilities hotspots
+     ========================================================= */
+  var AB=[
+    {x:470,y:96,n:'Palms and trees',t:'Roof rats climb palms, oaks and fruit trees and run out along fronds and limbs. Fronds resting on the roof are a direct bridge to the soffits.'},
+    {x:300,y:44,n:'Utility lines',t:'Roof rats run along power, cable and phone lines like a tightrope, straight to the roof or the service entry.'},
+    {x:404,y:200,n:'Pipes and downspouts',t:'UF/IFAS: rats climb inside vertical pipes 1½–4 in across, and outside pipes up to 3 in, or any pipe within 3 in of a wall.'},
+    {x:180,y:150,n:'Rough walls',t:'Stucco, brick and rough block give claws enough grip to climb. A "high" gap in a rough wall is still a real gap.'},
+    {x:96,y:236,n:'Jump and reach',t:'UF/IFAS: rats jump about 36 in straight up and 48 in across, and reach about 15 in up a wall. Mice are agile climbers and jumpers too.'},
+    {x:520,y:150,n:'Leap from a branch',t:'UF/IFAS: from a branch 15 ft above the roof, a rat can leap about 8 ft across to it. Overhanging limbs count even when they don\'t touch.'},
+    {x:40,y:280,n:'Swim',t:'Rats are strong swimmers, Norway rats most of all. Canals, seawalls and drain lines are travel routes, not barriers.'}
+  ];
+  var abSel=0,abSeen=store.get('ab')||{};
+  function abBuild(){
+    var s='<path class="gr" d="M0 258H560"/><path class="wat" d="M0 276c20-6 40 6 60 0s40 6 60 0v24H0z"/>'+
+      '<path class="hs-h" d="M140 258V130h270v128"/><path class="hs-r" d="M124 136l151-80 151 80"/><path class="hs-h" d="M300 258v-50h40v50"/>'+
+      '<path class="hs-h" d="M402 136v122"/><path class="hs-wire" d="M0 30C120 50 230 50 278 58"/><path class="hs-h" d="M0 20v20"/>'+
+      '<path class="hs-tr" d="M500 258c-4-60 2-120 -6-160"/><path class="hs-fr" d="M494 98c-20-16-50-14-72 8M494 98c14-20 40-24 58-12M494 98c-30 0-56 16-74 34M494 98c22 2 42 18 52 34"/>'+
+      '<path class="hs-tr" d="M560 160c-20-6-40-4-54 2"/><path class="hs-arc" d="M530 150C500 110 470 110 440 130"/>'+
+      '<path class="hs-arc" d="M80 258C80 220 100 212 120 212"/>';
+    AB.forEach(function(a,i){s+='<g class="hs'+(i===abSel?' sel':'')+(abSeen[i]?' seen':'')+'" id="ab'+i+'" tabindex="0" role="button" aria-label="'+(i+1)+': '+a.n+'"><circle class="h" cx="'+a.x+'" cy="'+a.y+'" r="13"/><circle class="c" cx="'+a.x+'" cy="'+a.y+'" r="11"/><text x="'+a.x+'" y="'+(a.y+4)+'" text-anchor="middle">'+(i+1)+'</text></g>'});
+    $('#abSvg').innerHTML=s;
+    AB.forEach(function(a,i){keyAct($('#ab'+i),function(){abShow(i)})});
+  }
+  function abShow(i){abSel=i;abSeen[i]=1;store.set('ab',abSeen);abBuild();var a=AB[i];
+    $('#abD').innerHTML='<div class="card hsd"><span class="eyebrow">'+(i+1)+' of '+AB.length+'</span><h3>'+a.n+'</h3><p>'+a.t+'</p></div><div class="hsl">'+AB.map(function(x,j){return '<span class="'+(j===i?'on':(abSeen[j]?'seen':''))+'">'+(j+1)+' · '+x.n+'</span>'}).join('')+'</div>'}
+  abShow(0);
+
+  /* =========================================================
+     Gap gauge
+     ========================================================= */
+  var GG=[[.125,'1/8 in'],[.1875,'3/16 in'],[.25,'1/4 in'],[.375,'3/8 in'],[.5,'1/2 in'],[.625,'5/8 in'],[.75,'3/4 in'],[1,'1 in'],[2,'2 in'],[4,'4 in']];
+  function ggShow(i){
+    var g=GG[i],w=g[0],S=60,h=Math.min(w*S,110);
+    $('#ggV').textContent=g[1];
+    var y0=150-h,s='<path class="gg-fl" d="M10 150H312"/><rect class="gg-dr" x="20" y="24" width="150" height="'+r(y0-24)+'"/>'+
+      '<path class="gg-gap" d="M20 '+r(y0)+'H170"/><path class="gg-dim" d="M180 '+r(y0)+'V150M176 '+r(y0)+'h8M176 150h8"/>'+
+      '<text class="lb b" x="95" y="16" text-anchor="middle">Gap: '+g[1]+(w>2?' (drawn smaller)':'')+'</text>';
+    var mf=w>=.25,rf=w>=.5;
+    s+='<g class="gg-sk '+(mf?'fit':'no')+'"><ellipse cx="226" cy="'+(150-7.5)+'" rx="12" ry="7.5"/><text class="lb" x="226" y="168" text-anchor="middle">Mouse ¼ in</text></g>';
+    s+='<g class="gg-sk '+(rf?'fit':'no')+'"><ellipse cx="284" cy="'+(150-15)+'" rx="20" ry="15"/><text class="lb" x="284" y="168" text-anchor="middle">Rat ½ in</text></g>';
+    if(mf&&!RM)s+='<g class="gg-run"><ellipse cx="40" cy="'+r(150-Math.min(h,15)/2)+'" rx="10" ry="'+r(Math.min(h,15)/2)+'"/></g>';
+    s+='<text class="lb t" x="12" y="190">Side view of a gap under a door, drawn to scale.</text>';
+    $('#ggSvg').innerHTML=s;
+    var rows=[['House mouse','i-rodent',mf],['Young rat','i-rodent',rf],['Adult roof or Norway rat','i-rodent',w>=.5]];
+    $('#ggRows').innerHTML=rows.map(function(x){return '<div class="ggr '+(x[2]?'fit':'no')+'">'+ico(x[1])+'<span>'+x[0]+'</span><b>'+(x[2]?'Can get through':'Blocked')+'</b></div>'}).join('');
+    var d;
+    if(w<.25)d='<span class="eyebrow">Too small for all three</span><p>Below about ¼ in, none of our three rodents fit, though they may gnaw an edge to widen it. Look for fresh gnawing.</p>';
+    else if(w<.5)d='<span class="eyebrow">Mouse-size gap</span><p>A mouse can use this; a rat can\'t without gnawing. Rodent Shield documents entries ½ in and larger, so record mouse-size gaps in your notes and photos. How Clements records them is still being confirmed.</p>';
+    else d='<span class="eyebrow">Rat-size entry point</span><p>Rodent Shield documents and photographs every entry point ½ in or larger: it is the warranty reference record. Seal with approved materials, cement first, never foam alone (RX-04).</p>';
+    $('#ggD').innerHTML=d;
+  }
+  $('#ggR').addEventListener('input',function(){ggShow(+this.value)});
+  ggShow(2);
+
+  /* =========================================================
+     Range
+     ========================================================= */
+  var RG=[
+    {k:'roof',n:'Roof rat',nx:150,ny:96,r1:100,r2:150,r3:300,nest:'Attic',food:'½–1 oz a day: fruit, nuts, seeds, pet food, snails',water:'Needs water daily, about 1 oz: irrigation, pools, pet bowls, A/C condensate',cache:'Caches fruit and nuts',rng:'Typically 100–150 ft; routinely 300 ft or more for food (UC IPM)'},
+    {k:'nor',n:'Norway rat',nx:118,ny:166,r1:100,r2:150,r3:0,nest:'Burrow at slab',food:'About 1 oz a day: grain, meat, garbage, pet food',water:'Drinks about 1 oz daily; canals and ponds nearby',cache:'Rarely caches; returns to the source',rng:'Usually 100–150 ft; farther when food is scarce'},
+    {k:'mouse',n:'House mouse',nx:170,ny:126,r1:10,r2:30,r3:0,nest:'Kitchen wall',food:'About 1/10 oz a day in many tiny meals',water:'Very little; most comes from food',cache:'Heavy cacher near the nest',rng:'Usually 10–30 ft from the nest'}
+  ];
+  var rgSel=0;
+  function rgDraw(){
+    var o=RG[rgSel],s='<rect class="rg-lot" x="40" y="30" width="230" height="180"/><rect class="rg-hs" x="90" y="70" width="120" height="110"/><text class="lb" x="150" y="64" text-anchor="middle">Home</text>'+
+      '<rect class="rg-hs2" x="282" y="40" width="50" height="80"/><text class="lb" x="307" y="134" text-anchor="middle">Neighbor</text>'+
+      '<circle class="rg-tr" cx="244" cy="190" r="12"/><text class="lb" x="244" y="222" text-anchor="middle">Mango</text>'+
+      '<path class="rg-cn" d="M0 232H340"/><text class="lb" x="10" y="228">Canal</text>'+
+      '<path class="rg-sc" d="M200 20h50"/><text class="lb" x="225" y="14" text-anchor="middle">50 ft</text>';
+    var k=1;
+    if(o.r3)s+='<circle class="rg-c r3" cx="'+o.nx+'" cy="'+o.ny+'" r="'+o.r3+'"/>';
+    s+='<circle class="rg-c r2" cx="'+o.nx+'" cy="'+o.ny+'" r="'+o.r2*k+'"/><circle class="rg-c r1" cx="'+o.nx+'" cy="'+o.ny+'" r="'+o.r1*k+'"/>';
+    s+='<circle class="rg-n" cx="'+o.nx+'" cy="'+o.ny+'" r="5"/><text class="lb b" x="'+(o.nx+8)+'" y="'+(o.ny-8)+'">Nest: '+o.nest+'</text>';
+    $('#rgSvg').innerHTML=s;
+    [].forEach.call($('#rgSeg').children,function(b,j){b.setAttribute('aria-pressed',j===rgSel)});
+    $('#rgD').innerHTML='<span class="eyebrow">'+o.n+'</span><dl><dt>'+ico('i-route')+'Range</dt><dd>'+o.rng+'</dd><dt>'+ico('i-target')+'Food</dt><dd>'+o.food+'</dd><dt>'+ico('i-drop')+'Water</dt><dd>'+o.water+'</dd><dt>'+ico('i-box')+'Caching</dt><dd>'+o.cache+'</dd></dl><p class="small muted">Drawn roughly to scale (see the 50 ft bar). Rings show the typical range.</p>';
+  }
+  RG.forEach(function(o,i){var b=mk('button',null,o.n);b.type='button';b.id='rg'+i;b.addEventListener('click',function(){rgSel=i;rgDraw()});$('#rgSeg').appendChild(b)});
+  rgDraw();
+
+  /* =========================================================
+     Population growth
+     ========================================================= */
+  var PP=[
+    {n:'House mouse',first:9,intv:7,lit:5.5,d:'Mature at about 6 weeks, pregnant about 3 weeks, litters of 5–6 up to about 8 times a year.'},
+    {n:'Roof rat',first:17,intv:12,lit:6.5,d:'Mature at 3–4 months, gestation 21–23 days, litters of 5–8 about 4–5 times a year.'},
+    {n:'Norway rat',first:16,intv:10,lit:10,d:'Mature at about 3 months, gestation about 3 weeks, litters of 8–12 up to 7 times a year.'}
+  ];
+  function ppSim(o,ps,ws){var co=[{n:1,t0:3}],out=[];for(var w=0;w<=52;w++){if(w>0)co.forEach(function(c){c.n*=ws});var add=0;co.forEach(function(c){if(w>=c.t0&&(w-c.t0)%o.intv===0)add+=c.n*o.lit*ps});if(add>0)co.push({n:add/2,t0:w+o.first});out.push(co.reduce(function(a,c){return a+c.n},0)*2)}return out}
+  var ppSel=0,ppRaf=null;
+  function fmt(n){n=Math.round(n);return n>=1000?String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','):String(n)}
+  function ppChart(upto){
+    var o=PP[ppSel],L=ppSim(o,.5,.985),T=ppSim(o,1,1),mx=Math.max.apply(null,L),top=Math.pow(10,Math.ceil(Math.log10(mx)))/(mx<Math.pow(10,Math.ceil(Math.log10(mx)))/2?2:1);
+    function X(w){return 50+w/52*450}function Y(v){return 196-v/top*170}
+    var s='<path class="ax" d="M50 22V196H500"/>';
+    for(var m=0;m<=12;m+=3)s+='<text class="lb t" x="'+X(m*52/12)+'" y="212" text-anchor="middle">'+(m?'Month '+m:'Start')+'</text>';
+    [0,.5,1].forEach(function(f){s+='<text class="lb t" x="44" y="'+(Y(top*f)+4)+'" text-anchor="end">'+fmt(top*f)+'</text>'+(f?'<path class="grd" d="M50 '+Y(top*f)+'H500"/>':'')});
+    var n=Math.max(0,Math.min(52,Math.round(upto))),p='';for(var w=0;w<=n;w++)p+=(w?'L':'M')+r(X(w))+' '+r(Y(L[w]));
+    s+='<path class="pp-l" d="'+p+'"/>';
+    if(n>0)s+='<circle class="pp-d" cx="'+r(X(n))+'" cy="'+r(Y(L[n]))+'" r="4"/>';
+    $('#ppSvg').innerHTML=s;
+    $('#ppM').textContent=Math.round(n/52*12);$('#ppN').textContent=fmt(L[n]);
+    $('#ppD').innerHTML='<span class="eyebrow">'+o.n+'</span><p>'+o.d+'</p><p class="small">With no losses at all, the same pair would reach about <b>'+fmt(T[52])+'</b> in a year. Real populations level off at what the property can support.</p><div class="snimp">'+ico('i-lock')+'<span><b>Takeaway:</b> close entry points and remove food and shelter to lower that ceiling, and act early.</span></div>';
+  }
+  function ppPlay(){
+    if(ppRaf)cancelAnimationFrame(ppRaf);
+    if(RM){ppChart(52);return}
+    var t0=null;function f(ts){if(t0==null)t0=ts;var k=Math.min(1,(ts-t0)/4000);ppChart(k*52);if(k<1)ppRaf=requestAnimationFrame(f);else ppRaf=null}
+    ppRaf=requestAnimationFrame(f);
+  }
+  PP.forEach(function(o,i){var b=mk('button',null,o.n);b.type='button';b.id='pp'+i;b.addEventListener('click',function(){ppSel=i;[].forEach.call($('#ppSeg').children,function(x,j){x.setAttribute('aria-pressed',j===i)});ppChart(0)});$('#ppSeg').appendChild(b)});
+  $('#ppSeg').children[0].setAttribute('aria-pressed','true');
+  $('#ppPlay').addEventListener('click',ppPlay);
+  ppChart(52);
+
+  /* =========================================================
+     Florida nest sites
+     ========================================================= */
+  var NS=[
+    {x:262,y:104,n:'Attic insulation',s:'Roof rat',t:'The top nest site in Florida homes. Look for runways through the insulation, droppings along trusses and rub marks on rafters. Urine-soaked insulation loses its value.'},
+    {x:166,y:126,n:'Soffits, gables and roof returns',s:'Roof rat',t:'Gaps at soffit returns, gable vent corners and fascia seams are the classic roofline entries. Grease staining around an opening means it is in use.'},
+    {x:528,y:92,n:'Palm frond skirts',s:'Roof rat',t:'Queen, fishtail and Washingtonia palms with dead frond skirts make ideal elevated nests. Check the base for shredded fiber and droppings, and whether fronds touch the roof.'},
+    {x:80,y:200,n:'Vines and dense hedges',s:'Roof rat, Norway rat',t:'Bougainvillea, heavy vines, Brazilian pepper and dense ornamental hedges give cover and travel corridors, often from yard to yard.'},
+    {x:40,y:130,n:'Fruit trees',s:'Roof rat (food)',t:'Citrus, avocado and mango feed roof rats. Hollowed fruit still on the tree and chewed rinds below are textbook signs. Fallen fruit and bird seed keep them on site.'},
+    {x:432,y:212,n:'A/C chase and line set',s:'Roof rat, house mouse',t:'Where refrigerant lines and wiring enter the wall is a common Florida entry and travel route into wall voids and the attic.'},
+    {x:372,y:206,n:'Kitchen appliances and cabinets',s:'House mouse',t:'Inside stove bases, behind dishwashers and refrigerators, in drawer voids and toe kicks. Mouse evidence here means the nest is within 10–30 ft.'},
+    {x:196,y:222,n:'Garage storage',s:'House mouse, roof rat',t:'Cardboard boxes, stored clothing, pet food and clutter against walls. Gnawed door sweep corners are a common way in.'},
+    {x:470,y:266,n:'Burrows by the slab and seawall',s:'Norway rat',t:'Burrows along foundations, under slabs, sheds and decks, and in canal banks and seawalls. Smooth, packed entrances with fresh soil mean active use.'}
+  ];
+  var nsSel=0,nsSeen=store.get('ns')||{};
+  function nsBuild(){
+    var s='<path class="gr" d="M0 256H600"/><path class="wat" d="M500 270c20-6 40 6 60 0s30 4 40 0v30H500z"/>'+
+      '<path class="hs-h" d="M140 256V140h300v116"/><path class="hs-r" d="M120 146l170-90 170 90"/><path class="hs-att" d="M150 140h280"/><path class="hs-ins" d="M156 136c20-6 40 6 60 0s40 6 60 0 40 6 60 0 40 6 60 0 40 6 46 0"/>'+
+      '<path class="hs-h" d="M250 140v116"/><path class="hs-obj" d="M168 256v-28h22v28M192 256v-20h18v20"/>'+
+      '<path class="hs-obj" d="M350 256v-40h44v40M350 230h44M410 256v-60h22v60"/>'+
+      '<path class="hs-obj" d="M444 236h24v20h-24z"/><path class="hs-wire" d="M444 232c-6-10-6-18 -4-26"/>'+
+      '<path class="hs-tr" d="M530 256c-4-50 2-110-4-150"/><path class="hs-fr" d="M526 106c-20-16-46-14-66 6M526 106c14-20 38-22 54-10M526 106c-28 0-50 14-66 30M526 106c22 2 40 16 48 30"/><path class="hs-skirt" d="M520 114l-4 20M526 116v22M532 114l4 20"/>'+
+      '<path class="hs-tr" d="M40 256v-80"/><circle class="hs-cn" cx="40" cy="146" r="34"/><circle class="hs-fruit" cx="30" cy="150" r="4"/><circle class="hs-fruit" cx="52" cy="136" r="4"/><circle class="hs-fruit" cx="36" cy="252" r="3.5"/>'+
+      '<path class="hs-hedge" d="M90 256c-8-20 0-44 14-52 10-14 30-10 34 6v46"/>'+
+      '<path class="hs-bur" d="M462 262c4-6 12-6 16 0M480 280c-4 6-24 6-30-2"/>';
+    NS.forEach(function(a,i){s+='<g class="hs'+(i===nsSel?' sel':'')+(nsSeen[i]?' seen':'')+'" id="ns'+i+'" tabindex="0" role="button" aria-label="'+(i+1)+': '+a.n+'"><circle class="h" cx="'+a.x+'" cy="'+a.y+'" r="13"/><circle class="c" cx="'+a.x+'" cy="'+a.y+'" r="11"/><text x="'+a.x+'" y="'+(a.y+4)+'" text-anchor="middle">'+(i+1)+'</text></g>'});
+    $('#nsSvg').innerHTML=s;
+    NS.forEach(function(a,i){keyAct($('#ns'+i),function(){nsShow(i)})});
+  }
+  function nsShow(i){nsSel=i;nsSeen[i]=1;store.set('ns',nsSeen);nsBuild();var a=NS[i];
+    $('#nsD').innerHTML='<div class="card hsd"><span class="eyebrow">'+(i+1)+' of '+NS.length+' · '+a.s+'</span><h3>'+a.n+'</h3><p>'+a.t+'</p></div><div class="hsl">'+NS.map(function(x,j){return '<span class="'+(j===i?'on':(nsSeen[j]?'seen':''))+'">'+(j+1)+' · '+x.n+'</span>'}).join('')+'</div>'}
+  nsShow(0);
+
+  /* =========================================================
+     Seasons timeline
+     ========================================================= */
+  var SS=[
+    {i:'i-sun',y:'Spring',g:'Mar–May',h:'Breeding picks up, young disperse',p:'Roof rat breeding peaks in spring (UF/IFAS). Young animals spread out and outdoor pressure expands.',f:'Perimeter inspection and exterior stations. Spot and document gaps before the fall push-in.'},
+    {i:'i-thermo',y:'Summer',g:'Jun–Aug',h:'Peak outdoor populations',p:'Lots of food outside: mangoes, avocados, seed. Indoor pressure is lower, except where food and A/C pull rodents in.',f:'Exterior control. Do exclusion and attic work early in the day: attic heat is a serious hazard (RX-08).'},
+    {i:'i-home',y:'Fall push-in',g:'Sep–Nov',h:'Attic activity spikes',p:'Cooler nights, thinning outdoor food and a second breeding peak drive rodents into attics and walls.',f:'"I just started hearing noises in the ceiling" in October is usually roof rats. Lead with the roofline.'},
+    {i:'i-cal',y:'Winter',g:'Dec–Feb',h:'Indoor populations peak',p:'Rodents concentrate in attics, walls and garages. Citrus fruit drop adds food right next to the house.',f:'Interior trapping and exclusion follow-up. Heavy droppings or nesting: document and escalate.'},
+    {i:'i-palm',y:'All year',g:'Florida',h:'No winter knockdown',p:'Mild weather, irrigation, palms, fruit trees and canals keep pressure on all year. Neighbors\' rodents don\'t respect property lines.',f:'Exclusion is permanent protection; exterior stations guard against re-invasion.'}
+  ];
+  var ssSeen=store.get('ss')||{};
+  function ssShow(i){ssSeen[i]=1;store.set('ss',ssSeen);var s=SS[i];
+    [].forEach.call($('#ssTl').querySelectorAll('button'),function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!ssSeen[j])});
+    $('#ssFill').style.width=(i/(SS.length-1)*80)+'%';
+    $('#ssD').innerHTML='<div class="card ssc"><div><span class="eyebrow">'+s.y+' · '+s.g+'</span><h3>'+s.h+'</h3><p>'+s.p+'</p></div><div class="snimp">'+ico('i-target')+'<span><b>Service focus:</b> '+s.f+'</span></div></div>';
+  }
+  SS.forEach(function(s,i){var b=mk('button',null,'<span class="dot">'+ico(s.i)+'</span><span class="yr">'+s.y+'</span><span class="tg">'+s.g+'</span>');b.type='button';b.id='ss'+i;b.addEventListener('click',function(){ssShow(i)});$('#ssTl').appendChild(b)});
+  ssShow(2);
+
+  /* =========================================================
+     Biology drives the program: flip cards
+     ========================================================= */
+  var BD=[
+    ['Teeth never stop growing','A rodent gnaws through foam, caulk, rubber and wood.','<b>Rule:</b> entry points ½ in and larger are sealed with cement and metal. Foam is a courtesy for tiny gaps only, never the exclusion.'],
+    ['Rats fit through ½ in','Young rats squeeze through gaps you\'d dismiss.','<b>Rule:</b> every entry point ½ in or larger is documented and photographed. That record is the foundation of the Plus warranty.'],
+    ['They run the walls','Thigmotaxis keeps them on edges and runways.','<b>Rule:</b> traps and stations go flush on the runway, at turns and entries. Never in open floor.'],
+    ['Rats fear new things','Neophobia delays the first catches by days.','<b>Rule:</b> devices stay put between visits, and both tiers include five follow-up visits so the program has time to work.'],
+    ['Mice breed at six weeks','A small problem becomes a big one in months.','<b>Rule:</b> if a Basic inspection finds entry points, the tech presents the Plus upgrade on the same visit.'],
+    ['Pressure never stops','Florida has no winter knockdown, and neighbors\' rodents roam.','<b>Rule:</b> seal the house, then protect it. Exterior rodent boxes are always offered and are required to renew a Plus warranty.']
+  ];
+  var bdSeen=store.get('bd')||{};
+  BD.forEach(function(c,i){var b=mk('button',null,'<span class="in"><span class="face front"><span class="eyebrow">Biology</span><h3>'+c[0]+'</h3><p class="small muted">'+c[1]+'</p><span class="hint">Select to see the rule</span></span><span class="face back"><span class="eyebrow" style="color:var(--mint)">Rodent Shield</span><span>'+c[2]+'</span></span></span>');
+    b.type='button';b.id='bd'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){var on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);bdSeen[i]=1;store.set('bd',bdSeen)});$('#bdFlip').appendChild(b)});
+
+  /* =========================================================
+     Exclusion first: three plans
+     ========================================================= */
+  var XF=[
+    {n:'Trap only',d:'Trapping removes rats, but the entry points stay open. New rats keep moving in from palms, trees and neighbors, so numbers drop and then hold. The customer pays for a problem that never ends.',f:function(w,p){return p*(w>=2?.62:1)*1.03+2}},
+    {n:'Seal only',d:'Sealing stops new arrivals, but the rats already inside stay, keep breeding and chew to get out. Sealing without trapping traps the problem inside.',f:function(w,p){return p*1.04}},
+    {n:'Seal + trap',d:'Rodent Shield: close entry points ½ in and larger, then trap what is inside over the follow-up visits. With no new arrivals, every catch counts and the attic stays clear.',f:function(w,p){return p*(w>=2?.6:1)*1.02}}
+  ];
+  var xfSel=2;
+  function xfRun(o){var p=8,out=[8];for(var w=1;w<=12;w++){p=o.f(w,p);out.push(p)}return out}
+  function xfDraw(){
+    function X(w){return 50+w/12*450}function Y(v){return 186-v/16*160}
+    var s='<path class="ax" d="M50 22V186H500"/>';
+    for(var w=0;w<=12;w+=2)s+='<text class="lb t" x="'+X(w)+'" y="202" text-anchor="middle">'+(w?'Week '+w:'Start')+'</text>';
+    [0,8,16].forEach(function(v){s+='<text class="lb t" x="44" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'</text>'+(v?'<path class="grd" d="M50 '+Y(v)+'H500"/>':'')});
+    s+='<text class="lb t" x="14" y="104" text-anchor="middle" transform="rotate(-90 14 104)">Rats in the attic</text>';
+    XF.forEach(function(o,i){var d=xfRun(o),p='';d.forEach(function(v,w){p+=(w?'L':'M')+r(X(w))+' '+r(Y(Math.min(16,v)))});
+      s+='<path class="'+(i===xfSel?'xf-l':'xf-o')+'" d="'+p+'"'+(i===xfSel?' pathLength="400"':'')+'/><text class="lb'+(i===xfSel?' b':' t')+'" x="'+(X(12)+4)+'" y="'+r(Y(Math.min(16,d[12]))+4)+'" text-anchor="end" dy="-8">'+o.n+'</text>'});
+    $('#xfSvg').innerHTML=s;
+    [].forEach.call($('#xfSeg').children,function(b,j){b.setAttribute('aria-pressed',j===xfSel)});
+    var o=XF[xfSel],e=xfRun(o)[12];
+    $('#xfD').innerHTML='<span class="eyebrow">'+o.n+' · week 12</span><div class="pdn">'+(e<.5?'0':Math.round(e))+' rats</div><p>'+o.d+'</p>';
+  }
+  XF.forEach(function(o,i){var b=mk('button',null,o.n);b.type='button';b.id='xf'+i;b.addEventListener('click',function(){xfSel=i;xfDraw()});$('#xfSeg').appendChild(b)});
+  xfDraw();
+
+  function onShow(i){
+    var s=slides[i];
+    if(s.querySelector('#ppSvg')&&!s.dataset.played){s.dataset.played=1;ppPlay()}
+  }
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

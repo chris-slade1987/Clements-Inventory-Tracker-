@@ -97,6 +97,7 @@ export type CertCourseView = {
   name: string;
   courseType: string;
   contentStatus: string;
+  contentUrl: string | null;
   targetMinutes: string | null;
   sourceNote: string | null;
 };
@@ -139,6 +140,7 @@ export async function getCertificationByCode(code: string): Promise<CertDetail |
       name: m.name,
       courseType: m.courseType,
       contentStatus: m.contentStatus,
+      contentUrl: m.contentUrl,
       targetMinutes: m.targetMinutes,
       sourceNote: m.sourceNote,
     })),
