@@ -18,6 +18,8 @@ import RemindersCard from "@/components/RemindersCard";
 import { etParts, isSameMonthDay } from "@/lib/date";
 import { CelebrationBanner } from "@/components/Buzz";
 import RoleReferenceCard from "@/components/RoleReferenceCard";
+import ReportingLineCard from "@/components/ReportingLineCard";
+import { prisma } from "@/lib/prisma";
 import RecordForm from "./RecordForm";
 import SignatureBlock from "./SignatureBlock";
 import OtherNoteForm from "./OtherNoteForm";
@@ -53,11 +55,19 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
   // Branch-scoped: a branch manager may only open profiles of their own team.
   if (branchLocked(user) && e.branch !== user.branch) redirect("/my-branch/team");
 
-  const [reviews, empReminders, licenses, empAbsences] = await Promise.all([
+  const [reviews, empReminders, licenses, empAbsences, supervisor, directReports] = await Promise.all([
     reviewsForEmployee(e.id),
     remindersForEmployee(e.id),
     documentsForEmployee(e.id),
     absencesForEmployee(e.id),
+    e.reportsToId
+      ? prisma.employee.findUnique({ where: { id: e.reportsToId }, select: { id: true, name: true, title: true, role: true } })
+      : Promise.resolve(null),
+    prisma.employee.findMany({
+      where: { reportsToId: e.id, status: "active" },
+      select: { id: true, name: true, title: true, role: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   const canManage = user.role === "admin" || user.hrAccess || (user.role === "manager" && !!user.branch && user.branch === e.branch);
@@ -128,6 +138,14 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
           {avgPct != null ? <p className="mt-3 text-xs text-muted">Inspection avg: <span className="font-medium text-ink">{avgPct}%</span> · grade {grade}</p> : null}
         </Card>
       </div>
+
+      {/* Reporting line — supervisor + team (set on the org chart) */}
+      <ReportingLineCard
+        supervisor={supervisor}
+        directReports={directReports}
+        profileBase="/my-branch/team"
+        editHref="/org"
+      />
 
       {/* Corporate role / who-to-go-to reference (edited on the org chart) */}
       <RoleReferenceCard

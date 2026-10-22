@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 35 · Last updated October 22, 2026",
+    effective: "Version 36 · Last updated October 22, 2026",
+    // v36: Org Chart — super admins (Chris/Julie/April) get "Edit structure" to
+    // move a person to a new supervisor (search → confirm pop-up → save), which
+    // updates their profile's Reporting line (supervisor + team); unassigned people
+    // are flagged "No supervisor"; the chart stretches full-width.
     // v35: Org Chart & Directory reconciled — horizontal family-tree layout,
     // collapsed cards that Expand to show details (incl. the new corporate role:
     // what they do + when to go to them for help), and card editing opened to every

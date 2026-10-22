@@ -21,6 +21,7 @@ import { emailConfigured } from "@/lib/email";
 import { etParts, isSameMonthDay } from "@/lib/date";
 import { CelebrationBanner } from "@/components/Buzz";
 import RoleReferenceCard from "@/components/RoleReferenceCard";
+import ReportingLineCard from "@/components/ReportingLineCard";
 import EmployeeContact from "./EmployeeContact";
 import PasswordResetCard from "./PasswordResetCard";
 import AccessRightsCard from "./AccessRightsCard";
@@ -54,6 +55,15 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   if (!detail) notFound();
   const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
   const login = await prisma.user.findFirst({ where: { employeeId: e.id }, select: { id: true, accessLevel: true, email: true } });
+  // Reporting line — supervisor + direct reports (reflects org-chart moves).
+  const supervisor = e.reportsToId
+    ? await prisma.employee.findUnique({ where: { id: e.reportsToId }, select: { id: true, name: true, title: true, role: true } })
+    : null;
+  const directReports = await prisma.employee.findMany({
+    where: { reportsToId: e.id, status: "active" },
+    select: { id: true, name: true, title: true, role: true },
+    orderBy: { name: "asc" },
+  });
   const reviews = await reviewsForEmployee(e.id);
   const empReminders = await remindersForEmployee(e.id);
   const licenses = await documentsForEmployee(e.id);
@@ -210,6 +220,14 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           <p className="text-sm text-muted">No route, approved services, or scheduling rules set yet. Add them on the <Link href="/management/people/org" className="text-brand-700 hover:underline">org chart</Link>.</p>
         )}
       </Card>
+
+      {/* Reporting line — supervisor + team (set on the org chart). */}
+      <ReportingLineCard
+        supervisor={supervisor}
+        directReports={directReports}
+        profileBase="/management/people"
+        editHref="/management/people/org"
+      />
 
       {/* Corporate role / who-to-go-to reference (from the Contact & Reference
           Sheet; edited on the org chart). */}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { btn, Spinner } from "@/components/ui";
 
 // Shared Org Chart (Round 4) — the company reporting chart of employee cards,
@@ -64,6 +65,9 @@ export type OrgChartProps = {
   editBranch?: string | null;
   /** When set, the name + "full notes" link point at `${profileBase}/<id>`. */
   profileBase?: string | null;
+  /** True for super admins (Chris / Julie / April) — unlocks "Edit structure"
+   *  mode to move people to a new supervisor (updates their profile + team). */
+  canReassign?: boolean;
 };
 
 // ---- Small helpers ---------------------------------------------------------
@@ -101,6 +105,9 @@ const ICON = {
   phone: "M4 4h4l2 5-2.5 1.5a11 11 0 006 6L15 14l5 2v4a1 1 0 01-1 1A16 16 0 013 5a1 1 0 011-1z",
   help: "M12 17h.01M12 14a2 2 0 00.4-3.96A2.5 2.5 0 109.6 8.5M12 21a9 9 0 110-18 9 9 0 010 18z",
   role: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0",
+  move: "M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20",
+  warn: "M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
+  close: "M18 6 6 18M6 6l12 12",
 };
 
 // Split a multiline bullet field into clean bullet strings (strips any leading
@@ -164,7 +171,13 @@ export default function OrgChart({
   canEditAll = false,
   editBranch = null, // eslint-disable-line @typescript-eslint/no-unused-vars
   profileBase = null,
+  canReassign = false,
 }: OrgChartProps) {
+  const router = useRouter();
+  // Structure-edit mode (super admins only) + the person currently being moved.
+  const [editStructure, setEditStructure] = useState(false);
+  const [moveFor, setMoveFor] = useState<OrgTile | null>(null);
+
   // Live tile state so an edit reflects everywhere (tree + search) instantly.
   const [tilesById, setTilesById] = useState<Map<string, OrgTile>>(() => new Map(tiles.map((t) => [t.id, t])));
   useEffect(() => {
@@ -270,9 +283,40 @@ export default function OrgChart({
 
   const totalPeople = tiles.length;
 
+  // Structure maps (from the `tiles` prop, refreshed after a move): id→name,
+  // each person's descendant set (to block cycles in the move picker), and who
+  // currently has no valid supervisor (null, or a manager not in the active set).
+  const { nameById, descById, noSupervisorIds } = useMemo(() => {
+    const ids = new Set(tiles.map((t) => t.id));
+    const nameById = new Map(tiles.map((t) => [t.id, t.name]));
+    const kids = new Map<string, string[]>();
+    for (const t of tiles) {
+      if (t.reportsToId && ids.has(t.reportsToId)) {
+        const a = kids.get(t.reportsToId) ?? [];
+        a.push(t.id);
+        kids.set(t.reportsToId, a);
+      }
+    }
+    const descById = new Map<string, Set<string>>();
+    const descend = (id: string): Set<string> => {
+      if (descById.has(id)) return descById.get(id)!;
+      const out = new Set<string>();
+      descById.set(id, out); // guard against cycles while building
+      for (const c of kids.get(id) ?? []) {
+        out.add(c);
+        for (const d of descend(c)) out.add(d);
+      }
+      return out;
+    };
+    for (const t of tiles) descend(t.id);
+    const noSupervisorIds = new Set(tiles.filter((t) => !t.reportsToId || !ids.has(t.reportsToId)).map((t) => t.id));
+    return { nameById, descById, noSupervisorIds };
+  }, [tiles]);
+
   const visibleRoots = branchOnly ? pruneBranch(roots, branch) : roots;
   const visibleCount = branchOnly ? countPeople(visibleRoots) : totalPeople;
   const branchLabel = branchOnly ? branches.find((b) => b.key === branch)?.label ?? null : null;
+  const unassignedCount = noSupervisorIds.size;
 
   const cardProps = (t: OrgTile) => ({
     tile: liveTile(t),
@@ -288,6 +332,11 @@ export default function OrgChart({
     },
     serviceTags,
     profileBase,
+    // Structure-edit affordances (super admins only, when edit mode is on).
+    reassignable: canReassign && editStructure,
+    needsSupervisor: noSupervisorIds.has(t.id),
+    managerName: t.reportsToId ? nameById.get(t.reportsToId) ?? null : null,
+    onReassign: () => setMoveFor(liveTile(t)),
   });
 
   return (
@@ -346,6 +395,16 @@ export default function OrgChart({
             {branchLabel ? `${branchLabel} — ` : ""}{visibleCount} {visibleCount === 1 ? "person" : "people"} · tap <span className="font-medium">Expand</span> on a card for details, or a lead&apos;s <span className="font-medium">report</span> toggle to open their team.
           </p>
           <div className="flex items-center gap-1">
+            {canReassign ? (
+              <button
+                type="button"
+                onClick={() => setEditStructure((v) => !v)}
+                aria-pressed={editStructure}
+                className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${editStructure ? "border-brand-500 bg-brand-50 text-brand-700" : "border-line bg-surface text-ink hover:border-brand-300"}`}
+              >
+                <Icon path={ICON.move} className="h-3.5 w-3.5" /> {editStructure ? "Done editing" : "Edit structure"}
+              </button>
+            ) : null}
             <button type="button" onClick={expandAll} className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
               <Icon path={ICON.expand} className="h-3.5 w-3.5" /> Expand all teams
             </button>
@@ -353,6 +412,20 @@ export default function OrgChart({
               <Icon path={ICON.collapse} className="h-3.5 w-3.5" /> Collapse all teams
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {/* Edit-structure banner + unassigned-supervisor callout (super admins) */}
+      {!textSearch && canReassign && editStructure ? (
+        <div className="mb-3 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-[12px] text-brand-800">
+          <span className="font-semibold">Edit structure is on.</span> Tap <span className="font-medium">Change supervisor</span> on anyone&apos;s card to move them — you&apos;ll confirm before it saves, and the move updates that person&apos;s profile (supervisor + team).
+          {unassignedCount > 0 ? (
+            <span className="ml-1 text-amber-800">{unassignedCount} {unassignedCount === 1 ? "person has" : "people have"} no supervisor yet — look for the amber <span className="font-medium">No supervisor</span> tag.</span>
+          ) : null}
+        </div>
+      ) : !textSearch && unassignedCount > 0 && canReassign ? (
+        <div className="mb-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+          {unassignedCount} {unassignedCount === 1 ? "person has" : "people have"} no supervisor assigned. Tap <span className="font-medium">Edit structure</span> to place them.
         </div>
       ) : null}
 
@@ -401,6 +474,152 @@ export default function OrgChart({
           </div>
         </div>
       )}
+
+      {/* Reassign-supervisor modal (super admins, edit mode) */}
+      {moveFor ? (
+        <ReassignModal
+          person={moveFor}
+          candidates={tiles}
+          excludeIds={new Set([moveFor.id, ...(descById.get(moveFor.id) ?? [])])}
+          currentManagerName={moveFor.reportsToId ? nameById.get(moveFor.reportsToId) ?? null : null}
+          onClose={() => setMoveFor(null)}
+          onSaved={() => {
+            setMoveFor(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+// ---- Reassign-supervisor modal --------------------------------------------
+function ReassignModal({
+  person,
+  candidates,
+  excludeIds,
+  currentManagerName,
+  onClose,
+  onSaved,
+}: {
+  person: OrgTile;
+  candidates: OrgTile[];
+  excludeIds: Set<string>;
+  currentManagerName: string | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [q, setQ] = useState("");
+  const [picked, setPicked] = useState<{ id: string | null; name: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const list = useMemo(() => {
+    const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    return candidates
+      .filter((c) => !excludeIds.has(c.id))
+      .filter((c) => {
+        if (tokens.length === 0) return true;
+        const hay = `${c.name} ${c.title ?? ""} ${c.role ?? ""} ${c.branchLabel ?? ""}`.toLowerCase();
+        return tokens.every((t) => hay.includes(t));
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 60);
+  }, [candidates, excludeIds, q]);
+
+  async function save() {
+    if (!picked) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/org/reports-to", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: person.id, reportsToId: picked?.id ?? null }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Could not save the move.");
+      onSaved();
+    } catch (e) {
+      setError((e as Error).message || "Could not save the move.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="oct-modal-backdrop" role="dialog" aria-modal="true" aria-label={`Move ${person.name}`} onClick={onClose}>
+      <div className="oct-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">Move {person.name}</div>
+            <div className="mt-0.5 text-[11px] text-muted">
+              Currently reports to <span className="font-medium text-ink">{currentManagerName ?? "— no supervisor —"}</span>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-muted hover:bg-black/5">
+            <Icon path={ICON.close} className="h-4 w-4" />
+          </button>
+        </div>
+
+        {picked === null ? (
+          <>
+            <label className="mt-3 block">
+              <span className="sr-only">Search for the new supervisor</span>
+              <input
+                autoFocus
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search for the new supervisor…"
+                className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              />
+            </label>
+            <div className="mt-2 max-h-72 overflow-y-auto rounded-xl border border-line">
+              <button
+                type="button"
+                onClick={() => setPicked({ id: null, name: "— Top of org (no supervisor) —" })}
+                className="flex w-full items-center gap-2 border-b border-line px-3 py-2 text-left text-sm text-ink hover:bg-brand-50"
+              >
+                <Icon path={ICON.move} className="h-3.5 w-3.5 text-muted" />
+                <span className="font-medium">Top of org</span><span className="text-[11px] text-muted">— no supervisor</span>
+              </button>
+              {list.length === 0 ? (
+                <div className="px-3 py-6 text-center text-[12px] text-muted">No match. Everyone on {person.name}&apos;s own team is hidden (that would make a loop).</div>
+              ) : (
+                list.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setPicked({ id: c.id, name: c.name })}
+                    className="flex w-full items-center justify-between gap-2 border-b border-line px-3 py-2 text-left last:border-0 hover:bg-brand-50"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm text-ink">{c.name}</span>
+                      <span className="block truncate text-[11px] text-muted">{[c.title || c.role, c.branchLabel].filter(Boolean).join(" · ") || "—"}</span>
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="mt-3">
+            <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-3 text-sm text-ink">
+              Move <span className="font-semibold">{person.name}</span> to report to{" "}
+              <span className="font-semibold">{picked.name}</span>?
+              <div className="mt-1 text-[11px] text-muted">This updates {person.name}&apos;s profile — their supervisor and the team they&apos;re on will change right away.</div>
+            </div>
+            {error ? <p className="mt-2 text-[12px] text-red-600">{error}</p> : null}
+            <div className="mt-3 flex items-center gap-2">
+              <button type="button" onClick={save} disabled={busy} className={`${btn.primary} px-3 py-1.5 text-xs`}>
+                {busy ? "Saving…" : "Save changes"}
+              </button>
+              <button type="button" onClick={() => { setPicked(null); setError(null); }} disabled={busy} className={`${btn.secondary} px-3 py-1.5 text-xs`}>
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -462,6 +681,10 @@ function TileCard({
   onSaved,
   serviceTags,
   profileBase,
+  reassignable = false,
+  needsSupervisor = false,
+  managerName = null,
+  onReassign,
   footer,
 }: {
   tile: OrgTile;
@@ -474,6 +697,10 @@ function TileCard({
   onSaved: (t: OrgTile) => void;
   serviceTags: Tag[];
   profileBase: string | null;
+  reassignable?: boolean;
+  needsSupervisor?: boolean;
+  managerName?: string | null;
+  onReassign?: () => void;
   footer?: ReactNode;
 }) {
   const profileHref = profileBase ? `${profileBase}/${tile.id}` : null;
@@ -511,9 +738,28 @@ function TileCard({
               <Icon path={ICON.route} className="h-3 w-3" /> Route {tile.routeNumber}
             </span>
           ) : null}
+          {needsSupervisor ? (
+            <span className="oct-nosup" title="This person has no supervisor assigned">
+              <Icon path={ICON.warn} className="h-3 w-3" /> No supervisor
+            </span>
+          ) : null}
         </div>
         <div className="oct-sub">{[tile.title || tile.role, tile.branchLabel].filter(Boolean).join(" · ") || "—"}</div>
+        {reassignable ? (
+          <div className="oct-sub mt-0.5">Reports to: <span className="font-medium text-ink">{managerName ?? "— no supervisor —"}</span></div>
+        ) : null}
       </div>
+
+      {/* Reassign supervisor (super admins, edit-structure mode) */}
+      {reassignable ? (
+        <button
+          type="button"
+          onClick={onReassign}
+          className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-brand-300 bg-white px-2 py-1 text-[11px] font-semibold text-brand-700 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <Icon path={ICON.move} className="h-3 w-3" /> Change supervisor
+        </button>
+      ) : null}
 
       {/* Expand / collapse the saved info */}
       {showExpand ? (
@@ -851,5 +1097,8 @@ const CSS = `
 .oct-field { display: flex; flex-direction: column; gap: 2px; }
 .oct-input { width: 100%; border: 1px solid #D9DEDA; border-radius: 8px; background: #fff; padding: 5px 8px; font-size: 12px; color: #1D2A23; }
 .oct-input:focus-visible { outline: none; border-color: #4F8A5F; box-shadow: 0 0 0 2px rgba(79,138,95,.35); }
+.oct-nosup { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; border-radius: 999px; background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 600; padding: 2px 7px; white-space: nowrap; }
+.oct-modal-backdrop { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8,37,24,.45); }
+.oct-modal { width: 100%; max-width: 420px; max-height: 85vh; overflow: auto; border-radius: 16px; background: #fff; border: 1px solid #D9DEDA; padding: 16px; box-shadow: 0 24px 60px -20px rgba(8,37,24,.6); }
 @media (max-width: 720px) { .oct-tile { width: 100%; max-width: 100%; } }
 `;

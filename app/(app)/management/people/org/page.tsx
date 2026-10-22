@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, canEditAccessLevels } from "@/lib/auth";
 import { listOrgEmployees } from "@/lib/org";
 import { buildOrgTree, canEditOrgCards } from "@/lib/org-chart";
+import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
 import OrgConsole from "./OrgConsole";
@@ -40,6 +41,7 @@ export default async function OrgChartPage() {
           serviceTags: SERVICE_TAGS.map((t) => ({ key: t.key, label: t.label })),
           branches: BRANCHES.map((b) => ({ key: b.key, label: b.label })),
           canEditAll,
+          canReassign: canManageAccessRights(user),
           profileBase: "/management/people",
         }}
         employees={employees}

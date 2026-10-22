@@ -446,7 +446,7 @@ async function main() {
     try {
       const { attachRemainingReports } = await import("../prisma/seed-org-chart");
       const ar = await attachRemainingReports(prisma);
-      console.log(`deploy-db: org chart — attached ${ar.linked} remaining report(s) to a manager.`);
+      console.log(`deploy-db: org chart — repaired ${ar.repaired} dangling line(s), attached ${ar.linked} remaining report(s) to a manager.`);
     } catch (e) {
       console.error("deploy-db: org chart catch-all FAILED (non-fatal):", e);
     }

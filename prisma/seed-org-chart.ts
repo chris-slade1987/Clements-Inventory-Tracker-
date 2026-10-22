@@ -47,6 +47,25 @@ export async function seedOrgChart(prisma: PrismaClient) {
 export async function attachRemainingReports(prisma: PrismaClient) {
   const branches = ["vero", "stuart", "orlando", "naples"];
 
+  // Repair DANGLING lines first: if someone reports to a person who is no longer
+  // active (terminated) or was deleted, clear that link so the fill logic below
+  // re-homes them under an active manager — otherwise they render as a stray
+  // root ("no supervisor") on the chart even though reportsToId isn't null.
+  const activeIds = new Set(
+    (await prisma.employee.findMany({ where: { status: "active" }, select: { id: true } })).map((e) => e.id),
+  );
+  const linked0 = await prisma.employee.findMany({
+    where: { status: "active", NOT: { reportsToId: null } },
+    select: { id: true, reportsToId: true },
+  });
+  let repaired = 0;
+  for (const e of linked0) {
+    if (e.reportsToId && !activeIds.has(e.reportsToId)) {
+      await prisma.employee.update({ where: { id: e.id }, data: { reportsToId: null } });
+      repaired++;
+    }
+  }
+
   // The single company root: the President (Tim Slade) if present, else the
   // owner/COO login's profile — so the President never gets re-parented below.
   const tim = await prisma.employee.findFirst({
@@ -111,5 +130,5 @@ export async function attachRemainingReports(prisma: PrismaClient) {
     })).count;
   }
 
-  return { linked };
+  return { linked, repaired };
 }

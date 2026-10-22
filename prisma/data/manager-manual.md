@@ -263,6 +263,16 @@ everywhere at once, and you can revise or clear any field the same way. The role
 and operational fields also appear on the person's profile (under **Role &
 responsibilities** and **Operational profile**); edit them from the org chart.
 
+**Moving people around (super admins only).** Chris, Julie, and April can tap
+**Edit structure** above the chart to turn on move mode. Each card then shows who
+the person reports to and a **Change supervisor** button: tap it, search for the
+new supervisor (or choose **Top of org** for no supervisor), and you'll get a
+**confirmation pop-up** before anything saves. Saving updates that person's actual
+profile — their **supervisor** and the **team** they're on change right away, shown
+on their profile under **Reporting line**. Anyone without a supervisor is flagged
+with an amber **No supervisor** tag and a count, so they're easy to find and place.
+You can't create a loop (someone on a person's own team won't appear as an option).
+
 **Employee notes.** Each person has an attributed, timestamped **note log** on
 their HR profile (**People / HR → the person → Employee notes**). Managers, HR,
 and leadership can add notes; every note is stamped with the author and the
