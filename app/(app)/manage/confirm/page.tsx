@@ -8,9 +8,13 @@ import ConfirmQueue from "./ConfirmQueue";
 import OffCatalogList from "./OffCatalogList";
 import DuplicateClusters from "./DuplicateClusters";
 import ReviewAll from "./ReviewAll";
+import RejectedList from "./RejectedList";
 import ReviewTabs from "./ReviewTabs";
 
 export const dynamic = "force-dynamic";
+
+// Matches DISCARD_MARK in the confirm API + seed — the marker on a rejected product.
+const DISCARD_MARK = "Discarded from confirm queue";
 
 // Catalog Review — one place to consolidate the catalog into a single source of
 // truth: merge duplicate look-alikes, approve/merge/discard off-catalog items, and
@@ -19,10 +23,21 @@ export default async function CatalogReviewPage() {
   const user = await requireUser();
   if (user.role !== "admin" && !user.hrAccess) redirect("/dashboard");
 
-  const [pendingRaw, review] = await Promise.all([
+  const [pendingRaw, rejectedRaw, review] = await Promise.all([
     prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
+    prisma.product.findMany({ where: { active: false, notes: { contains: DISCARD_MARK } }, orderBy: { name: "asc" } }),
     catalogReview(),
   ]);
+
+  const rejectedNode = (
+    <RejectedList
+      products={rejectedRaw.map((p) => ({
+        id: p.id, name: p.name, unitLabel: uomLabel(p.unitOfMeasure), divisionLabel: divisionLabel(p.division),
+        distributorSku: p.distributorSku, manufacturer: p.manufacturer,
+        rejectedNote: (p.notes ?? "").match(/Discarded from confirm queue[^.]*\./i)?.[0] ?? null,
+      }))}
+    />
+  );
 
   const pendingNode = pendingRaw.length === 0 ? (
     <p className="text-sm text-muted">No auto-added products waiting to be confirmed.</p>
@@ -50,6 +65,7 @@ export default async function CatalogReviewPage() {
         { key: "duplicates", label: "Duplicates", count: review.clusters.length, node: <DuplicateClusters clusters={review.clusters} confirmedProducts={review.confirmedProducts} /> },
         { key: "offcatalog", label: "Off-catalog", count: review.offCatalog.length, node: <OffCatalogList products={review.offCatalog} confirmedProducts={review.confirmedProducts} /> },
         { key: "pending", label: "New products", count: pendingRaw.length, node: pendingNode },
+        { key: "rejected", label: "Rejected", count: rejectedRaw.length, node: rejectedNode },
       ]}
     />
   );

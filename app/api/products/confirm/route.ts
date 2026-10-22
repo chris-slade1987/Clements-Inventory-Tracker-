@@ -155,6 +155,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, discarded: id });
     }
 
+    // Restore a rejected product — undo an accidental reject. Reactivates and
+    // re-approves it back onto the catalog, standardizes the unit, and strips the
+    // discard marker so the deploy reconcile won't re-reject it.
+    if (action === "restore") {
+      const id = String(body?.id ?? "");
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      const existing = await prisma.product.findUnique({ where: { id } });
+      if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+      const notes = clean((existing.notes ?? "").replace(/Discarded from confirm queue[^.]*\.\s*/i, ""));
+      const unitOfMeasure = uomCode(existing.unitOfMeasure) ?? "EA";
+      await prisma.product.update({
+        where: { id },
+        data: { active: true, approved: true, confirmed: true, unitOfMeasure, notes },
+      });
+      return NextResponse.json({ ok: true, restored: id });
+    }
+
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return fail(e);
