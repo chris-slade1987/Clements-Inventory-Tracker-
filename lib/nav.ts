@@ -403,6 +403,10 @@ export const MANAGER_NAV: NavItem[] = [
     shortLabel: "Docs",
     icon: "M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM14 3v5h5M9 13h6M9 17h6",
   },
+  // Training Center — the certification program, courses, assignment, and reports.
+  // Moved here from Executive (COO decision): it's a Company-center function. The
+  // Certifications browse + hosted course launch live inside this hub as tabs.
+  TRAINING_CENTER_NAV_ITEM,
 ];
 
 export const INVENTORY_NAV: NavItem[] = [
@@ -494,7 +498,8 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Audits",
     icon: "M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4",
   },
-  TRAINING_CENTER_NAV_ITEM,
+  // NOTE: the Training Center (TRAINING_CENTER_NAV_ITEM) now lives in the Company
+  // center (MANAGER_NAV), not here under Executive — see that array.
   {
     href: "/management/people",
     label: "People / HR",

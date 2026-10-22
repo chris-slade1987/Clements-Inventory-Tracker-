@@ -253,6 +253,9 @@ export default function AppShell({
           ? "manager"
           : pathname.startsWith("/management/documents")
             ? "manager"
+          // Training Center + Certifications now live in the Company center.
+          : (pathname.startsWith("/management/training") || pathname.startsWith("/management/certifications"))
+            ? "manager"
           : (pathname.startsWith("/management") || pathname.startsWith("/executive"))
             ? "management"
           // The Sales Team hub lives in the My Branch / Company center (company-wide
