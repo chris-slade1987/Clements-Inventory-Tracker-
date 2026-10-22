@@ -262,14 +262,14 @@ async function main() {
       }
     });
 
-    // Load the July + August 2026 MBRs (from the Sept 2026 MBR / August financials).
-    // Same guarded, idempotent loader — only writes a period that's missing, so a
-    // later in-app upload/correction is never clobbered. July is derived where the
-    // source is YTD-only (production + P&L via YTD deltas); new-sales, attrition and
-    // book value are real monthly columns from the report. NON-FATAL each.
+    // Load the July + August + September 2026 MBRs (September from the Oct 2026 MBR /
+    // September financials). Same guarded, idempotent loader — only writes a period
+    // that's missing, so a later in-app upload/correction is never clobbered. July is
+    // derived where the source is YTD-only (production + P&L via YTD deltas); new-sales,
+    // attrition and book value are real monthly columns from the report. NON-FATAL each.
     try {
       const { seedMbrFromFile } = await import("../prisma/seed-mbr");
-      for (const base of ["mbr-2026-07", "mbr-2026-08"]) {
+      for (const base of ["mbr-2026-07", "mbr-2026-08", "mbr-2026-09"]) {
         const r = await seedMbrFromFile(prisma, base);
         console.log(
           r.skipped
