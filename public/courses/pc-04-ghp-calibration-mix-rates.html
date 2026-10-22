@@ -1,0 +1,1310 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PC-04 GHP Calibration &amp; Mix Rates</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* PC-04 GHP Calibration & Mix Rates: three-number flow, label table, sheet check, dose bars, catch-test timer, calculator, practice problems, spreader strip */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+.tstep{position:relative;background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:18px;display:grid;gap:6px;align-content:start}
+.tstep h3{font-size:17px}
+.tstep p{font-size:14px;color:var(--muted)}
+.tstep p b{color:var(--ink);font-weight:400}
+.tico{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center}
+.tstep:not(:last-child)::after{content:"";position:absolute;top:38px;right:-16px;width:16px;height:2px;background:var(--brand-400);transform-origin:left;transform:scaleX(0)}
+.slide.on .tstep:not(:last-child)::after{animation:grow .4s ease-in-out forwards;animation-delay:.6s}
+.slide.on .tstep:nth-child(2)::after{animation-delay:1s}
+
+.lt2{min-width:0;font-size:13px}
+.lt2 td,.lt2 th{padding:7px 10px}
+.lt2 td:first-child{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.lt2 th{text-transform:none;letter-spacing:.02em;font-size:12px;color:var(--brand-700)}
+.lt2 u{text-decoration:none;background:linear-gradient(transparent 60%,var(--brand-100) 60%)}
+.conv{min-width:0;font-size:14px}
+.conv td{padding:7px 12px}
+
+.sheet{display:grid;gap:6px}
+.sheet button{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:300;font-size:14px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sheet button small{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.sheet button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.sheet .st{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--pill);padding:2px 8px;border:1px solid var(--line);color:var(--muted)}
+.sheet .st.ok{color:var(--positive);border-color:#B9DCC6;background:#EAF5EE}
+.sheet .st.na{color:var(--muted)}
+.sheet .st.chk{color:var(--ink);border-color:var(--ink);background:var(--surface)}
+.sheet button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+
+.dose{display:grid;gap:14px}
+.drow{display:grid;grid-template-columns:130px 1fr 70px;gap:12px;align-items:center}
+.dlab b{display:block;font-size:15px}
+.dlab small{display:block;font-size:12px;color:var(--muted)}
+.dbar{position:relative;height:26px;background:var(--brand-50);border-radius:6px;overflow:visible}
+.dbar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--brand-500);border-radius:6px}
+.dbar i.over{background:linear-gradient(90deg,var(--brand-500) 0,var(--brand-500) 66.7%,var(--danger) 66.7%)}
+.slide.on .dbar i{animation:wbar .9s ease-in-out .3s forwards}
+.slide.on .drow:nth-child(2) .dbar i{animation-delay:.6s}
+@keyframes wbar{to{width:var(--w)}}
+.dmax{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--ink)}
+.dval{font-variant-numeric:tabular-nums;font-size:16px;text-align:right}
+.dkey{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.dmaxk{display:inline-block;width:0;height:16px;border-left:2px dashed var(--ink)}
+
+.steps.tight li{padding:8px 0;font-size:15px;gap:12px}
+.steps.tight .num{flex-basis:28px;height:28px;font-size:13px}
+.fcard{display:grid;gap:8px}
+.eq{font-size:15px;background:var(--brand-50);border-radius:8px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.eq b{font-weight:500;color:var(--brand-700)}
+.wex h3{font-size:16px;margin:4px 0 6px}
+.wex p{font-size:14px}
+.wex p b{color:var(--ink)}
+
+/* catch test */
+.calib{display:grid;gap:12px;justify-items:center}
+.cylwrap{display:flex;gap:14px;align-items:center;justify-content:center}
+.ring.sm{width:150px;height:150px}
+.cyl{width:84px;height:220px}
+.cbody{fill:none;stroke:var(--ink);stroke-width:1.4}
+.cfill{fill:var(--brand-300);opacity:.85}
+.ctick{stroke:var(--ink);stroke-width:1}
+.ctxt{font-family:var(--font);font-size:9px;fill:var(--muted)}
+.qrow{display:grid;grid-template-columns:1fr 120px;gap:12px;align-items:center;font-size:15px}
+.qrow input,.crow input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+.qrow input:disabled{background:var(--canvas)}
+.qrow input.ok,.crow input.ok{border-color:var(--positive);background:#EAF5EE}
+.qrow input.no{border-color:var(--danger);background:#FDEEEE}
+
+/* calculator */
+.calc{display:grid;gap:12px}
+.crow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.crow label{display:grid;gap:4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.crow input.bad{border-color:var(--danger)}
+.mxout{padding:20px 22px;gap:14px}
+.mxout .num-big{transition:opacity .18s ease-in-out}
+.pick button.ex{border-style:dashed}
+
+/* practice problems */
+.mpq{font-size:17px;line-height:1.45}
+.mpdots{display:flex;gap:6px;flex-wrap:wrap}
+.mpdots button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:13px;font-variant-numeric:tabular-nums}
+.mpdots button[aria-current="true"]{border-color:var(--brand-600);color:var(--brand-700)}
+.mpdots button.ok{background:var(--positive);border-color:var(--positive);color:#fff}
+.mprow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mprow input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;width:130px;font-variant-numeric:tabular-nums}
+.mprow .unit{color:var(--muted);font-size:14px}
+
+/* spreader */
+.strip{width:100%;height:auto}
+.sbed{fill:#ECEBE4;stroke:var(--brand-300);stroke-width:1}
+.gran{fill:var(--brand-700);opacity:0}
+.gran.on{opacity:.8;transition:opacity .15s}
+.walker circle{fill:none;stroke:var(--ink);stroke-width:1.4}
+.walker path{stroke:var(--ink);stroke-width:1.4}
+.walker{transition:transform 1.6s linear}
+#spGate button{padding:7px 13px}
+
+@media (max-width:860px){
+  .trio{grid-template-columns:1fr}
+  .tstep:not(:last-child)::after{display:none}
+  .drow{grid-template-columns:100px 1fr 56px}
+  .crow{grid-template-columns:1fr 1fr 1fr}
+  .qrow{grid-template-columns:1fr}
+  .lt2 td:first-child{white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){.dbar i{width:var(--w)}.tstep::after{transform:none}.walker{transition:none}}
+
+/* ppm bars */
+.ppm{display:grid;gap:8px;margin-top:10px}
+.pr{display:grid;grid-template-columns:64px 1fr 92px;gap:12px;align-items:center;font-variant-numeric:tabular-nums;font-size:15px}
+.pr b{font-weight:400;text-align:right}
+.pb{height:14px;background:var(--brand-50);border-radius:var(--pill);overflow:hidden}
+.pb i{display:block;height:100%;width:0;background:var(--grad-emerald);border-radius:var(--pill)}
+.slide.on .pb i{animation:wbar .8s ease-in-out .3s forwards}
+.slide.on .pr:nth-child(2) .pb i{animation-delay:.5s}.slide.on .pr:nth-child(3) .pb i{animation-delay:.7s}
+@media (prefers-reduced-motion:reduce){.pb i{width:var(--w)}}
+/* stats */
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;display:grid;gap:2px}
+.stat b{font-size:22px;font-weight:300;font-variant-numeric:tabular-nums}
+/* tighter practice rows */
+#mvSort .row{padding:6px 12px;font-size:14px;gap:10px;line-height:1.4}
+#mvSort .why{font-size:12px;line-height:1.3}
+#mvSort .opts button{padding:4px 10px;font-size:12px}
+#moOrder button{padding:7px 12px;font-size:14px}
+#moOrder button .num{flex:0 0 26px;height:26px}
+.cmini{font-size:14px;padding:10px 14px}
+.crow input{font-size:16px;letter-spacing:0;text-transform:none}
+.slide[data-cp] h2{font-size:clamp(22px,2.6vw,30px)}
+.slide[data-cp] .choice{padding:11px 16px}
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important}
+  .sheet button{grid-template-columns:1fr auto}
+  .sheet button small{grid-column:1;grid-row:2}
+  .sheet .st{grid-row:1/3;grid-column:2}
+  .cylwrap{flex-wrap:wrap}
+}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">PC-04 · Calibration &amp; Mix Rates</span></div>
+  </header>
+  <main class="stage" id="stage">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10"/><path d="M5 7h14"/><path d="M5 7l-3 6a3 3 0 006 0zM19 7l-3 6a3 3 0 006 0z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15h6M9 18h4"/></symbol>
+    <symbol id="i-beaker" viewBox="0 0 24 24"><path d="M6 3h12"/><path d="M7 3v15a3 3 0 003 3h4a3 3 0 003-3V3"/><path d="M7 8h3M7 12h4M7 16h3"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="8" height="3"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 17h.01M12 17h.01M15.5 17h.01"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 16a8 8 0 1116 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.2"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8v3M9.5 8v4M13 8v3M16.5 8v4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Pest Control · PC-04</span>
+        <h1 class="display a" style="--i:1">GHP Calibration &amp; Mix Rates</h1>
+        <p class="lead a" style="--i:2">How to read the rate off the label, calibrate your B&amp;G, backpack and spreader, and do the mixing math so every tank you carry is right.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw a" style="--i:2;max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 300 260" aria-hidden="true">
+        <path d="M60 70h70v150H60z"/>
+        <path d="M60 90h22M60 115h14M60 140h22M60 165h14M60 190h22"/>
+        <path d="M70 70v-14h50v14"/>
+        <path d="M130 100c22 0 30 10 30 30v40"/>
+        <path d="M160 170l40 22"/>
+        <path d="M200 192l14-8"/>
+        <path d="M214 184c10-6 24-8 36-4M216 192c12 0 24 4 34 12M214 198c8 6 14 16 18 26"/>
+        <rect x="176" y="44" width="62" height="86" rx="6"/>
+        <path d="M186 64h22M186 80h14M186 96h22M186 112h14"/>
+        <circle cx="96" cy="44" r="16"/>
+        <path d="M96 36v8l6 4"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-tag"/></svg><span>Find the mix rate, application volume and maximums on a label, and match them to the approved mix rate sheet</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span>Run a catch test and calculate your sprayer's output in fluid ounces per minute</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-ruler"/></svg><span>Time a measured test area and work out gallons of finished spray per 1,000 sq ft</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-calc"/></svg><span>Calculate how much concentrate goes in any tank for a target percent, and convert percent to ppm</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-scale"/></svg><span>Calibrate a hand spreader in pounds per 1,000 sq ft</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-beaker"/></svg><span>Measure with the right tools and mix a tank in the order the label requires</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:32px">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">The right product at the wrong rate is <span class="em">still wrong.</span></h2>
+        <p class="lead a" style="--i:2">The label rate is federal law. The only way to know you're applying it is to measure what goes in the tank and what comes out of the nozzle.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0;color:var(--danger);background:#FDEEEE"><svg class="ico"><use href="#i-alert"/></svg></div><div><h3>Over-application</h3><p>A FIFRA and Chapter 482 violation. More residue where kids and pets live, runoff toward canals and ponds, stains on stucco and paint, and wasted product.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-search"/></svg></div><div><h3>Under-application</h3><p>Pests survive, the customer calls back, and the survivors are the ones least affected by the product. A weak mix costs a second trip and the customer's trust.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The certified operator's name is on it</h3><p>Florida holds the certified operator in charge responsible for correct concentrations and formulations (482.152). Your math is their license.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: where the number comes from">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Where the number comes from</h1>
+        <p class="lead a" style="--i:2">Every rate you use starts on the label. Before you can calibrate or do the math, you need to know which number on the label you're working toward.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Three numbers on every label</li><li><span>02</span>Two real labels, side by side</li><li><span>03</span>The approved mix rate sheet</li><li><span>04</span>Practice: mix, volume or maximum?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 THREE NUMBERS -->
+  <section class="slide" data-label="Three numbers on every label">
+    <span class="eyebrow a">01 · Three numbers on every label</span>
+    <h2 class="a" style="--i:1">Concentrate, finished spray, treated area</h2>
+    <div class="trio a" style="--i:2">
+      <div class="tstep"><div class="tico"><svg class="ico"><use href="#i-beaker"/></svg></div><span class="eyebrow">Mix rate</span><h3>How strong the tank is</h3><p>Fl oz of product per gallon, or a percent dilution. <b>"0.33 to 1.0 fl oz per gallon of water."</b></p></div>
+      <div class="tstep"><div class="tico"><svg class="ico"><use href="#i-drop"/></svg></div><span class="eyebrow">Application volume</span><h3>How much spray hits the ground</h3><p>Gallons of finished spray per 1,000 sq ft or per linear foot. <b>"About 1.5 gallons per 1,000 sq ft."</b></p></div>
+      <div class="tstep"><div class="tico"><svg class="ico"><use href="#i-alert"/></svg></div><span class="eyebrow">Maximums</span><h3>The lines you can't cross</h3><p>Product per 1,000 sq ft, times per year, days between treatments, band size. <b>"Not more than 1 oz per 1,000 sq ft."</b></p></div>
+    </div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-calc"/></svg><span><b>Product on the ground = mix rate × application volume.</b> Mixing the tank right is only half the job. If your sprayer puts out too much, a perfect mix still goes over the label. That's why Part two is calibration.</span></div>
+  </section>
+
+  <!-- 6 TWO LABELS -->
+  <section class="slide" data-label="Two real labels">
+    <span class="eyebrow a">02 · Two real labels, side by side</span>
+    <h2 class="a" style="--i:1">The two liquids on the GHP approved sheet</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="lt2">
+        <thead><tr><th></th><th>CrossCheck Plus · EPA Reg. No. 10404-120</th><th>Taurus SC · EPA Reg. No. 53883-279</th></tr></thead>
+        <tbody>
+          <tr><td>Active ingredient</td><td>Bifenthrin 7.9% · CAUTION</td><td>Fipronil 9.1% · CAUTION</td></tr>
+          <tr><td>Exterior mix</td><td class="y">0.33 to 1.0 fl oz per gallon <u>of water</u> (0.02 to 0.06%)</td><td class="y">0.8 fl oz per gallon <u>of finished dilution</u> (0.06%), or 0.4 (0.03%)</td></tr>
+          <tr><td>Volume</td><td>Enough water for coverage</td><td>2 quarts per 160 linear ft, about 1.5 gal per 1,000 sq ft</td></tr>
+          <tr><td>Maximum</td><td>1 fl oz of product per 1,000 sq ft · repeat no more than once per 7 days</td><td>0.06%: 2 times per calendar year · 0.03%: 4 times</td></tr>
+          <tr><td>Where</td><td>Foundation up to 3 ft high, band up to 7 ft out on pervious surfaces · driveways, sidewalks, patios: spot or crack-and-crevice only</td><td>Band 1 ft up and 1 ft out · up to 18 in around doors, windows and other openings · not within 15 ft of fresh water or 60 ft of estuarine water</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted a" style="--i:3">Checked against the labels on EPA's Pesticide Product Label System: CrossCheck Plus label dated 09/15/2025, Taurus SC label dated 11/26/2019. Always read the label on the jug in your hand. It wins over this table.</p>
+  </section>
+
+  <!-- 7 APPROVED SHEET -->
+  <section class="slide" data-label="The approved mix rate sheet">
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · The approved mix rate sheet</span>
+        <h2 class="a" style="--i:1">Clements picks the rate. The label sets the limit.</h2>
+        <p class="a muted small" style="--i:2">The <b>Approved Products &amp; Mix Rates – GHP</b> sheet lists the products and rates Clements approves. Select each row to see how it checks out against the current label.</p>
+        <div class="sheet a" style="--i:3" id="sheetRows"></div>
+      </div>
+      <div class="grid" style="gap:10px;align-content:start">
+        <div class="card a" style="--i:3;min-height:178px" id="sheetDet"><span class="eyebrow">Select a row</span><p style="margin-top:6px">The sheet should never be higher than the label. It can choose a rate inside the label's range.</p></div>
+        <div class="callout warn a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>If the sheet and the label disagree, stop.</b> Mix at or below the label rate, and tell your supervisor so the certified operator can correct the sheet.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span>Sheet rotation: Taurus SC in April, May, October and November, CrossCheck Plus and granular otherwise; quarterly accounts get Taurus SC in March and September. <b>Monthly, that is four 0.06% Taurus SC applications; the label allows two.</b> After two this calendar year, use another approved product and tell your supervisor.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PRACTICE SORT -->
+  <section class="slide" data-label="Practice: mix, volume or maximum">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Mix rate, volume or maximum? <span class="muted" style="font-size:16px">Each line is quoted from one of the two labels.</span></h2>
+    <div class="sort a" style="--i:3" id="mvSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="mvCheck">Check my answers</button><span id="mvFb"></span></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: calibrating sprayers">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Calibrating your sprayers</h1>
+        <p class="lead a" style="--i:2">Two technicians can carry the same tank mix and put down very different amounts of product. Calibration tells you what your sprayer, your nozzle and your walking pace actually deliver.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Same mix, different dose</li><li><span>02</span>The calibration method</li><li><span>03</span>Practice: the calibration timer</li><li><span>04</span>B&amp;G vs. backpack</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 SAME MIX DIFFERENT DOSE -->
+  <section class="slide" data-label="Same mix, different dose">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Same mix, different dose</span>
+        <h2 class="a" style="--i:1">The mix was perfect. The dose wasn't.</h2>
+        <p class="a muted" style="--i:2">Both technicians mixed CrossCheck Plus at <b>1.0 fl oz per gallon</b>, the top of the label range, and treated the same 1,000 sq ft band. The label maximum is <b>1 fl oz of product per 1,000 sq ft</b>.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-calc"/></svg><span>Technician B has two legal fixes: lower the output (nozzle, pressure, pace) until it's 1 gallon per 1,000 sq ft, or lower the mix to 0.66 fl oz per gallon, which puts down 0.99 fl oz at 1.5 gallons.</span></div>
+      </div>
+      <div class="card dose a" style="--i:3">
+        <div class="drow"><div class="dlab"><b>Technician A</b><small>1.0 gal per 1,000 sq ft</small></div><div class="dbar"><i style="--w:66.7%"></i><span class="dmax" style="left:66.7%"></span></div><div class="dval">1.0 fl oz</div></div>
+        <div class="drow"><div class="dlab"><b>Technician B</b><small>1.5 gal per 1,000 sq ft</small></div><div class="dbar"><i class="over" style="--w:100%"></i><span class="dmax" style="left:66.7%"></span></div><div class="dval red">1.5 fl oz</div></div>
+        <div class="dkey"><span class="dmaxk"></span> Label maximum: 1 fl oz of product per 1,000 sq ft</div>
+        <p class="small muted" style="margin-top:6px">Product on the ground = 1.0 fl oz per gallon × gallons applied. Technician B is 50% over the label, without changing the mix.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 METHOD -->
+  <section class="slide" data-label="The calibration method">
+    <span class="eyebrow a">02 · The calibration method</span>
+    <h2 class="a" style="--i:1">Output per minute, then gallons per 1,000 sq ft</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:24px;align-items:start">
+      <ol class="steps tight a" style="--i:2">
+        <li><span class="num">1</span><span><b>Prep.</b> Clean water only in the tank. Check the screen, nozzle and gaskets. Charge the battery or pump to working pressure.</span></li>
+        <li><span class="num">2</span><span><b>Catch test.</b> Spray into a graduated container for 30 seconds. Double it for fl oz per minute. Do it three times and average.</span></li>
+        <li><span class="num">3</span><span><b>Mark a test area</b> like the real job, for example a 5 ft × 100 ft band (500 sq ft).</span></li>
+        <li><span class="num">4</span><span><b>Time yourself</b> spraying it at your normal pace, nozzle setting and band.</span></li>
+        <li><span class="num">5</span><span><b>Calculate</b> gallons per 1,000 sq ft and compare it to the label.</span></li>
+        <li><span class="num">6</span><span><b>Adjust and repeat</b> (pace, nozzle or pressure) until you hit it. Write the numbers down.</span></li>
+      </ol>
+      <div class="card fcard a" style="--i:3">
+        <span class="eyebrow">The math</span>
+        <div class="eq">fl oz used = <b>fl oz per min</b> × <b>minutes</b></div>
+        <div class="eq">gal per 1,000 sq ft = fl oz used ÷ sq ft × 1,000 ÷ 128</div>
+        <span class="eyebrow" style="margin-top:6px">Worked example</span>
+        <p class="small" style="color:var(--ink)">Catch test: 40 fl oz in 30 s = <b>80 fl oz per min</b>.<br>500 sq ft took 48 s = 0.8 min.<br>80 × 0.8 = 64 fl oz on 500 sq ft.<br>64 ÷ 500 × 1,000 = 128 fl oz = <b>1.0 gal per 1,000 sq ft</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 TIMER PRACTICE -->
+  <section class="slide" data-label="Practice: the calibration timer">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:24px;align-items:start">
+      <div class="card calib a" style="--i:1">
+        <div class="seg" id="calSpr" role="group" aria-label="Sprayer"><button type="button" id="calB" aria-pressed="true">B&amp;G handheld</button><button type="button" id="calP" aria-pressed="false">Electric backpack</button></div>
+        <div class="cylwrap">
+          <svg class="ring sm" viewBox="0 0 220 220" role="timer" aria-label="Catch test timer"><circle class="bg" cx="110" cy="110" r="96"/><circle class="fg" id="calRing" cx="110" cy="110" r="96" stroke-dasharray="603.2" stroke-dashoffset="0"/><text x="110" y="122" text-anchor="middle" id="calTxt">0:30</text><text class="sub" x="110" y="150" text-anchor="middle">CATCH TEST</text></svg>
+          <svg class="cyl" viewBox="0 0 90 220" aria-label="Graduated container, reads in fluid ounces"><g id="cylTicks"></g><rect class="cbody" x="20" y="14" width="46" height="196" rx="4"/><rect class="cfill" id="cylFill" x="21" y="209" width="44" height="0"/></svg>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center"><button type="button" class="btn primary" id="calStart">Start 30-second catch</button><button type="button" class="btn" id="calReset">Reset</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Practice · the calibration timer</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Run the catch test, then do the math</h2>
+        <p class="a muted small" style="--i:2">Pick a sprayer and start the timer. When it stops, read the container. Each mark is 2 fl oz.</p>
+        <div class="card a" style="--i:3;display:grid;gap:10px" id="calQ">
+          <label class="qrow" for="calA1"><span><b>1.</b> Your output in fl oz per minute</span><input id="calA1" inputmode="decimal" autocomplete="off" disabled placeholder="Run the test"></label>
+          <label class="qrow" for="calA2"><span><b>2.</b> <span id="calWalk">Then you sprayed a 500 sq ft test band.</span> Gallons per 1,000 sq ft?</span><input id="calA2" inputmode="decimal" autocomplete="off" disabled></label>
+          <div><button type="button" class="btn" id="calCheck" disabled>Check my answers</button></div>
+          <div id="calFb"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 B&G vs BACKPACK -->
+  <section class="slide" data-label="B&amp;G vs. backpack">
+    <span class="eyebrow a">04 · B&amp;G vs. backpack</span>
+    <h2 class="a" style="--i:1">Know what changes your output</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-gauge"/></svg></div><h3>B&amp;G handheld</h3><p>Compressed air. Pressure drops as you spray and as the tank empties, so output drops too. Pump back up to the same pressure you calibrated at. Never over-pump; it stresses the seals.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Electric backpack</h3><p>The pump holds steady pressure, but a low battery or a different pressure setting changes output. Calibrate on a full charge at the setting you use on the route.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Nozzle and pace</h3><p>A fan tip and a pin stream put out very different amounts. Labels call for a <b>low-pressure, coarse</b> spray outdoors. Walk the same pace every time.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span><b>Recalibrate</b> when you change a nozzle or tip, after any repair, when you change pressure settings, and any time the spray pattern looks off.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-drop"/></svg><span><b>Daily care keeps calibration honest.</b> Rinse and depressurize at the end of the day. A clogged screen or worn tip quietly changes your output.</span></div>
+    </div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: mixing math">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Mixing math</h1>
+        <p class="lead a" style="--i:2">A misplaced decimal point is the difference between a legal treatment and a violation. The math is simple once you know the units, and you can always check it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Measuring tools and units</li><li><span>02</span>Percent and ppm</li><li><span>03</span>The mix formula</li><li><span>04</span>Practice: the mix calculator</li><li><span>05</span>Practice: work the problems</li><li><span>06</span>Mixing order</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 TOOLS & UNITS -->
+  <section class="slide" data-label="Measuring tools and units">
+    <span class="eyebrow a">01 · Measuring tools and units</span>
+    <h2 class="a" style="--i:1">Measure it. Never eyeball it.</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-beaker"/></svg><span><b>Graduated measuring cup</b> marked in fl oz and mL, used only for pesticide. Read it on a level surface, at eye level.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>Syringe or small cylinder</b> for amounts under an ounce. A 0.4 fl oz dose is too small to read on a big cup.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-scale"/></svg><span><b>Scale</b> for granules. Weigh, don't scoop.</span></div>
+        <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-x"/></svg><span><b>Never</b> use kitchen spoons or cups, or take tools home. Rinse the measuring cup into the tank so all the product goes where it belongs.</span></div>
+      </div>
+      <div class="tablewrap a" style="--i:3">
+        <table class="conv">
+          <thead><tr><th>Unit</th><th>Equals</th></tr></thead>
+          <tbody>
+            <tr><td>1 gallon</td><td>128 fl oz · 4 quarts · 3,785 mL</td></tr>
+            <tr><td>1 quart</td><td>32 fl oz</td></tr>
+            <tr><td>1 fl oz</td><td>29.6 mL · 2 tablespoons</td></tr>
+            <tr><td>1 teaspoon</td><td>4.9 mL</td></tr>
+            <tr><td>1 lb</td><td>16 oz <b>by weight</b></td></tr>
+            <tr><td>1 gallon of water</td><td>about 8.34 lb</td></tr>
+            <tr><td>1,000 sq ft</td><td>a 10 ft × 100 ft area, or a 5 ft × 200 ft band</td></tr>
+          </tbody>
+        </table>
+        <p class="small muted" style="padding:8px 12px">Fl oz measures volume (liquids). Oz measures weight (granules). They are not interchangeable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 PERCENT & PPM -->
+  <section class="slide" data-label="Percent and ppm">
+    <span class="eyebrow a">02 · Percent and ppm</span>
+    <h2 class="a" style="--i:1">Two percents on every job</h2>
+    <div class="grid g2">
+      <div class="card a" style="--i:2"><span class="eyebrow">In the jug</span><h3 style="font-size:26px;margin:4px 0">7.9%</h3><p>The concentrate. The ingredient statement says CrossCheck Plus is 7.9% bifenthrin.</p></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">In your tank</span><h3 style="font-size:26px;margin:4px 0">0.06%</h3><p>The finished spray. The label's target dilution, about 130 times weaker than the jug.</p></div>
+    </div>
+    <div class="card a" style="--i:4">
+      <span class="eyebrow">Parts per million · 1% = 10,000 ppm</span>
+      <div class="ppm" id="ppmBars">
+        <div class="pr"><span>0.02%</span><div class="pb"><i style="--w:16%"></i></div><b>200 ppm</b></div>
+        <div class="pr"><span>0.06%</span><div class="pb"><i style="--w:48%"></i></div><b>600 ppm</b></div>
+        <div class="pr"><span>0.125%</span><div class="pb"><i style="--w:100%"></i></div><b>1,250 ppm</b></div>
+      </div>
+      <p class="small muted" style="margin-top:8px">To convert: multiply the percent by 10,000. ppm means parts of active ingredient per million parts of spray. Some labels and the SDS use ppm instead of percent.</p>
+    </div>
+  </section>
+
+  <!-- 19 FORMULA -->
+  <section class="slide" data-label="The mix formula">
+    <span class="eyebrow a">03 · The mix formula</span>
+    <h2 class="a" style="--i:1">When the label gives a percent</h2>
+    <div class="bar-forest a" style="--i:2;font-size:17px"><svg class="ico"><use href="#i-calc"/></svg><span><b>fl oz of concentrate = target % × gallons × 128 ÷ product %</b></span></div>
+    <div class="grid g3">
+      <div class="card wex a" style="--i:3"><span class="eyebrow">Example 1</span><h3>CrossCheck Plus at 0.06%, 1 gallon</h3><p>0.06 × 1 × 128 ÷ 7.9 = <b>0.97 fl oz</b>. The label rounds this to <b>1.0 fl oz</b>.</p></div>
+      <div class="card wex a" style="--i:4"><span class="eyebrow">Example 2</span><h3>CrossCheck Plus at 0.02%, 4-gallon backpack</h3><p>0.02 × 4 × 128 ÷ 7.9 = 1.30 fl oz. The label's 0.33 per gallon × 4 = <b>1.32 fl oz</b>.</p></div>
+      <div class="card wex a" style="--i:5"><span class="eyebrow">Example 3</span><h3>Taurus SC at 0.06%, 1 gallon</h3><p>The formula gives 0.84 fl oz. The label says <b>0.8 fl oz</b>, because its percent is by weight. Use the label's number.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-book"/></svg><span><b>When the label gives fl oz per gallon, use it</b>, multiplied by your tank size. The formula is for checking, and for labels that only give a percent.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-beaker"/></svg><span><b>"Per gallon of water" or "of finished dilution"?</b> CrossCheck Plus goes into a gallon of water. Taurus SC is topped up to make one gallon. Follow the wording.</span></div>
+    </div>
+  </section>
+
+  <!-- 20 CALCULATOR -->
+  <section class="slide" data-label="Practice: the mix calculator">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Practice · the mix calculator</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Product %, target %, tank size</h2>
+        <p class="a muted small" style="--i:2">Pick a product or enter your own numbers. The calculator uses fl oz = target % × gallons × 128 ÷ product %, then checks the answer against the label. Load an example to see the worked examples from the last slide.</p>
+        <div class="card calc a" style="--i:2">
+          <div class="pick" id="mxPre" aria-label="Load a product"></div>
+          <div class="crow">
+            <label for="mxP">Product %<input id="mxP" inputmode="decimal" value="7.9" autocomplete="off"></label>
+            <label for="mxT">Target %<input id="mxT" inputmode="decimal" value="0.06" autocomplete="off"></label>
+            <label for="mxG">Tank (gal)<input id="mxG" inputmode="decimal" value="1" autocomplete="off"></label>
+          </div>
+          <div class="pick" id="mxEx"></div>
+        </div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="phone mxout">
+          <div class="row"><span class="lbl">Concentrate to add</span><span class="num-big" id="mxOz">0.97 fl oz</span><span class="small" style="color:var(--mint)" id="mxMl">28.7 mL</span></div>
+          <div class="row"><span class="lbl">Finished spray strength</span><span id="mxPpm" style="font-size:18px">0.06% · 600 ppm</span></div>
+        </div>
+        <div id="mxNote"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 MATH PRACTICE -->
+  <section class="slide" data-label="Practice: work the problems">
+    <div class="split" style="grid-template-columns:1.1fr .9fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">05 · Practice · work the problems</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Eight problems you'll meet on the route</h2>
+        <div class="card a" style="--i:2;display:grid;gap:10px" id="mpBox"></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="mpdots" id="mpDots"></div>
+        <div class="card" style="display:grid;gap:6px"><span class="eyebrow">Keep handy</span><p class="small" style="color:var(--ink)">fl oz = target % × gal × 128 ÷ product %<br>ppm = % × 10,000<br>gal per 1,000 = fl oz used ÷ sq ft × 1,000 ÷ 128<br>lb per 1,000 = lb used ÷ sq ft × 1,000<br>1 fl oz = 29.6 mL</p></div>
+        <p class="small muted">Answers within a small rounding margin count. Work it on paper first, the way you will on the truck.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 MIXING ORDER -->
+  <section class="slide" data-label="Mixing order">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">06 · Mixing order · select the steps in order</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Mix a backpack load in order</h2>
+                <div class="order a" style="--i:3" id="moOrder"></div>
+        <div id="moFb"></div>
+      </div>
+      <div class="grid" style="gap:10px;align-content:start">
+        <div class="callout cmini a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span><b>The Taurus SC label:</b> fill the tank 1/4 to 1/3 with water, add the product, then add water while agitating to the final volume.</span></div>
+        <div class="callout cmini a" style="--i:4"><svg class="ico"><use href="#i-beaker"/></svg><span><b>Tank mixes</b> only when both labels allow it and your supervisor approves. CrossCheck Plus lists the order: wettable powders, then liquids and flowables, then emulsifiable concentrates, agitating after each.</span></div>
+        <div class="callout cmini a" style="--i:5"><svg class="ico"><use href="#i-clock"/></svg><span><b>Mix only what you'll use today.</b> CrossCheck Plus says not to let a tank mix stand overnight.</span></div>
+        <div class="callout cmini danger a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span>Mix away from storm drains, wells and water. Wear the label PPE, with goggles when pouring concentrate (FC-03). Spill: the 3 Cs and your supervisor (FC-05).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: granules and the route">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Granules and the daily routine</h1>
+        <p class="lead a" style="--i:2">Granular rates are set by weight over area. A spreader that dumps or starves product is just as far off the label as a bad tank mix.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Calibrating a hand spreader</li><li><span>02</span>Practice: dial in the spreader</li><li><span>03</span>Calibration on the route</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 GRANULAR -->
+  <section class="slide" data-label="Calibrating a hand spreader">
+    <span class="eyebrow a">01 · Calibrating a hand spreader</span>
+    <h2 class="a" style="--i:1">Pounds per 1,000 sq ft</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:24px;align-items:start">
+      <ol class="steps tight a" style="--i:2">
+        <li><span class="num">1</span><span><b>Weigh</b> the spreader with product in it, or weigh the product you load.</span></li>
+        <li><span class="num">2</span><span><b>Set the gate</b> to the starting setting from the label or spreader chart.</span></li>
+        <li><span class="num">3</span><span><b>Spread a measured strip,</b> for example 5 ft × 50 ft (250 sq ft), at your normal pace and crank speed.</span></li>
+        <li><span class="num">4</span><span><b>Weigh again.</b> The difference is what you applied.</span></li>
+        <li><span class="num">5</span><span><b>Calculate:</b> lb used ÷ sq ft × 1,000. Open or close the gate and repeat until you're in the label range.</span></li>
+      </ol>
+      <div class="grid" style="gap:10px">
+        <div class="card fcard a" style="--i:3"><span class="eyebrow">Worked example</span><p class="small" style="color:var(--ink)">Before 5.00 lb, after 4.55 lb = 0.45 lb used.<br>0.45 ÷ 250 × 1,000 = <b>1.8 lb per 1,000 sq ft</b>.<br>Job: a 3 ft band around 180 ft of foundation = 540 sq ft. At 2 lb per 1,000, that's 1.08 lb.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span>Keep granules off driveways, patios and walks. Blow them back into the bed, and keep them away from storm drains.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 SPREADER PRACTICE -->
+  <section class="slide" data-label="Practice: dial in the spreader">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Practice · dial in the spreader</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Get into the label range</h2>
+        <p class="a muted small" style="--i:2">Training specimen granule. Label range: <b>2 to 4 lb per 1,000 sq ft</b>. Test strip: 250 sq ft. Choose a gate setting, spread the strip, then calculate the rate.</p>
+        <div class="card a" style="--i:3;display:grid;gap:10px">
+          <div class="seg" id="spGate" role="group" aria-label="Gate setting"></div>
+          <svg class="strip" viewBox="0 0 400 70" aria-hidden="true"><rect class="sbed" x="10" y="20" width="380" height="34" rx="4"/><g id="spDots"></g><g id="spWalker" class="walker"><circle cx="0" cy="12" r="6"/><path d="M0 18v14"/></g></svg>
+          <div><button type="button" class="btn primary" id="spGo">Spread the test strip</button></div>
+        </div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="grid g2" style="gap:10px"><div class="stat"><span class="eyebrow">Scale before</span><b id="spB">5.00 lb</b></div><div class="stat"><span class="eyebrow">Scale after</span><b id="spA">–</b></div></div>
+        <label class="qrow card" for="spIn"><span>Your rate in lb per 1,000 sq ft</span><input id="spIn" inputmode="decimal" autocomplete="off" disabled placeholder="Spread first"></label>
+        <div><button type="button" class="btn" id="spChk" disabled>Check</button></div>
+        <div id="spFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 ON THE ROUTE -->
+  <section class="slide" data-label="Calibration on the route">
+    <span class="eyebrow a">03 · Calibration on the route</span>
+    <h2 class="a" style="--i:1">The habits that keep every tank legal</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-tag"/></svg></div><h3>Read every new jug</h3><p>Labels change. Check the rate on each new container against the approved sheet before you mix from it.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Plan the tank</h3><p>Mix for the stops you have. Leftover spray goes on a labeled site at or below the label rate. Never in a drain or on the ground.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Record the real amount</h3><p>Florida requires the product and amount on the service record (5E-14.142). Enter what you actually used in PestPac Mobile.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-calc"/></svg></div><h3>Know your numbers</h3><p>Your fl oz per minute, your gallons per 1,000 sq ft, your spreader setting. Keep them with your equipment.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-search"/></svg></div><h3>Count the year</h3><p>Taurus SC at 0.06% is limited to 2 applications per calendar year. Check the service history before a callback.</p></div>
+      <div class="card a" style="--i:7"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>Unsure? Ask</h3><p>Product choice, rates and formulations belong to the certified operator. Call your supervisor before you guess.</p></div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on the truck</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before PC-04 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Read the mix rate, volume and maximums off each liquid label on your truck, and match them to the approved sheet</label></li>
+      <li><label><input type="checkbox" id="f2"> Run a 30-second catch test on your B&amp;G and your backpack, and calculate fl oz per minute</label></li>
+      <li><label><input type="checkbox" id="f3"> Time a measured test band and calculate gallons per 1,000 sq ft</label></li>
+      <li><label><input type="checkbox" id="f4"> Show that your output and mix stay within the label's maximum product per 1,000 sq ft</label></li>
+      <li><label><input type="checkbox" id="f5"> Mix a backpack load in the correct order, with the right measuring tool and PPE</label></li>
+      <li><label><input type="checkbox" id="f6"> Work three mixing problems on paper: fl oz for a target %, ppm, and scaling to tank size</label></li>
+      <li><label><input type="checkbox" id="f7"> Calibrate the hand spreader on a measured strip and calculate lb per 1,000 sq ft</label></li>
+      <li><label><input type="checkbox" id="f8"> Record the product and the amount actually used on a service record</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('pc04:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('pc04:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "PC-04", "titleHtml": "GHP Calibration &amp; Mix Rates", "nextHtml": "PC-05 \u00b7 Initial Service Standard", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Where the number comes from',q:'An account got Taurus SC at 0.06% in April and October. In November the rotation lists Taurus SC again. What do you do?',o:['Apply Taurus SC at 0.06%, because the rotation lists it','Apply Taurus SC, but only around doors and windows','No more Taurus SC this calendar year. Use another approved product, such as CrossCheck Plus, and confirm with your supervisor','Mix Taurus SC at half rate so it doesn\'t count'],a:2,e:'At 0.06% the Taurus SC label allows 2 applications per calendar year. After two 0.06% applications, no scenario on the label allows another Taurus SC application this year, at either rate. The rotation is a plan; the label is the law.'},
+    2:{t:'Checkpoint 2 · Calibrating sprayers',q:'Output: 60 fl oz per minute. A 500 sq ft test band takes 1 min 36 s. You plan CrossCheck Plus at 1.0 fl oz per gallon. The right call?',o:['Go ahead. 1.0 fl oz per gallon is in the label range','That\'s 1.5 gal per 1,000 sq ft, or 1.5 fl oz of product. Lower your output, or mix 0.66 fl oz per gallon or less','That\'s 0.75 gal per 1,000 sq ft, so add more product','Calibration only matters for lawn spray rigs'],a:1,e:'60 × 1.6 minutes = 96 fl oz on 500 sq ft, or 192 fl oz (1.5 gallons) per 1,000 sq ft. At 1.0 fl oz per gallon that\'s 1.5 fl oz of product, over the label\'s 1 fl oz per 1,000 sq ft maximum.'},
+    3:{t:'Checkpoint 3 · Mixing math',q:'Your backpack holds 4 gallons. The approved sheet and the label say Taurus SC at 0.8 fl oz per gallon of finished dilution. How do you mix it?',o:['Pour 3.2 fl oz into the empty tank, then fill with water','Fill 4 gallons of water, then add 3.2 fl oz','Add 8 fl oz to 4 gallons so the mix lasts longer','Fill the tank 1/4 to 1/3 with water, add 3.2 fl oz, then top up to 4 gallons while agitating'],a:3,e:'0.8 × 4 = 3.2 fl oz. "Finished dilution" means the total ends at 4 gallons, and the label says water first, then product, then top off while agitating.'},
+    4:{t:'Checkpoint 4 · Granules and the route',q:'Calibrating a specimen granule labeled 2 to 4 lb per 1,000 sq ft, your spreader used 1.25 lb on a 250 sq ft test strip. What now?',o:['Stop. That\'s 5 lb per 1,000 sq ft, over the label. Close the gate and test again before treating','It\'s 1.25 lb per 1,000 sq ft. Open the gate','It\'s close enough. Walk faster on the job','It\'s 0.5 lb per 1,000 sq ft. Double the gate setting'],a:0,e:'1.25 ÷ 250 × 1,000 = 5 lb per 1,000 sq ft, above the 4 lb maximum. Recalibrate on a test strip until you\'re inside the label range.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Which number on a label tells you how strong your tank should be?',o:['The application volume','The mix rate','The re-entry statement','The signal word'],a:1,e:'The mix rate (fl oz per gallon, or a percent dilution) sets the strength of the finished spray. The volume sets how much of it goes on the area.'},
+    {k:'Multiple choice',q:'What is the most CrossCheck Plus concentrate the label allows per 1,000 sq ft?',o:['3 fl oz','0.33 fl oz','1.5 fl oz','1 fl oz'],a:3,e:'"Do not apply more than 1 oz. of this product per 1000 square feet." That limit is why your output matters as much as your mix.'},
+    {k:'True or false',q:'If the approved mix rate sheet and the current label disagree, follow the sheet because Clements approved it.',o:['True','False'],a:1,e:'The label is the law. Mix at or below the label rate and tell your supervisor so the sheet gets corrected.'},
+    {k:'Multiple choice',q:'At the 0.06% rate, how many times per calendar year does the Taurus SC label allow a perimeter application?',o:['2','1','4','No limit'],a:0,e:'0.06%: 2 times per calendar year. 0.03%: 4 times. Or 0.03% twice and 0.06% once.'},
+    {k:'Scenario',q:'Your catch test collects 18 fl oz in 30 seconds. What is your output?',o:['9 fl oz per minute','18 fl oz per minute','36 fl oz per minute','54 fl oz per minute'],a:2,e:'30 seconds is half a minute, so double it: 18 × 2 = 36 fl oz per minute.'},
+    {k:'Scenario',q:'Your output is 60 fl oz per minute, and you spray a 500 sq ft test band in 64 seconds. How many gallons per 1,000 sq ft are you applying?',o:['1.0 gallon','0.5 gallon','2.0 gallons','0.75 gallon'],a:0,e:'60 × 64 ÷ 60 = 64 fl oz on 500 sq ft = 128 fl oz per 1,000 sq ft. 128 fl oz is 1 gallon.'},
+    {k:'Multiple choice',q:'A 0.06% dilution is how many parts per million?',o:['6 ppm','60 ppm','6,000 ppm','600 ppm'],a:3,e:'Multiply the percent by 10,000: 0.06 × 10,000 = 600 ppm.'},
+    {k:'Scenario',q:'The rate is 1 fl oz per gallon and your backpack holds 4 gallons. How much concentrate do you add?',o:['0.25 fl oz','1 fl oz','4 fl oz','12.8 fl oz'],a:2,e:'Rate per gallon × gallons: 1 × 4 = 4 fl oz.'},
+    {k:'Multiple choice',q:'When a label gives only a target percent, which formula gives the fl oz of concentrate?',o:['Product % × gallons ÷ target %','Target % ÷ product % × gallons','Gallons × 128 ÷ target %','Target % × gallons × 128 ÷ product %'],a:3,e:'fl oz = target % × gallons × 128 ÷ product %. The 128 converts gallons to fluid ounces.'},
+    {k:'True or false',q:'Fluid ounces and ounces by weight are interchangeable when you measure pesticide.',o:['True','False'],a:1,e:'Fluid ounces measure volume (liquids). Ounces measure weight (granules). Use the unit on the label.'},
+    {k:'Scenario',q:'You calibrated your B&G at full pressure. Halfway through an interior, the spray is noticeably weaker. What is happening, and what do you do?',o:['Nothing is wrong. Keep spraying','Pressure has dropped, so output has dropped. Pump back up to the pressure you calibrated at','Add more concentrate to make up for it','Switch to a pin stream for the rest of the house'],a:1,e:'A compressed-air sprayer loses pressure as you spray. Re-pump to your calibrated pressure to keep the output you measured, without over-pumping.'},
+    {k:'Multiple choice',q:'When should you recalibrate a sprayer?',o:['Once a year only','Only when your supervisor asks','After changing a nozzle or tip, after a repair, when you change pressure settings, or when the pattern looks off','Never. Sprayers come calibrated from the factory'],a:2,e:'Anything that changes output changes your dose. Recalibrate whenever the equipment or settings change.'},
+    {k:'Scenario',q:'You need 1 gallon of Taurus SC at 0.8 fl oz per gallon of finished dilution in your B&G. How do you mix it?',o:['Pour 0.8 fl oz into the empty tank, then fill with water','Add 0.8 fl oz to a full gallon of water','Add 1 fl oz, to be safe','Fill 1/4 to 1/3 with water, add 0.8 fl oz, then top up to 1 gallon while agitating'],a:3,e:'That is the label\'s own mixing direction. Water first keeps concentrate from sitting undiluted, and "finished dilution" means the total ends at 1 gallon.'},
+    {k:'Scenario',q:'Your hand spreader used 0.6 lb on a 250 sq ft test strip. What rate is it applying?',o:['2.4 lb per 1,000 sq ft','0.6 lb per 1,000 sq ft','1.5 lb per 1,000 sq ft','6.0 lb per 1,000 sq ft'],a:0,e:'0.6 ÷ 250 × 1,000 = 2.4 lb per 1,000 sq ft.'},
+    {k:'Multiple choice',q:'Which is the right tool for measuring 0.4 fl oz of concentrate?',o:['A syringe or small graduated cylinder used only for pesticide','A kitchen teaspoon','The 32 oz mixing cup','The jug cap, filled about halfway'],a:0,e:'Small doses need a small, accurate tool. Kitchen utensils never touch pesticide, and caps are not measuring devices.'},
+    {k:'True or false',q:'A perfectly mixed tank can still put you over the label if your sprayer applies too much volume.',o:['True','False'],a:0,e:'Product on the ground = mix rate × volume applied. That\'s why you calibrate, not just mix.'},
+    {k:'Scenario',q:'For Taurus SC at 0.06%, the percent formula gives 0.84 fl oz per gallon, but the label says 0.8. Which do you use?',o:['0.84, because it\'s more precise','0.8, the label\'s number','0.82, the average','1.0, to be safe'],a:1,e:'The label\'s percent is by weight and its mixing table already accounts for that. When the label gives fl oz, mix the label\'s number.'},
+    {k:'Multiple choice',q:'What usually happens when a tank is mixed too weak?',o:['Nothing. Weaker is always safer','Nothing changes for the customer','It\'s a FIFRA violation for using too little','Pests survive, the customer calls back, and the survivors are the ones least affected by the product'],a:3,e:'Using less than the label maximum is legal, but too weak a mix costs a callback and can build tolerance.'},
+    {k:'Scenario',q:'At your last stop you have about a quart of mixed perimeter spray left. What do you do with it?',o:['Pour it into a storm drain at the shop','Leave it in the tank overnight for tomorrow','Apply it to a site the label lists, at or below the label rate','Dump it on the gravel behind the shop'],a:2,e:'Use it up on a labeled site at or below the label rate, and plan tomorrow\'s mix so less is left. CrossCheck Plus says not to let a tank mix stand overnight.'},
+    {k:'Scenario',q:'You apply 1.5 gallons per 1,000 sq ft and can\'t lower your output today. What is the highest CrossCheck Plus mix that keeps you within the 1 fl oz per 1,000 sq ft maximum?',o:['0.33 fl oz per gallon','0.66 fl oz per gallon','1.0 fl oz per gallon','1.5 fl oz per gallon'],a:1,e:'1 fl oz ÷ 1.5 gallons = 0.67 fl oz per gallon at most. 0.66 × 1.5 = 0.99 fl oz per 1,000 sq ft.'}
+  ];
+
+  /* ---------- helpers ---------- */
+  function num(v){v=String(v).replace(/,/g,'').trim();if(v==='')return NaN;return Number(v)}
+  function fmt(n,d){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+
+  /* ---------- approved sheet vs label ---------- */
+  var SHEET=[
+    {p:'CrossCheck Plus liquid',r:'0.33 to 1 oz per gal',s:'ok',st:'Matches',h:'Matches the current label',d:'Label (09/15/2025): 0.33 to 1.0 fl oz per gallon of water, a 0.02 to 0.06% dilution, outside and indoors. The label adds limits the sheet doesn\'t show: no more than 1 fl oz of product per 1,000 sq ft, repeat outdoors no more than once per 7 days, and for bed bugs use 0.06% on painted and non-porous surfaces.'},
+    {p:'Taurus SC liquid',r:'0.8 oz per gal',s:'chk',st:'Count the year',h:'Rate matches. The rotation can exceed the yearly limit',d:'Label (11/26/2019): 0.8 fl oz per gallon of finished dilution is the 0.06% rate, exterior perimeter only. At 0.06% the label allows 2 applications per calendar year (4 at 0.03%), in a band 1 ft up and 1 ft out from the foundation, plus up to 18 inches around doors, windows and other openings. The sheet\'s rotation lists Taurus SC in four months, so a monthly account would pass the limit. Stop at two 0.06% applications per year.'},
+    {p:'Cross Check 0-0-7 granular',r:'3.33 to 6.66 lb per 1,000 sq ft',s:'chk',st:'Read the bag',h:'Not verified in this course',d:'We could not match this exact product and EPA Reg. No. to a current label, so this course does not teach the number. Read the rate on the bag in your truck and confirm it matches the sheet before you calibrate the spreader to it.'},
+    {p:'Gentrol IGR',r:'1 oz per gal',s:'chk',st:'Read the label',h:'Not verified in this course',d:'Added to the B&G for roaches. Confirm the rate on the current label before you mix, and check that the label allows it in the tank with the other product you\'re using.'},
+    {p:'Gels, aerosols, bait blocks',r:'Ready to use',s:'na',st:'No mixing',h:'Ready to use',d:'Nothing to mix. The label still sets the amount: placement size and spacing for gels, crack-and-crevice only for aerosols, and the number of blocks per station.'}
+  ];
+  var shBox=$('#sheetRows'), shSeen={};
+  SHEET.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='sh'+i;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span>'+r.p+'</span><small>'+r.r+'</small><span class="st '+r.s+'">'+r.st+'</span>';
+    b.addEventListener('click',function(){$$('button',shBox).forEach(function(x){x.setAttribute('aria-pressed',x===b)});b.classList.add('seen');shSeen[i]=1;
+      $('#sheetDet').innerHTML='<span class="eyebrow">'+r.p+' · sheet: '+r.r+'</span><h3 style="margin:6px 0">'+r.h+'</h3><p>'+r.d+'</p>';});
+    shBox.appendChild(b)});
+
+  /* ---------- mix / volume / maximum sort ---------- */
+  var MV=[
+    {q:'"0.33 to 1.0 fl oz of this product per gallon of water"',a:'Mix',w:'Product per gallon tells you how strong the tank is.'},
+    {q:'"Approximately 1.5 gallons finished spray per 1,000 square feet"',a:'Volume',w:'Gallons of finished spray per area is the application volume.'},
+    {q:'"Do not apply more than 1 oz. of this product per 1,000 square feet"',a:'Maximum',w:'A cap on product per area is a maximum.'},
+    {q:'"0.06% dilution"',a:'Mix',w:'A percent dilution describes the strength of the finished spray.'},
+    {q:'"0.06%: 2 times per calendar year"',a:'Maximum',w:'A limit on how often you may apply is a maximum.'},
+    {q:'"Apply 2 quarts of finished dilution per 160 linear feet"',a:'Volume',w:'Spray per linear foot is an application volume.'},
+    {q:'"Repeat applications are limited to no more than once per seven days"',a:'Maximum',w:'A minimum interval between treatments is a maximum frequency.'},
+    {q:'"Add 0.8 fluid ounces per gallon of finished dilution"',a:'Mix',w:'Product per gallon is a mix rate.'}
+  ];
+  var mvb=$('#mvSort'), mvSel={};
+  MV.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='mvrow'+i;
+    r.innerHTML='<span>'+s.q+'</span><span class="opts">'+['Mix','Volume','Maximum'].map(function(o){return '<button type="button" aria-pressed="false" data-v="'+o+'" id="mv'+i+o[0]+'">'+o+'</button>'}).join('')+'</span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){mvSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+    mvb.appendChild(r)});
+  $('#mvCheck').addEventListener('click',function(){var right=0,blank=0;
+    MV.forEach(function(s,i){var r=$('#mvrow'+i),w=$('.why',r);if(w)w.remove();
+      if(!mvSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=mvSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.firstChild.appendChild(d);}});
+    $('#mvFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===MV.length?'<span class="fb" style="display:inline-block">All eight correct. Mix rate sets the tank, volume sets the spray, maximums set the limits.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes in red and try again.</span>');
+  });
+
+  /* ---------- calibration timer ---------- */
+  var CAL={B:[{o:24,t:80},{o:32,t:60},{o:36,t:64},{o:28,t:96}],P:[{o:64,t:60},{o:80,t:48},{o:72,t:80},{o:88,t:48}]};
+  var calKind='B', calRun=null, calCase=null, calInt=null, calLeft=30, calN={B:0,P:0};
+  var CMAX=24, CY0=209, CH=194;
+  function ticks(){CMAX=calKind==='B'?24:48;var lab=calKind==='B'?4:8;var g=$('#cylTicks'),h='';for(var v=0;v<=CMAX;v+=2){var y=CY0-v/CMAX*CH;var big=v%lab===0;h+='<line class="ctick" x1="'+(big?50:58)+'" x2="66" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/>';if(big)h+='<text class="ctxt" x="'+(v>=10?2:8)+'" y="'+(y+3).toFixed(1)+'">'+v+'</text>';}g.innerHTML=h;}
+  ticks();
+  var CC=603.2;
+  function calRender(){$('#calTxt').textContent='0:'+(calLeft<10?'0':'')+calLeft;$('#calRing').setAttribute('stroke-dashoffset',(CC*(1-calLeft/30)).toFixed(1));
+    var v=calCase?calCase.o/2*(30-calLeft)/30:0;var h=v/CMAX*CH;$('#cylFill').setAttribute('y',(CY0-h).toFixed(1));$('#cylFill').setAttribute('height',h.toFixed(1));}
+  function calResetAll(){clearInterval(calInt);calInt=null;calLeft=30;calCase=null;calRender();
+    ['#calA1','#calA2'].forEach(function(s){var x=$(s);x.value='';x.disabled=true;x.classList.remove('ok','no')});$('#calA1').placeholder='Run the test';$('#calCheck').disabled=true;$('#calFb').innerHTML='';$('#calWalk').textContent='Then you sprayed a 500 sq ft test band.';$('#calStart').disabled=false;}
+  function calPick(k){calKind=k;ticks();$('#calB').setAttribute('aria-pressed',k==='B');$('#calP').setAttribute('aria-pressed',k==='P');calResetAll();}
+  $('#calB').addEventListener('click',function(){calPick('B')});
+  $('#calP').addEventListener('click',function(){calPick('P')});
+  $('#calReset').addEventListener('click',calResetAll);
+  $('#calStart').addEventListener('click',function(){if(calInt)return;calResetAll();var L=CAL[calKind];calCase=L[calN[calKind]%L.length];calN[calKind]++;$('#calStart').disabled=true;
+    calInt=setInterval(function(){calLeft--;calRender();if(calLeft<=0){clearInterval(calInt);calInt=null;calDone();}},1000);calRender();});
+  function calDone(){$('#calA1').disabled=false;$('#calA1').placeholder='fl oz / min';$('#calA2').disabled=false;$('#calA2').placeholder='gal / 1,000';$('#calCheck').disabled=false;
+    $('#calWalk').textContent='Spraying the 500 sq ft test band took '+calCase.t+' seconds.';$('#calStart').disabled=false;$('#calA1').focus({preventScroll:true});}
+  $('#calCheck').addEventListener('click',function(){var c=calCase;if(!c)return;var a1=num($('#calA1').value),a2=num($('#calA2').value);
+    var g=c.o*c.t/60/500*1000/128, ok1=Math.abs(a1-c.o)<0.5, ok2=Math.abs(a2-g)<0.03;
+    $('#calA1').classList.toggle('ok',ok1);$('#calA1').classList.toggle('no',!ok1);$('#calA2').classList.toggle('ok',ok2);$('#calA2').classList.toggle('no',!ok2);
+    var used=c.o*c.t/60;
+    var work='The container read '+fmt(c.o/2,0)+' fl oz in 30 s, so '+c.o+' fl oz per minute. '+c.o+' × '+c.t+' ÷ 60 = '+fmt(used,1)+' fl oz on 500 sq ft, which is '+fmt(used*2,1)+' fl oz per 1,000 sq ft ÷ 128 = <b>'+fmt(g,2)+' gal per 1,000 sq ft</b>.';
+    var mx=g>1?' At this output, CrossCheck Plus at 1.0 fl oz per gallon would put down '+fmt(g,2)+' fl oz per 1,000 sq ft, over the label\'s 1 fl oz maximum. Mix no more than '+fmt(1/g,2)+' fl oz per gallon, or lower your output.':' At this output, CrossCheck Plus at 1.0 fl oz per gallon puts down '+fmt(g,2)+' fl oz per 1,000 sq ft, within the label\'s 1 fl oz maximum.';
+    $('#calFb').innerHTML='<div class="fb'+(ok1&&ok2?'':' no')+'">'+(ok1&&ok2?'<b>Both right.</b> ':'<b>Check your work.</b> ')+work+mx+'</div>';
+    if(ok1&&ok2)store.set('cal',1);
+  });
+  calRender();
+
+  /* ---------- mix calculator ---------- */
+  var PRE=[{n:'CrossCheck Plus 7.9%',p:7.9,lab:{'0.02':0.33,'0.06':1.0},max:0.06,min:0.02,w:'of water'},{n:'Taurus SC 9.1%',p:9.1,lab:{'0.03':0.4,'0.06':0.8},max:0.06,min:0.03,w:'of finished dilution'},{n:'Custom',p:null}];
+  var EX=[{n:'Example 1',p:7.9,t:0.06,g:1,k:0},{n:'Example 2',p:7.9,t:0.02,g:4,k:0},{n:'Example 3',p:9.1,t:0.06,g:1,k:1}];
+  var mxK=0, mxp=$('#mxPre'), mxe=$('#mxEx');
+  PRE.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='mxpre'+i;b.textContent=r.n;b.setAttribute('aria-pressed',i===0);
+    b.addEventListener('click',function(){mxK=i;if(r.p)$('#mxP').value=r.p;mxSync();mxCalc();});mxp.appendChild(b)});
+  EX.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.className='ex';b.id='mxex'+i;b.textContent='Load '+r.n.toLowerCase();
+    b.addEventListener('click',function(){mxK=r.k;$('#mxP').value=r.p;$('#mxT').value=r.t;$('#mxG').value=r.g;mxSync();mxCalc();});mxe.appendChild(b)});
+  function mxSync(){$$('button',mxp).forEach(function(x,j){x.setAttribute('aria-pressed',j===mxK)})}
+  function mxCalc(){var p=num($('#mxP').value),t=num($('#mxT').value),g=num($('#mxG').value);
+    var okP=p>0&&p<=100, okT=t>0&&(!okP||t<p), okG=g>0&&g<=400;
+    $('#mxP').classList.toggle('bad',!okP);$('#mxT').classList.toggle('bad',!okT);$('#mxG').classList.toggle('bad',!okG);
+    if(!(okP&&okT&&okG)){$('#mxOz').textContent='–';$('#mxMl').textContent='Enter a product %, a target % lower than it, and a tank size';$('#mxPpm').textContent='–';$('#mxNote').innerHTML='';return;}
+    var oz=t*g*128/p;
+    $('#mxOz').textContent=fmt(oz,2)+' fl oz';$('#mxMl').textContent=fmt(oz*29.5735,1)+' mL';$('#mxPpm').textContent=fmt(t,3).replace(/0+$/,'').replace(/\.$/,'')+'% · '+fmt(t*1e4,0)+' ppm';
+    var r=PRE[mxK], note='';
+    if(r.p&&Math.abs(r.p-p)>1e-9){mxK=2;mxSync();r=PRE[2];}
+    if(r.p){var key=String(t), lab=r.lab[key];
+      if(t>r.max+1e-9){$('#mxOz').textContent='Not allowed';$('#mxMl').textContent='The formula would give '+fmt(oz,2)+' fl oz, above the label';}
+      if(t>r.max+1e-9)note='<div class="callout danger"><svg class="ico"><use href="#i-alert"/></svg><span><b>Above the label.</b> The highest dilution this label allows for GHP use is '+r.max+'%. Do not mix this.</span></div>';
+      else if(t<r.min-1e-9)note='<div class="callout warn"><svg class="ico"><use href="#i-alert"/></svg><span><b>Below the label range</b> ('+r.min+'% is the lowest labeled rate). Legal, but likely too weak to control pests.</span></div>';
+      else if(lab!==undefined)note='<div class="callout"><svg class="ico"><use href="#i-book"/></svg><span><b>Label number:</b> '+fmt(lab,2)+' fl oz per gallon '+r.w+' × '+fmt(g,g%1?2:0)+' gal = <b>'+fmt(lab*g,2)+' fl oz</b>. The formula gives '+fmt(oz,2)+'. Mix the label\'s number.</span></div>';
+      else note='<div class="callout"><svg class="ico"><use href="#i-book"/></svg><span>Within the label range. Check the approved sheet: Clements may set a specific rate inside it.</span></div>';
+    } else note='<div class="callout"><svg class="ico"><use href="#i-book"/></svg><span>Formula: '+t+' × '+g+' × 128 ÷ '+p+' = '+fmt(oz,2)+' fl oz. If the label gives fl oz per gallon, use the label instead.</span></div>';
+    $('#mxNote').innerHTML=note;
+  }
+  ['#mxP','#mxT','#mxG'].forEach(function(s){$(s).addEventListener('input',mxCalc)});
+  mxCalc();
+
+  /* ---------- practice problems ---------- */
+  var MP=[
+    {q:'The approved rate is 0.5 fl oz per gallon. Your backpack holds 3 gallons. How much concentrate do you add?',a:1.5,tol:0.02,u:'fl oz',s:'0.5 × 3 = 1.5 fl oz.'},
+    {q:'Taurus SC is 0.8 fl oz per gallon of finished dilution. You only need half a gallon in your B&G. How much do you add?',a:0.4,tol:0.01,u:'fl oz',s:'0.8 × 0.5 = 0.4 fl oz. Use a syringe or small cylinder for an amount this small.'},
+    {q:'A label calls for a 0.05% dilution. What is that in ppm?',a:500,tol:0.5,u:'ppm',s:'0.05 × 10,000 = 500 ppm.'},
+    {q:'A specimen product is 5% active ingredient, and its label only gives a target of 0.05%. How much goes into 2 gallons?',a:2.56,tol:0.03,u:'fl oz',s:'0.05 × 2 × 128 ÷ 5 = 2.56 fl oz.'},
+    {q:'Your catch test collects 22 fl oz in 30 seconds. What is your output per minute?',a:44,tol:0.2,u:'fl oz per min',s:'22 × 2 = 44 fl oz per minute.'},
+    {q:'Your output is 48 fl oz per minute, and you spray a 500 sq ft test band in 40 seconds. How many gallons per 1,000 sq ft?',a:0.5,tol:0.02,u:'gal per 1,000 sq ft',s:'48 × 40 ÷ 60 = 32 fl oz on 500 sq ft = 64 fl oz per 1,000 sq ft ÷ 128 = 0.5 gal.'},
+    {q:'You mix 1.0 fl oz per gallon and apply 1.5 gallons per 1,000 sq ft. How much product goes on each 1,000 sq ft?',a:1.5,tol:0.02,u:'fl oz',s:'1.0 × 1.5 = 1.5 fl oz per 1,000 sq ft. On CrossCheck Plus that is over the 1 fl oz maximum.'},
+    {q:'A granule\'s rate is 2 lb per 1,000 sq ft. You\'re treating a 3 ft band around 180 ft of foundation. How much product do you need?',a:1.08,tol:0.02,u:'lb',s:'3 × 180 = 540 sq ft. 540 ÷ 1,000 × 2 = 1.08 lb.'}
+  ];
+  var mpI=0, mpOk=store.get('mp')||{}, mpBox=$('#mpBox'), mpDots=$('#mpDots');
+  function mpDraw(){
+    mpDots.innerHTML=MP.map(function(_,i){return '<button type="button" id="mpd'+i+'" aria-label="Problem '+(i+1)+'"'+(i===mpI?' aria-current="true"':'')+' class="'+(mpOk[i]?'ok':'')+'">'+(i+1)+'</button>'}).join('');
+    $$('button',mpDots).forEach(function(b,i){b.addEventListener('click',function(){mpI=i;mpDraw()})});
+    var p=MP[mpI];
+    mpBox.innerHTML='<span class="eyebrow">Problem '+(mpI+1)+' of '+MP.length+'</span><p class="mpq">'+p.q+'</p><div class="mprow"><input id="mpIn" inputmode="decimal" autocomplete="off" aria-label="Your answer"><span class="unit">'+p.u+'</span><button type="button" class="btn primary" id="mpChk">Check</button></div><div id="mpFb"></div>';
+    $('#mpChk').addEventListener('click',mpCheck);
+    $('#mpIn').addEventListener('keydown',function(e){if(e.key==='Enter')mpCheck()});
+  }
+  function mpCheck(){var p=MP[mpI],v=num($('#mpIn').value);
+    if(isNaN(v)){$('#mpFb').innerHTML='<div class="fb no">Enter a number first.</div>';return;}
+    var ok=Math.abs(v-p.a)<=p.tol;
+    if(ok){mpOk[mpI]=1;store.set('mp',mpOk);}
+    var last=mpI===MP.length-1, all=MP.every(function(_,i){return mpOk[i]});
+    $('#mpFb').innerHTML='<div class="fb'+(ok?'':' no')+'">'+(ok?'<b>Correct.</b> '+p.s:'<b>Not quite.</b> Try again, or check the formulas on the right.')+(ok?'<div style="margin-top:8px"><button type="button" class="btn" id="mpNext" style="padding:6px 14px">'+(last?(all?'All eight done. Start over':'Back to problem 1'):'Next problem')+'</button></div>':'')+'</div>';
+    $$('button',mpDots)[mpI].classList.toggle('ok',!!mpOk[mpI]);
+    var n=$('#mpNext');if(n)n.addEventListener('click',function(){mpI=last?0:mpI+1;mpDraw()});
+  }
+  mpDraw();
+
+  /* ---------- mixing order ---------- */
+  var MO=['Read the label and sheet: rate, PPE, mixing directions','Put on the label PPE, with goggles for concentrate','Fill the tank 1/4 to 1/3 with clean water','Measure the concentrate in a dedicated cup, at eye level','Add the concentrate and rinse the cup into the tank','Top off to the final volume while agitating','Close the tank, check for leaks, wipe the jug and cup'];
+  var MOD=[3,0,5,2,6,1,4], moNext=0, mo=$('#moOrder');
+  function moBuild(){mo.innerHTML='';moNext=0;$('#moFb').innerHTML='';
+    MOD.forEach(function(k){var b=document.createElement('button');b.type='button';b.id='mo'+k;b.innerHTML='<span class="num">&nbsp;</span><span>'+MO[k]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(k===moNext){b.classList.add('placed');$('.num',b).textContent=moNext+1;moNext++;
+          if(moNext===MO.length){$('#moFb').innerHTML='<div class="fb">Right. Water first, so concentrate never sits undiluted. <button type="button" class="btn" id="moReset" style="margin-left:6px;padding:4px 12px">Try again</button></div>';$('#moReset').addEventListener('click',moBuild);store.set('mo',1);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#moFb').innerHTML='<div class="fb no">Not yet. What has to happen before that step?</div>';}
+      });mo.appendChild(b)});}
+  moBuild();
+
+  /* ---------- spreader ---------- */
+  var GATE=[0.25,0.40,0.55,0.75,0.95,1.20], spG=-1, spDone=false;
+  var sg=$('#spGate');
+  GATE.forEach(function(_,i){var b=document.createElement('button');b.type='button';b.id='spg'+i;b.textContent=i+1;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Gate setting '+(i+1));
+    b.addEventListener('click',function(){spG=i;spDone=false;$$('button',sg).forEach(function(x,j){x.setAttribute('aria-pressed',j===i)});$('#spA').textContent='–';$('#spIn').value='';$('#spIn').disabled=true;$('#spIn').classList.remove('ok','no');$('#spChk').disabled=true;$('#spFb').innerHTML='';$('#spDots').innerHTML='';$('#spWalker').style.transition='none';$('#spWalker').style.transform='translateX(14px)';});
+    sg.appendChild(b)});
+  $('#spWalker').style.transform='translateX(14px)';
+  $('#spGo').addEventListener('click',function(){
+    if(spG<0){$('#spFb').innerHTML='<div class="fb no">Choose a gate setting first.</div>';return;}
+    var n=Math.round(GATE[spG]*90), h='', seed=spG*7+3;
+    for(var i=0;i<n;i++){seed=(seed*9301+49297)%233280;var x=14+((i+0.5)/n)*370;var y=24+(seed/233280)*26;h+='<circle class="gran" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.6" style="transition-delay:'+((i/n)*1.5).toFixed(2)+'s"/>';}
+    $('#spDots').innerHTML=h;var w=$('#spWalker');w.style.transition='none';w.style.transform='translateX(14px)';void w.getBoundingClientRect();w.style.transition='';
+    requestAnimationFrame(function(){w.style.transform='translateX(386px)';$$('#spDots .gran').forEach(function(c){c.classList.add('on')});});
+    setTimeout(function(){$('#spA').textContent=fmt(5-GATE[spG],2)+' lb';$('#spIn').disabled=false;$('#spIn').placeholder='lb / 1,000';$('#spChk').disabled=false;spDone=true;},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:1700);
+  });
+  $('#spChk').addEventListener('click',function(){if(!spDone)return;var used=GATE[spG],rate=used/250*1000,v=num($('#spIn').value),ok=Math.abs(v-rate)<0.05;
+    $('#spIn').classList.toggle('ok',ok);$('#spIn').classList.toggle('no',!ok);
+    var verdict=rate<2?'Under the label range. Open the gate a setting and test again.':(rate>4?'Over the label range. Close the gate and test again before you treat anything.':'Inside the 2 to 4 lb label range. This setting is ready for the route.');
+    $('#spFb').innerHTML=ok?'<div class="fb'+(rate<2||rate>4?' no':'')+'"><b>'+fmt(rate,1)+' lb per 1,000 sq ft.</b> 5.00 − '+fmt(5-used,2)+' = '+fmt(used,2)+' lb, ÷ 250 × 1,000 = '+fmt(rate,1)+'. '+verdict+'</div>':'<div class="fb no"><b>Check your math.</b> Subtract the after weight from the before weight, divide by 250 sq ft, then multiply by 1,000.</div>';
+    if(ok&&rate>=2&&rate<=4)store.set('sp',1);
+  });
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

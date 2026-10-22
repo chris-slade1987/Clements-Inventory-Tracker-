@@ -1,0 +1,1333 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PC-01 GHP Equipment</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* PC-01 additions */
+ul.tick{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+.tight .card{padding:16px 18px}
+.tight .card p{font-size:14px}
+.tight .card h3{font-size:17px}
+.steps.compact li{padding:8px 0;font-size:15px;gap:12px;line-height:1.45}
+.steps.compact .num{flex-basis:28px;height:28px;font-size:13px}
+
+/* tool library */
+.tlgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tlgrid button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13.5px;font-weight:300;line-height:1.25;min-height:44px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.tlgrid button .ico{width:22px;height:22px;color:var(--brand-600)}
+.tlgrid button.seen{border-color:var(--brand-200)}
+.tlgrid button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+#tlInfo{animation:rise .22s ease-in-out both}
+.tldl{display:grid;grid-template-columns:110px 1fr;gap:10px 14px;margin:16px 0 0;font-size:15px}
+.tldl dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.tldl dd{margin:0;line-height:1.5}
+
+/* loadout */
+#loPick button{font-size:13.5px;padding:7px 13px}
+#loTabs button{font-size:13px}
+
+/* anatomy */
+.anbox{padding:8px}
+.anbox svg{max-width:none!important;width:100%;display:block}
+.ansvg[hidden]{display:none}
+.part{cursor:pointer;outline:none}
+.part .dot{fill:var(--surface);stroke:var(--brand-600);stroke-width:2;transition:fill .18s ease-in-out}
+.part text{font-family:var(--font);font-size:13px;fill:var(--brand-700);font-weight:500;pointer-events:none}
+.part .halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .part:not(.seen) .halo{animation:halo 2.6s ease-out infinite}
+.slide.on .part:nth-of-type(2n) .halo{animation-delay:.7s}
+.slide.on .part:nth-of-type(3n) .halo{animation-delay:1.4s}
+.part.seen .dot{fill:var(--brand-100)}
+.part.sel .dot,.part:focus-visible .dot{fill:var(--brand-600)}
+.part.sel text,.part:focus-visible text{fill:#fff}
+.slide.on .fan path{animation:fan 2.4s ease-in-out infinite}
+@keyframes fan{0%,100%{opacity:.25}50%{opacity:1}}
+#anInfo{animation:rise .22s ease-in-out both}
+
+/* order */
+#bgOrd{gap:6px}
+#bgOrd button{padding:8px 12px;font-size:14px;line-height:1.4}
+
+/* pressure droplets */
+.prfig{max-width:none!important;width:100%;display:block;border-radius:8px}
+.drops circle{fill:var(--brand-500);opacity:0}
+.slide.on .drops circle{animation:fly 2.6s linear infinite}
+.drops.high circle{fill:var(--brand-400)}
+@keyframes fly{0%{opacity:0;transform:translate(0,0)}8%{opacity:.95}80%{opacity:.85}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+@media (prefers-reduced-motion:reduce){.drops circle{opacity:.8;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .6))}}
+
+/* tips */
+.tipfig{height:46px;display:flex;align-items:center;margin-bottom:8px}
+.tipfig svg{width:120px;height:46px;fill:none;stroke:var(--brand-600);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.slide.on .tipfig path{stroke-dasharray:120;animation:tipdraw 2.8s ease-in-out infinite}
+@keyframes tipdraw{0%{stroke-dashoffset:120}45%,100%{stroke-dashoffset:0}}
+.tipsort{grid-template-columns:1fr 1fr!important;gap:8px}
+.tipsort .row{padding:8px 12px;font-size:14px;flex-direction:column;align-items:flex-start;gap:6px;line-height:1.35}
+.tipsort .why{font-size:12.5px}
+.tipsort .opts button{padding:4px 11px}
+#proSort .row{padding:8px 12px;font-size:14px;align-items:center}
+#tipSort,#proSort{align-items:start}
+
+/* EVO animation (resting state closed and locked) */
+.evofig{max-width:300px!important}
+.slide.on .evofig .lid{animation:lid 4s ease-in-out infinite;transform-box:fill-box;transform-origin:0% 100%}
+.slide.on .evofig .evokey{animation:ekey 4s ease-in-out infinite}
+@keyframes lid{0%,10%{transform:rotate(0)}25%,65%{transform:rotate(-22deg)}80%,100%{transform:rotate(0)}}
+@keyframes ekey{0%,82%{transform:translateX(0);opacity:1}90%{transform:translateX(-14px)}100%{transform:translateX(0);opacity:1}}
+
+/* troubleshooter */
+.tsico{width:64px;height:64px;margin:0}
+.tsico .ico{width:32px;height:32px}
+.tsch{grid-template-columns:1fr 1fr;gap:8px}
+.tsch .choice{padding:10px 14px;font-size:14.5px}
+#tsBox{min-height:240px}
+
+/* storage table */
+.sttab{min-width:560px}
+.slide .tablewrap{flex-shrink:0}
+.sttab td,.sttab th{padding:7px 12px;line-height:1.4}
+.sttab td:first-child{font-weight:500;white-space:nowrap}
+
+@media (max-width:860px){.tlgrid{grid-template-columns:1fr}.tsch{grid-template-columns:1fr}#tsBox{grid-template-columns:1fr!important}.tldl{grid-template-columns:1fr}.sort .opts{flex-wrap:wrap}}
+
+#prSeg{justify-self:start}
+@media (max-width:860px){.slide .split{grid-template-columns:1fr!important}.tipsort{grid-template-columns:1fr!important}.part text{font-size:16px}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">PC-01 · GHP Equipment</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-spray" viewBox="0 0 24 24"><rect x="5" y="8" width="9" height="13" rx="2"/><path d="M9.5 8V3M6.5 3h6"/><path d="M14 18h2.5a2 2 0 002-2v-3l3-3"/></symbol>
+    <symbol id="i-pack" viewBox="0 0 24 24"><rect x="4" y="5" width="11" height="16" rx="3"/><path d="M7.5 5V3h4v2"/><path d="M4 13h11"/><path d="M15 17h3a1.5 1.5 0 001.5-1.5V10l2-2"/></symbol>
+    <symbol id="i-spread" viewBox="0 0 24 24"><path d="M5 4h14l-4 8H9z"/><path d="M19 6h2V3"/><path d="M12 12v3"/><path d="M8 15h8"/><path d="M6 19l-2 2M18 19l2 2M12 19v2"/></symbol>
+    <symbol id="i-duster" viewBox="0 0 24 24"><circle cx="9" cy="15" r="6"/><path d="M13.2 10.8l4.5-4.5"/><path d="M16.5 4.5l3 3"/><path d="M20 3l1.5-1.5"/></symbol>
+    <symbol id="i-brush" viewBox="0 0 24 24"><path d="M3 21l9-9"/><path d="M10 10l4 4"/><path d="M11 7l6 6M13 5l6 6M15 3l6 6"/></symbol>
+    <symbol id="i-light" viewBox="0 0 24 24"><path d="M2 10h9l3-3h4v10h-4l-3-3H2z"/><path d="M21 9v6"/><path d="M6 12h2"/></symbol>
+    <symbol id="i-can" viewBox="0 0 24 24"><rect x="7" y="8" width="9" height="13" rx="2"/><path d="M9.5 8V5.5h4V8"/><path d="M13.5 5.5h7"/><path d="M7 12h9"/></symbol>
+    <symbol id="i-gel" viewBox="0 0 24 24"><path d="M15 3l6 6"/><path d="M18 6l-9.5 9.5-3-3L15 3"/><path d="M5.5 15.5L2.5 18.5"/><path d="M10.5 9.5l2 2"/></symbol>
+    <symbol id="i-station" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M3 12h18"/><path d="M7 19v2M17 19v2"/><circle cx="12" cy="15.5" r="1.2"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4v9H3z"/><path d="M3 9l9 4 9-4"/><path d="M12 13v5"/></symbol>
+    <symbol id="i-cover" viewBox="0 0 24 24"><path d="M3 16c0-5 2-9 6-9h3l1 4 5.5 1.8A3 3 0 0121 15.6V17H3z"/><path d="M3 20h18"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="16" r="4"/><path d="M11 13l9-9"/><path d="M17 7l3 3M14.5 9.5l2 2"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 13l4-3"/><path d="M7 13h1M16 13h1M12 8v1"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Pest Control · PC-01</span>
+        <h1 class="display a" style="--i:1">GHP Equipment</h1>
+        <p class="lead a" style="--i:2">Every tool on a general pest truck: what it's for, how to set it up, which tip or pressure the job calls for, how to keep it working, and how to fix it when it doesn't.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:360px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <rect x="40" y="96" width="62" height="118" rx="12"/>
+          <path d="M34 96h74"/><path d="M71 96V52"/><path d="M48 46h46"/>
+          <circle cx="98" cy="76" r="10"/><path d="M98 86v10"/>
+          <path d="M102 196c30 0 46-8 62-30"/>
+          <path d="M158 160l14-10 18 22-14 10z"/>
+          <path d="M186 160l100-34"/><path d="M286 120v12l10-2v-8z"/>
+          <path d="M300 116l14-10M302 126h16M300 136l14 10"/>
+          <rect x="196" y="186" width="96" height="40" rx="6"/><path d="M196 200h96"/><circle cx="244" cy="214" r="4"/>
+          <path d="M10 232h300"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-box"/></svg><span>Name every tool on a GHP truck, what it's for, and load the right kit for the job in front of you</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-spray"/></svg><span>Identify every part of the B&amp;G and the electric backpack sprayer, and set each one up correctly</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span>Choose the right pressure, spray pattern and tip so product lands on target, not on the customer's floor</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-gel"/></svg><span>Use aerosols, gel baits, dusters, spreaders, brushes, monitors and EVO stations the professional way</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-wrench"/></svg><span>Follow the daily, weekly and monthly care routine, and troubleshoot the most common sprayer problems</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-lock"/></svg><span>Clean, depressurize and store every tool safely on the truck at the end of the day</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">Most callbacks start with <span class="em">poor application.</span></h2>
+        <p class="lead a" style="--i:2">The product only works if the equipment puts it exactly where the label says, in the right amount. A leaking valve, a clogged tip or the wrong pressure turns good product into a stain, a drift complaint or a callback.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is the law</h3><p>Federal law (FIFRA) makes any use inconsistent with the label a violation. Spraying the wrong place, at the wrong rate or with drift onto non-target surfaces is misuse, whatever the equipment did.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-search"/></svg></div><div><h3>FDACS checks your equipment</h3><p>Inspectors look at the truck: concentrates locked, containers identified, and an air gap or anti-siphon device on anything you fill from a hose (Rule 5E-14.106).</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-door"/></svg></div><div><h3>Customers notice your tools</h3><p>A dripping wand on hardwood floors, a cracked bait station by the pool or webs left on the eaves tells the customer exactly how much care we take.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: know your kit">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Know your kit</h1>
+        <p class="lead a" style="--i:2">Why it matters: you can't do a professional service with the wrong tool in your hand, or with the right tool still sitting in the truck. Start by knowing what each one is for.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The tool library</li><li><span>02</span>Exterior and interior tools</li><li><span>03</span>Practice: load the truck for the job</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 TOOL LIBRARY -->
+  <section class="slide" data-label="The tool library">
+    <span class="eyebrow a">01 · The tool library</span>
+    <h2 class="a" style="--i:1">Eleven tools. Select each one.</h2>
+    <div class="split a" style="--i:2;grid-template-columns:1fr 1.15fr;gap:22px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <div class="tlgrid" id="tlList"></div>
+        <span class="small muted" id="tlCount">0 of 11 opened</span>
+      </div>
+      <div class="card" id="tlInfo" style="min-height:330px"><span class="eyebrow">Select a tool</span><p style="margin-top:8px">Each card shows what the tool is for, where you use it, how to set it up and how to look after it. You'll see every one again in more detail later in the course.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 EXTERIOR + INTERIOR -->
+  <section class="slide" data-label="Exterior and interior tools">
+    <span class="eyebrow a">02 · Exterior and interior tools</span>
+    <h2 class="a" style="--i:1">Outside, the barrier. Inside, the hiding places.</h2>
+    <div class="grid g2" style="align-items:stretch">
+      <div class="card a" style="--i:2">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-pack"/></svg></div><h3 style="margin:0">Exterior service</h3></div>
+        <ul class="tick">
+          <li><b>Electric backpack sprayer:</b> perimeter liquid band on the foundation and ground, entry points, spot treatments</li>
+          <li><b>Hand spreader:</b> granular band around the perimeter. Granules release slowly into mulch, soil and turf, extending the barrier</li>
+          <li><b>Spider brush:</b> webs and nests off eaves and soffits on every visit</li>
+          <li><b>EVO bait stations and key:</b> rodent stations on the account, opened and serviced every visit</li>
+        </ul>
+      </div>
+      <div class="card a" style="--i:3">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-spray"/></svg></div><h3 style="margin:0">Interior service</h3></div>
+        <ul class="tick">
+          <li><b>Shoe covers:</b> on as you step inside, every home, every visit</li>
+          <li><b>Flashlight:</b> inspection under sinks, behind appliances, attics and voids</li>
+          <li><b>B&amp;G handheld sprayer:</b> baseboards, door frames, under appliances, spot treatments</li>
+          <li><b>Aerosol with crack-and-crevice tip, gel bait, duster:</b> the hiding places a spray can't reach</li>
+          <li><b>Monitors (glue boards):</b> show where activity is and whether the treatment is working</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-shield"/></svg><span><b>Your PPE and spill kit ride with every tool.</b> Label PPE is in FC-03; the spill kit and the 3 Cs are in FC-05. Every step here assumes them.</span></div>
+  </section>
+
+  <!-- 7 PRACTICE: LOADOUT -->
+  <section class="slide" data-label="Practice: load the truck">
+    <div class="split" style="grid-template-columns:1fr 1.35fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Practice · what does this job need?</span>
+        <h2 class="a" style="--i:1">You're at the tailgate. What do you take to the house?</h2>
+        <div class="scen-tabs a" style="--i:2" id="loTabs"></div>
+        <div class="card a" style="--i:3;padding:14px 18px" id="loJob"></div>
+      </div>
+      <div class="grid a" style="--i:2;gap:12px">
+        <div class="pick" id="loPick"></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="loCheck">Check my loadout</button><span id="loFb"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 9 PART TWO -->
+  <section class="slide forest" data-label="Part two: sprayers">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Sprayers, inside and out</h1>
+        <p class="lead a" style="--i:2">The B&amp;G is the backbone of household pest control and the backpack does the perimeter. Why it matters: pressure, pattern and tip decide where every drop lands.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Sprayer anatomy</li><li><span>02</span>Practice: set up the B&amp;G</li><li><span>03</span>Pressure and droplets</li><li><span>04</span>Patterns and tips, with practice</li><li><span>05</span>The electric backpack</li></ol>
+    </div>
+  </section>
+
+  <!-- 10 ANATOMY -->
+  <section class="slide" data-label="Sprayer anatomy">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">01 · Sprayer anatomy</span><h2 class="a" style="--i:1">Select each numbered part</h2></div>
+      <div class="seg a" style="--i:2" id="anSeg"><button type="button" id="anB" aria-pressed="true">B&amp;G handheld</button><button type="button" id="anP" aria-pressed="false">Electric backpack</button></div>
+    </div>
+    <div class="split a" style="--i:3;grid-template-columns:1.45fr 1fr;gap:22px;align-items:start">
+      <div class="figbox anbox">
+        <svg viewBox="0 0 600 330" role="img" aria-label="B&amp;G handheld sprayer with numbered parts" id="anSvgB" class="ansvg">
+          <path d="M0 312h600" stroke="#C3DAC9" stroke-width="2"/>
+          <rect x="72" y="112" width="112" height="190" rx="16" fill="#EEF4F0" stroke="#2E6F47" stroke-width="2"/>
+          <path d="M78 250h100" stroke="#A3C6AB" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="74" y="252" width="108" height="46" rx="10" fill="#DCE9DF"/>
+          <rect x="62" y="96" width="132" height="20" rx="5" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.8"/>
+          <path d="M128 96V48" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+          <rect x="86" y="34" width="84" height="14" rx="7" fill="#74A96E" stroke="#1F5836" stroke-width="1.8"/>
+          <path d="M176 96V84" stroke="#1F5836" stroke-width="3"/><circle cx="176" cy="72" r="13" fill="#fff" stroke="#1F5836" stroke-width="1.8"/><path d="M176 72l6-6" stroke="#1F5836" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M184 282c46 0 70-14 94-58" fill="none" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+          <path d="M268 226l20-18 40 40-18 16z" fill="#A3C6AB" stroke="#1F5836" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M300 208l10-8" stroke="#1F5836" stroke-width="4" stroke-linecap="round"/>
+          <path d="M306 214L520 160" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+          <rect x="518" y="150" width="26" height="18" rx="3" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.8" transform="rotate(-14 531 159)"/>
+          <g class="fan" stroke="#4F8A5F" stroke-width="1.6" stroke-linecap="round"><path d="M550 152l38-26"/><path d="M552 156l44-8"/><path d="M552 162l42 12"/></g>
+          <g id="anLayerB"></g>
+        </svg>
+        <svg viewBox="0 0 600 330" role="img" aria-label="Electric backpack sprayer with numbered parts" id="anSvgP" class="ansvg" style="display:none">
+          <path d="M0 312h600" stroke="#C3DAC9" stroke-width="2"/>
+          <path d="M70 70c-18 40-18 170 0 220" fill="none" stroke="#74A96E" stroke-width="10" stroke-linecap="round"/>
+          <rect x="84" y="62" width="150" height="214" rx="22" fill="#EEF4F0" stroke="#2E6F47" stroke-width="2"/>
+          <path d="M92 150h134" stroke="#A3C6AB" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="88" y="152" width="142" height="100" rx="12" fill="#DCE9DF"/>
+          <rect x="122" y="44" width="74" height="20" rx="6" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.8"/>
+          <rect x="96" y="276" width="126" height="28" rx="6" fill="#74A96E" stroke="#1F5836" stroke-width="1.8"/>
+          <rect x="132" y="222" width="54" height="34" rx="6" fill="#fff" stroke="#1F5836" stroke-width="1.6"/><path d="M144 239h30" stroke="#1F5836" stroke-width="1.6"/>
+          <circle cx="250" cy="236" r="12" fill="#fff" stroke="#1F5836" stroke-width="1.8"/><path d="M250 236v-7" stroke="#1F5836" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M222 290c60 0 80-20 98-62" fill="none" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+          <path d="M310 232l20-18 40 40-18 16z" fill="#A3C6AB" stroke="#1F5836" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M348 220L530 168" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+          <rect x="528" y="158" width="24" height="18" rx="3" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.8" transform="rotate(-16 540 167)"/>
+          <g class="fan" stroke="#4F8A5F" stroke-width="1.6" stroke-linecap="round"><path d="M558 160l32-24"/><path d="M560 165l36-6"/><path d="M560 171l34 12"/></g>
+          <g id="anLayerP"></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card" id="anInfo" style="min-height:250px"><span class="eyebrow">Select a number</span><p style="margin-top:8px">Know every part by name. When something fails, you need to tell your supervisor exactly which part, and you need to know which ones you can fix in the field.</p></div>
+        <span class="small muted" id="anCount"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PRACTICE: B&G SETUP ORDER -->
+  <section class="slide" data-label="Practice: set up the B&amp;G">
+    <div class="split" style="grid-template-columns:1fr 1.2fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Practice · B&amp;G setup</span>
+        <h2 class="a" style="--i:1">Start of the stop. Set up the B&amp;G in the right order.</h2>
+        <p class="a muted" style="--i:2">Select the steps in order. Mix rates and calibration are covered in PC-04; here the order and the habits are what count.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-drop"/></svg><span><b>Air gap, always.</b> Florida Rule 5E-14.106(5): a fill hose ends at least 2 inches above the tank opening, or uses an anti-siphon device, so mix can't be pulled back into the customer's water (FC-04).</span></div>
+        <div id="bgOrdFb" class="a" style="--i:4"></div>
+      </div>
+      <div class="order a" style="--i:2" id="bgOrd"></div>
+    </div>
+  </section>
+
+  <!-- 12 PRESSURE -->
+  <section class="slide" data-label="Pressure and droplets">
+    <span class="eyebrow a">03 · Pressure and droplets</span>
+    <h2 class="a" style="--i:1">More pressure doesn't mean more control. It means smaller drops that drift.</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:center">
+      <div class="grid a" style="--i:2;gap:10px">
+        <div class="seg" id="prSeg"><button type="button" id="prLow" aria-pressed="true">Low, steady pressure</button><button type="button" id="prHigh" aria-pressed="false">Over-pumped</button></div>
+        <div class="figbox" style="padding:10px">
+          <svg viewBox="0 0 520 220" role="img" aria-label="Animated comparison of spray droplets at low and high pressure" class="prfig" id="prFig">
+            <rect x="0" y="0" width="520" height="220" fill="#F4F6F5"/>
+            <path d="M0 196h520" stroke="#C3DAC9" stroke-width="2"/>
+            <rect x="420" y="40" width="20" height="156" fill="#EEF4F0" stroke="#A3C6AB"/>
+            <rect x="440" y="176" width="80" height="20" fill="#DCE9DF" stroke="#A3C6AB"/>
+            <text x="470" y="170" font-size="11" fill="#5C6B62" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif">target</text>
+            <path d="M20 120h70" stroke="#1F5836" stroke-width="5" stroke-linecap="round"/>
+            <rect x="88" y="112" width="20" height="16" rx="3" fill="#C3DAC9" stroke="#1F5836" stroke-width="1.6"/>
+            <g id="dLow" class="drops low"></g>
+            <g id="dHigh" class="drops high"></g>
+          </svg>
+        </div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px" id="prInfo"></div>
+    </div>
+  </section>
+
+  <!-- 13 PATTERNS & TIPS -->
+  <section class="slide" data-label="Patterns and tips">
+    <span class="eyebrow a">04 · Patterns and tips</span>
+    <h2 class="a" style="--i:1">Match the pattern to the surface</h2>
+    <div class="grid g4 tight">
+      <div class="card a" style="--i:2"><div class="tipfig"><svg viewBox="0 0 120 50" aria-hidden="true"><rect x="2" y="20" width="18" height="10" rx="2"/><path d="M22 25h92"/></svg></div><h3>Pin stream</h3><p>A narrow stream. Into cracks, along an ant trail into a gap, or a spot treatment into eave corners from the ground with the backpack.</p></div>
+      <div class="card a" style="--i:3"><div class="tipfig"><svg viewBox="0 0 120 50" aria-hidden="true"><rect x="2" y="20" width="18" height="10" rx="2"/><path d="M22 25l90-20M22 25h92M22 25l90 20"/></svg></div><h3>Fan</h3><p>A flat band. A light fan on baseboards and toe-kicks without runoff; a wider fan for the exterior perimeter band.</p></div>
+      <div class="card a" style="--i:4"><div class="tipfig"><svg viewBox="0 0 120 50" aria-hidden="true"><rect x="2" y="20" width="18" height="10" rx="2"/><path d="M22 25h26"/><path d="M48 25l60-3"/><circle cx="110" cy="22" r="3"/></svg></div><h3>Crack-and-crevice tip</h3><p>A straw or tip that goes into the gap so product lands inside it, where the pests hide, not on the surface around it.</p></div>
+      <div class="card a" style="--i:5"><div class="tipfig"><svg viewBox="0 0 120 50" aria-hidden="true"><circle cx="20" cy="25" r="14"/><path d="M34 25h40"/><path d="M80 25c8-6 16 6 24 0M80 31c8-6 16 6 24 0" stroke-dasharray="2 4"/></svg></div><h3>Duster or bait tip</h3><p>Dust puffed into dry voids; gel placed in small spots. Neither goes where a spray belongs, and spray never goes over bait.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-spray"/></svg><span><b>The B&amp;G's adjustable nozzle</b> turns from a broad fan to a pin stream. Many B&amp;Gs also take an interchangeable crack-and-crevice tip. Change the setting before you start a surface, not halfway across it.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-book"/></svg><span><b>Check the label for the application type.</b> Many labels allow only spot or crack-and-crevice treatment indoors, and some don't allow broadcast spraying at all. The tip you pick has to match what the label allows.</span></div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE: TIP MATCHER -->
+  <section class="slide" data-label="Practice: tip matcher">
+    <span class="eyebrow a">04 · Practice · tip-selection matcher</span>
+    <h2 class="a" style="--i:1">Pick the right pattern or tip for each job</h2>
+    <div class="sort tipsort a" style="--i:2" id="tipSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="tipCheck">Check my matches</button><span id="tipFb"></span></div>
+  </section>
+
+  <!-- 15 BACKPACK -->
+  <section class="slide" data-label="The electric backpack">
+    <span class="eyebrow a">05 · The electric backpack sprayer</span>
+    <h2 class="a" style="--i:1">The perimeter tool. Charged, strained, strapped and steady.</h2>
+    <div class="grid g3 tight">
+      <div class="card a" style="--i:2"><span class="eyebrow">Before the route</span><h3 style="margin-top:4px">Charge and check</h3><p>Battery charged overnight and connected. Lid seal clean, strainer basket in place, straps and hose undamaged. A quick test spray at the branch into the tank or a labeled site shows the pump, valve and tip all work.</p></div>
+      <div class="card a" style="--i:3"><span class="eyebrow">At the stop</span><h3 style="margin-top:4px">Fill and put it on</h3><p>Fill through the strainer with an air gap. Lid tight. Keep it at the tailgate and slip into the straps from the ledge: no reaching over the bed wall to lift a full tank. Adjust straps so it rides high and snug.</p></div>
+      <div class="card a" style="--i:4"><span class="eyebrow">While you spray</span><h3 style="margin-top:4px">Steady pressure, steady pace</h3><p>Use the pressure or flow setting the tip and label call for, and keep it there. Walk at an even pace with the wand at a steady height. Let go of the valve when you stop, turn a corner or talk to someone.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-target"/></svg><span><b>The Clements band:</b> up to 3 ft up and 3 ft out on soil, turf and mulch where the label allows (some are narrower), plus thresholds, windows, plant contact points and trash areas. Routine in PC-03.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-wind"/></svg><span><b>Watch the wind and the surface.</b> Coarse spray, low to the ground, aimed away from people, pets, pools, open windows and storm drains. Stop if it's drifting.</span></div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: applicators and tools">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Applicators, inspection tools and stations</h1>
+        <p class="lead a" style="--i:2">Why it matters: these are the tools that reach the places a spray can't, show you where the pests are, and sit on the customer's property between visits.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Aerosols and gel bait</li><li><span>02</span>Dusters and spreaders</li><li><span>03</span>Brush, flashlight, monitors, shoe covers</li><li><span>04</span>EVO stations and keys</li><li><span>05</span>Practice: pro move or fix it?</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 AEROSOL + GEL -->
+  <section class="slide" data-label="Aerosols and gel bait">
+    <span class="eyebrow a">01 · Aerosols and gel bait applicators</span>
+    <h2 class="a" style="--i:1">Put the product inside the crack, not around it</h2>
+    <div class="grid g2" style="align-items:stretch">
+      <div class="card a" style="--i:2">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-can"/></svg></div><h3 style="margin:0">Aerosol with crack-and-crevice tip</h3></div>
+        <ul class="tick">
+          <li>Seat the straw firmly so it can't blow off. Insert the tip <b>into</b> the crack, void or hinge gap, then use short bursts while you move it along</li>
+          <li>Keep the can upright for steady pressure. Check the label for where indoor use is allowed</li>
+          <li>Aerosols are pressurized and usually flammable: no pilot lights or sparks nearby, never on a hot surface</li>
+          <li>Store upright, capped, in the locked toolbox, out of heat. Straws back on the can so they don't get lost or contaminated</li>
+        </ul>
+      </div>
+      <div class="card a" style="--i:3">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-gel"/></svg></div><h3 style="margin:0">Gel bait applicators</h3></div>
+        <ul class="tick">
+          <li>Bait gun or pre-filled syringe with a fine tip. Small spot placements where roaches and ants travel and harbor, out of reach of children and pets, in the amount the label directs</li>
+          <li>Never spray insecticide or cleaner over a bait placement: contaminated bait gets avoided</li>
+          <li>Rotate baits as directed to prevent bait aversion and resistance</li>
+          <li>Wipe the tip, cap it and keep the plunger clean. Heat thins gel, so store it cool and sealed, away from solvent-based products</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-check"/></svg><span><b>Updated from the old handbook:</b> it said to "hold the can 12 inches away" and insert the tube. With a crack-and-crevice tip the tip goes into the gap. Where to treat inside the home is covered in PC-02.</span></div>
+  </section>
+
+  <!-- 19 DUSTER + SPREADER -->
+  <section class="slide" data-label="Dusters and spreaders">
+    <span class="eyebrow a">02 · Dusters and hand spreaders</span>
+    <h2 class="a" style="--i:1">Dry products need dry equipment</h2>
+    <div class="grid g2" style="align-items:stretch">
+      <div class="card a" style="--i:2">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-duster"/></svg></div><h3 style="margin:0">Duster</h3></div>
+        <ul class="tick">
+          <li>For dry voids: wall voids, behind switch plates, weep holes and other places the label allows</li>
+          <li>Fill only about half full so there's air to carry the dust. Tap or shake it before each use</li>
+          <li>Puff lightly: a thin, barely visible film works; a pile repels and blows back. Wear the label's PPE, including eye protection</li>
+          <li>Keep it dry: water clumps dust. Never rinse it. Cap the tip and store it in a sealed bag in the toolbox</li>
+          <li>Electrical outlets and switches: follow PC-02 and the label exactly. Never push a metal tip into live wiring</li>
+        </ul>
+      </div>
+      <div class="card a" style="--i:3">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-spread"/></svg></div><h3 style="margin:0">Hand spreader</h3></div>
+        <ul class="tick">
+          <li>For the granular perimeter band, usually two to three feet wide</li>
+          <li>Gate closed while you fill and whenever you stop walking. Set the opening and walking pace for the product (PC-04 covers calibration)</li>
+          <li>Keep granules off driveways, patios and walks, and out of storm drains. Sweep or blow back onto the turf anything that lands on a hard surface</li>
+          <li>Empty leftovers back into the labeled bag at the end of the day. Granules left in the hopper cake and corrode it</li>
+          <li>Clean, dry and check the gate and spinner. Cross-contamination ruins the next product</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 BRUSH, LIGHT, MONITORS, COVERS -->
+  <section class="slide" data-label="Brush, flashlight, monitors, shoe covers">
+    <span class="eyebrow a">03 · Inspection and finishing tools</span>
+    <h2 class="a" style="--i:1">The small tools customers judge us by</h2>
+    <div class="grid g4 tight">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-brush"/></svg></div><h3>Spider brush</h3><p>Webs off eaves on every visit, even if the account doesn't list it. Look for wasps first. Keep the pole at least 10 feet from overhead power lines (OSHA 1910.333). Clear the bristles away from doors.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-light"/></svg></div><h3>Flashlight</h3><p>Inspection is the foundation of every service. Charge it nightly and carry backup batteries. An inspection mirror and moisture meter help under appliances and with wet areas.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-board"/></svg></div><h3>Monitors</h3><p>Glue boards along walls, behind appliances, under sinks. Date and number them, record them, and keep them out of reach of kids and pets. Replace dusty or full ones.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-cover"/></svg></div><h3>Shoe covers</h3><p>On as you step inside, off as you step out, every visit, even if the customer says not to worry. Torn cover? New pair. Never wear them outside and back in.</p></div>
+    </div>
+    <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-heart"/></svg><span><b>Why it matters:</b> customers rarely see the product work. They see webs gone from the eaves, covers on your boots and a flashlight checking under their sink. That's the evidence of a careful service.</span></div>
+  </section>
+
+  <!-- 21 EVO STATIONS -->
+  <section class="slide" data-label="EVO stations and keys">
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px;align-items:center">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · EVO rodent bait stations and keys</span>
+        <h2 class="a" style="--i:1">The station is the proof. Treat it like the customer is watching.</h2>
+        <ol class="steps compact a" style="--i:2">
+          <li><span class="num">1</span><span><b>Gloves on</b> before you touch a station, every time.</span></li>
+          <li><span class="num">2</span><span><b>Unlock with the key and open every station,</b> every visit. Look for activity, moisture, mold, dead rodents and damage.</span></li>
+          <li><span class="num">3</span><span><b>Clean it out,</b> wipe the lid, clear vegetation from the entry holes and check the drainage hole.</span></li>
+          <li><span class="num">4</span><span><b>Fresh, in-date bait secured on the rod.</b> Old bait goes in a sealed bag. Never a loose block on the floor of the station.</span></li>
+          <li><span class="num">5</span><span><b>Close, lock, tug-test.</b> Check that it's still anchored, and record activity for that station.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="figbox a" style="--i:3;padding:14px">
+          <svg viewBox="0 0 280 170" role="img" aria-label="Animated EVO station: the lid opens on a bait block secured on a rod, then closes and locks" class="evofig">
+            <path d="M10 150h260" stroke="#C3DAC9" stroke-width="2"/>
+            <rect x="50" y="96" width="180" height="54" rx="8" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/>
+            <path d="M70 140h140" stroke="#A3C6AB" stroke-width="1.4"/>
+            <path d="M140 108v32" stroke="#5C6B62" stroke-width="2"/>
+            <rect x="126" y="112" width="28" height="18" rx="3" fill="#74A96E" stroke="#1F5836" stroke-width="1.4"/>
+            <rect x="46" y="128" width="16" height="12" rx="3" fill="#F4F6F5" stroke="#1F5836" stroke-width="1.4"/><rect x="218" y="128" width="16" height="12" rx="3" fill="#F4F6F5" stroke="#1F5836" stroke-width="1.4"/>
+            <path d="M58 150v14M222 150v14" stroke="#1F5836" stroke-width="3" stroke-linecap="round"/>
+            <g class="lid"><rect x="46" y="84" width="188" height="16" rx="6" fill="#C3DAC9" stroke="#1F5836" stroke-width="2"/></g>
+            <g class="evokey"><circle cx="252" cy="92" r="9" fill="none" stroke="#2E6F47" stroke-width="2.2"/><path d="M243 92h-18M231 92v6" stroke="#2E6F47" stroke-width="2.2" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-key"/></svg><span><b>Keys stay on you.</b> Clipped to your belt or key ring, never left in a station or on a ledge. A lost key means a station anyone could open.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-box"/></svg><span><b>Carry spare stations.</b> A cracked lid or broken latch is replaced on the spot, then recorded. Placement and rebaiting decisions are covered in PC-07.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 PRACTICE: PRO OR FIX -->
+  <section class="slide" data-label="Practice: pro move or fix it">
+    <span class="eyebrow a">05 · Practice · ride-along</span>
+    <h2 class="a" style="--i:1">Your supervisor rides along. Pro move, or fix it?</h2>
+    <div class="sort a" style="--i:2" id="proSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="proCheck">Check my answers</button><span id="proFb"></span></div>
+  </section>
+
+  <!-- 23 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 24 PART FOUR -->
+  <section class="slide forest" data-label="Part four: care and storage">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Care, troubleshooting and storage</h1>
+        <p class="lead a" style="--i:2">Why it matters: a five-dollar O-ring can stop your whole day. Equipment that's cleaned, checked and stored right doesn't leak on a customer's floor or fail at the third stop.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Daily, weekly and monthly care</li><li><span>02</span>Practice: troubleshoot the sprayer</li><li><span>03</span>Storing it on the truck</li></ol>
+    </div>
+  </section>
+
+  <!-- 25 CARE -->
+  <section class="slide" data-label="Daily, weekly and monthly care">
+    <span class="eyebrow a">01 · The care routine</span>
+    <h2 class="a" style="--i:1">Small checks, on a schedule</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:22px;align-items:start">
+      <div class="grid a" style="--i:2;gap:12px">
+        <div class="scen-tabs" id="careTabs"></div>
+        <div class="card" id="careBox" style="padding:14px 20px;min-height:230px"></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="callout danger"><svg class="ico"><use href="#i-alert"/></svg><span><b>Depressurize before you open anything.</b> Lid, nozzle, valve or hose: release the pressure first and point it away from your face.</span></div>
+        <div class="callout danger"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never blow out a nozzle with your mouth,</b> and never push a pin or wire through it. That's an exposure, and a reamed tip sprays wrong.</span></div>
+        <div class="callout"><svg class="ico"><use href="#i-drop"/></svg><span><b>Rinse water is rinsate.</b> Spray it onto a site the label allows. Never down a sink, storm drain or onto pavement (FC-04).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 26 PRACTICE: TROUBLESHOOT -->
+  <section class="slide" data-label="Practice: troubleshoot the sprayer">
+    <span class="eyebrow a">02 · Practice · troubleshoot the sprayer</span>
+    <h2 class="a" style="--i:1">Something's wrong at the stop. What's the fix?</h2>
+    <div class="scen-tabs a" style="--i:2" id="tsTabs"></div>
+    <div class="split a" style="--i:3;grid-template-columns:auto 1fr;gap:20px;align-items:start" id="tsBox"></div>
+  </section>
+
+  <!-- 27 STORAGE -->
+  <section class="slide" data-label="Storing it on the truck">
+    <span class="eyebrow a">03 · Storing it on the truck</span>
+    <h2 class="a" style="--i:1">Every tool has a place, and nothing rides loose</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="sttab">
+        <thead><tr><th>Tool</th><th>End of the day</th><th>Where it rides</th></tr></thead>
+        <tbody>
+          <tr><td>B&amp;G and backpack</td><td>Depressurize, rinse, wipe down, valves closed</td><td>Upright and strapped; backpack at the tailgate</td></tr>
+          <tr><td>Aerosols</td><td>Caps and straws on</td><td>Upright in the locked toolbox, shaded, never the cab</td></tr>
+          <tr><td>Gel bait, dusts, granules</td><td>Tips capped, bags sealed, hopper emptied</td><td>Sealed, dry, locked toolbox or secured in the bed</td></tr>
+          <tr><td>EVO stations, bait, keys</td><td>Spent bait bagged; keys counted</td><td>Bait and spare stations locked; keys on you</td></tr>
+          <tr><td>Brush, flashlight, covers, monitors</td><td>Brush cleared; light on the charger</td><td>Brush clipped; supplies in a clean bin away from product</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-lock"/></svg><span><b>Full storage rules are in FC-05:</b> toolbox locked (Clements: always), labeled containers, nothing in the cab, water marked "H2O."</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span><b>Report broken equipment the same day</b> and tag it. Never run a leaking sprayer for "one more stop."</span></div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it at your truck and on a real stop</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before PC-01 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="so1"> Name every tool on your truck, what it's for and where it rides</label></li>
+      <li><label><input type="checkbox" id="so2"> Load the right kit for an exterior-only stop and an interior and exterior stop</label></li>
+      <li><label><input type="checkbox" id="so3"> Name each part of the B&amp;G and the backpack, and fill each one with an air gap</label></li>
+      <li><label><input type="checkbox" id="so4"> Pressurize the B&amp;G without leaks and set the nozzle for a baseboard, a crack and a pin stream</label></li>
+      <li><label><input type="checkbox" id="so5"> Depressurize, take off the lid, then inspect and clean the gasket and the nozzle</label></li>
+      <li><label><input type="checkbox" id="so6"> Use an aerosol tip, gel bait applicator and duster the right way on a practice surface</label></li>
+      <li><label><input type="checkbox" id="so7"> Open, clean, rebait, lock and record an EVO station, with the key secured afterward</label></li>
+      <li><label><input type="checkbox" id="so8"> Do the end-of-day routine: depressurize, rinse, rinsate, wipe down and store everything secured</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('pc01:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('pc01:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "PC-01", "titleHtml": "GHP Equipment", "nextHtml": "PC-02 \u00b7 Interior Treatment", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Know your kit',q:'Exterior-only recurring service. The account has EVO stations and the customer isn\'t home. What do you take from the tailgate?',o:['B&amp;G, aerosols and gel bait, in case the customer comes home','Backpack sprayer, hand spreader, spider brush, plus the station key, fresh bait and a bag','Backpack sprayer only; stations are a separate service','Everything on the truck, so you never have to walk back'],a:1,e:'An exterior service needs the perimeter liquid, granular band, web removal and station service. Interior tools stay locked on the truck. Gloves, label PPE and the spill kit go on every job.'},
+    2:{t:'Checkpoint 2 · Sprayers',q:'Treating kitchen baseboards with the B&amp;G, you see product running under the cabinets and a light mist in the air. What do you change?',o:['Pump more so the spray reaches farther','Switch to the backpack sprayer for more volume','Keep going and wipe up the runoff afterward','Release some pressure, work at a low, steady pressure and use a light fan or a crack-and-crevice tip'],a:3,e:'Mist and runoff mean too much pressure and the wrong pattern. Low, steady pressure gives coarse droplets that stay on target. A light fan or crack-and-crevice tip puts product where it belongs.'},
+    3:{t:'Checkpoint 3 · Applicators and stations',q:'You open an EVO station by the customer\'s pool deck and find the lid cracked and the latch broken. Children play in the yard. What do you do?',o:['Replace it on the spot with a spare station: bait secured on the rod, anchored, locked, recorded, key back on you','Tape the lid shut and note it for next visit','Take the bait out and leave the empty station','Leave it; the bait is still inside'],a:0,e:'A station that isn\'t tamper-resistant is a liability, especially around children. Carry spares, swap it, secure the bait on the rod, lock it, check the anchor and record it.'},
+    4:{t:'Checkpoint 4 · Care and storage',q:'End of the day. Your B&amp;G still has a little mix in it. What\'s the right routine?',o:['Leave it pressurized so it\'s ready in the morning','Pour the leftover into the storm drain at the branch and rinse it in the sink','Spray it out on a site the label allows, depressurize, rinse and spray the rinse water out the same way, wipe it down, store it upright and secured','Leave it in the cab overnight so it stays cool'],a:2,e:'Rinse and depressurize daily so seals last and nothing builds up. Leftover mix and rinsate go onto a site the label allows, never a drain or sink. Equipment rides upright and secured, never in the cab.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the electric backpack sprayer mainly used for in GHP service?',o:['Interior baseboards','Rodent baiting','Exterior perimeter, entry points and spot treatments','Applying granules'],a:2,e:'The backpack does the exterior: the perimeter band on the foundation and ground, thresholds, window frames and spot treatments.'},
+    {k:'Multiple choice',q:'Why does Clements apply both a liquid and a granular band outside?',o:['Granules release slowly into mulch, soil and turf, so they extend the barrier the liquid starts','Granules replace the need for liquid','Liquids can\'t be used near the foundation','It\'s only for lawn customers'],a:0,e:'Granules release product over time where they land in mulch, soil and turf, extending the barrier the liquid band starts.'},
+    {k:'True or false',q:'Over-pumping a B&amp;G gives you better control indoors.',o:['True','False'],a:1,e:'False. Over-pumping makes fine droplets that drift and stresses the seals. Pump to a steady working pressure.'},
+    {k:'Multiple choice',q:'A B&amp;G hisses at the lid and won\'t hold pressure. What is the most likely cause?',o:['A clogged nozzle','An empty tank','A long hose','A dirty, dry or worn lid gasket'],a:3,e:'Air escaping at the lid points to the gasket. Depressurize, then clean, lubricate or replace it.'},
+    {k:'Scenario',q:'Your B&amp;G is pressurized but only dribbles. After depressurizing, how do you clear the nozzle?',o:['Blow through it','Rinse it and clean it with a soft brush, and check the valve screen','Push a pin through it','Tap it on the tailgate'],a:1,e:'Water and a soft brush, never your mouth or a pin. A reamed tip sprays the wrong amount and pattern.'},
+    {k:'Multiple choice',q:'Under Florida Rule 5E-14.106(5), how do you fill a sprayer from a hose?',o:['Hose end at least 2 inches above the tank opening, or with an anti-siphon device','Hose pushed into the mix to prevent foaming','Any way, as long as you watch it','Only at the branch'],a:0,e:'An air gap of at least 2 inches, or an anti-siphon device, stops mix being pulled back into the water supply.'},
+    {k:'Multiple choice',q:'Which tip puts aerosol product inside a cabinet hinge gap?',o:['Fan','Pin stream from the backpack','Crack-and-crevice tip, inserted into the gap','Duster'],a:2,e:'The crack-and-crevice tip goes into the gap so the product lands where pests hide.'},
+    {k:'True or false',q:'It\'s fine to spray liquid insecticide over existing gel bait placements to boost them.',o:['True','False'],a:1,e:'False. Spray contaminates the bait and pests avoid it. Keep liquids and cleaners off bait.'},
+    {k:'Multiple choice',q:'How full should you fill a bulb duster?',o:['To the top, so it lasts all day','Just a pinch','Full, then packed down','About half full, leaving air to carry the dust'],a:3,e:'Air space lets the dust puff out as a light film. Tap it before use and keep it dry.'},
+    {k:'Scenario',q:'Your duster stopped puffing and the dust inside has clumped. What happened, and what do you do?',o:['Moisture got in: bag the clumped dust for proper disposal, dry the duster, refill about half full','It needs to be rinsed with water','Squeeze harder','Add fresh dust on top'],a:0,e:'Water clumps dust. Never rinse a duster. Keep the tip capped and store it sealed.'},
+    {k:'Multiple choice',q:'What do you do with leftover granules in the hand spreader at the end of the day?',o:['Leave them in the hopper','Spread them on the branch lawn','Pour them back into the original labeled bag','Throw them in the dumpster'],a:2,e:'Granules left in the hopper cake and corrode it. Return them to the labeled bag and clean and dry the spreader.'},
+    {k:'Multiple choice',q:'How close can a spider brush pole come to an overhead power line?',o:['Touching is fine if the pole is fiberglass','No closer than 10 feet','3 feet','There is no rule'],a:1,e:'OSHA 1910.333 keeps unqualified workers and conductive objects at least 10 feet from overhead lines of 50 kV or less.'},
+    {k:'Multiple choice',q:'On an EVO station service, what happens on every visit?',o:['Glove up, unlock and open every station, clean it, use fresh bait secured on the rod, lock it, check the anchor, record activity','Look at the outside and move on','Open only stations with visible activity','Replace bait only every third visit'],a:0,e:'Open every station, every visit. Outside appearance doesn\'t tell you about moisture, damage or activity.'},
+    {k:'True or false',q:'The EVO station key can be left on top of a station while you service the next one.',o:['True','False'],a:1,e:'False. Keys stay clipped to you. A key left out means a station anyone could open.'},
+    {k:'Multiple choice',q:'When do shoe covers go on?',o:['Only if the customer asks','Only on carpet','As you step inside, every visit','Before you get out of the truck'],a:2,e:'On as you step inside, off as you step out, every visit, even if the customer says not to worry.'},
+    {k:'Multiple choice',q:'Why do you date and number glue board monitors?',o:['FDACS requires a logo on them','To track activity over time and make sure none are lost or forgotten','So customers can throw them away','There is no reason'],a:1,e:'Dated, numbered, recorded monitors show where activity is and whether the treatment is working.'},
+    {k:'Multiple choice',q:'Which is part of the weekly care routine?',o:['Charge the backpack battery','Deep clean sprayers inside and out','Empty the spreader hopper','Check gaskets, O-rings and hoses for wear, and lubricate seals'],a:3,e:'Weekly: gaskets, O-rings, hoses, lubrication, and cleaning nozzles, screens and strainers. Battery and hopper are daily; deep cleaning is monthly.'},
+    {k:'Scenario',q:'The backpack pump runs but nothing comes out. What do you check first?',o:['Tank level, strainer and inlet filter, then prime the pump','The battery charger at the branch','The tip, by unscrewing it while the pump runs','Nothing; call it a day'],a:0,e:'An empty tank, clogged strainer or filter, or air in the line is the usual cause. Check the simple things first.'},
+    {k:'Multiple choice',q:'The nozzle keeps dripping after you release the valve, and your next area is inside the home. What do you do?',o:['Hold a rag under it','Go ahead; it\'s only a drip','Stop and depressurize; clean or replace the valve seal, or use a spare sprayer, and report it','Point it at the ceiling'],a:2,e:'A drip on a customer\'s floor is a spill and a stain. Fix it before you go inside and tell your supervisor.'},
+    {k:'Multiple choice',q:'Where do aerosol cans ride on the truck?',o:['On the dashboard where you can reach them','Upright, capped, in the locked toolbox, out of heat','Loose in the bed','Lying flat in the cab'],a:1,e:'Aerosols are pressurized and usually flammable. Upright, secured, locked and shaded. Never in the cab (FC-05).'}
+  ];
+
+  var SVGNS='http://www.w3.org/2000/svg';
+  function ico(n){return '<svg class="ico"><use href="#'+n+'"/></svg>'}
+  function li(a){return a.map(function(x){return '<li>'+x+'</li>'}).join('')}
+
+  /* ---------- tool library ---------- */
+  var TOOLS=[
+    {n:'Electric backpack sprayer',i:'i-pack',w:'Exterior',f:'Liquid perimeter band, entry points, eaves and spot treatments outside the home.',s:'Battery charged, strainer in place, fill with an air gap, lid tight, set the pressure the tip calls for.',c:'Rinse and spray out, wipe down, charge the battery, check the hose and lid seal.'},
+    {n:'B&amp;G handheld sprayer',i:'i-spray',w:'Interior (and spot work outside)',f:'Compressed-air sprayer for baseboards, door frames, under appliances and spot treatments.',s:'Fill with an air gap, seat the lid gasket, pump to a steady working pressure (never over-pump), set the nozzle.',c:'Depressurize and rinse daily, wipe down, check the gasket and O-rings weekly.'},
+    {n:'Hand spreader',i:'i-spread',w:'Exterior',f:'Granular band around the perimeter, usually two to three feet wide.',s:'Gate closed to fill, set the opening for the product (PC-04), walk at an even pace.',c:'Empty leftovers back into the labeled bag, clean and dry the hopper, gate and spinner.'},
+    {n:'Duster',i:'i-duster',w:'Interior',f:'Dust into dry voids: wall voids, switch plates, weep holes, where the label allows.',s:'Fill about half full, tap before use, light puffs only.',c:'Keep it dry. Never rinse. Cap the tip and bag it.'},
+    {n:'Spider brush',i:'i-brush',w:'Exterior',f:'Removes webs and nests from eaves and soffits on every visit.',s:'Check for wasps, extend the pole, keep 10 feet from power lines.',c:'Clear the bristles away from doors, clip it on the truck.'},
+    {n:'Flashlight',i:'i-light',w:'Both',f:'Inspection under sinks, behind appliances, in attics, crawl spaces and voids.',s:'Fully charged, spare batteries on the truck.',c:'Charge nightly. Wipe it if it touched a treated surface.'},
+    {n:'Aerosol with crack-and-crevice tip',i:'i-can',w:'Interior',f:'Puts product inside cracks, crevices, hinge gaps and voids where pests hide.',s:'Seat the straw, keep the can upright, insert the tip into the gap.',c:'Cap and straw on, store upright in the locked toolbox, out of heat.'},
+    {n:'Gel bait applicator',i:'i-gel',w:'Interior',f:'Small bait placements for roaches and ants where they travel and harbor.',s:'Fit a clean tip, place small spots as the label directs, out of reach of kids and pets.',c:'Wipe and cap the tip, keep the plunger clean, store cool and sealed.'},
+    {n:'EVO bait stations and key',i:'i-station',w:'Exterior',f:'Tamper-resistant stations that hold rodenticide on a rod, away from children, pets and non-targets.',s:'Gloves on, unlock, open every station, every visit.',c:'Clean, rebait, lock, check the anchor, record. Key stays on you.'},
+    {n:'Monitors (glue boards)',i:'i-board',w:'Interior',f:'Show where activity is and whether the treatment is working.',s:'Date and number them, place them along walls and behind appliances, out of reach.',c:'Replace dusty or full boards and record what you found.'},
+    {n:'Shoe covers',i:'i-cover',w:'Interior',f:'Protect the customer\'s floors and show you respect their home.',s:'On as you step inside, every visit.',c:'Off as you step out, into the trash bag on the truck. Torn ones replaced.'}
+  ];
+  var tlSeen=store.get('tl')||{};
+  function tlCount(){var n=Object.keys(tlSeen).length;$('#tlCount').textContent=n+' of 11 opened'+(n===11?' · all opened':'');}
+  TOOLS.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tl'+i;b.setAttribute('aria-pressed','false');if(tlSeen[i])b.classList.add('seen');
+    b.innerHTML=ico(t.i)+'<span>'+t.n+'</span>';
+    b.addEventListener('click',function(){
+      $$('#tlList button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});tlSeen[i]=1;store.set('tl',tlSeen);b.classList.add('seen');tlCount();
+      $('#tlInfo').innerHTML='<div style="display:flex;gap:14px;align-items:center"><div class="icobox" style="margin:0;width:52px;height:52px">'+ico(t.i)+'</div><div><span class="eyebrow">'+t.w+'</span><h3 style="font-size:22px;margin:2px 0 0">'+t.n+'</h3></div></div><dl class="tldl"><dt>What it\'s for</dt><dd>'+t.f+'</dd><dt>Setup</dt><dd>'+t.s+'</dd><dt>Daily care</dt><dd>'+t.c+'</dd></dl>';
+    });$('#tlList').appendChild(b)});
+  tlCount();
+
+  /* ---------- loadout picker ---------- */
+  var ITEMS=['Electric backpack sprayer','B&amp;G sprayer','Hand spreader','Spider brush','Flashlight','Shoe covers','Aerosol + C&amp;C tip','Gel bait applicator','Duster','Monitors','EVO station key','Fresh bait blocks + bag','Spare EVO station'];
+  var JOBS=[
+    {n:'Exterior-only recurring',d:'Recurring every-other-month GHP, exterior only. The account has four EVO stations. The customer isn\'t home.',k:[0,2,3,10,11,12],x:{1:'Interior sprayer: this is an exterior-only service.',5:'No one is going inside today.',6:'No interior crack-and-crevice work on an exterior-only visit.',7:'No interior baiting on this visit.',8:'No interior void work today.',9:'Monitors are an interior tool.'},o:{4:1}},
+    {n:'Initial service, in and out',d:'First service at a new home: full interior and exterior treatment. No rodent stations on the account.',k:[0,1,2,3,4,5,6,7,9],x:{10:'There are no stations on this account.',11:'There are no stations on this account.',12:'There are no stations on this account.'},o:{8:1}},
+    {n:'Kitchen roach callback',d:'Recurring customer seeing German roaches under the kitchen sink and behind the fridge. Interior callback only.',k:[1,4,5,6,7,8,9],x:{0:'The backpack is for the exterior perimeter.',2:'Granules are an exterior perimeter product.',3:'No eave work on an interior callback.',10:'No stations on this visit.',11:'No stations on this visit.',12:'No stations on this visit.'},o:{}},
+    {n:'Rodent station service',d:'Quarterly EVO station service: six exterior stations, one with a cracked lid noted last visit.',k:[4,10,11,12],x:{1:'No interior treatment on this visit.',5:'You aren\'t going inside.',6:'No crack-and-crevice work on a station service.',7:'Gel bait is for insects, not rodents.',8:'No void work on a station service.',9:'Monitors are interior tools.',2:'No granular work is scheduled.'},o:{0:1,3:1}}
+  ];
+  var loCur=0, loDone=store.get('lo')||{};
+  function loRender(){
+    $$('#loTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===loCur);b.classList.toggle('done',!!loDone[j])});
+    var J=JOBS[loCur];$('#loJob').innerHTML='<span class="eyebrow">The job</span><p style="margin-top:4px;font-size:15px">'+J.d+'</p><p class="small muted" style="margin-top:6px">Gloves, label PPE and the spill kit go on every job, so they aren\'t on this list.</p>';
+    $$('#loPick button').forEach(function(b){b.setAttribute('aria-pressed','false');b.classList.remove('miss','extra')});$('#loFb').innerHTML='';
+  }
+  JOBS.forEach(function(j,i){var b=document.createElement('button');b.type='button';b.id='lot'+i;b.textContent=j.n;b.addEventListener('click',function(){loCur=i;loRender()});$('#loTabs').appendChild(b)});
+  ITEMS.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='loi'+i;b.setAttribute('aria-pressed','false');b.innerHTML=t;
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');b.classList.remove('miss','extra')});$('#loPick').appendChild(b)});
+  $('#loCheck').addEventListener('click',function(){
+    var J=JOBS[loCur],miss=[],wrong=[];
+    ITEMS.forEach(function(t,i){var b=$('#loi'+i),on=b.getAttribute('aria-pressed')==='true',need=J.k.indexOf(i)>=0;
+      b.classList.remove('miss','extra');
+      if(need&&!on){b.classList.add('miss');miss.push(t)}
+      else if(!need&&on&&!J.o[i]){b.classList.add('miss');b.setAttribute('aria-pressed','false');wrong.push(J.x[i]||'Not needed for this job.')}});
+    var opt=Object.keys(J.o).filter(function(i){return $('#loi'+i).getAttribute('aria-pressed')==='true'});
+    if(!miss.length&&!wrong.length){loDone[loCur]=1;store.set('lo',loDone);$('#lot'+loCur).classList.add('done');
+      $('#loFb').innerHTML='<span class="fb" style="display:inline-block">Right kit for this job.'+(opt.length?' '+opt.map(function(i){return ITEMS[i]}).join(' and ')+': fine to bring, not required here.':'')+' Try the next job.</span>';}
+    else $('#loFb').innerHTML='<span class="fb no" style="display:inline-block">'+(miss.length?'Missing: '+miss.join(', ')+'. ':'')+(wrong.length?'Taken out (outlined in red): '+wrong.join(' '):'')+'</span>';
+  });
+  loRender();
+
+  /* ---------- anatomy ---------- */
+  var AN={
+    B:[
+      {x:128,y:22,t:'Pump handle and plunger',d:'Pumps air into the tank. Pump to a steady working pressure and stop. Over-pumping stresses the seals, shortens their life and makes fine droplets that drift.'},
+      {x:44,y:106,t:'Lid and gasket',d:'The pump assembly screws in as the lid and seals on a rubber gasket. A dirty, dry or cracked gasket hisses and won\'t hold pressure. Clean it, lubricate it with the manufacturer\'s seal lube and replace it when worn.'},
+      {x:204,y:60,t:'Pressure gauge (if fitted)',d:'Shows tank pressure so you can work at the same pressure every time. No gauge? Count your pump strokes and keep it consistent. Always release pressure before opening the lid.'},
+      {x:128,y:200,t:'Tank',d:'Holds the mix. Fill with clean water first, then product, as PC-04 directs, and never past the fill line. It needs air space to pressurize. Labeled with what\'s in it if it holds a mix overnight.'},
+      {x:222,y:268,t:'Hose',d:'Carries mix to the valve. Check for cracks, kinks and soft spots weekly. A split hose is a spill waiting to happen on a customer\'s floor.'},
+      {x:288,y:250,t:'Shutoff valve and screen',d:'The trigger. Most valves have a filter screen inside that catches debris. A worn valve seal drips after you let go: stop and fix it before the next stop.'},
+      {x:420,y:208,t:'Wand',d:'Lets you reach under appliances and along baseboards without bending over the treated surface. Keep it pointed at the target or down, never at people.'},
+      {x:536,y:126,t:'Adjustable nozzle and tips',d:'Turns from a broad fan to a pin stream. Many B&amp;Gs also take a crack-and-crevice tip. Clean it with water and a soft brush when depressurized, never by mouth or with a pin. Replace a worn tip with the same type.'}
+    ],
+    P:[
+      {x:159,y:26,t:'Lid and strainer basket',d:'Always fill through the strainer so debris can\'t reach the pump and tip. A tight lid stops splashing on your back. Keep the seal clean.'},
+      {x:258,y:110,t:'Tank',d:'Holds the mix. Read the fill marks, fill with an air gap and don\'t overfill. You carry every gallon on your back.'},
+      {x:46,y:180,t:'Straps and back pad',d:'Adjust so the tank rides high and snug. Put it on from the tailgate ledge. Frayed straps get reported and replaced.'},
+      {x:250,y:296,t:'Battery and charger port',d:'Powers the pump. Charge it overnight, keep the connection clean and dry. If it won\'t hold a charge, tell your supervisor before it fails mid-route.'},
+      {x:276,y:212,t:'Power switch and pressure control',d:'Turns the pump on and sets pressure or flow. Set it for the tip and label, then leave it there for an even application.'},
+      {x:159,y:204,t:'Pump',d:'Pulls mix from the tank and pushes it to the wand. Runs but won\'t spray? Check the tank level, the strainer and the inlet filter, then prime it.'},
+      {x:330,y:274,t:'Hose and shutoff valve',d:'Check connections for drips. Release the valve whenever you stop walking, turn a corner or talk to someone.'},
+      {x:470,y:212,t:'Wand and tip',d:'Fan tips for the perimeter band, stream for reaching eaves. A streaky pattern means a worn or damaged tip: replace it with the same type.'}
+    ]
+  };
+  var anCur='B', anSeen={B:{},P:{}};
+  function anCount(){var s=Object.keys(anSeen[anCur]).length;$('#anCount').textContent=s+' of 8 parts on the '+(anCur==='B'?'B&G':'backpack')+(s===8?' · all found':'');}
+  ['B','P'].forEach(function(k){
+    var L=$('#anLayer'+k);
+    AN[k].forEach(function(p,i){var g=document.createElementNS(SVGNS,'g');g.setAttribute('class','part');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.id='an'+k+i;g.setAttribute('aria-label',(i+1)+'. '+p.t);
+      g.innerHTML='<circle class="halo" cx="'+p.x+'" cy="'+p.y+'" r="14"/><circle class="dot" cx="'+p.x+'" cy="'+p.y+'" r="13"/><text x="'+p.x+'" y="'+(p.y+4.5)+'" text-anchor="middle">'+(i+1)+'</text>';
+      function go(){$$('.part',L).forEach(function(x){x.classList.remove('sel')});g.classList.add('sel','seen');anSeen[k][i]=1;anCount();
+        $('#anInfo').innerHTML='<span class="eyebrow">'+(k==='B'?'B&amp;G handheld':'Electric backpack')+' · part '+(i+1)+'</span><h3 style="font-size:22px;margin:6px 0 6px">'+p.t+'</h3><p style="font-size:15px">'+p.d+'</p>';}
+      g.addEventListener('click',go);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});L.appendChild(g)});
+  });
+  function anShow(k){anCur=k;$('#anB').setAttribute('aria-pressed',k==='B');$('#anP').setAttribute('aria-pressed',k==='P');$('#anSvgB').style.display=k==='B'?'':'none';$('#anSvgP').style.display=k==='P'?'':'none';
+    $('#anInfo').innerHTML='<span class="eyebrow">Select a number</span><p style="margin-top:8px">'+(k==='B'?'The B&amp;G is a compressed-air sprayer: you pump air in, the air pushes the mix out.':'The backpack uses a battery pump, so pressure stays steady as long as the battery and strainer are in good shape.')+'</p>';anCount();}
+  $('#anB').addEventListener('click',function(){anShow('B')});$('#anP').addEventListener('click',function(){anShow('P')});
+  anCount();
+
+  /* ---------- B&G setup order ---------- */
+  var BG=['Read the label for the job: target site, application type and PPE','Put on the PPE the label requires','Check the gasket, hose and nozzle for wear or damage','Fill partway with clean water, hose end at least 2 inches above the opening','Add product as PC-04 directs, then top off with water to the fill line','Seat the lid on a clean gasket and pump to a steady working pressure','Test the nozzle setting on the target area or into the tank before you start'];
+  var bgOrder=[4,0,6,2,5,1,3], bgN=0;
+  function renderBg(){
+    var box=$('#bgOrd');box.innerHTML='';bgN=0;$('#bgOrdFb').innerHTML='';
+    bgOrder.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='bgo'+ix;b.innerHTML='<span class="num">·</span><span>'+BG[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===bgN){b.classList.add('placed');$('.num',b).textContent=bgN+1;bgN++;
+          if(bgN===BG.length){$('#bgOrdFb').innerHTML='<div class="fb">Correct. Label, PPE, inspect, water with an air gap, product, seal and pressurize, test. <button type="button" class="btn" id="bgAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#bgAgain').addEventListener('click',renderBg);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');
+          $('#bgOrdFb').innerHTML='<div class="fb no">'+(bgN<2?'The label and your protection come before you touch product.':(bgN<3?'Check the equipment before you put anything in it.':(bgN<5?'Water first, with an air gap, then product.':'Seal and pressurize before you test.')))+'</div>';}
+      });box.appendChild(b);});
+  }
+  renderBg();
+
+  /* ---------- pressure / droplets ---------- */
+  (function(){
+    var lo=$('#dLow'),hi=$('#dHigh'),h='';
+    for(var i=0;i<9;i++){var y=114+((i*7)%14)-6;h+='<circle cx="114" cy="'+(120+(i%3-1)*4)+'" r="'+(5+(i%2))+'" style="--dx:'+(300+(i%3)*6)+'px;--dy:'+((i%3-1)*14)+'px;animation-delay:'+(i*0.26).toFixed(2)+'s"/>';}
+    lo.innerHTML=h;h='';
+    for(var j=0;j<34;j++){var up=-40-((j*37)%110);h+='<circle cx="114" cy="120" r="'+(1.4+(j%3)*0.5)+'" style="--dx:'+(180+((j*53)%240))+'px;--dy:'+up+'px;animation-delay:'+((j*0.11)%2.6).toFixed(2)+'s"/>';}
+    hi.innerHTML=h;
+    var INFO={low:['Coarse droplets land on target','Heavier drops fall where you aim them: on the baseboard, the crack, the foundation band. Less drift, less odor in the room, less product on surfaces nobody meant to treat.','Pump to a steady working pressure and stop. Re-pump when the spray weakens, not every few seconds.'],
+      high:['Fine mist drifts off target','Over-pumping turns the spray into a mist that floats onto counters, furniture, people and pets, and it stresses the seals. Indoors, many labels call for a coarse, low-pressure spray.','If you can see a cloud hanging in the air, the pressure is too high or you\'re using the wrong tip.']};
+    function set(k){$('#prLow').setAttribute('aria-pressed',k==='low');$('#prHigh').setAttribute('aria-pressed',k==='high');lo.style.display=k==='low'?'':'none';hi.style.display=k==='high'?'':'none';
+      var I=INFO[k];$('#prInfo').innerHTML='<div class="card" style="padding:16px 20px"><span class="eyebrow">'+(k==='low'?'Low, steady pressure':'Over-pumped')+'</span><h3 style="margin:6px 0">'+I[0]+'</h3><p>'+I[1]+'</p></div><div class="callout'+(k==='high'?' danger':'')+'">'+ico(k==='high'?'i-alert':'i-gauge')+'<span>'+I[2]+'</span></div>';}
+    $('#prLow').addEventListener('click',function(){set('low')});$('#prHigh').addEventListener('click',function(){set('high')});set('low');
+  })();
+
+  /* ---------- generic multi-way sort ---------- */
+  function makeSort(box,btn,fb,items,labels,okMsg){
+    var sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=box+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+labels.map(function(l,j){return '<button type="button" aria-pressed="false" data-v="'+l+'" id="'+box+i+'_'+j+'">'+l+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+      $('#'+box).appendChild(r)});
+    $('#'+btn).addEventListener('click',function(){
+      var right=0,blank=0;
+      items.forEach(function(s,i){var r=$('#'+box+'r'+i),w=$('.why',r);if(w)w.remove();
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+      });
+      $('#'+fb).innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all '+items.length+' before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">All '+items.length+' correct. '+okMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. Read the notes under the ones in red and try again.</span>');
+    });
+  }
+  makeSort('tipSort','tipCheck','tipFb',[
+    {q:'A light band along kitchen toe-kicks without runoff under the cabinets',a:'Fan',w:'A light, low-pressure fan covers the band without puddling.'},
+    {q:'Into the gap where the countertop meets the backsplash',a:'C&C tip',w:'The product needs to land inside the gap, so the tip goes into it.'},
+    {q:'An ant trail disappearing into a crack in the patio slab',a:'Pin stream',w:'A narrow stream puts product right into the crack along the trail.'},
+    {q:'A dry wall void behind a plumbing escutcheon under the sink',a:'Duster',w:'Dry voids take a light puff of dust where the label allows. A liquid would run out.'},
+    {q:'The foundation band around the outside of the home',a:'Fan',w:'A wider fan from the backpack gives an even perimeter band.'},
+    {q:'Reaching spider activity on a second-story eave from the ground',a:'Pin stream',w:'A stream reaches height without misting. Eaves are spot and crack-and-crevice only: aim into the corners where they harbor, and brush the webs too.'},
+    {q:'The hinge gaps on kitchen cabinet doors where roaches harbor',a:'C&C tip',w:'Insert the crack-and-crevice tip into the hinge gap. Gel bait is another option there.'},
+    {q:'An open baseboard gap behind the refrigerator, with existing gel bait nearby',a:'C&C tip',w:'Target the gap with a crack-and-crevice tip and keep spray off the bait so it isn\'t contaminated.'}
+  ],['Pin stream','Fan','C&C tip','Duster'],'Pattern and tip decide where the product lands.');
+
+  makeSort('proSort','proCheck','proFb',[
+    {q:'Pulls on shoe covers at the front door before stepping onto the tile',a:'Pro move',w:'Covers go on as you step inside, every visit.'},
+    {q:'Leaves the EVO key sitting on top of the station while servicing the next one',a:'Fix it',w:'Keys stay clipped to you. A key left out means a station anyone can open.'},
+    {q:'Pumps the B&G "a few extra times to be safe" before treating the bedroom',a:'Fix it',w:'Over-pumping makes drifting mist and wears out seals. Steady working pressure only.'},
+    {q:'Sweeps stray granules off the driveway back onto the lawn',a:'Pro move',w:'Granules on hard surfaces wash to the storm drain.'},
+    {q:'Sprays a quick fan of liquid over gel bait placed under the sink last visit',a:'Fix it',w:'Spray contaminates bait and pests avoid it. Keep liquids off bait.'},
+    {q:'Fills the backpack at the spigot with the hose pushed down into the mix',a:'Fix it',w:'Keep the hose end at least 2 inches above the opening (5E-14.106(5)).'},
+    {q:'Dates and numbers each new glue board and notes it on the order',a:'Pro move',w:'Dated, recorded monitors show trends and nothing gets lost.'},
+    {q:'Brushes webs off the eave right next to the overhead service line',a:'Fix it',w:'Keep poles at least 10 feet from power lines. Use another angle or report it.'}
+  ],['Pro move','Fix it'],'That\'s what a ride-along should look like.');
+
+  /* ---------- care tabs ---------- */
+  var CARE=[
+    {n:'Every stop',l:['Look for drips at the lid, hose, valve and tip before you walk inside','Release the valve whenever you stop spraying; set the backpack down upright','Cap aerosols and gel tips, close the spreader gate, lock the station and keep the key on you','Everything back on the truck and secured before you drive']},
+    {n:'Daily',l:['Depressurize and rinse sprayers, then spray the rinse water onto a site the label allows','Wipe down equipment to remove residue, especially handles, wands and the toolbox floor','Empty the spreader hopper back into the labeled bag; keep the duster dry and capped','Charge the backpack battery and flashlight; restock shoe covers, monitors and bags']},
+    {n:'Weekly',l:['Check gaskets, O-rings and hoses for wear, cracks or swelling','Lubricate seals and moving parts with the manufacturer\'s lubricant','Clean nozzles, valve screens and the backpack strainer','Friday truck check: no leaks in the toolbox, aerosols organized, B&amp;G clean (FC-07)']},
+    {n:'Monthly',l:['Deep clean sprayers inside and out','Replace damaged or worn nozzles, hoses, seals and applicator tips','Recheck output after replacing a tip (PC-04)','Your supervisor\'s monthly inspection checks equipment and storage too']}
+  ];
+  function showCare(n){$$('#careTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+    $('#careBox').innerHTML='<span class="eyebrow">'+CARE[n].n+'</span><ul class="tick" style="margin-top:8px">'+li(CARE[n].l)+'</ul>';}
+  CARE.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.id='care'+i;b.textContent=c.n;b.addEventListener('click',function(){showCare(i)});$('#careTabs').appendChild(b)});
+  showCare(0);
+
+  /* ---------- troubleshooter ---------- */
+  var TS=[
+    {n:'Hissing lid',i:'i-spray',s:'Your B&amp;G hisses at the top and loses pressure within a minute of pumping.',o:['Pump harder so it stays up','Depressurize, take off the lid and clean, lubricate or replace the gasket','Clean the nozzle','Swap to a longer hose'],a:1,e:'Air escaping at the lid means the gasket is dirty, dry, cracked or not seated. Depressurize first, then clean, lube or replace it.'},
+    {n:'Weak dribble',i:'i-drop',s:'The B&amp;G is fully pressurized, but squeezing the valve gives only a weak dribble.',o:['Depressurize, take off the nozzle and clean it and the valve screen with water and a soft brush','Blow through the nozzle to clear it','Push a pin through the tip','Pump more until it sprays'],a:0,e:'Pressure is fine, so the flow is blocked: a clogged tip or valve screen. Never clear it by mouth or with a pin.'},
+    {n:'Dripping tip',i:'i-alert',s:'The nozzle keeps dripping after you let go of the valve, and you\'re about to go inside.',o:['Keep going; a few drops won\'t matter','Hold a rag under it during the service','Stop. Depressurize and clean or replace the valve seal before you treat inside','Turn the nozzle to pin stream'],a:2,e:'A worn valve seal or debris in the valve causes the drip. On a customer\'s floor that\'s a spill and a stain. Fix it or use a spare sprayer, and report it.'},
+    {n:'Pump runs, no spray',i:'i-pack',s:'The backpack pump runs, but nothing comes out of the wand.',o:['Turn the pressure all the way up','Check the tank level, clean the strainer and inlet filter, then prime the pump','Shake the backpack','Unscrew the tip while it\'s running'],a:1,e:'An empty tank, a clogged strainer or filter, or air in the line. Check the simple things first, then prime it.'},
+    {n:'Won\'t power on',i:'i-thermo',s:'At the first stop, the backpack won\'t turn on at all.',o:['Check the battery connection and swap to a charged battery; report it if it won\'t hold a charge','Open the pump housing on the tailgate','Use the B&amp;G for the whole exterior','Tap the switch against the truck'],a:0,e:'Usually an uncharged battery or a loose connection. Charge it nightly, carry the fix to your supervisor, and don\'t open sealed electrical parts in the field.'},
+    {n:'Streaky pattern',i:'i-target',s:'The fan pattern is heavy on one side and leaves streaks on the foundation.',o:['Walk faster','Hold the wand higher','Clean the tip; if it\'s worn or damaged, replace it with the same type of tip','Switch to pin stream for the whole band'],a:2,e:'A partly clogged or worn tip distorts the pattern and changes output. Clean it, replace it with the same type, and recheck output (PC-04).'},
+    {n:'Duster won\'t puff',i:'i-duster',s:'Your bulb duster barely puffs, and the dust inside has clumped.',o:['Rinse it out with water','Squeeze harder','Add more dust on top','Moisture got in. Bag the clumped dust for proper disposal, dry the duster completely, refill about half full'],a:3,e:'Dust needs to stay dry, with air space to move. Never water. Keep the tip capped and store the duster sealed.'}
+  ];
+  var tsDone=store.get('ts')||{};
+  function showTs(n){
+    $$('#tsTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!tsDone[j])});
+    var t=TS[n];
+    $('#tsBox').innerHTML='<div class="icobox tsico">'+ico(t.i)+'</div><div class="grid" style="gap:10px"><p style="font-size:17px;max-width:none">'+t.s+'</p><div class="choices tsch">'+t.o.map(function(o,i){return '<button type="button" class="choice" id="ts'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="tsFb"></div></div>';
+    $$('#tsBox .choice').forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('#tsBox .choice').forEach(function(x){x.classList.remove('wrong')});
+      if(i===t.a){b.classList.add('right');$$('#tsBox .choice').forEach(function(x){x.disabled=true});tsDone[n]=1;store.set('ts',tsDone);$('#tst'+n).classList.add('done');
+        var nx=TS.findIndex(function(_,k){return !tsDone[k]});
+        $('#tsFb').innerHTML='<div class="fb">'+t.e+(nx>=0?' <button type="button" class="btn" id="tsNext" style="margin-left:8px;padding:4px 12px">Next problem</button>':' All seven solved.')+'</div>';
+        if(nx>=0)$('#tsNext').addEventListener('click',function(){showTs(nx)});}
+      else{b.classList.add('wrong');$('#tsFb').innerHTML='<div class="fb no">Not that one. Think about which part the symptom points to, and remember: depressurize before you open anything.</div>';}
+    })});
+  }
+  TS.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tst'+i;b.textContent=t.n;b.addEventListener('click',function(){showTs(i)});$('#tsTabs').appendChild(b)});
+  showTs(0);
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

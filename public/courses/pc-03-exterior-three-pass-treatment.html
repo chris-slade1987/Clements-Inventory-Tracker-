@@ -1,0 +1,1240 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PC-03 Exterior Three-Pass Treatment</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* PC-03 Exterior Three-Pass: plan diagram, timing bar, elevation hotspots, band cross-section */
+.plan svg,.elev svg,.xsec svg,.reach svg,.sweep svg{max-width:none;width:100%;height:auto}
+.plan,.elev,.xsec{padding:10px}
+.pl{font-family:var(--font);font-size:9px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+.pl2{font-family:var(--font);font-size:10px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+.pl3{font-family:var(--font);font-size:10px;letter-spacing:.1em;fill:var(--brand-800);font-weight:500}
+.pl3.bad{fill:var(--danger)}
+.lawn{fill:#EEF4F0}
+.street{fill:#D5D9D6}
+.hard{fill:#D5D9D6;stroke:#B9C0BB;stroke-width:1}
+.bin{fill:var(--surface);stroke:var(--muted);stroke-width:1}
+.house{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6}
+
+/* plan passes */
+.pg{opacity:.1;transition:opacity .2s ease-in-out}
+#planSvg[data-on="0"] .pg{opacity:1}
+#planSvg[data-on="1"] .p1,#planSvg[data-on="2"] .p2,#planSvg[data-on="3"] .p3,#planSvg[data-on="4"] .pst{opacity:1}
+.band{fill:var(--brand-400);opacity:.75}
+.spot{fill:var(--brand-800)}
+.slide.on #planSvg[data-on="2"] .spot{animation:pulse 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{50%{transform:scale(1.6)}}
+.walk{fill:none;stroke:var(--brand-600);stroke-width:2;stroke-dasharray:6 6}
+.slide.on .walk{animation:march 1.8s linear infinite}
+@keyframes march{to{stroke-dashoffset:-24}}
+.web{fill:none;stroke:var(--muted);stroke-width:1}
+.walker{fill:var(--brand-700);offset-path:path('M150 90 H370 V220 H150 Z');offset-rotate:0deg;offset-distance:0%}
+.slide.on .walker{animation:lap 4s linear infinite}
+@keyframes lap{to{offset-distance:100%}}
+.stn{fill:var(--ink)}
+.slide.on #planSvg[data-on="4"] .stn{animation:pulse 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.passbtns button .num{flex-basis:28px;height:28px}
+.passbtns button[aria-pressed="true"]::after{content:""}
+.passbtns button small{display:block;color:var(--muted);font-size:13px}
+
+/* timing bar */
+.tbar{display:flex;gap:4px;width:100%}
+.tseg{flex:var(--w) 1 0;min-width:0;background:var(--brand-100);border-radius:8px;padding:10px 10px;display:grid;gap:2px;transform-origin:left;font-size:13px;line-height:1.3}
+.tseg b{font-weight:500;font-size:14px}
+.tseg span{color:var(--muted)}
+.tseg.p1c{background:var(--brand-200)}.tseg.p2c{background:var(--brand-300)}.tseg.p3c{background:var(--brand-200)}
+.tseg.stc{background:repeating-linear-gradient(135deg,var(--brand-50),var(--brand-50) 6px,var(--brand-100) 6px,var(--brand-100) 12px)}
+.slide.on .tseg{animation:growx .4s ease-in-out both;animation-delay:calc(var(--d) * 80ms + .1s)}
+.ticks{list-style:none;display:grid;gap:6px;font-size:15px}
+.ticks li{display:flex;gap:10px}
+.ticks li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-500);margin-top:9px}
+
+/* elevation */
+.roof{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.trim{fill:none;stroke:var(--brand-500);stroke-width:1.2}
+.door,.win,.gar{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.4}
+.knob{fill:var(--brand-700)}
+.lamp{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}
+.webl{fill:none;stroke:var(--muted);stroke-width:.9}
+.ac{fill:var(--surface);stroke:var(--ink);stroke-width:1.3}
+.line{fill:none;stroke:var(--ink);stroke-width:2.4}
+.shrub{fill:var(--brand-300);stroke:var(--brand-600);stroke-width:1.2}
+.mulch{stroke:#8A6F55;stroke-width:6;stroke-linecap:round}
+.bin2{fill:var(--surface);stroke:var(--muted);stroke-width:1.3}
+.nest{fill:#C9B9A6;stroke:#8A6F55;stroke-width:1}
+.hs{cursor:pointer}
+.hs .core{fill:var(--forest);stroke:#fff;stroke-width:2}
+.hs text{font-family:var(--font);font-size:10px;fill:#fff;font-weight:500;pointer-events:none}
+.hs .halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hs:not(.seen) .halo{animation:halo 2.6s ease-out infinite}
+.hs.seen .core{fill:var(--positive)}
+.hs.sel .core{stroke:var(--brand-300);stroke-width:3}
+.hs:focus-visible{outline:none}
+.hs:focus-visible .core{stroke:var(--brand-300);stroke-width:4}
+.hsd{min-height:230px}
+.hsd ul{list-style:none;display:grid;gap:6px;margin-top:8px;font-size:15px}
+.hsd li{display:flex;gap:10px}
+.hsd li b{flex:0 0 74px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;padding-top:3px}
+
+/* reach figure */
+.reach{padding:12px}
+.reach svg{max-width:260px}
+.ground2{stroke:var(--brand-400);stroke-width:1.6}
+.eave{fill:none;stroke:var(--brand-700);stroke-width:1.6}
+.tech circle,.tech path{fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}
+.pole{stroke:var(--brand-600);stroke-width:2.4;stroke-linecap:round}
+.bristle{stroke:var(--brand-600);stroke-width:2;stroke-linecap:round}
+.dim{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.slide.on .pole,.slide.on .bristle{animation:reach 3s ease-in-out infinite;transform-origin:90px 162px}
+@keyframes reach{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+
+/* band cross-section */
+.wallx{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.4}
+.soil{fill:#CDBBA6}.turf{fill:var(--brand-300)}.pave{fill:#D5D9D6}
+.crack{fill:none;stroke:var(--ink);stroke-width:1.2}
+.bandw,.bandg{fill:var(--brand-600);opacity:.85}
+.bandbad{fill:var(--danger);opacity:.8}
+.spotx{fill:none;stroke:var(--brand-700);stroke-width:2}
+.dimx{fill:none;stroke:var(--brand-800);stroke-width:1}
+.gOld,.gCur{transition:opacity .2s ease-in-out}
+#bandSvg.cur .gOld{opacity:0}
+#bandSvg.old .gCur{opacity:0}
+.slide.on #bandSvg .bandg,.slide.on #bandSvg .bandbad{animation:growx .6s ease-in-out both;transform-box:fill-box;transform-origin:left}
+.slide.on #bandSvg .bandw{animation:growup .6s ease-in-out both;transform-box:fill-box;transform-origin:bottom}
+@keyframes growup{from{transform:scaleY(0)}to{transform:none}}
+.callout.warn .ico{color:#8F6400}
+
+/* sweep */
+.sweep{padding:10px}
+.lawnf{fill:var(--brand-100)}.pavef{fill:#D5D9D6}
+.gr circle{fill:var(--brand-700)}
+.slide.on .gr circle{animation:sweepup 3.2s ease-in-out infinite}
+.slide.on .gr circle:nth-child(2){animation-delay:.3s}.slide.on .gr circle:nth-child(3){animation-delay:.6s}.slide.on .gr circle:nth-child(4){animation-delay:.9s}.slide.on .gr circle:nth-child(5){animation-delay:1.2s}
+@keyframes sweepup{0%,30%{transform:none;opacity:1}70%,100%{transform:translateY(-38px);opacity:.5}}
+
+/* steps small */
+.steps.sm li{padding:9px 0;font-size:15px}
+.steps.sm .num{flex-basis:28px;height:28px}
+.steps li{padding:10px 0;font-size:15px}
+.steps .num{flex-basis:30px;height:30px}
+
+/* read-only checklist */
+.check.ro label{cursor:default;align-items:center}
+.check.ro .ico{color:var(--positive);width:20px;height:20px}
+table{font-size:13.5px}
+th,td{padding:8px 12px}
+@media (max-width:860px){
+  .tbar{flex-direction:column}
+  .tseg{transform-origin:top}
+  .hsd{min-height:0}
+}
+@keyframes growx{from{transform:scaleX(0)}to{transform:none}}
+.slide.tight.on{gap:14px}
+#vorder{grid-template-columns:1fr 1fr}
+#vorder button{padding:8px 12px}
+#bsort .row{padding:8px 12px}
+@media (max-width:860px){#vorder{grid-template-columns:1fr}}
+.sweep svg{max-width:360px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 27</span><span class="code-chip">PC-03 · Exterior Three-Pass</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-brush" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M7 12h10l-1.5 9h-7z"/><path d="M10 15v6M14 15v6"/></symbol>
+    <symbol id="i-spray" viewBox="0 0 24 24"><path d="M3 21l8-8"/><path d="M10 12l3-3 3 3-3 3z"/><path d="M17 6l1.5-1.5M19 9h2M15 4V2"/></symbol>
+    <symbol id="i-grain" viewBox="0 0 24 24"><circle cx="6" cy="7" r="1.6"/><circle cx="13" cy="5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><circle cx="9" cy="13" r="1.6"/><circle cx="16" cy="16" r="1.6"/><circle cx="6" cy="19" r="1.6"/><path d="M2 22h20"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4.2-1 10.6-10.6a2 2 0 000-2.8l-.4-.4a2 2 0 00-2.8 0L5 15.8z"/><path d="M14 6.6l3.4 3.4"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 01-.5-8 5.5 5.5 0 0110.6 1.5A3.5 3.5 0 0117 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Pest Control · PC-03</span>
+        <h1 class="display a" style="--i:1;font-size:clamp(32px,4.4vw,52px)">Exterior Three&#8209;Pass Treatment</h1>
+        <p class="lead a" style="--i:2">The Clements exterior, done the same way on every home: an inspection walk, then perimeter spray, webs and nests, granular band, stations and wrap-up. Fast, thorough and inside the label every time.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 250" aria-hidden="true" style="width:100%;max-width:360px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M96 104L176 48L256 104"/><path d="M108 96V200H244V96"/>
+          <path d="M160 200V156H190V200"/><rect x="122" y="116" width="26" height="24" rx="3"/><rect x="206" y="116" width="26" height="24" rx="3"/>
+          <rect x="92" y="88" width="168" height="124" rx="4" stroke-dasharray="3 6"/>
+          <rect x="74" y="72" width="204" height="152" rx="8" stroke-dasharray="1 6"/>
+          <rect x="54" y="56" width="244" height="182" rx="12" stroke-dasharray="6 6"/>
+          <path d="M28 30v52"/><path d="M20 82h16l-2 18H22z"/>
+          <rect x="286" y="196" width="22" height="14" rx="2"/>
+          <path d="M10 238H312"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-route"/></svg><span>Run the Clements exterior in the right order, to the right timing: inspection walk, then Pass 1 spray, Pass 2 webs, Pass 3 granules</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span>Inspect the exterior for entry points, harborage and conducive conditions while you work</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-brush"/></svg><span>Complete a full web and nest wipe-down to standard, safely around stinging insects</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-spray"/></svg><span>Apply a foundation band of up to 3 ft up and 3 ft out where the product label allows, and treat entry zones the way pyrethroid labels allow</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-grain"/></svg><span>Lay a granular band at the label rate and keep every granule off hard surfaces</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-lock"/></svg><span>Service bait stations, wrap up the stop, and leave the customer a clear record of the visit</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">The outside is <span class="em">most of what we do.</span></h2>
+        <p class="a muted" style="--i:2">After the initial service, most recurring GHP visits are exterior. Many customers are exterior-only. For them, the outside of the house is the entire Clements experience, every other month.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-eye"/></svg></div><div><h3>Customers judge what they can see</h3><p>Webs on the eaves, granules on the driveway, a dirty bait station: these are what customers notice, and why they cancel. "Customers judge us on consistency, professionalism and thoroughness, not just product."</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>The label is federal law</h3><p>Under FIFRA and Florida law (s. 487.031), applying against the label is a violation. Outdoor pyrethroid labels limit where the spray can go. An FDACS investigation starts with one complaint.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-drop"/></svg></div><div><h3>Runoff starts at the foundation</h3><p>Spray on a driveway or granules on a walk wash to the storm drain and the lagoon with the next rain. A tight band protects the house and the water.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: the method">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">The method and the walk-around</h1>
+        <p class="lead a" style="--i:2">Why it matters: one sequence, done the same way by every technician, is how a customer in Naples gets the same service as a customer in Vero Beach. And you can't treat what you didn't find.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The three passes</li><li><span>02</span>Timing the stop</li><li><span>03</span>Before the first pass</li><li><span>04</span>Practice: inspect the exterior</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 THREE PASSES DIAGRAM -->
+  <section class="slide" data-label="The three passes">
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px">
+      <div class="figbox plan a" style="--i:1">
+        <svg viewBox="0 0 520 330" id="planSvg" role="img" aria-label="Overhead view of a home showing the three exterior passes and bait stations" data-on="0">
+          <defs><pattern id="gran" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#2E6F47"/><circle cx="6" cy="6" r="1.1" fill="#4F8A5F"/></pattern></defs>
+          <rect class="lawn" x="0" y="0" width="520" height="300"/>
+          <rect class="street" x="0" y="300" width="520" height="30"/><text class="pl" x="16" y="319">STREET</text>
+          <rect class="hard" x="200" y="50" width="110" height="40"/><text class="pl" x="236" y="74">PATIO</text>
+          <rect class="hard" x="300" y="220" width="60" height="80"/><text class="pl" x="306" y="276">DRIVEWAY</text>
+          <rect class="hard" x="210" y="220" width="16" height="80"/>
+          <rect class="hard" x="96" y="144" width="32" height="46"/><rect class="bin" x="101" y="149" width="10" height="14"/><rect class="bin" x="114" y="149" width="10" height="14"/><text class="pl" x="70" y="206">TRASH PAD</text>
+          <rect class="hard" x="392" y="118" width="28" height="28"/><text class="pl" x="424" y="136">A/C</text>
+          <g class="pg p3">
+            <rect x="120" y="60" width="14" height="80" fill="url(#gran)"/><rect x="120" y="194" width="14" height="56" fill="url(#gran)"/>
+            <rect x="120" y="60" width="80" height="14" fill="url(#gran)"/><rect x="310" y="60" width="90" height="14" fill="url(#gran)"/>
+            <rect x="386" y="60" width="14" height="54" fill="url(#gran)"/><rect x="386" y="150" width="14" height="100" fill="url(#gran)"/>
+            <rect x="134" y="236" width="76" height="14" fill="url(#gran)"/><rect x="226" y="236" width="74" height="14" fill="url(#gran)"/><rect x="360" y="236" width="40" height="14" fill="url(#gran)"/>
+          </g>
+          <g class="pg p2">
+            <rect class="band" x="134" y="74" width="16" height="162"/><rect class="band" x="134" y="74" width="66" height="16"/><rect class="band" x="310" y="74" width="76" height="16"/>
+            <rect class="band" x="370" y="74" width="16" height="162"/><rect class="band" x="150" y="220" width="60" height="16"/><rect class="band" x="226" y="220" width="74" height="16"/><rect class="band" x="360" y="220" width="10" height="16"/>
+            <circle class="spot" cx="214" cy="88" r="3.5"/><circle class="spot" cx="296" cy="88" r="3.5"/><circle class="spot" cx="306" cy="223" r="3.5"/><circle class="spot" cx="354" cy="223" r="3.5"/><circle class="spot" cx="218" cy="223" r="3.5"/><circle class="spot" cx="112" cy="142" r="3.5"/><circle class="spot" cx="389" cy="132" r="3.5"/>
+          </g>
+          <rect class="house" x="150" y="90" width="220" height="130"/><text class="pl" x="244" y="160">HOUSE</text>
+          <g class="pg p1">
+            <path class="walk" d="M150 90 H370 V220 H150 Z"/>
+            <path class="web" d="M150 90l12 0M150 90l0 12M150 90l9 9M370 90l-12 0M370 90l0 12M370 90l-9 9M370 220l-12 0M370 220l0-12M150 220l12 0M150 220l0-12"/>
+            <circle class="walker" r="6"/>
+          </g>
+          <g class="pg pst">
+            <rect class="stn" x="84" y="194" width="14" height="9" rx="2"/><rect class="stn" x="108" y="40" width="14" height="9" rx="2"/><rect class="stn" x="404" y="258" width="14" height="9" rx="2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px;align-content:center">
+        <span class="eyebrow a">01 · The three passes</span>
+        <h2 class="a" style="--i:1">Three laps around the house, each with one job</h2>
+        <div class="kit passbtns a" style="--i:2" id="passBtns"></div>
+        <div class="callout a" style="--i:3" id="passDetail"><svg class="ico"><use href="#i-home"/></svg><span>Select a pass to see it on the house.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 TIMING -->
+  <section class="slide" data-label="Timing the stop">
+    <span class="eyebrow a">02 · Timing the stop</span>
+    <h2 class="a" style="--i:1">About 15–20 minutes, plus stations</h2>
+    <p class="a muted" style="--i:2">These are Clements targets for a typical recurring exterior. Bigger homes, heavy activity or a callback take longer. Never cut a step to make the clock.</p>
+    <div class="tbar a" style="--i:3" id="tbar">
+      <div class="tseg" style="--w:1.5;--d:0"><b>1–2 min</b><span>Arrive &amp; greet</span></div>
+      <div class="tseg" style="--w:2.5;--d:1"><b>2–3 min</b><span>Inspect</span></div>
+      <div class="tseg p2c" style="--w:4.5;--d:2"><b>4–5 min</b><span>Pass 1 · spray</span></div>
+      <div class="tseg p1c" style="--w:3.5;--d:3"><b>3–4 min</b><span>Pass 2 · webs</span></div>
+      <div class="tseg p3c" style="--w:4.5;--d:4"><b>4–5 min</b><span>Pass 3 · granules</span></div>
+      <div class="tseg stc" style="--w:2.5;--d:5"><b>If on account</b><span>Bait stations</span></div>
+      <div class="tseg" style="--w:2;--d:6"><b>Before you go</b><span>Walk-back &amp; record</span></div>
+    </div>
+    <div class="grid g3">
+      <div class="card a" style="--i:4"><h3>Interior on the order?</h3><p>If the customer asks for inside service, do it after the greeting and before the passes. PC-02 covers the interior. Shoe covers, always.</p></div>
+      <div class="card a" style="--i:5"><h3>Inspect before Pass 1</h3><p>Walk the house before you pick up the wand: entry points, nests, stations, no-spray areas. Pass 2 with the brush is a second look at the roofline.</p></div>
+      <div class="card a" style="--i:6"><h3>Why this order</h3><p>The GHP Initial Service Training (v3, May 2026) sets spray, webs, granules. Granules go last so the final lap ends with every hard surface swept clean.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 BEFORE THE FIRST PASS -->
+  <section class="slide" data-label="Before the first pass">
+    <div class="split" style="grid-template-columns:1fr 1fr">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · Before the first pass</span>
+        <h2 class="a" style="--i:1">Two minutes that decide the whole stop</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Read the account.</b> Start the order on arrival and check PestPac notes: no-spray areas, pets, gate codes, past issues.</span></li>
+          <li><span class="num">2</span><span><b>Check the sky.</b> No spray in rain. Wind, inversions, storms on radar: FC-04 rules apply.</span></li>
+          <li><span class="num">3</span><span><b>Knock and greet.</b> "Are you seeing any activity I should know about? Anything inside you'd like me to treat?"</span></li>
+          <li><span class="num">4</span><span><b>Clear the area.</b> Pets and kids inside, bowls and toys moved, windows closed on the side you're treating.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shirt"/></svg></div><div><h3>Look the part</h3><p>Shirt tucked, clean uniform, hat straight. The customer meets you before they see any work.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-glasses"/></svg></div><div><h3>PPE the label lists</h3><p>Read the label for each product on today's stop. Gloves and eye protection when mixing; FC-03 covers the rest.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-truck"/></svg></div><div><h3>Park and mix right</h3><p>Away from storm drains and slopes to the curb. Mix over turf or soil with an air gap when you fill.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 HOTSPOT INSPECTION -->
+  <section class="slide" data-label="Practice: inspect the exterior">
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:24px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Practice · exterior inspection</span>
+        <h2 class="a" style="--i:1">Find all nine trouble spots</h2>
+        <div class="figbox elev a" style="--i:2">
+          <svg viewBox="0 0 560 300" id="elevSvg" role="img" aria-label="Front of a home with nine inspection points to select">
+            <rect class="lawn" x="0" y="262" width="560" height="38"/>
+            <path class="roof" d="M80 120L280 50L480 120Z"/>
+            <rect class="house" x="100" y="120" width="360" height="142"/>
+            <path class="trim" d="M100 128H460"/>
+            <rect class="door" x="150" y="180" width="44" height="82"/><circle cx="186" cy="224" r="2" class="knob"/>
+            <rect class="lamp" x="207" y="184" width="10" height="14" rx="2"/><path class="webl" d="M217 184l10-8M217 190l12 0M217 196l9 7M222 180q4 8 3 20"/>
+            <rect class="win" x="240" y="160" width="70" height="54"/><path class="trim" d="M275 160V214M240 187H310"/>
+            <rect class="gar" x="340" y="170" width="100" height="92"/><path class="trim" d="M340 193H440M340 216H440M340 239H440"/>
+            <rect class="ac" x="474" y="226" width="44" height="36" rx="3"/><path class="trim" d="M480 236h32M480 246h32"/><path class="line" d="M474 240H460"/>
+            <circle class="shrub" cx="92" cy="238" r="24"/><circle class="shrub" cx="118" cy="248" r="15"/>
+            <path class="mulch" d="M200 262h130"/><path class="trim" d="M262 262l-6-12M262 262l2-14M262 262l10-10"/>
+            <rect class="bin2" x="20" y="214" width="24" height="48" rx="2"/><rect class="bin2" x="48" y="222" width="22" height="40" rx="2"/>
+            <path class="trim" d="M380 92q8 6 4 14" /><circle class="nest" cx="386" cy="110" r="5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px;align-content:center">
+        <div class="card hsd a" style="--i:3" id="hsDetail"><span class="eyebrow">Select a spot on the house</span><p style="margin-top:6px">Every one is a place pests get in, live, or find food and water. Find all nine.</p></div>
+        <div class="a" style="--i:4;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="chip" id="hsCount">0 of 9 found</span><span id="hsDone"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <!-- PART TWO -->
+  <section class="slide forest" data-label="Part two: Pass 1">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Pass 1 · The perimeter spray</h1>
+        <p class="lead a" style="--i:2">Why it matters: the liquid band is what stops pests at the foundation. It's also where label violations happen: on driveways, walls, drains and rainy afternoons.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The band: the label sets the limit</li><li><span>02</span>Entry zones</li><li><span>03</span>Rain, drains and runoff</li><li><span>04</span>Practice: band or violation?</li></ol>
+    </div>
+  </section>
+
+  <!-- 15 THE BAND -->
+  <section class="slide" data-label="The band">
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · The band</span>
+        <h2 class="a" style="--i:1">Up to 3 ft up, 3 ft out on soil, turf and mulch, if the label allows</h2>
+        <div class="a" style="--i:2"><div class="seg" id="bandSeg"><button type="button" id="bandOld" data-v="old" aria-pressed="false">Older guides</button><button type="button" id="bandCur" data-v="cur" aria-pressed="true">Current standard</button></div></div>
+        <div class="figbox xsec a" style="--i:3">
+          <svg viewBox="0 108 560 166" id="bandSvg" class="cur" role="img" aria-label="Cross-section of a foundation showing the treatment band">
+            <rect class="wallx" x="30" y="114" width="40" height="126"/><text class="pl2" x="35" y="130">WALL</text>
+            <rect class="soil" x="70" y="240" width="102" height="14"/><rect class="turf" x="172" y="240" width="68" height="14"/><rect class="pave" x="240" y="240" width="300" height="14"/>
+            <text class="pl2" x="80" y="268">SOIL · MULCH</text><text class="pl2" x="182" y="268">TURF</text><text class="pl2" x="350" y="268">DRIVEWAY</text>
+            <path class="crack" d="M330 240l4 6-3 8"/>
+            <g class="gCur">
+              <rect class="bandw" x="70" y="138" width="8" height="102"/>
+              <rect class="bandg" x="70" y="232" width="102" height="8"/>
+              <circle class="spotx" cx="332" cy="236" r="6"/>
+              <path class="dimx" d="M86 138V230M80 138h12"/><text class="pl3" x="96" y="186">UP TO 3 FT</text>
+              <path class="dimx" d="M70 222H172M172 216v12"/><text class="pl3" x="80" y="214">UP TO 3 FT OUT</text>
+              <text class="pl3" x="300" y="222">SPOT / CRACK ONLY</text>
+            </g>
+            <g class="gOld">
+              <rect class="bandw" x="70" y="138" width="8" height="102"/>
+              <rect class="bandg" x="70" y="232" width="170" height="8"/>
+              <rect class="bandbad" x="240" y="232" width="170" height="8"/>
+              <path class="dimx" d="M70 222H410M410 216v12"/><text class="pl3" x="180" y="214">6–10 FT OUT</text>
+              <text class="pl3 bad" x="270" y="196">BROADCAST ON PAVEMENT:</text><text class="pl3 bad" x="270" y="208">LABEL VIOLATION</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px;align-content:center" id="bandText">
+        <div class="card a" style="--i:4"><h3>What the label allows</h3><p>EPA's outdoor residential pyrethroid language permits: building foundations up to 3 ft above grade, and soil, turf and vegetation around the structure. Everything else outside, including patios, driveways, walks, porches, windows, doors and eaves, is spot and crack-and-crevice only. A product label can be narrower.</p></div>
+        <div class="card a" style="--i:5"><h3>What Clements does</h3><p>Up to 3 ft up and 3 ft out on soil, turf and mulch, where the product label allows. The label band governs: Taurus SC allows only 1 ft up and 1 ft out (PC-04). Coarse fan, low pressure; pin stream for cracks.</p></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-check"/></svg><span><b>Corrected:</b> older guides said "6–10 ft out." That band runs onto pavement at most homes. The standard is now up to 3 ft out where the label allows, never across a hard surface.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 ENTRY ZONES -->
+  <section class="slide" data-label="Entry zones">
+    <span class="eyebrow a">02 · Entry zones</span>
+    <h2 class="a" style="--i:1">Always treat where pests get in, the way the label allows</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table>
+        <thead><tr><th>Entry zone</th><th>Why it matters</th><th>How to treat it</th></tr></thead>
+        <tbody>
+          <tr><td><b>Doors and thresholds</b></td><td>Gaps under doors are the main ant and roach way in</td><td class="y">Pin stream into the threshold crack and frame joints. No misting the door.</td></tr>
+          <tr><td><b>Window frames</b></td><td>Gaps, torn screens, sill cracks</td><td class="y">Crack-and-crevice along the frame. Some labels allow a band up to 1 inch wide at entry points.</td></tr>
+          <tr><td><b>Garage door edges</b></td><td>Worn seals, corners, rodent gnawing</td><td class="y">Crack-and-crevice at corners and the seal line; spot only on the slab.</td></tr>
+          <tr><td><b>Utilities, A/C lines, weep holes</b></td><td>Open penetrations straight into the wall</td><td class="y">Pin stream into the gap. Note any opening that should be sealed.</td></tr>
+          <tr><td><b>Shrubs touching the wall</b></td><td>Bridges over your band</td><td class="y">Treat the soil and foliage at the base per label. Recommend trimming back.</td></tr>
+          <tr><td><b>Trash and recycling areas</b></td><td>Food source for flies, roaches, rodents</td><td class="y">Soil and vegetation around the pad; spot and crack only on the pad itself.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted a" style="--i:3">Not sure your product allows a treatment? Read the Directions for Use. The label wins over any habit or older guide.</p>
+  </section>
+
+  <!-- 17 RAIN DRAINS RUNOFF -->
+  <section class="slide" data-label="Rain, drains and runoff">
+    <span class="eyebrow a">03 · Rain, drains and runoff</span>
+    <h2 class="a" style="--i:1">The four label rules that stop the spray</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-rain"/></svg></div><h3>Not during rain</h3><p>"Do not make applications during rain." Not sure? The paper test from FC-04. Hold off when a downpour is due before the spray dries.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Not into drains</h3><p>Never let product enter or run off into storm drains, ditches, gutters or water. Ants nesting at a drain get a bait, not a spray.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>No runoff</h3><p>Coarse, low-pressure spray. Wet the target, don't flood it. Don't water the area to the point of runoff.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-heart"/></svg></div><h3>Not on blooms</h3><p>Keep spray and drift off flowering plants with bees on them. Never spray toward ponds or fish.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-shield"/></svg><span><b>Corrected:</b> an older guide said only to "adjust timing" if rain is expected in a few hours. The label is stricter: no applications during rain. Do the inspection, webs and any interior, then reschedule the outside. FC-04 covers wind, drift and water in full.</span></div>
+  </section>
+
+  <!-- 18 SORT -->
+  <section class="slide tight" data-label="Practice: band or violation">
+    <span class="eyebrow a">04 · Practice</span>
+    <h2 class="a" style="--i:1">Correct band, or label violation?</h2>
+    <div class="sort a" style="--i:2" id="bsort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="bsortCheck">Check my answers</button><span id="bsortFb"></span></div>
+  </section>
+
+  <!-- 19 CP3 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+  <section class="slide forest" data-label="Part three: Pass 2">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Pass 2 · Webs, nests and a second look</h1>
+        <p class="lead a" style="--i:2">Why it matters: spider webs are the most visible sign of pests a customer can see. Leave them and the customer assumes nothing was done, even if everything else was perfect.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The wipe-down standard</li><li><span>02</span>Stinging insects and active spiders</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 WIPE-DOWN STANDARD -->
+  <section class="slide" data-label="The wipe-down standard">
+    <div class="split" style="grid-template-columns:1fr 1fr">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">01 · The wipe-down standard</span>
+        <h2 class="a" style="--i:1">Every eave, every arch, every reachable corner</h2>
+        <p class="a muted" style="--i:2">Pass 2 is part of standard service on every GHP account, paid add-on or not. Walk the whole house again with the extendable spider brush once the band is down.</p>
+        <ul class="ticks a" style="--i:3">
+          <li>Eaves, soffits and corners, all the way around</li>
+          <li>Archways, entryways and reachable areas of enclosures</li>
+          <li>Light fixtures, window frames, garage corners</li>
+          <li>Inactive mud dauber and wasp nests within reach</li>
+        </ul>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-search"/></svg><span><b>You're inspecting as you go.</b> Eyes on the roofline: gaps at soffits, rub marks, roof rat entry, wood damage. Note what you find for the customer.</span></div>
+      </div>
+      <div class="grid" style="gap:12px;justify-items:center">
+        <div class="figbox reach a" style="--i:3">
+          <svg viewBox="0 0 260 260" role="img" aria-label="A technician 5 ft 5 in to 6 ft tall reaching 17 feet with an extendable spider brush">
+            <path class="ground2" d="M10 246H250"/>
+            <path class="eave" d="M150 30H250"/><path class="eave" d="M150 30V246"/>
+            <g class="tech"><circle cx="70" cy="168" r="9"/><path d="M70 177v38M70 215l-10 30M70 215l10 30M70 186l20-24"/></g>
+            <path class="pole" d="M90 162L146 36"/><path class="bristle" d="M140 32l12 8M143 28l12 8"/>
+            <path class="dim" d="M26 246V30"/><path class="dim" d="M20 30h12M20 246h12"/>
+            <text class="pl2" x="34" y="138">17 FT</text>
+            <text class="pl2" x="160" y="24">EAVE LINE</text>
+          </svg>
+        </div>
+        <p class="small muted a" style="--i:4;max-width:34ch;text-align:center">Standard: a technician 5'5" to 6'0" should reach about 17 ft with the brush. Not sure an area is in scope? Ask your supervisor or the salesperson on the account.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 STINGERS AND SPIDERS -->
+  <section class="slide" data-label="Stinging insects and spiders">
+    <span class="eyebrow a">02 · Stinging insects and active spiders</span>
+    <h2 class="a" style="--i:1">Look before you reach. Treat only what the label allows.</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Check every high spot first</h3><p>Before you push the brush into a corner, soffit or light fixture, look for wasp and hornet traffic. A surprised nest at 15 ft is how techs get hurt.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Active wasp nest?</h3><p>Treat it with a product labeled for stinging insects, following the label, then knock it down once it's inactive. Honey bees or a swarm: don't treat. Call your supervisor.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-spray"/></svg></div><h3>Active spiders on the eaves?</h3><p>Brush them down, then use a pin stream or spot treatment into the cracks and corners where they harbor. Eaves are a structural surface: spot and crack-and-crevice only.</p></div>
+    </div>
+    <div class="callout danger a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Correction to older Clements material:</b> earlier guides said to "soak down" the eaves with the backpack sprayer. Current pyrethroid labels limit eaves, windows and doors to spot and crack-and-crevice treatment, with a narrow exception on some labels for surfaces permanently protected from rain. Don't broadcast or soak structural surfaces.</span></div>
+  </section>
+
+  <!-- CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+
+  <!-- 20 PART FOUR -->
+  <section class="slide forest" data-label="Part four: Pass 3 and wrap-up">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Pass 3, stations and wrap-up</h1>
+        <p class="lead a" style="--i:2">Why it matters: granules carry protection past the next rain and sprinkler cycle, stations sit on the property all year, and the last two minutes decide whether the customer knows what you did.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The granular band</li><li><span>02</span>Bait stations</li><li><span>03</span>Practice: order the visit</li><li><span>04</span>Wrap-up</li></ol>
+    </div>
+  </section>
+
+  <!-- 21 GRANULES -->
+  <section class="slide" data-label="The granular band">
+    <div class="split" style="grid-template-columns:1fr 1fr">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">01 · Pass 3 · the granular band</span>
+        <h2 class="a" style="--i:1">A 2–3 ft band on turf, soil and mulch</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Set the spreader to the label rate</b> for the product and the area. PC-04 covers calibration.</span></li>
+          <li><span class="num">2</span><span><b>Walk a steady pace</b> for even coverage. Focus on mulch beds, shade and moisture-prone zones.</span></li>
+          <li><span class="num">3</span><span><b>Keep it off hard surfaces.</b> Use the deflector along edges. Sweep or blow every stray granule back onto turf.</span></li>
+          <li><span class="num">4</span><span><b>Water in only as the label says,</b> and tell the customer: granules keep working after watering.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="figbox sweep a" style="--i:3">
+          <svg viewBox="0 0 300 150" role="img" aria-label="Granules on a walkway being swept back onto the turf">
+            <rect class="lawnf" x="0" y="0" width="300" height="60"/><rect class="pavef" x="0" y="60" width="300" height="40"/><rect class="lawnf" x="0" y="100" width="300" height="50"/>
+            <g class="gr"><circle cx="40" cy="74" r="2.5"/><circle cx="90" cy="84" r="2.5"/><circle cx="150" cy="70" r="2.5"/><circle cx="200" cy="88" r="2.5"/><circle cx="250" cy="76" r="2.5"/></g>
+            <text class="pl2" x="10" y="54">BED · TURF</text><text class="pl2" x="10" y="96">WALKWAY</text>
+          </svg>
+        </div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-grain"/></svg><span><b>Granule or bait?</b> Older guides call the granular "bait." Some perimeter granules are baits, many are contact insecticides. Read the label to know which you're carrying and how it's applied.</span></div>
+        <div class="callout warn a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span>A granular that also contains fertilizer is fertilizer under county summer bans (FC-04). Keep granules off flowering plants with bees on them.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 BAIT STATIONS -->
+  <section class="slide" data-label="Bait stations">
+    <div class="split" style="grid-template-columns:1.1fr 1fr">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Bait stations, if on the account</span>
+        <h2 class="a" style="--i:1">Open every station, every visit</h2>
+        <ol class="steps sm a" style="--i:2">
+          <li><span class="num">1</span><span><b>Gloves on,</b> in sight of the customer if they're watching.</span></li>
+          <li><span class="num">2</span><span><b>Unlock and inspect.</b> Gnawing, partial or full consumption, droppings, moisture, dead rodents, other pests.</span></li>
+          <li><span class="num">3</span><span><b>Clean it.</b> Debris and moisture out, drain hole clear, lid wiped, vegetation cut back from the entry holes.</span></li>
+          <li><span class="num">4</span><span><b>Rebait by activity.</b> Fresh, in-date blocks secured on the rod. Rotate stale bait even with no feeding.</span></li>
+          <li><span class="num">5</span><span><b>Relock, anchored,</b> and record activity for that station. Replace any cracked or broken station on the spot.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-lock"/></svg><span><b>Seal first, then bait.</b> Activity inside the home means openings. Baiting before they're sealed can mean a rodent eats, gets in and dies in the wall. Rodent Shield (CW-05) handles exclusion.</span></div>
+        <div class="card a" style="--i:4"><h3>Customer hears scratching in the attic?</h3><p>That's an inside problem. Note it for the customer, send it to technotes@clementspestcontrol.com, and the branch manager follows up. Don't quote prices or promise results.</p></div>
+        <div class="card a" style="--i:5"><h3>Old bait</h3><p>Bag removed bait and handle it as the label's Storage and Disposal section directs. Never leave loose blocks on the property. PC-07 covers placement and species in depth.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 ORDER EXERCISE -->
+  <section class="slide tight" data-label="Practice: order the visit">
+    <span class="eyebrow a">03 · Practice · order the visit</span>
+    <h2 class="a" style="--i:1">Put the exterior stop in order</h2>
+    <p class="a muted" style="--i:2">Recurring exterior with bait stations. Select the steps in order.</p>
+    <div class="order a" style="--i:3" id="vorder"></div>
+    <div class="a" style="--i:4;min-height:48px" id="vorderFb"></div>
+  </section>
+
+  <!-- 24 WRAP-UP -->
+  <section class="slide" data-label="Wrap-up">
+    <div class="split" style="grid-template-columns:1fr 1fr">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">04 · Wrap-up</span>
+        <h2 class="a" style="--i:1">The walk-back, then the customer</h2>
+        <ul class="check ro a" style="--i:2;grid-template-columns:1fr">
+          <li><label><svg class="ico"><use href="#i-check"/></svg>Granules swept off walks, drives, patios and pool decks</label></li>
+          <li><label><svg class="ico"><use href="#i-check"/></svg>Every web and nest you could reach is down</label></li>
+          <li><label><svg class="ico"><use href="#i-check"/></svg>Gates closed and latched, anything you moved put back</label></li>
+          <li><label><svg class="ico"><use href="#i-check"/></svg>Stations locked; equipment and products secured on the truck</label></li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><h3>Customer home?</h3><p>Knock back and tell them what you did and found: "Removed the webs from the eaves, treated the foundation and entry points, and laid granules in the beds. There's a gap at the A/C line worth sealing."</p></div>
+        <div class="card a" style="--i:4"><h3>No one home?</h3><p>Leave a completed door hanger: your name, date and time, services checked, and a specific note on the back. Skip it only if the customer is out of town or asked for none.</p></div>
+        <div class="card a" style="--i:5"><h3>Record it</h3><p>Customer-facing notes in PestPac Mobile print on the report. Anything the office must act on goes to technotes@. Complete the order before you leave.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 26 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a real exterior</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these on a ride-along before PC-03 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Check notes and weather, then walk the exterior and name every entry point and conducive condition</label></li>
+      <li><label><input type="checkbox" id="s2"> Pass 1: foundation band within the product label's limits (Clements: up to 3 ft up and 3 ft out on soil, turf and mulch), right nozzle setting</label></li>
+      <li><label><input type="checkbox" id="s3"> Pass 2: full web and nest wipe-down to standard reach, checking for stinging insects first</label></li>
+      <li><label><input type="checkbox" id="s4"> Treat doors, windows, penetrations and pads with pin stream or spot only, nothing broadcast on hard surfaces</label></li>
+      <li><label><input type="checkbox" id="s5"> Pass 3: spreader set to the label rate, steady pace, every granule swept off hard surfaces</label></li>
+      <li><label><input type="checkbox" id="s6"> Service a bait station: gloves, inspect, clean, fresh block on the rod, relock, record activity</label></li>
+      <li><label><input type="checkbox" id="s7"> Make a spray-or-wait call out loud for rain, drains and wind</label></li>
+      <li><label><input type="checkbox" id="s8"> Explain the visit to the customer or leave a completed door hanger, and complete the order in PestPac Mobile</label></li>
+    </ul>
+  </section>
+
+  <!-- 27 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('pc03:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('pc03:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "PC-03", "titleHtml": "Exterior Three-Pass Treatment", "nextHtml": "PC-04 \u00b7 GHP Calibration &amp; Mix Rates", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · The method and the walk-around',q:'On your inspection walk before Pass 1, you find an open gap around the A/C line set with ants trailing into it. What is the best response?',o:['Fan spray the whole wall around the A/C unit','Ignore it; the perimeter band will take care of it','Plan a pin stream into the gap on Pass 1, note it for the customer and recommend sealing it','Fill the gap with spray until it drips'],a:2,e:'Penetrations get crack-and-crevice treatment, not a wall spray. The opening itself is the real problem, so note it and recommend sealing it.'},
+    2:{t:'Checkpoint 2 · Pass 1',q:'Ants are trailing across the driveway to the garage door corner. The driveway runs right up to the garage. How do you treat it?',o:['Fan spray the driveway from the garage to the street','Skip the area; the driveway can\'t be treated at all','Spray the driveway lightly at half rate','Spot-treat the trail and the driveway cracks, crack-and-crevice the garage corner and seal line, and keep the band on the soil and turf'],a:3,e:'Hard surfaces are spot and crack-and-crevice only, never broadcast. Treat where the ants enter, and keep the band on soil, turf and the foundation.'},
+    3:{t:'Checkpoint 3 · Pass 2',q:'There\'s an active paper wasp nest under the eave by the front door and spiders in the corners nearby. What do you do?',o:['Knock the nest down with the brush right away','Treat the active nest with a product labeled for wasps, following the label, knock it down once it\'s inactive, then brush the webs and spot-treat the spider harborage','Soak the whole eave with the backpack sprayer','Leave it all; webs aren\'t on the order'],a:1,e:'Check for stinging insects before you reach, and treat an active nest before you knock it down. Eaves get spot and crack-and-crevice treatment only. Webs come down on every GHP stop.'},
+    4:{t:'Checkpoint 4 · Pass 3 and wrap-up',q:'You open a bait station: the block is fully eaten and there\'s moisture inside. The customer says she hears scratching in the attic at night. What is the right move?',o:['Clean and dry the station, clear the drain hole, add a fresh block on the rod, relock and record the activity. Tell her attic activity needs an inspection, and send it to technotes@ for the branch manager','Add two extra blocks to the station and leave','Quote her a price for an exclusion on the spot','Tell her the stations will take care of the attic'],a:0,e:'Service the station fully and record it. Activity inside the home means openings: seal first, then bait. The office and branch manager follow up; you don\'t quote or promise.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the order of the Clements exterior?',o:['Spray, granules, then webs','Inspection walk, then Pass 1 perimeter spray, Pass 2 webs, Pass 3 granules','Granules, spray, then webs','Webs, granules, then spray'],a:1,e:'Inspect the exterior first, then Pass 1 liquid perimeter, Pass 2 webs and nests, Pass 3 granules (GHP Initial Service Training v3). Stations and wrap-up follow.'},
+    {k:'Multiple choice',q:'What do you do before you pick up the backpack sprayer for Pass 1?',o:['Spread the granules','Brush every eave','Walk the exterior: entry points, nests, stations and no-spray areas','Nothing; start at the front door and spray'],a:2,e:'A 2–3 minute inspection walk comes first. You find the problems, and the stinging insects, before any product goes down.'},
+    {k:'Multiple choice',q:'What is the Clements standard for the liquid foundation band?',o:['Always exactly 1 ft up and 1 ft out','6 ft up and 10 ft out','The whole wall and the driveway','Up to 3 ft up and 3 ft out on soil, turf and mulch, where the product label allows'],a:3,e:'The label band governs. Some products are narrower: Taurus SC allows only 1 ft up and 1 ft out.'},
+    {k:'Multiple choice',q:'How may you treat a patio or driveway under outdoor pyrethroid labels?',o:['Spot or crack-and-crevice only','Broadcast at a lower rate','Broadcast if it\'s dry','Only with granules'],a:0,e:'Impervious surfaces are spot and crack-and-crevice only.'},
+    {k:'True or false',q:'Older Clements guides said to treat 6–10 ft out from the foundation. That is still the current standard.',o:['True','False'],a:1,e:'False. The standard is now up to 3 ft out on soil, turf and mulch, where the label allows. A 6–10 ft band runs onto pavement at most homes.'},
+    {k:'Multiple choice',q:'Under current pyrethroid labels, how are eaves, windows and doors treated?',o:['Soaked with the backpack sprayer','Misted with a fan spray','Spot and crack-and-crevice only','Not at all, ever'],a:2,e:'They are structural surfaces: spot and crack-and-crevice only, with narrow label exceptions for some protected surfaces.'},
+    {k:'Scenario',q:'Light rain starts as you finish the front of the house. What do you do?',o:['Stop the outside spray; finish webs, inspection and any interior, and reschedule the exterior application','Finish quickly before it gets heavier','Switch to a finer mist so it dries faster','Spray only under the eaves'],a:0,e:'Labels prohibit applications during rain. Rain carries product to drains and water.'},
+    {k:'Multiple choice',q:'How wide is the Pass 3 granular band?',o:['6 inches','2–3 ft','10 ft','The whole yard'],a:1,e:'A 2–3 ft band on turf, soil and mulch around the structure.'},
+    {k:'Scenario',q:'You finish the granules and see some on the front walk. What do you do?',o:['Leave them; they\'ll wash into the lawn','Hose them toward the street','Spray water on them so they dissolve','Sweep or blow every granule back onto the turf'],a:3,e:'Granules on a hard surface wash to the drain. Sweep them back every time.'},
+    {k:'Multiple choice',q:'What sets the spreader setting for the granular band?',o:['Habit','How fast you want to finish','The product label rate for the area','The customer\'s request'],a:2,e:'Set the spreader to the label rate. PC-04 covers calibration.'},
+    {k:'True or false',q:'The spider wipe-down is part of standard GHP service, even when the account doesn\'t pay extra for webs.',o:['True','False'],a:0,e:'True. Webs are the most visible sign of pests. Removing them shows value on every stop.'},
+    {k:'Multiple choice',q:'About how high should an average-height technician reach with the extendable spider brush?',o:['8 ft','12 ft','17 ft','25 ft'],a:2,e:'A tech 5\'5" to 6\'0" should reach about 17 ft. Ask your supervisor if an area\'s scope is unclear.'},
+    {k:'Scenario',q:'Before brushing a soffit corner, you see wasps flying in and out. What first?',o:['Brush it fast and step back','Treat the active nest with a product labeled for wasps, per the label, before knocking it down','Spray it with the perimeter mix','Skip the whole house'],a:1,e:'Check for stinging insects before you reach. Treat active nests first. Honey bees or a swarm: call your supervisor.'},
+    {k:'Multiple choice',q:'Which treatment is right for a weep hole or the gap around an A/C line?',o:['Pin stream crack-and-crevice into the gap','Fan spray the wall around it','Granules','Nothing'],a:0,e:'Penetrations get a pin stream into the gap. Note openings that should be sealed.'},
+    {k:'Multiple choice',q:'Ants are nesting in a storm drain at the curb. What is the label-legal approach?',o:['Spray into the drain','Pour mix down the grate','Granules into the drain','Never apply into the drain; use a bait away from it and treat where they enter the home'],a:3,e:'Labels prohibit letting product enter or run off into drains, gutters or water.'},
+    {k:'Multiple choice',q:'What should you do on every bait station, every visit?',o:['Look at it from outside','Open it, inspect, clean, rebait by activity on the rod, relock and record','Add a new block on top of the old one','Move it to a new spot'],a:1,e:'Open every station. Clean, fresh in-date bait secured on the rod, relocked and anchored, activity recorded.'},
+    {k:'True or false',q:'When a customer hears rodents inside, adding exterior bait stations first is the right fix.',o:['True','False'],a:1,e:'False. Seal first, then bait. Baiting with openings left can mean a rodent dies inside the wall.'},
+    {k:'Scenario',q:'No one is home and the notes say nothing about door hangers. What do you leave?',o:['Nothing','A blank hanger','A completed door hanger: your name, date and time, services checked and a note on the back','A business card'],a:2,e:'Leave a completed door hanger when you can\'t meet the customer, unless they\'re out of town or asked not to get one.'},
+    {k:'Multiple choice',q:'A shrub is touching the side of the house. What do you do?',o:['Treat the soil and foliage at the base per label and recommend trimming it back off the wall','Spray the whole shrub heavily','Cut it back yourself','Ignore it'],a:0,e:'Plants touching the structure are bridges over your band. Treat per label and recommend trimming.'},
+    {k:'Multiple choice',q:'A customer asks how long the granules keep working. What is the best answer?',o:['"Forever"','"They\'re completely harmless, so it doesn\'t matter"','"Until the next rain, then they\'re gone"','"They keep working after watering and help extend protection between visits"'],a:3,e:'Granules extend protection after watering. Never promise results, and never call a pesticide harmless.'}
+  ];
+
+  /* ---------- three passes plan ---------- */
+  var PASSES=[
+    {n:'Pass 1 · Perimeter spray',s:'Backpack sprayer · 4–5 min',l:2,i:'i-spray',d:'After the inspection walk: foundation band up to 3 ft up and 3 ft out on soil, turf and mulch, as far as the product label allows. The band stops at the patio and driveway: hard surfaces get spot or crack-and-crevice only (the dark dots), plus pin stream into doors, A/C lines and the trash pad.'},
+    {n:'Pass 2 · Webs & nests',s:'Spider brush · 3–4 min',l:1,i:'i-brush',d:'Walk the whole house at the eave line with the spider brush: eaves, corners, light fixtures, entry points. Inactive nests down. A second look at the roofline and walls.'},
+    {n:'Pass 3 · Granular band',s:'Hand spreader · 4–5 min',l:3,i:'i-grain',d:'A 2–3 ft granular band on turf, soil and mulch, at the label rate. Nothing on the patio, walk, driveway or pads. Sweep strays back onto the turf before you leave.'},
+    {n:'Bait stations',s:'If on the account',l:4,i:'i-lock',d:'Open, inspect, clean, rebait by activity, relock and record every station. Stations sit on rodent runways along the structure, near trash areas and rooflines.'}
+  ];
+  var pb=$('#passBtns'),plan=$('#planSvg');
+  PASSES.forEach(function(p,n){
+    var b=document.createElement('button');b.type='button';b.id='pass'+n;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="num">'+(n<3?n+1:'+')+'</span><span>'+p.n+'<small>'+p.s+'</small></span>';
+    b.addEventListener('click',function(){
+      $$('button',pb).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      plan.setAttribute('data-on',p.l);
+      $('#passDetail').innerHTML='<svg class="ico"><use href="#'+p.i+'"/></svg><span>'+p.d+'</span>';
+    });
+    pb.appendChild(b);
+  });
+
+  /* ---------- exterior hotspots ---------- */
+  var HS=[
+    {x:380,y:116,n:'Eaves and soffits',f:'Webs, wasp and mud dauber nests, gaps at soffit vents, roof rat rub marks',d:'Pass 2 wipe-down. Note any opening at the roofline for the customer; roof rat entry is a Rodent Shield inspection.'},
+    {x:212,y:191,n:'Light fixture',f:'Webs and spiders feeding on insects drawn to the light',d:'Brush it clean on Pass 2. Spot or crack-and-crevice only at the fixture base; never mist the wall.'},
+    {x:172,y:256,n:'Door threshold',f:'Daylight under the door, a worn sweep, ant trails at the frame',d:'Pin stream into the threshold crack and frame joints on Pass 1. Note a worn sweep in your report.'},
+    {x:275,y:187,n:'Window frame',f:'Gaps at the frame, torn screens, sill cracks',d:'Crack-and-crevice along the frame. Windows are a structural surface: no broadcast.'},
+    {x:466,y:240,n:'A/C line penetration',f:'An open gap around the line set where it enters the wall',d:'Pin stream into the gap. Recommend sealing it; it is an open door for ants, roaches and rodents.'},
+    {x:440,y:255,n:'Garage door corner',f:'Worn seal, gaps at the corners, gnaw marks',d:'Crack-and-crevice at the corners and seal line. Spot only on the slab or driveway.'},
+    {x:84,y:222,n:'Shrubs touching the wall',f:'Branches bridging pests over your band onto the house',d:'Treat the soil and foliage at the base per label. Recommend trimming plants back off the wall.'},
+    {x:265,y:252,n:'Mulch and sprinkler',f:'Mulch piled against the wall, a sprinkler hitting the foundation, wet soil',d:'Moisture draws ants, roaches and termites. Note it for the customer; granules go in the bed on Pass 3.'},
+    {x:46,y:208,n:'Trash and recycling bins',f:'Food residue, flies, roach and rodent activity',d:'Treat soil and vegetation around the pad, spot or crack only on the pad. A good spot for a bait station.'}
+  ];
+  var es=$('#elevSvg'),hseen=store.get('hs')||{};
+  HS.forEach(function(h,i){
+    var g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','hs'+(hseen[i]?' seen':''));g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',h.n);g.id='hs'+i;
+    g.innerHTML='<circle class="halo" cx="'+h.x+'" cy="'+h.y+'" r="10"/><circle class="core" cx="'+h.x+'" cy="'+h.y+'" r="10"/><text x="'+(h.x-3.2)+'" y="'+(h.y+3.6)+'">'+(i+1)+'</text>';
+    g.addEventListener('click',function(){pickHs(i)});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pickHs(i)}});
+    es.appendChild(g);
+  });
+  function hsCount(){var n=Object.keys(hseen).length;$('#hsCount').textContent=n+' of '+HS.length+' found';
+    $('#hsDone').innerHTML=n===HS.length?'<span class="fb" style="display:inline-block">All nine found. That walk-around comes before Pass 1.</span>':'';}
+  function pickHs(i){
+    hseen[i]=1;store.set('hs',hseen);var h=HS[i];
+    $$('.hs',es).forEach(function(g,j){g.classList.toggle('sel',j===i);if(hseen[j])g.classList.add('seen')});
+    $('#hsDetail').innerHTML='<span class="eyebrow">'+(i+1)+' of 9</span><h3 style="margin-top:4px">'+h.n+'</h3><ul><li><b>Look for</b><span>'+h.f+'</span></li><li><b>Do</b><span>'+h.d+'</span></li></ul>';
+    hsCount();
+  }
+  hsCount();
+
+  /* ---------- band cross-section ---------- */
+  $$('#bandSeg button').forEach(function(b){b.addEventListener('click',function(){
+    $$('#bandSeg button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    var s=$('#bandSvg');s.classList.toggle('old',b.dataset.v==='old');s.classList.toggle('cur',b.dataset.v==='cur');
+  })});
+
+  /* ---------- band or violation sort ---------- */
+  var BS=[
+    {q:'Band 3 ft out on the mulch bed with a product labeled for it',a:'ok',w:'Foundations up to 3 ft and the soil and vegetation around the structure are allowed when the product label allows that band.'},
+    {q:'Carry the band across the driveway so it reaches the full 10 ft',a:'no',w:'Driveways are hard surfaces: spot or crack-and-crevice only.'},
+    {q:'Pin stream into the crack where the patio meets the foundation',a:'ok',w:'Crack-and-crevice on hard surfaces is allowed.'},
+    {q:'Soak the eaves with the backpack sprayer where spiders were',a:'no',w:'Eaves are structural surfaces: spot and crack-and-crevice only.'},
+    {q:'Spot-treat an ant trail on the trash pad, then treat the soil around it',a:'ok',w:'Spot on the pad and treating soil and vegetation around it are both allowed.'},
+    {q:'Mist the whole front door and frame because ants were on it',a:'no',w:'Doors are structural surfaces. Treat the threshold and frame cracks only.'},
+    {q:'Finish the back side in a light rain so you don\'t fall behind',a:'no',w:'Labels prohibit applications during rain. Reschedule the outside.'},
+    {q:'Spray into the curb drain where ants are nesting',a:'no',w:'Never let product enter a storm drain. Use a bait away from the drain.'},
+    {q:'Pin stream into weep holes and the gap around the A/C line',a:'ok',w:'Crack-and-crevice into entry points is allowed.'},
+    {q:'Taurus SC in the tank: a 3 ft up, 3 ft out band',a:'no',w:'The label band governs. Taurus SC allows only 1 ft up and 1 ft out (PC-04).'}
+  ];
+  var sb=$('#bsort'),sSel={};
+  BS.forEach(function(s,i){
+    var r=document.createElement('div');r.className='row';
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="bs'+i+'_ok" data-v="ok" aria-pressed="false">Correct band</button><button type="button" id="bs'+i+'_no" data-v="no" aria-pressed="false">Violation</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){sSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');})});
+    sb.appendChild(r);
+  });
+  $('#bsortCheck').addEventListener('click',function(){
+    var right=0,blank=0,fw=-1;
+    $$('.row',sb).forEach(function(r,i){var s=BS[i];
+      if(!sSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=sSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok&&fw<0)fw=i;
+    });
+    $('#bsortFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all ten before checking.</span>':(right===BS.length?'<span class="fb" style="display:inline-block">All ten correct. Foundation and soil inside the label band: yes. Pavement, walls, eaves, rain and drains: no.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 10. Fix the ones in red. <b>Hint:</b> '+BS[fw].w+'</span>');
+  });
+
+  /* ---------- order the visit ---------- */
+  var VS=['Start the order, read the account notes and check the weather','Knock, greet and ask about activity inside and out','Walk the exterior: entry points, nests, stations, no-spray areas','Pass 1: foundation band and entry zones with the backpack sprayer','Pass 2: spider brush around the whole house, nests down','Pass 3: granular band in the turf, soil and mulch','Service the bait stations on the account','Walk-back: sweep granules, latch gates, secure the truck','Knock back, or leave a completed door hanger','Save notes and complete the order in PestPac Mobile'];
+  var VO=[4,1,7,0,9,5,2,8,3,6],vbx=$('#vorder'),vn=0;
+  function renderV(){
+    vbx.innerHTML='';vn=0;$('#vorderFb').innerHTML='';
+    VO.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='vo'+ix;b.innerHTML='<span class="num">·</span><span>'+VS[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===vn){b.classList.add('placed');$('.num',b).textContent=vn+1;vn++;
+          if(vn===VS.length){$('#vorderFb').innerHTML='<div class="fb"><b>Correct.</b> Read, greet, inspect, three passes, stations, walk-back, customer, record. Same order, every house. <button type="button" class="btn" id="voAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#voAgain').addEventListener('click',renderV);}
+          else $('#vorderFb').innerHTML='<div class="fb">'+vn+' of '+VS.length+' placed.</div>';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#vorderFb').innerHTML='<div class="fb no">Not yet. '+(vn?'What comes right after step '+vn+'?':'What comes first?')+' Remember: read and greet, inspect, three passes, then close out the stop.</div>';}
+      });vbx.appendChild(b);});
+  }
+  renderV();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1465 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PC-06 Inspection</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* PC-06 components */
+/* triangle */
+.tri{padding:8px}
+.tri svg{max-width:420px}
+.tline{fill:var(--brand-50);stroke:var(--brand-100);stroke-width:10;stroke-linejoin:round}
+.tflow{fill:none;stroke:var(--brand-400);stroke-width:2;stroke-dasharray:6 10}
+.slide.on .tflow{animation:cflow 3.6s linear infinite}
+@keyframes cflow{to{stroke-dashoffset:-64}}
+.tmid{font-family:var(--font);font-size:24px;fill:var(--ink);font-weight:300}
+.tsub{font-family:var(--font);font-size:10px;letter-spacing:.18em;fill:var(--muted)}
+.tnode{cursor:pointer}
+.tnode circle{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6;transition:fill .18s ease-in-out}
+.tnode .tico{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.tnode .tl{font-family:var(--font);font-size:15px;fill:var(--ink);font-weight:500;pointer-events:none}
+.tnode.seen circle{fill:var(--brand-50)}
+.tnode.sel circle,.tnode:hover circle{fill:var(--brand-600)}
+.tnode.sel .tico,.tnode:hover .tico{stroke:#fff}
+.tnode:focus{outline:none}.tnode:focus-visible circle{stroke-width:3}
+.trid,.kitd,.zd{display:grid;gap:10px;align-content:start}
+.trid > *,.kitd > *,.zd > *,.xd > *{animation:rise .2s ease-in-out both}
+.trid h3,.kitd h3,.zd h3{font-size:20px;margin:0}
+.trid{min-height:300px}
+.dots2{list-style:none;display:grid;gap:4px;font-size:15px}
+.dots2 li{display:flex;gap:10px}
+.dots2 li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+
+/* kit */
+.kitl{grid-template-columns:1fr 1fr}
+.kitl button{padding:9px 12px;font-size:15px}
+.blist button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.kitd{min-height:330px}
+.kitd p{font-size:16px;color:var(--ink)}
+
+/* entry list and gauge */
+.elist{list-style:none;display:grid;gap:4px;font-size:15px}
+.elist li{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+.elist li:last-child{border-bottom:0}
+.elist li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.gauge{display:grid;gap:10px}
+.gsvg{width:100%;height:auto;max-height:80px}
+.gw{fill:var(--brand-100);stroke:var(--brand-600);stroke-width:1}
+.gg{fill:var(--forest-ink);transition:y .2s ease-in-out,height .2s ease-in-out}
+.gauge input[type=range]{width:100%;accent-color:var(--brand-600)}
+.lvls6{display:grid;grid-template-columns:repeat(6,1fr);font-size:12px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+#gOut{min-height:96px;display:grid;gap:4px;align-content:start}
+#gOut .gt{font-size:16px}
+
+/* zones */
+.zd{min-height:420px}
+.zd dl{display:grid;grid-template-columns:150px 1fr;margin:0;font-size:15px}
+.zd dt,.zd dd{padding:10px 0;border-top:1px solid var(--line);margin:0}
+.zd dt{display:flex;gap:8px;align-items:flex-start;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:13px}
+.zd dt .ico{width:18px;height:18px;color:var(--brand-600);margin-top:-2px}
+#zl button{padding:9px 12px}
+
+/* house cross-section */
+.xhouse{padding:8px;align-items:center}
+.xhouse svg{max-width:720px;width:100%;height:auto}
+.yd{fill:var(--brand-50)}
+.hw{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.hr{fill:var(--brand-100);stroke:var(--brand-700);stroke-width:1.6;stroke-linejoin:round}
+.raf{stroke:var(--brand-300);stroke-width:1.4;fill:none}
+.insul{stroke:var(--brand-300);stroke-width:1.2;fill:none}
+.slab{fill:var(--brand-200);stroke:var(--brand-600);stroke-width:1}
+.gdoor{stroke:var(--brand-700);stroke-width:5;fill:none}
+.box{fill:#EFE9DF;stroke:#8A7A62;stroke-width:1.2}
+.bag{fill:var(--surface);stroke:var(--muted);stroke-width:1.2;stroke-linejoin:round}
+.cab{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.4}
+.pipe{stroke:var(--muted);stroke-width:3;fill:none;stroke-linecap:round}
+.lset{stroke:var(--muted);stroke-width:3;fill:none}
+.pool{fill:var(--brand-300);opacity:.7}
+.mulch{fill:#8C6E52;stroke:#6E553E;stroke-width:1}
+.tube{stroke:#8C6E52;stroke-width:4;fill:none;stroke-linecap:round}
+.trunk{stroke:#7A6450;stroke-width:5;fill:none;stroke-linecap:round}
+.leaf{fill:var(--brand-400);stroke:var(--brand-600);stroke-width:1.4;opacity:.9}
+.shrub circle{fill:var(--brand-400);stroke:var(--brand-600);stroke-width:1.4}
+.rubs path{stroke:var(--ink);stroke-width:3;opacity:.45;stroke-linecap:round}
+.rubs circle,.specks circle{fill:var(--ink)}
+.pellets circle{fill:#9C7A55}
+.gap{fill:none;stroke:var(--danger);stroke-width:2.4;stroke-linecap:round;opacity:0;transition:opacity .2s ease-in-out}
+.gap.lit{opacity:1}
+.drop{fill:var(--brand-400);opacity:0}
+.slide.on .drop{animation:drip 2.4s ease-in infinite}
+.slide.on .drop.d2{animation-delay:1.2s}
+@keyframes drip{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(26px)}}
+.hot{cursor:pointer}
+.hot .hc{fill:var(--forest);stroke:#fff;stroke-width:2;transition:fill .18s ease-in-out}
+.hot .hh{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .hot:not(.found) .hh{animation:halo 2.6s ease-out infinite}
+.hot text{font-family:var(--font);font-size:12px;fill:#fff;font-weight:500;pointer-events:none}
+.hot.found .hc{fill:var(--brand-400)}
+.hot.found.kE .hc{fill:var(--danger)}
+.hot.sel .hc{stroke:var(--forest);stroke-width:3}
+.hot:focus{outline:none}.hot:focus-visible .hc{stroke:var(--brand-400);stroke-width:4}
+.xd{display:grid;gap:8px;min-height:250px;align-content:start}
+.xd h3{font-size:19px;margin:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.chip.esc{background:#FDEEEE;color:var(--danger)}
+
+/* order */
+#ordFb.done{border-color:var(--positive)}
+#ord button{padding:9px 14px}
+
+/* flip 8 */
+.flip.f8{grid-template-columns:repeat(4,1fr);gap:12px}
+.flip.f8 button{min-height:232px}
+.flip.f8 h3{font-size:20px}
+.flip.f8 .face{padding:16px 18px}
+.flip.f8 .back{font-size:13.5px;line-height:1.5;gap:4px}
+
+/* pattern table */
+.ptab{min-width:0;font-size:14px}
+.ptab td{padding:7px 12px}
+#pBox .choices{grid-template-columns:1fr 1fr}
+#pBox .choice{padding:10px 14px;font-size:15px}
+
+/* worked example */
+.fp{display:grid;grid-template-columns:1fr 60px 1fr;gap:0;align-items:stretch}
+.fpc{display:grid;gap:8px;align-content:start}
+.fpi,.fpo{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px;min-height:50px;display:flex;align-items:center;gap:8px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.fpi{cursor:pointer}
+.fpi.on,.fpo.on{border-color:var(--brand-600);background:var(--brand-50)}
+.fpm svg{width:100%;height:100%;display:block}
+.fpm{padding-top:27px}
+.fl1{stroke:var(--brand-400);stroke-width:2;stroke-dasharray:4 5;fill:none;vector-effect:non-scaling-stroke}
+.slide.on .fl1{animation:dash 1.2s linear infinite}
+.fl1.on{stroke:var(--brand-700);stroke-dasharray:none}
+.slide.on .fpo{animation:rise .22s ease-in-out both}
+.slide.on .fpo:nth-child(2){animation-delay:.5s}.slide.on .fpo:nth-child(3){animation-delay:.65s}.slide.on .fpo:nth-child(4){animation-delay:.8s}.slide.on .fpo:nth-child(5){animation-delay:.95s}.slide.on .fpo:nth-child(6){animation-delay:1.1s}
+.fpo .chip{flex:0 0 auto}
+
+/* document */
+.nsteps li{padding:8px 0;font-size:15px;gap:12px}
+.nsteps .num{flex-basis:28px;height:28px;font-size:13px}
+
+/* write the finding */
+.wgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+.wslot{display:grid;gap:4px}
+.wopts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wopt{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:300;text-align:left;line-height:1.35;transition:border-color .18s ease-in-out}
+.wopt:hover{border-color:var(--brand-400)}
+.wopt.right{border-color:var(--positive);background:#EAF5EE}
+.wopt.wrong{border-color:var(--danger);background:#FDEEEE}
+.wwhy{font-size:12.5px;color:var(--danger);min-height:0}
+.wnote{display:grid;gap:10px;align-content:start;min-height:300px}
+.wtext{font-size:15px;line-height:1.6}
+.wtext .ln{display:inline}
+.wtext .ln.ok{animation:rise .2s ease-in-out both}
+.wtext .ln.blank{color:var(--muted);border-bottom:1px dashed var(--line);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+
+/* customer recs */
+.rec{display:grid;grid-template-columns:170px 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:15px}
+.rec span{color:var(--muted)}
+
+/* escalate */
+.esc p{font-size:14px;color:var(--ink);margin-top:8px}
+.esc h3{margin:0}
+.esc{padding:16px 18px}
+#esort{grid-template-columns:1fr 1fr}
+#esort .row{padding:8px 12px;font-size:14px;flex-wrap:wrap}
+#esort .opts button{font-size:12px;padding:4px 10px}
+
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important;gap:20px!important}
+  .kitl,#pBox .choices,.wgrid,.wopts,#esort,.fp{grid-template-columns:1fr}
+  .fpm{display:none}
+  .flip.f8{grid-template-columns:1fr}
+  .flip.f8 button{min-height:200px}
+  .zd dl{grid-template-columns:1fr}
+  .zd dd{border-top:0;padding-top:0}
+  .trid,.kitd,.zd,.xd,.wnote{min-height:0}
+  .rec{grid-template-columns:1fr;gap:2px}
+  .path.p5{grid-template-columns:1fr}
+}
+.path.p5{grid-template-columns:repeat(5,1fr)}
+@media (max-width:860px){.path.p5{grid-template-columns:1fr}}
+/* fit tweaks */
+.tri svg{max-width:370px}
+.trid{min-height:280px}
+.zd{min-height:400px}
+.zd dt,.zd dd{padding:8px 0}
+#ord{gap:6px}
+#ord button{padding:7px 12px;font-size:14px}
+#ord button .num{flex-basis:26px;height:26px}
+.flip.f8 button{min-height:222px}
+.wopt{padding:6px 9px;font-size:12.5px}
+.wscen{padding:14px 16px;display:grid;gap:4px}
+.wnote{min-height:240px;padding:16px}
+.rec{padding:7px 14px}
+.esc{padding:14px 16px}
+.esc p{font-size:13.5px;margin-top:6px}
+#esort{gap:6px}
+#esort .row{padding:6px 12px}
+.wgrid{grid-template-columns:1.5fr .9fr;gap:16px}
+.wopts{align-items:start}
+.wopt{min-height:58px}
+.flip.f8 button{min-height:214px}
+.flip.f8 .back{font-size:13px}
+#ord button{padding:6px 12px}
+.rec{padding:6px 14px;font-size:14.5px}
+#esort .row{padding:5px 12px}
+@media (max-width:860px){.wgrid{grid-template-columns:1fr}}
+.wslot{gap:3px}
+.wopt{min-height:54px}
+.wnote{min-height:200px}
+#esort .row{flex-wrap:nowrap}
+@media (max-width:860px){#esort .row{flex-wrap:wrap}}
+.flip.f8 .back > span b{color:#fff}
+.wscen .fb{font-size:14px}
+.wtext{font-size:14.5px;line-height:1.55}
+#esort .row{flex-wrap:wrap}
+#esort .row > span:first-child{flex:1 1 0;min-width:0}
+#esort .why{font-size:12px}
+@media (max-width:860px){.xhouse{padding:4px}.hot .hc,.hot .hh{r:17px}.hot text{font-size:17px;transform:translateY(2px);transform-box:fill-box}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 31</span><span class="code-chip">PC-06 · Inspection</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M9 7a3 3 0 0 1 6 0"/><path d="M8 9h8v6a4 4 0 0 1-8 0z"/><path d="M12 9v10M4 12h4M16 12h4M5 7l3 2M19 7l-3 2M5 18l3-2M19 18l-3-2"/></symbol>
+    <symbol id="i-rodent" viewBox="0 0 24 24"><path d="M4 17c0-5 4-8 9-8 3 0 6 2 7 5l-3 1"/><path d="M4 17h12"/><circle cx="9" cy="8" r="2"/><path d="M16 17c2 0 4 1 4 3"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15.5h7M9 8.5h3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-flash" viewBox="0 0 24 24"><path d="M9 3h6v5l-1 3v10h-4V11L9 8z"/><path d="M9 8h6"/><path d="M12 14v2"/></symbol>
+    <symbol id="i-mirror" viewBox="0 0 24 24"><circle cx="15" cy="8" r="5"/><path d="M11.5 11.5L4 19"/><path d="M13 6.5a2.5 2.5 0 0 1 3-1"/></symbol>
+    <symbol id="i-lens" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/><path d="M7.5 9a3 3 0 0 1 2-2"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M4 10h16"/><path d="M8 14h2M14 14h2"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M3 16h18v2H3z"/><path d="M12 8V5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-tri" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><circle cx="12" cy="4" r="1.5"/><circle cx="3" cy="20" r="1.5"/><circle cx="21" cy="20" r="1.5"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 7c0-1.5 1-2 1-3M14 7c0-1.5 1-2 1-3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-wood" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M3 12h4M11 10h6M11 14h4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split" style="grid-template-columns:1.25fr .75fr;gap:28px">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Pest Control · PC-06</span>
+        <h1 class="display a" style="--i:1">Inspection</h1>
+        <p class="lead a" style="--i:2">How a Clements technician walks a property, reads what pests leave behind, finds why they're there, writes it up for the customer and knows when to call in help.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:380px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M40 110L130 46l90 64"/><path d="M56 100v120h148V100"/><path d="M110 220v-52h40v52"/>
+          <rect x="70" y="124" width="28" height="24"/><rect x="164" y="124" width="28" height="24"/>
+          <path d="M20 220h280"/>
+          <path d="M186 64l10-8"/><path d="M30 196c8-14 22-14 26 0"/><path d="M204 214c6-8 14-8 18 0"/>
+          <circle cx="232" cy="150" r="40"/><path d="M261 179l36 36"/><path d="M270 190l-6 6M290 208l-6 6"/>
+          <path d="M214 140a20 20 0 0 1 14-12"/>
+          <circle cx="226" cy="162" r="2"/><circle cx="236" cy="158" r="2"/><circle cx="244" cy="166" r="2"/>
+        </svg>
+        <span class="eyebrow" style="margin-top:4px">Look · Read · Explain · Recommend</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-tri"/></svg><span>Explain why inspection comes before treatment, using the access, resources and shelter model</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-flash"/></svg><span>Use your inspection tools (flashlight, mirror, monitors, camera) to see where pests actually live</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-route"/></svg><span>Follow a systematic route: exterior, roofline, entry points, interior, moisture and conditions</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-search"/></svg><span>Read signs of activity (droppings, frass, rub marks, shed skins, trails) for species, severity and source</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-doc"/></svg><span>Write findings in PestPac Mobile the customer can understand, with fixes they can make themselves</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-flag"/></svg><span>Recognize when to escalate: termite and WDO signs to your branch manager, rodent entry to Rodent Shield</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">Treatment is a part of the service. <span class="em">Inspection is the foundation.</span></h2>
+        <p class="lead a" style="--i:2">Pests are in a home because they can get in and they can survive there. If you don't find out how, the treatment is temporary, the pests come back, and the customer wonders what they're paying for.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-refresh"/></svg></div><div><h3>Callbacks start with a skipped inspection</h3><p>Spraying where pests are seen, not where they live or get in, knocks activity down for a week. The root cause is still there on the next visit.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>It's how the law expects us to work</h3><p>Florida requires every ID cardholder to be trained in IPM (s. 482.091), and IPM starts with inspection and identification. The right product in the right place depends on what you find first.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-star"/></svg></div><div><h3>It's how customers know we're experts</h3><p>Every truck on the street sprays. The technician who explains why the problem keeps coming back, and how to stop it, is the one customers keep and recommend.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: why we inspect">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Why we inspect</h1>
+        <p class="lead a" style="--i:2">Why it matters: inspection turns a service visit from "spray and hope" into problem solving. It's step one of the IPM cycle you learned in FC-01, and it decides everything that follows.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Inspection drives the service</li><li><span>02</span>Access, resources and shelter</li><li><span>03</span>Your inspection kit</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 INSPECTION DRIVES SERVICE -->
+  <section class="slide" data-label="Inspection drives the service" style="gap:16px">
+    <span class="eyebrow a">01 · Inspection drives the service</span>
+    <h2 class="a" style="--i:1">Same house, two technicians</h2>
+    <div class="door">
+      <div class="pair a" style="--i:2"><div class="then"><span class="lbl">Treats symptoms</span>Starts spraying where the customer saw an ant</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Solves problems</span>Walks the outside first and follows the trail back to where it enters</div></div>
+      <div class="pair a" style="--i:3"><div class="then"><span class="lbl">Treats symptoms</span>Same baseboard spray in every room, every visit</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Solves problems</span>Targets the harborage and travel routes the evidence points to</div></div>
+      <div class="pair a" style="--i:4"><div class="then"><span class="lbl">Treats symptoms</span>Never mentions the shrub against the wall or the leak under the sink</div><svg class="ico"><use href="#i-arrow"/></svg><div class="now"><span class="lbl">Solves problems</span>Explains each condition and what the customer can do about it</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-clock"/></svg><span><b>How long?</b> Routine visit: 2 to 3 minutes inside and out before you treat. Initial service, callback or new complaint: the full route in this course.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-target"/></svg><span><b>Start with the customer.</b> Read the order's notes and main concerns, then ask what they've seen, where and when.</span></div>
+    </div>
+  </section>
+
+  <!-- 6 ACCESS RESOURCES SHELTER -->
+  <section class="slide" data-label="Access, resources and shelter">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="figbox tri a" style="--i:1">
+        <svg viewBox="0 0 400 330" role="img" aria-label="Triangle diagram: access, resources and shelter keep a pest population alive" id="triSvg">
+          <path class="tline" d="M200 52L352 290H48z"/>
+          <path class="tflow" d="M200 52L352 290H48z"/>
+          <text class="tmid" x="200" y="214" text-anchor="middle" id="tMid">Infestation</text>
+          <text class="tsub" x="200" y="236" text-anchor="middle" id="tSub">SELECT A CORNER</text>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Access, resources and shelter</span>
+        <h2 class="a" style="--i:1">Every infestation stands on three legs</h2>
+        <p class="a muted small" style="--i:2">Pests don't show up at random. They follow shelter, warmth, moisture and food. Remove or reduce any one leg and the population struggles to survive. Select each corner.</p>
+        <div class="card trid a" style="--i:3" id="triD"></div>
+        <p class="small muted a" style="--i:4" id="triN">0 of 3 viewed</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 KIT -->
+  <section class="slide" data-label="Your inspection kit">
+    <div class="split" style="grid-template-columns:.9fr 1.1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Your inspection kit</span>
+        <h2 class="a" style="--i:1">See what pests hide from you</h2>
+        <div class="blist kitl a" style="--i:2" id="kitL"></div>
+      </div>
+      <div class="card kitd a" style="--i:3" id="kitD"></div>
+    </div>
+  </section>
+
+  <!-- 8 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 9 PART TWO -->
+  <section class="slide forest" data-label="Part two: the inspection route">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">The inspection route</h1>
+        <p class="lead a" style="--i:2">Why it matters: a consistent route means nothing gets missed. You move from the outside in, because pests come from the outside in, and you finish by putting the findings together.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Five steps, outside in</li><li><span>02</span>Exterior and roofline</li><li><span>03</span>Entry points</li><li><span>04</span>Interior zones</li><li><span>05</span>Practice: inspect the house</li><li><span>06</span>Practice: order the route</li></ol>
+    </div>
+  </section>
+
+  <!-- 10 FIVE STEPS -->
+  <section class="slide" data-label="Five steps, outside in">
+    <span class="eyebrow a">01 · Five steps, outside in</span>
+    <h2 class="a" style="--i:1">The Clements inspection route</h2>
+    <div class="path p5">
+      <div class="st a" style="--i:2"><span class="n"><svg class="ico"><use href="#i-sun"/></svg></span><h3>1 · Exterior</h3><p>Walk the full perimeter: plants, mulch, water, debris, activity.</p></div>
+      <div class="st a" style="--i:3"><span class="n"><svg class="ico"><use href="#i-door"/></svg></span><h3>2 · Entry points</h3><p>Doors, windows, penetrations, vents, roofline and soffits.</p></div>
+      <div class="st a" style="--i:4"><span class="n"><svg class="ico"><use href="#i-home"/></svg></span><h3>3 · Interior</h3><p>Kitchen, bathrooms, laundry, garage and attic where in scope.</p></div>
+      <div class="st a" style="--i:5"><span class="n"><svg class="ico"><use href="#i-drop"/></svg></span><h3>4 · Moisture and food</h3><p>Leaks, condensation, grease, pet food, open trash.</p></div>
+      <div class="st top a" style="--i:6"><span class="n"><svg class="ico"><use href="#i-tri"/></svg></span><h3>5 · Analyze</h3><p>Access, resources, shelter: what has to change.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-check"/></svg><span><b>Each step informs the next.</b> A shrub on the back wall tells you where to look for a trail inside. Droppings under the sink tell you to check the pipe gap behind them.</span></div>
+      <div class="callout a" style="--i:8"><svg class="ico"><use href="#i-shield"/></svg><span><b>Safety on the route:</b> note children, pets, aquariums, edible gardens and pools before you treat (FC-11). Ladders and attics follow FC-06.</span></div>
+    </div>
+  </section>
+
+  <!-- 11 EXTERIOR -->
+  <section class="slide" data-label="Exterior and roofline" style="gap:16px">
+    <span class="eyebrow a">02 · Exterior and roofline</span>
+    <h2 class="a" style="--i:1">Every condition outside is a bridge to the inside</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-sun"/></svg></div><h3>Ground level</h3><p>Mulch or soil against the foundation or stucco. Shrubs and vines touching the wall. Firewood, pavers, boxes or debris stacked against the house. Burrows along the slab.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Water</h3><p>Leaky spigots, A/C condensate lines dripping at the slab, sprinklers hitting the wall, low spots that hold water, clogged gutters, buckets, bromeliads and toys holding rain.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Roofline</h3><p>Tree limbs and palm fronds touching the roof. Gaps at soffits, eaves, roof returns and gable vents. Damaged screens. Grease marks where rats run the edge.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-eye"/></svg><span><b>Look for activity too:</b> ant trails on the foundation, droppings, mud tubes on the slab edge, spider webs at eaves, chewed fruit under palms and citrus.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-chat"/></svg><span><b>Field note:</b> dense shrubs on the foundation and mulch against the siding are already two recommendations, before you mix a drop of product.</span></div>
+    </div>
+  </section>
+
+  <!-- 12 ENTRY POINTS -->
+  <section class="slide" data-label="Entry points">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Entry points</span>
+        <h2 class="a" style="--i:1">Small, overlooked, predictable</h2>
+        <ul class="elist a" style="--i:2">
+          <li>Gaps around plumbing, electrical and A/C line penetrations</li>
+          <li>Worn, missing or poorly fitted door sweeps; garage door seals</li>
+          <li>Torn screens and gaps around window frames</li>
+          <li>Foundation and stucco cracks, even hairline</li>
+          <li>Dryer vents, exhaust ports, gable and soffit vents</li>
+          <li>Rooflines and anywhere two building materials meet</li>
+          <li>Open weep holes in block or brick</li>
+        </ul>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-ruler"/></svg><span><b>Document every one:</b> where, how big, and what it needs. Rodent Shield documents gaps 1/2 inch or larger (CW-05); mice fit through 1/4 inch, so record those too.</span></div>
+      </div>
+      <div class="card gauge a" style="--i:3">
+        <span class="eyebrow">Practice · gap gauge</span>
+        <h3>Who fits through this gap?</h3>
+        <svg viewBox="0 0 300 70" aria-hidden="true" class="gsvg"><rect class="gw" x="0" y="10" width="300" height="20"/><rect class="gw" x="0" y="40" width="300" height="20"/><rect class="gg" id="gGap" x="0" y="30" width="300" height="10"/></svg>
+        <label for="gR" class="eyebrow" id="gL">Gap size</label>
+        <input type="range" id="gR" min="0" max="5" step="1" value="1" aria-describedby="gOut">
+        <div class="lvls6" aria-hidden="true"><span>1/16"</span><span>1/8"</span><span>1/4"</span><span>3/8"</span><span>1/2"</span><span>3/4"</span></div>
+        <div id="gOut" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 INTERIOR ZONES -->
+  <section class="slide" data-label="Interior zones" style="gap:14px">
+    <div class="split" style="grid-template-columns:.62fr 1.38fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Interior zones</span>
+        <h2 class="a" style="--i:1">Where food, water and shelter meet</h2>
+        <div class="blist a" style="--i:2" id="zl"></div>
+      </div>
+      <div class="card zd a" style="--i:3" id="zD"></div>
+    </div>
+  </section>
+
+  <!-- 14 HOUSE CROSS-SECTION -->
+  <section class="slide" data-label="Practice: inspect the house" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.75fr 1fr;gap:20px">
+      <div class="figbox xhouse a" style="--i:1">
+        <svg viewBox="0 22 720 362" role="img" aria-label="Cross-section of a home with fourteen findings to locate" id="xSvg">
+          <rect class="yd" x="0" y="344" width="720" height="56"/>
+          <!-- tree -->
+          <path class="trunk" d="M44 344V170"/><path class="trunk" d="M44 200l40-28 54-30"/>
+          <circle class="leaf" cx="48" cy="132" r="40"/><circle class="leaf" cx="86" cy="150" r="24"/>
+          <!-- roof and attic -->
+          <path class="hr" d="M84 152L340 36l256 116z"/>
+          <path class="raf" d="M150 152l60-88M240 152l40-90M440 152l-40-90M530 152l-60-88"/>
+          <path class="insul" d="M120 146q10-8 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"/>
+          <path class="gap" id="xg1" d="M566 146l18 6"/>
+          <g class="rubs"><path d="M262 100l-14 22"/><circle cx="252" cy="126" r="1.6"/><circle cx="258" cy="128" r="1.6"/><circle cx="246" cy="129" r="1.6"/></g>
+          <!-- walls -->
+          <rect class="hw" x="110" y="152" width="460" height="180"/>
+          <path class="hw" d="M260 152v180M450 152v180"/>
+          <rect class="slab" x="104" y="332" width="472" height="12"/>
+          <!-- garage -->
+          <path class="gdoor" d="M110 226v100"/><path class="gap" id="xg2" d="M110 327v5"/>
+          <rect class="box" x="122" y="290" width="40" height="42"/><rect class="box" x="128" y="258" width="32" height="32"/><rect class="box" x="166" y="304" width="30" height="28"/>
+          <path class="bag" d="M214 332v-30l8-6h18l8 6v30z"/><path class="bag" d="M222 296l10 6 8-6"/>
+          <rect class="hw" x="196" y="200" width="50" height="34" rx="2"/>
+          <!-- kitchen -->
+          <rect class="hw" x="292" y="176" width="66" height="48"/><path class="hw" d="M325 176v48M292 200h66"/>
+          <rect class="cab" x="276" y="270" width="96" height="62"/><path class="hw" d="M276 270h96"/><path class="pipe" d="M312 270v24h20v38"/>
+          <circle class="drop" cx="332" cy="300" r="2.4"/><circle class="drop d2" cx="332" cy="300" r="2.4"/>
+          <rect class="cab" x="392" y="206" width="50" height="126" rx="3"/><path class="hw" d="M392 252h50"/>
+          <g class="specks"><circle cx="402" cy="326" r="1.4"/><circle cx="408" cy="324" r="1.4"/><circle cx="414" cy="327" r="1.4"/><circle cx="420" cy="325" r="1.4"/></g>
+          <!-- bath -->
+          <rect class="hw" x="486" y="180" width="60" height="44"/><path class="hw" d="M516 180v44"/>
+          <g class="pellets"><circle cx="500" cy="228" r="1.5"/><circle cx="506" cy="229" r="1.5"/><circle cx="511" cy="228" r="1.5"/><circle cx="517" cy="229" r="1.5"/><circle cx="523" cy="228" r="1.5"/></g>
+          <path class="cab" d="M462 300h96v32h-96z"/><path class="hw" d="M472 300c0-12 10-14 22-14"/>
+          <!-- right exterior -->
+          <path class="lset" d="M570 250h52v52"/><circle class="gap" id="xg3" cx="572" cy="250" r="5"/>
+          <rect class="hw" x="610" y="302" width="64" height="42" rx="4"/><circle class="hw" cx="642" cy="322" r="12"/>
+          <path class="pipe" d="M570 316h20v10"/><ellipse class="pool" cx="592" cy="341" rx="14" ry="3"/>
+          <path class="mulch" d="M570 344v-14q20-6 40 0v14z"/>
+          <path class="tube" d="M572 330V290"/>
+          <!-- shrub left -->
+          <g class="shrub"><circle cx="78" cy="314" r="24"/><circle cx="98" cy="300" r="16"/></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">05 · Practice · inspect the house</span>
+        <h2 class="a" style="--i:1;font-size:28px">Fourteen findings. How many can you read?</h2>
+        <p class="a muted small" style="--i:2">Select each numbered spot, starting outside. Every one is a condition, an entry point, a sign of activity, or something to escalate.</p>
+        <div class="card xd a" style="--i:3" id="xD"></div>
+        <p class="small muted a" style="--i:4" id="xN">0 of 14 found</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 ORDER THE ROUTE -->
+  <section class="slide" data-label="Practice: order the route" style="gap:14px">
+    <div class="split" style="grid-template-columns:1.2fr .8fr;gap:28px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">06 · Practice · order the route</span>
+        <h2 class="a" style="--i:1">Put the inspection in order</h2>
+        <p class="a muted small" style="--i:2">Select the steps in the order you'd do them on a new complaint at a single-family home. A wrong pick shakes; try again.</p>
+        <div class="order a" style="--i:3" id="ord"></div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:4" id="ordFb"><span class="eyebrow">Progress</span><h3 id="ordN">0 of 8 placed</h3><p>Start with what you know before you walk up to the door.</p></div>
+        <div class="a" style="--i:5"><button type="button" class="btn" id="ordReset">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: reading the evidence">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Reading the evidence</h1>
+        <p class="lead a" style="--i:2">Why it matters: finding evidence is the beginning. A professional reads it: what species, how long, how many, and where they're coming from. That reading decides where you treat and what you recommend.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>What does this sign mean?</li><li><span>02</span>Type, location, volume, distribution</li><li><span>03</span>Practice: read the pattern</li><li><span>04</span>From findings to a plan</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 FLIP SIGNS -->
+  <section class="slide" data-label="What does this sign mean?" style="gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">01 · What does this sign mean?</span>
+      <h2 class="a" style="--i:1">Eight signs. Select each to flip it.</h2></div>
+      <span class="small muted a" style="--i:2" id="sgN">0 of 8 flipped</span>
+    </div>
+    <div class="flip f8 a" style="--i:2" id="sgF"></div>
+  </section>
+
+  <!-- 19 READ IT -->
+  <section class="slide" data-label="Type, location, volume, distribution" style="gap:16px">
+    <span class="eyebrow a">02 · Type, location, volume, distribution</span>
+    <h2 class="a" style="--i:1">Four questions to ask of every sign</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-bug"/></svg></div><h3>Type</h3><p>Droppings, shed skins, live or dead pests, damage. Tells you the species and life stage. PC-07 covers identification.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Location</h3><p>Where harborage and travel routes are. Pests rest close to where they feed.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-layers"/></svg></div><h3>Volume</h3><p>How long and how actively it's been going. Old and new droppings together means an established problem.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-route"/></svg></div><h3>Distribution</h3><p>One cabinet is localized. Several rooms is an established, spread-out infestation.</p></div>
+    </div>
+    <div class="tablewrap a" style="--i:6">
+      <table class="ptab">
+        <tr><th>Where you find it</th><th>What it usually means</th><th>Focus</th></tr>
+        <tr><td>One protected spot (inside a cabinet, behind an appliance)</td><td>Harborage close by</td><td>Targeted treatment, find the source</td></tr>
+        <tr><td>Along baseboards and wall edges, over and over</td><td>A travel route, not the nest</td><td>Bait or targeted residual along the route</td></tr>
+        <tr><td>Near plumbing or a water source</td><td>A moisture-dependent pest</td><td>Fix the moisture, then treat</td></tr>
+        <tr><td>Near windows, doors or exterior walls</td><td>Recent or ongoing entry from outside</td><td>Exclusion and perimeter work</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 20 READ THE PATTERN -->
+  <section class="slide" data-label="Practice: read the pattern">
+    <span class="eyebrow a">03 · Practice · read the pattern</span>
+    <h2 class="a" style="--i:1">What is the evidence telling you?</h2>
+    <div class="scen-tabs a" style="--i:2" id="pTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="pBox"></div>
+  </section>
+
+  <!-- 21 WORKED EXAMPLE -->
+  <section class="slide" data-label="From findings to a plan" style="gap:12px">
+    <span class="eyebrow a">04 · From findings to a plan</span>
+    <h2 class="a" style="--i:1">"Ants in the kitchen." Here's what a full inspection found.</h2>
+    <div class="fp a" style="--i:2">
+      <div class="fpc"><span class="eyebrow">Finding · select one to trace it</span>
+        <div class="fpi" data-k="0">Shrubs touching the wall by the kitchen window</div>
+        <div class="fpi" data-k="1">A 1/4" gap around the supply line under the sink</div>
+        <div class="fpi" data-k="2">Slow drip at the drain fitting</div>
+        <div class="fpi" data-k="3">Pet food in an open bag in a lower cabinet</div>
+        <div class="fpi" data-k="4">Trail along the baseboard from sink to stove</div>
+      </div>
+      <div class="fpm" aria-hidden="true"><svg viewBox="0 0 60 300" preserveAspectRatio="none"><path class="fl1" d="M0 30H60"/><path class="fl1" d="M0 90H60"/><path class="fl1" d="M0 150H60"/><path class="fl1" d="M0 210H60"/><path class="fl1" d="M0 270H60"/></svg></div>
+      <div class="fpc"><span class="eyebrow">Element · plan</span>
+        <div class="fpo"><span class="chip">Access</span> Recommend trimming shrubs off the structure</div>
+        <div class="fpo"><span class="chip">Access</span> Seal the gap around the supply line</div>
+        <div class="fpo"><span class="chip">Resources</span> Recommend the customer repair the drip</div>
+        <div class="fpo"><span class="chip">Resources</span> Recommend a sealed container for pet food</div>
+        <div class="fpo"><span class="chip">Shelter · route</span> Treat the trail and the cabinet base</div>
+      </div>
+    </div>
+    <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-star"/></svg><span><b>The Orange Ice Cube moment:</b> the customer expected you to treat. They didn't expect you to explain why the ants keep coming back, show them the gap behind the pipe and mention the shrubs. That's the difference between a vendor and an expert (CW-03).</span></div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: document, recommend, escalate">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Document, recommend, escalate</h1>
+        <p class="lead a" style="--i:2">Why it matters: a finding you don't write down or tell the customer about is a missed recommendation. And some findings are bigger than a general pest visit. Knowing when to hand off protects the customer and the company.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Write it in PestPac Mobile</li><li><span>02</span>Practice: write the finding</li><li><span>03</span>Fixes the customer can make</li><li><span>04</span>When to escalate</li><li><span>05</span>Practice: note it or escalate it</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 DOCUMENT -->
+  <section class="slide" data-label="Write it in PestPac Mobile">
+    <div class="split" style="grid-template-columns:1fr 1fr;align-items:start;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Write it in PestPac Mobile</span>
+        <h2 class="a" style="--i:1">The customer reads every word</h2>
+        <p class="a muted small" style="--i:2">Your notes print on the inspection report emailed to the customer after the visit. Write them for the customer: plain, factual, professional. FC-10 covers the screens.</p>
+        <ol class="steps nsteps a" style="--i:3">
+          <li><span class="num">1</span><span><b>What you found, and where:</b> pest, location, how much</span></li>
+          <li><span class="num">2</span><span><b>Conditions:</b> the access, resources and shelter you saw</span></li>
+          <li><span class="num">3</span><span><b>What you did:</b> treatment and where it went</span></li>
+          <li><span class="num">4</span><span><b>What the customer can do:</b> specific, doable fixes</span></li>
+          <li><span class="num">5</span><span><b>Follow-up:</b> next visit, callback or who will contact them</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cam"/></svg><span><b>Photograph it.</b> Attach photos of conditions, entry points and damage to the order. Never photograph people, and never post job photos on social media.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-flag"/></svg><span><b>Show it on site.</b> Point the condition out if the customer is home. Where your branch issues Area of Concern flags, use one to mark it.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-chat"/></svg><span><b>Office matters go to the office.</b> Anything the office must act on (a follow-up, an estimate request, a hand-off) goes to technotes@clementspestcontrol.com, not in the customer's notes.</span></div>
+        <div class="callout danger a" style="--i:6"><svg class="ico"><use href="#i-x"/></svg><span><b>Never in notes:</b> blame ("filthy house"), guesses stated as fact ("you have termites"), prices or promises, or card numbers.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 WRITE THE FINDING -->
+  <section class="slide" data-label="Practice: write the finding" style="gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <div class="grid" style="gap:8px"><span class="eyebrow a">02 · Practice · write the finding</span>
+      <h2 class="a" style="--i:1">Build the note, one line at a time</h2></div>
+      <div class="scen-tabs a" style="--i:2" id="wTabs"></div>
+    </div>
+    <div class="wgrid a" style="--i:3">
+      <div class="grid" style="gap:8px" id="wBox"></div>
+      <div class="grid" style="gap:10px"><div class="card wscen" id="wScen"></div><div class="card wnote" id="wNote"></div></div>
+    </div>
+  </section>
+
+  <!-- 26 CUSTOMER FIXES -->
+  <section class="slide" data-label="Fixes the customer can make">
+    <div class="split" style="align-items:start">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · Fixes the customer can make</span>
+        <h2 class="a" style="--i:1">Found it, why it matters, what to do</h2>
+        <p class="a muted" style="--i:2">Many conditions are the customer's to fix. Frame it as problem solving, never blame: what we found, why pests can survive, what we recommend.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>"The ants are coming in where this shrub touches the wall, and the drip under your sink gives them water. I've treated where they're traveling. If you can trim the shrub back and get that drip fixed, they lose their way in and their water."</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-users"/></svg><span><b>Exclusion, repairs and added services:</b> describe the need; questions about services or pricing go to your branch manager. Never quote a price or promise results.</span></div>
+      </div>
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a" style="--i:2">Common recommendations</span>
+        <div class="rec a" style="--i:3"><b>Trim plants</b><span>so nothing touches the walls or roof</span></div>
+        <div class="rec a" style="--i:4"><b>Pull mulch back</b><span>keep the foundation edge visible and dry</span></div>
+        <div class="rec a" style="--i:5"><b>Fix leaks</b><span>spigots, sink drains, A/C condensate lines; aim sprinklers off the wall</span></div>
+        <div class="rec a" style="--i:6"><b>Seal food</b><span>pet food and pantry goods in sealed containers; lids on trash</span></div>
+        <div class="rec a" style="--i:7"><b>Reduce clutter</b><span>cardboard and stored items off the floor and away from walls</span></div>
+        <div class="rec a" style="--i:8"><b>Door sweeps and screens</b><span>replace worn sweeps and torn screens</span></div>
+        <div class="rec a" style="--i:9"><b>Tip and toss</b><span>empty standing water at least weekly</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 ESCALATE -->
+  <section class="slide" data-label="When to escalate" style="gap:12px">
+    <span class="eyebrow a">04 · When to escalate</span>
+    <h2 class="a" style="--i:1">Some findings are bigger than today's visit</h2>
+    <div class="grid g2">
+      <div class="card esc a" style="--i:2"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wood"/></svg></div><h3>Termite and WDO signs</h3></div><p><b>Mud tubes, swarmers or discarded wings, pellet frass, damaged or hollow wood.</b> Photograph it, leave it intact and tell your branch manager the same day so the termite team follows up. Don't diagnose or promise treatment; WDO inspections and reports need a special WDO ID card or a termite and WDO certified operator.</p></div>
+      <div class="card esc a" style="--i:3"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-rodent"/></svg></div><h3>Rodent entry or activity</h3></div><p><b>Droppings, rub marks, gnawing, attic noise or open entry points.</b> Document and photograph the entry points and present Rodent Shield: inspection and trapping, with sealing on Plus. Seal first, then bait outside; baiting with openings left can leave a rodent dying in a wall.</p></div>
+      <div class="card esc a" style="--i:4"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-home"/></svg></div><h3>Beyond our scope</h3></div><p><b>Roof damage, rotted framing, large openings, major plumbing leaks.</b> Note them for the customer and photograph them. They may need a roofer, plumber or contractor before exclusion can work.</p></div>
+      <div class="card esc a" style="--i:5"><div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Safety hazards</h3></div><p><b>Chewed wiring, sewage leaks, stinging insect nests near doors, unsafe attic access.</b> Stop, tell the customer and your supervisor right away. Don't enter an unsafe space.</p></div>
+    </div>
+    <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-flag"/></svg><span><b>Escalate means two things:</b> a customer-facing note of what you observed, and an internal message (branch manager, and technotes@ for the office) so someone owns the follow-up.</span></div>
+  </section>
+
+  <!-- 28 SORT -->
+  <section class="slide" data-label="Practice: note it or escalate it" style="gap:12px">
+    <span class="eyebrow a">05 · Practice</span>
+    <h2 class="a" style="--i:1">Note and recommend, or escalate?</h2>
+    <div class="sort a" style="--i:2" id="esort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="esCheck">Check my answers</button><span id="esFb"></span></div>
+  </section>
+
+  <!-- 29 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 30 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on your route</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each of these during ride-alongs before PC-06 is complete. Tick each one once it has been observed.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Carry and use a working flashlight, inspection mirror and monitors on every inspection</label></li>
+      <li><label><input type="checkbox" id="f2"> Walk the full exterior and roofline first, then entry points, then interior, without prompting</label></li>
+      <li><label><input type="checkbox" id="f3"> Point out at least three conducive conditions and explain each as access, resources or shelter</label></li>
+      <li><label><input type="checkbox" id="f4"> Identify and measure entry points and say what fits through each one</label></li>
+      <li><label><input type="checkbox" id="f5"> Read droppings, rub marks or trails and explain what they say about species, severity and source</label></li>
+      <li><label><input type="checkbox" id="f6"> Write PestPac Mobile notes with findings, conditions, treatment, customer fixes and follow-up, with photos attached</label></li>
+      <li><label><input type="checkbox" id="f7"> Explain a recommendation to a customer in plain language, without blame, prices or promises</label></li>
+      <li><label><input type="checkbox" id="f8"> Describe how you would escalate termite or WDO signs and rodent entry, and to whom</label></li>
+    </ul>
+  </section>
+
+  <!-- 31 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('pc06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('pc06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "PC-06", "titleHtml": "Inspection", "nextHtml": "PC-07 \u00b7 Pest ID: Ants, Roaches, Rodents", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Why we inspect',q:'On a routine quarterly visit, the customer mentions she has seen a few small roaches in the kitchen. You are running behind schedule. What do you do first?',o:['Spray the kitchen baseboards a little heavier than usual and move on','Leave a note asking the office to schedule a cleanout','Take a few minutes with your flashlight and mirror under the sink, behind the appliances and in the cabinet hinges to find where they are living before you treat','Tell her small roaches are normal in Florida'],a:2,e:'Inspection decides the treatment. A few minutes with a flashlight and mirror finds the harborage, the moisture and the food, so your bait goes where the roaches live and your recommendations fix why they are there.'},
+    2:{t:'Checkpoint 2 · The inspection route',q:'A new customer called about ants in the master bathroom. Where does your inspection start?',o:['In the master bathroom, since that is where the ants are','In the attic, because ants nest in insulation','In the garage, where the products are stored','Outside: walk the perimeter, paying attention to the bathroom side for plants touching the wall, moisture and entry points, then follow the evidence inside'],a:3,e:'Inspection runs outside in, because pests come from the outside in. The exterior often shows the trail, the bridge and the entry point that explain what the customer is seeing inside.'},
+    3:{t:'Checkpoint 3 · Reading the evidence',q:'Under a kitchen sink: pointed droppings about 1/4 inch long, some soft and dark, some dry and gray, and shredded paper towel in the corner. What does this tell you?',o:['A single mouse passed through once','Active, established house mouse activity with a nest close by: find the entry point and present Rodent Shield','German cockroaches, because the droppings are small','Old activity only; nothing to do'],a:1,e:'Size and shape point to a house mouse. Fresh and old droppings together mean activity over time, and the shredded material is nesting. Mice have a short home range, so the nest is close. Find the entry point and present Rodent Shield.'},
+    4:{t:'Checkpoint 4 · Document, recommend, escalate',q:'During a GHP service you find small, hard pellets piled on a window sill under blistered wood trim. The customer asks, "Is that termites?" What is the best response?',o:['"Yes, you have drywood termites. We can tent the house next week."','"Probably nothing. I\'ll sweep it up for you."','"That can be a sign of wood-destroying insects. I\'m taking photos and noting it, and I\'ll have our termite team follow up with you." Then tell your branch manager the same day','Write "termites" in the notes and quote a treatment price'],a:2,e:'Report what you observed, photograph it and escalate the same day so the termite team can follow up. Don\'t diagnose, quote prices or promise treatment. WDO inspections and reports are done only by a cardholder with the special WDO inspection ID card, or a certified operator in the termite and WDO category.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'True or false',q:'A thorough inspection should begin inside, where the customer has seen pest activity.',o:['True','False'],a:1,e:'Begin outside. The exterior shows pest pressure, conditions and entry points before pests ever reach the interior. Then move inside, starting where activity was reported.'},
+    {k:'Multiple choice',q:'Every infestation depends on three elements. Which set is correct?',o:['Access, resources and shelter','Heat, light and humidity','Season, weather and location','Product, rate and frequency'],a:0,e:'Access (a way in), resources (food and water) and shelter (harborage). Remove or reduce any one and the population struggles to survive.'},
+    {k:'Multiple choice',q:'Which of these is a structural entry point?',o:['Pet food left in an open bag','A leaking dishwasher hose','A 1/4 inch gap around a water supply line where it enters the wall','Cardboard boxes stacked in the garage'],a:2,e:'Entry points are physical openings in the structure. Gaps around pipes and other penetrations are among the most common.'},
+    {k:'Multiple choice',q:'Cockroach droppings show up again and again along the hallway baseboard between the kitchen and the living room. What does that most likely indicate?',o:['A nest behind that baseboard','A new entry point from outside','A food source inside the wall','An established travel route between harborage and food'],a:3,e:'Evidence along edges and transitions marks travel routes. Harborage is usually in a more protected, concentrated spot.'},
+    {k:'True or false',q:'Evidence concentrated in one protected spot, like inside a single cabinet, usually means harborage is close by.',o:['True','False'],a:0,e:'Pests rest close to where they feed. Concentrated evidence in one spot is a reliable sign that harborage is next to it.'},
+    {k:'Multiple choice',q:'Which tool lets you see behind a toilet or under a refrigerator without moving anything?',o:['A glue-board monitor','An inspection mirror, used with a flashlight','A hand lens','A tape measure'],a:1,e:'An inspection mirror with a flashlight lets you check behind and under appliances, fixtures and door frames without pulling them out.'},
+    {k:'Scenario',q:'Small, hard, six-sided pellets are piled on a window sill under wood trim. What do they most likely indicate, and what do you do?',o:['Mouse droppings: set traps','Spider egg sacs: remove them','Possible drywood termite frass: photograph it, note what you observed and tell your branch manager the same day','Sand from the yard: sweep it up'],a:2,e:'Pellet frass is a classic drywood termite sign. Escalate with photos the same day. Don\'t sweep away the evidence or diagnose for the customer.'},
+    {k:'Multiple choice',q:'Pencil-width earthen tubes run from the soil up the edge of the slab. What are they?',o:['Subterranean termite mud tubes','Mud dauber nests','Ant trails','Water stains from sprinklers'],a:0,e:'Mud tubes are shelter tubes subterranean termites build to travel between soil and wood. They are a termite sign to escalate.'},
+    {k:'Multiple choice',q:'Dark, greasy smudges along an attic rafter, with 1/2 inch pointed, curved droppings nearby, most likely mean:',o:['Old water damage','German cockroach activity','A roof rat travel path','Squirrel nesting only'],a:2,e:'Rub marks are left where rodents run the same edge again and again. Elevated activity with 1/2 inch, pointed, slightly curved droppings points to roof rats.'},
+    {k:'True or false',q:'A gap as small as 1/8 inch around a utility line is too small to matter.',o:['True','False'],a:1,e:'Ants and many small insects pass through gaps as small as 1/8 inch, and a house mouse fits through about 1/4 inch. Document every gap.'},
+    {k:'Scenario',q:'You find a window gap, a slow drip under the sink and pet food in an open bag. Which plan is complete?',o:['Treat only where pests are visible today','Increase the service frequency','Document the findings and say nothing to the customer','Recommend sealing the gap, fixing the drip and sealing the pet food, and treat where the evidence shows activity'],a:3,e:'All three elements are present: access, resources and shelter. The plan has to address all three for lasting results.'},
+    {k:'Multiple choice',q:'Where do your PestPac Mobile notes end up?',o:['Only in the office\'s internal file','On the inspection report emailed to the customer','Nowhere; they are deleted when you complete the order','Only on your route sheet'],a:1,e:'Notes print on the inspection report the customer receives. Write them for the customer, and send office matters to technotes@clementspestcontrol.com.'},
+    {k:'Multiple choice',q:'Which note is written the way Clements expects?',o:['"Customer\'s kitchen is filthy. Roaches everywhere."','"Serviced."','"Observed German cockroach droppings behind the refrigerator. Grease buildup behind the stove. Gel bait placed in the refrigerator motor area. Recommend cleaning behind the stove. Will check activity at next service."','"You have a bad infestation and need a cleanout for $___."'],a:2,e:'A good note covers what you found, conditions, what you did, what the customer can do and follow-up, in plain, factual language with no blame or prices.'},
+    {k:'True or false',q:'If treatment knocks down the visible pests, correcting conducive conditions is optional.',o:['True','False'],a:1,e:'Without fixing the access, resources and shelter that let pests survive, the population comes back. Recommending fixes is part of the service.'},
+    {k:'Scenario',q:'A customer reports nighttime scratching in the attic. You find droppings and an open gap at the soffit. What should happen?',o:['Document and photograph the entry point and present Rodent Shield, so entry points are sealed before baiting','Toss bait packs into the attic and leave','Tell the customer it is probably squirrels and nothing can be done','Seal the gap with expanding foam and call it done'],a:0,e:'Rodent entry goes to Rodent Shield: inspection, trapping and, on Plus, sealing. Baiting with openings left can leave a rodent dying in a wall, and foam alone does not stop rodents.'},
+    {k:'Multiple choice',q:'Who may perform a WDO inspection and issue the WDO report used in a home sale?',o:['Any technician with a flashlight','The customer\'s realtor','A certified operator in the termite and WDO category, or an employee with the special WDO inspection ID card working under one','Any office employee'],a:2,e:'Under Chapter 482 (ss. 482.091 and 482.226), WDO inspections need special training and a special ID card, under a certified operator in charge with the termite and WDO category. If you are asked for one, explain that and pass the request to the office.'},
+    {k:'Multiple choice',q:'Which recommendation addresses shelter rather than access or resources?',o:['Repair the leaking spigot','Replace the worn door sweep','Store pet food in a sealed container','Move cardboard boxes off the garage floor and into sealed bins'],a:3,e:'Cardboard and clutter are harborage: undisturbed shelter. The spigot and pet food are resources; the door sweep is access.'},
+    {k:'Multiple choice',q:'Mulch is piled thick against the foundation and over the slab edge. Why recommend pulling it back?',o:['It holds moisture, shelters pests and can hide termite mud tubes at the slab edge','Mulch attracts mosquitoes only','It makes the lawn grow poorly','It is a fire hazard only'],a:0,e:'Thick mulch against the foundation keeps the area damp, shelters roaches and ants, and hides the slab edge where termite activity would otherwise be visible.'},
+    {k:'Scenario',q:'The customer asks how much it would cost to seal the openings you found. What do you say?',o:['Give your best guess so they have a number','Promise the office will give a discount','Describe what you found and that it can be sealed, and have your branch manager follow up on services and pricing','Tell them it\'s not your job'],a:2,e:'Service and pricing questions go to the branch manager. Never quote prices or promise results.'},
+    {k:'True or false',q:'When you photograph a condition or entry point, attach the photo to the order in PestPac Mobile and never post job photos on social media.',o:['True','False'],a:0,e:'Photos support your notes and the follow-up. They belong on the order, never on social media, and never of people.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+  function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  var SVGNS='http://www.w3.org/2000/svg';
+  function sv(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  function keyAct(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+
+  /* ---------- access / resources / shelter triangle ---------- */
+  var TRI=[
+    {n:'Access',x:200,y:52,ly:-36,i:'i-door',d:'A physical way into the structure.',ex:['Foundation and stucco cracks','Gaps around pipes, A/C lines and wires','Worn door sweeps, torn screens','Soffit and roofline gaps','Plants and limbs touching the house (the bridge to the opening)'],f:'Seal or exclude, and recommend removing the bridges.'},
+    {n:'Resources',x:352,y:290,ly:34,i:'i-drop',d:'Food, water and other things pests need to survive.',ex:['Leaks under sinks, around toilets and water heaters','A/C condensate and sprinklers at the slab','Grease behind and under appliances','Pet food and pantry goods in open containers','Trash without sealed lids'],f:'Recommend the fix to the customer: repair, seal, clean, store.'},
+    {n:'Shelter',x:48,y:290,ly:34,i:'i-box',d:'Protected, undisturbed harborage.',ex:['Cardboard, clutter and dense storage','Wall voids, cabinet bases, appliance motors','Thick mulch and dense shrubs at the foundation','Attics and garages','Firewood and debris against the house'],f:'Recommend reducing it, and target treatment where the evidence confirms activity.'}
+  ];
+  var triSvg=$('#triSvg'), triSeen=store.get('tri')||{};
+  TRI.forEach(function(t,i){var g=sv('g',{'class':'tnode'+(triSeen[i]?' seen':''),'tabindex':'0','role':'button','id':'tri'+i,'aria-label':t.n});
+    g.appendChild(sv('circle',{cx:t.x,cy:t.y,r:'26'}));
+    var u=sv('use',{href:'#'+t.i,x:t.x-12,y:t.y-12,width:'24',height:'24','class':'tico'});g.appendChild(u);
+    var tx=sv('text',{x:t.x,y:t.y+t.ly+(t.ly>0?12:0),'text-anchor':'middle','class':'tl'});tx.textContent=t.n;g.appendChild(tx);
+    keyAct(g,function(){showTri(i)});triSvg.appendChild(g)});
+  function showTri(i){triSeen[i]=1;store.set('tri',triSeen);var t=TRI[i];
+    $$('.tnode',triSvg).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('seen',!!triSeen[j])});
+    $('#tSub').textContent=Object.keys(triSeen).length===3?'REMOVE ONE LEG':'SELECT A CORNER';
+    $('#triD').innerHTML='<span class="eyebrow">'+t.n+'</span><h3>'+t.d+'</h3><ul class="dots2">'+t.ex.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><div class="callout" style="padding:10px 14px">'+ico('i-check')+'<span>'+t.f+'</span></div>';
+    var n=Object.keys(triSeen).length;$('#triN').textContent=n===3?'All three viewed. A recommendation that removes any one leg weakens the whole infestation.':n+' of 3 viewed';
+  }
+  $('#triD').innerHTML='<span class="eyebrow">The infestation model</span><h3>Why pests stay</h3><p class="small">Pests persist when they can get in, find what they need, and hide undisturbed. Your inspection looks for all three, and your recommendations go after all three.</p>';
+  (function(){var n=Object.keys(triSeen).length;$('#triN').textContent=n+' of 3 viewed'})();
+
+  /* ---------- inspection kit ---------- */
+  var KIT=[
+    {n:'Flashlight',s:'Every inspection, day or night',i:'i-flash',w:'A bright, charged light shows you what daylight hides: under sinks, behind appliances, in cabinet hinges, attics, voids and the slab edge.',h:'Hold the beam low and almost parallel to the surface. Droppings, trails, rub marks and frass cast shadows and stand out.'},
+    {n:'Inspection mirror',s:'See behind without moving',i:'i-mirror',w:'An extendable mirror lets you see behind toilets, under refrigerators and ranges, the top of door frames and inside cabinet bases without pulling anything out.',h:'Pair it with your flashlight: bounce the light off the mirror into the space you\'re checking.'},
+    {n:'Glue-board monitors',s:'Your eyes while you\'re gone',i:'i-card',w:'Monitors under sinks, behind appliances and in garages show what\'s active, where and how much, and whether it\'s getting better between visits.',h:'Date each one, place it along edges where pests travel, and record what it caught in your notes. Replace it when it\'s full or dusty.'},
+    {n:'Hand lens',s:'For small pests and frass',i:'i-lens',w:'A magnifier helps you tell ant species apart, separate termite pellets from sand, and spot shed skins and egg cases.',h:'Not sure what it is? Photograph it and ask your supervisor before you treat. PC-07 covers identification.'},
+    {n:'Phone camera',s:'Photos attached to the order',i:'i-cam',w:'Photos of conditions, entry points and damage back up your notes, help the next technician and give the termite team or Rodent Shield something to work from.',h:'Attach photos to the order in PestPac Mobile. Never photograph people. Never post job photos on social media.'},
+    {n:'Tape measure',s:'Size every entry point',i:'i-ruler',w:'"There\'s a gap" is not a finding. "1/2 inch gap at the east soffit" is. Size decides what can get in and how it gets sealed.',h:'A coin or your tape works. Note the location and approximate size in your notes.'},
+    {n:'Shoe covers',s:'Before you step inside',i:'i-boot',w:'Put on shoe covers before you enter. Never remove your shoes. It shows the customer you respect their home.',h:'Kneepads help when you\'re checking sink bases and appliance kick plates all day.'},
+    {n:'Attic and crawl PPE',s:'Bump cap, gloves, respirator',i:'i-cap',w:'Attics hide nails, low trusses, loose insulation, droppings and dangerous heat. Protect your head, hands and lungs.',h:'Walk only on joists or decking. Never sweep or vacuum rodent droppings dry. If access is unsafe, don\'t go in; note it and tell your supervisor (FC-03, FC-06).'}
+  ];
+  var kitL=$('#kitL'), kitSeen=store.get('kit')||{};
+  function showKit(i){kitSeen[i]=1;store.set('kit',kitSeen);
+    $$('button',kitL).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!kitSeen[j])});
+    var k=KIT[i];
+    $('#kitD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(k.i)+'</div><div><span class="eyebrow">'+k.s+'</span><h3>'+k.n+'</h3></div></div><p>'+k.w+'</p><div class="callout" style="padding:10px 14px">'+ico('i-eye')+'<span><b>Pro tip:</b> '+k.h+'</span></div><p class="small muted">'+Object.keys(kitSeen).length+' of '+KIT.length+' tools viewed</p>';
+  }
+  KIT.forEach(function(k,i){var b=mk('button',null,ico(k.i,'color:var(--brand-600)')+'<span>'+k.n+'</span>');b.type='button';b.id='kit'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showKit(i)});kitL.appendChild(b)});
+  showKit(0);
+
+  /* ---------- gap gauge ---------- */
+  var GAP=[
+    {w:2,t:'1/16 inch',f:'Ants, young cockroaches, small spiders',r:'Even hairline cracks let small insects in. Note it and seal it where practical.'},
+    {w:3,t:'1/8 inch',f:'Ants, cockroaches, spiders, silverfish',r:'Common around pipes and window frames. Document it and recommend sealing.'},
+    {w:6,t:'1/4 inch',f:'All of the above, plus house mice',r:'A house mouse can squeeze through about 1/4 inch. Rodent Shield documents entry points 1/2 inch or larger (CW-05), so note mouse-size gaps in your findings and tell your branch manager.'},
+    {w:9,t:'3/8 inch',f:'All of the above, plus young rats, lizards and frogs',r:'Rodent-size. Photograph it and present Rodent Shield.'},
+    {w:12,t:'1/2 inch',f:'All of the above, plus roof rats and Norway rats',r:'A rat can get through about 1/2 inch. Photograph, measure and present Rodent Shield. Foam alone does not stop rodents.'},
+    {w:18,t:'3/4 inch',f:'All of the above, with room to spare for adult rats',r:'Large opening. Photograph it; if it involves roof or structural damage, the customer may need a contractor before exclusion works.'}
+  ];
+  var gR=$('#gR');
+  function showGap(){var g=GAP[+gR.value];var gap=$('#gGap');gap.setAttribute('y',35-g.w/2);gap.setAttribute('height',g.w);
+    $('#gOut').innerHTML='<p class="gt"><b>'+g.t+'</b>: '+g.f+'</p><p class="small muted">'+g.r+'</p>';
+    gR.setAttribute('aria-valuetext',g.t)}
+  gR.addEventListener('input',showGap);showGap();
+
+  /* ---------- interior zones ---------- */
+  var ZN=[
+    {n:'Kitchen',s:'Food, water, warmth',i:'i-food',l:'Under the sink and around plumbing; behind and under the refrigerator, range and dishwasher (motor areas and kick plates); cabinet hinges and bases; pantry; behind the microwave.',f:'Roach droppings and shed skins, egg cases, ant trails to food, rodent droppings and gnawed packaging.',c:'Leaks, grease buildup, crumbs, pet food, open trash, cardboard.'},
+    {n:'Bathrooms',s:'Moisture',i:'i-drop',l:'Under sinks and vanities, around and behind the toilet, tub and shower edges, plumbing escutcheons, exhaust fans, window sills.',f:'Ant trails at windows and plumbing, roaches near drains, moisture-loving pests, staining and soft wood.',c:'Slow drips, failed caulk, gaps around pipes, high humidity without ventilation.'},
+    {n:'Laundry and utility',s:'Heat and hidden plumbing',i:'i-thermo',l:'Behind the washer and dryer, water heater closet, A/C air handler and condensate pan, dryer vent.',f:'Roaches and ants near water and warmth, rodent droppings along walls, lint and debris harborage.',c:'Condensate leaks, standing water in the pan, gaps around the dryer vent and lines.'},
+    {n:'Garage',s:'Storage and access',i:'i-door',l:'Door corners and the bottom seal, along walls behind storage, pet food and bird seed, shelving, the attic hatch.',f:'Rodent droppings and rub marks, gnawed bags, American roaches, spiders, crickets.',c:'Worn door seals, cardboard and clutter, open food storage, trash bins.'},
+    {n:'Attic',s:'Where in scope and safe',i:'i-home',l:'From the hatch with your light, then along the eaves, soffits, gable vents, plumbing stacks and A/C ducts. Check the insulation surface for trails.',f:'Rub marks on rafters, droppings, nesting, chewed wiring, damaged soffits with daylight showing.',c:'Roofline gaps, limbs touching the roof. Florida attics get dangerously hot: go early, limit your time, hydrate.'}
+  ];
+  var zl=$('#zl'), zSeen=store.get('zn')||{};
+  function showZ(i){zSeen[i]=1;store.set('zn',zSeen);
+    $$('button',zl).forEach(function(b,j){b.setAttribute('aria-pressed',j===i);b.classList.toggle('seen',!!zSeen[j])});
+    var z=ZN[i];
+    $('#zD').innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="icobox" style="margin:0">'+ico(z.i)+'</div><div><span class="eyebrow">'+z.s+'</span><h3>'+z.n+'</h3></div></div><dl><dt>'+ico('i-search')+'Where to look</dt><dd>'+z.l+'</dd><dt>'+ico('i-eye')+'What you find</dt><dd>'+z.f+'</dd><dt>'+ico('i-tri')+'Conditions</dt><dd>'+z.c+'</dd></dl>';
+  }
+  ZN.forEach(function(z,i){var b=mk('button',null,ico(z.i,'color:var(--brand-600)')+'<span>'+z.n+'<small>'+z.s+'</small></span>');b.type='button';b.id='zn'+i;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showZ(i)});zl.appendChild(b)});
+  showZ(0);
+
+  /* ---------- house cross-section ---------- */
+  var XS=[
+    {x:140,y:126,t:'Tree limb on the roof',k:'Condition',e:'Access',w:'Roof rats climb trees and palms and walk the limbs straight onto the roof. A limb on the roof usually means you should look hard at the roofline right next to it.',d:'Recommend trimming limbs well back from the roof. Check the nearby soffit for entry.'},
+    {x:78,y:290,t:'Shrub against the wall',k:'Condition',e:'Access',w:'Plants touching the house are a highway for ants, roaches and rodents. They also hold moisture against the wall and hide activity.',d:'Recommend trimming so nothing touches the walls or roof.'},
+    {x:96,y:336,t:'Gap under the garage door',k:'Entry point',e:'Access',g:'xg2',w:'Daylight under a worn seal lets in roaches, ants, crickets, mice and ground-level Norway rats.',d:'Measure and note the gap; recommend replacing the bottom seal. Rodent-size gaps go to Rodent Shield.'},
+    {x:146,y:244,t:'Cardboard and clutter',k:'Condition',e:'Shelter',w:'Cardboard harbors cockroaches and gives mice nesting material. Clutter against walls hides droppings and rub marks from you.',d:'Recommend sealed plastic bins, off the floor and away from the walls.'},
+    {x:231,y:282,t:'Open bag of pet food',k:'Condition',e:'Resources',w:'Pet food and bird seed feed rodents, roaches and ants. Check the bag and the floor around it for gnawing and droppings.',d:'Recommend a sealed container for pet food and seed.'},
+    {x:268,y:94,t:'Rub marks and droppings on a rafter',k:'Sign',e:'Rodent Shield',w:'Dark, greasy smudges along the rafter with 1/2 inch, pointed, slightly curved droppings: a roof rat travel path. Fresh marks are dark and slightly tacky.',d:'Photograph and note it. Rodent activity goes to Rodent Shield. Never sweep droppings dry.'},
+    {x:576,y:132,t:'Gap at the soffit',k:'Entry point',e:'Access',g:'xg1',w:'A classic roof rat entry at the roofline. It lines up with the limb on the roof and the rub marks in the attic: the whole story in three findings.',d:'Measure, photograph and present Rodent Shield. Roof damage may need a roofer first.'},
+    {x:324,y:256,t:'Drip and pipe gap under the sink',k:'Condition',e:'Resources · access',w:'A slow drain drip gives roaches and ants the water they need. The gap around the supply line is a travel route from the wall void into the cabinet.',d:'Recommend repairing the leak; seal the gap around the pipe. Check the cabinet base for droppings.'},
+    {x:417,y:290,t:'Pepper-like specks behind the fridge',k:'Sign',e:'Shelter',w:'Dark specks and smears near the warm motor area are German cockroach droppings. Lots of them means an established population nearby.',d:'Look for shed skins and egg cases, bait the harborage, and recommend cleaning behind the refrigerator.'},
+    {x:512,y:246,t:'Pellets on the window sill',k:'Escalate',e:'Termite · WDO',w:'Small, hard, six-sided pellets piling up under wood trim can be drywood termite frass.',d:'Don\'t sweep it away. Photograph it, note what you observed and tell your branch manager the same day.'},
+    {x:592,y:234,t:'Gap at the A/C line set',k:'Entry point',e:'Access',g:'xg3',w:'Where refrigerant lines, pipes and wires enter the wall, gaps let in ants, roaches and mice.',d:'Note the size; recommend sealing with appropriate material. For rodents, foam alone is not exclusion.'},
+    {x:590,y:286,t:'Mud tube on the foundation',k:'Escalate',e:'Termite · WDO',w:'A pencil-width earthen tube running from the soil up the slab or wall is a subterranean termite shelter tube.',d:'Photograph it, leave it intact, note what you observed and tell your branch manager the same day.'},
+    {x:606,y:322,t:'A/C condensate at the slab',k:'Condition',e:'Resources',w:'A condensate line dripping at the foundation keeps the soil wet: a draw for roaches, ants and subterranean termites.',d:'Recommend extending or redirecting the line so it drains away from the house.'},
+    {x:592,y:364,t:'Mulch piled on the slab edge',k:'Condition',e:'Shelter',w:'Thick mulch holds moisture, shelters pests and hides the slab edge, so termite tubes go unseen.',d:'Recommend a thin layer pulled back from the foundation so the slab edge stays visible and dry.'}
+  ];
+  var xSvg=$('#xSvg'), xFound=store.get('xh')||{};
+  XS.forEach(function(h,i){var g=sv('g',{'class':'hot k'+h.k.charAt(0)+(xFound[i]?' found':''),'tabindex':'0','role':'button','id':'xh'+i,'aria-label':'Finding '+(i+1)});
+    g.appendChild(sv('circle',{'class':'hh',cx:h.x,cy:h.y,r:'11'}));g.appendChild(sv('circle',{'class':'hc',cx:h.x,cy:h.y,r:'11'}));
+    var t=sv('text',{x:h.x,y:h.y+4,'text-anchor':'middle'});t.textContent=i+1;g.appendChild(t);
+    keyAct(g,function(){showX(i)});xSvg.appendChild(g);if(xFound[i]&&h.g)$('#'+h.g).classList.add('lit')});
+  function xCount(){var n=Object.keys(xFound).length;$('#xN').innerHTML=n===XS.length?'All 14 found. Seven conditions, three entry points, two signs and two findings to escalate, on one ordinary house.':n+' of 14 found'+(n>=10?' · keep going':'')}
+  function showX(i){xFound[i]=1;store.set('xh',xFound);var h=XS[i];
+    $$('.hot',xSvg).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.toggle('found',!!xFound[j])});
+    if(h.g)$('#'+h.g).classList.add('lit');
+    var cls=h.k==='Escalate'?' esc':'';
+    $('#xD').innerHTML='<div class="tags"><span class="chip'+cls+'">'+h.k+'</span><span class="chip">'+h.e+'</span></div><h3>'+(i+1)+' · '+h.t+'</h3><p class="small">'+h.w+'</p><div class="callout'+(h.k==='Escalate'?' danger':'')+'" style="padding:10px 14px">'+ico(h.k==='Escalate'?'i-alert':'i-check')+'<span><b>Do:</b> '+h.d+'</span></div>';
+    xCount()}
+  $('#xD').innerHTML='<span class="eyebrow">Walk it outside in</span><h3>Start with the tree and shrub on the left</h3><p class="small">Then the garage, the attic, the kitchen and bath, and around to the A/C side. Numbers turn lighter once you\'ve read them.</p>';
+  xCount();
+
+  /* ---------- order the route ---------- */
+  var ORD=['Start the order on arrival and read the notes and main concerns','Greet the customer and ask what they\'ve seen, where and when','Walk the full exterior perimeter: plants, mulch, water, debris','Check the roofline, soffits and vents','Check entry points: doors, windows, penetrations, weep holes','Inspect the kitchen, bathrooms and laundry, starting where activity was reported','Check the garage, and the attic if it\'s in scope and safe','Put it together: access, resources, shelter, then decide the treatment'];
+  var ORDMSG=['Know the history before you knock.','The customer tells you where to focus inside.','Outside first: pests come from the outside in.','Look up: limbs, soffits and vents are rodent highways.','Every gap gets documented.','Start where the activity was reported.','Storage areas and attics hide the evidence.','The analysis drives the service plan.'];
+  var ordBox=$('#ord'), ordMix=[5,2,7,0,3,6,1,4], ordAt=0;
+  function ordRender(){ordBox.innerHTML='';ordAt=0;
+    ordMix.forEach(function(k){var b=mk('button',null,'<span class="num">&middot;</span><span>'+ORD[k]+'</span>');b.type='button';b.id='ord'+k;b.dataset.k=k;
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(+b.dataset.k===ordAt){b.classList.add('placed');$('.num',b).textContent=ordAt+1;ordAt++;
+          $('#ordN').textContent=ordAt===8?'Route complete':ordAt+' of 8 placed';
+          $('#ordFb p').textContent=ordAt===8?'That\'s the route: history, customer, exterior, roofline, entry points, interior, storage areas, then analysis. Same order, every new complaint.':ORDMSG[ordAt-1];
+          if(ordAt===8)$('#ordFb').classList.add('done')}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}});
+      ordBox.appendChild(b)});
+    $('#ordN').textContent='0 of 8 placed';$('#ordFb p').textContent='Start with what you know before you walk up to the door.';$('#ordFb').classList.remove('done')}
+  $('#ordReset').addEventListener('click',ordRender);ordRender();
+
+  /* ---------- sign flip cards ---------- */
+  var SG=[
+    {t:'Pepper-like specks',f:'Dark specks or smears in hinges and corners',b:'<b>German cockroach droppings.</b> Found near warmth, food and water: hinges, motor areas, cabinet corners. Lots of specks means an established population. Bait the harborage; look for shed skins and egg cases.'},
+    {t:'Rodent droppings',f:'Size and shape tell the species',b:'<b>Mouse</b> about 1/4 inch, pointed. <b>Roof rat</b> about 1/2 inch, pointed, curved. <b>Norway rat</b> about 3/4 inch, blunt. Soft and dark is fresh. Mouse droppings mean a nest within 10 to 20 feet. Never sweep them dry.'},
+    {t:'Rub marks',f:'Dark, greasy smudges along edges',b:'<b>A rodent travel path.</b> Oils from fur build up where rodents run the same edge: rafters, pipes, wall bases, entry holes. Fresh marks are dark and tacky. Follow them to the entry point.'},
+    {t:'Shed skins',f:'Pale, empty insect shells',b:'<b>Cockroach nymphs molting.</b> Shed skins mean the population is breeding, not just visiting. A cluster of them marks harborage right next to it.'},
+    {t:'Ant trails',f:'A line of workers along an edge',b:'<b>Follow it both ways.</b> One end is food or water; the other is the nest or the entry point. Bait where they feed. Don\'t spray a repellent across the trail: it can scatter the colony.'},
+    {t:'Pellet frass',f:'Small, hard pellets piling up',b:'<b>Possible drywood termites.</b> Six-sided pellets kicked out of wood, often below trim or sills. Sawdust-like frass with insect parts can mean carpenter ants or wood-boring beetles. <b>Escalate</b>; don\'t sweep it away.'},
+    {t:'Mud tubes',f:'Pencil-width earthen tubes',b:'<b>Subterranean termites.</b> Shelter tubes run from soil up the slab, foundation or wall, often hidden behind mulch or shrubs. <b>Escalate the same day</b> with photos; leave the tube intact.'},
+    {t:'Discarded wings',f:'Piles of wings on sills or near lights',b:'<b>Termite swarmers, usually.</b> Termite wings are all the same length; winged ants have uneven wings, a pinched waist and elbowed antennae. Common after spring swarms. <b>Escalate</b> with photos.'}
+  ];
+  var sgF=$('#sgF'), sgSeen=store.get('sg')||{};
+  function sgCount(){var n=Object.keys(sgSeen).length;$('#sgN').textContent=n===8?'All 8 flipped':n+' of 8 flipped'}
+  SG.forEach(function(v,i){var b=mk('button',null,'<span class="in"><span class="face front"><h3>'+v.t+'</h3><span class="muted" style="font-size:14px">'+v.f+'</span><span class="hint">What does it mean?</span></span><span class="face back"><span>'+v.b+'</span></span></span>');
+    b.type='button';b.id='sg'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');sgSeen[i]=1;store.set('sg',sgSeen);sgCount()});sgF.appendChild(b)});
+  sgCount();
+
+  /* ---------- read the pattern ---------- */
+  var PT=[
+    {n:'One cabinet',s:'Cockroach droppings and shed skins are packed into the back corner of one cabinet next to the dishwasher. You check every other cabinet and room: nothing.',o:['An established infestation throughout the home','Localized activity with harborage right there: targeted treatment, and find the source (likely dishwasher heat and moisture)','A travel route between rooms','Recent entry from outside'],a:1,e:'Concentrated evidence in one protected spot means harborage is right there. Treat it, and fix what makes it attractive.'},
+    {n:'Baseboard line',s:'You find a few cockroach droppings spaced along the hallway baseboard between the kitchen and living room, and nothing concentrated anywhere along it.',o:['The nest is behind this baseboard','The customer needs a cleanout','Recent entry from outside','A travel route between harborage and food: bait or targeted residual along the route, and keep looking for the harborage'],a:3,e:'Evidence spread along edges marks movement, not the nest. Use the route, and find where it starts.'},
+    {n:'Every room',s:'Droppings, shed skins and live roaches in the kitchen, both bathrooms and a bedroom closet.',o:['An established, widespread infestation: full interior assessment, broad treatment and a full condition review','A single harborage in the kitchen','Recent entry through one opening','Exterior pressure only'],a:0,e:'Distribution across multiple rooms means the population has had time to spread. That calls for a full assessment, and probably a conversation with your branch manager about a cleanout (PC-08).'},
+    {n:'By the slider',s:'Ants appear only along the sliding door threshold. Outside, a shrub touches the wall beside the door and the sweep is worn.',o:['Ants nesting in the kitchen','A moisture problem under the sink','Recent or ongoing entry from outside: exclusion and perimeter work, plus trimming the shrub','A widespread interior infestation'],a:2,e:'Evidence near an opening means entry from outside. Close the gap, remove the bridge and treat the exterior where they travel.'},
+    {n:'Under the sink',s:'Small roaches and water staining only under the bathroom vanity. The drain fitting is wet.',o:['Pests that need moisture: get the leak fixed, then treat the harborage','Pests coming from the attic','Old activity; ignore it','Nothing to do with the leak'],a:0,e:'Evidence near water means a moisture-dependent pest. Without the leak fixed, treatment alone won\'t hold.'}
+  ];
+  var ptDone=store.get('pt')||{};
+  function ptTabs(cur){$('#pTabs').innerHTML='';PT.forEach(function(p,i){var b=mk('button',ptDone[i]?'done':null,p.n);b.type='button';b.id='pt'+i;b.setAttribute('aria-pressed',i===cur);b.addEventListener('click',function(){showPT(i)});$('#pTabs').appendChild(b)})}
+  function showPT(n){ptTabs(n);var p=PT[n];
+    $('#pBox').innerHTML='<div class="card" style="padding:16px 20px"><p>'+p.s+'</p></div><div class="choices">'+p.o.map(function(o,i){return '<button type="button" class="choice" id="pt'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="ptFb"></div>';
+    $$('#pBox .choice').forEach(function(b){b.addEventListener('click',function(){var i=+b.dataset.i;
+      $$('#pBox .choice').forEach(function(x){x.classList.remove('wrong')});
+      if(i===p.a){b.classList.add('right');$$('#pBox .choice').forEach(function(x){x.disabled=true});ptDone[n]=1;store.set('pt',ptDone);ptTabs(n);
+        $('#ptFb').innerHTML='<div class="fb">'+p.e+(n<PT.length-1?' <button type="button" class="btn" id="ptNext" style="margin-left:8px;padding:6px 12px">Next pattern</button>':'')+'</div>';
+        var nx=$('#ptNext');if(nx)nx.addEventListener('click',function(){showPT(n+1)})}
+      else{b.classList.add('wrong');$('#ptFb').innerHTML='<div class="fb no">Not quite. Think about where the evidence is and how spread out it is.</div>'}})});
+  }
+  showPT(0);
+
+  /* ---------- worked example highlight ---------- */
+  $$('.fpi').forEach(function(el){el.setAttribute('tabindex','0');el.setAttribute('role','button');keyAct(el,function(){var k=+el.dataset.k;
+    $$('.fpi').forEach(function(x,j){x.classList.toggle('on',j===k)});$$('.fpo').forEach(function(x,j){x.classList.toggle('on',j===k)});$$('.fpm path').forEach(function(x,j){x.classList.toggle('on',j===k)})})});
+
+  /* ---------- write the finding ---------- */
+  var WR=[
+    {n:'Ants in the kitchen',s:'Ghost ants are trailing from the kitchen window to an open bag of pet food. A shrub touches the wall outside that window, and there is a gap around the supply line under the sink.',
+     L:[{h:'What you found',o:['Ants everywhere. Bad infestation.','Observed ghost ants trailing from the kitchen window sill to the pet food cabinet.','Bugs in kitchen.'],a:1,w:['Alarming and vague. Say what, where and how much.','','Name the pest and where you saw it.']},
+        {h:'Conditions',o:['Conditions: shrub touching the wall at the kitchen window; open pet food bag; gap at the sink supply line.','Customer leaves pet food out, which is why there are ants.','Usual conditions.'],a:0,w:['','Blame. Describe the condition, not the customer.','Tells the customer nothing.']},
+        {h:'What you did',o:['Did the normal service.','Sprayed everywhere.','Placed ant bait on the active trail and in the sink cabinet; treated the exterior perimeter and window frame.'],a:2,w:['Say where the treatment went.','Not true, and not targeted. Say where it went.','']},
+        {h:'Customer fixes and follow-up',o:['Ants will be gone in 24 hours, guaranteed.','Recommend trimming the shrub off the wall and sealing pet food in a container. We will check activity next service.','Customer needs to clean up or this will keep happening.'],a:1,w:['Never promise results.','','Blaming. Give specific, doable fixes.']}],
+     x:''},
+    {n:'Noise in the attic',s:'The customer hears scratching at night. In the attic you find droppings and rub marks along a rafter by the east soffit, a 1/2 inch gap at that soffit and an oak limb on the roof above it.',
+     L:[{h:'What you found',o:['Rats in the attic, lots of them.','Attic looked at.','Inspected the attic for reported night noise. Observed rodent droppings and rub marks on a rafter near the east soffit.'],a:2,w:['Guessing at numbers. Report what you observed.','Tells the customer nothing.','']},
+        {h:'Entry and conditions',o:['Possible entry: about 1/2 inch gap at the east soffit; oak limb touching the roof above it. Photos attached.','The house has holes.','The roof is in bad shape and should have been fixed.'],a:0,w:['','Where, and how big?','Blaming and not specific.']},
+        {h:'What you did',o:['Threw bait packs into the attic.','Quoted the customer a price to seal the attic.','Discussed our Rodent Shield program with the customer; our office will follow up to schedule.'],a:2,w:['Baiting with the entry open can leave a rodent dying in a wall.','Never quote prices. Your branch manager handles that.','']},
+        {h:'Customer fixes and follow-up',o:['Recommend trimming the oak limb off the roof and keeping garage food storage in sealed containers.','Once we seal it, rats can never get back in.','Nothing will work until the customer deals with the tree.'],a:0,w:['','Never promise results.','Blaming, and not true.']}],
+     x:'Internal, not in the notes: email technotes@ for a Rodent Shield follow-up and tell your branch manager.'}
+  ];
+  var wCur=0, wSel={};
+  function wTabs(){$('#wTabs').innerHTML='';WR.forEach(function(w,i){var done=WR[i].L.every(function(l,j){return wSel[i+'_'+j]===l.a});var b=mk('button',done?'done':null,w.n);b.type='button';b.id='wt'+i;b.setAttribute('aria-pressed',i===wCur);b.addEventListener('click',function(){wCur=i;wShow()});$('#wTabs').appendChild(b)})}
+  function wNote(){var w=WR[wCur];var lines=w.L.map(function(l,j){var s=wSel[wCur+'_'+j];return s===l.a?'<span class="ln ok">'+l.o[s]+'</span>':'<span class="ln blank">'+l.h+'</span>'});
+    var done=w.L.every(function(l,j){return wSel[wCur+'_'+j]===l.a});
+    $('#wNote').innerHTML='<span class="eyebrow">Inspection report · technician notes</span><p class="wtext">'+lines.join(' ')+'</p>'+(done?'':'<p class="small muted">Pick the best line for each part. Correct lines appear here.</p>');
+    $('#wScen').innerHTML=done?'<div class="fb">Done: found, conditions, done, fixes, follow-up.</div>'+(w.x?'<div class="callout" style="padding:8px 12px;font-size:14px">'+ico('i-chat')+'<span>'+w.x+'</span></div>':''):'<span class="eyebrow">What you found on site</span><p class="small">'+w.s+'</p>'}
+  function wShow(){wTabs();var w=WR[wCur];
+    $('#wBox').innerHTML=w.L.map(function(l,j){return '<div class="wslot"><span class="eyebrow">'+(j+1)+' · '+l.h+'</span><div class="wopts">'+l.o.map(function(o,k){var s=wSel[wCur+'_'+j];var c=s===k?(k===l.a?' right':' wrong'):'';return '<button type="button" class="wopt'+c+'" id="w'+wCur+'_'+j+'_'+k+'" data-j="'+j+'" data-k="'+k+'">'+o+'</button>'}).join('')+'</div><div class="wwhy" id="wy'+j+'">'+(wSel[wCur+'_'+j]!==undefined&&wSel[wCur+'_'+j]!==l.a?l.w[wSel[wCur+'_'+j]]:'')+'</div></div>'}).join('');
+    $$('#wBox .wopt').forEach(function(b){b.addEventListener('click',function(){var j=+b.dataset.j,k=+b.dataset.k;wSel[wCur+'_'+j]=k;wShow()})});
+    wNote()}
+  wShow();
+
+  /* ---------- note or escalate sort ---------- */
+  var ES=[
+    {q:'Mud tubes on the slab edge',a:'Escalate',w:'Subterranean termite sign: photos, note, branch manager the same day.'},
+    {q:'Mulch piled against the foundation',a:'Note',w:'Conducive condition: recommend pulling it back.'},
+    {q:'Droppings and chewed attic wiring',a:'Escalate',w:'Rodent activity goes to Rodent Shield, and chewed wiring is a fire hazard to report right away.'},
+    {q:'Leaky hose spigot at the wall',a:'Note',w:'Moisture condition: recommend the repair.'},
+    {q:'Hard pellets under a window sill',a:'Escalate',w:'Possible drywood termite frass: escalate with photos.'},
+    {q:'Open bag of pet food in the garage',a:'Note',w:'Resource: recommend a sealed container.'},
+    {q:'Equal-length wings on a sill',a:'Escalate',w:'Likely termite swarmers: escalate with photos.'},
+    {q:'Worn door sweep, daylight showing',a:'Note',w:'Entry point: document it and recommend replacing the sweep.'},
+    {q:'Soft, hollow wood at a door frame',a:'Escalate',w:'Possible wood-destroying organism damage. Don\'t diagnose; escalate.'},
+    {q:'Shrubs touching the back wall',a:'Note',w:'Bridge into the structure: recommend trimming.'}
+  ];
+  var es=$('#esort'), esSel={};
+  ES.forEach(function(s,i){var r=mk('div','row');r.id='esr'+i;r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="es'+i+'n" data-v="Note" aria-pressed="false">Note &amp; recommend</button><button type="button" id="es'+i+'e" data-v="Escalate" aria-pressed="false">Escalate</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){esSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove()})});es.appendChild(r)});
+  $('#esCheck').addEventListener('click',function(){var right=0,blank=0;
+    ES.forEach(function(s,i){var r=$('#esr'+i),w=$('.why',r);if(w)w.remove();if(!esSel[i]){blank++;r.classList.remove('ok','no');return}
+      var ok=esSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);if(!ok)r.appendChild(mk('span','why',s.w))});
+    $('#esFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all ten before checking.</span>':(right===ES.length?'<span class="fb" style="display:inline-block">All ten correct. Termite, WDO and rodent signs get escalated; conditions get noted and recommended.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 10. Read the notes in red and try again.</span>');
+  });
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

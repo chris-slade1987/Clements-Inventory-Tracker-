@@ -1,0 +1,1468 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PC-02 Interior Treatment</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* PC-02 extras */
+.mini{list-style:none;display:grid;gap:6px;margin-top:8px;font-size:15px}
+.mini li{position:relative;padding-left:16px;line-height:1.45}
+.mini li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.card .mini{color:var(--ink)}
+.steps.tight li{padding:8px 0;font-size:15px;gap:12px;line-height:1.4}
+.steps.tight .num{flex-basis:28px;height:28px;font-size:13px}
+.speech{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:12px 16px;font-size:15.5px;animation:rise .22s ease-in-out both}
+.speech .who{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.slide.on.tight{gap:14px}
+.slide.tight h2.sh{font-size:clamp(22px,2.6vw,30px)}
+
+/* when flow */
+.flow{display:grid;gap:0;position:relative}
+.flow::before{content:"";position:absolute;left:16px;top:18px;bottom:18px;width:2px;background:var(--brand-200);transform-origin:top;transform:scaleY(0)}
+.slide.on .flow::before{animation:growy .8s ease-in-out .2s forwards}
+@keyframes growy{to{transform:scaleY(1)}}
+.fstep{display:flex;gap:12px;align-items:flex-start;padding:6px 0;position:relative}
+.fstep .num{flex:0 0 34px;background:var(--surface);position:relative;z-index:1}
+.fstep:first-child .num{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.fstep b{font-size:15px}
+.fstep p{font-size:13.5px;color:var(--muted);line-height:1.4}
+
+/* sorts */
+.sort.one{grid-template-columns:1fr}
+.sort .row{padding:7px 12px;font-size:14px;line-height:1.35}
+.sort.three{gap:6px}
+.sort.three .row{flex-wrap:wrap;gap:4px 12px;padding:6px 12px}
+.sort.three .opts button{padding:4px 9px;font-size:12px}
+#bdSort{gap:6px}
+
+/* prep questions */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qgrid button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-weight:300;font-size:14.5px;line-height:1.3;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.qgrid button .ico{color:var(--brand-600)}
+.qgrid button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.qgrid button.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+
+/* evidence flip cards */
+.flip.ev button{min-height:140px}
+.flip.ev h3{font-size:19px}
+.flip.ev .front .ico{color:var(--brand-600)}
+.flip.ev .back{font-size:14px;line-height:1.45;padding:16px 18px}
+
+/* crack & crevice diagram */
+.cc{width:100%;max-width:none;height:auto}
+.cc-ln{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cc-wall{fill:var(--brand-100);stroke:var(--brand-400);stroke-width:1.4}
+.cc-void{fill:var(--canvas);stroke:var(--brand-300);stroke-width:1.2;stroke-dasharray:4 4}
+.cc-base{fill:var(--surface);stroke:var(--brand-600);stroke-width:1.6}
+.cc-can{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:1.6}
+.cc-tube{fill:none;stroke:var(--brand-700);stroke-width:2.2;stroke-linecap:round}
+.cc-gap{stroke:var(--canvas);stroke-width:5}
+.cc-t{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.cc-bug ellipse{fill:var(--brand-800);opacity:.75}
+.cc-fl circle{fill:var(--brand-600);opacity:0}
+.slide.on .cc-fl circle{animation:flow 2.4s ease-in-out infinite}
+.slide.on .cc-fl circle:nth-child(2){animation-delay:.25s}.slide.on .cc-fl circle:nth-child(3){animation-delay:.5s}.slide.on .cc-fl circle:nth-child(4){animation-delay:.75s}.slide.on .cc-fl circle:nth-child(5){animation-delay:1s}
+@keyframes flow{0%{opacity:0;transform:translateX(-10px)}30%{opacity:.9}100%{opacity:0;transform:translateX(12px)}}
+
+/* nozzle */
+.nz-pin{fill:none;stroke:var(--brand-600);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:6 6}
+.nz-fan{fill:rgba(116,169,110,.22);stroke:var(--brand-400);stroke-width:1.2;stroke-dasharray:4 4}
+.slide.on .nz-pin,.slide.on .nz-fan{animation:dash 1.2s linear infinite}
+.nz-off{display:none}
+.seg.wrap{flex-wrap:wrap}
+
+/* yes/no cards */
+.yesno h3{display:flex;gap:8px;align-items:center}
+.yesno.yes h3 .ico{color:var(--positive)}
+.yesno.no{border-color:#F3C7C7}
+.yesno.no h3 .ico{color:var(--danger)}
+
+/* scenes */
+.scene{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;align-items:start}
+.sc-ln{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.sc-t{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.tgt{fill:none;stroke:var(--brand-700);stroke-width:2.4;stroke-linecap:round}
+.fishp{fill:none;stroke:var(--brand-600);stroke-width:1.4}
+.slide.on .fishp{animation:swim 3.6s ease-in-out infinite}
+@keyframes swim{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
+.hs{cursor:pointer;outline:none}
+.hs .hit{fill:rgba(116,169,110,.10);stroke:var(--brand-400);stroke-dasharray:3 3;rx:6}
+.slide.on .hs:not(.good):not(.bad) .hit{animation:hint 2.6s ease-in-out infinite}
+@keyframes hint{0%,100%{fill:rgba(116,169,110,.06)}50%{fill:rgba(116,169,110,.2)}}
+.hs:hover .hit,.hs:focus-visible .hit,.hs.sel .hit{fill:rgba(116,169,110,.22);stroke:var(--brand-600)}
+.hs.good .hit{fill:rgba(31,122,69,.10);stroke:var(--positive);stroke-dasharray:none}
+.hs.bad .hit{fill:rgba(220,38,38,.08);stroke:var(--danger);stroke-dasharray:none}
+.found{display:grid;gap:5px}
+.fi{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:13px;line-height:1.35;animation:rise .22s ease-in-out both}
+.fi.ok{border-color:var(--positive);background:#EAF5EE}
+.fi.no{border-color:var(--danger);background:#FDEEEE}
+.tkbtns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tkbtns .btn{padding:6px 14px;font-size:14px}
+#tkList{max-height:150px;overflow:auto}
+
+/* bait plan */
+.pl-room{fill:var(--surface);stroke:var(--brand-400);stroke-width:1.6}
+.pl-fix{fill:var(--brand-50);stroke:var(--brand-300);stroke-width:1.2}
+.spot{cursor:pointer;outline:none}
+.sp-r{fill:rgba(255,255,255,.6);stroke:var(--brand-600);stroke-width:1.4;stroke-dasharray:2.5 2.5}
+.sp-b{fill:var(--brand-800);opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.4);transition:opacity .18s ease-in-out,transform .18s ease-in-out}
+.spot.on .sp-b{opacity:1;transform:none}
+.spot:hover .sp-r,.spot:focus-visible .sp-r{stroke-width:2.4}
+.slide.on .spot:not(.on) .sp-r{animation:breathe 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.spot.right .sp-r{stroke:var(--positive);stroke-dasharray:none;stroke-width:2.4}
+.spot.wrong .sp-r{stroke:var(--danger);stroke-dasharray:none;stroke-width:2.4}
+.spot.missed .sp-r{stroke:#8F6400;stroke-width:2.4}
+#bpFb{max-height:210px;overflow:auto}
+
+/* monitor */
+.mn-card{fill:var(--surface);stroke:var(--brand-300);stroke-width:1.4}
+.mn-glue{fill:var(--brand-50)}
+.mn-bug{fill:var(--brand-800)}
+.mn-nym{fill:var(--brand-600)}
+.mn-bug,.mn-nym{animation:rise .22s ease-in-out both}
+
+/* scenarios */
+#scBox .choice{font-size:15px;padding:10px 14px}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* note picker */
+#ntPick button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:14px;line-height:1.4}
+#ntPick button .k{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+#ntPick button.right{border-color:var(--positive);background:#EAF5EE}
+#ntPick button.wrong{border-color:var(--danger);background:#FDEEEE}
+
+[data-cp="5"] .check label{padding:8px 12px;font-size:14.5px}
+
+.hs-list{display:none}
+@media (max-width:860px){
+  .scene,.qgrid{grid-template-columns:1fr}
+  .flip.ev button{min-height:150px}
+  #tkList,#bpFb{max-height:none}
+}
+@media (max-width:600px){
+  .hs-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .hs-list button{min-height:40px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-size:14px;color:inherit;cursor:pointer}
+  .hs-list button.on{border-color:var(--brand-600);background:var(--brand-50)}
+}
+@media (prefers-reduced-motion:reduce){.flow::before{transform:none}.sp-b{transition:none}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 30</span><span class="code-chip">PC-02 · Interior Treatment</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4.2-1 10.6-10.6a2 2 0 000-2.8l-.4-.4a2 2 0 00-2.8 0L5 15.8z"/><path d="M14 6.6l3.4 3.4"/></symbol>
+    <symbol id="i-can" viewBox="0 0 24 24"><rect x="7" y="8" width="8" height="13" rx="2"/><path d="M9 8V5.5h4V8"/><path d="M13 4.5l7-2"/><path d="M7 12h8"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><ellipse cx="12" cy="13.5" rx="4.5" ry="6"/><path d="M12 7.5V19.5"/><path d="M9.5 6.5L8 4M14.5 6.5L16 4"/><path d="M7.5 11H4M7.5 15H4.5M16.5 11H20M16.5 15H19.5"/></symbol>
+    <symbol id="i-fish" viewBox="0 0 24 24"><path d="M3 12c3-4.5 9-5.5 13-2l4-3v10l-4-3c-4 3.5-10 2.5-13-2z"/><circle cx="8" cy="11" r=".8"/></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Pest Control · PC-02</span>
+        <h1 class="display a" style="--i:1">Interior Treatment</h1>
+        <p class="lead a" style="--i:2">Inside the home is where families eat, sleep and play. This course is how we treat there: precisely, by the label, and in a way the customer can see is careful.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–55 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">GHP technicians</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 260" aria-hidden="true" style="width:100%;max-width:340px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M20 112H200"/><rect x="28" y="120" width="164" height="96" rx="4"/>
+          <path d="M110 120V216"/><circle cx="100" cy="168" r="2.5"/><circle cx="120" cy="168" r="2.5"/>
+          <path d="M70 112V98H90"/><path d="M78 98V86Q78 78 86 78H92"/>
+          <path d="M60 104H96" />
+          <rect x="216" y="40" width="80" height="176" rx="5"/><path d="M216 100H296"/><path d="M226 66V82M226 118V140"/>
+          <path d="M10 222H310"/><path d="M28 216V222M192 216V222"/>
+          <rect x="140" y="146" width="16" height="30" rx="3"/><path d="M144 146V140H152V146"/><path d="M152 141L196 128"/>
+          <circle cx="40" cy="214" r="2.2"/><circle cx="182" cy="214" r="2.2"/><circle cx="212" cy="214" r="2.2"/>
+          <path d="M248 232c10-4 22-4 32 0" stroke-dasharray="3 5"/>
+          <ellipse cx="262" cy="20" rx="7" ry="10"/><path d="M262 10V30M256 14l-6-4M268 14l6-4M255 22h-6M269 22h6"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-home"/></svg><span>Know when an interior treatment is due: every initial service, and follow-ups on request or when pests are active inside</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span>Run a two-to-three-minute interior inspection and let the evidence decide where you treat</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-can"/></svg><span>Apply crack-and-crevice and spot treatments with an aerosol and a B&amp;G, with no broadcast and no residue</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-dot"/></svg><span>Place gel bait where pests feed and keep it clean of sprays, flushing agents and repellents; use dusts and monitors correctly</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-shield"/></svg><span>Protect kitchens, nurseries, pets, aquariums and the people at home, following every label direction</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-chat"/></svg><span>Prepare the customer, explain re-entry and aftercare honestly, and document it all in PestPac Mobile</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,50px)">Inside, every drop is <span class="em">personal</span>.</h2>
+        <p class="a muted" style="--i:2">Outside, a mistake lands in a flower bed. Inside, it lands on a kitchen counter, a toy or a pet bowl. The same product can be correct along a baseboard crack and illegal on the open floor a few inches away.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-book"/></svg></div><div><h3>The label is federal law</h3><p>Using a product in a way its label doesn't allow is a violation of FIFRA, the federal pesticide law, and Florida's Chapter 482 (FC-02). Most indoor labels allow only crack-and-crevice and spot treatment in homes.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-target"/></svg></div><div><h3>Wrong placement means failure</h3><p>A spray over gel bait ruins it. A broadcast floor spray doesn't reach the roaches living in the hinge. Precise work is what actually controls pests.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-heart"/></svg></div><div><h3>It's where trust is won</h3><p>Many companies skip the interior. Shoe covers, a careful inspection and a clear explanation are what customers remember, and why they renew.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: going inside">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Going inside</h1>
+        <p class="lead a" style="--i:2">Why it matters: the decisions that keep a family safe are made before the first spray. Knowing when the interior is due, preparing the customer and inspecting first decide everything that follows.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>When the interior is done</li><li><span>02</span>Prepare the customer and your kit</li><li><span>03</span>The interior inspection</li><li><span>04</span>Practice: the interior sequence</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 WHEN -->
+  <section class="slide tight" data-label="When the interior is done">
+    <div class="split" style="grid-template-columns:1fr 1.25fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · When the interior is done</span>
+        <h2 class="a" style="--i:1">Initial: inside and out. After that: outside, unless pests are inside.</h2>
+        <div class="flow a" style="--i:2">
+          <div class="fstep"><span class="num">1</span><div><b>Initial service</b><p>Interior and exterior, always, unless the customer specifically asks for exterior only. Don't skip the interior because it's faster.</p></div></div>
+          <div class="fstep"><span class="num">2</span><div><b>Recurring follow-ups</b><p>Exterior is the standard. Treat inside when the customer asks, or when they're seeing pests inside the home.</p></div></div>
+          <div class="fstep"><span class="num">3</span><div><b>Check the account</b><p>Some customers get interior every visit; some accounts are exterior only by contract or HOA. The work order rules.</p></div></div>
+          <div class="fstep"><span class="num">4</span><div><b>Declined?</b><p>Respect it, note it in PestPac, and let them know the interior is included at no extra charge on any future visit.</p></div></div>
+        </div>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px">
+        <span class="eyebrow">Practice · interior today?</span>
+        <div class="sort one three" id="whSort"></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="whCheck" style="padding:8px 16px">Check my answers</button><span id="whFb"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 PREP -->
+  <section class="slide" data-label="Prepare the customer and your kit">
+    <div class="split" style="align-items:start;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · Prepare the customer and your kit</span>
+        <h2 class="a" style="--i:1">Ready at the truck. Ready at the door.</h2>
+        <div class="card a" style="--i:2;padding:14px 16px"><span class="eyebrow">At the truck</span><ul class="mini">
+          <li>Equipment belt on with your crack-and-crevice aerosol and gel bait; flashlight</li>
+          <li>B&amp;G mixed at the labeled rate (PC-04) and pressurized; never mix in the home</li>
+          <li>Label PPE on (gloves at minimum, FC-03); shoe covers in your pocket</li>
+          <li>Start the order in PestPac Mobile</li></ul></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-boot"/></svg><span><b>Shoe covers on before you step inside, every visit.</b> Never take your shoes off instead. Off and disposed of when you leave.</span></div>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <span class="eyebrow">At the door · four questions that change your plan</span>
+        <div class="qgrid" id="pq"></div>
+        <div class="speech" id="pqBox"><span class="who">Select a question</span>Each answer changes where and how you treat.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 INSPECTION -->
+  <section class="slide tight" data-label="The interior inspection">
+    <span class="eyebrow a">03 · The interior inspection · 2–3 minutes</span>
+    <h2 class="a" style="--i:1">Look before you treat. Where the evidence is decides where the product goes.</h2>
+    <p class="a muted small" style="--i:2;max-width:none">Kitchen, baths, laundry and utility rooms first: under sinks, behind appliances, cabinets near plumbing. Look for pests, droppings, shed skins, egg cases and trails. Select a card to read the evidence.</p>
+    <div class="flip ev a" style="--i:3" id="evFlip"></div>
+  </section>
+
+  <!-- 8 SEQUENCE -->
+  <section class="slide" data-label="Practice: the interior sequence">
+    <div class="split" style="align-items:start;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Practice</span>
+        <h2 class="a" style="--i:1">Put a routine interior service in order</h2>
+        <p class="a muted" style="--i:2">The Clements interior is inspection, crack and crevice, liquid, then bait. Pick the bait spots during the inspection; aerosol and liquid stay out of them, and bait goes in last.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span><b>Typical time inside:</b> inspection 2–3 minutes, crack and crevice 2–3, liquid 5–6, baiting 1–2. Activity, not the clock, decides how long you take.</span></div>
+      </div>
+      <div class="grid a" style="--i:2;gap:10px">
+        <span class="eyebrow">Select the steps in order</span>
+        <div class="order" id="seq"></div>
+        <div id="seqFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: crack, crevice and liquid">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Crack, crevice and liquid</h1>
+        <p class="lead a" style="--i:2">Why it matters: indoor pests spend the day hidden in cracks, voids and hinges. Product placed there works and stays away from people. Product on open surfaces does neither, and most indoor labels forbid it.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Crack-and-crevice technique</li><li><span>02</span>The B&amp;G: pin stream and spot</li><li><span>03</span>Where yes, where never</li><li><span>04</span>Practice: treat here or not?</li><li><span>05</span>Reading an indoor label</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 C&C -->
+  <section class="slide" data-label="Crack-and-crevice technique">
+    <div class="split" style="align-items:center;gap:28px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">01 · Crack-and-crevice technique</span>
+        <h2 class="a" style="--i:1">Put the tip in the crack, not the product on the surface</h2>
+        <ol class="steps tight a" style="--i:2">
+          <li><span class="num">1</span><span><b>Fit the extension tube</b> that comes with the aerosol.</span></li>
+          <li><span class="num">2</span><span><b>Insert the tip into the crack,</b> gap or void. Don't spray from a distance.</span></li>
+          <li><span class="num">3</span><span><b>Short bursts,</b> about one second, moving the tip along the crack.</span></li>
+          <li><span class="num">4</span><span><b>Nothing visible</b> on the surface when you're done. Wipe any drip.</span></li>
+        </ol>
+        <p class="small muted a" style="--i:3">Targets: under sinks and around plumbing, behind the refrigerator and oven, vanity bases, door frames, baseboard gaps and utility penetrations. Skip any crack you plan to bait.</p>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="figbox" style="padding:10px">
+          <svg viewBox="0 0 360 230" role="img" aria-label="Cross-section of a wall and baseboard. The aerosol tip is inserted into the gap and the product travels into the void where the pests hide." class="cc" style="max-width:none">
+            <rect x="200" y="20" width="26" height="170" class="cc-wall"/>
+            <rect x="226" y="20" width="110" height="170" class="cc-void"/>
+            <rect x="176" y="146" width="24" height="44" class="cc-base"/>
+            <path d="M20 190H340" class="cc-ln"/>
+            <text x="246" y="40" class="cc-t">wall void</text>
+            <text x="120" y="212" class="cc-t">floor</text><text x="160" y="140" class="cc-t">baseboard</text>
+            <g class="cc-bug"><ellipse cx="282" cy="160" rx="7" ry="4.5"/><ellipse cx="300" cy="170" rx="6" ry="4"/><ellipse cx="270" cy="176" rx="5" ry="3.5"/></g>
+            <rect x="40" y="118" width="40" height="66" rx="8" class="cc-can"/><path d="M50 118v-10h20v10" class="cc-ln"/>
+            <path d="M70 110L176 184L214 184" class="cc-tube"/>
+            <g class="cc-fl"><circle cx="220" cy="184" r="3.2"/><circle cx="238" cy="178" r="3.2"/><circle cx="256" cy="172" r="3.2"/><circle cx="274" cy="168" r="3.2"/><circle cx="292" cy="166" r="3.2"/></g>
+            <path d="M200 184h26" class="cc-gap"/>
+          </svg>
+        </div>
+        <div class="callout"><svg class="ico"><use href="#i-check"/></svg><span><b>Correction to older Clements guides:</b> they said to hold the can 12 inches away and also insert the tube. You can't do both. The tip goes into the crack.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 B&G -->
+  <section class="slide" data-label="The B&G: pin stream and spot">
+    <div class="split" style="align-items:start;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">02 · The B&amp;G sprayer</span>
+        <h2 class="a" style="--i:1">Pin stream into cracks. Small spots only where the label allows.</h2>
+        <ul class="mini a" style="--i:2">
+          <li><b>Labeled rate,</b> mixed at the truck. More product is never better, and it's off-label (PC-04).</li>
+          <li><b>Low pressure</b> and a controlled trigger. No runoff under cabinets or onto floors.</li>
+          <li><b>Pin stream</b> into the joint where the baseboard meets the floor, door frames, window sills, gaps under appliances.</li>
+          <li><b>Coarse fan, spot only:</b> a small, localized area where pests rest, if the label lists spot treatment.</li>
+          <li><b>No broadcast</b> across floors or carpets, and no visible residue on baseboards.</li>
+          <li><b>Interior liquid is not a barrier.</b> It targets harborage and travel routes. The barrier is outside (PC-03).</li>
+        </ul>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div><div class="seg" role="group" aria-label="Choose a nozzle pattern" id="nzSeg"></div></div>
+        <div class="figbox" style="padding:10px">
+          <svg viewBox="0 0 360 200" role="img" aria-label="B and G nozzle spraying a pattern at the baseboard" id="nzSvg" style="max-width:none">
+            <path d="M20 160H340" class="cc-ln"/><rect x="240" y="40" width="100" height="120" class="cc-void" style="fill:var(--surface)"/><rect x="240" y="132" width="100" height="28" class="cc-base"/>
+            <path d="M20 70L120 96" class="cc-tube"/><rect x="112" y="90" width="18" height="12" rx="3" class="cc-can" transform="rotate(15 121 96)"/>
+            <path id="nzPin" class="nz-pin" d="M132 100L238 156"/>
+            <path id="nzFan" class="nz-fan" d="M132 100L238 134L238 160Z"/>
+            <text x="244" y="30" class="cc-t" id="nzLbl">baseboard–floor joint</text>
+          </svg>
+        </div>
+        <div class="card" id="nzBox" style="padding:14px 16px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 WHERE YES / NEVER -->
+  <section class="slide tight" data-label="Where yes, where never">
+    <span class="eyebrow a">03 · Where yes, where never</span>
+    <h2 class="a" style="--i:1">If people, food, children or pets touch it, it isn't a treatment site</h2>
+    <div class="grid g2 a" style="--i:2;gap:12px">
+      <div class="card yesno yes" style="padding:14px 16px"><h3><svg class="ico"><use href="#i-check"/></svg> Treat, as the label allows</h3><ul class="mini">
+        <li>Cracks and voids under sinks and around pipes</li>
+        <li>Behind and under the refrigerator, oven and dishwasher</li>
+        <li>Baseboard–floor joints and corners, as crack and crevice</li>
+        <li>Door frames, window sills, thresholds</li>
+        <li>Cabinet hinges and the gap behind the kick plate</li>
+        <li>Utility penetrations, water heater and laundry areas</li></ul></div>
+      <div class="card yesno no" style="padding:14px 16px"><h3><svg class="ico"><use href="#i-alert"/></svg> Never</h3><ul class="mini">
+        <li>Broadcast across floors, carpets or rugs</li>
+        <li>Countertops, tables, dishes, utensils or any food surface</li>
+        <li>Cribs, bedding, toys or where infants crawl</li>
+        <li>Pet bowls, beds, litter areas; never on pets</li>
+        <li>Into or near aquariums and terrariums</li>
+        <li>Over gel bait, or anywhere the label doesn't list</li></ul></div>
+    </div>
+    <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span><b>Products differ.</b> One label may allow spot treatment on floors along baseboards; another may allow crack and crevice only. Read the label of the product in your B&amp;G, not the one you used last year.</span></div>
+  </section>
+
+  <!-- 14 TREAT OR NOT -->
+  <section class="slide tight" data-label="Practice: treat here or not?">
+    <span class="eyebrow a">04 · Practice · treat here or not?</span>
+    <h2 class="a sh" style="--i:1">Select each highlighted spot in this kitchen and decide.</h2>
+    <div class="scene a" style="--i:2">
+      <div class="figbox" style="padding:8px">
+        <svg viewBox="0 0 520 250" role="img" aria-label="Kitchen and family room. Select each spot and decide whether to treat it." id="tk" style="max-width:none">
+          <path d="M10 226H510" class="sc-ln" style="stroke:var(--line)"/>
+          <rect class="sc-ln" x="20" y="40" width="64" height="186" rx="4"/><path class="sc-ln" d="M20 100H84M30 60V84M30 116V150"/>
+          <rect class="sc-ln" x="92" y="124" width="190" height="102"/><path class="sc-ln" d="M86 120H288"/>
+          <path class="sc-ln" d="M156 124V226M220 124V226"/>
+          <rect class="sc-ln" x="226" y="140" width="50" height="60" rx="3"/><path class="sc-ln" d="M232 128h38"/>
+          <circle class="sc-ln" cx="238" cy="124" r="0"/>
+          <path class="sc-ln" d="M120 120v-14h16"/><path class="sc-ln" d="M110 120h40" />
+          <rect class="sc-ln" x="92" y="40" width="190" height="52" rx="3"/><path class="sc-ln" d="M156 40V92M220 40V92"/>
+          <path class="sc-ln" d="M300 226V150H500"/><text x="390" y="144" class="sc-t">family room</text>
+          <g class="hs" data-k="0" tabindex="0" role="button" aria-label="Gap under the refrigerator">
+            <path class="tgt" d="M22 222H82"/><rect class="hit" x="16" y="210" width="72" height="20"/></g>
+          <g class="hs" data-k="1" tabindex="0" role="button" aria-label="Countertop by the cutting board">
+            <rect class="sc-ln" x="170" y="110" width="34" height="8" rx="2"/><rect class="hit" x="162" y="100" width="50" height="22"/></g>
+          <g class="hs" data-k="2" tabindex="0" role="button" aria-label="Pipe penetration under the sink">
+            <path class="sc-ln" d="M120 150v26h-14" /><circle class="tgt" cx="106" cy="176" r="4"/><rect class="hit" x="96" y="140" width="40" height="46"/></g>
+          <g class="hs" data-k="3" tabindex="0" role="button" aria-label="Open kitchen floor">
+            <path class="tgt" d="M150 240H290" stroke-dasharray="4 4"/><rect class="hit" x="140" y="228" width="160" height="20"/></g>
+          <g class="hs" data-k="4" tabindex="0" role="button" aria-label="Dog water bowl at the baseboard">
+            <path class="sc-ln" d="M300 222l4-10h22l4 10z"/><rect class="hit" x="294" y="204" width="42" height="24"/></g>
+          <g class="hs" data-k="5" tabindex="0" role="button" aria-label="Cabinet hinge under the sink">
+            <rect class="sc-ln" x="150" y="140" width="4" height="12"/><rect class="hit" x="142" y="132" width="20" height="28"/></g>
+          <g class="hs" data-k="6" tabindex="0" role="button" aria-label="Fish tank on the side table">
+            <rect class="sc-ln" x="420" y="162" width="66" height="40" rx="3"/><path class="sc-ln" d="M430 202v24M476 202v24"/><path class="fishp" d="M440 182c6-6 14-6 20 0c-6 6-14 6-20 0zM460 182l6-4v8z"/><rect class="hit" x="414" y="156" width="78" height="72"/></g>
+          <g class="hs" data-k="7" tabindex="0" role="button" aria-label="Baseboard joint in the family room">
+            <path class="tgt" d="M340 224H410"/><rect class="hit" x="336" y="212" width="78" height="18"/></g>
+          <g class="hs" data-k="8" tabindex="0" role="button" aria-label="Toy blocks on the rug">
+            <rect class="sc-ln" x="352" y="200" width="10" height="10"/><rect class="sc-ln" x="364" y="204" width="8" height="8"/><rect class="sc-ln" x="358" y="192" width="8" height="8"/><rect class="hit" x="346" y="186" width="32" height="26"/></g>
+          <g class="hs" data-k="9" tabindex="0" role="button" aria-label="Upper cabinet with dishes">
+            <rect class="sc-ln" x="226" y="52" width="48" height="30" rx="2"/><path class="sc-ln" d="M232 74h36M236 66h28"/><rect class="hit" x="222" y="46" width="58" height="42"/></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:8px;align-content:start">
+        <div class="card" id="tkBox" style="padding:12px 14px;min-height:118px"><span class="eyebrow">Selected</span><p style="margin-top:4px">Select a highlighted spot in the scene.</p></div>
+        <div id="tkList" class="found"></div>
+        <p class="small muted" id="tkTally">0 of 10 decided</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 LABEL -->
+  <section class="slide" data-label="Reading an indoor label">
+    <div class="split" style="align-items:start;gap:26px;grid-template-columns:1.1fr 1fr">
+      <div class="label a" style="--i:1" aria-label="Example indoor directions from a residual insecticide label">
+        <div class="lt">Example label · Indoor directions</div>
+        <p style="margin-bottom:8px"><b>Indoor use.</b> <span class="hl">Spray directly into cracks and crevices or voids where pests are present.</span> <span class="hl d2">Do not apply broadcast treatments to floors or floor coverings.</span> Spot applications may be made to floor surfaces along baseboards.</p>
+        <p style="margin-bottom:8px"><b>In the home,</b> all food processing surfaces and utensils should be covered before treatment. Do not allow spray to contact food or feed surfaces.</p>
+        <p style="margin-bottom:8px"><span class="hl d3">Keep people and pets away from sites of application until the treated area has dried.</span> Remove or tightly cover fish tanks and disconnect aerators during application.</p>
+        <p class="muted small">Adapted from the current Suspend SC label (deltamethrin), a product Clements uses indoors. Your product's wording may differ. Read it.</p>
+      </div>
+      <div class="grid a" style="--i:2;gap:10px">
+        <span class="eyebrow">05 · Reading an indoor label</span>
+        <h2 style="font-size:clamp(22px,2.6vw,30px)">Five lines to find before you spray inside</h2>
+        <ol class="steps tight">
+          <li><span class="num">1</span><span><b>Sites:</b> is "residential interior" listed, and which methods: crack and crevice, spot, void?</span></li>
+          <li><span class="num">2</span><span><b>Rate</b> for indoor use, and the mix you put in the B&amp;G.</span></li>
+          <li><span class="num">3</span><span><b>Food areas:</b> what must be covered or removed first.</span></li>
+          <li><span class="num">4</span><span><b>People, pets, aquariums:</b> who leaves, what gets covered, re-entry.</span></li>
+          <li><span class="num">5</span><span><b>PPE</b> for the applicator (FC-03).</span></li>
+        </ol>
+        <div class="callout"><svg class="ico"><use href="#i-clip"/></svg><span>Customer asks? Give the product name, active ingredient and label safety information. Florida law requires it (s. 482.2265).</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 17 PART THREE -->
+  <section class="slide forest" data-label="Part three: baits, dusts and monitors">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Baits, dusts and monitors</h1>
+        <p class="lead a" style="--i:2">Why it matters: roaches and ants carry bait back to the hiding places sprays never reach. Bait works only if it stays clean and attractive. One careless spray can undo the whole placement.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Gel bait rules</li><li><span>02</span>Practice: bait the kitchen and bath</li><li><span>03</span>Practice: bait do or don't</li><li><span>04</span>Dusts and monitors</li></ol>
+    </div>
+  </section>
+
+  <!-- 18 GEL BAIT -->
+  <section class="slide tight" data-label="Gel bait rules">
+    <span class="eyebrow a">01 · Gel bait rules</span>
+    <h2 class="a" style="--i:1">Small, hidden, clean and close to where they live</h2>
+    <div class="grid g3 a" style="--i:2;gap:12px">
+      <div class="card" style="padding:14px 16px"><div class="icobox"><svg class="ico"><use href="#i-dot"/></svg></div><h3>Size and count</h3><ul class="mini">
+        <li>Pea-size or smaller. The Advion cockroach label sets a spot at about 1/4 inch (0.5 g).</li>
+        <li>Spots per 10 feet by activity, from the label: Advion is 1–3 for light, 3–5 for heavy.</li>
+        <li>"Don't use bait like caulk" (UF/IFAS).</li></ul></div>
+      <div class="card" style="padding:14px 16px"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Where</h3><ul class="mini">
+        <li>Where the inspection found activity, near harborage</li>
+        <li>Cabinet hinges, behind the refrigerator and dishwasher, under sinks and vanities, plumbing gaps</li>
+        <li>Out of reach of children and pets; never on food surfaces</li>
+        <li>Not where it's routinely washed, or on surfaces above 120–130 °F</li></ul></div>
+      <div class="card" style="padding:14px 16px"><div class="icobox"><svg class="ico"><use href="#i-shield"/></svg></div><h3>Keep it clean</h3><ul class="mini">
+        <li>Never spray a residual over bait, and never bait a surface you just sprayed (Advion label)</li>
+        <li>No flushing aerosols or repellents in baited cracks (UF/IFAS)</li>
+        <li>Right bait for the pest: cockroach gel for roaches, ant bait for ants</li>
+        <li>Store bait away from other products and out of a hot cab</li></ul></div>
+    </div>
+    <div class="callout warn a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Flushing aerosols and bait don't mix.</b> A pyrethrin flushing aerosol like CB-80 drives roaches out and contaminates nearby bait. Where you bait for roaches, don't use it in the same cracks. UF/IFAS (ENY989, 2026) advises avoiding insecticide flushing agents with bait; canned compressed air flushes without contaminating.</span></div>
+  </section>
+
+  <!-- 19 BAIT PLAN -->
+  <section class="slide tight" data-label="Practice: bait the kitchen and bath">
+    <span class="eyebrow a">02 · Practice · bait the kitchen and bath</span>
+    <h2 class="a sh" style="--i:1">German roaches in the kitchen and bath. Place bait in the six right spots.</h2>
+    <div class="scene a" style="--i:2">
+      <div class="figbox" style="padding:8px">
+        <svg viewBox="0 0 520 260" role="img" aria-label="Floor plan of a kitchen and a bathroom with possible bait spots. Select spots to place bait." id="bp" style="max-width:none">
+          <rect class="pl-room" x="10" y="10" width="310" height="240"/><rect class="pl-room" x="330" y="10" width="180" height="240"/>
+          <text x="20" y="244" class="sc-t">kitchen</text><text x="340" y="244" class="sc-t">bathroom</text>
+          <rect class="pl-fix" x="10" y="10" width="240" height="46"/><text x="200" y="50" class="sc-t" style="font-size:9px">counter</text>
+          <rect class="pl-fix" x="60" y="14" width="56" height="34" rx="8"/><text x="70" y="45" class="sc-t" style="font-size:9px">sink</text>
+          <rect class="pl-fix" x="150" y="14" width="44" height="38"/><text x="152" y="62" class="sc-t" style="font-size:9px">stove</text>
+          <rect class="pl-fix" x="256" y="10" width="60" height="62"/><text x="262" y="82" class="sc-t" style="font-size:9px">refrigerator</text>
+          <rect class="pl-fix" x="10" y="56" width="46" height="40"/><text x="12" y="108" class="sc-t" style="font-size:9px">dishwasher</text>
+          <rect class="pl-fix" x="110" y="130" width="100" height="56" rx="4"/><text x="132" y="162" class="sc-t" style="font-size:9px">table</text>
+          <rect class="pl-fix" x="250" y="190" width="60" height="50"/><text x="256" y="186" class="sc-t" style="font-size:9px">toy bin</text>
+          <rect class="pl-fix" x="340" y="14" width="80" height="40"/><text x="350" y="64" class="sc-t" style="font-size:9px">vanity</text>
+          <rect class="pl-fix" x="440" y="16" width="40" height="44" rx="14"/><text x="444" y="72" class="sc-t" style="font-size:9px">toilet</text>
+          <rect class="pl-fix" x="436" y="150" width="70" height="96" rx="6"/><text x="452" y="200" class="sc-t" style="font-size:9px">tub</text>
+          <g class="spot" data-k="0" tabindex="0" role="button" aria-label="Inside the cabinet hinge under the kitchen sink"><circle class="sp-r" cx="58" cy="52" r="7"/><circle class="sp-b" cx="58" cy="52" r="4"/></g>
+          <g class="spot" data-k="1" tabindex="0" role="button" aria-label="Behind the refrigerator, near the motor area"><circle class="sp-r" cx="300" cy="18" r="7"/><circle class="sp-b" cx="300" cy="18" r="4"/></g>
+          <g class="spot" data-k="2" tabindex="0" role="button" aria-label="Gap at the edge of the dishwasher kick plate"><circle class="sp-r" cx="52" cy="92" r="7"/><circle class="sp-b" cx="52" cy="92" r="4"/></g>
+          <g class="spot" data-k="3" tabindex="0" role="button" aria-label="On the countertop next to the cutting board"><circle class="sp-r" cx="132" cy="40" r="7"/><circle class="sp-b" cx="132" cy="40" r="4"/></g>
+          <g class="spot" data-k="4" tabindex="0" role="button" aria-label="Right beside a stove burner"><circle class="sp-r" cx="172" cy="34" r="7"/><circle class="sp-b" cx="172" cy="34" r="4"/></g>
+          <g class="spot" data-k="5" tabindex="0" role="button" aria-label="Middle of the kitchen floor"><circle class="sp-r" cx="230" cy="120" r="7"/><circle class="sp-b" cx="230" cy="120" r="4"/></g>
+          <g class="spot" data-k="6" tabindex="0" role="button" aria-label="Inside the toy bin"><circle class="sp-r" cx="280" cy="216" r="7"/><circle class="sp-b" cx="280" cy="216" r="4"/></g>
+          <g class="spot" data-k="7" tabindex="0" role="button" aria-label="Plumbing gap inside the vanity"><circle class="sp-r" cx="362" cy="26" r="7"/><circle class="sp-b" cx="362" cy="26" r="4"/></g>
+          <g class="spot" data-k="8" tabindex="0" role="button" aria-label="Vanity cabinet hinge"><circle class="sp-r" cx="414" cy="48" r="7"/><circle class="sp-b" cx="414" cy="48" r="4"/></g>
+          <g class="spot" data-k="9" tabindex="0" role="button" aria-label="Gap where the toilet supply line enters the wall"><circle class="sp-r" cx="490" cy="20" r="7"/><circle class="sp-b" cx="490" cy="20" r="4"/></g>
+          <g class="spot" data-k="10" tabindex="0" role="button" aria-label="Rim of the bathtub"><circle class="sp-r" cx="430" cy="196" r="7"/><circle class="sp-b" cx="430" cy="196" r="4"/></g>
+          <g class="spot" data-k="11" tabindex="0" role="button" aria-label="Baseboard crack you sprayed five minutes ago"><circle class="sp-r" cx="18" cy="170" r="7"/><circle class="sp-b" cx="18" cy="170" r="4"/></g>
+        </svg>
+      </div>
+      <div class="grid" style="gap:8px;align-content:start">
+        <div class="card" id="bpBox" style="padding:12px 14px;min-height:92px"><span class="eyebrow">Spot</span><p style="margin-top:4px">Select a dashed circle to place or remove bait.</p></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="bpCheck" style="padding:8px 16px">Check my placements</button><button type="button" class="btn" id="bpReset" style="padding:8px 14px">Reset</button></div>
+        <div id="bpFb" class="found"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 BAIT SORT -->
+  <section class="slide tight" data-label="Practice: bait do or don't">
+    <span class="eyebrow a">03 · Practice</span>
+    <h2 class="a" style="--i:1">Gel bait: do it, or don't?</h2>
+    <div class="sort a" style="--i:2" id="bdSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="bdCheck" style="padding:8px 16px">Check my answers</button><span id="bdFb"></span></div>
+  </section>
+
+  <!-- 21 DUSTS AND MONITORS -->
+  <section class="slide" data-label="Dusts and monitors">
+    <div class="split" style="align-items:start;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Dusts</span>
+        <h2 class="a" style="--i:1">Dust goes in enclosed voids, never where anyone can touch it</h2>
+        <ul class="mini a" style="--i:2">
+          <li><b>Only sites the label lists,</b> and only with a product your supervisor has issued.</li>
+          <li><b>Enclosed voids:</b> behind plumbing escutcheons, cabinet kick-plate voids, hollow wall spaces where pests travel.</li>
+          <li><b>A light puff</b> from a bulb duster. Visible dust on any surface means too much: clean it up.</li>
+          <li><b>Never</b> in open living areas, on floors, near food or air vents, or near bait placements.</li>
+          <li>UF/IFAS (2026) notes dusts are rarely needed with good baiting and sanitation, and drift is a real risk.</li>
+        </ul>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <span class="eyebrow">Monitors · read the sticky trap</span>
+        <p class="small muted" style="margin:0">Place along walls and corners near harborage, in dry spots out of reach of children and pets. Date and number each one, note its location in PestPac, and replace it when it's full, wet or dusty. Select a trap.</p>
+        <div><div class="seg" role="group" aria-label="Choose a monitor result" id="mnSeg"></div></div>
+        <div class="figbox" style="padding:8px"><svg viewBox="0 0 300 110" id="mnSvg" role="img" aria-label="Sticky monitor with catches" style="max-width:none"></svg></div>
+        <div class="card" id="mnBox" style="padding:12px 14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 23 PART FOUR -->
+  <section class="slide forest" data-label="Part four: sensitive areas and the customer">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Sensitive areas and the customer</h1>
+        <p class="lead a" style="--i:2">Why it matters: the people most worried about pesticides are often the ones with a baby, a sick parent or a fish tank. How you protect them, and how you explain it, decides whether they trust us inside again.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Sensitive areas</li><li><span>02</span>Practice: what would you do?</li><li><span>03</span>Aftercare and the knock back</li><li><span>04</span>Document the interior</li></ol>
+    </div>
+  </section>
+
+  <!-- 24 SENSITIVE AREAS -->
+  <section class="slide" data-label="Sensitive areas">
+    <span class="eyebrow a">01 · Sensitive areas</span>
+    <h2 class="a" style="--i:1">Five places that change how you treat</h2>
+    <div class="a" style="--i:2"><div class="seg wrap" role="group" aria-label="Choose an area" id="saSeg"></div></div>
+    <div class="grid g2 a" style="--i:3;gap:12px" id="saBox"></div>
+    <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span><b>In every room, the label comes first.</b> When a customer's situation isn't covered here, stop and call your supervisor before you treat. A skipped room can be treated next visit; an exposure can't be undone.</span></div>
+  </section>
+
+  <!-- 25 SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do?">
+    <span class="eyebrow a">02 · Practice · what would you do?</span>
+    <h2 class="a" style="--i:1">Choose the next right action</h2>
+    <div class="scen-tabs a" style="--i:2" id="scTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="scBox"></div>
+  </section>
+
+  <!-- 26 AFTERCARE -->
+  <section class="slide" data-label="Aftercare and the knock back">
+    <div class="split" style="align-items:start;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">03 · Aftercare and the knock back</span>
+        <h2 class="a" style="--i:1">Tell them what you did, and what to do now</h2>
+        <p class="quote a" style="--i:2;font-size:clamp(16px,1.6vw,19px)">"I treated the cracks under the sink and behind the fridge and stove, and put small bait placements in the cabinet hinges. Please keep the kids and the dog off the kitchen baseboards until they're completely dry. Don't wipe away the bait or use store-bought sprays near it; that keeps them feeding. You may see a few more roaches over the next several days as they find it. If you're still seeing them after that, call us and we'll come back."<cite>A KNOCK BACK THAT COVERS IT</cite></p>
+      </div>
+      <div class="grid a" style="--i:3;gap:10px">
+        <div class="card" style="padding:14px 16px"><span class="eyebrow">Aftercare to cover</span><ul class="mini">
+          <li><b>Re-entry:</b> people and pets off treated areas until dry. The label sets it; never guess a number of hours you can't back up.</li>
+          <li><b>Leave bait alone:</b> no wiping, no household sprays or cleaners on it.</li>
+          <li><b>Sanitation:</b> seal food, clean grease, fix the leak, remove cardboard.</li>
+          <li><b>Honest timing</b> and when to call. No promises.</li></ul></div>
+        <div class="grid g2" style="gap:10px">
+          <div class="callout danger" style="padding:12px 14px"><svg class="ico"><use href="#i-alert"/></svg><span>Never call a product "safe," "harmless" or "non-toxic."</span></div>
+          <div class="callout" style="padding:12px 14px"><svg class="ico"><use href="#i-book"/></svg><span>Asked? Give the product, active ingredient and label safety info.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 DOCUMENT -->
+  <section class="slide" data-label="Document the interior">
+    <div class="split" style="align-items:start;gap:26px">
+      <div class="grid" style="gap:10px">
+        <span class="eyebrow a">04 · Document the interior</span>
+        <h2 class="a" style="--i:1">Write it so the customer and the next tech can use it</h2>
+        <ul class="mini a" style="--i:2">
+          <li><b>Chemical record:</b> each product, amount, target pest and areas treated (FC-10).</li>
+          <li><b>Customer notes</b> (on the inspection report): what you treated, what you found, what they can do.</li>
+          <li><b>Monitors and bait:</b> where they are, and what they showed.</li>
+          <li><b>Interior declined:</b> note it, so nobody argues about it later.</li>
+          <li><b>First interior visit:</b> fill out the Clements service sticker and place it at the electrical panel, or another inconspicuous spot.</li>
+          <li><b>Office items</b> (a lead, a leak the landlord must fix) go to technotes@clementspestcontrol.com.</li>
+        </ul>
+      </div>
+      <div class="grid a" style="--i:3;gap:8px">
+        <span class="eyebrow">Practice · which note is ready to send?</span>
+        <div id="ntPick" class="grid" style="gap:8px"></div>
+        <div id="ntFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 28 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 29 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it inside a real home</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes at least two complete interior treatments, including one initial service, and reviews each item with you before PC-02 is complete.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="s1"> Confirmed from the order whether interior was due; offered it on an exterior-only follow-up and noted a decline</label></li>
+      <li><label><input type="checkbox" id="s2"> B&amp;G mixed at the labeled rate at the truck; label PPE on; shoe covers on before entering</label></li>
+      <li><label><input type="checkbox" id="s3"> Asked about pets, children, aquariums and anyone sensitive; food, dishes and pet bowls moved or covered</label></li>
+      <li><label><input type="checkbox" id="s4"> Inspected kitchen, baths and utility areas first and explained where treatment would go</label></li>
+      <li><label><input type="checkbox" id="s5"> Crack-and-crevice and spot only: tip in the crack, pin stream, no broadcast, no visible residue</label></li>
+      <li><label><input type="checkbox" id="s6"> Gel bait pea-size or smaller, near harborage, out of reach, never sprayed over or flushed</label></li>
+      <li><label><input type="checkbox" id="s7"> Explained re-entry until dry and bait aftercare, with no safety claims or promises</label></li>
+      <li><label><input type="checkbox" id="s8"> Chemical record and customer-ready notes complete; service sticker placed on the first interior visit</label></li>
+    </ul>
+  </section>
+
+  <!-- 30 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('pc02:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('pc02:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "PC-02", "titleHtml": "Interior Treatment", "nextHtml": "PC-03 \u00b7 Exterior Three-Pass Treatment", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Going inside',q:'A recurring every-other-month customer on an exterior-only follow-up tells you at the door she\'s seen roaches under the bathroom sink this week. What do you do?',o:['Note it in PestPac and do the exterior as scheduled','Tell her to call the office and book a separate paid interior service','Offer the interior: shoe covers on, ask about pets, children and aquariums, inspect the bathroom and kitchen first, then treat what you find','Spray the bathroom quickly so you stay on schedule, and skip the inspection'],a:2,e:'Pest pressure inside the home is exactly when a follow-up gets an interior treatment, and it\'s included. The interior always starts with the customer questions and an inspection, because the evidence decides where the product goes.'},
+    2:{t:'Checkpoint 2 · Crack, crevice and liquid',q:'Ants along the kitchen baseboard behind the trash can. Your B&G label allows crack-and-crevice and spot treatment. Toys are on the floor nearby. What\'s right?',o:['A light broadcast across the kitchen floor','Toys picked up first; pin stream the joint, spot behind the trash can, everyone off it until dry','A coarse fan along every baseboard in the house as an indoor barrier','A light mist around the toys, since they\'ll be moved later'],a:1,e:'Indoors, labels limit you to crack-and-crevice and spot treatment: no broadcast and no "barrier" along every baseboard. Clear children\'s things first, treat precisely, and follow the label\'s re-entry direction: off treated areas until dry.'},
+    3:{t:'Checkpoint 3 · Baits, dusts and monitors',q:'You\'ve placed gel bait in the hinges under the kitchen sink. The customer asks you to "spray in there too, just to be sure." What do you do?',o:['Spray the hinge with your CB-80 aerosol','Fan-spray the cabinet floor with the B&G, over the bait','Remove the bait and spray the hinge instead','Explain that sprays contaminate the bait and keep roaches away from it, leave the bait clean, and treat other cracks away from the placements'],a:3,e:'The Advion label prohibits residual sprays on bait placements, and UF/IFAS warns that flushing agents and repellents ruin bait. One tool per spot. Explain why: it\'s the best way to get the customer\'s cooperation, too.'},
+    4:{t:'Checkpoint 4 · Sensitive areas and the customer',q:'An initial service. There\'s a large aquarium in the living room and a newborn napping in the nursery. The parent asks, "Is this stuff safe?" What\'s the best response?',o:['Ask to have the tank covered tightly with the aerator off, skip the nursery or limit it to cracks away from the crib if the parent wants, give the product name and label safety information, and explain "off treated areas until dry"','"It\'s completely safe, don\'t worry about it"','Treat everything except the aquarium stand, then leave','Skip the interior without explaining, to avoid the conversation'],a:0,e:'Never call a pesticide safe. Follow the label (cover tanks, disconnect aerators, keep people and pets off until dry), protect the nursery, let the parent choose, and give the label information Florida law requires on request.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What is the Clements standard for interior treatment on a recurring follow-up visit?',o:['Interior every visit, no exceptions','Exterior is standard; treat inside when the customer asks or pests are active inside','Interior only once a year','Interior only if the customer pays an add-on fee'],a:1,e:'Initial services are interior and exterior. On follow-ups, exterior is standard, and the interior is done on request or with pest pressure inside, at no extra charge. Some accounts have interior every visit; the order rules.'},
+    {k:'True or false',q:'On an initial service, the technician may skip the interior if it saves time on a busy route.',o:['True','False'],a:1,e:'False. The default for every initial service is interior and exterior unless the customer specifically asks for exterior only.'},
+    {k:'Scenario',q:'An initial-service customer says, "Just do the outside, please." What do you do?',o:['Do the interior anyway; it\'s company standard','Leave without treating','Respect it, note the decline in PestPac, and mention the interior is included on any future visit','Ask the office to call and convince them'],a:2,e:'The customer decides. Note it so there\'s a record, and let them know the interior is available at no extra charge.'},
+    {k:'Multiple choice',q:'Evidence repeatedly found along the baseboards most likely shows:',o:['The nest is behind that baseboard','A travel route between harborage and food','A new entry from outside','That treatment is working'],a:1,e:'Evidence along edges usually marks travel routes. Follow it to find the harborage, which is usually more protected and concentrated.'},
+    {k:'Multiple choice',q:'What is the correct aerosol crack-and-crevice technique?',o:['Hold the can 12 inches from the surface and spray along it','Fog the room and leave for 15 minutes','Spray a wide band on the floor in front of the crack','Insert the extension tube tip into the crack and apply short bursts, moving along it'],a:3,e:'The tip goes into the crack, gap or void. Older guides that said to hold the can 12 inches away were contradictory and have been corrected.'},
+    {k:'True or false',q:'Most indoor residual insecticide labels prohibit broadcast applications to floors and floor coverings.',o:['True','False'],a:0,e:'True. Indoors, labels typically allow crack-and-crevice and spot treatment only. Read the label of the product in your B&G.'},
+    {k:'Multiple choice',q:'When should you use the B&G\'s pin stream setting indoors?',o:['Into cracks such as the baseboard–floor joint, door frames and gaps under appliances','To cover the open floor evenly','To treat countertops quickly','Never; only fan settings are used inside'],a:0,e:'Pin stream is crack-and-crevice work with the B&G. A coarse fan is for small spot treatments, only where the label allows.'},
+    {k:'Multiple choice',q:'Which of these is never a treatment site?',o:['The gap under the refrigerator','A plumbing penetration under the sink','A child\'s toys and the rug they play on','A cabinet hinge'],a:2,e:'If people, food, children or pets touch it, it isn\'t a treatment site. Ask for toys to be picked up first.'},
+    {k:'Scenario',q:'There\'s a fish tank with an air pump in the kitchen. What does a typical indoor label require?',o:['Nothing, as long as the lid is on','Treat around it with an aerosol instead of the B&G','Cover the tank tightly and disconnect the aerator during application','Move the fish to the bathtub'],a:2,e:'Most indoor insecticides are highly toxic to fish. Labels direct you to cover tanks and disconnect aerators. Remind the customer to restore the aerator afterward.'},
+    {k:'Multiple choice',q:'What re-entry instruction do you give after a liquid interior treatment?',o:['People and pets can return right away','Stay out of the home for 24 hours','Keep people and pets off treated areas until they\'re dry, as the label says','Open every window for a week'],a:2,e:'Re-entry comes from the label. For typical indoor liquids it\'s "until dry." Never invent a number you can\'t back up.'},
+    {k:'Multiple choice',q:'How big is a correct gel bait placement for German cockroaches?',o:['Pea-size or smaller: the Advion label sets a spot at about 1/4 inch','A bead the length of the counter','A tablespoon per cabinet','As much as will fit in the crack'],a:0,e:'Small spots, counted per 10 feet by activity level as the label says. UF/IFAS: "Do not use bait as if it were caulk."'},
+    {k:'True or false',q:'It\'s fine to spray a residual insecticide over gel bait placements to boost the treatment.',o:['True','False'],a:1,e:'False. The Advion label prohibits residual sprays on bait placements and baiting surfaces recently sprayed. Sprays contaminate bait and repel the pests.'},
+    {k:'Multiple choice',q:'Why shouldn\'t you use a flushing aerosol like CB-80 in cracks where you\'ve placed roach bait?',o:['It makes the bait too strong','It contaminates the bait and drives roaches away from it','It\'s not allowed in kitchens','It stains the cabinet'],a:1,e:'UF/IFAS warns that flushing agents contaminate bait placements. Use one tool per spot.'},
+    {k:'Scenario',q:'Where should gel bait go in a bathroom with roach activity?',o:['The rim of the bathtub','The middle of the floor by the toilet','On the countertop by the toothbrushes','The vanity hinge and the gap where the supply line enters the wall'],a:3,e:'Protected cracks near moisture and harborage. Not on surfaces that are routinely washed, food or personal-care surfaces, or open floors.'},
+    {k:'Multiple choice',q:'Where may an insecticide dust be used inside a home?',o:['In enclosed voids the label lists, as a light puff, with no visible dust on surfaces','Along the open floor under furniture','In air vents to spread it through the home','Anywhere, since dust isn\'t a liquid'],a:0,e:'Dust goes only in enclosed voids the label allows. Visible dust means too much. UF/IFAS notes dusts are rarely needed with good baiting and sanitation.'},
+    {k:'Scenario',q:'A sticky monitor under the sink shows adults and many small nymphs. What does it tell you?',o:['A single roach came in with the groceries','The monitor is defective','There\'s an established, breeding population; bait where the catches are, talk sanitation and tell your branch manager','There\'s no activity'],a:2,e:'All life stages mean breeding indoors. Treat what you can, explain honestly, and the branch manager follows up. It may need a cleanout (PC-08).'},
+    {k:'Multiple choice',q:'A worried customer has an elderly parent resting in a bedroom with roach activity. What\'s right?',o:['Treat the room quickly while she sleeps','Don\'t treat that room while she\'s in it; offer bait out of reach if the family agrees, or skip it, note it and tell your supervisor','Tell them roaches in bedrooms are normal','Fog the room and close the door'],a:1,e:'Never treat a room while someone is resting in it. Offer options, let the family choose, document it and keep your supervisor informed.'},
+    {k:'True or false',q:'If a customer asks, you must give the product name, active ingredient and label safety information.',o:['True','False'],a:0,e:'True. Florida law (s. 482.2265, F.S.) requires it on request.'},
+    {k:'Multiple choice',q:'Which customer note is ready for the inspection report?',o:['"Treated inside. All good."','"Kitchen dirty, told her to clean."','"Crack and crevice behind the fridge and stove; gel bait in sink hinges for light German roach activity; monitor under the sink. Recommend sealing food and fixing the drip. Please don\'t wipe the bait."','"See chemical record."'],a:2,e:'Customer notes print on the inspection report: specific, respectful and useful. Products and amounts go in the chemical record.'},
+    {k:'Scenario',q:'It\'s your first time inside this customer\'s home. Besides the treatment, what else is required?',o:['A photo of every room','Fill out the Clements service sticker and place it at the electrical panel or another inconspicuous spot','A signed waiver','Nothing else'],a:1,e:'On the first interior visit, the service sticker goes at the electrical panel if accessible, or in another inconspicuous spot. It tells future owners who services the home.'}
+  ];
+
+  function fbHtml(ok,t){return '<div class="fb'+(ok?'':' no')+'">'+t+'</div>'}
+  function esc(s){return String(s).replace(/"/g,'&quot;')}
+
+  /* ---------- multi-way sort helper ---------- */
+  function makeSort(boxSel,btnSel,fbSel,items,labels,prefix,doneMsg){
+    var box=$(boxSel), sel={};
+    items.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id=prefix+'r'+i;
+      r.innerHTML='<span>'+s.q+'</span><span class="opts">'+labels.map(function(l,k){return '<button type="button" aria-pressed="false" data-v="'+esc(l)+'" id="'+prefix+i+'_'+k+'">'+l+'</button>'}).join('')+'</span>';
+      $$('button',r).forEach(function(b){b.addEventListener('click',function(){sel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');})});
+      box.appendChild(r)});
+    $(btnSel).addEventListener('click',function(){
+      var right=0,blank=0,firstWrong=-1;
+      items.forEach(function(s,i){var r=$('#'+prefix+'r'+i);
+        if(!sel[i]){blank++;r.classList.remove('ok','no');return;}
+        var ok=sel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+        if(!ok&&firstWrong<0)firstWrong=i;
+      });
+      $(fbSel).innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort every item before checking.</span>':(right===items.length?'<span class="fb" style="display:inline-block">'+doneMsg+'</span>':'<span class="fb no" style="display:inline-block">'+right+' of '+items.length+'. <b>'+items[firstWrong].q+':</b> '+items[firstWrong].w+' Fix the red ones and check again.</span>');
+    });
+  }
+
+  /* ---------- interior today? ---------- */
+  makeSort('#whSort','#whCheck','#whFb',[
+    {q:'Initial service, customer home, no special notes',a:'Inside',w:'Every initial service is interior and exterior unless the customer asks for exterior only.'},
+    {q:'Recurring visit; customer says she saw roaches under the kitchen sink',a:'Inside',w:'Pest pressure inside the home means an interior treatment on a follow-up.'},
+    {q:'Recurring visit, exterior-only account, customer home, nothing reported',a:'Offer',w:'Ask whether they\'d like the interior today. It\'s included at no extra charge.'},
+    {q:'Initial service; customer asks you to stay outside',a:'Outside',w:'Respect it, note the decline in PestPac, and mention the interior is available on any visit.'},
+    {q:'Order notes: community contract, no interior pest control',a:'Outside',w:'Some HOA and contract accounts are exterior only. The work order rules. Questions go to the branch manager.'},
+    {q:'Account notes say "Interior every visit"',a:'Inside',w:'Some customers have interior on every service. Follow the account.'}
+  ],['Inside','Offer','Outside'],'wh','All six correct. Initial: inside and out. Follow-ups: outside, unless they ask or pests are inside.');
+
+  /* ---------- prep questions ---------- */
+  var PQ=[
+    {i:'i-bug',q:'"Seen any pests since last time? Where?"',a:'Start your inspection where they point. Their answer, plus the account notes, decides which rooms come first and whether bait is needed.'},
+    {i:'i-users',q:'"Any pets or small children at home?"',a:'Pets and children stay out of treated areas until dry. Bait goes where they can\'t reach, and nothing goes where an infant crawls.'},
+    {i:'i-fish',q:'"Any fish tanks, birds or reptiles?"',a:'Most indoor insecticides are highly toxic to fish. Labels tell you to cover tanks and turn off aerators, and some say to remove birds before spraying.'},
+    {i:'i-heart',q:'"Is anyone home who is sensitive or unwell?"',a:'If someone is worried, offer a bait and crack-and-crevice-only service, or skip a room and note it. Their choice, never a safety claim.'}
+  ];
+  var pq=$('#pq');
+  PQ.forEach(function(p,i){var b=document.createElement('button');b.type='button';b.id='pq'+i;b.setAttribute('aria-pressed','false');b.innerHTML='<svg class="ico"><use href="#'+p.i+'"/></svg><span>'+p.q+'</span>';
+    b.addEventListener('click',function(){$$('button',pq).forEach(function(x){x.setAttribute('aria-pressed',x===b)});b.classList.add('seen');$('#pqBox').outerHTML='<div class="speech" id="pqBox"><span class="who">Why it matters</span>'+p.a+'</div>';});
+    pq.appendChild(b)});
+
+  /* ---------- evidence flip cards ---------- */
+  var EV=[
+    {i:'i-box',t:'All in one cabinet',b:'<b>Harborage is right there.</b> Pests rest close to where they feed. Inspect the hinge, the back gap and around the plumbing, and treat or bait that spot.'},
+    {i:'i-route',t:'Along the baseboards',b:'<b>A travel route,</b> not the nest. Follow it both ways to find where they hide and where they feed. Treat the route\'s cracks; bait near the harborage.'},
+    {i:'i-drop',t:'Near the plumbing',b:'<b>Moisture-dependent pests.</b> Look for the leak or condensation. Recommend the fix; treatment alone won\'t hold while the water stays.'},
+    {i:'i-home',t:'In several rooms',b:'<b>Established and spreading.</b> More than a routine visit can fix. Treat what you can and tell your branch manager. It may call for a cleanout (PC-08).'},
+    {i:'i-door',t:'By windows and doors',b:'<b>Coming in from outside.</b> Note the entry point, recommend sealing it and make sure the exterior treatment covers it (PC-03).'},
+    {i:'i-bug',t:'Droppings, egg cases, nymphs',b:'<b>Breeding indoors,</b> typical of German roaches in kitchens and baths. Gel bait near harborage, monitors, and a sanitation talk (PC-07).'}
+  ];
+  var evf=$('#evFlip');
+  EV.forEach(function(e,i){var b=document.createElement('button');b.type='button';b.id='ev'+i;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="in"><span class="face front"><svg class="ico"><use href="#'+e.i+'"/></svg><h3>'+e.t+'</h3><span class="hint">Select to read the evidence</span></span><span class="face back"><span>'+e.b+'</span></span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});evf.appendChild(b)});
+
+  /* ---------- interior sequence ---------- */
+  var SEQ=['Shoe covers on; ask about activity, pets, children and aquariums','Move or cover food, dishes and pet bowls; people and pets out of the work area','Inspect kitchen, baths and utility areas with a flashlight; pick the bait spots','Aerosol crack and crevice, in cracks you won\'t bait','B&amp;G pin stream and spot treatments, as the label allows','Gel bait in clean, unsprayed spots near harborage','Wipe any residue, put everything back, tell the customer what you did'];
+  var seqMix=[2,5,0,4,6,1,3], seqBox=$('#seq'), sn=0;
+  function renderSeq(){
+    seqBox.innerHTML='';sn=0;$('#seqFb').innerHTML='';
+    seqMix.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='seq'+ix;b.innerHTML='<span class="num">·</span><span>'+SEQ[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===sn){b.classList.add('placed');$('.num',b).textContent=sn+1;sn++;
+          if(sn===SEQ.length){$('#seqFb').innerHTML=fbHtml(1,'That\'s the Clements interior. Inspection decides the plan and the bait spots, sprays stay out of those cracks, and bait goes in last where you didn\'t spray. <button type="button" class="btn" id="seqAgain" style="margin-left:6px;padding:4px 12px">Again</button>');$('#seqAgain').addEventListener('click',renderSeq);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#seqFb').innerHTML=fbHtml(0,'Not yet. Customer first, then prepare the room, inspect, spray, and bait last.');}
+      });seqBox.appendChild(b)});
+  }
+  renderSeq();
+
+  /* ---------- nozzle pattern ---------- */
+  var NZ=[
+    {n:'Pin stream',l:'baseboard–floor joint',t:'<b>Pin stream</b> puts a narrow jet exactly into the joint, the gap under the dishwasher or a door frame crack. This is crack-and-crevice work with the B&amp;G, and most of your interior liquid should go this way.'},
+    {n:'Coarse fan · spot',l:'small resting area',t:'<b>Coarse fan</b> for a <b>spot treatment</b>: a small, localized area where pests rest, like the floor edge behind a trash can, and only if the label lists spot treatment. Never across the open floor, never to runoff.'}
+  ];
+  var nzs=$('#nzSeg');
+  function showNZ(n){$$('button',nzs).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+    $('#nzPin').classList.toggle('nz-off',n!==0);$('#nzFan').classList.toggle('nz-off',n!==1);$('#nzLbl').textContent=NZ[n].l;$('#nzBox').innerHTML='<p style="color:var(--ink);font-size:15px">'+NZ[n].t+'</p>';}
+  NZ.forEach(function(z,i){var b=document.createElement('button');b.type='button';b.id='nz'+i;b.textContent=z.n;b.addEventListener('click',function(){showNZ(i)});nzs.appendChild(b)});
+  showNZ(0);
+
+  /* ---------- scene helper with phone fallback ---------- */
+  function phoneList(svg,cls,onAct){
+    var hl=document.createElement('div');hl.className='hs-list';svg.parentNode.insertAdjacentElement('afterend',hl);
+    $$('.'+cls,svg).forEach(function(g){var bt=document.createElement('button');bt.type='button';bt.id=svg.id+'_hb'+g.dataset.k;bt.textContent=g.getAttribute('aria-label');
+      bt.addEventListener('click',function(){onAct(g,bt)});hl.appendChild(bt)});
+    return hl;
+  }
+
+  /* ---------- treat here or not ---------- */
+  var TK=[
+    {a:1,w:'Under the refrigerator is classic harborage. Pin stream or aerosol into the gap.'},
+    {a:0,w:'Food surfaces are never treated. If drift reaches a counter, clean it with soap and water.'},
+    {a:1,w:'Plumbing penetrations are pest highways. Aerosol tip into the gap; recommend sealing it.'},
+    {a:0,w:'No broadcast on floors. Labels for indoor residuals prohibit it, and pests don\'t live in the middle of the floor.'},
+    {a:0,w:'Move the bowl first. Treat the baseboard crack once it\'s clear, and put the bowl back when the area is dry.'},
+    {a:1,w:'Hinges are prime harborage. Choose one tool per spot: gel bait here, or crack and crevice, never both.'},
+    {a:0,w:'Most insecticides are highly toxic to fish. Cover the tank, turn off the aerator as the label says, and treat well away from it.'},
+    {a:1,w:'Pin stream into the joint, or a small spot where the label allows. Keep people and pets off until dry.'},
+    {a:0,w:'Toys go to the mouth. Ask the customer to pick them up, and never treat toys or play areas.'},
+    {a:0,w:'Cabinets holding dishes aren\'t treated as they are. Labels say cover or remove utensils first. If there\'s activity inside, ask to empty it, or bait the hinge instead.'}
+  ];
+  var tk=$('#tk'), tkCur=-1, tkDone={}, tkFirst={}, tkHl;
+  function tkTally(){var n=Object.keys(tkDone).length, ok=Object.keys(tkFirst).filter(function(k){return tkFirst[k]}).length;
+    $('#tkTally').textContent=n+' of 10 decided'+(n===10?'. '+ok+' right on the first try. If people, food, children or pets touch it, don\'t treat it.':'');}
+  function tkSelect(g){
+    var k=+g.dataset.k;tkCur=k;$$('.hs',tk).forEach(function(x){x.classList.toggle('sel',x===g)});
+    $('#tkBox').innerHTML='<span class="eyebrow">Selected</span><h3 style="margin-top:4px">'+g.getAttribute('aria-label')+'</h3><div class="tkbtns"><button type="button" class="btn" id="tkY">Treat</button><button type="button" class="btn" id="tkN">Don\'t treat</button></div><div id="tkF" style="margin-top:8px"></div>';
+    $('#tkY').addEventListener('click',function(){tkAns(g,1)});$('#tkN').addEventListener('click',function(){tkAns(g,0)});
+  }
+  function tkAns(g,v){
+    var k=+g.dataset.k, it=TK[k], ok=v===it.a;
+    if(!(k in tkFirst))tkFirst[k]=ok;
+    g.classList.toggle('good',ok);g.classList.toggle('bad',!ok);
+    $('#tkF').innerHTML=fbHtml(ok,'<b>'+(ok?'Right. ':'Not quite. ')+'</b>'+it.w);
+    if(ok&&!tkDone[k]){tkDone[k]=1;$('#tkList').insertAdjacentHTML('beforeend','<div class="fi '+(it.a?'ok':'no')+'"><b>'+(it.a?'Treat':'Don\'t')+':</b>&nbsp;'+g.getAttribute('aria-label')+'</div>');var hb=$('#tk_hb'+k);if(hb)hb.classList.add('on');}
+    tkTally();
+  }
+  $$('.hs',tk).forEach(function(g){g.addEventListener('click',function(){tkSelect(g)});g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();tkSelect(g)}})});
+  tkHl=phoneList(tk,'hs',function(g){tkSelect(g);$('#tkBox').scrollIntoView({block:'nearest'})});
+
+  /* ---------- bait plan ---------- */
+  var BP=[
+    {ok:1,w:'Hinges under the sink are prime German roach harborage, with water close by.'},
+    {ok:1,w:'The warm motor area behind the refrigerator is a classic harborage. Keep the placement off the hottest surfaces.'},
+    {ok:1,w:'The gap at the kick plate leads to the warm, moist void under the dishwasher.'},
+    {ok:0,w:'A food-contact surface. Labels prohibit bait where food or utensils touch.'},
+    {ok:0,w:'Too hot. Bait degrades on surfaces above about 120–130 °F, and it\'s a cooking surface.'},
+    {ok:0,w:'Open floor: children and pets reach it, it gets mopped, and roaches don\'t harbor there.'},
+    {ok:0,w:'Children\'s things. Never place bait where a child can reach or touch it.'},
+    {ok:1,w:'Plumbing gaps in the vanity give roaches water and a path through the wall.'},
+    {ok:1,w:'The vanity hinge is a protected crack close to moisture.'},
+    {ok:1,w:'The gap where the supply line enters the wall is a protected travel point.'},
+    {ok:0,w:'Routinely washed. Water and cleaners remove and contaminate the bait.'},
+    {ok:0,w:'Never bait a surface you just sprayed with a residual. It contaminates the bait and repels the roaches.'}
+  ];
+  var bp=$('#bp'), bpOn={}, bpChecked=false;
+  function bpToggle(g,bt){
+    var k=+g.dataset.k;bpOn[k]=!bpOn[k];g.classList.toggle('on',!!bpOn[k]);if(bt)bt.classList.toggle('on',!!bpOn[k]);else{var hb=$('#bp_hb'+k);if(hb)hb.classList.toggle('on',!!bpOn[k]);}
+    if(bpChecked){$$('.spot',bp).forEach(function(x){x.classList.remove('right','wrong','missed')});$('#bpFb').innerHTML='';bpChecked=false;}
+    $('#bpBox').innerHTML='<span class="eyebrow">'+(bpOn[k]?'Bait placed':'Bait removed')+'</span><p style="margin-top:4px;color:var(--ink)">'+g.getAttribute('aria-label')+'</p><p class="small muted">'+Object.keys(bpOn).filter(function(x){return bpOn[x]}).length+' placed</p>';
+  }
+  $$('.spot',bp).forEach(function(g){g.addEventListener('click',function(){bpToggle(g)});g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();bpToggle(g)}})});
+  phoneList(bp,'spot',function(g,bt){bpToggle(g,bt)});
+  $('#bpCheck').addEventListener('click',function(){
+    var out=[], right=0, wrong=0, miss=0;bpChecked=true;
+    $$('.spot',bp).forEach(function(g){var k=+g.dataset.k, it=BP[k], on=!!bpOn[k];g.classList.remove('right','wrong','missed');
+      if(on&&it.ok){right++;g.classList.add('right');}
+      else if(on&&!it.ok){wrong++;g.classList.add('wrong');out.push('<div class="fi no"><span><b>'+g.getAttribute('aria-label')+':</b> '+it.w+'</span></div>');}
+      else if(!on&&it.ok){miss++;g.classList.add('missed');out.push('<div class="fi"><span><b>Missed · '+g.getAttribute('aria-label')+':</b> '+it.w+'</span></div>');}
+    });
+    $('#bpFb').innerHTML=(right===6&&!wrong?fbHtml(1,'All six, and nothing in the wrong place. Hidden, near harborage, out of reach and clean.'):fbHtml(0,right+' of 6 right spots'+(wrong?', '+wrong+' in the wrong place':'')+'. Adjust and check again.'))+out.join('');
+  });
+  $('#bpReset').addEventListener('click',function(){bpOn={};bpChecked=false;$$('.spot',bp).forEach(function(x){x.classList.remove('on','right','wrong','missed')});$$('.hs-list button').forEach(function(b){if(b.id.indexOf('bp_')===0)b.classList.remove('on')});$('#bpFb').innerHTML='';$('#bpBox').innerHTML='<span class="eyebrow">Spot</span><p style="margin-top:4px">Select a dashed circle to place or remove bait.</p>';});
+
+  /* ---------- bait do or don't ---------- */
+  makeSort('#bdSort','#bdCheck','#bdFb',[
+    {q:'Pea-size dots in the hinges of the cabinet under the sink',a:'Do',w:'Small, hidden placements near harborage.'},
+    {q:'A continuous bead along the whole backsplash',a:'Don\'t',w:'Bait isn\'t caulk. Use the label\'s spot size and count, and never on food-prep areas.'},
+    {q:'CB-80 into the same hinge afterward "to finish them off"',a:'Don\'t',w:'Flushing aerosols contaminate bait and drive roaches away from it.'},
+    {q:'Bait on the baseboard you sprayed with the B&amp;G five minutes ago',a:'Don\'t',w:'The label prohibits baiting surfaces recently treated with residual sprays.'},
+    {q:'Bait behind the refrigerator where you found droppings',a:'Do',w:'Evidence of harborage: exactly where bait belongs.'},
+    {q:'Ask the customer not to wipe the bait or spray store-bought products near it',a:'Do',w:'Household sprays and cleaners repel roaches and contaminate bait.'},
+    {q:'Keep spare bait tubes on the dashboard in July',a:'Don\'t',w:'Heat degrades bait. Store it cool, away from other products.'},
+    {q:'Use the cockroach gel on an ant trail because it\'s what you have',a:'Don\'t',w:'Use a bait labeled for the target pest. The label lists which pests it controls.'}
+  ],['Do','Don\'t'],'bd','All eight correct. Clean bait, in the right place, is the strongest tool you carry inside.');
+
+  /* ---------- monitor reader ---------- */
+  var MN=[
+    {n:'Empty',b:[],y:[],t:'<b>No catches after two weeks:</b> no activity in that spot. Don\'t bait that room just because it\'s on the list; UF/IFAS advises baiting where monitors show activity.'},
+    {n:'One or two adults',b:[[110,58],[190,50]],y:[],t:'<b>A few adults, no nymphs:</b> likely a new introduction, often in groceries, boxes or used appliances. Bait nearby, ask about deliveries, and recheck next visit.'},
+    {n:'All life stages',b:[[80,52],[132,60],[214,48]],y:[[96,64],[104,46],[150,44],[170,62],[184,40],[200,66],[230,58],[118,40]],t:'<b>Adults and many nymphs:</b> an established, breeding population. Bait where the catches are, have the sanitation talk, and tell your branch manager. It may need a cleanout (PC-08).'}
+  ];
+  var mns=$('#mnSeg');
+  function showMN(n){$$('button',mns).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var m=MN[n];
+    var s='<rect class="mn-card" x="20" y="14" width="260" height="82" rx="6"/><rect class="mn-glue" x="40" y="28" width="220" height="54" rx="4"/><text x="44" y="24" class="cc-t" style="font-size:9px">#3 · under kitchen sink · dated</text>';
+    m.b.forEach(function(p,i){s+='<ellipse class="mn-bug" style="animation-delay:'+(i*80)+'ms" cx="'+p[0]+'" cy="'+p[1]+'" rx="9" ry="5"/>'});
+    m.y.forEach(function(p,i){s+='<ellipse class="mn-nym" style="animation-delay:'+(i*60+200)+'ms" cx="'+p[0]+'" cy="'+p[1]+'" rx="4" ry="2.4"/>'});
+    $('#mnSvg').innerHTML=s;$('#mnBox').innerHTML='<p style="color:var(--ink);font-size:14.5px">'+m.t+'</p>';}
+  MN.forEach(function(m,i){var b=document.createElement('button');b.type='button';b.id='mn'+i;b.textContent=m.n;b.addEventListener('click',function(){showMN(i)});mns.appendChild(b)});
+  showMN(0);
+
+  /* ---------- sensitive areas ---------- */
+  var SA=[
+    {n:'Kitchen',d:['Food, dishes and small appliances put away or covered first','Crack and crevice in hinges, under the sink, behind and under appliances','Bait in hidden cracks near harborage','Drift on a counter? Clean it with soap and water'],x:['Counters, tables, cutting boards or any food surface','Inside cabinets that still hold dishes or food','Aerosols near a pilot light or open flame; check the label\'s physical hazards','Bait on surfaces that are washed or hot']},
+    {n:'Nursery &amp; children',d:['Ask before entering a child\'s room','If treated at all: crack and crevice away from the crib and play area','Bait only in places a child can\'t reach','Children out of treated areas until dry'],x:['Cribs, bedding, changing tables or toys','Floors where an infant crawls','Bait anywhere a child could reach','Pressuring a parent who'+"'"+'d rather skip the room. Note it instead']},
+    {n:'Pets',d:['Pets out of the treated area until dry, as the label says','Move bowls, beds and litter boxes; put them back after','Bait out of reach. Dogs will eat it','Tell the customer where you treated'],x:['Treating a pet or its bedding (flea work is PC-08, by its label)','Spraying near food or water bowls','Leaving bait or product where a pet can get it','Saying a product is "pet safe"']},
+    {n:'Aquariums &amp; birds',d:['Cover the tank tightly and turn off the aerator as the label directs','Remove birds when the label says to','Treat well away from the tank','Remind the customer to restore the aerator once it\'s dry'],x:['Spraying or using an aerosol near a tank','Leaving the aerator running during application','Assuming a lid is enough when the label says cover and disconnect','Forgetting reptiles and terrariums: same care']},
+    {n:'People at home',d:['People out of treated areas until dry','Someone unwell, pregnant, elderly or with asthma and worried? Offer bait and crack and crevice only, or skip the room','Give the label information if asked','Unsure? Call your supervisor before you treat'],x:['Treating a room while someone is resting or bedridden in it','Medical advice of any kind','Calling a product safe or harmless','Treating over a customer\'s objection']}
+  ];
+  var sas=$('#saSeg');
+  function showSA(n){$$('button',sas).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var a=SA[n];
+    $('#saBox').innerHTML='<div class="card yesno yes" style="padding:14px 16px;animation:rise .22s ease-in-out both"><h3><svg class="ico"><use href="#i-check"/></svg> Do</h3><ul class="mini">'+a.d.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul></div><div class="card yesno no" style="padding:14px 16px;animation:rise .22s ease-in-out .06s both"><h3><svg class="ico"><use href="#i-alert"/></svg> Never</h3><ul class="mini">'+a.x.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul></div>';}
+  SA.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.id='sa'+i;b.innerHTML=a.n;b.addEventListener('click',function(){showSA(i)});sas.appendChild(b)});
+  showSA(0);
+
+  /* ---------- scenarios ---------- */
+  var SC=[
+    {n:'Toddler',who:'Parent at the door',say:'"She crawls everywhere. Can you still do the inside?"',o:[
+      ['"Sure, I\'ll do a light spray on the floors so it\'s even."',0,'Never broadcast floors, and never where an infant crawls.'],
+      ['"Yes. I\'ll only treat inside cracks and behind appliances and put bait where she can\'t reach. Nothing on the open floor. Please keep her out of the kitchen until the treated spots are dry."',1,'Targeted placement, a clear plan and the label\'s re-entry direction.'],
+      ['"It\'s completely safe for kids, don\'t worry."',0,'Never make safety claims. Explain what you\'ll do and what the label says.']]},
+    {n:'Fish tank',who:'You notice',say:'A large aquarium with an air pump sits in the breakfast nook next to the kitchen.',o:[
+      ['Treat around it carefully; the lid is on',0,'A lid isn\'t enough. Labels say cover tightly and disconnect the aerator.'],
+      ['Skip the whole interior without telling the customer',0,'The customer is paying for an interior. Protect the tank and do the job.'],
+      ['Ask the customer to cover the tank and turn off the aerator, treat well away from it, and remind them to restore the aerator when it\'s dry',1,'Exactly what the label requires, done with the customer.']]},
+    {n:'Store-bought spray',who:'Customer',say:'"I spray Raid along the baseboards every week too, to help you out."',o:[
+      ['"Please hold off near the bait spots. Household sprays can keep roaches away from the bait. If you\'re seeing them, call us and we\'ll come back."',1,'Explains why, without criticizing, and gives them a better option.'],
+      ['"That\'s fine, the more the better."',0,'Repellent sprays near bait make the bait fail.'],
+      ['"You shouldn\'t be doing that, it\'s dangerous."',0,'Lectures the customer and makes a claim about another product.']]},
+    {n:'Resting parent',who:'Customer',say:'"My mother is resting in the back bedroom. She saw a roach in there last night."',o:[
+      ['Treat the bedroom quickly while she sleeps',0,'Never treat a room while someone is resting in it.'],
+      ['Treat the rest of the home; for the bedroom, offer bait in cracks out of reach if the family agrees, or skip it, note it and tell your supervisor',1,'Protects the occupant, respects the family\'s choice and keeps the office informed.'],
+      ['Tell them roaches in bedrooms are normal',0,'Dismisses the concern. Inspect and make a plan.']]},
+    {n:'Heavy activity',who:'You find',say:'Roaches on the counter in daylight, droppings in several rooms, egg cases in the drawers.',o:[
+      ['Spray every room heavily to get ahead of it',0,'Over-application is off-label, and routine service won\'t fix an established infestation.'],
+      ['Quote a cleanout price on the spot',0,'Pricing comes from the branch manager.'],
+      ['Do the routine bait and crack-and-crevice work, explain honestly what you found, and email technotes@ so the branch manager follows up about a cleanout',1,'Honest, in your lane, and the right next step (PC-08).']]},
+    {n:'"Safe for my cat?"',who:'Customer',say:'"Is that stuff safe for my cat?"',o:[
+      ['"Totally harmless."',0,'Never call a pesticide safe or harmless.'],
+      ['"Here\'s the product and what the label says: keep her off the treated spots until they\'re dry. I\'ve put the bait where she can\'t reach it."',1,'Label facts, a clear instruction and what you did to protect her.'],
+      ['"I don\'t know, ask the office."',0,'You know the label. Share it.']]}
+  ];
+  var st=$('#scTabs'), sb=$('#scBox'), scDone=store.get('sc')||{};
+  function showSC(n){
+    $$('button',st).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!scDone[j])});
+    var s=SC[n];
+    sb.innerHTML='<div class="speech"><span class="who">'+s.who+'</span>'+s.say+'</div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABC'[i]+'</span><span>'+o[0]+'</span></button>'}).join('')+'</div><div id="scFb"></div>';
+    $$('.choice',sb).forEach(function(b){b.addEventListener('click',function(){
+      var o=s.o[+b.dataset.i];$$('.choice',sb).forEach(function(x){x.classList.remove('wrong')});
+      if(o[1]){b.classList.add('right');$$('.choice',sb).forEach(function(x){x.disabled=true});scDone[n]=1;store.set('sc',scDone);$$('button',st)[n].classList.add('done');
+        $('#scFb').innerHTML=fbHtml(1,'<b>That\'s the one.</b> '+o[2]+(n<SC.length-1?' <button type="button" class="btn" id="scNext" style="margin-left:8px;padding:4px 12px">Next scenario</button>':''));var nx=$('#scNext');if(nx)nx.addEventListener('click',function(){showSC(n+1)});}
+      else{b.classList.add('wrong');$('#scFb').innerHTML=fbHtml(0,'<b>Not quite.</b> '+o[2]+' Try again.');}
+    })});
+  }
+  SC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='sct'+i;b.textContent=s.n;b.addEventListener('click',function(){showSC(i)});st.appendChild(b)});
+  showSC(0);
+
+  /* ---------- note picker ---------- */
+  var NT=[
+    {k:'Note A',t:'"Treated inside. All good."',ok:0,w:'Says nothing the customer or the next tech can use: no areas, no pest, no recommendation.'},
+    {k:'Note B',t:'"Interior: crack and crevice at the plumbing gaps and behind the fridge and stove. Gel bait in sink and vanity hinges for light German roach activity. Monitor left under the kitchen sink. Recommend sealing food and fixing the slow drip under the sink. Please don\'t wipe the bait."',ok:1,w:'Specific, customer-ready and useful to the next technician. Products and amounts go in the chemical record.'},
+    {k:'Note C',t:'"Roaches bad, kitchen dirty. Told her to clean."',ok:0,w:'This prints on the customer\'s inspection report. Never judge the home; give a specific, respectful recommendation.'}
+  ];
+  var np=$('#ntPick');
+  NT.forEach(function(n,i){var b=document.createElement('button');b.type='button';b.id='nt'+i;b.innerHTML='<span class="k">'+n.k+'</span>'+n.t;
+    b.addEventListener('click',function(){$$('button',np).forEach(function(x){x.classList.remove('right','wrong')});b.classList.add(n.ok?'right':'wrong');$('#ntFb').innerHTML=fbHtml(!!n.ok,'<b>'+(n.ok?'Ready to send. ':'Not this one. ')+'</b>'+n.w);});
+    np.appendChild(b)});
+
+  function onShow(i){}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>
