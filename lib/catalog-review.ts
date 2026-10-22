@@ -99,8 +99,12 @@ export async function catalogReview(): Promise<{
   const pending = rows.filter((r) => !r.confirmed);
   const offCatalog = rows.filter((r) => r.confirmed && !r.approved);
 
-  // Duplicate clusters among ALL active products (approved or not) so a clean
-  // approved row and its all-caps twin show together.
+  // Duplicate clusters among active products. A cluster only surfaces when it still
+  // has an UNRESOLVED member (something not yet approved+confirmed) — once the whole
+  // look-alike group is on the approved catalog (the source of truth), it's no longer
+  // "work to do" and drops off. A newly brought-in off-catalog item that collides with
+  // an existing approved name re-surfaces the cluster, with the approved twin alongside
+  // it so a human can merge or keep-both.
   const bySig = new Map<string, ReviewProduct[]>();
   for (const r of rows) {
     const sig = dupSignature(r.name);
@@ -108,10 +112,72 @@ export async function catalogReview(): Promise<{
     (bySig.get(sig) ?? bySig.set(sig, []).get(sig)!).push(r);
   }
   const clusters: DuplicateCluster[] = [...bySig.entries()]
-    .filter(([, ps]) => ps.length > 1)
+    .filter(([, ps]) => ps.length > 1 && ps.some((p) => !(p.approved && p.confirmed)))
     .map(([key, ps]) => ({ key, products: ps.sort((a, b) => (b.approved ? 1 : 0) - (a.approved ? 1 : 0) || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.products.length - a.products.length || a.key.localeCompare(b.key));
 
   const confirmedProducts = rows.filter((r) => r.confirmed && r.approved).map((r) => ({ id: r.id, name: r.name }));
   return { all, pending, offCatalog, clusters, confirmedProducts };
+}
+
+// One-time catalog baseline. The managers curated the active product list into the
+// current source of truth, so every ACTIVE product is accepted onto the approved
+// catalog in a single pass (approved + confirmed) and the stale auto-added review
+// markers are stripped from notes. This empties the Approve/Reject, Off-catalog and
+// New-products queues without touching rejected (inactive) products and WITHOUT
+// hard-deleting anything (flags + note cleanup only — the core data rule holds).
+//
+// Gated by a Setting row so it runs exactly once per version on the live DB (prod
+// only takes runtime writes, so this fires on the first admin load of Catalog
+// Review after deploy, never again). Bump BASELINE_VERSION to re-baseline later.
+const BASELINE_SETTING_KEY = "catalog-baseline-approved";
+const BASELINE_VERSION = "2026-10-22";
+
+// Review markers the baseline clears so confirmed products read clean.
+const STALE_MARKERS = [
+  /Added from transfer history[^.]*\.\s*/gi,
+  /Added from a check-in invoice[^.]*\.\s*/gi,
+  /Flagged for review by catalog cleanup[^.]*\.\s*/gi,
+];
+
+export async function ensureCatalogBaseline(): Promise<{ ran: boolean; approved: number }> {
+  try {
+    const existing = await prisma.setting.findUnique({ where: { key: BASELINE_SETTING_KEY } }).catch(() => null);
+    if (existing?.value === BASELINE_VERSION) return { ran: false, approved: 0 };
+
+    // Only touch active products that still need a decision — leave already
+    // approved+confirmed rows and rejected (inactive) rows alone.
+    const pending = await prisma.product.findMany({
+      where: { active: true, OR: [{ approved: false }, { confirmed: false }] },
+      select: { id: true, notes: true },
+    });
+
+    let approved = 0;
+    for (const p of pending) {
+      let notes = p.notes ?? null;
+      if (notes) {
+        for (const re of STALE_MARKERS) notes = notes.replace(re, "");
+        notes = notes.trim() || null;
+      }
+      try {
+        await prisma.product.update({
+          where: { id: p.id },
+          data: { approved: true, confirmed: true, notes },
+        });
+        approved++;
+      } catch (e) {
+        console.error("ensureCatalogBaseline: failed to approve", p.id, e);
+      }
+    }
+
+    await prisma.setting.upsert({
+      where: { key: BASELINE_SETTING_KEY },
+      create: { key: BASELINE_SETTING_KEY, value: BASELINE_VERSION },
+      update: { value: BASELINE_VERSION },
+    });
+    return { ran: true, approved };
+  } catch (e) {
+    console.error("ensureCatalogBaseline failed (non-fatal):", e);
+    return { ran: false, approved: 0 };
+  }
 }

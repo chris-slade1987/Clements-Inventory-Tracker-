@@ -139,10 +139,13 @@ export async function POST(req: Request) {
             manufacturer: l.newProduct.manufacturer?.trim() || null,
             epaRegNumber: l.newProduct.epaRegNumber?.trim() || null,
             category: l.newProduct.category?.trim() || null,
-            // Auto-added from an invoice — must be confirmed by an admin before it
-            // can be dispersed at check-out (Part C confirm gate).
+            // Auto-added from an invoice = brought in OFF-CATALOG. It must be
+            // explicitly approved onto the catalog (Catalog Review → Approve/Reject)
+            // before it can be dispersed at check-out — check-out blocks both
+            // "unapproved" and "unconfirmed" products (data-quality gate).
+            approved: false,
             confirmed: false,
-            notes: "Added from a check-in invoice — confirm details before check-out.",
+            notes: "Added from a check-in invoice — off-catalog. Approve it in Catalog Review before check-out.",
           },
         });
         productId = created.id;

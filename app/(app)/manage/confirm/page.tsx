@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
-import { catalogReview } from "@/lib/catalog-review";
+import { catalogReview, ensureCatalogBaseline } from "@/lib/catalog-review";
 import ConfirmQueue from "./ConfirmQueue";
 import OffCatalogList from "./OffCatalogList";
 import DuplicateClusters from "./DuplicateClusters";
@@ -22,6 +22,11 @@ const DISCARD_MARK = "Discarded from confirm queue";
 export default async function CatalogReviewPage() {
   const user = await requireUser();
   if (user.role !== "admin" && !user.hrAccess) redirect("/dashboard");
+
+  // One-time baseline: the curated active product list is the source of truth, so
+  // accept it onto the approved catalog and clear the stale review backlog. Runs once
+  // per version on the live DB (gated by a Setting row).
+  await ensureCatalogBaseline();
 
   const [pendingRaw, rejectedRaw, review] = await Promise.all([
     prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
