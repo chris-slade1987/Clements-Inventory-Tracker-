@@ -2,7 +2,7 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
-import { isUomCode } from "@/lib/uom";
+import { isUomCode, uomCode } from "@/lib/uom";
 import { normalizeClassification } from "@/lib/constants";
 
 export const maxDuration = 20;
@@ -46,10 +46,14 @@ export async function POST(req: Request) {
       if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
       const name = clean(body?.name) ?? existing.name;
-      const unitOfMeasure = clean(body?.unitOfMeasure) ?? existing.unitOfMeasure;
-      if (!isUomCode(unitOfMeasure)) {
+      // Standardize the unit: an explicit edit must be a valid code; otherwise resolve
+      // the stored legacy unit to its canonical code (Each if unknown) so a messy
+      // existing value never blocks confirming.
+      const providedUom = clean(body?.unitOfMeasure);
+      if (providedUom && !isUomCode(providedUom)) {
         return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
       }
+      const unitOfMeasure = providedUom ?? uomCode(existing.unitOfMeasure) ?? "EA";
       const { division, subdivision } = normalizeClassification(body?.division, body?.subdivision);
       const upcRaw = body?.unitsPerCase;
       const unitsPerCase =
@@ -109,13 +113,14 @@ export async function POST(req: Request) {
       const existing = await prisma.product.findUnique({ where: { id } });
       if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
       const name = clean(body?.name) ?? existing.name;
-      // Only validate a unit of measure the caller is actually changing. Approving
-      // in place (e.g. from the flat Approve/Reject list, which sends no UOM) must
-      // NOT be blocked by a legacy/non-canonical unit already on the record — keep
-      // it as-is so the product can move onto the catalog.
+      // STANDARDIZE the unit of measure to a canonical code — the same judgment used
+      // when reading invoices. An explicit edit must be a valid code; otherwise resolve
+      // the product's stored (often legacy, e.g. "bottle"→B, "gallon"→J, "box"→PK,
+      // "pail"→BU) value to its canonical code, falling back to Each only if truly
+      // unknown. Approving must never be blocked by a messy legacy unit.
       const providedUom = clean(body?.unitOfMeasure);
       if (providedUom && !isUomCode(providedUom)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
-      const unitOfMeasure = providedUom ?? existing.unitOfMeasure;
+      const unitOfMeasure = providedUom ?? uomCode(existing.unitOfMeasure) ?? "EA";
       const { division, subdivision } = normalizeClassification(body?.division, body?.subdivision);
       const notes = clean((existing.notes ?? "").replace(/Flagged for review by catalog cleanup[^.]*\.\s*/i, "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
       await prisma.product.update({
