@@ -118,11 +118,12 @@ export default async function MyTrainingPage() {
                 {a.courses.map((c) => {
                   const done = c.status === "complete" || c.status === "credited";
                   const openable = !!c.contentUrl && c.courseType !== "field_signoff";
+                  const href = `/me/course/${c.code}`;
                   return (
                     <li key={c.code} className="flex flex-wrap items-center gap-2 text-sm">
                       <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] font-semibold text-slate-700">{c.code}</span>
                       {openable ? (
-                        <a href={c.contentUrl!} target="_blank" rel="noreferrer" className="font-medium text-brand-700 hover:underline">{c.name}</a>
+                        <Link href={href} className="font-medium text-brand-700 hover:underline">{c.name}</Link>
                       ) : (
                         <span className="text-ink">{c.name}</span>
                       )}
@@ -134,10 +135,10 @@ export default async function MyTrainingPage() {
                       </span>
                       {c.completedDate ? <span className="text-xs text-muted">{c.completedDate}</span> : null}
                       {openable ? (
-                        <a href={c.contentUrl!} target="_blank" rel="noreferrer" className="ml-auto shrink-0 inline-flex items-center gap-1 rounded-lg bg-emerald-grad px-2.5 py-1 text-[11px] font-semibold text-white hover:brightness-95">
+                        <Link href={href} className="ml-auto shrink-0 inline-flex items-center gap-1 rounded-lg bg-emerald-grad px-2.5 py-1 text-[11px] font-semibold text-white hover:brightness-95">
                           {done ? "Review" : "Open"}
-                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" /></svg>
-                        </a>
+                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                        </Link>
                       ) : null}
                     </li>
                   );
