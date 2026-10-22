@@ -1,0 +1,1172 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-08 Driver Safety &amp; GPS</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-08: stat tiles, tick lists, law table, following-distance road, GOAL walk-around, hazard deck, GPS reasons */
+.big{font-size:34px;font-weight:300;color:var(--brand-700);line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.card .icobox+.big{margin-top:-2px}
+.tick{list-style:none;display:grid;gap:6px;margin-top:8px;font-size:15px}
+.tick li{position:relative;padding-left:24px}
+.tick li::before{content:"";position:absolute;left:0;top:6px;width:13px;height:7px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg) translate(2px,-2px)}
+.tick.no li::before{border:0;width:12px;height:12px;top:5px;background:linear-gradient(45deg,transparent 45%,var(--danger) 45%,var(--danger) 55%,transparent 55%),linear-gradient(-45deg,transparent 45%,var(--danger) 45%,var(--danger) 55%,transparent 55%);transform:none}
+#lawTbl td.n{color:var(--danger);font-weight:500}
+#lawTbl td.dim{opacity:.35}
+#lawTbl td{transition:opacity .18s ease-in-out}
+#dflip button{min-height:200px}
+.stat{background:var(--brand-50);border-radius:10px;padding:10px 8px;display:grid;gap:2px;text-align:center}
+.stat b{font-size:28px;font-weight:300;color:var(--brand-700);line-height:1;font-variant-numeric:tabular-nums}
+.stat small{font-size:12px;color:var(--muted);line-height:1.3}
+.road svg{max-width:none;width:100%;display:block}
+.road .lane{stroke:#FFFFFF;stroke-width:3;stroke-dasharray:22 18;fill:none}
+#fdSvg.moving .lane{animation:lane .69s linear infinite}
+@keyframes lane{to{stroke-dashoffset:40}}
+.pick button{font-size:13px;padding:6px 12px}
+.goal-walk{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-dasharray:5 6}
+.slide.on .goal-walk{animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-44}}
+.goal-me{fill:var(--brand-600);stroke:#fff;stroke-width:2}
+.goal-zone{fill:#FDEEEE;stroke:var(--danger);stroke-width:1.4;stroke-dasharray:4 4}
+.slide.on .goal-zone{animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.deck{display:grid;gap:10px}
+.deck .scn{font-size:18px;max-width:none}
+.deck .card{padding:14px 18px}
+.deck .choices{gap:8px}
+.deck .choice{padding:10px 14px;font-size:15px}
+.dk-dots{display:flex;gap:5px;flex-wrap:wrap}
+.dk-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dk-dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dk-dots i.ok{background:var(--positive)}.dk-dots i.no{background:var(--danger)}
+.why3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.why3 .card{padding:14px}
+.why3 .icobox{margin-bottom:8px}
+.why3 h3{font-size:16px}
+.why3 p{font-size:14px}
+#gsort{grid-template-columns:1fr 1fr;align-items:start}
+#gsort .row{padding:8px 12px}
+#gsort .why{font-size:12px;line-height:1.35}
+@media (max-width:860px){.why3,#gsort{grid-template-columns:1fr}.big{font-size:28px}}
+@media (prefers-reduced-motion:reduce){.goal-me{display:none}}
+#lawTbl{font-size:14px}
+#lawTbl th,#lawTbl td{padding:8px 12px}
+#lawTbl td:first-child{width:28%}
+#lawTbl td:last-child{width:26%}
+.slide .tablewrap{flex:0 0 auto}
+@media (max-width:860px){.split{grid-template-columns:1fr!important;gap:18px!important}}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 28</span><span class="code-chip">FC-08 · Driver Safety &amp; GPS</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M3.5 10.5l6 1M20.5 10.5l-6 1M12 14.5V21"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><path d="M7 17h0M17 17h0"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8a3.5 3.5 0 0 1 0 7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></symbol>
+    <symbol id="i-belt" viewBox="0 0 24 24"><path d="M6 3l12 18"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M4 8h3M17 16h3"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-reverse" viewBox="0 0 24 24"><path d="M9 14l-5-5 5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+    <symbol id="i-strap" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="1.5"/><path d="M9 4v18M15 4v18"/></symbol>
+    <symbol id="i-sat" viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/><path d="M17.5 3.5a4 4 0 0 1 3 3M16 6a2 2 0 0 1 1.5 1.5"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 15c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2"/><path d="M3 20c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2"/><path d="M12 3v7M9 7l3 3 3-3"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-08</span>
+        <h1 class="display a" style="--i:1">Driver Safety &amp; GPS</h1>
+        <p class="lead a" style="--i:2">The most dangerous part of a technician's day is the drive between stops. How Clements drivers stay phone-free, keep their space, back safely, handle Florida weather, and work with the GPS on every truck.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">4 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 210" aria-hidden="true" style="width:100%;max-width:420px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M40 150V104a6 6 0 0 1 6-6h96v52"/><path d="M142 112h40l22 22v16h-62"/><path d="M182 112v22h22"/>
+          <circle cx="78" cy="156" r="14"/><circle cx="182" cy="156" r="14"/><path d="M40 150h24M92 150h76M196 150h8"/>
+          <path d="M52 84h80M60 72h64"/>
+          <path d="M260 92s-22-20-22-37a22 22 0 0 1 44 0c0 17-22 37-22 37z"/><circle cx="260" cy="55" r="7"/>
+          <path d="M292 26a16 16 0 0 1 10 10M286 34a8 8 0 0 1 6 6"/>
+          <path d="M8 190h304"/><path d="M30 202h30M100 202h30M170 202h30M240 202h30"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-ban"/></svg><span>Drive phone-free under Clements policy, which is stricter than Florida law, and buckle up every trip</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-eye"/></svg><span>Drive defensively: scan ahead, keep a 3–4 second following distance, and add more when conditions call for it</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-rain"/></svg><span>Adjust speed for Florida rain, hydroplaning and flooded roads, and spot fatigue before it causes a crash</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-reverse"/></svg><span>Avoid backing when you can, and when you can't, use GOAL or a spotter every time</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-strap"/></svg><span>Secure tanks, ladders, product and loose items so nothing shifts, falls or flies</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-sat"/></svg><span>Explain what the truck's GPS records, why Clements uses it, and how it shows up in your performance</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split" style="grid-template-columns:1fr 1.2fr">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">You drive more than you <span class="em">spray.</span></h2>
+        <p class="lead a" style="--i:2">A route technician can spend hours a day behind the wheel of a marked Clements truck. Every mile is a chance to protect a life, or to lose one, along with your license and your job.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-truck"/></svg><span>Our name and phone number are on the door. Every driver who sees you is forming an opinion of Clements.</span></div>
+      </div>
+      <div class="grid g2" style="gap:12px">
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-phone"/></svg></div><div class="big">3,208</div><p>people killed in U.S. crashes involving a distracted driver in 2024 (NHTSA).</p></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-belt"/></svg></div><div class="big">49%</div><p>of passenger vehicle occupants killed in 2023 were not wearing a seat belt (NHTSA).</p></div>
+        <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-moon"/></svg></div><div class="big">6,300+</div><p>estimated drowsy driving deaths in 2023, ten times the official count (GHSA, 2026).</p></div>
+        <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><div class="big">3–5 yrs</div><p>of driving history checked against Clements standards. Lose an acceptable record and you can't drive for us.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: focused and buckled">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Focused, phone-free, buckled</h1>
+        <p class="lead a" style="--i:2">Most crashes start before the wheels turn: a phone within reach, a GPS not set, a belt left off, a driver who didn't sleep. Part one is about getting yourself ready to drive.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Before you roll</li><li><span>02</span>The phone rule: law vs. Clements</li><li><span>03</span>Three kinds of distraction</li><li><span>04</span>Seat belts and fatigue</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 BEFORE YOU ROLL -->
+  <section class="slide" data-label="Before you roll">
+    <span class="eyebrow a">01 · Before you roll</span>
+    <h2 class="a" style="--i:1">Two minutes in the lot saves the day on the road</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card a" style="--i:2"><h3>Walk-around, every morning</h3>
+        <ul class="tick">
+          <li><b>Tires:</b> inflation, cuts, bulges, tread wear</li>
+          <li><b>Lights:</b> headlights, brake lights, turn signals</li>
+          <li><b>Glass and wipers:</b> no cracks in your view, wipers clear the glass</li>
+          <li><b>Brakes and horn:</b> test both before you leave the lot</li>
+          <li><b>Fluids:</b> oil, coolant, washer fluid</li>
+          <li><b>Load:</b> tanks, ladders and product secured (Part three)</li>
+        </ul>
+        <p class="small muted" style="margin-top:8px">The full inspection standard is in FC-07 · Vehicle Standards. Found a safety problem? Report it to your supervisor and don't start the route until it's handled.</p>
+      </div>
+      <div class="card a" style="--i:3"><h3>In the cab, before you shift into gear</h3>
+        <ol class="steps">
+          <li style="font-size:15px;padding:7px 0"><span class="num">1</span><span>Adjust seat and all three mirrors.</span></li>
+          <li style="font-size:15px;padding:7px 0"><span class="num">2</span><span>Program the GPS for your first stop.</span></li>
+          <li style="font-size:15px;padding:7px 0"><span class="num">3</span><span>Phone on voicemail or a driving do-not-disturb setting, stowed out of reach.</span></li>
+          <li style="font-size:15px;padding:7px 0"><span class="num">4</span><span>Loose items stowed. Nothing on the dash or under the pedals.</span></li>
+          <li style="font-size:15px;padding:7px 0"><span class="num">5</span><span>Seat belt on, and everyone else's.</span></li>
+        </ol>
+        <p class="small muted" style="margin-top:6px">In the truck: license, registration, the company insurance card and the vehicle accident form.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 LAW VS POLICY -->
+  <section class="slide" data-label="The phone rule">
+    <div class="qhead a"><div><span class="eyebrow">02 · The phone rule</span><h2 style="margin-top:6px">The law sets the floor. Clements sets the standard.</h2></div><div class="seg" id="lawSeg" role="group" aria-label="Compare"><button type="button" id="lawFL" aria-pressed="true">Florida law</button><button type="button" id="lawCL" aria-pressed="false">Clements policy</button></div></div>
+    <div class="tablewrap a" style="--i:2">
+      <table id="lawTbl"><thead><tr><th>While the vehicle is moving</th><th>Florida law</th><th>Clements</th></tr></thead><tbody></tbody></table>
+    </div>
+    <p class="small muted a" style="--i:3" id="lawNote"></p>
+  </section>
+
+  <!-- 7 THREE DISTRACTIONS -->
+  <section class="slide" data-label="Three kinds of distraction">
+    <span class="eyebrow a">03 · Three kinds of distraction</span>
+    <h2 class="a" style="--i:1">A phone call takes all three at once</h2>
+    <p class="a muted" style="--i:2">Select each card to flip it.</p>
+    <div class="flip a" style="--i:3" id="dflip"></div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-cup"/></svg><span><b>It's not just the phone.</b> Clements policy also rules out eating, drinking, reading and anything else that pulls attention from driving. Paperwork, PestPac notes and the next address all wait until you're parked.</span></div>
+  </section>
+
+  <!-- 8 BELTS AND FATIGUE -->
+  <section class="slide" data-label="Seat belts and fatigue">
+    <span class="eyebrow a">04 · Seat belts and fatigue</span>
+    <h2 class="a" style="--i:1">Buckled, awake and sober, or don't drive</h2>
+    <div class="grid g3" style="align-items:start">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-belt"/></svg></div><h3>Seat belts</h3><p>Florida requires the driver, front-seat passengers and every passenger under 18 to buckle up (s. 316.614). Clements goes further: <b>everyone</b> riding in a company vehicle or on company business wears one. A missing or broken belt gets reported to your supervisor immediately.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-moon"/></svg></div><h3>Fatigue</h3><p><b>Warning signs:</b> yawning, heavy eyelids, drifting, hitting rumble strips, missing a turn, not remembering the last few miles. Florida heat and a big lunch make it worse. Caffeine and the radio don't fix it. <b>Pull over somewhere safe</b> and call your supervisor if you're too tired to drive.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Impairment</h3><p>No alcohol or drugs in, or while driving, a company vehicle. Tell management <b>before you drive</b> about any medication that may affect your judgment or driving, including drowsiness warnings on over-the-counter products.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:5"><svg class="ico"><use href="#i-users"/></svg><span>Only Clements employees ride in a company vehicle. No friends, family or customers, ever.</span></div>
+  </section>
+
+  <!-- 9 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 10 PART TWO -->
+  <section class="slide forest" data-label="Part two: defensive driving">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Drive defensively</h1>
+        <p class="lead a" style="--i:2">You can't control other drivers, the weather or a kid chasing a ball into the street. You can control your speed, your space and your attention, and that's what keeps a mistake by someone else from becoming your crash.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Space, speed and scanning</li><li><span>02</span>Practice: the following-distance timer</li><li><span>03</span>Florida weather</li><li><span>04</span>Practice: hazards on the route</li></ol>
+    </div>
+  </section>
+
+  <!-- 11 DEFENSIVE BASICS -->
+  <section class="slide" data-label="Space, speed and scanning">
+    <span class="eyebrow a">01 · Space, speed and scanning</span>
+    <h2 class="a" style="--i:1">Expect the unexpected, and leave room for it</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Scan</h3><p>Look far down the road, not at the bumper ahead. Check mirrors every few seconds. At intersections, look left, right and left again, even on a green light. Watch for brake lights two or three cars up.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-arrow"/></svg></div><h3>Space</h3><p>Keep at least <b>3–4 seconds</b> behind the vehicle ahead, more in rain or with a heavy load. Leave an escape route to the side. If someone tailgates you, ease off and let them pass.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-gauge"/></svg></div><h3>Speed</h3><p>Posted limits are the maximum for ideal conditions. Slow down in neighborhoods, school zones and around stopped vehicles. Running late is never a reason to speed. Call the office from a parked truck instead.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-route"/></svg><span><b>Lane changes:</b> signal, check mirrors, then a quick head check for the blind spot. A work truck has bigger blind spots than a car.</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Move Over:</b> for any vehicle stopped on the roadside with hazard lights, flares or emergency signs, move over a lane. If you can't, slow to 20 mph below the limit (s. 316.126).</span></div>
+    </div>
+  </section>
+
+  <!-- 12 FOLLOWING DISTANCE TIMER -->
+  <section class="slide" data-label="Practice: following distance" style="gap:16px">
+    <div class="qhead a"><div><span class="eyebrow">02 · Practice · the following-distance timer</span><h2 style="margin-top:6px">Count the seconds, not the car lengths</h2></div></div>
+    <div class="split" style="grid-template-columns:1fr 1.5fr;gap:26px;align-items:start">
+      <div class="grid" style="gap:12px">
+        <p class="a small muted" style="--i:1">When the car ahead passes a fixed point, count "one-thousand-one, one-thousand-two..." until you reach it. Set the conditions and your gap, then run it.</p>
+        <div class="a" style="--i:2"><span class="eyebrow">Conditions</span><div class="pick" id="fdCond" style="margin-top:6px"></div></div>
+        <div class="a" style="--i:3"><span class="eyebrow">Speed</span><div class="pick" id="fdSpd" style="margin-top:6px"></div></div>
+        <div class="a" style="--i:4"><label class="eyebrow" for="fdGap">Your gap: <b id="fdGapV" style="color:var(--ink)">2.0 s</b></label><input type="range" id="fdGap" min="1" max="6" step="0.5" value="2" style="width:100%;accent-color:#2E6F47;margin-top:6px"></div>
+        <div class="a" style="--i:5;display:flex;gap:8px"><button type="button" class="btn primary" id="fdRun">Run it</button><button type="button" class="btn" id="fdReset">Reset</button></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="figbox a road" style="--i:3;padding:0;overflow:hidden">
+          <svg viewBox="0 0 600 170" id="fdSvg" role="img" aria-label="Animated road showing your truck following a car past a sign post">
+            <rect x="0" y="0" width="600" height="170" fill="#EEF4F0"/>
+            <rect x="0" y="40" width="600" height="96" fill="#DCE9DF"/>
+            <path class="lane" d="M0 88H600"/>
+            <path d="M0 40H600M0 136H600" stroke="#A3C6AB" stroke-width="2"/>
+            <g id="fdPost"><path d="M0 18V44" stroke="#2E6F47" stroke-width="3" stroke-linecap="round"/><rect x="-10" y="6" width="20" height="14" rx="2" fill="#2E6F47"/></g>
+            <g id="fdCar"><rect x="-22" y="96" width="44" height="26" rx="7" fill="#74A96E"/><rect x="-6" y="100" width="14" height="18" rx="3" fill="#EEF4F0"/></g>
+            <g id="fdTruck"><rect x="-56" y="94" width="56" height="30" rx="4" fill="#0B3D20"/><rect x="0" y="100" width="22" height="24" rx="5" fill="#1F5836"/><rect x="8" y="104" width="10" height="12" rx="2" fill="#A7BDB0"/><text x="-28" y="114" text-anchor="middle" font-size="9" fill="#EEF4F0" font-family="Helvetica Neue,Arial">YOU</text></g>
+            <text x="300" y="160" text-anchor="middle" font-size="12" fill="#5C6B62" font-family="Helvetica Neue,Arial" id="fdCap">Press "Run it"</text>
+          </svg>
+        </div>
+        <div class="grid g3 a" style="--i:4;gap:10px">
+          <div class="stat"><b id="fdSec">0.0</b><small>seconds counted</small></div>
+          <div class="stat"><b id="fdFt">0</b><small>feet of space at this speed</small></div>
+          <div class="stat"><b id="fdMin">3–4</b><small>seconds recommended</small></div>
+        </div>
+        <div id="fdFb" class="a" style="--i:5;min-height:46px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 FLORIDA WEATHER -->
+  <section class="slide" data-label="Florida weather">
+    <span class="eyebrow a">03 · Florida weather</span>
+    <h2 class="a" style="--i:1">Afternoon storms are part of the route. Plan for them.</h2>
+    <div class="grid g3" style="align-items:start">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-rain"/></svg></div><h3>Rain</h3><p>Slow down and open your following distance to 5 seconds or more. <b>Headlights on in any rain, smoke or fog</b> (s. 316.217). Hazards while moving only in extremely low visibility on roads posted 55 mph or more (s. 316.2397). Can't see? Pull well off the road and wait.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wave"/></svg></div><h3>Hydroplaning</h3><p>Tires can ride up on a film of water at speeds as low as about 35 mph, and worn tires make it worse. No cruise control on wet roads. If the steering goes light: <b>ease off the gas, keep the wheel straight, don't brake hard</b>, and let the tires find the road.</p></div>
+      <div class="card a" style="--i:4;border-color:var(--danger)"><div class="icobox" style="color:var(--danger);background:#FDEEEE"><svg class="ico"><use href="#i-alert"/></svg></div><h3>Flooded roads</h3><p>Just 12 inches of moving water can carry away most cars, and 2 feet can carry away SUVs and trucks (National Weather Service). You can't see washouts or how deep it is. <b>Turn around, don't drown.</b> Call the office and reroute.</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-sun"/></svg><span><b>Sun glare</b> at sunrise and late afternoon can blind you at an intersection. Keep the windshield clean inside and out, use the visor and sunglasses, and slow down when you can't see the signal.</span></div>
+  </section>
+
+  <!-- 14 HAZARD SCENARIOS -->
+  <section class="slide" data-label="Practice: hazards on the route" style="gap:16px">
+    <span class="eyebrow a">04 · Practice · hazards on the route</span>
+    <h2 class="a" style="--i:1">What do you do? Choose the safest move.</h2>
+    <div class="deck a" style="--i:2" id="hz"></div>
+    <p class="small muted a" style="--i:3" id="hzScore"></p>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: backing and the load">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Backing, parking and the load</h1>
+        <p class="lead a" style="--i:2">Backing is the most common way fleet vehicles get damaged, and almost every backing incident is preventable. A shifting tank or a loose ladder can turn a fender-bender into a tragedy.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Backing: the number-one fleet incident</li><li><span>02</span>Practice: back it up safely</li><li><span>03</span>Parking at the customer's home</li><li><span>04</span>Securing the load</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 BACKING / GOAL -->
+  <section class="slide" data-label="Backing and GOAL">
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Backing: the number-one fleet incident</span>
+        <h2 class="a" style="--i:1">Avoid it. If you can't, <span class="em">Get Out And Look.</span></h2>
+        <p class="a muted" style="--i:2">Backing is the most common fleet incident. Backover crashes kill about 210 people and injure 15,000 a year in the U.S., most often young children and older adults (NHTSA).</p>
+        <ul class="tick a" style="--i:3">
+          <li><b>Plan not to back.</b> Choose spots you can pull through or out of forward.</li>
+          <li><b>Back in on arrival</b> when you must back at all (handbook). You know the space is clear right then, and you leave forward into traffic.</li>
+          <li><b>GOAL every time:</b> walk around and check behind, under and overhead: kids, pets, toys, posts, low branches, wires.</li>
+          <li><b>Use a spotter</b> when one is available. Stay where you can see them in your mirror, and stop if you lose sight of them.</li>
+          <li><b>Camera and sensors help</b> but don't replace looking. Back slowly, as short a distance as possible.</li>
+        </ul>
+      </div>
+      <div class="figbox a" style="--i:3">
+        <svg viewBox="0 0 260 300" id="goalSvg" aria-label="Top-down truck with a walk-around path and the three checks: behind, under, overhead" role="img" style="max-width:300px">
+          <rect x="88" y="60" width="84" height="150" rx="10" fill="#EEF4F0" stroke="#1F5836" stroke-width="2"/>
+          <rect x="96" y="70" width="68" height="34" rx="6" fill="#DCE9DF" stroke="#2E6F47" stroke-width="1.4"/>
+          <path d="M100 120h60M100 140h60M100 160h60M100 180h60" stroke="#A3C6AB" stroke-width="1.4"/>
+          <rect class="goal-zone" x="72" y="214" width="116" height="52" rx="8"/>
+          <text x="130" y="244" text-anchor="middle" font-size="12" fill="#1F5836" font-family="Helvetica Neue,Arial">BEHIND</text>
+          <path class="goal-walk" d="M130 30 C 220 30 225 120 225 150 C 225 230 210 284 130 284 C 50 284 35 230 35 150 C 35 120 40 30 130 30"/>
+          <circle class="goal-me" r="7" cx="0" cy="0"><animateMotion dur="4.2s" repeatCount="indefinite" path="M130 30 C 220 30 225 120 225 150 C 225 230 210 284 130 284 C 50 284 35 230 35 150 C 35 120 40 30 130 30"/></circle>
+          <text x="236" y="150" font-size="11" fill="#5C6B62" font-family="Helvetica Neue,Arial" transform="rotate(90 236 150)" text-anchor="middle">UNDER</text>
+          <text x="130" y="20" text-anchor="middle" font-size="11" fill="#5C6B62" font-family="Helvetica Neue,Arial">OVERHEAD</text>
+          <path d="M130 52v-10M124 47l6-6 6 6" stroke="#2E6F47" stroke-width="1.6" fill="none"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 BACKING ORDER -->
+  <section class="slide" data-label="Practice: back it up safely">
+    <div class="split" style="grid-template-columns:1fr 1.15fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Practice · back it up safely</span>
+        <h2 class="a" style="--i:1">A customer's driveway, a basketball hoop and a parked SUV</h2>
+        <p class="a muted" style="--i:2">There's no way to pull through, so you have to back out after the service. Put the steps in order. Select them first to last.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-reverse"/></svg><span>The best backing is the backing you planned away: next time, park on the street where it's legal and safe, or back in on arrival.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="order a" style="--i:3" id="bord"></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn" id="bordReset">Start over</button><span id="bordFb" class="small"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 PARKING -->
+  <section class="slide" data-label="Parking at the customer's home">
+    <span class="eyebrow a">03 · Parking at the customer's home</span>
+    <h2 class="a" style="--i:1">Park like a guest, and like someone who plans to leave safely</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card a" style="--i:2"><h3>Do</h3>
+        <ul class="tick">
+          <li>Park legally, in the direction of traffic, where you can pull out forward</li>
+          <li>Set the parking brake. Turn wheels to the curb on a slope</li>
+          <li>Lock the truck every time you step away (handbook: never left unlocked)</li>
+          <li>Watch for children, pets and bikes when you arrive and leave</li>
+          <li>Drive neighborhood streets slowly. Kids and pets don't wait for a gap</li>
+        </ul>
+      </div>
+      <div class="card a" style="--i:3"><h3>Don't</h3>
+        <ul class="tick no">
+          <li>Block driveways, mailboxes, fire hydrants, sidewalks or crosswalks</li>
+          <li>Park on lawns or landscaping. Our trucks are heavy and ruts cost money</li>
+          <li>Leave equipment, hoses or product unattended outside the truck</li>
+          <li>Park where you'll have to back into a busy road or a blind curve</li>
+          <li>Leave the engine running with the truck unlocked</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small muted a" style="--i:4">Some communities have their own rules on commercial vehicles and street parking. Follow posted signs and any instructions on the customer's account.</p>
+  </section>
+
+  <!-- 20 CARGO -->
+  <section class="slide" data-label="Securing the load">
+    <div class="split" style="grid-template-columns:1fr 1.2fr;gap:28px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">04 · Securing the load</span>
+        <h2 class="a" style="--i:1">In a sudden stop, everything loose keeps going</h2>
+        <p class="a muted" style="--i:2">At highway speed, a 20-pound toolbox that comes loose can hit with the force of a 1,000-pound object (New Mexico DOT). Florida law requires every load to be secured so it can't fall, shift, leak or blow off (s. 316.520).</p>
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>A spilled load is also a pesticide spill.</b> Contain it, protect the public and follow spill procedures (FC&#8209;05).</span></div>
+      </div>
+      <div class="grid g2" style="gap:10px">
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Tanks and sprayers</h3><p>Mounted tanks bolted and checked. Backpack and hand sprayers strapped upright, lids tight.</p></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-strap"/></svg></div><h3>Ladders</h3><p>Tied to the rack at both ends. Check the straps before every trip, not just in the morning.</p></div>
+        <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Product</h3><p>In the locked storage box, upright and closed. Never in the cab with you (FC&#8209;05, FC&#8209;07).</p></div>
+        <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>The cab</h3><p>Phone and tablet mounted or stowed. Nothing on the dash or seat. No bottles near the pedals.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: GPS and incidents">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">GPS, and when things go wrong</h1>
+        <p class="lead a" style="--i:2">Every Clements vehicle has GPS tracking. It protects you, keeps routes tight, and shows customers we were there. Knowing what it records means nothing about your driving data should surprise you.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>What the GPS records, and why</li><li><span>02</span>Practice: what does GPS flag?</li><li><span>03</span>Accidents and breakdowns</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 GPS -->
+  <section class="slide" data-label="What the GPS records">
+    <span class="eyebrow a">01 · What the GPS records, and why</span>
+    <h2 class="a" style="--i:1">Your truck keeps a record of every drive</h2>
+    <div class="split" style="grid-template-columns:1fr 1.3fr;gap:20px;align-items:start">
+      <div class="grid" style="gap:10px">
+      <div class="card a" style="--i:2"><h3>What it records</h3>
+        <ul class="tick">
+          <li><b>Location</b> and the route you drove</li>
+          <li><b>Speed</b></li>
+          <li><b>Harsh braking</b> and <b>rapid acceleration</b></li>
+          <li><b>Route efficiency:</b> miles, stops and time between them</li>
+          <li>Typically also ignition on/off, idling and time at each address</li>
+        </ul>
+      </div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-sat"/></svg><span><b>Keep it on.</b> Never unplug, cover, block or tamper with the GPS unit. If it seems to be malfunctioning, tell your supervisor.</span></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="why3 a" style="--i:3">
+          <div class="card"><div class="icobox"><svg class="ico"><use href="#i-shield"/></svg></div><h3>Safety</h3><p>Speeding and harsh events get coached before they become crashes.</p></div>
+          <div class="card"><div class="icobox"><svg class="ico"><use href="#i-route"/></svg></div><h3>Routing</h3><p>Real drive times help build tighter routes with less windshield time (FC&#8209;09).</p></div>
+          <div class="card"><div class="icobox"><svg class="ico"><use href="#i-check"/></svg></div><h3>Accountability</h3><p>Shows when we arrived and left, settles disputes and claims, and helps recover a stolen truck.</p></div>
+        </div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clip"/></svg><span><b>It's part of your performance.</b> GPS data factors into your evaluations. Safe driving counts in your favor; risky driving can lead to coaching or discipline.</span></div>
+        <p class="small muted a" style="--i:5">Your branch manager can show you the system and the reports used at your branch.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24 GPS SORT -->
+  <section class="slide" data-label="Practice: what does GPS flag?" style="gap:14px">
+    <span class="eyebrow a">02 · Practice · what does GPS flag?</span>
+    <h2 class="a" style="--i:1">Would this show up as a flag on your driving report?</h2>
+    <div class="sort a" style="--i:2" id="gsort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="gsortCheck">Check my answers</button><span id="gsortFb"></span></div>
+  </section>
+
+  <!-- 25 ACCIDENT -->
+  <section class="slide" data-label="Accidents and breakdowns" data-alert="1">
+    <span class="eyebrow a">03 · Accidents and breakdowns</span>
+    <h2 class="a" style="--i:1">Stop. Make it safe. Call. Document.</h2>
+    <div class="grid g3" style="align-items:start">
+      <div class="card a" style="--i:2"><h3>If you have an accident</h3><ol class="steps">
+        <li style="font-size:14px;padding:6px 0"><span class="num red">1</span><span><b>Stop at once.</b> Anyone hurt? <b class="red">Call 911.</b></span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num">2</span><span>No injuries and drivable? Move out of the travel lanes (s. 316.061).</span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num">3</span><span>Call the police for every accident, and stay until they release you.</span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num">4</span><span>Call your supervisor and HR right away.</span></li>
+      </ol></div>
+      <div class="card a" style="--i:3"><h3>Then document</h3><ol class="steps">
+        <li style="font-size:14px;padding:6px 0"><span class="num">5</span><span>Photograph the damage and the scene.</span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num">6</span><span>Collect names, license, insurance and witness details. Complete the vehicle accident form.</span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num red">7</span><span>Don't discuss fault with anyone but the police.</span></li>
+        <li style="font-size:14px;padding:6px 0"><span class="num">8</span><span>Product spilled? Contain it and follow spill procedures.</span></li>
+      </ol></div>
+      <div class="card a" style="--i:4"><h3>If the truck breaks down</h3><ul class="tick">
+        <li>Signal and get as far off the road as you can</li>
+        <li>Hazard lights on. Florida's Move Over law now covers you too, but don't count on every driver</li>
+        <li>Stay clear of traffic. Exit away from the travel lane</li>
+        <li>Call your supervisor, then the office at 772-562-6450</li>
+      </ul></div>
+    </div>
+    <p class="small muted a" style="--i:5">Full accident and injury reporting is covered in CW-06 · Company Policies and CW-09 · Safety &amp; Accident Reporting.</p>
+  </section>
+
+  <!-- 26 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 27 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on the truck</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before FC-08 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Complete a walk-around and in-cab setup, including mirrors, GPS and phone on do-not-disturb</label></li>
+      <li><label><input type="checkbox" id="f2"> Drive a route segment phone-free, with no handheld or hands-free use</label></li>
+      <li><label><input type="checkbox" id="f3"> Keep a 3–4 second following distance and count it aloud on request</label></li>
+      <li><label><input type="checkbox" id="f4"> Back up using GOAL, or with a spotter using agreed signals</label></li>
+      <li><label><input type="checkbox" id="f5"> Park at a customer's home legally, out of the driveway path, and lock the truck</label></li>
+      <li><label><input type="checkbox" id="f6"> Show tanks, ladders, product and cab items secured for travel</label></li>
+      <li><label><input type="checkbox" id="f7"> Explain what the GPS records and why it must stay on</label></li>
+      <li><label><input type="checkbox" id="f8"> Show where the insurance card and vehicle accident form are kept</label></li>
+    </ul>
+  </section>
+
+  <!-- 28 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc08:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc08:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-08", "titleHtml": "Driver Safety &amp; GPS", "nextHtml": "FC-09 \u00b7 Route Management", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Focused and phone-free',q:'You\'re on a county road between stops, outside any school or work zone. Your truck has Bluetooth, and the customer at your next stop calls. What does Clements policy require?',o:['Answer through Bluetooth, since hands-free calls are legal here','Let it go to voicemail, then call back after you\'ve pulled out of traffic and put the truck in Park','Answer on speaker as long as the phone stays in the cup holder','Text back a quick "on my way" at the next red light'],a:1,e:'Florida allows hands-free calls (handheld use is banned in school zones and active work zones), but Clements prohibits any call, text, email or browsing, handheld or hands-free, while the vehicle is moving. A red light counts as driving.'},
+    2:{t:'Checkpoint 2 · Defensive driving',q:'A heavy afternoon storm hits while you\'re on I-95. Traffic is still moving at about 60 mph and you can barely see the car ahead. What is the safest response?',o:['Turn on hazard lights and keep pace with traffic so you aren\'t rear-ended','Set cruise control so your speed stays steady','Stay in the left lane where there is less spray','Headlights on, slow down, open your following distance to 5 seconds or more, and pull well off the road if you can\'t see'],a:3,e:'Florida requires headlights in any rain. Slow down and add space. Cruise control raises the risk of hydroplaning. Hazards while moving are only for extremely low visibility, and pulling off well clear of traffic is better if you can\'t see.'},
+    3:{t:'Checkpoint 3 · Backing and the load',q:'You finished a service at a home with a long driveway and need to back out. Your camera shows nothing behind the truck. Neighborhood kids were riding bikes when you arrived. What do you do?',o:['Get out and walk around the truck to check behind, under and overhead, then back slowly a short distance','Trust the camera and back out at normal speed','Tap the horn twice and back out quickly while it\'s clear','Ask the customer to watch from the front porch'],a:0,e:'Cameras have blind spots, and children move fast. GOAL means Get Out And Look every time: behind, under and overhead. Then back slowly, as short a distance as possible.'},
+    4:{t:'Checkpoint 4 · GPS and incidents',q:'A coworker says he unplugs his truck\'s GPS unit at lunch so his manager can\'t "spy on" his break. What is correct?',o:['That\'s fine, as long as he plugs it back in before his next stop','It only matters if he speeds afterward','Tampering with the GPS is not allowed. It must stay on, and a unit that seems faulty is reported to the supervisor','He should cover the unit instead so it still has power'],a:2,e:'The GPS supports safety, routing and accountability, and it can help prove where the truck was if there\'s a claim. Never unplug, block or tamper with it.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'What does Clements policy say about phone use while the vehicle is moving?',o:['Hands-free calls are fine; texting is not','No calls, texts, email or browsing, handheld or hands-free','Phones are fine at red lights','Calls are fine on the highway but not in neighborhoods'],a:1,e:'Clements bans all phone use while driving, including Bluetooth and other hands-free use. Pull out of traffic and put the truck in Park first.'},
+    {k:'True or false',q:'As of 2026, Florida law bans all handheld phone use while driving anywhere in the state.',o:['True','False'],a:1,e:'False. Florida bans texting while driving (s. 316.305) and handheld use in school zones, school crossings and active work zones (s. 316.306). Hands-free bills died in committee in 2026. Clements policy is stricter than the law.'},
+    {k:'Multiple choice',q:'When should you program your GPS?',o:['While merging onto the highway','At a red light','Before you leave, or after pulling out of traffic and parking','Whenever the route changes, at low speed'],a:2,e:'Set the GPS before departing. If it needs changing, pull to a safe place out of traffic and put the vehicle in Park.'},
+    {k:'Multiple choice',q:'Which of these is a cognitive distraction?',o:['Thinking through a customer complaint on a hands-free call','Reaching for a dropped pen','Reading a text','Looking at a billboard'],a:0,e:'Cognitive distraction is your mind off driving. That\'s why hands-free isn\'t risk-free: your eyes can be on the road while your mind is on the call.'},
+    {k:'True or false',q:'Clements requires everyone riding in a company vehicle to wear a seat belt, not just the driver and front passenger.',o:['True','False'],a:0,e:'True. Florida law covers the driver, front-seat passengers and all passengers under 18. Clements requires everyone in a company vehicle or on company business to buckle up.'},
+    {k:'Scenario',q:'After lunch on a hot afternoon you catch yourself drifting toward the shoulder and can\'t remember the last exit. What should you do?',o:['Turn up the A/C and the radio and keep going','Drink an energy drink at the next stop and push through','Speed up to finish the route sooner','Pull over somewhere safe and call your supervisor if you\'re too tired to continue'],a:3,e:'Drifting and lost time are danger signs. A/C, radio and caffeine don\'t fix fatigue. Stop safely and tell your supervisor.'},
+    {k:'Multiple choice',q:'What following distance should you keep on a dry road in good conditions?',o:['One car length for every 10 mph','At least 3–4 seconds','1 second','2 seconds'],a:1,e:'Count at least 3–4 seconds from when the vehicle ahead passes a fixed point until you reach it. Add more in rain, at night, with a heavy load or behind a large truck.'},
+    {k:'Scenario',q:'A car is stopped on the shoulder of US-1 with its hazard lights on. The lane next to you is clear. What does Florida law require?',o:['Nothing; Move Over only applies to police and tow trucks','Honk to let them know you\'re passing','Move over a lane, away from the stopped vehicle','Stop behind it'],a:2,e:'Florida\'s Move Over law covers any vehicle stopped on the roadside with hazard lights, flares or emergency signs. Move over a lane, or slow to 20 mph below the limit if you can\'t.'},
+    {k:'Multiple choice',q:'Your truck starts to hydroplane on a wet road. What should you do?',o:['Ease off the gas, keep the wheel straight and avoid hard braking','Brake hard right away','Steer sharply toward the shoulder','Speed up to push through the water'],a:0,e:'Ease off the accelerator, keep the steering straight and let the tires regain contact. Hard braking or sharp steering can cause a skid.'},
+    {k:'True or false',q:'If water over the road looks only a few inches deep, it\'s safe to drive a work truck through it.',o:['True','False'],a:1,e:'False. You can\'t judge depth or see washouts. The National Weather Service says 12 inches of moving water can carry away most cars, and 2 feet can carry away SUVs and trucks. Turn around and reroute.'},
+    {k:'Multiple choice',q:'When does Florida law require your headlights to be on during the day?',o:['Only on highways','Only after sunset','During any rain, smoke or fog','Only when hazard lights are on'],a:2,e:'Section 316.217 requires headlights from sunset to sunrise and during any rain, smoke or fog.'},
+    {k:'Multiple choice',q:'What does GOAL stand for?',o:['Go Out And Leave','Get Out And Look','Gear, Observe, Accelerate, Look','Get Over A Lane'],a:1,e:'Get Out And Look. Walk around the truck and check behind, under and overhead before backing.'},
+    {k:'Scenario',q:'You must back into a tight spot at a commercial account, and a coworker is with you. How should the spotter work?',o:['Stand directly behind the truck where you can\'t see them','Shout directions from inside the building','Wave you back from the passenger seat','Stand where you can see them in your mirror, and you stop if you lose sight of them'],a:3,e:'A spotter only helps if you can see them. Agree on signals, keep them in your mirror, and stop immediately if they disappear from view.'},
+    {k:'True or false',q:'With a backup camera, you no longer need to walk around the truck before backing.',o:['True','False'],a:1,e:'False. Cameras and sensors help, but they have blind spots and can\'t see overhead. GOAL every time.'},
+    {k:'Multiple choice',q:'The handbook says to back into a parking space when possible. Why is that safer?',o:['It looks more professional','It saves fuel','You back in when you know the space is clear, then leave forward into traffic','It is required by Florida law'],a:2,e:'Backing in on arrival means you check the space once and pull out forward later, which is safer than backing out blind into traffic.'},
+    {k:'Scenario',q:'You notice a ladder strap on your rack is frayed and the ladder shifts when you push it. What do you do?',o:['Replace or re-secure it before you drive, and report the worn strap','Drive slowly and fix it at the end of the day','Hold it in place by keeping speed under 45','Move the ladder into the cab'],a:0,e:'Florida law requires loads secured so they can\'t shift or fall (s. 316.520). Fix it before you move, and report the worn strap so it\'s replaced.'},
+    {k:'Multiple choice',q:'Which driving behaviors does the GPS on Clements trucks record?',o:['Only location','Only mileage for fuel cards','Speed, harsh braking, rapid acceleration and route efficiency, along with location','Only whether the engine is on'],a:2,e:'The GPS records location plus driving behaviors such as speed, braking, acceleration and route efficiency.'},
+    {k:'True or false',q:'GPS data can factor into your performance evaluations.',o:['True','False'],a:0,e:'True. Safe, efficient driving counts in your favor, and risky driving can lead to coaching or discipline.'},
+    {k:'Scenario',q:'A driver runs a red light and you brake hard to avoid a crash. The GPS logs a harsh-braking event. What should you do?',o:['Unplug the GPS so it doesn\'t happen again','Nothing; you\'ll be disciplined anyway','Avoid braking hard in the future, even in an emergency','Tell your supervisor what happened so the event has context'],a:3,e:'Always brake to avoid a crash. A single event with a good reason is exactly what context is for. Tell your supervisor so the record shows what happened.'},
+    {k:'Scenario',q:'You\'re in a minor accident. No one is hurt, both vehicles can be driven, and you\'re blocking a lane. What comes first?',o:['Move out of the travel lane, call the police, then call your supervisor and HR','Leave, since no one is hurt','Wait in the lane until police arrive, no matter how long','Discuss who was at fault with the other driver'],a:0,e:'Florida law requires a reasonable effort to move a drivable vehicle out of traffic. Then call the police for every accident, and notify your supervisor and HR right away.'}
+  ];
+
+  var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Florida law vs Clements (consistent with CW-06) ---------- */
+  var LAW=[
+    ['Texting, email, reading messages','Banned statewide (s. 316.305)','n','Not allowed','n'],
+    ['Holding the phone to talk','Banned in school zones, school crossings and active work zones (s. 316.306)','','Not allowed','n'],
+    ['Hands-free or Bluetooth call','Legal, including in school and work zones','','Not allowed','n'],
+    ['Typing an address into the GPS','Handheld use banned in school and active work zones','','Program before you leave, or park first','n'],
+    ['At a red light or in stopped traffic','Still counts as driving','','Not allowed','n'],
+    ['Eating, drinking or reading','Careless driving laws apply','','Not allowed','n']
+  ];
+  var tb=$('#lawTbl tbody');
+  tb.innerHTML=LAW.map(function(r){return '<tr><td>'+r[0]+'</td><td class="fl '+r[2]+'">'+r[1]+'</td><td class="cl '+r[4]+'">'+r[3]+'</td></tr>'}).join('');
+  var NOTES=['Florida\'s Wireless Communications While Driving Law (s. 316.305) bans texting statewide. Section 316.306 bans any handheld use in school zones, school crossings and active work zones. As of 2026, Florida has no general hands-free law; bills to create one died in committee in March 2026.','Clements is stricter: no calls, texts, email or browsing, handheld or hands-free, while driving on company business in any vehicle. Let calls go to voicemail, pull out of traffic, put it in Park, then call back. Violations can lead to discipline up to and including termination.'];
+  function law(c){$('#lawFL').setAttribute('aria-pressed',c===0);$('#lawCL').setAttribute('aria-pressed',c===1);
+    $$('td.fl',tb).forEach(function(t){t.classList.toggle('dim',c===1)});$$('td.cl',tb).forEach(function(t){t.classList.toggle('dim',c===0)});$('#lawNote').textContent=NOTES[c];}
+  $('#lawFL').addEventListener('click',function(){law(0)});$('#lawCL').addEventListener('click',function(){law(1)});law(0);
+
+  /* ---------- distraction flip cards ---------- */
+  var DF=[
+    {t:'Eyes',i:'i-eye',f:'Visual: your eyes leave the road.',b:'<b>Examples:</b> glancing at a text, checking the GPS screen, looking for an address on a mailbox. At 55 mph, a 5-second glance covers the length of a football field with your eyes closed.'},
+    {t:'Hands',i:'i-hand',f:'Manual: your hands leave the wheel.',b:'<b>Examples:</b> holding a phone, reaching for something that slid off the seat, eating, adjusting equipment in the cab. Secure it before you roll so you never reach.'},
+    {t:'Mind',i:'i-chat',f:'Cognitive: your mind leaves driving.',b:'<b>Examples:</b> a hands-free call, a tense conversation, running through the next customer\'s problem. This is why Clements bans hands-free calls too: your eyes are on the road but you aren\'t really seeing it.'}
+  ];
+  var df=$('#dflip');
+  DF.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='df'+i;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label',v.t+'. Select to flip');
+    b.innerHTML='<span class="in"><span class="face front"><span class="icobox"><svg class="ico"><use href="#'+v.i+'"/></svg></span><h3>'+v.t+'</h3><span class="muted" style="font-size:15px">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back" style="font-size:14px">'+v.b+'</span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});df.appendChild(b)});
+
+  /* ---------- following-distance timer ---------- */
+  var CONDS=[
+    {n:'Dry, daytime',min:3,rec:'3–4'},
+    {n:'Rain or wet road',min:5,rec:'5+'},
+    {n:'Night',min:4,rec:'4+'},
+    {n:'Heavy load or towing',min:5,rec:'5+'},
+    {n:'Behind a large truck',min:5,rec:'5+'}
+  ];
+  var SPEEDS=[30,45,55,70];
+  var fd={c:0,s:1,gap:2,raf:0,run:false};
+  var fc=$('#fdCond'),fs=$('#fdSpd');
+  CONDS.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.id='fdc'+i;b.textContent=c.n;b.setAttribute('aria-pressed',i===0);
+    b.addEventListener('click',function(){fd.c=i;$$('button',fc).forEach(function(x,j){x.setAttribute('aria-pressed',j===i)});$('#fdMin').textContent=c.rec;fdReset()});fc.appendChild(b)});
+  SPEEDS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='fds'+i;b.textContent=s+' mph';b.setAttribute('aria-pressed',i===1);
+    b.addEventListener('click',function(){fd.s=i;$$('button',fs).forEach(function(x,j){x.setAttribute('aria-pressed',j===i)});fdReset()});fs.appendChild(b)});
+  var gIn=$('#fdGap');
+  gIn.addEventListener('input',function(){fd.gap=+gIn.value;$('#fdGapV').textContent=fd.gap.toFixed(1)+' s';fdReset()});
+  var V=58, TX=150, PX0=600;   /* px per second, truck x, post start x */
+  function place(postX){
+    var carX=TX+fd.gap*V;
+    $('#fdTruck').setAttribute('transform','translate('+TX+',0)');
+    $('#fdCar').setAttribute('transform','translate('+carX+',0)');
+    $('#fdPost').setAttribute('transform','translate('+postX+',0)');
+  }
+  function ft(sec){return Math.round(SPEEDS[fd.s]*1.467*sec)}
+  function verdict(){
+    var c=CONDS[fd.c],g=fd.gap,ok=g>=c.min;
+    var msg=ok?'<b>Good space.</b> '+g.toFixed(1)+' seconds meets the '+c.rec+' second guideline for '+c.n.toLowerCase()+'. At '+SPEEDS[fd.s]+' mph that\'s about '+ft(g)+' feet to react and stop.'
+      :'<b>Too close.</b> '+g.toFixed(1)+' seconds is under the '+c.rec+' second guideline for '+c.n.toLowerCase()+'. Ease off until you can count to '+c.min+' or more.';
+    $('#fdFb').innerHTML='<div class="fb'+(ok?'':' no')+'">'+msg+'</div>';
+  }
+  function fdReset(){cancelAnimationFrame(fd.raf);fd.run=false;$('#fdRun').disabled=false;place(PX0-20);$('#fdSec').textContent='0.0';$('#fdFt').textContent='0';$('#fdCap').textContent='Press "Run it"';$('#fdFb').innerHTML='';$('#fdSvg').classList.remove('moving')}
+  function fdRun(){
+    fdReset();
+    var carX=TX+fd.gap*V, start=PX0-20, t0=null, tPass=(start-carX)/V, tEnd=(start-TX)/V;
+    if(RM){place(TX);$('#fdSec').textContent=fd.gap.toFixed(1);$('#fdFt').textContent=ft(fd.gap);$('#fdCap').textContent='You reached the post '+fd.gap.toFixed(1)+' seconds after the car';verdict();return}
+    fd.run=true;$('#fdRun').disabled=true;$('#fdSvg').classList.add('moving');
+    function step(ts){if(!t0)t0=ts;var t=(ts-t0)/1000,px=start-V*t;
+      if(px<=TX){px=TX;place(px);$('#fdSec').textContent=fd.gap.toFixed(1);$('#fdFt').textContent=ft(fd.gap);$('#fdCap').textContent='You reached the post. Stop counting.';fd.run=false;$('#fdRun').disabled=false;$('#fdSvg').classList.remove('moving');verdict();return}
+      place(px);
+      if(t>=tPass){var e=t-tPass;$('#fdSec').textContent=e.toFixed(1);$('#fdFt').textContent=ft(e);$('#fdCap').textContent='One-thousand-'+(Math.floor(e)+1)+'...'}
+      else $('#fdCap').textContent='Watch the car ahead reach the post';
+      fd.raf=requestAnimationFrame(step)}
+    fd.raf=requestAnimationFrame(step);
+  }
+  $('#fdRun').addEventListener('click',fdRun);$('#fdReset').addEventListener('click',fdReset);
+  fdReset();
+
+  /* ---------- hazard scenario deck ---------- */
+  var HZ=[
+    {s:'It\'s 3 p.m. and a downpour hits on SR-60. You can barely see the lane lines and traffic is slowing unevenly.',o:['Hazard lights on and keep your speed so no one hits you','Headlights on, slow down, add following distance, and pull well off the road if you can\'t see','Follow the taillights ahead closely so you don\'t lose the lane'],a:1,e:'Headlights are required in any rain. Slow down, open your gap to 5 seconds or more, and get well clear of traffic if visibility is too poor. Following closely is how chain-reaction crashes happen.'},
+    {s:'Water is flowing across a neighborhood street on the way to your next stop. A pickup just made it through.',o:['Follow the pickup\'s path slowly','Drive through fast so you don\'t stall','Turn around, call the office and find another way'],a:2,e:'You can\'t see depth or washouts, and 12 inches of moving water can carry a car away. Another driver making it through proves nothing. Turn around, don\'t drown.'},
+    {s:'A sedan is on the shoulder of I-95 with its hazard lights flashing. The lane to your left is clear.',o:['Move over a lane, away from the stopped car','Stay in your lane at full speed; it\'s not an emergency vehicle','Slow down only if police are there'],a:0,e:'Florida\'s Move Over law covers any disabled vehicle with hazard lights, flares or emergency signs. Move over, or slow to 20 mph below the limit if you can\'t.'},
+    {s:'A driver is tailgating you on a two-lane road, flashing his lights.',o:['Tap your brakes to warn him off','Ease off and let him pass when it\'s safe','Speed up to get away from him'],a:1,e:'Don\'t engage. Brake-checking can cause a crash and a complaint about a marked Clements truck. Increase the space ahead and let him go.'},
+    {s:'You\'re running 20 minutes behind and the next customer is waiting. The road ahead is open.',o:['Make up the time; it\'s only a few miles over','Pull over, call the office or customer from the parked truck, and drive at the speed limit','Call the customer hands-free while you drive'],a:1,e:'Late is never a reason to speed, and calls wait until you\'re parked. The GPS records speed, too.'},
+    {s:'In a subdivision, a ball rolls into the street from between two parked cars ahead.',o:['Slow down and cover the brake, expecting a child to follow','Swerve around the ball and keep going','Honk and maintain speed'],a:0,e:'Where there\'s a ball, a child is often right behind it. Slow down and be ready to stop. Neighborhood streets call for slow, alert driving.'},
+    {s:'Your phone buzzes with a text from your branch manager while you\'re stopped at a long red light.',o:['Read it quickly; you\'re not moving','Reply with voice-to-text','Leave it until you\'ve pulled out of traffic and parked'],a:2,e:'A red light is still driving under Clements policy. Read and reply after you\'ve parked out of traffic.'},
+    {s:'Low afternoon sun is blinding you as you approach an intersection on a westbound road.',o:['Keep speed and guess the signal from the cars around you','Slow down, use the visor and sunglasses, and be ready to stop','Speed up to clear the intersection quickly'],a:1,e:'If you can\'t see the signal, slow down until you can. Keep the windshield clean inside and out to cut glare.'}
+  ];
+  var hz=$('#hz'),hi=0,hres=store.get('hz')||[];
+  function hzDots(){return '<div class="dk-dots" aria-hidden="true">'+HZ.map(function(_,i){return '<i class="'+(i===hi&&hres[i]===undefined?'cur':(hres[i]===undefined?'':(hres[i]?'ok':'no')))+'"></i>'}).join('')+'</div>'}
+  function hzTally(){var d=hres.filter(function(x){return x!==undefined&&x!==null}).length,r=hres.filter(function(x){return x}).length;$('#hzScore').textContent=d?r+' of '+d+' right on first try':''}
+  function showH(n){hi=n;var c=HZ[n];
+    hz.innerHTML='<div class="qhead"><span class="eyebrow">Hazard '+(n+1)+' of '+HZ.length+'</span>'+hzDots()+'</div><div class="card"><p class="scn">'+c.s+'</p></div><div class="choices">'+c.o.map(function(l,j){return '<button type="button" class="choice" id="hz'+n+'_'+j+'" data-j="'+j+'"><span class="k">'+'ABC'[j]+'</span><span>'+l+'</span></button>'}).join('')+'</div><div id="hzFb"></div>';
+    $$('.choice',hz).forEach(function(b){b.addEventListener('click',function(){var j=+b.dataset.j;
+      if(hres[n]===undefined||hres[n]===null){hres[n]=j===c.a;store.set('hz',hres);hzTally()}
+      $$('.choice',hz).forEach(function(x){x.disabled=true;if(+x.dataset.j===c.a)x.classList.add('right')});if(j!==c.a)b.classList.add('wrong');
+      $('.dk-dots',hz).outerHTML=hzDots();
+      var last=n===HZ.length-1;
+      $('#hzFb').innerHTML='<div class="fb'+(j===c.a?'':' no')+'" style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><span style="flex:1 1 380px">'+c.e+'</span><button type="button" class="btn" id="hzNext" style="padding:6px 14px">'+(last?'Start over':'Next hazard')+'</button></div>';
+      $('#hzNext').addEventListener('click',function(){if(last){hres=[];store.set('hz',hres);hzTally();showH(0)}else showH(n+1)});
+    })});
+  }
+  var hFirst=0;for(var hk=0;hk<HZ.length;hk++){if(hres[hk]===undefined||hres[hk]===null){hFirst=hk;break}}
+  hzTally();showH(hFirst);
+
+  /* ---------- backing order ---------- */
+  var BORD=['Plan the route out: note the hoop, the SUV and where you need to end up','Get out and walk all the way around: behind, under and overhead','Clear the path: check for kids, pets, bikes and toys, and move anything that\'s yours','Get back in and set up: mirrors checked, camera on, window down, radio off','Light tap of the horn, then back slowly, scanning mirrors and camera','Stop and get out again if anything changes or you lose sight of the path'];
+  var BSH=[3,0,5,2,4,1],bp=0,bb=$('#bord');
+  function bordBuild(){bp=0;bb.innerHTML='';$('#bordFb').innerHTML='';
+    BSH.forEach(function(k){var b=document.createElement('button');b.type='button';b.id='bord'+k;b.innerHTML='<span class="num">·</span><span>'+BORD[k]+'</span>';
+      b.addEventListener('click',function(){if(b.classList.contains('placed'))return;
+        if(k===bp){b.classList.add('placed');b.querySelector('.num').textContent=bp+1;bp++;
+          if(bp===BORD.length)$('#bordFb').innerHTML='<span class="fb" style="display:inline-block">Right. Look first, back slowly, and stop the moment anything changes.</span>';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#bordFb').innerHTML='<span class="fb no" style="display:inline-block">Not yet. What has to happen before that?</span>';}
+      });bb.appendChild(b)});}
+  bordBuild();$('#bordReset').addEventListener('click',bordBuild);
+
+  /* ---------- what does GPS flag? ---------- */
+  var GS=[
+    {q:'52 mph in a posted 35 mph zone',a:'Flag',w:'Speeding is one of the core behaviors the GPS records.'},
+    {q:'Hard braking to stop for a red light you saw late',a:'Flag',w:'A harsh-braking event is logged. Leave more space so you don\'t need to brake hard.'},
+    {q:'Driving 45 in a 45, braking smoothly between stops',a:'Normal',w:'Smooth driving at or under the limit is exactly what the data should show.'},
+    {q:'Forty minutes parked at a customer\'s home during a scheduled service',a:'Normal',w:'Time at a scheduled stop is expected, and it confirms the service visit.'},
+    {q:'Jack-rabbit starts from every traffic light',a:'Flag',w:'Rapid acceleration is recorded, and it burns fuel and wears the truck.'},
+    {q:'The truck moving on a Saturday with no work scheduled',a:'Flag',w:'Company vehicles are for assigned work only, never personal use.'},
+    {q:'A personal errand detour across town in the middle of the route',a:'Flag',w:'Off-route miles show up in route efficiency, and the truck isn\'t for personal use.'},
+    {q:'Taking the route Routing & Logistics planned, in order',a:'Normal',w:'Following the planned route is what keeps windshield time down.'}
+  ];
+  var gb=$('#gsort'),gsel={};
+  GS.forEach(function(s,i){var r=document.createElement('div');r.className='row';r.id='grow'+i;
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" aria-pressed="false" data-v="Flag" id="g'+i+'f">Flag</button><button type="button" aria-pressed="false" data-v="Normal" id="g'+i+'n">Normal</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){gsel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+    gb.appendChild(r)});
+  $('#gsortCheck').addEventListener('click',function(){
+    var right=0,blank=0;
+    GS.forEach(function(s,i){var r=$('#grow'+i),w=$('.why',r);if(w)w.remove();
+      if(!gsel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=gsel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok){var d=document.createElement('span');d.className='why';d.textContent=s.w;r.style.flexWrap='wrap';r.appendChild(d);}
+    });
+    $('#gsortFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===GS.length?'<span class="fb" style="display:inline-block">All eight correct. Drive the way you\'d want the report to read.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Read the notes under the ones in red and try again.</span>');
+  });
+
+  function onShow(i){var s=slides[i];if(!s||!s.querySelector('#fdSvg'))fdReset()}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

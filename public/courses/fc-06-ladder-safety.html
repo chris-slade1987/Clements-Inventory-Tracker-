@@ -1,0 +1,1277 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-06 Ladder Safety</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-06 additions */
+input[type=range]{width:100%;accent-color:var(--brand-600);margin:0}
+ul.tick{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+ul.tick li{position:relative;padding-left:22px;font-size:15px;line-height:1.45}
+ul.tick li::before{content:"";position:absolute;left:2px;top:7px;width:10px;height:6px;border-left:1.6px solid var(--brand-600);border-bottom:1.6px solid var(--brand-600);transform:rotate(-45deg)}
+ul.tick.rdot li::before{width:7px;height:7px;border:0;border-radius:50%;background:var(--danger);transform:none;top:8px}
+.card ul.tick{margin-top:6px}
+.card ul.tick li{font-size:14px;color:var(--muted)}
+.card ul.tick li b{color:var(--ink)}
+#dutyTable tr{transition:background .18s ease-in-out}
+#dutyTable tr.hit td{background:var(--brand-50)}
+#dutyTable tr.hit td:first-child{box-shadow:inset 3px 0 0 var(--brand-600);font-weight:500}
+#dutyTable tr.under td{color:#9AA59F}
+#dutyTable td{padding:7px 12px}
+
+/* electrical zone pulse */
+.slide.on .zap{animation:zap 2.4s ease-in-out infinite}
+@keyframes zap{0%,100%{opacity:.06}50%{opacity:.18}}
+
+/* 4:1 diagram */
+#frSvg text{font-family:var(--font);font-size:12px;fill:var(--muted)}
+#frSvg .big{font-size:14px;fill:var(--brand-700);font-weight:500}
+
+/* climber */
+.climb .buckle{fill:var(--brand-50);stroke:var(--brand-300);stroke-width:1;stroke-dasharray:4 4}
+.climb .pt{fill:var(--brand-600);stroke:#fff;stroke-width:2}
+.slide.on .climb .pt{animation:limb 4s ease-in-out infinite}
+.slide.on .climb .p2{animation-delay:1s}.slide.on .climb .p3{animation-delay:2s}.slide.on .climb .p4{animation-delay:3s}
+@keyframes limb{0%,20%{fill:var(--surface);stroke:var(--brand-400)}25%,100%{fill:var(--brand-600);stroke:#fff}}
+
+/* hotspot */
+#hsSvg .hs{cursor:pointer}
+#hsSvg .hs .ring{fill:transparent;stroke:transparent;stroke-width:2}
+#hsSvg .hs:hover .ring,#hsSvg .hs:focus-visible .ring{stroke:var(--brand-400);stroke-dasharray:4 3}
+#hsSvg .hs.found .ring{stroke:var(--danger);fill:rgba(220,38,38,.08);stroke-dasharray:none;animation:pop .22s ease-in-out}
+#hsSvg .hs.ok .ring{stroke:var(--positive);fill:rgba(31,122,69,.06);stroke-dasharray:none}
+#hsSvg .hs:focus{outline:none}
+#hsSvg .hs .badge{opacity:0}
+#hsSvg .hs.found .badge{opacity:1}
+#hsSvg .hs .badge circle{fill:var(--danger)}
+#hsSvg .hs .badge text{fill:#fff;font-size:11px;font-family:var(--font);font-weight:500}
+#hsSvg .lbl{font-family:var(--font);font-size:12px;fill:var(--muted);letter-spacing:.12em}
+@keyframes pop{from{transform:scale(.8)}to{transform:none}}
+#hsSvg .hs .ring{transform-box:fill-box;transform-origin:center}
+
+/* standing-level ladders */
+.lad{display:grid;gap:6px;margin-top:10px;border-left:4px solid var(--brand-700);border-right:4px solid var(--brand-700);padding:6px 8px;border-radius:4px}
+.lad button{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 10px;font-size:13px;text-align:left;font-weight:300}
+.lad button small{color:var(--muted);font-size:12px}
+.lad button.cap{background:var(--brand-50)}
+.lad button.shelf{margin-left:30%;border-style:dashed}
+.lad button.no{border-color:var(--danger);background:#FDEEEE}
+.lad button.yes{border-color:var(--positive);background:#EAF5EE}
+.lad button[aria-pressed="true"]{outline:2px solid var(--brand-600);outline-offset:1px}
+.lad.ext{border-color:var(--brand-500)}
+
+@media (max-width:860px){
+  #slWrap{grid-template-columns:1fr!important}
+}
+/* compact slides */
+.slide.cc{gap:16px}
+.slide.cc .card{padding:14px 18px}
+.slide.cc .icobox{width:32px;height:32px;margin-bottom:6px;border-radius:8px}
+.slide.cc .icobox .ico{width:20px;height:20px}
+.slide.cc .card p{font-size:14px;line-height:1.5}
+.slide.cc .order{gap:6px}
+.slide.cc .order button{padding:7px 12px;font-size:14px;line-height:1.4}
+.slide.cc .steps li{padding:6px 0!important;line-height:1.4}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">FC-06 · Ladder Safety</span></div>
+  </header>
+  <main class="stage" id="stage">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-ladder" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M7 7h10M7 11h10M7 15h10M7 19h10"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-6h4v6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 21h14M4 8h16M7 8l-3 6c0 1.7 1.3 3 3 3s3-1.3 3-3zM17 8l-3 6c0 1.7 1.3 3 3 3s3-1.3 3-3z"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 16a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a3.5 3.5 0 0 1 0 7M12 13l-2 4h3l-2 4"/></symbol>
+</defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-06</span>
+        <h1 class="display a" style="--i:1">Ladder Safety</h1>
+        <p class="lead a" style="--i:2">Pick the right ladder, inspect it, set it at the right angle, climb it the right way, and know when the answer is not to go up at all.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">40–50 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 260" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M10 232H290"/>
+        <path d="M206 232V70"/>
+        <path d="M186 70H290"/>
+        <path d="M194 70L242 30L290 70"/>
+        <path d="M152 232L196 42"/>
+        <path d="M166 232L210 42"/>
+        <path d="M156.4 213h14M160.8 194h14M165.2 175h14M169.6 156h14M174 137h14M178.4 118h14M182.8 99h14M187.2 80h14M191.6 61h14"/>
+        <path d="M152 246H206M152 241v10M206 241v10"/>
+        <path d="M130 232A22 22 0 0 0 150 220"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-ladder"/></svg><span>Choose the right ladder type, length and duty rating for the job</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-search"/></svg><span>Inspect a ladder before use and tag out one that is damaged</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-target"/></svg><span>Set up at the 4-to-1 angle with 3 feet above the landing, on firm, level ground</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-hand"/></svg><span>Climb and work with three points of contact, inside the rails, below the highest standing level</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-bolt"/></svg><span>Spot electrical, weather, attic and roof hazards, and know when not to go up</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-truck"/></svg><span>Secure, transport and store ladders, and respond to a fall correctly</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why ladder safety matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(32px,4.4vw,54px)">The ladder is the most <span class="em">dangerous tool</span> on your truck.</h2>
+        <p class="lead a" style="--i:2">It doesn't look like it. There is no label, no signal word, no PPE statement. But falls are one of the leading causes of workplace death in the US, and you don't need to be high up: a fall from a few rungs onto concrete can end a career.</p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-trend"/></svg></div><div><h3>About 1 in 5 work fall injuries involve a ladder</h3><p>CDC/NIOSH data. Most come from the same few mistakes: the wrong ladder, a bad angle, overreaching, and missing the last step.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>OSHA sets the rules</h3><p>29 CFR 1910.23 covers every ladder we use: inspection every shift, load limits, angle, extension above the landing, and facing the ladder.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-home"/></svg></div><div><h3>Customers are watching</h3><p>A ladder through a screen, a cracked roof tile or a gouged gutter costs us trust and money. A careful setup tells the customer we know what we're doing.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WHERE WE CLIMB -->
+  <section class="slide" data-label="Where we climb">
+    <span class="eyebrow a">On the job</span>
+    <h2 class="a" style="--i:1">Where a Clements technician ends up on a ladder</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>Attic access</h3><p>Rodent inspections, trapping, exclusion checks, attic dusting. Often the customer's pull-down ladder in a garage or closet.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Eaves and soffits</h3><p>Wasp and bee nests, roof rat entry points, gaps at the roofline, gutters and fascia.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>Commercial ceilings</h3><p>Drop ceilings, fly lights, overhead pipes and storage racks in restaurants and warehouses.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>Garages and lanais</h3><p>High shelves, garage door tracks, screen enclosure frames and pool cages.</p></div>
+    </div>
+    <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>The Clements rule comes first:</b> if you don't feel safe, don't use the ladder. Stop, and call your supervisor. Nobody will ever be faulted for asking.</span></div>
+  </section>
+
+  <!-- 5 PART ONE -->
+  <section class="slide forest" data-label="Part one">
+    <span class="eyebrow a">Part one</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Choose it and check it</h2>
+    <p class="lead a" style="--i:2">Most ladder accidents are decided before anyone climbs: the ladder is too short, too weak for the load, made of the wrong material, or damaged.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Ladder types and what each is for</li><li><span>02</span>Duty ratings: will it hold you and your gear?</li><li><span>03</span>Practice: pick the right ladder</li><li><span>04</span>Practice: find the defects, then tag it out</li></ul>
+  </section>
+
+  <!-- 6 TYPES -->
+  <section class="slide" data-label="Ladder types">
+    <span class="eyebrow a">01 · Ladder types</span>
+    <h2 class="a" style="--i:1">Match the ladder to the job, not to what's handy</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-ladder"/></svg></div><h3>Stepladder</h3><p>Self-supporting, for work in open floor space. Fully open, spreaders locked, on level ground. <b>Never lean a closed stepladder</b> against a wall like a straight ladder.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-arrow"/></svg></div><h3>Extension ladder</h3><p>Leans on a support for reaching eaves, soffits and rooflines. Needs the 4-to-1 angle and must be secured. <b>Talk to your supervisor before using one.</b></p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-route"/></svg></div><h3>Multi-position</h3><p>Converts between stepladder, extension and other modes. Each mode has its own rules; every lock must click in before you climb.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>Attic ladder</h3><p>Built into the customer's ceiling. Not ours, not inspected by us, often worn. Check it before you trust it (Part three).</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-bolt"/></svg><span><b>Fiberglass for field work.</b> Aluminum conducts electricity. Near any power line, service drop or electrical panel, use only a clean, dry fiberglass ladder.</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never substitute.</b> Chairs, buckets, boxes, the truck bumper, a customer's patio furniture: none of them are ladders. Never set a ladder on top of one, either.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 DUTY RATING -->
+  <section class="slide" data-label="Duty ratings">
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:32px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Duty ratings</span>
+        <h2 class="a" style="--i:1">The rating is everything you put on the ladder</h2>
+        <p class="a muted" style="--i:2">OSHA: never load a ladder beyond its maximum intended load. That load is <b>you, your clothes and boots, your tool belt, and whatever you carry</b>. Find the rating on the label on the side rail.</p>
+        <div class="tablewrap a" style="--i:3"><table style="min-width:0" id="dutyTable">
+          <thead><tr><th>ANSI type</th><th>Rated load</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr data-r="200"><td>Type III</td><td>200 lb</td><td>Light household only. Not for work.</td></tr>
+            <tr data-r="225"><td>Type II</td><td>225 lb</td><td>Medium duty</td></tr>
+            <tr data-r="250"><td>Type I</td><td>250 lb</td><td>Heavy duty, industrial</td></tr>
+            <tr data-r="300"><td>Type IA</td><td>300 lb</td><td>Extra heavy duty, professional</td></tr>
+            <tr data-r="375"><td>Type IAA</td><td>375 lb</td><td>Special duty, professional</td></tr>
+          </tbody></table></div>
+      </div>
+      <div class="card a" style="--i:3;display:grid;gap:12px" id="dutyCalc">
+        <span class="eyebrow">Practice · add up your load</span>
+        <label class="small" for="dwBody">Body weight <b id="dwBodyV" style="float:right">190 lb</b></label>
+        <input type="range" id="dwBody" min="110" max="330" step="5" value="190">
+        <label class="small" for="dwGear">Clothes, boots, belt and tools <b id="dwGearV" style="float:right">20 lb</b></label>
+        <input type="range" id="dwGear" min="5" max="40" step="1" value="20">
+        <label class="small" for="dwCarry">Carried up: sprayer, duster, traps <b id="dwCarryV" style="float:right">15 lb</b></label>
+        <input type="range" id="dwCarry" min="0" max="50" step="1" value="15">
+        <div class="bar-forest" style="align-items:center"><svg class="ico"><use href="#i-scale"/></svg><span id="dwOut" aria-live="polite"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PICKER -->
+  <section class="slide" data-label="Practice: pick the ladder">
+    <span class="eyebrow a">03 · Practice · right ladder for the job</span>
+    <h2 class="a" style="--i:1">Which ladder do you take off the truck?</h2>
+    <div class="scen-tabs a" style="--i:2" id="lpTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="lpBox"></div>
+  </section>
+
+  <!-- 9 HOTSPOT -->
+  <section class="slide" data-label="Practice: find the defects">
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:28px">
+      <div class="figbox a" style="--i:1;padding:10px" id="hsWrap">
+        <svg id="hsSvg" viewBox="0 0 560 370" role="group" aria-label="Stepladder and extension ladder. Select each part you think is defective." style="max-width:none;width:100%"></svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Practice · pre-use inspection</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">These two ladders have <span class="em">eight defects</span>. Find them.</h2>
+        <p class="a muted small" style="--i:2">Select any part that looks wrong. Some parts are fine. OSHA requires an inspection before each shift's first use, and again after anything that could damage the ladder.</p>
+        <div class="card a" style="--i:3;padding:14px 16px;min-height:118px" id="hsFb" aria-live="polite"><span class="eyebrow">Found <b id="hsCount">0</b> of 8</span><p style="margin-top:6px">Start with the rails, feet and steps.</p></div>
+        <div class="a" style="--i:4;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="hsReveal">Show all defects</button><button type="button" class="btn" id="hsReset">Reset</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 INSPECT + TAG -->
+  <section class="slide" data-label="Inspect and tag out">
+    <span class="eyebrow a">Inspection · every shift</span>
+    <h2 class="a" style="--i:1">Look at it, work it, then trust it</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-search"/></svg></div><h3>Look</h3><ul class="tick"><li>Rails: no cracks, splits, bends, dents or burn marks</li><li>Steps and rungs tight, straight, free of oil, grease, mud and pesticide residue</li><li>Both safety feet present, pads not worn smooth</li><li>Labels readable: duty rating and highest standing level</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>Work it</h3><ul class="tick"><li>Spreaders open fully and lock</li><li>Rung locks and pulley move freely and seat fully</li><li>Rope not frayed, cut or stiff</li><li>No loose rivets or bolts, no wobble</li><li>Fiberglass not chalky or showing loose fibers ("bloom")</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-tag"/></svg></div><h3>Found a defect?</h3><ul class="tick"><li>Stop. Don't use it, even for one quick job</li><li>Tag it <b>"Dangerous: Do Not Use"</b> right away (OSHA)</li><li>Tell your supervisor and get a replacement</li><li>Never repair it yourself with tape, wire or paint</li></ul></div>
+    </div>
+    <div class="callout warn a" style="--i:5"><svg class="ico"><use href="#i-alert"/></svg><span><b>Don't paint a ladder.</b> Paint hides cracks. Markings for identification only, on the side rail, so the inspection label and the rail stay visible.</span></div>
+  </section>
+
+  <!-- 11 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 12 PART TWO -->
+  <section class="slide forest" data-label="Part two">
+    <span class="eyebrow a">Part two</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Set it up right</h2>
+    <p class="lead a" style="--i:2">A good ladder set up badly is a bad ladder. The angle, the footing and what's overhead decide whether it stays put once you're on it.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Survey the spot: ground, traffic, overhead</li><li><span>02</span>Electrical hazards: the 10-foot rule</li><li><span>03</span>The 4-to-1 angle and 3 feet above the landing</li><li><span>04</span>Raising an extension ladder, step by step</li><li><span>05</span>Stepladder setup</li></ul>
+  </section>
+
+  <!-- 13 SURVEY -->
+  <section class="slide cc" data-label="Survey the spot">
+    <span class="eyebrow a">01 · Survey before you set</span>
+    <h2 class="a" style="--i:1">Thirty seconds of looking saves the fall</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Footing</h3><p>Firm, level and dry. Florida sand, wet sod and loose pavers shift under load. Use a leveler or a wide base board where allowed; never boxes, blocks or bricks.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>Doors and traffic</h3><p>In a doorway, passageway or driveway, lock or block the door, or barricade and post a sign. Tell the customer you're working there.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Overhead</h3><p>Power lines, service drops, light fixtures, ceiling fans, gutters that won't bear weight, and active nests. Look up before the ladder goes up.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-users"/></svg></div><h3>People and pets</h3><p>Keep kids, pets and the customer out from under the ladder. A dog bumping the base can knock it out.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Sprinklers and wet surfaces</h3><p>Check for irrigation heads that may come on, and wet pool decks. OSHA: on slippery surfaces, the ladder must be secured and stabilized.</p></div>
+      <div class="card a" style="--i:7"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Wind and weather</h3><p>Gusts push an extension ladder sideways. If the wind is moving the ladder or you, don't climb (Part three).</p></div>
+    </div>
+  </section>
+
+  <!-- 14 ELECTRICAL -->
+  <section class="slide" data-label="Electrical hazards" data-alert="1">
+    <div class="split" style="gap:32px">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">02 · Electrical hazards</span>
+        <h2 class="a" style="--i:1">Ten feet from any overhead line. <span class="red">Always.</span></h2>
+        <p class="a muted" style="--i:2">OSHA requires unqualified workers to keep themselves and anything conductive at least <b>10 feet</b> from overhead lines (more for lines over 50 kV). That includes the ladder while you carry it, raise it and lower it.</p>
+        <ul class="tick a" style="--i:3">
+          <li>Assume every line is live, including the service drop to the house</li>
+          <li>Carry and raise the ladder <b>away from</b> lines; look up the whole time</li>
+          <li>Fiberglass only near electricity, and only clean and dry: dirt and moisture conduct</li>
+          <li>Can't keep 10 feet? Don't set up. Call your supervisor; the utility handles it</li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="figbox a" style="--i:2">
+          <svg viewBox="0 0 300 200" aria-hidden="true" style="max-width:300px">
+            <path d="M10 40Q150 70 290 36" fill="none" stroke="var(--ink)" stroke-width="2"/>
+            <path class="zap" d="M10 40Q150 70 290 36" fill="none" stroke="var(--danger)" stroke-width="42" stroke-linecap="round" opacity=".10"/>
+            <path d="M150 88v14M150 112v14" stroke="var(--danger)" stroke-width="1.6"/>
+            <text x="160" y="112" font-size="12" fill="var(--danger)" font-family="Helvetica Neue,Arial">10 ft minimum</text>
+            <path d="M10 190H290" stroke="var(--line)" stroke-width="2"/>
+            <path d="M120 190L150 128M134 190L164 128" stroke="var(--brand-600)" stroke-width="2.4" fill="none"/>
+            <path d="M124 182h14M128 172h14M132 162h14M136 152h14M140 142h14M144 133h14" stroke="var(--brand-600)" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="callout danger a" style="--i:4"><svg class="ico"><use href="#i-bolt"/></svg><span><b>If someone contacts a line:</b> don't touch them or the ladder. Call 911, keep everyone back, then call your supervisor.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 4:1 CALCULATOR -->
+  <section class="slide" data-label="The 4-to-1 rule">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · The 4-to-1 rule</span>
+        <h2 class="a" style="--i:1">1 foot out for every 4 feet up</h2>
+        <p class="a muted small" style="--i:2">Measure the height to where the ladder <b>touches</b> the support (the gutter or wall), not the ladder's length. Divide by 4: that's how far the feet sit from the wall. It puts the ladder at about 75 degrees.</p>
+        <div class="card a" style="--i:3;display:grid;gap:10px;padding:16px">
+          <label class="small" for="frH">Height to the support point <b id="frHV" style="float:right">16 ft</b></label>
+          <input type="range" id="frH" min="6" max="28" step="1" value="16">
+          <div class="grid g2" style="gap:8px" aria-live="polite">
+            <div><span class="eyebrow">Base from wall</span><div id="frBase" style="font-size:26px;font-variant-numeric:tabular-nums">4 ft 0 in</div></div>
+            <div><span class="eyebrow">Ladder to take</span><div id="frSize" style="font-size:26px;font-variant-numeric:tabular-nums">24 ft</div></div>
+          </div>
+          <p class="small muted" id="frNote"></p>
+        </div>
+        <div class="callout a" style="--i:4;padding:10px 14px"><svg class="ico"><use href="#i-hand"/></svg><span class="small"><b>Field check:</b> toes at the feet, arms straight out. Your palms should land on a rung.</span></div>
+      </div>
+      <div class="figbox a" style="--i:2;padding:10px">
+        <svg id="frSvg" viewBox="0 0 345 325" role="img" aria-label="Ladder at the 4 to 1 angle against a wall" style="max-width:none;width:100%"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 EXTENSION ORDER -->
+  <section class="slide cc" data-label="Practice: raise it in order">
+    <div class="split" style="grid-template-columns:1fr 1.25fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">04 · Practice · extension ladder setup</span>
+        <h2 class="a" style="--i:1">Put the setup in the right order</h2>
+        <p class="a muted" style="--i:2">Select the steps in the order you'd do them. One wrong step and the ladder is up in the wrong place, at the wrong angle, or unsecured.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span class="small"><b>Never</b> extend, shift or move a ladder while anyone is on it, and never tie two ladders together for more length.</span></div>
+        <div id="exFb" aria-live="polite"></div>
+      </div>
+      <div class="order a" style="--i:2" id="exOrder"></div>
+    </div>
+  </section>
+
+  <!-- 17 STEPLADDER -->
+  <section class="slide" data-label="Stepladder setup">
+    <div class="split" style="gap:32px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">05 · Stepladder setup</span>
+        <h2 class="a" style="--i:1">Fully open, locked, level, square to the work</h2>
+        <ol class="steps a" style="--i:2">
+          <li style="padding:9px 0;font-size:15px"><span class="num">1</span><span>Open it all the way and <b>lock both spreaders</b>. A half-open stepladder folds under you.</span></li>
+          <li style="padding:9px 0;font-size:15px"><span class="num">2</span><span>All four feet flat on firm, level ground. Rock it: <b>no wobble</b>.</span></li>
+          <li style="padding:9px 0;font-size:15px"><span class="num">3</span><span>Face the work with the steps toward it, close enough that you don't reach.</span></li>
+          <li style="padding:9px 0;font-size:15px"><span class="num">4</span><span>Climb the front only, unless it is a two-sided ladder built for it. Never straddle the top.</span></li>
+          <li style="padding:9px 0;font-size:15px"><span class="num">5</span><span>Nothing left on steps or the top cap. The pail shelf holds a pail, not a person.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-ladder"/></svg></div><h3>Length rule of thumb</h3><p>Standing where you're allowed, you can reach about 3 feet above the ladder's height. Ceiling at 9 feet: a 6-foot stepladder. At 11 feet: an 8-foot. If you need the top steps, get a taller ladder.</p></div>
+        <div class="callout danger a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Never stand on the top cap or the top step.</b> OSHA prohibits both, and the Clements rule goes further: stay off the top two steps. Part three shows exactly where that leaves you.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 19 PART THREE -->
+  <section class="slide forest" data-label="Part three">
+    <span class="eyebrow a">Part three</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Climb it and work from it</h2>
+    <p class="lead a" style="--i:2">Most falls happen while climbing or reaching, not from a ladder that fails. How you move on the ladder matters as much as how it's set.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Three points of contact and the belt-buckle rule</li><li><span>02</span>Practice: where can you stand?</li><li><span>03</span>Treating overhead from a ladder</li><li><span>04</span>Attic ladders and roofs: when not to go up</li><li><span>05</span>Florida weather</li></ul>
+  </section>
+
+  <!-- 20 THREE POINTS -->
+  <section class="slide" data-label="Three points of contact">
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:32px">
+      <div class="figbox a" style="--i:1">
+        <svg class="climb" viewBox="0 0 240 300" aria-hidden="true" style="max-width:250px">
+          <rect class="buckle" x="78" y="10" width="84" height="285" rx="6"/>
+          <path d="M80 296V10M160 296V10" stroke="var(--brand-700)" stroke-width="3" fill="none"/>
+          <path d="M80 270h80M80 230h80M80 190h80M80 150h80M80 110h80M80 70h80M80 30h80" stroke="var(--brand-500)" stroke-width="2.4"/>
+          <circle cx="120" cy="96" r="14" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M120 110v62M120 172l-20 58M120 172l20 58M120 124l-26-14M120 124l26-14" stroke="var(--ink)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <circle class="pt p1" cx="94" cy="110" r="8"/><circle class="pt p2" cx="146" cy="110" r="8"/>
+          <circle class="pt p3" cx="100" cy="230" r="8"/><circle class="pt p4" cx="140" cy="230" r="8"/>
+          <path d="M108 168h24" stroke="var(--brand-600)" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Climbing</span>
+        <h2 class="a" style="--i:1">Three points on the ladder. Belt buckle between the rails.</h2>
+        <ul class="tick a" style="--i:2">
+          <li><b>Three points of contact:</b> two hands and a foot, or two feet and a hand, at all times. Move one limb at a time.</li>
+          <li><b>Face the ladder</b> going up and coming down. OSHA requires it.</li>
+          <li><b>Hands free.</b> Tools in a belt or pouch; raise the sprayer or duster with a hand line, or have it handed up. Nothing in your hands that could pull you off balance.</li>
+          <li><b>Belt-buckle rule:</b> keep your belt buckle (your center) inside the rails. If you have to lean past a rail, climb down and move the ladder.</li>
+          <li><b>Clean, slip-resistant boots.</b> Wipe off wet grass, mud and product before you step on.</li>
+          <li><b>One person</b> on a ladder at a time, unless it's built for two.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 STANDING LEVEL -->
+  <section class="slide" data-label="Practice: where can you stand?">
+    <span class="eyebrow a">02 · Practice · highest standing level</span>
+    <h2 class="a" style="--i:1">Select a step or rung. Can you stand there?</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr 1.25fr;gap:22px;align-items:start" id="slWrap">
+      <div class="a" style="--i:2"><span class="eyebrow">Stepladder</span><div class="lad" id="slStep"></div></div>
+      <div class="a" style="--i:3"><span class="eyebrow">Extension ladder · top section</span><div class="lad ext" id="slExt"></div></div>
+      <div class="grid a" style="--i:4;gap:12px">
+        <div class="card" id="slFb" aria-live="polite" style="min-height:150px"><span class="eyebrow">Your answer</span><p style="margin-top:6px">Pick any step on either ladder.</p></div>
+        <div class="callout" style="padding:10px 14px"><svg class="ico"><use href="#i-book"/></svg><span class="small">The label marks the manufacturer's <b>highest standing level</b>. On a stepladder the Clements rule (off the top two steps) can be stricter: follow whichever is lower. On an extension ladder, nothing above the 4th rung from the top.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 TREATING OVERHEAD -->
+  <section class="slide cc" data-label="Treating from a ladder">
+    <span class="eyebrow a">03 · Treating overhead</span>
+    <h2 class="a" style="--i:1">A wasp nest on a ladder is two hazards at once</h2>
+    <div class="grid g2" style="gap:16px">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Treat from the ground first</h3><p>An extension wand, pole duster or aerosol with a long straw often reaches eaves and soffits without a ladder at all. The safest climb is the one you don't make.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-route"/></svg></div><h3>If you must climb, plan the exit</h3><p>Set the ladder to the side of the nest, not under it, so a startled colony doesn't send you backward. Know your way down before you treat.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-glasses"/></svg></div><h3>PPE for overhead work</h3><p>Product falls toward your face. Wear eye protection on every overhead application, plus whatever the label requires (FC-03).</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-hand"/></svg></div><h3>One hand for the ladder</h3><p>Working with one hand means the other holds the ladder. Keep the belt buckle inside the rails. Don't lean back to spray.</p></div>
+    </div>
+    <div class="callout warn a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Allergic to stings, or the colony is large and active?</b> Don't climb to it. Call your supervisor for a plan.</span></div>
+  </section>
+
+  <!-- 23 ATTIC + ROOF -->
+  <section class="slide" data-label="Attics and roofs">
+    <span class="eyebrow a">04 · Attic ladders and roofs</span>
+    <h2 class="a" style="--i:1">Know when not to go up</h2>
+    <div class="grid g2" style="gap:16px">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-door"/></svg></div><h3>The customer's attic ladder</h3>
+        <ul class="tick"><li>Open it fully. Legs flat on the floor, the sections in a straight line, hinges locked</li><li>Check for loose bolts, cracked steps, a hatch spring that is broken, legs cut too short or too long</li><li>Check the rating label. Older units are often 250 lb or less</li><li>Climb facing it. Hand gear up on a second trip or set it in the hatch first</li><li>Loose, cracked or wobbling? Use our own stepladder and email technotes@clementspestcontrol.com</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-home"/></svg></div><h3>Don't go up when</h3>
+        <ul class="tick rdot"><li>You haven't cleared roof access with your supervisor</li><li>The roof is wet, dewy, steep, tile or metal: tile cracks and metal is slick</li><li>The ladder can't be secured or can't extend 3 feet above the edge</li><li>Wind is gusting, or there's thunder or lightning</li><li>You're near the edge without fall protection: OSHA requires it at 4 feet or more</li><li>You don't feel safe. That alone is enough</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-thermo"/></svg><span><b>Attic heat hits balance first.</b> Florida attics can pass 120°F. Climb down slowly after attic work, and stop if you feel dizzy.</span></div>
+  </section>
+
+  <!-- 24 WEATHER -->
+  <section class="slide" data-label="Florida weather">
+    <span class="eyebrow a">05 · Florida weather</span>
+    <h2 class="a" style="--i:1">The forecast is part of the setup</h2>
+    <div class="grid g4">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-storm"/></svg></div><h3>Lightning</h3><p>Hear thunder? Get off the ladder and into the truck. Wait 30 minutes after the last thunder before you go back up. Afternoon storms come fast.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wind"/></svg></div><h3>Wind</h3><p>Gusts catch an extension ladder like a sail, during raising and while you're on it. If it's moving the ladder or you, wait or reschedule.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Rain and dew</h3><p>Wet rungs, wet boots, wet sod. Morning dew on a roof or a ladder is as slick as rain. Dry the rungs and your soles before climbing.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-sun"/></svg></div><h3>Heat</h3><p>Aluminum gets hot enough to burn in the sun. Fatigue and dehydration cost you balance. Drink water and take breaks.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-clock"/></svg><span>Rescheduling a ladder job for weather is the right call, not a missed stop. Tell your supervisor and the office so the customer hears from us.</span></div>
+  </section>
+
+  <!-- 25 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 26 PART FOUR -->
+  <section class="slide forest" data-label="Part four">
+    <span class="eyebrow a">Part four</span>
+    <h2 class="display a" style="--i:1;font-size:clamp(34px,4.6vw,56px)">Transport, storage, and when it goes wrong</h2>
+    <p class="lead a" style="--i:2">A ladder that flies off a truck on I-95 is as dangerous as one that slips off a gutter. And when someone does fall, the first minutes matter.</p>
+    <ul class="toc a" style="--i:3"><li><span>01</span>Securing ladders on the truck, and storing them</li><li><span>02</span>Practice: what would you do?</li><li><span>03</span>If someone falls</li></ul>
+  </section>
+
+  <!-- 27 TRUCK + STORAGE -->
+  <section class="slide" data-label="Truck and storage">
+    <span class="eyebrow a">01 · On the truck and in the warehouse</span>
+    <h2 class="a" style="--i:1">Tie it down at both ends, every time you drive</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-truck"/></svg></div><h3>On the rack</h3><ul class="tick"><li>Locked into the rack and strapped at front and rear</li><li>Walk around and check it before every drive, not just in the morning</li><li>Florida law: a load must not shift, fall or blow off</li><li>Rack latches and straps are part of your truck inspection</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-flag"/></svg></div><h3>Rear overhang</h3><ul class="tick"><li>Sticking out <b>4 feet or more</b> past the back of the truck needs a red flag at least <b>18 inches square</b> at the end</li><li>At night: red lamps and reflectors instead (FS 316.228)</li><li>Better: a rack that keeps it inside the truck's length</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>Storage</h3><ul class="tick"><li>Warehouse: on the wall, secured with a ratchet strap so it can't fall</li><li>Keep fiberglass out of constant sun when you can; UV breaks it down</li><li>Away from heat, chemicals and traffic</li><li>Tagged ladders stay apart until repaired or discarded</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-eye"/></svg><span><b>Carrying it at the stop:</b> carry it level, front end slightly raised, and look up for lines and fixtures. Long extension ladders are a two-person carry.</span></div>
+  </section>
+
+  <!-- 28 SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do?">
+    <span class="eyebrow a">02 · Practice · scenario decisions</span>
+    <h2 class="a" style="--i:1">What would you do?</h2>
+    <div class="scen-tabs a" style="--i:2" id="scTabs"></div>
+    <div class="grid a" style="--i:3;gap:12px" id="scBox"></div>
+  </section>
+
+  <!-- 29 FALL RESPONSE -->
+  <section class="slide cc" data-label="If someone falls" data-alert="1">
+    <div class="split" style="gap:32px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · If someone falls</span>
+        <h2 class="a" style="--i:1">Care first. Then tell your supervisor.</h2>
+        <ol class="steps a" style="--i:2">
+          <li style="padding:8px 0;font-size:15px"><span class="num red">1</span><span><b>Call 911</b> for a head strike, neck or back pain, unconsciousness, a possible broken bone or heavy bleeding.</span></li>
+          <li style="padding:8px 0;font-size:15px"><span class="num red">2</span><span><b>Don't move them</b> if a head, neck or back injury is possible, unless they're in danger where they are.</span></li>
+          <li style="padding:8px 0;font-size:15px"><span class="num">3</span><span><b>Make the area safe.</b> Power line involved? Stay back and tell 911.</span></li>
+          <li style="padding:8px 0;font-size:15px"><span class="num">4</span><span><b>Tell your direct supervisor</b> right away, however minor it seems.</span></li>
+          <li style="padding:8px 0;font-size:15px"><span class="num">5</span><span><b>Photos and witnesses</b>, the ladder and how it was set. Tag the ladder out.</span></li>
+          <li style="padding:8px 0;font-size:15px"><span class="num">6</span><span><b>Workplace Accident Report the same day</b>, even if you feel fine (CW-09).</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>Fell on your own?</b> Check yourself before you get up. If you can't move or are badly hurt, call 911 first.</span></div>
+        <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>Near misses count</h3><p>The ladder slid but you caught it. A foot slipped off a wet rung. Report it. Every near miss is a fall we get to prevent for free.</p></div>
+        <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-phone"/></svg></div><h3>Customer's property damaged?</h3><p>Screen, tile, gutter, fixture: tell the customer honestly and tell your supervisor the same day.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it at the truck and on a job</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these before FC-06 is complete. Use this list to practice.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Read the duty rating and highest standing level on the label of each ladder on your truck</label></li>
+      <li><label><input type="checkbox" id="f2"> Inspect a stepladder and an extension ladder, and explain how you'd tag one out</label></li>
+      <li><label><input type="checkbox" id="f3"> Release, carry and return the ladder to the rack, strapped at both ends</label></li>
+      <li><label><input type="checkbox" id="f4"> Survey a setup spot: footing, doors, traffic and overhead lines</label></li>
+      <li><label><input type="checkbox" id="f5"> Set an extension ladder at 4-to-1, 3 feet above the edge, secured, and pass the arm check</label></li>
+      <li><label><input type="checkbox" id="f6"> Open and lock a stepladder and climb it with three points of contact</label></li>
+      <li><label><input type="checkbox" id="f7"> Stay inside the rails and below the highest standing level while working</label></li>
+      <li><label><input type="checkbox" id="f8"> Check a customer's attic ladder and explain when you'd use our own instead</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc06:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc06:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-06", "titleHtml": "Ladder Safety", "nextHtml": "FC-07 \u00b7 Vehicle Standards", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Choose it and check it',q:'Last stop of the day, a five-minute job at a soffit. As you set up, you notice one rung lock on the extension ladder won\'t seat fully. What do you do?',o:['Use it carefully, since it\'s a short job','Wrap the lock with tape so it holds, then climb','Have the customer hold the base while you work','Tag it "Dangerous: Do Not Use," tell your supervisor, and reschedule or get another ladder'],a:3,e:'A ladder with any defect is tagged out immediately and stays out of service until it\'s repaired or replaced (OSHA 1910.23). No field repairs, no exceptions for short jobs.'},
+    2:{t:'Checkpoint 2 · Set it up right',q:'The gutter you\'ll rest the ladder on is 20 feet above the ground. How far from the wall should the ladder\'s feet be?',o:['2 feet','5 feet','10 feet','It doesn\'t matter if someone foots it'],a:1,e:'1 foot out for every 4 feet up, measured to the support point: 20 ÷ 4 = 5 feet. That sets the ladder at about 75 degrees.'},
+    3:{t:'Checkpoint 3 · Climb it and work from it',q:'On a 6-foot stepladder in a garage, the fly light is still just out of reach from the highest step you\'re allowed on. What do you do?',o:['Step up to the top step for a second','Stand on the pail shelf','Lean out to the side and stretch','Climb down and get a taller ladder'],a:3,e:'The top cap, top step and pail shelf are never standing surfaces, and leaning past the rails breaks the belt-buckle rule. Needing to go higher means you need a taller ladder.'},
+    4:{t:'Checkpoint 4 · When it goes wrong',q:'A coworker falls about six feet from a ladder onto a driveway. He hit his head, says his neck hurts, and wants to get up and keep working. What do you do?',o:['Help him up and walk him to the truck','Call 911 and keep him still unless he\'s in danger, then call your supervisor','Drive him to urgent care yourself','Call your supervisor and wait for instructions before doing anything'],a:1,e:'A head strike with neck pain is a 911 call. Don\'t move him unless he\'s in danger where he is. Then notify your supervisor, and the accident report is completed the same day.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'How often does OSHA require a ladder to be inspected?',o:['Once a month','Before its first use in each work shift, and more often if needed','Once a year, by the manufacturer','Only after a fall'],a:1,e:'OSHA 1910.23(b)(9): before initial use in each work shift, and more frequently as necessary, such as after the ladder is dropped.'},
+    {k:'Multiple choice',q:'A ladder\'s duty rating has to cover what?',o:['Your body weight only','Your weight plus your tools only','You, your clothing and boots, your tools, and anything you carry','The weight of the ladder itself'],a:2,e:'The maximum intended load includes the worker and all tools, equipment and materials carried.'},
+    {k:'Multiple choice',q:'Which ANSI ladder type should never be used for work?',o:['Type IAA','Type IA','Type I','Type III'],a:3,e:'Type III (200 lb) is light household duty. Professional work calls for Type I or higher, and your total load decides which.'},
+    {k:'Multiple choice',q:'Using the 4-to-1 rule, how far from the wall do the feet go if the support point is 12 feet up?',o:['3 feet','2 feet','4 feet','6 feet'],a:0,e:'12 ÷ 4 = 3 feet. Measure the height to the support point, not the ladder\'s length.'},
+    {k:'Multiple choice',q:'When an extension ladder is used to get onto a roof or other upper landing, how far must the side rails extend above it?',o:['1 foot','2 feet','At least 3 feet','5 feet'],a:2,e:'OSHA 1910.23(c)(11): at least 3 feet above the landing, so you have something to hold as you step on and off.'},
+    {k:'Multiple choice',q:'What is the minimum distance an unqualified worker and a ladder must stay from an overhead power line (up to 50 kV)?',o:['3 feet','6 feet','8 feet','10 feet'],a:3,e:'OSHA 1910.333(c)(3): 10 feet, more for higher-voltage lines. That includes while carrying, raising and lowering the ladder.'},
+    {k:'True or false',q:'A fiberglass ladder can safely touch a power line because fiberglass doesn\'t conduct electricity.',o:['True','False'],a:1,e:'False. Fiberglass resists conduction only when clean and dry, and you still must keep 10 feet away. Dirt and moisture conduct.'},
+    {k:'Multiple choice',q:'What does "three points of contact" mean?',o:['Two hands and a foot, or two feet and a hand, on the ladder at all times','Both feet plus your hip against a rail','One hand, one foot and a coworker holding the base','Two feet and the tool you are carrying'],a:0,e:'Move one limb at a time so three stay on the ladder. That\'s why tools go in a belt or get raised on a hand line.'},
+    {k:'Multiple choice',q:'What is the belt-buckle rule?',o:['Keep your belt buckle centered between the side rails while you work','Your belt buckle should never be above the top step','Clip your belt to the top rung','Loosen your belt before climbing'],a:0,e:'If your center goes past a rail, the ladder can tip sideways. Climb down and move the ladder instead of reaching.'},
+    {k:'True or false',q:'OSHA allows standing on the top step of a stepladder if a coworker holds the ladder.',o:['True','False'],a:1,e:'False. OSHA 1910.23(c)(8): the top cap and top step of a stepladder are never used as steps. Clements also keeps you off the second step from the top.'},
+    {k:'Multiple choice',q:'What is the highest standing level on an extension ladder?',o:['The top rung','The 2nd rung from the top','The 3rd rung from the top','The 4th rung from the top'],a:3,e:'Ladder labels mark the 4th rung from the top. Above it there\'s nothing left to hold, and your weight can push the top off the wall.'},
+    {k:'Scenario',q:'In the warehouse you find a ladder with tape wrapped around a cracked side rail. What do you do?',o:['Use it if the tape is tight','Add more tape to be safe','Tag it "Dangerous: Do Not Use" and tell your supervisor','Paint over it so it looks right'],a:2,e:'Tape hides damage, and field repairs aren\'t allowed. Tag it out right away so no one else uses it.'},
+    {k:'Multiple choice',q:'Why shouldn\'t ladders be painted?',o:['Paint makes rungs too slippery to grip','Paint voids the warranty color code','Paint attracts insects','Paint can hide cracks and other defects'],a:3,e:'A coat of paint hides the cracks an inspection is meant to find. Markings for identification only.'},
+    {k:'Scenario',q:'The customer\'s pull-down attic ladder has a cracked step and a loose hinge bolt. What\'s the best move?',o:['Don\'t use it. Use our own stepladder if the access can be done safely, and email the condition to technotes@clementspestcontrol.com','Climb carefully on the outside edges of the steps','Ask the customer to hold it steady','Use it and don\'t mention it'],a:0,e:'It isn\'t our ladder and it failed your check. Use a safe alternative or call your supervisor, and document the hazard so the account is updated.'},
+    {k:'Multiple choice',q:'You\'re on a ladder and hear thunder, but it isn\'t raining yet. What do you do?',o:['Keep working until it rains','Switch to a fiberglass ladder and continue','Get down and into the truck; wait 30 minutes after the last thunder','Only stop if you see lightning nearby'],a:2,e:'If you can hear thunder, you\'re close enough to be struck. A ladder makes you the highest point. Wait 30 minutes after the last thunder.'},
+    {k:'True or false',q:'A stepladder must be fully opened with its spreaders locked before you climb it.',o:['True','False'],a:0,e:'True. A partly open stepladder can fold under you. Never lean a closed stepladder against a wall and climb it like a straight ladder.'},
+    {k:'Multiple choice',q:'Under Florida law, when does a ladder overhanging the back of your truck need a red flag?',o:['When it extends 2 feet or more; any rag will do','When it extends 6 feet or more; a 12-inch orange flag','Never, as long as it\'s strapped','When it extends 4 feet or more; a red flag at least 18 inches square'],a:3,e:'FS 316.228: 4 feet or more of rear overhang needs red flags at least 18 inches square by day, and red lamps and reflectors at night.'},
+    {k:'Scenario',q:'At a commercial account you need to set a stepladder in front of a doorway staff use. What do you do?',o:['Lock or block the door, or barricade it and post a warning, and tell the manager','Prop the door open and work fast','Set up and hope no one comes through','Stand guard yourself while on the ladder'],a:0,e:'OSHA requires ladders in doorways, passageways and driveways to be secured or protected by a barricade. Let the people on site know.'},
+    {k:'Multiple choice',q:'Which of these is a reason to stay off a roof?',o:['The ladder is fiberglass','The ladder extends 3 feet above the edge','Morning dew on a tile roof','Your supervisor approved the roof access'],a:2,e:'Wet or dewy roofs, tile, metal and steep pitches are all reasons not to go up. Tile also cracks underfoot, which damages the customer\'s roof.'},
+    {k:'Scenario',q:'You slip off the bottom rung, land on your feet, and feel fine. What now?',o:['Nothing, since no one was hurt','Tell your supervisor right away and complete the report the same day','Mention it at the next team meeting','Tell a coworker so they\'re careful'],a:1,e:'Report every injury and near miss to your supervisor immediately and complete the written report the same day (CW-09). Soreness can show up later.'}
+  ];
+
+  var REDUCE=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function idxOf(label){return slides.findIndex(function(s){return s.dataset.label===label})}
+
+  /* ---------- duty rating calculator ---------- */
+  var RAT=[{r:200,t:'Type III'},{r:225,t:'Type II'},{r:250,t:'Type I'},{r:300,t:'Type IA'},{r:375,t:'Type IAA'}];
+  function duty(){
+    var b=+$('#dwBody').value,g=+$('#dwGear').value,c=+$('#dwCarry').value,tot=b+g+c;
+    $('#dwBodyV').textContent=b+' lb';$('#dwGearV').textContent=g+' lb';$('#dwCarryV').textContent=c+' lb';
+    var pick=null;RAT.forEach(function(x){if(!pick&&x.r>=tot&&x.r>200)pick=x});
+    $$('#dutyTable tbody tr').forEach(function(tr){var r=+tr.dataset.r;tr.classList.toggle('hit',!!pick&&r===pick.r);tr.classList.toggle('under',r<tot||r===200)});
+    $('#dwOut').innerHTML='<b>Total load: '+tot+' lb.</b> '+(pick?'Minimum: <b>'+pick.t+' ('+pick.r+' lb)</b>. A higher rating is always fine. Type III is never a work ladder.':'That is over every standard rating. Do not climb. Talk to your supervisor about another way to reach the work.');
+  }
+  ['#dwBody','#dwGear','#dwCarry'].forEach(function(s){$(s).addEventListener('input',duty)});duty();
+
+  /* ---------- right ladder for the job ---------- */
+  var LOPT=['6-ft fiberglass stepladder','8-ft fiberglass stepladder','24-ft fiberglass extension ladder','28-ft aluminum extension ladder','The customer\'s attic ladder, after you check it','Don\'t climb: treat from the ground or call your supervisor'];
+  var LSC=[
+    {n:'Fly light',job:'A restaurant kitchen. The fly light is mounted on the wall at about 11 feet. Level tile floor, open space below.',a:1,why:['Too short. To reach 11 feet from a 6-footer you\'d end up on the top steps.','Right. An 8-foot stepladder reaches about 11 feet from an allowed step, and the open floor suits a self-supporting ladder.','An extension ladder needs a solid wall to lean on and a 4-to-1 footprint. Overkill in a kitchen, and it can mar the wall.','Too long, and aluminum near kitchen wiring and equipment is the wrong material.','There is no attic ladder here.','A stepladder makes this a safe, routine job. No need to escalate.']},
+    {n:'Roofline gap',job:'Roof rat entry gap at the fascia of a two-story home. Gutter edge at about 15 feet. Firm, level ground; the service drop is on the far side of the house.',a:2,why:['Far too short.','Far too short.','Right. A 15-foot support point needs about 21 feet of working length with the 3-foot extension, which a 24-foot ladder gives after overlap. Fiberglass in case you are nearer wiring than you think.','Aluminum conducts. Choose fiberglass whenever any electrical source is on the property, and this is longer than you need.','There is no attic access to this spot.','This one can be done safely with the right ladder and setup. Clear extension-ladder use with your supervisor first.']},
+    {n:'Garage attic',job:'Rodent inspection. The pull-down attic ladder in the garage opens fully, sits flat, has tight hardware, and its label says 300 lb. You plus gear weigh about 230 lb.',a:4,why:['You can\'t safely climb from a stepladder through a hatch onto joists.','You can\'t safely climb from a stepladder through a hatch onto joists.','Wrong tool for a ceiling hatch.','Wrong tool for a ceiling hatch.','Right. It checks out and is rated for your load. Climb facing it and hand the gear up separately.','No need: the ladder passed your check.']},
+    {n:'Crown molding',job:'Ghost ant trail along the crown molding in a living room with a 9-foot ceiling. Carpet over a concrete slab.',a:0,why:['Right. A 6-foot stepladder reaches about 9 feet from an allowed step. Fully open, spreaders locked.','Works, but heavier than you need and harder to place without marking walls. The 6-footer is the better fit.','An extension ladder against an interior wall is the wrong setup.','Wrong ladder and wrong material.','There is no attic ladder involved.','A stepladder makes this routine.']},
+    {n:'Bees by the power line',job:'Honey bee swarm in the soffit of a two-story home. The electrical service drop runs about 4 feet from the spot.',a:5,why:['Far too short.','Far too short.','Even fiberglass doesn\'t make it legal: you and the ladder must stay 10 feet from the line.','Aluminum next to a live service drop could kill you.','No attic access here.','Right. You can\'t keep 10 feet from the line. Don\'t set up. Call your supervisor for a plan.']}
+  ];
+  var lpT=$('#lpTabs'),lpB=$('#lpBox'),lpDone=store.get('lp')||{};
+  function showLP(n){
+    $$('button',lpT).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!lpDone[j])});
+    var s=LSC[n];
+    lpB.innerHTML='<div class="card" style="padding:14px 18px"><span class="eyebrow">The job</span><p style="margin-top:4px">'+s.job+'</p></div><div class="choices" style="grid-template-columns:1fr 1fr">'+LOPT.map(function(o,i){return '<button type="button" class="choice" id="lp'+n+'_'+i+'" data-i="'+i+'" style="padding:10px 14px;font-size:15px"><span class="k">'+'ABCDEF'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="lpFb" aria-live="polite"></div>';
+    $$('.choice',lpB).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i,ok=i===s.a;
+      $$('.choice',lpB).forEach(function(x){x.classList.remove('wrong')});
+      b.classList.add(ok?'right':'wrong');
+      $('#lpFb').innerHTML='<div class="fb'+(ok?'':' no')+'">'+(ok?'<b>Correct.</b> ':'<b>Not this one.</b> ')+s.why[i]+'</div>';
+      if(ok){lpDone[n]=1;store.set('lp',lpDone);$$('button',lpT)[n].classList.add('done');$$('.choice',lpB).forEach(function(x){x.disabled=true})}
+    })});
+  }
+  LSC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='lpt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showLP(i)});lpT.appendChild(b)});
+  showLP(0);
+
+  /* ---------- inspection hotspot drill ---------- */
+  var HS=[
+    {x:90,y:190,r:17,d:1,t:'Cracked side rail',e:'A crack in a rail can let go under load. Tag it out; rails are never repaired in the field.'},
+    {x:190,y:338,r:16,d:1,t:'Missing safety foot',e:'A bare rail end skids on tile and concrete and gouges floors. The source lesson is clear: no feet, no use.'},
+    {x:130,y:226,r:22,d:1,t:'Bent step',e:'A bent step has already been overloaded. It will fail sooner the next time.'},
+    {x:130,y:164,r:22,d:1,t:'Oil or grease on a step',e:'Grease, oil, mud and product residue put your boot on ice. Clean it off before use; if it won\'t come off, don\'t use it.'},
+    {x:189,y:239,r:16,d:1,t:'Bent, broken spreader',e:'A spreader that won\'t lock lets the stepladder fold under you. OSHA requires a working spreader or locking device.'},
+    {x:330,y:201,r:16,d:1,t:'Tape "repair" on a rail',e:'Tape, wire or straps over a rail hide damage. Field repairs are not allowed: tag it out and replace it.'},
+    {x:441,y:290,r:16,d:1,t:'Frayed rope',e:'A frayed rope can snap while you extend the fly section and drop it onto your hands or head.'},
+    {x:419,y:259,r:14,d:1,t:'Broken rung lock',e:'With one lock missing, the fly section can slide down under your weight. Both locks must seat fully over a rung.'},
+    {x:130,y:35,r:18,d:0,t:'Top cap',e:'Intact. And still never a step.'},
+    {x:71,y:342,r:14,d:0,t:'Safety foot',e:'Present, with tread on the pad. This one is fine.'},
+    {x:71,y:235,r:13,d:0,t:'Spreader',e:'Straight and locked. Fine.'},
+    {x:157,y:123,r:14,d:0,t:'Label',e:'Readable duty rating and standing-level label. Fine.'},
+    {x:130,y:104,r:16,d:0,t:'Step',e:'Tight, straight and clean. Fine.'},
+    {x:338,y:259,r:13,d:0,t:'Rung lock',e:'Hooked fully over the rung. Fine.'},
+    {x:441,y:116,r:12,d:0,t:'Pulley',e:'Turns freely, rope seated. Fine.'},
+    {x:331,y:341,r:13,d:0,t:'Ladder shoe',e:'Present and pivots. Fine.'},
+    {x:430,y:341,r:13,d:0,t:'Ladder shoe',e:'Present and pivots. Fine.'},
+    {x:380,y:56,r:16,d:0,t:'Fly rungs',e:'Straight and tight. Fine.'}
+  ];
+  var xL=function(y){return 70+(340-y)*40/300},xR=function(y){return 190-(340-y)*40/300};
+  function drawHS(){
+    var g='';
+    var ink='stroke="var(--ink)" stroke-width="3" stroke-linecap="round" fill="none"';
+    /* stepladder */
+    g+='<path d="M110 40L30 340M150 40L230 340" stroke="var(--brand-300)" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    g+='<path d="M70 340L110 40M190 340L150 40" '+ink+'/>';
+    g+='<rect x="96" y="28" width="68" height="14" rx="3" fill="var(--brand-100)" stroke="var(--ink)" stroke-width="2"/>';
+    [100,160,280].forEach(function(y){g+='<rect x="'+xL(y)+'" y="'+(y-4)+'" width="'+(xR(y)-xL(y))+'" height="8" rx="2" fill="var(--brand-100)" stroke="var(--ink)" stroke-width="1.6"/>'});
+    g+='<path d="M86 220Q130 240 174 220" stroke="var(--ink)" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M86 220Q130 240 174 220" stroke="var(--brand-100)" stroke-width="4" fill="none" stroke-linecap="round"/>';
+    g+='<ellipse cx="114" cy="161" rx="7" ry="3" fill="#3B3F3C"/><ellipse cx="136" cy="160" rx="9" ry="3" fill="#3B3F3C"/><path d="M114 164v7M138 163v10M150 162v5" stroke="#3B3F3C" stroke-width="2" stroke-linecap="round"/>';
+    g+='<path d="M85 180l8 5-7 4 9 5-6 5" stroke="var(--ink)" stroke-width="1.8" fill="none"/>';
+    g+='<rect x="58" y="336" width="24" height="9" rx="2" fill="var(--ink)"/><path d="M61 345v2M66 345v2M71 345v2M76 345v2" stroke="var(--ink)" stroke-width="1.4"/>';
+    g+='<circle cx="190" cy="338" r="2.5" fill="none" stroke="var(--ink)" stroke-width="1.4"/>';
+    g+='<path d="M84 235H58" stroke="var(--ink)" stroke-width="2.4"/><circle cx="71" cy="235" r="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>';
+    g+='<path d="M176 235L186 244M191 237L202 235" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>';
+    g+='<rect x="151" y="110" width="12" height="26" rx="2" fill="var(--surface)" stroke="var(--brand-600)" stroke-width="1.4"/><path d="M154 116h6M154 121h6M154 126h4" stroke="var(--brand-600)" stroke-width="1.2"/>';
+    /* extension ladder */
+    g+='<path d="M330 110V340M430 110V340" '+ink+'/>';
+    for(var y=140;y<=320;y+=30)g+='<path d="M330 '+y+'H430" stroke="var(--brand-300)" stroke-width="3"/>';
+    g+='<path d="M346 20V270M414 20V270" stroke="var(--brand-700)" stroke-width="3" stroke-linecap="round" fill="none"/>';
+    for(var y2=40;y2<=250;y2+=30)g+='<path d="M346 '+y2+'H414" stroke="var(--brand-600)" stroke-width="3"/>';
+    g+='<path d="M346 252q-12 0-12 8v6" stroke="var(--ink)" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    g+='<path d="M414 252l7 3" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><path d="M424 262l3 6" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+    g+='<rect x="322" y="189" width="16" height="24" rx="2" fill="#BFC7C2" stroke="var(--ink)" stroke-width="1.2"/><path d="M322 195l16-4M322 203l16-4M322 211l16-4" stroke="#8E9892" stroke-width="1"/>';
+    g+='<circle cx="441" cy="116" r="7" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><path d="M441 123V282M441 298V330" stroke="#8A6D4B" stroke-width="2.4"/>';
+    g+='<path d="M441 282l-6 6M441 284l5 7M441 286l-3 8M441 298l5-5M441 296l-6-5" stroke="#8A6D4B" stroke-width="1.4" stroke-linecap="round"/>';
+    g+='<rect x="320" y="336" width="22" height="10" rx="2" fill="var(--ink)"/><rect x="419" y="336" width="22" height="10" rx="2" fill="var(--ink)"/>';
+    g+='<text class="lbl" x="130" y="364" text-anchor="middle">STEPLADDER</text><text class="lbl" x="380" y="364" text-anchor="middle">EXTENSION</text>';
+    var n=0;
+    HS.forEach(function(h,i){g+='<g class="hs" id="hs'+i+'" tabindex="0" role="button" aria-label="'+h.t+'"><circle class="ring" cx="'+h.x+'" cy="'+h.y+'" r="'+h.r+'"/>'+(h.d?'<g class="badge"><circle cx="'+(h.x+h.r-2)+'" cy="'+(h.y-h.r+2)+'" r="8"/><text x="'+(h.x+h.r-2)+'" y="'+(h.y-h.r+6)+'" text-anchor="middle" id="hsb'+i+'"></text></g>':'')+'</g>'});
+    $('#hsSvg').innerHTML=g;
+    var found=[];
+    function hit(i){
+      var h=HS[i],el=$('#hs'+i);
+      if(h.d){if(found.indexOf(i)<0){found.push(i);$('#hsb'+i).textContent=found.length}el.classList.add('found')}
+      else el.classList.add('ok');
+      $('#hsCount').textContent=found.length;
+      var done=found.length===8;
+      $('#hsFb').innerHTML='<span class="eyebrow">Found <b id="hsCount">'+found.length+'</b> of 8</span><h3 style="margin:6px 0 4px;color:'+(h.d?'var(--danger)':'var(--positive)')+'">'+(h.d?'Defect: ':'')+h.t+'</h3><p class="small">'+h.e+(done?' <b>All eight found. Both ladders get tagged "Dangerous: Do Not Use."</b>':'')+'</p>';
+    }
+    HS.forEach(function(h,i){var el=$('#hs'+i);el.addEventListener('click',function(){hit(i)});el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();hit(i)}})});
+    $('#hsReveal').onclick=function(){HS.forEach(function(h,i){if(h.d&&found.indexOf(i)<0){found.push(i);$('#hsb'+i).textContent=found.length;$('#hs'+i).classList.add('found')}});$('#hsFb').innerHTML='<span class="eyebrow">All 8 shown</span><p class="small" style="margin-top:6px">Stepladder: cracked rail, missing foot, bent step, greasy step, broken spreader. Extension: tape over a rail, frayed rope, broken rung lock. Select any marker to read why it matters.</p>'};
+    $('#hsReset').onclick=drawHS;
+  }
+  drawHS();
+
+  /* ---------- 4:1 calculator ---------- */
+  var frCur=16,frAnim=null;
+  function ftin(v){var f=Math.floor(v),i=Math.round((v-f)*12);if(i===12){f++;i=0}return f+' ft '+i+' in'}
+  function frSize(H){var need=Math.sqrt(H*H+H*H/16)+3,S=[16,20,24,28,32,36,40];for(var k=0;k<S.length;k++){var ov=S[k]<=36?3:4;if(S[k]-ov>=need)return {s:S[k],need:need}}return {s:0,need:need}}
+  function frDraw(H){
+    var s=9,gY=288,wX=290,sy=gY-H*s,bx=wX-H/4*s,L=Math.sqrt(Math.pow(wX-bx,2)+Math.pow(gY-sy,2)),dx=(wX-bx)/L,dy=(sy-gY)/L;
+    var tx=wX+dx*3*s+3,ty=sy+dy*3*s,g='';
+    g+='<rect x="'+wX+'" y="'+sy+'" width="34" height="'+(gY-sy)+'" fill="var(--brand-50)" stroke="var(--brand-300)"/>';
+    g+='<path d="M'+(wX-6)+' '+sy+'h40" stroke="var(--brand-700)" stroke-width="4" stroke-linecap="round"/>';
+    g+='<path d="M10 '+gY+'H336" stroke="var(--ink)" stroke-width="2"/>';
+    /* measures */
+    g+='<path d="M'+bx+' '+(gY+12)+'H'+wX+'" stroke="var(--brand-600)" stroke-width="1.4"/><path d="M'+bx+' '+(gY+7)+'v10M'+wX+' '+(gY+7)+'v10" stroke="var(--brand-600)" stroke-width="1.4"/>';
+    g+='<text class="big" x="'+((bx+wX)/2)+'" y="'+(gY+28)+'" text-anchor="middle">'+ftin(Math.round(H)/4)+'</text>';
+    g+='<path d="M'+(wX+46)+' '+sy+'V'+gY+'" stroke="var(--brand-600)" stroke-width="1.4" stroke-dasharray="4 4"/>';
+    g+='<text class="big" x="'+(wX+42)+'" y="'+((sy+gY)/2)+'" text-anchor="middle" transform="rotate(-90 '+(wX+42)+' '+((sy+gY)/2)+')">'+Math.round(H)+' ft</text>';
+    /* ladder */
+    var lx1=bx,ly1=gY,lx2=tx,ly2=ty;
+    g+='<path d="M'+lx1+' '+ly1+'L'+lx2+' '+ly2+'" stroke="var(--brand-700)" stroke-width="6" stroke-linecap="round"/>';
+    var steps=Math.floor((L+3*s)/9);for(var k=1;k<steps;k++){var px=lx1+dx*k*9,py=ly1+dy*k*9;g+='<path d="M'+(px+dy*6)+' '+(py-dx*6)+'L'+(px-dy*6)+' '+(py+dx*6)+'" stroke="var(--brand-500)" stroke-width="2"/>'}
+    g+='<rect x="'+(bx-8)+'" y="'+(gY-4)+'" width="14" height="5" rx="1" fill="var(--ink)"/>';
+    g+='<text x="'+(tx-14)+'" y="'+(ty+4)+'" text-anchor="end">3 ft above the edge</text>';
+    var ar=34;g+='<path d="M'+(bx+ar)+' '+gY+'A'+ar+' '+ar+' 0 0 0 '+(bx+dx*ar)+' '+(gY+dy*ar)+'" stroke="var(--brand-400)" fill="none" stroke-width="1.6"/><text x="'+(bx+ar+6)+'" y="'+(gY-10)+'">75°</text>';
+    $('#frSvg').innerHTML=g;
+  }
+  function frSet(H,anim){
+    var r=frSize(H);
+    $('#frHV').textContent=H+' ft';$('#frBase').textContent=ftin(H/4);
+    $('#frSize').textContent=r.s&&r.s<=32?r.s+' ft':'Ask first';
+    $('#frNote').innerHTML='Ladder length to the support: '+ftin(Math.sqrt(H*H+H*H/16))+'. Add 3 ft above the edge and about 3 ft of section overlap. '+(r.s>32||!r.s?'<b>Over 32 ft is beyond a typical truck ladder: talk to your supervisor.</b>':'Check the label for the ladder\'s maximum working length.');
+    if(frAnim)cancelAnimationFrame(frAnim);
+    if(REDUCE||!anim){frCur=H;frDraw(H);return}
+    var from=frCur,t0=null;
+    function st(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/220),v=from+(H-from)*(1-Math.pow(1-p,3));frCur=v;frDraw(v);if(p<1)frAnim=requestAnimationFrame(st)}
+    frAnim=requestAnimationFrame(st);
+  }
+  $('#frH').addEventListener('input',function(){frSet(+this.value,true)});
+  frSet(16,false);
+  function frIntro(){var H=+$('#frH').value;if(REDUCE){frSet(H,false);return}frCur=6;frDraw(6);var from=6,t0=null;if(frAnim)cancelAnimationFrame(frAnim);function st(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/900),v=from+(H-from)*(1-Math.pow(1-p,3));frCur=v;frDraw(v);if(p<1)frAnim=requestAnimationFrame(st)}frAnim=requestAnimationFrame(st)}
+
+  /* ---------- extension ladder order ---------- */
+  var EX=['Inspect the ladder and survey the spot, looking up for power lines','Brace the feet against the base of the wall and walk the ladder up, hand over hand, until it stands upright','Extend the fly section with the rope until it will reach 3 feet above the edge, both rung locks seated','Move the feet out 1 foot for every 4 feet of height, both rails resting on the support','Check the footing: both feet level and firm, shoes set for the surface','Secure it: tie off the top, use a stabilizer, or have a second person foot the base','Do the arm check, test the first rung, then climb with three points of contact'];
+  var exOrd=[3,0,5,2,6,1,4],exN=0;
+  function renderEx(){
+    var box=$('#exOrder');box.innerHTML='';exN=0;$('#exFb').innerHTML='';
+    exOrd.forEach(function(ix){var b=document.createElement('button');b.type='button';b.id='ex'+ix;b.dataset.ix=ix;b.innerHTML='<span class="num">·</span><span>'+EX[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===exN){b.classList.add('placed');$('.num',b).textContent=exN+1;exN++;
+          if(exN===EX.length){$('#exFb').innerHTML='<div class="fb">Correct order. Inspect, raise, extend, set the angle, check the feet, secure, test. <button type="button" class="btn" id="exAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#exAgain').addEventListener('click',renderEx)}
+          else $('#exFb').innerHTML='';}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#exFb').innerHTML='<div class="fb no">Not yet. What has to be true before the next step is safe?</div>'}
+      });box.appendChild(b)});
+  }
+  renderEx();
+
+  /* ---------- standing level ---------- */
+  var SL={
+    step:[
+      {t:'Top cap',c:'cap',ok:0,e:'Never. It isn\'t a step, and OSHA prohibits standing on it.'},
+      {t:'Pail shelf',c:'shelf',ok:0,e:'Never. It folds and holds a pail or tools, not a person.'},
+      {t:'Top step',ok:0,e:'Never. OSHA prohibits the top step of a stepladder. Your knees have nothing to brace against.'},
+      {t:'2nd step from top',ok:0,e:'Not at Clements. The Clements rule keeps you off the top two steps. If you need it, you need a taller ladder.'},
+      {t:'3rd step from top',ok:1,e:'Yes. This is as high as you go at Clements, and only if the label allows it too. Hips can brace against the ladder; stay centered.'},
+      {t:'4th step',ok:1,e:'Yes. Face the ladder, three points of contact while climbing.'},
+      {t:'Bottom step',ok:1,e:'Yes. Even here: face the ladder and keep your belt buckle inside the rails.'}
+    ],
+    ext:[
+      {t:'Top rung',ok:0,e:'Never. Nothing above you to hold, and you push the top off the wall.'},
+      {t:'2nd rung from top',ok:0,e:'No. Too high to hold on and keep your balance.'},
+      {t:'3rd rung from top',ok:0,e:'No. Labels mark the 4th rung from the top as the highest standing level.'},
+      {t:'4th rung from top',ok:1,e:'Yes, the highest standing level. Rails at hand height above you to hold.'},
+      {t:'5th rung from top',ok:1,e:'Yes. Keep your belt buckle between the rails.'},
+      {t:'Stepping off at the roof edge',ok:0,e:'Only with roof access cleared by your supervisor, the ladder secured and extended 3 feet above the edge. Step off sideways from the rung level with the edge, never over the top.'}
+    ]
+  };
+  function renderSL(key,box){
+    SL[key].forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='sl'+key+i;b.className=r.c||'';b.innerHTML='<span>'+r.t+'</span><small>?</small>';
+      b.addEventListener('click',function(){$$('.lad button').forEach(function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');b.classList.add(r.ok?'yes':'no');$('small',b).textContent=r.ok?'OK':'No';
+        $('#slFb').innerHTML='<span class="eyebrow">'+(key==='step'?'Stepladder':'Extension ladder')+' · '+r.t+'</span><h3 style="margin:6px 0 4px;color:'+(r.ok?'var(--positive)':'var(--danger)')+'">'+(r.ok?'You can stand here':'Don\'t stand here')+'</h3><p class="small">'+r.e+'</p>'});
+      box.appendChild(b)});
+  }
+  renderSL('step',$('#slStep'));renderSL('ext',$('#slExt'));
+
+  /* ---------- scenario decisions ---------- */
+  var SC=[
+    {n:'Borrowed ladder',q:'Your fiberglass extension ladder is on the truck across a big yard. The customer offers his aluminum extension ladder, already leaning on the house.',o:['Use it; it\'s already set up','Use it, but only after a quick look','Thank him, then bring your own ladder and do your normal inspection and setup','Climb his ladder but skip the roof'],a:2,e:'You don\'t know its rating, condition or setup, and aluminum conducts. Use the ladder you inspected, set the way you set it.'},
+    {n:'Gust of wind',q:'Halfway up an extension ladder, a gust slides the top of the ladder along the gutter.',o:['Climb faster to finish before the next gust','Lean the other way to balance it','Hold on, then climb down steadily with three points of contact and wait it out or reschedule','Jump clear'],a:2,e:'Get down safely and get off the ladder until the wind drops. Rescheduling for weather is the right call; let your supervisor and the office know.'},
+    {n:'Dropped stepladder',q:'At the end of the day you notice a stepladder spreader is bent from when it slid off the tailgate this morning.',o:['Bend it back and keep using it','Tag it "Dangerous: Do Not Use," tell your supervisor, and get a replacement','Use it only for short jobs','Put it back on the rack and mention it next week'],a:1,e:'Damaged ladders are tagged out immediately and stay out of service until repaired or replaced. And a near miss on the tailgate is worth reporting too.'},
+    {n:'Just hold it',q:'The far end of the eave is out of reach. A coworker offers to hold the base so you can lean out and finish without moving the ladder.',o:['Climb down and move the ladder so your belt buckle stays inside the rails','Lean out, since he\'s holding it','Stand on one foot to reach farther','Hook a leg around the rail and reach'],a:0,e:'A person at the base can\'t stop a sideways tip once your weight goes past the rail. Moving the ladder takes a minute; a fall takes much longer to recover from.'},
+    {n:'New rack',q:'After a rack change, your extension ladder sticks out 5 feet past the back of the truck.',o:['It\'s fine; it\'s strapped','Tie a rag to the end','Put a red flag at least 18 inches square on the end (lamps at night) and tell your supervisor so the rack can be fixed','Drive only on side roads'],a:2,e:'Florida law (FS 316.228) requires the flag at 4 feet or more of rear overhang, and red lamps and reflectors at night. A rack that keeps the ladder inside the truck length is better still.'}
+  ];
+  var scT=$('#scTabs'),scB=$('#scBox'),scDone=store.get('sc')||{};
+  function showSC(n){
+    $$('button',scT).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!scDone[j])});
+    var s=SC[n];
+    scB.innerHTML='<div class="card" style="padding:14px 18px"><span class="eyebrow">Scenario '+(n+1)+' of '+SC.length+'</span><p style="margin-top:4px">'+s.q+'</p></div><div class="choices" style="grid-template-columns:1fr 1fr">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'" style="padding:10px 14px;font-size:15px"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="scFb" aria-live="polite"></div>';
+    $$('.choice',scB).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i,ok=i===s.a;$$('.choice',scB).forEach(function(x){x.classList.remove('wrong')});b.classList.add(ok?'right':'wrong');
+      $('#scFb').innerHTML='<div class="fb'+(ok?'':' no')+'">'+(ok?'<b>Right call.</b> '+s.e:'<b>Not the safest choice.</b> Try again.')+'</div>';
+      if(ok){scDone[n]=1;store.set('sc',scDone);$$('button',scT)[n].classList.add('done');$$('.choice',scB).forEach(function(x){x.disabled=true})}
+    })});
+  }
+  SC.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='sct'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showSC(i)});scT.appendChild(b)});
+  showSC(0);
+
+  var frIdx=idxOf('The 4-to-1 rule');
+  function onShow(i){if(i===frIdx)frIntro();}
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

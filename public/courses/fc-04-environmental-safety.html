@@ -1,0 +1,1254 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-04 Environmental Safety</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-04 Environmental Safety: pathway diagram, drift visual, inversion, weather cards, property map */
+.lbl{font-family:var(--font);font-size:9px;letter-spacing:.12em;fill:var(--muted);font-weight:400}
+.pathfig svg,.driftfig svg,.yard svg,.sweep svg{max-width:none;width:100%;height:auto}
+.pathfig .soil{fill:#ECEBE4}
+.pathfig .gw{fill:var(--brand-100)}
+.pathfig .house{fill:var(--surface);stroke:var(--brand-400);stroke-width:1.4}
+.pave{fill:#D5D9D6}
+.drain{fill:var(--ink)}
+.water{fill:var(--brand-200);stroke:var(--brand-500);stroke-width:1.2}
+.pathfig .well{fill:var(--surface);stroke:var(--brand-700);stroke-width:1.4}
+.pathfig .wellpipe{stroke:var(--brand-700);stroke-width:2;stroke-dasharray:3 3;fill:none}
+.pathfig .truck{fill:var(--brand-600)}
+.pth{fill:none;stroke:var(--brand-700);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:6 6;opacity:.12;transition:opacity .2s ease-in-out}
+.pth.on{opacity:1}
+.slide.on .pth.on{animation:flow 1.8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+#pathList button .num{flex-basis:28px;height:28px}
+
+/* drift */
+.driftfig{padding:10px 16px}
+.driftfig .ground{stroke:var(--brand-400);stroke-width:1.6}
+.driftfig .pond{stroke:var(--brand-500);stroke-width:8;stroke-linecap:round;opacity:.55}
+.driftfig .pline{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
+.driftfig .nozzle path{fill:none;stroke:var(--ink);stroke-width:1.6}
+.driftfig .nozzle path:first-child{fill:var(--ink)}
+.driftfig .tick{stroke:var(--line);stroke-width:1}
+.driftfig .dpath{fill:none;stroke:var(--brand-300);stroke-width:1.4;stroke-dasharray:3 4}
+.driftfig .drop{fill:var(--brand-600);offset-rotate:0deg;offset-distance:0%}
+.slide.on .driftfig .drop{animation:fly 3s linear infinite}
+.slide.on .driftfig .d2{animation-delay:1s}.slide.on .driftfig .d3{animation-delay:2s}
+@keyframes fly{0%{offset-distance:0%;opacity:0}8%{opacity:1}92%{opacity:1}100%{offset-distance:100%;opacity:0}}
+.driftfig .land{fill:none;stroke:var(--brand-700);stroke-width:2}
+.driftfig .land.off{stroke:var(--danger)}
+.driftfig .windarr{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;display:grid;gap:2px}
+.stat b{font-size:20px;font-weight:400;font-variant-numeric:tabular-nums}
+.stat b.far{color:var(--danger)}
+
+/* inversion */
+.invcard{display:grid;gap:10px;justify-items:start;align-content:start}
+.inv{width:100%;height:auto}
+.inv .warm,.inv .cool{transition:fill .3s ease-in-out}
+.inv.normal .warm{fill:var(--brand-50)}.inv.normal .cool{fill:var(--brand-100)}
+.inv.inv .warm{fill:var(--brand-100)}.inv.inv .cool{fill:var(--brand-50)}
+.inv .ground{stroke:var(--brand-500);stroke-width:2}
+.inv .mist{fill:var(--brand-600)}
+.slide.on .inv.normal .mist{animation:rise2 3.2s ease-out infinite}
+.slide.on .inv.inv .mist{animation:slide2 3.6s linear infinite}
+.slide.on .inv .m2{animation-delay:.8s}.slide.on .inv .m3{animation-delay:1.6s}
+@keyframes rise2{0%{transform:none;opacity:.9}100%{transform:translate(40px,-80px) scale(2.2);opacity:0}}
+@keyframes slide2{0%{transform:none;opacity:.9}90%{opacity:.8}100%{transform:translate(220px,-2px);opacity:0}}
+
+/* ticks list */
+.ticks{list-style:none;display:grid;gap:8px;font-size:15px}
+.ticks li{display:flex;gap:10px}
+.ticks li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-500);margin-top:9px}
+
+/* weather scenarios */
+.wx{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:start}
+.wxcard{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 18px;display:grid;gap:8px}
+.wxcard .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.10);padding-bottom:6px}
+.wxcard .row:last-child{border-bottom:0;padding-bottom:0}
+.wxcard .row span:first-child{color:var(--mint);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding-top:2px}
+.wxopts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wxopts .choice{justify-content:center;text-align:center}
+
+/* property map */
+.yard{padding:10px}
+.yard .lawn{fill:#EEF4F0}
+.yard .street{fill:#D5D9D6}
+.yard .canal{fill:var(--brand-200)}
+.feat{cursor:pointer}
+.feat .shape{stroke:var(--brand-700);stroke-width:1.4;transition:stroke-width .15s ease-in-out}
+.feat .zring{fill:none;stroke-width:3;opacity:0;pointer-events:all}
+.feat.z0 .zring{stroke:var(--danger);opacity:1}
+.feat.z1 .zring{stroke:#8F6400;opacity:1;stroke-dasharray:5 3}
+.feat.z2 .zring{stroke:var(--positive);opacity:1}
+.feat.sel .shape{stroke-width:3}
+.feat.bad .zring{animation:blink .6s ease-in-out 2}
+@keyframes blink{50%{opacity:.2}}
+.feat text{font-family:var(--font);font-size:9px;fill:var(--ink);font-weight:400;letter-spacing:.06em}
+.feat:focus-visible{outline:none}
+.feat:focus-visible .shape{stroke-width:3;stroke:var(--brand-400)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.legend span{display:flex;gap:6px;align-items:center}
+.legend i{width:14px;height:14px;border-radius:50%;border:3px solid}
+.legend .z0{border-color:var(--danger)}.legend .z1{border-color:#8F6400;border-style:dashed}.legend .z2{border-color:var(--positive)}
+.zbtns{display:grid;gap:6px;margin-top:10px}
+.zbtns button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:300}
+.zbtns button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+
+/* fertilizer table */
+.ftable{min-width:600px;font-size:13.5px}
+.ftable td,.ftable th{padding:7px 12px}
+
+/* sweep */
+.sweep .lawn{fill:var(--brand-100)}
+.sweep .gr circle{fill:var(--brand-700)}
+.slide.on .sweep .gr circle{animation:swp 3.6s ease-in-out infinite}
+@keyframes swp{0%,25%{transform:none;opacity:1}70%{transform:translateX(-90px);opacity:1}85%,100%{transform:translateX(-90px);opacity:0}}
+.sweep .sw{fill:none;stroke:var(--brand-600);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:860px){
+  .wx{grid-template-columns:1fr}
+  .wxopts{grid-template-columns:1fr}
+}
+
+.slide > *{flex-shrink:0}
+.tight .steps li{padding:9px 0;font-size:15.5px}
+.driftfig svg{max-height:210px}
+.driftfig .lbl{font-size:11px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 29</span><span class="code-chip">FC-04 · Environmental Safety</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/><path d="M2 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/></symbol>
+    <symbol id="i-bee" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="4.5" ry="6"/><path d="M7.8 12h8.4M7.8 16h8.4"/><path d="M10 8.5C8 5 4 5 4 8s4 3.5 6 2M14 8.5C16 5 20 5 20 8s-4 3.5-6 2"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="7" cy="9" r="2"/><circle cx="12" cy="6.5" r="2"/><circle cx="17" cy="9" r="2"/><path d="M8 17c0-3 2-5.5 4-5.5s4 2.5 4 5.5c0 2-2 2.5-4 2.5s-4-.5-4-2.5z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-8A5.5 5.5 0 0117 8.5a4.5 4.5 0 01.5 9.5z"/><path d="M9 21l1-2M13 21l1-2"/></symbol>
+    <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M7 19H4.5L8 13"/><path d="M10 6l2-3 3.5 6"/><path d="M17 19h3l-3.5-6"/><path d="M5 16l3-3 2 3.5M14 4.5l1.5 4.5-4.5.5M14 19h-4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-04</span>
+        <h1 class="display a" style="--i:1">Environmental Safety</h1>
+        <p class="lead a" style="--i:2">Keeping every drop where the label puts it: out of drains, wells and waterways, off pollinators, pets and the neighbor's garden, and inside the rules of the county you're working in.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–60 min</span><span class="code-chip">5 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span><span class="code-chip">Draft · needs Clements review</span></div>
+      </div>
+      <svg class="draw" viewBox="0 0 300 250" aria-hidden="true" style="max-width:340px;justify-self:center;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M150 30c-22 34-38 56-38 78a38 38 0 0076 0c0-22-16-44-38-78z"/>
+        <path d="M132 112a20 20 0 0018 18"/>
+        <path d="M30 120c0-34 22-58 64-60-4 40-28 60-64 60z"/><path d="M30 120l34-34"/>
+        <path d="M232 70c10-8 26-8 30 4s-10 18-30 12c-20 6-34 0-30-12s20-12 30-4"/><path d="M232 70v24"/>
+        <path d="M20 190c20 0 20-14 40-14s20 14 40 14 20-14 40-14 20 14 40 14 20-14 40-14 20 14 40 14"/>
+        <path d="M20 222c20 0 20-14 40-14s20 14 40 14 20-14 40-14 20 14 40 14 20-14 40-14 20 14 40 14"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-wave"/></svg><span>Explain how pesticide reaches Florida's water, and stop it at the truck, the drain and the property line</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-book"/></svg><span>Find and follow a label's Environmental Hazards and outdoor-use statements</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-wind"/></svg><span>Read wind, rain and inversion conditions and decide: spray now, adjust, or wait</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-bee"/></svg><span>Protect pollinators, pets, fish and other non-target animals on every property</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-pin"/></svg><span>Mark no-spray and buffer zones around ponds, gardens, wells, drains and play areas</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-recycle"/></svg><span>Follow county fertilizer rules, sweep granules, triple rinse and dispose of rinsate correctly</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:16px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(30px,4.2vw,52px)">We work on top of the water <span class="em">our customers drink.</span></h2>
+        <p class="lead a" style="--i:2">Every branch we run sits near the Indian River Lagoon, the St. Lucie River, the Gulf or Central Florida's lakes. What runs off a driveway today is in that water tomorrow.</p>
+      </div>
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-drop"/></svg></div><div><h3>About 90% of Floridians drink groundwater</h3><p>Our sandy soils and high water table give pesticide a short trip from the lawn to the aquifer.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-wave"/></svg></div><div><h3>The lagoon has already paid</h3><p>Nutrient runoff fed algae blooms that wiped out seagrass. In 2021 Florida had its deadliest year on record for manatees, driven largely by starvation.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>Drift and misuse are illegal</h3><p>FIFRA and Florida law (s. 487.031) make it unlawful to apply against the label or let pesticide drift onto any person or area not meant to get it. FDACS investigates complaints and can test the property.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: protecting water">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Protecting water</h1>
+        <p class="lead a" style="--i:2">Why it matters: water is how a small mistake on one property becomes a problem for a whole neighborhood. Storm drains go straight to canals and the lagoon, untreated.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Four ways pesticide reaches water</li><li><span>02</span>Florida's ground and water</li><li><span>03</span>At the truck: mixing and filling</li><li><span>04</span>Practice: perimeter rules</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 PATHWAYS -->
+  <section class="slide" data-label="Four pathways to water">
+    <div class="split" style="grid-template-columns:1.25fr 1fr;gap:28px">
+      <div class="figbox a pathfig" style="--i:1" id="pathFig">
+        <svg viewBox="0 0 520 300" role="img" aria-label="Cross-section of a property showing four ways pesticide reaches water: runoff to a storm drain, leaching to the water table, drift onto water, and spills at the truck">
+          <rect x="0" y="150" width="520" height="150" class="soil"/>
+          <path d="M0 236 C120 228 260 244 520 232 L520 300 L0 300Z" class="gw"/>
+          <text x="12" y="262" class="lbl">WATER TABLE · OFTEN A FEW FEET DOWN</text>
+          <text x="12" y="172" class="lbl">SANDY SOIL</text>
+          <rect x="30" y="80" width="90" height="70" class="house"/><path d="M22 84 L75 46 L128 84" class="house"/>
+          <rect x="138" y="146" width="120" height="6" class="pave"/><text x="212" y="140" class="lbl">DRIVEWAY</text>
+          <rect x="300" y="144" width="60" height="8" class="pave"/><rect x="318" y="152" width="22" height="16" class="drain"/><text x="300" y="138" class="lbl">STORM DRAIN</text>
+          <path d="M440 152 C450 166 500 166 520 160 L520 190 L440 190Z" class="water"/><text x="430" y="138" class="lbl">CANAL · LAGOON</text>
+          <rect x="384" y="120" width="10" height="34" class="well"/><path d="M389 154 V236" class="wellpipe"/><text x="372" y="112" class="lbl">WELL</text>
+          <rect x="160" y="112" width="44" height="28" rx="4" class="truck"/><text x="164" y="104" class="lbl">TRUCK</text>
+          <path class="pth" data-p="0" d="M150 149 H318 M340 162 C380 196 420 196 446 176"/>
+          <path class="pth" data-p="1" d="M90 154 C92 180 96 205 100 232 M389 200 V236"/>
+          <path class="pth" data-p="2" d="M120 74 C220 40 360 60 470 150"/>
+          <path class="pth" data-p="3" d="M182 140 C200 150 260 150 318 152"/>
+        </svg>
+      </div>
+      <div class="grid" style="gap:10px;align-content:center">
+        <span class="eyebrow a">01 · Four ways pesticide reaches water</span>
+        <h2 class="a" style="--i:1;font-size:clamp(22px,2.6vw,30px)">Select each pathway</h2>
+        <div class="blist a" style="--i:2" id="pathList"></div>
+        <div class="callout a" style="--i:3" id="pathDetail"><svg class="ico"><use href="#i-drop"/></svg><span>Each one is preventable. Select a pathway to see how.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 FLORIDA GROUND -->
+  <section class="slide" data-label="Florida's ground and water">
+    <span class="eyebrow a">02 · Florida's ground and water</span>
+    <h2 class="a" style="--i:1">Our soil gives pesticide a short trip to the water</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>High water table</h3><p>In much of coastal Florida groundwater sits only a few feet below the lawn, closer still in the rainy season. Little soil stands between your spray and the water.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-leaf"/></svg></div><h3>Sandy, fast-draining soil</h3><p>Sand holds little organic matter to bind pesticide, so water carries it down quickly. Labels warn that products can leach where soils are permeable and groundwater is shallow.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-wave"/></svg></div><h3>Water everywhere</h3><p>Canals, retention ponds, seawalls, lakes and the lagoon border our routes. Most storm drains empty straight into them with no treatment at all.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-book"/></svg><span><b>Read the Environmental Hazards box</b> on every outdoor product. Typical wording: "toxic to fish and aquatic invertebrates. Do not apply directly to water."</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-target"/></svg><span><b>The label's water setback is the minimum.</b> If the label says "do not apply within 25 feet of water," measure it. A seawall counts as the water's edge.</span></div>
+    </div>
+  </section>
+
+  <!-- 7 AT THE TRUCK -->
+  <section class="slide tight" data-label="Mixing and filling">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · At the truck</span>
+        <h2 class="a" style="--i:1">Most water problems start where you park</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Park away from storm drains,</b> curbs that slope to a drain, ditches and seawalls. Never fill or mix next to a drain or sewer opening.</span></li>
+          <li><span class="num">2</span><span><b>Don't mix on concrete or other hard surfaces</b> where a splash can run to the street. Mix over turf or soil, away from wells and water.</span></li>
+          <li><span class="num">3</span><span><b>Keep an air gap when filling from a hose.</b> Hold the hose above the tank's waterline so mix can't siphon back into the customer's water supply.</span></li>
+          <li><span class="num">4</span><span><b>Never leave a tank filling unattended.</b> Overflow is a spill.</span></li>
+        </ol>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="label a" style="--i:2" aria-label="Example environmental hazards label statement">
+          <div class="lt">Example label · Environmental hazards</div>
+          <p style="margin-bottom:8px"><span class="hl">This product is extremely toxic to fish and aquatic invertebrates.</span> <span class="hl d2">Do not apply directly to water, or to areas where surface water is present.</span> Drift and runoff may be hazardous to aquatic organisms in water adjacent to treated areas.</p>
+          <p class="small"><span class="hl d3">Do not contaminate water when disposing of equipment washwater or rinsate.</span></p>
+        </div>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-check"/></svg><span>Before you leave the branch: spill kit on the truck, every container closed and secured. Any spill: tell your supervisor right away and file a written report the same day. FC-05 covers spill response.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PERIMETER RULES -->
+  <section class="slide" data-label="Outdoor label rules">
+    <span class="eyebrow a">04 · Outdoor perimeter rules</span>
+    <h2 class="a" style="--i:1">What pyrethroid labels allow around a home</h2>
+    <p class="a muted" style="--i:2">EPA requires runoff-reduction language on outdoor residential pyrethroid labels (bifenthrin, cypermethrin, deltamethrin and others). Check your product: most perimeter sprays carry it.</p>
+    <div class="grid g4">
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-building"/></svg></div><h3>Foundations</h3><p>Up to 3 feet up the wall. Soil, turf and vegetation around the structure may be treated per the label.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Hard surfaces</h3><p>Patios, driveways, sidewalks, porches: <b>spot or crack-and-crevice only.</b> Never broadcast or mist them.</p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-cloud"/></svg></div><h3>Rain and irrigation</h3><p>No applications during rain. Don't water the treated area to the point of runoff.</p></div>
+      <div class="card a" style="--i:6"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Drains and gutters</h3><p>Never let product enter or run off into storm drains, ditches, gutters or surface water.</p></div>
+    </div>
+  </section>
+
+  <!-- 9 PRACTICE SORT -->
+  <section class="slide" data-label="Practice: label-legal or not">
+    <span class="eyebrow a">Practice · outdoor perimeter</span>
+    <h2 class="a" style="--i:1">Label-legal, or a violation? Sort each one.</h2>
+    <div class="sort a" style="--i:2" id="sort"></div>
+    <div class="a" style="--i:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="sortCheck">Check my answers</button><span id="sortFb"></span></div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: drift and weather">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Drift and weather</h1>
+        <p class="lead a" style="--i:2">Why it matters: drift is the most common environmental complaint against applicators, and the applicator is legally responsible for where the product lands. The weather decides how far it travels.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>How far droplets travel</li><li><span>02</span>Wind, rain and inversions</li><li><span>03</span>Practice: spray now or wait?</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 DRIFT VISUAL -->
+  <section class="slide" data-label="Drift distance" style="gap:16px">
+    <span class="eyebrow a">01 · How far droplets travel</span>
+    <h2 class="a" style="--i:1">Smaller droplets stay up longer and land farther away</h2>
+    <div class="seg a" style="--i:2;align-self:flex-start" role="group" aria-label="Droplet size" id="dropSeg"></div>
+    <div class="figbox a driftfig" style="--i:3">
+      <svg viewBox="0 0 640 210" role="img" aria-label="Drift distance of the selected droplet size in a 3 mile per hour wind" id="driftSvg">
+        <path d="M40 170 H630" class="ground"/>
+        <path d="M394 170 h88" class="pond"/><text x="392" y="200" class="lbl">FISH POND · 32–40 FT</text>
+        <path d="M218 170 V60" class="pline"/><text x="222" y="70" class="lbl">PROPERTY LINE · 16 FT</text>
+        <g class="nozzle"><path d="M28 50 h14 v8 h-14z"/><path d="M40 58 V170"/></g>
+        <text x="8" y="44" class="lbl">10 FT</text>
+        <g id="ticks"></g>
+        <path id="dPath" class="dpath" d="M42 58 Q 200 60 568 170"/>
+        <circle class="drop d1" r="4"/><circle class="drop d2" r="4"/><circle class="drop d3" r="4"/>
+        <circle id="dLand" class="land" r="6" cx="568" cy="170"/><text id="dOff" class="lbl" x="520" y="88" visibility="hidden">STILL AIRBORNE · ~1,100 FT</text>
+        <path d="M604 30 h24 l-6 -5 m6 5 l-6 5" class="windarr"/><text x="510" y="34" class="lbl">WIND 3 MPH</text>
+      </svg>
+    </div>
+    <div class="grid g3 a" style="--i:4">
+      <div class="stat"><span class="eyebrow">Droplet</span><b id="dName">Mist · 100 microns</b></div>
+      <div class="stat"><span class="eyebrow">Time to fall 10 ft</span><b id="dTime">10 seconds</b></div>
+      <div class="stat"><span class="eyebrow">Drift in a 3 mph wind</span><b id="dDist">44 feet</b></div>
+    </div>
+    <p class="small muted a" style="--i:5;max-width:none">Illustrative figures of the kind used in university extension training: 10 ft release, steady 3 mph wind. Real drift varies; more wind, height or pressure means farther. <b>For bigger droplets:</b> lower pressure, a coarse setting, nozzle close to the target.</p>
+  </section>
+
+  <!-- 13 WEATHER -->
+  <section class="slide" data-label="Wind, rain and inversions">
+    <span class="eyebrow a">02 · Wind, rain and inversions</span>
+    <h2 class="a" style="--i:1">Check the sky before you pick up the wand</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:20px;align-items:stretch">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-wind"/></svg><span><b>Wind:</b> a steady 3–10 mph breeze blowing <b>away</b> from sensitive areas is best. Above 10 mph, or gusty, stop. Follow any wind limit on the label.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cloud"/></svg><span><b>Rain:</b> never apply in rain. Not sure? Hold a sheet of paper out the window; if it gets wet, it's raining. Hold off when heavy rain is expected before the product dries or sets.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-sun"/></svg><span><b>Heat and low humidity</b> shrink droplets and can turn some products to vapor. Midday heat on a dry day raises drift risk. Spray early or late when you can.</span></div>
+      </div>
+      <div class="card a invcard" style="--i:3">
+        <div class="seg" role="group" aria-label="Air layers" id="invSeg"><button type="button" aria-pressed="true" data-v="normal" id="inv0">Normal afternoon</button><button type="button" aria-pressed="false" data-v="inv" id="inv1">Inversion</button></div>
+        <svg viewBox="0 0 300 150" aria-hidden="true" class="inv normal" id="invSvg">
+          <rect x="0" y="0" width="300" height="60" class="warm"/><rect x="0" y="60" width="300" height="70" class="cool"/>
+          <path d="M0 130 H300" class="ground"/>
+          <circle class="mist m1" cx="60" cy="118" r="4"/><circle class="mist m2" cx="70" cy="114" r="3"/><circle class="mist m3" cx="80" cy="120" r="3.5"/>
+          <text x="8" y="16" class="lbl" id="invTop">COOLER AIR ABOVE</text><text x="8" y="76" class="lbl" id="invBot">WARM AIR AT THE GROUND RISES AND MIXES</text>
+        </svg>
+        <p class="small" id="invTxt"><b>Normal:</b> the ground warms the air, it rises and mixes, and fine droplets are diluted and settle nearby.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PRACTICE WEATHER -->
+  <section class="slide" data-label="Practice: spray now or wait">
+    <span class="eyebrow a">03 · Practice · spray now or wait?</span>
+    <h2 class="a" style="--i:1">Read the conditions. Make the call.</h2>
+    <div class="scen-tabs a" style="--i:2" id="wxTabs"></div>
+    <div class="a" style="--i:3" id="wxBox"></div>
+  </section>
+
+  <!-- 15 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 16 PART THREE -->
+  <section class="slide forest" data-label="Part three: protecting living things">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Protecting living things</h1>
+        <p class="lead a" style="--i:2">Why it matters: we're hired to control pests, not everything else in the yard. A dead koi, a sick dog or a bee kill costs a customer, a reputation, and sometimes a lawsuit or an FDACS investigation.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Pollinators</li><li><span>02</span>Pets, people and wildlife</li><li><span>03</span>Sensitive sites</li><li><span>04</span>Practice: mark the property</li></ol>
+    </div>
+  </section>
+
+  <!-- 17 POLLINATORS -->
+  <section class="slide" data-label="Pollinators">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">01 · Pollinators</span>
+        <h2 class="a" style="--i:1">If it's blooming and bees are on it, don't spray it</h2>
+        <p class="a muted" style="--i:2">Many insecticides we use, including pyrethroids and neonicotinoids, are highly toxic to bees. The label tells you how to protect them.</p>
+        <ul class="ticks a" style="--i:3">
+          <li>Don't spray flowering plants, hedges or trees while bees are visiting. Treat after petals fall, or target only non-flowering areas.</li>
+          <li>Flowering weeds in turf (clover, Spanish needle) attract bees. Ask the customer to mow before a lawn insecticide when the label calls for it.</li>
+          <li>Keep drift off blooms next to your target.</li>
+          <li>Found a honey bee swarm or hive? Don't treat it on your own. Tell your supervisor, who decides between relocation by a registered beekeeper and treatment.</li>
+        </ul>
+      </div>
+      <div class="label a" style="--i:2" aria-label="Example pollinator label statements">
+        <div class="lt">Example label · Pollinator statements</div>
+        <p style="margin-bottom:8px"><b>Environmental hazards.</b> <span class="hl">This product is highly toxic to bees and other pollinating insects exposed to direct treatment or residues on blooming plants.</span></p>
+        <p style="margin-bottom:8px"><b>Protect pollinators.</b> <span class="hl d2">Do not apply this product to plants that are flowering.</span> <span class="hl d3">Only apply after all flower petals have fallen off.</span></p>
+        <p class="small muted">Some labels carry a "bee advisory box" with a bee icon. It explains how bees are exposed and how to cut exposure. The restrictions in Directions for Use are legally binding.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 PETS & WILDLIFE -->
+  <section class="slide" data-label="Pets, people and wildlife">
+    <span class="eyebrow a">02 · Pets, people and wildlife</span>
+    <h2 class="a" style="--i:1">Clear the area, treat, and keep everyone off until it's dry</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-paw"/></svg></div><h3>Pets</h3><p>Ask that pets be brought inside. Move or ask the customer to move pet bowls, toys and bedding. Most labels say people and pets stay off treated areas <b>until the spray has dried</b>. Tell the customer how long.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-wave"/></svg></div><h3>Fish and aquatic life</h3><p>Pyrethroids kill fish at tiny concentrations. Never spray toward ponds, fountains or aquariums near a lanai. Cover or move bowls and bird baths, and cover koi ponds before treating close by.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-eye"/></svg></div><h3>Birds and wildlife</h3><p>Don't spray bird feeders or nests. Use tamper-resistant bait stations, secured and labeled, wherever children, pets or wildlife could reach bait, and as rodenticide labels require.</p></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-users"/></svg><span><b>People first.</b> Nobody, especially children, in the area you're spraying. If someone walks into your spray zone, stop until they're clear.</span></div>
+  </section>
+
+  <!-- 19 SENSITIVE SITES -->
+  <section class="slide" data-label="Sensitive sites">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">03 · Sensitive sites</span>
+        <h2 class="a" style="--i:1">Some places need more care than the label minimum</h2>
+        <p class="a muted" style="--i:2">Read the service notes in PestPac before you start. If a customer or account has a special instruction, it's in there, and it applies every visit.</p>
+        <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-chat"/></svg><span>Not sure an area is safe to treat? Skip it, note it, and call your supervisor. An untreated corner can be fixed tomorrow. A poisoned pond can't.</span></div>
+      </div>
+      <div class="grid" style="gap:8px">
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-building"/></svg><span><b>Schools, daycares and senior communities:</b> treat when occupants are away when you can, follow the account's IPM and notification rules, and keep sprays tight to the target.</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span><b>Vegetable gardens and fruit trees:</b> no spray unless the product is labeled for that edible crop. Keep drift off them.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-wave"/></svg><span><b>Ponds, pools, seawalls and wetlands:</b> keep the label's buffer. Never treat into water.</span></div>
+        <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-heart"/></svg><span><b>Customers with health concerns</b> or a neighbor who has asked us to take care: respect the note, and offer the targeted options.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 PRACTICE MAP -->
+  <section class="slide" data-label="Practice: mark the property">
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:8px">
+        <span class="eyebrow a">04 · Practice · mark the property</span>
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.4vw,28px)">Select each spot, then assign a zone</h2>
+        <div class="figbox a yard" style="--i:2">
+          <svg viewBox="0 0 520 330" role="img" aria-label="Top-down property map with ten features to classify" id="yardSvg">
+            <rect x="0" y="0" width="520" height="330" class="lawn"/>
+            <rect x="0" y="300" width="520" height="30" class="street"/><text x="200" y="320" class="lbl">STREET</text>
+          </svg>
+        </div>
+      </div>
+      <div class="grid" style="gap:10px;align-content:start;padding-top:8px">
+        <div class="legend a" style="--i:2"><span><i class="z0"></i>No-spray zone</span><span><i class="z1"></i>Caution: targeted only</span><span><i class="z2"></i>Treat per label</span></div>
+        <div class="card a" style="--i:3" id="zoneCard"><span class="eyebrow">Select a spot on the map</span><p class="small muted" style="margin-top:6px">Ten features. Classify every one, then check.</p></div>
+        <div class="a" style="--i:4;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="zoneCheck">Check the map</button><span class="small muted" id="zoneCount">0 of 10 marked</span></div>
+        <div id="zoneFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 22 PART FOUR -->
+  <section class="slide forest" data-label="Part four: fertilizer, granules and disposal">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">Fertilizer, granules and disposal</h1>
+        <p class="lead a" style="--i:2">Why it matters: nitrogen and phosphorus feed the algae blooms that choke our waterways, and every county we serve writes its own rules. What you leave on the driveway or pour out at the end of the day matters as much as what you apply.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>County fertilizer rules</li><li><span>02</span>Granules and hard surfaces</li><li><span>03</span>Rinsate and leftovers</li><li><span>04</span>Practice: triple rinse</li></ol>
+    </div>
+  </section>
+
+  <!-- 23 FERTILIZER -->
+  <section class="slide" data-label="County fertilizer rules">
+    <span class="eyebrow a">01 · County fertilizer rules · checked October 2026</span>
+    <h2 class="a" style="--i:1">Know the rules where the lawn is, not where the branch is</h2>
+    <div class="tablewrap a" style="--i:2">
+      <table class="ftable">
+        <thead><tr><th>Where the property is</th><th>Summer nitrogen &amp; phosphorus</th><th>No fertilizer near water</th></tr></thead>
+        <tbody>
+          <tr><td>Indian River County, unincorporated <span class="muted">· Vero Beach</span></td><td class="y">Banned June 1 – Sept 30</td><td>10 ft from water, wetlands or top of seawall</td></tr>
+          <tr><td>St. Lucie County, Fort Pierce, Port St. Lucie</td><td class="y">Banned June 1 – Sept 30</td><td>10 ft</td></tr>
+          <tr><td>Martin County, unincorporated <span class="muted">· Stuart</span></td><td class="y">Banned June 1 – Sept 30</td><td>25 ft</td></tr>
+          <tr><td>Orange County <span class="muted">· Orlando</span></td><td class="y">Banned June 1 – Sept 30</td><td>25 ft from natural water bodies</td></tr>
+          <tr><td>City of Naples and Marco Island <span class="muted">· Naples</span></td><td class="y">Banned June 1 – Sept 30</td><td>10 ft</td></tr>
+          <tr><td>Collier County, unincorporated <span class="muted">· Naples</span></td><td>No summer ban · no fertilizing on wet soil or before storms</td><td>10 ft</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid g3">
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-cloud"/></svg><span>Year-round: no fertilizer on saturated soil, in a storm watch or warning, or before heavy rain.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-leaf"/></svg><span>Combination products count. A granular insecticide with fertilizer in it is fertilizer.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-shield"/></svg><span>Commercial fertilizing needs a state credential (s. 482.1562). Cities may add their own rules.</span></div>
+    </div>
+  </section>
+
+  <!-- 24 GRANULES -->
+  <section class="slide tight" data-label="Granules and hard surfaces">
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:28px">
+      <div class="grid" style="gap:12px">
+        <span class="eyebrow a">02 · Granules and hard surfaces</span>
+        <h2 class="a" style="--i:1">A granule on the driveway is a granule in the canal</h2>
+        <ol class="steps a" style="--i:2">
+          <li><span class="num">1</span><span><b>Use the deflector shield</b> on rotary spreaders along driveways, sidewalks, beds and water. Several of our counties require it.</span></li>
+          <li><span class="num">2</span><span><b>Sweep or blow every stray granule</b> back onto the turf before you leave. Never into the street, a drain or the water.</span></li>
+          <li><span class="num">3</span><span><b>Grass clippings too.</b> Clippings carry nutrients; ordinances ban blowing them into streets, drains and water.</span></li>
+          <li><span class="num">4</span><span><b>Water in only as the label says.</b> Irrigating to the point of runoff washes product off the lawn.</span></li>
+        </ol>
+      </div>
+      <div class="figbox a sweep" style="--i:3">
+        <svg viewBox="0 0 300 200" role="img" aria-label="Granules on a driveway being swept back onto the lawn, away from the storm drain">
+          <rect x="0" y="0" width="150" height="200" class="lawn"/><rect x="150" y="0" width="150" height="200" class="pave"/>
+          <rect x="262" y="160" width="30" height="26" class="drain"/><text x="244" y="152" class="lbl">DRAIN</text>
+          <text x="14" y="20" class="lbl">TURF</text><text x="164" y="20" class="lbl">DRIVEWAY</text>
+          <g class="gr"><circle cx="190" cy="70" r="3"/><circle cx="210" cy="96" r="3"/><circle cx="180" cy="118" r="3"/><circle cx="230" cy="80" r="3"/><circle cx="200" cy="140" r="3"/><circle cx="240" cy="120" r="3"/></g>
+          <path d="M236 108 L176 100" class="sw"/><path d="M182 94 l-8 6 8 6" class="sw"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 25 DISPOSAL -->
+  <section class="slide" data-label="Rinsate and leftovers">
+    <span class="eyebrow a">03 · Rinsate and leftovers</span>
+    <h2 class="a" style="--i:1">Nothing goes down a drain, onto the ground or into the trash</h2>
+    <div class="grid g3">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-drop"/></svg></div><h3>Leftover mix</h3><p>Mix only what you need. Use what's left on another site the label allows, at or below the label rate. Never dump it on the ground, in a drain, sink, toilet or ditch.</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-recycle"/></svg></div><h3>Rinsate</h3><p>Rinse water from containers and equipment goes back into the spray tank and is applied to a labeled site. Clean equipment away from drains, wells and water.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-box"/></svg></div><h3>Empty containers</h3><p>Triple rinse or pressure rinse right after emptying, then follow the label's Storage and Disposal section. Never reuse a pesticide container for anything else.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-book"/></svg><span><b>The law:</b> disposing of pesticide or containers against the label, or in a way that pollutes water, is a violation of Florida law (s. 487.031).</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-alert"/></svg><span><b>Soaked paper towels, absorbent from a concentrate spill, damaged containers:</b> bag them, bring them to the branch and tell your supervisor. FC-05 covers disposal.</span></div>
+    </div>
+  </section>
+
+  <!-- 26 PRACTICE TRIPLE RINSE -->
+  <section class="slide" data-label="Practice: triple rinse">
+    <div class="split">
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">04 · Practice · triple rinse</span>
+        <h2 class="a" style="--i:1">Put the triple rinse in order</h2>
+        <p class="a muted" style="--i:2">Rinse right after you empty a container, before residue dries inside. Select the steps in order.</p>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-glasses"/></svg><span>Wear the PPE the label lists for mixing and loading, including eye protection. Rinse over the tank opening so nothing splashes onto the ground.</span></div>
+        <div id="rinseFb" class="a" style="--i:4"></div>
+      </div>
+      <div class="order a" style="--i:2" id="rinse"></div>
+    </div>
+  </section>
+
+  <!-- 27 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 28 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a real property</h2>
+    <p class="a muted" style="--i:2">Your supervisor will watch you do each of these on a ride-along before FC-04 is complete. Tick each one as you finish it.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Read the Environmental Hazards section of two outdoor products on your truck aloud</label></li>
+      <li><label><input type="checkbox" id="f2"> Pick a safe place to park and mix: away from drains, wells and water, with an air gap when filling</label></li>
+      <li><label><input type="checkbox" id="f3"> Walk a property and point out every no-spray and caution zone</label></li>
+      <li><label><input type="checkbox" id="f4"> Check wind, rain and inversion signs and make a spray-or-wait call out loud</label></li>
+      <li><label><input type="checkbox" id="f5"> Treat a perimeter: foundation and soil only, spot treatment on hard surfaces</label></li>
+      <li><label><input type="checkbox" id="f6"> Sweep stray granules off hard surfaces back onto turf</label></li>
+      <li><label><input type="checkbox" id="f7"> Triple rinse an empty container and add the rinsate to the tank</label></li>
+      <li><label><input type="checkbox" id="f8"> State the summer fertilizer rule and water setback for the counties on your route</label></li>
+    </ul>
+  </section>
+
+  <!-- 29 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc04:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc04:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-04", "titleHtml": "Environmental Safety", "nextHtml": "FC-05 \u00b7 Chemical Storage &amp; Spill Response", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Protecting water',q:'You need to fill and mix a backpack sprayer at a customer\'s home. The driveway is the only flat spot, and it slopes to a storm drain at the curb. What do you do?',o:['Mix on the driveway, carefully, and hose off any splash','Move to a turf or soil area away from the drain, wells and water, and keep the hose above the tank\'s waterline','Mix in the street gutter so any spill is easy to rinse away','Mix right next to the drain so you can clean up quickly'],a:1,e:'Never mix on a hard surface that drains to the street, and never near a drain. Mix over turf or soil, away from wells and water, with an air gap when you fill.'},
+    2:{t:'Checkpoint 2 · Drift and weather',q:'It\'s 7:00 am, clear and dead calm, with low fog lying over the neighborhood. Your next stop is a broadcast lawn spray. What is the best decision?',o:['Spray now: no wind means no drift','Turn up the pressure so you finish before the wind picks up','Wait: calm, clear and fog are inversion signs. Work another stop and return once the fog lifts and a steady breeze starts','Spray only the front yard'],a:2,e:'Calm, clear mornings with ground fog are classic temperature inversions. Fine droplets hang in the cool layer and can travel a long way. A steady 3–10 mph breeze is safer than dead calm.'},
+    3:{t:'Checkpoint 3 · Protecting living things',q:'A flowering hedge along the customer\'s lanai is covered with bees, and today\'s service is an exterior perimeter spray. What do you do?',o:['Spray the hedge thoroughly so the bees don\'t sting the customer','Skip the whole service and leave','Spray at midday, when the bees are most active','Treat the foundation and soil as labeled, keep spray and drift off the blooms, and note the hedge for treatment after it finishes flowering if needed'],a:3,e:'Pollinator labels prohibit spraying flowering plants when bees are present, and some prohibit it at all while in bloom. Treat the target area, keep drift off the hedge, and note it in the service record.'},
+    4:{t:'Checkpoint 4 · Fertilizer, granules and disposal',q:'You finish a granular application on a Stuart lawn and see granules scattered across the driveway. An afternoon storm is coming. What do you do?',o:['Sweep or blow every granule back onto the turf before you leave','Leave them; the rain will wash them into the lawn','Hose them toward the street gutter','Spray them with water so they dissolve on the concrete'],a:0,e:'Granules left on pavement wash to the storm drain and the river. Sweep them back onto the turf every time, and use the spreader\'s deflector shield along hard edges.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'Where do most storm drains in our service area empty?',o:['A wastewater treatment plant','Directly into canals, rivers, lakes and the lagoon, untreated','The homeowner\'s septic tank','A city filtration system'],a:1,e:'Storm drains are not sewers. What goes in them reaches the water untreated.'},
+    {k:'True or false',q:'A granular insecticide that also contains fertilizer is covered by the county summer fertilizer ban.',o:['True','False'],a:0,e:'True. If it contains nitrogen or phosphorus, it\'s fertilizer under the ordinance, whatever else is in the bag.'},
+    {k:'Multiple choice',q:'On a pyrethroid perimeter label, how may you treat a driveway or patio?',o:['Broadcast at half the rate','Broadcast if the surface is dry','Spot or crack-and-crevice only','Never, under any circumstances'],a:2,e:'Hard surfaces are limited to spot and crack-and-crevice treatment. Broadcasting or misting them is prohibited.'},
+    {k:'Multiple choice',q:'How high up a foundation wall do outdoor residential pyrethroid labels allow treatment?',o:['Up to 3 feet','Up to 1 foot','Up to 6 feet','All the way to the eaves'],a:0,e:'Foundations up to 3 feet high. Power-spraying an entire structure is prohibited.'},
+    {k:'Scenario',q:'You\'re filling your tank from the customer\'s outdoor faucet. Why do you keep the hose end above the waterline in the tank?',o:['It fills faster','It keeps the hose clean for the customer','It\'s required only for herbicides','It prevents mix from siphoning back into the customer\'s water supply'],a:3,e:'An air gap prevents backflow. A submerged hose can pull pesticide back into the home\'s plumbing.'},
+    {k:'True or false',q:'You may finish an exterior spray in light rain if the customer is waiting.',o:['True','False'],a:1,e:'False. Labels prohibit applications during rain, and rain carries product to drains and water. Reschedule the outside work.'},
+    {k:'Multiple choice',q:'In a 3 mph wind, which droplet size drifts the farthest?',o:['1,000-micron coarse spray','400-micron medium spray','100-micron mist','240-micron fine spray'],a:2,e:'The smaller the droplet, the longer it stays airborne. In the course\'s illustrative example, a 100-micron mist drifts about 44 feet from 10 feet up; a 1,000-micron droplet drifts under 5 feet.'},
+    {k:'Multiple choice',q:'Which wind conditions are best for an outdoor spray?',o:['Dead calm','A steady 3–10 mph breeze blowing away from sensitive areas','10–20 mph, so the spray dries faster','Any wind, as long as gusts stay under 25 mph'],a:1,e:'A gentle, steady breeze blowing away from people, water and gardens. Dead calm can mean an inversion; above 10 mph drift risk climbs fast.'},
+    {k:'Scenario',q:'Which of these is a sign of a temperature inversion?',o:['Gusty wind on an overcast afternoon','Light drizzle','Ground fog and smoke hanging in a flat layer on a calm, clear morning','A sea breeze in mid-afternoon'],a:2,e:'Inversions form on clear, calm nights and linger into the early morning: fog, smoke or dust that hangs instead of rising.'},
+    {k:'Multiple choice',q:'How do you make spray droplets bigger to reduce drift?',o:['Lower the pressure, use a coarse setting and keep the nozzle close to the target','Raise the pressure','Switch to the finest mist setting','Hold the wand higher'],a:0,e:'Lower pressure and coarser settings make larger droplets. Keeping the nozzle close gives them less time in the air.'},
+    {k:'True or false',q:'Florida law makes it unlawful to apply a pesticide in a way that causes it to drift onto any person or area not intended to receive it.',o:['True','False'],a:0,e:'True. Section 487.031, Florida Statutes, lists it as a prohibited act, and FDACS investigates drift complaints.'},
+    {k:'Scenario',q:'A label says "Do not apply this product to plants that are flowering." The customer\'s hibiscus is in full bloom next to the foundation. What do you do?',o:['Spray it lightly','Spray it in the evening; that satisfies the label','Spray only half of it','Treat the foundation without spraying the blooms, and keep drift off the plant'],a:3,e:'The label prohibits applying to flowering plants. Treat the target area and protect the blooms from spray and drift.'},
+    {k:'Multiple choice',q:'Most outdoor labels say people and pets may return to a treated area when:',o:['Immediately','The spray has dried','The next day','After the first rain'],a:1,e:'Until the spray has dried, unless the label says otherwise. Tell the customer how long that will take.'},
+    {k:'Scenario',q:'The perimeter you\'re treating runs right past the customer\'s vegetable garden. Your product isn\'t labeled for vegetables. What do you do?',o:['Spray the garden too, at a lower rate','Keep all spray and drift off the garden; treat that section with a coarse, targeted application or skip it','Spray it and tell the customer to wash the vegetables','Spray only the garden border plants'],a:1,e:'Never apply to an edible crop unless the label lists it. Keep drift off the garden, or skip that section.'},
+    {k:'Multiple choice',q:'When is nitrogen and phosphorus fertilizer banned in Indian River, St. Lucie and Martin counties?',o:['January 1 – March 31','October 1 – December 31','June 1 – September 30','All year'],a:2,e:'June 1 through September 30, the rainy season, when runoff is heaviest.'},
+    {k:'Multiple choice',q:'Which of these areas has no summer nitrogen fertilizer ban?',o:['Indian River County','Martin County','Orange County','Unincorporated Collier County'],a:3,e:'Unincorporated Collier County has no summer ban, but the City of Naples and Marco Island do. Always check where the property actually sits.'},
+    {k:'Multiple choice',q:'In unincorporated Martin County, how close to a water body can you apply fertilizer?',o:['No closer than 10 feet','No closer than 25 feet','No closer than 50 feet','Right up to the edge'],a:1,e:'Martin County requires a 25-foot fertilizer-free zone. Indian River, St. Lucie and Collier use 10 feet; Orange County uses 25 feet from natural water bodies.'},
+    {k:'Multiple choice',q:'When triple rinsing a container, how full do you fill it with water for each rinse?',o:['Completely full','About one-quarter full','About half full','Just a splash'],a:1,e:'About one-quarter full, cap, shake 10 seconds, pour into the tank, drain 10 seconds after it starts to drip. Three times.'},
+    {k:'Multiple choice',q:'Where does the rinsate from a triple rinse go?',o:['Into the spray tank, to be applied to a site the label allows','The nearest storm drain','The customer\'s trash can','On the ground behind the truck'],a:0,e:'Rinsate goes back into the spray tank and is applied to a labeled site at or below the label rate.'},
+    {k:'Scenario',q:'You notice granules on the sidewalk after a lawn application. What is the right move?',o:['Leave them; sprinklers will wash them off','Blow them into the street','Sweep or blow them back onto the turf','Hose them into the gutter'],a:2,e:'Back onto the turf, every time. Granules left on pavement end up in the storm drain.'}
+  ];
+
+  /* ---------- pathways to water ---------- */
+  var PATHS=[
+    {t:'Runoff from hard surfaces',s:'Driveways, patios, sidewalks',d:'Spray or granules left on pavement wash to the street and into the storm drain with the next rain or sprinkler cycle, then straight to the canal. <b>Stop it:</b> spot-treat only on hard surfaces, sweep granules back onto turf, never apply in rain.'},
+    {t:'Leaching to groundwater',s:'Down through sandy soil',d:'Water carries product down through sand to a water table that may be only a few feet below, and into private wells. <b>Stop it:</b> label rates only, no over-watering, keep clear of wells, follow any groundwater advisory on the label.'},
+    {t:'Drift onto water',s:'Carried by wind',d:'Fine spray rides the wind onto ponds, canals and the neighbor\'s yard. <b>Stop it:</b> coarse droplets, low pressure, the right wind, and a buffer between your spray and the water.'},
+    {t:'Spills and rinsate at the truck',s:'Where you park, mix and fill',d:'Overfilled tanks, splashes on pavement and rinsate dumped at the curb flow straight to the drain. <b>Stop it:</b> park and mix away from drains, keep the spill kit stocked, put rinsate back in the tank.'}
+  ];
+  var pl=$('#pathList');
+  PATHS.forEach(function(p,n){
+    var b=document.createElement('button');b.type='button';b.id='path'+n;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="num">'+(n+1)+'</span><span>'+p.t+'<small>'+p.s+'</small></span>';
+    b.addEventListener('click',function(){
+      $$('button',pl).forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      $$('#pathFig .pth').forEach(function(x){x.classList.toggle('on',+x.dataset.p===n)});
+      $('#pathDetail').innerHTML='<svg class="ico"><use href="#i-drop"/></svg><span>'+p.d+'</span>';
+    });
+    pl.appendChild(b);
+  });
+
+  /* ---------- perimeter sort ---------- */
+  var SORT=[
+    {q:'Spraying a band of soil and mulch around the foundation',a:'ok',w:'Soil and vegetation around the structure are allowed.'},
+    {q:'Misting the whole driveway to knock down ants',a:'no',w:'Hard surfaces are spot or crack-and-crevice only. Broadcasting a driveway is a violation.'},
+    {q:'Spot-treating an ant trail in a crack in the patio',a:'ok',w:'Spot and crack-and-crevice treatment of hard surfaces is allowed.'},
+    {q:'Treating the foundation wall up to 3 feet high',a:'ok',w:'Foundations up to 3 feet high are allowed.'},
+    {q:'Power-spraying the entire outside wall of the house',a:'no',w:'Power-spraying or misting an entire structure is prohibited.'},
+    {q:'Finishing the spray in light rain because the customer is waiting',a:'no',w:'No applications during rain. Reschedule.'},
+    {q:'Treating the storm drain grate at the curb where ants are nesting',a:'no',w:'Never let product enter a storm drain. Treat the nest away from the drain or use a bait.'},
+    {q:'Treating lawn and shrubs around the home at the label rate',a:'ok',w:'Lawns, turf and vegetation are allowed by the label.'}
+  ];
+  var sb=$('#sort'), sortSel={};
+  SORT.forEach(function(s,i){
+    var r=document.createElement('div');r.className='row';
+    r.innerHTML='<span>'+s.q+'</span><span class="opts"><button type="button" id="so'+i+'_ok" data-v="ok" aria-pressed="false">Label-legal</button><button type="button" id="so'+i+'_no" data-v="no" aria-pressed="false">Violation</button></span>';
+    $$('button',r).forEach(function(b){b.addEventListener('click',function(){sortSel[i]=b.dataset.v;$$('button',r).forEach(function(x){x.setAttribute('aria-pressed',x===b)});r.classList.remove('ok','no');var w=$('.why',r);if(w)w.remove();})});
+    sb.appendChild(r);
+  });
+  $('#sortCheck').addEventListener('click',function(){
+    var right=0,blank=0,firstWrong=-1;
+    $$('.row',sb).forEach(function(r,i){var s=SORT[i];var w=$('.why',r);if(w)w.remove();
+      if(!sortSel[i]){blank++;r.classList.remove('ok','no');return;}
+      var ok=sortSel[i]===s.a;if(ok)right++;r.classList.toggle('ok',ok);r.classList.toggle('no',!ok);
+      if(!ok&&firstWrong<0)firstWrong=i;
+    });
+    $('#sortFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Sort all eight before checking.</span>':(right===SORT.length?'<span class="fb" style="display:inline-block">All eight correct. Soil, turf and foundations: yes. Broadcast on pavement, whole walls, rain and drains: no.</span>':'<span class="fb no" style="display:inline-block">'+right+' of 8. Fix the ones in red. <b>Hint:</b> '+SORT[firstWrong].w+'</span>');
+  });
+
+  /* ---------- drift visual ---------- */
+  var X0=42,PX=11,DROPS=[
+    {k:'20',n:'Very fine mist · 20 microns',t:'4.2 minutes',d:'About 1,100 feet',ft:1100},
+    {k:'100',n:'Mist · 100 microns',t:'10 seconds',d:'44 feet',ft:44},
+    {k:'240',n:'Fine spray · 240 microns',t:'6 seconds',d:'28 feet',ft:28},
+    {k:'400',n:'Medium spray · 400 microns',t:'2 seconds',d:'8.5 feet',ft:8.5},
+    {k:'1000',n:'Coarse spray · 1,000 microns',t:'1 second',d:'4.7 feet',ft:4.7}
+  ];
+  var tk='';for(var f=10;f<=50;f+=10){var x=X0+f*PX;tk+='<path class="tick" d="M'+x+' 166 V174"/><text class="lbl" x="'+(x-8)+'" y="186">'+f+' FT</text>';}
+  $('#ticks').innerHTML=tk;
+  var seg=$('#dropSeg');
+  function showDrop(n){
+    var d=DROPS[n],off=d.ft>50,X=off?630:X0+d.ft*PX,Y=off?100:170,cx=X0+(X-X0)*.45;
+    var path='M'+X0+' 58 Q '+cx.toFixed(0)+' 58 '+X+' '+Y;
+    $('#dPath').setAttribute('d',path);
+    $$('#driftSvg .drop').forEach(function(c){c.style.offsetPath="path('"+path+"')"});
+    var l=$('#dLand');l.setAttribute('cx',X);l.setAttribute('cy',Y);l.classList.toggle('off',off||d.ft>=16);l.setAttribute('visibility',off?'hidden':'visible');$('#dOff').setAttribute('visibility',off?'visible':'hidden');
+    $('#dName').textContent=d.n;$('#dTime').textContent=d.t;
+    var dd=$('#dDist');dd.textContent=d.d+(off?'':(d.ft>=32?' · into the pond':(d.ft>=16?' · past the property line':'')));dd.classList.toggle('far',d.ft>=16);
+    $$('button',seg).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});
+  }
+  DROPS.forEach(function(d,i){var b=document.createElement('button');b.type='button';b.id='drop'+d.k;b.textContent=d.k+' µm';b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showDrop(i)});seg.appendChild(b)});
+  showDrop(1);
+
+  /* ---------- inversion toggle ---------- */
+  $$('#invSeg button').forEach(function(b){b.addEventListener('click',function(){
+    $$('#invSeg button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    var inv=b.dataset.v==='inv',s=$('#invSvg');s.classList.toggle('inv',inv);s.classList.toggle('normal',!inv);
+    $('#invTop').textContent=inv?'WARMER AIR ABOVE ACTS LIKE A LID':'COOLER AIR ABOVE';
+    $('#invBot').textContent=inv?'COOL, STILL AIR TRAPPED AT THE GROUND':'WARM AIR AT THE GROUND RISES AND MIXES';
+    $('#invTxt').innerHTML=inv?'<b>Inversion:</b> cool air is trapped under warm air. Fine droplets hang in a layer and slide sideways for long distances. <b>Signs:</b> clear, calm early mornings or evenings, ground fog, smoke or dust that hangs flat. Wait until the sun warms the ground and a steady breeze picks up.':'<b>Normal:</b> the ground warms the air, it rises and mixes, and fine droplets are diluted and settle nearby.';
+  })});
+
+  /* ---------- spray now or wait ---------- */
+  var OPTS=['Spray now','Adjust, then spray','Wait or reschedule'];
+  var WX=[
+    {n:'Mid-morning perimeter',r:[['Time','9:40 am'],['Wind','6 mph, steady'],['Toward','The street, away from the pool'],['Rain','10% in the next 24 h'],['Temp · humidity','82°F · 70%']],job:'Exterior perimeter spray on a single-family home. Nothing sensitive downwind.',a:0,e:'A steady 3–10 mph breeze blowing away from sensitive areas, no rain coming, normal humidity. Good conditions. Keep the spray coarse and on target.'},
+    {n:'Early lawn spray',r:[['Time','6:45 am'],['Wind','Calm, 0–1 mph'],['Sky','Clear'],['Ground','Fog lying over the lawn'],['Rain','None forecast']],job:'Broadcast weed-control spray on a St. Augustine lawn.',a:2,e:'Clear sky, dead calm and ground fog are classic inversion signs. Fine droplets will hang and travel. Work another stop and come back once the fog lifts and a steady breeze picks up.'},
+    {n:'Gusty afternoon',r:[['Time','2:15 pm'],['Wind','15 mph, gusts to 22'],['Toward','Neighbor\'s house'],['Rain','20% tonight'],['Temp · humidity','90°F · 45%']],job:'Exterior perimeter spray.',a:2,e:'Above 10 mph and gusty, blowing toward a neighbor, on a hot, dry afternoon. That is high drift risk. Reschedule the outside work.'},
+    {n:'Paper test',r:[['Time','11:00 am'],['Wind','5 mph'],['Paper test','Paper came back wet'],['Rain','Light rain for the next hour'],['Customer','Waiting at the door']],job:'Exterior perimeter spray.',a:2,e:'The paper got wet, so it\'s raining. Labels prohibit applying during rain, and rain carries product to the drain. Do the inspection and any interior work, then reschedule the outside.'},
+    {n:'Garden next door',r:[['Time','10:30 am'],['Wind','8 mph, steady'],['Toward','Neighbor\'s vegetable garden, 15 ft past the side yard'],['Rain','None forecast'],['Temp · humidity','84°F · 65%']],job:'Exterior perimeter spray on all four sides of the home.',a:1,e:'Conditions are fine on three sides. On the garden side, switch to a coarse, low-pressure spray with the nozzle close to the foundation band, or spot-treat only. If you can\'t keep it off the garden, skip that side and come back when the wind shifts.'},
+    {n:'Storm on radar',r:[['Time','1:30 pm'],['Wind','7 mph'],['Radar','Heavy thunderstorm, 80% within the hour'],['Ground','Dry'],['Temp · humidity','91°F · 60%']],job:'Liquid exterior perimeter spray.',a:2,e:'A heavy downpour before the spray dries washes it off foundations and pavement toward the drain. Do the inspection and interior work now and reschedule the outside.'}
+  ];
+  var wt=$('#wxTabs'),wb=$('#wxBox'),wdone=store.get('wx')||{};
+  function showWx(n){
+    $$('button',wt).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!wdone[j])});
+    var s=WX[n];
+    wb.innerHTML='<div class="wx"><div class="wxcard">'+s.r.map(function(r){return '<div class="row"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'</div><div class="grid" style="gap:12px"><div class="card" style="padding:14px 18px"><span class="eyebrow">The job</span><p style="margin-top:4px">'+s.job+'</p></div><div class="wxopts">'+OPTS.map(function(o,i){return '<button type="button" class="choice" id="wx'+n+'_'+i+'" data-i="'+i+'">'+o+'</button>'}).join('')+'</div><div id="wxFb"></div></div></div>';
+    $$('.wxopts .choice',wb).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.wxopts .choice',wb).forEach(function(x){x.classList.remove('right','wrong')});
+      if(i===s.a){b.classList.add('right');wdone[n]=1;store.set('wx',wdone);$$('button',wt)[n].classList.add('done');$('#wxFb').innerHTML='<div class="fb"><b>Right call.</b> '+s.e+'</div>';}
+      else{b.classList.add('wrong');$('#wxFb').innerHTML='<div class="fb no"><b>Not the best call.</b> Look again at the wind, the sky and what\'s downwind.</div>';}
+    })});
+  }
+  WX.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='wxt'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showWx(i)});wt.appendChild(b)});
+  showWx(0);
+
+  /* ---------- property map ---------- */
+  var ZN=['No-spray zone','Caution: targeted only','Treat per label'];
+  var FEAT=[
+    {n:'Canal and seawall',a:0,svg:'<rect class="shape" x="0" y="0" width="520" height="22" fill="#C3DAC9"/><text x="200" y="15">CANAL · SEAWALL</text>',ring:'<rect class="zring" x="2" y="2" width="516" height="18"/>',e:'Never treat into water. Keep the label\'s water buffer, and no fertilizer within 10–25 ft depending on the county.'},
+    {n:'Koi pond',a:0,svg:'<ellipse class="shape" cx="90" cy="92" rx="44" ry="26" fill="#C3DAC9"/><text x="66" y="96">KOI POND</text>',ring:'<ellipse class="zring" cx="90" cy="92" rx="52" ry="34"/>',e:'Fish are extremely sensitive to pyrethroids. No spray in or toward the pond; keep a buffer and watch the wind.'},
+    {n:'Vegetable garden',a:0,svg:'<rect class="shape" x="380" y="52" width="100" height="50" fill="#DCE9DF"/><path d="M390 64h80M390 77h80M390 90h80" stroke="#4F8A5F" stroke-width="1.2"/><text x="388" y="48">VEGETABLES</text>',ring:'<rect class="zring" x="374" y="38" width="112" height="70" rx="6"/>',e:'No spray unless the product is labeled for that edible crop. Keep drift off it.'},
+    {n:'Private well',a:0,svg:'<circle class="shape" cx="478" cy="236" r="10" fill="#FFFFFF"/><text x="460" y="262">WELL</text>',ring:'<circle class="zring" cx="478" cy="236" r="17"/>',e:'Never mix, fill, rinse or spray around a wellhead. Product can travel straight down to the drinking water.'},
+    {n:'Storm drain at the curb',a:0,svg:'<rect class="shape" x="436" y="296" width="34" height="10" fill="#1D2A23"/><text x="424" y="290">DRAIN</text>',ring:'<rect class="zring" x="430" y="292" width="46" height="18" rx="4"/>',e:'Nothing goes in or near it: no spray, no granules, no rinsate. It flows straight to the canal.'},
+    {n:'Blooming hedge',a:1,svg:'<g class="shape" fill="#A3C6AB"><circle cx="30" cy="170" r="13"/><circle cx="30" cy="198" r="13"/><circle cx="30" cy="226" r="13"/></g><g fill="#FFFFFF"><circle cx="26" cy="166" r="2.5"/><circle cx="34" cy="200" r="2.5"/><circle cx="27" cy="228" r="2.5"/></g><text x="14" y="146">HEDGE IN BLOOM</text>',ring:'<rect class="zring" x="12" y="152" width="36" height="92" rx="16"/>',e:'Bees are on the flowers. Don\'t spray the blooms; treat after petals fall, or target only non-flowering areas, and keep drift off it.'},
+    {n:'Driveway',a:1,svg:'<rect class="shape" x="250" y="224" width="70" height="76" fill="#D5D9D6"/><text x="258" y="266">DRIVEWAY</text>',ring:'<rect class="zring" x="244" y="218" width="82" height="84"/>',e:'Spot or crack-and-crevice only, and sweep every granule back onto the lawn before you leave.'},
+    {n:'Play area, pet bowl and toys',a:1,svg:'<rect class="shape" x="78" y="236" width="70" height="38" fill="#FFFFFF"/><circle cx="162" cy="264" r="6" fill="#FFFFFF" stroke="#1F5836" stroke-width="1.4"/><text x="74" y="230">PLAY AREA · PET BOWL</text>',ring:'<rect class="zring" x="66" y="218" width="112" height="62" rx="6"/>',e:'Move or ask the customer to move bowls and toys, keep kids and pets away until the spray dries, and treat only what the label and the service call for.'},
+    {n:'House foundation',a:2,svg:'<rect class="shape" x="180" y="112" width="170" height="104" fill="#FFFFFF"/><text x="236" y="168">HOUSE</text>',ring:'<rect class="zring" x="172" y="104" width="186" height="120"/>',e:'Foundation up to 3 ft high and the soil and vegetation around it: treat per the label.'},
+    {n:'Front shrub bed',a:2,svg:'<rect class="shape" x="340" y="236" width="80" height="30" rx="10" fill="#A3C6AB"/><text x="344" y="282">SHRUB BED</text>',ring:'<rect class="zring" x="334" y="230" width="92" height="42" rx="12"/>',e:'Non-flowering shrubs next to the house: treat per the label.'}
+  ];
+  var ys=$('#yardSvg'),zsel={},zcur=-1;
+  FEAT.forEach(function(f,i){
+    var g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','feat');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',f.n);g.id='feat'+i;
+    g.innerHTML=f.ring+f.svg;
+    g.addEventListener('click',function(){pickFeat(i)});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pickFeat(i)}});
+    ys.appendChild(g);
+  });
+  function zCount(){var n=Object.keys(zsel).length;$('#zoneCount').textContent=n+' of '+FEAT.length+' marked';}
+  function pickFeat(i){
+    zcur=i;var f=FEAT[i];
+    $$('.feat',ys).forEach(function(g,j){g.classList.toggle('sel',j===i);g.classList.remove('bad')});
+    $('#zoneCard').innerHTML='<span class="eyebrow">Selected</span><h3 style="margin-top:4px">'+f.n+'</h3><div class="zbtns">'+ZN.map(function(z,k){return '<button type="button" id="zb'+i+'_'+k+'" data-k="'+k+'" aria-pressed="'+(zsel[i]===k)+'"><span class="legend"><span><i class="z'+k+'"></i></span></span>'+z+'</button>'}).join('')+'</div>';
+    $$('#zoneCard .zbtns button').forEach(function(b){b.addEventListener('click',function(){
+      var k=+b.dataset.k;zsel[i]=k;$$('#zoneCard .zbtns button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      var g=$('#feat'+i);g.classList.remove('z0','z1','z2','bad');g.classList.add('z'+k);zCount();$('#zoneFb').innerHTML='';
+    })});
+  }
+  $('#zoneCheck').addEventListener('click',function(){
+    var n=Object.keys(zsel).length;
+    if(n<FEAT.length){$('#zoneFb').innerHTML='<div class="fb no">Mark all '+FEAT.length+' spots first. '+(FEAT.length-n)+' left.</div>';return;}
+    var wrong=FEAT.map(function(f,i){return zsel[i]===f.a?-1:i}).filter(function(i){return i>=0});
+    wrong.forEach(function(i){var g=$('#feat'+i);g.classList.remove('bad');void g.getBBox();g.classList.add('bad')});
+    if(!wrong.length)$('#zoneFb').innerHTML='<div class="fb"><b>All ten correct.</b> Water, wells, drains and edibles are off limits; blooms, pavement and play areas get targeted treatment only; the foundation and shrubs are treated per label.</div>';
+    else{var f=FEAT[wrong[0]];$('#zoneFb').innerHTML='<div class="fb no">'+(FEAT.length-wrong.length)+' of '+FEAT.length+' correct. The flashing spots need another look. <b>'+f.n+':</b> '+f.e+'</div>';}
+  });
+
+  /* ---------- triple rinse order ---------- */
+  var RS=['Empty the container into the spray tank and let it drain 10 seconds after it starts to drip','Fill the container about one-quarter full with water and cap it','Shake for 10 seconds so the water rinses every inside surface','Pour the rinse water into the spray tank and drain 10 seconds after dripping starts','Repeat the fill, shake and drain two more times','Rinse the cap, let the container dry, then recycle or dispose of it as the label directs'];
+  var RO=[3,0,5,1,4,2],rbx=$('#rinse'),rn=0;
+  function renderRinse(){
+    rbx.innerHTML='';rn=0;$('#rinseFb').innerHTML='';
+    RO.forEach(function(ix){var b=document.createElement('button');b.type='button';b.dataset.ix=ix;b.id='rinse'+ix;b.innerHTML='<span class="num">·</span><span>'+RS[ix]+'</span>';
+      b.addEventListener('click',function(){
+        if(b.classList.contains('placed'))return;
+        if(+b.dataset.ix===rn){b.classList.add('placed');$('.num',b).textContent=rn+1;rn++;
+          if(rn===RS.length){$('#rinseFb').innerHTML='<div class="fb">Correct. Three rinses, each one into the tank, so nothing reaches the ground. <button type="button" class="btn" id="rinseAgain" style="margin-left:8px;padding:4px 12px">Try again</button></div>';$('#rinseAgain').addEventListener('click',renderRinse);}}
+        else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');$('#rinseFb').innerHTML='<div class="fb no">Not yet. Where does each rinse go, and how many rinses are there?</div>';}
+      });rbx.appendChild(b);});
+  }
+  renderRinse();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>

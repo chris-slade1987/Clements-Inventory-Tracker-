@@ -1,0 +1,1409 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FC-10 PestPac Mobile</title>
+<style>
+/* Layout: CanopyOS Training slide player. Forest chrome band, light canvas lesson body in a 16:9 frame (free height on phones), nav bar below. */
+:root{
+  --font:"Helvetica Neue",Arial,Helvetica,system-ui,sans-serif;
+  --brand-50:#EEF4F0;--brand-100:#DCE9DF;--brand-200:#C3DAC9;--brand-300:#A3C6AB;--brand-400:#74A96E;--brand-500:#4F8A5F;--brand-600:#2E6F47;--brand-700:#1F5836;--brand-800:#144229;--brand-900:#0B3D20;
+  --forest-light:#12492B;--forest:#0B3D20;--forest-deep:#082E18;--forest-ink:#061F11;--mint:#A7BDB0;--on-forest:#EEF4F0;
+  --canvas:#F4F6F5;--surface:#FFFFFF;--ink:#1D2A23;--muted:#5C6B62;--line:#D9DEDA;
+  --positive:#1F7A45;--celebrate:#1F9D57;--warning:#E3B23C;--danger:#DC2626;
+  --grad-forest:linear-gradient(162deg,#12492B,#0B3D20 46%,#061F11);
+  --grad-emerald:linear-gradient(150deg,#2E6F47,#1F5836 55%,#0B3D20);
+  --grad-card:linear-gradient(160deg,#FFFFFF,#F4F6F5);
+  --radius:12px;--radius-sheet:16px;--pill:999px;
+  --shadow-card:0 1px 2px rgba(8,37,24,.04),0 14px 30px -22px rgba(8,37,24,.5);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;font-family:var(--font);font-weight:300;color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.12;text-wrap:balance}
+p{margin:0;max-width:62ch}
+ul,ol{margin:0;padding:0}
+b,strong{font-weight:500}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--brand-400);outline-offset:3px;border-radius:8px}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* shell */
+.shell{max-width:max(760px,min(1280px,calc((100svh - 190px) * 16 / 9 + 32px)));margin:0 auto;padding-inline:16px;padding-block:16px 24px;display:flex;flex-direction:column;gap:12px}
+.frame{border-radius:var(--radius-sheet);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--line);background:var(--canvas);display:flex;flex-direction:column}
+.band{background:var(--grad-forest);color:var(--on-forest);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.10);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;font-size:17px}
+.wordmark{font-weight:300;letter-spacing:-.01em;color:var(--on-forest)}
+.brand .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
+.brand .tr{color:var(--mint)}
+.band-r{display:flex;align-items:center;gap:16px}
+.count{color:var(--mint);font-variant-numeric:tabular-nums;font-size:14px}
+.code-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:var(--pill);padding:6px 14px;font-size:14px;color:var(--on-forest)}
+.band.alert{box-shadow:inset 0 -3px 0 var(--warning)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:0}
+.slide{display:none;position:absolute;inset:0;overflow:auto;padding:44px 56px}
+.slide.on{display:flex;flex-direction:column;justify-content:center;gap:24px}
+.slide.forest{background:var(--grad-forest);color:var(--on-forest)}
+.slide.forest h1,.slide.forest h2{color:var(--on-forest)}
+.slide.forest .lead{color:var(--mint)}
+
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.forest .eyebrow{color:var(--mint)}
+.display{font-size:clamp(34px,5.4vw,64px)}
+h2{font-size:clamp(24px,3vw,36px)}
+h3{font-size:18px}
+.lead{font-size:clamp(16px,1.7vw,20px);color:var(--muted);max-width:56ch}
+.em{color:var(--brand-600)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* entrance motion: runs on show, resting state is fully visible */
+.slide.on .a{animation:rise .22s ease-in-out both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:20px;min-width:0}
+.card h3{margin-bottom:6px}
+.card p{font-size:15px;color:var(--muted)}
+.icobox{width:40px;height:40px;border-radius:10px;background:var(--brand-50);color:var(--brand-600);display:grid;place-items:center;margin-bottom:12px}
+.forest .icobox{background:rgba(255,255,255,.06);color:var(--mint)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.split > *{min-width:0}
+.callout{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 18px;font-size:15px}
+.callout .ico{color:var(--brand-600);margin-top:2px}
+.callout.warn{border-left-color:var(--warning)}
+.callout.warn .ico{color:#8F6400}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .ico{color:var(--danger)}
+.bar-forest{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;font-size:15px}
+.bar-forest .ico{color:var(--mint)}
+.chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border-radius:var(--pill);padding:3px 10px;font-size:12px;font-weight:400}
+
+/* steps */
+.steps{list-style:none;display:grid;gap:0}
+.steps li{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);font-size:17px}
+.steps li:last-child{border-bottom:0}
+.num{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--brand-300);color:var(--brand-600);display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums}
+.num.red{border-color:var(--danger);color:var(--danger)}
+.red{color:var(--danger)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px}
+.btn{border:1px solid #CFE0D6;background:var(--surface);color:#0E1B15;border-radius:var(--radius);padding:10px 18px;font-weight:500;font-size:15px}
+.btn.primary{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.track{flex:1;height:8px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .7s ease-out}
+.navinfo{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+.gate{font-size:13px;color:#8F6400}
+
+/* choices */
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;font-size:16px;font-weight:300;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.choice:hover:not([disabled]){border-color:var(--brand-400)}
+.choice .k{flex:0 0 30px;height:30px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:grid;place-items:center;font-size:13px;font-weight:400}
+.choice.right{border-color:var(--positive);background:#EAF5EE}
+.choice.right .k{background:var(--positive);color:#fff}
+.choice.wrong{border-color:var(--danger);background:#FDEEEE}
+.choice.wrong .k{background:var(--danger);color:#fff}
+.choice[disabled]{cursor:default}
+.fb{font-size:15px;padding:12px 16px;border-radius:var(--radius);background:var(--brand-50);border-left:3px solid var(--positive)}
+.fb.no{background:#FDEEEE;border-left-color:var(--danger)}
+.cp-tag{display:flex;align-items:center;gap:10px}
+.cp-tag .state{font-size:12px;color:var(--muted)}
+.cp-tag .state.ok{color:var(--positive)}
+
+/* figure */
+.figbox{background:var(--grad-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:16px;display:flex;justify-content:center}
+.figbox svg{width:100%;max-width:260px;height:auto}
+.wear{opacity:0;transform:scale(.94);transform-origin:center;transform-box:fill-box;transition:opacity .22s ease-in-out,transform .22s ease-in-out}
+.wear.on{opacity:1;transform:none}
+.kit{display:grid;gap:8px}
+.kit button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.kit button .ico{color:var(--brand-600)}
+.kit button span small{display:block;color:var(--muted);font-size:13px}
+.kit button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.kit button[aria-pressed="true"]::after{content:"Worn";margin-left:auto;font-size:12px;color:var(--positive)}
+
+/* label mock */
+.label{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:14px;line-height:1.55;position:relative;box-shadow:var(--shadow-card)}
+.label .lt{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.label .sig{display:inline-block;border:1px solid var(--ink);padding:2px 10px;font-weight:500;font-size:13px;letter-spacing:.08em}
+.hl{background:linear-gradient(transparent 60%,var(--brand-100) 60%);background-size:0% 100%;background-repeat:no-repeat;transition:background-size .7s ease-in-out}
+.slide.on .hl{background-size:100% 100%}
+.slide.on .hl.d2{transition-delay:.5s}.slide.on .hl.d3{transition-delay:1s}
+
+/* matrix */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--brand-50)}
+tr:last-child td{border-bottom:0}
+td.y{color:var(--brand-700);font-weight:500}
+td.l{color:#8F6400}
+
+/* picker */
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:7px 14px;font-size:14px;font-weight:300}
+.pick button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.pick button.miss{border-color:var(--danger);color:var(--danger)}
+.pick button.extra{border-color:#8F6400}
+.scen-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.scen-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:6px 14px;font-size:13px}
+.scen-tabs button[aria-pressed="true"]{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.scen-tabs button.done::after{content:" · done";color:var(--positive)}
+
+/* respirator seal animation */
+.seal svg{width:100%;max-width:300px;height:auto}
+.mask-body{fill:var(--brand-50);stroke:var(--brand-700);stroke-width:2}
+.cart{fill:var(--ink)}
+.cart-band{fill:none;stroke:var(--surface);stroke-width:2}
+.puff{fill:none;stroke:var(--brand-400);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.slide.on .seal.pos .puff{animation:puff 2.6s ease-in-out infinite}
+.slide.on .seal.neg .mask-body{animation:suck 2.6s ease-in-out infinite;transform-origin:150px 120px}
+@keyframes puff{0%,30%{opacity:0;transform:translateX(0)}55%{opacity:.9}100%{opacity:0;transform:translateX(16px)}}
+@keyframes suck{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--pill);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 16px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--brand-600);color:#fff}
+
+/* order exercise */
+.order{display:grid;gap:8px}
+.order button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300;font-size:15px}
+.order button .num{flex-basis:28px;height:28px}
+.order button.placed{border-color:var(--brand-600);background:var(--brand-50)}
+.order button.bad{border-color:var(--danger);animation:shake .3s ease-in-out}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* timer */
+.timer{display:grid;justify-items:center;gap:14px}
+.ring{width:220px;height:220px}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--brand-100)}
+.ring .fg{stroke:var(--brand-600);stroke-linecap:round;transition:stroke-dashoffset .9s linear;transform:rotate(-90deg);transform-origin:110px 110px}
+.ring text{font-family:var(--font);font-weight:300;font-size:46px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring .sub{font-size:11px;letter-spacing:.18em;fill:var(--muted)}
+
+/* phone card */
+.phone{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:26px;display:grid;gap:18px}
+.phone .row{display:grid;gap:2px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.10)}
+.phone .row:last-child{border-bottom:0;padding-bottom:0}
+.phone .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+.phone .num-big{font-size:clamp(24px,2.6vw,34px);font-variant-numeric:tabular-nums;user-select:all}
+
+/* heat */
+.heat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.heat .card.stroke{border-color:var(--danger)}
+.heat .card.stroke h3{color:var(--danger)}
+
+/* checklist */
+.check{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;cursor:pointer;height:100%}
+.check input{accent-color:var(--brand-600);width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .18s}
+.dots i.cur{width:24px;border-radius:var(--pill);background:var(--brand-600)}
+.dots i.ok{background:var(--positive)}
+.dots i.no{background:var(--danger)}
+.qtype{color:var(--brand-600);font-size:15px}
+.qtext{font-size:clamp(20px,2.4vw,30px)}
+.result{display:grid;gap:16px;justify-items:start}
+.ringwrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.missed{display:grid;gap:6px;font-size:14px;width:100%}
+.missed div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.cert{background:var(--grad-forest);color:var(--on-forest);border-radius:var(--radius-sheet);padding:24px;display:grid;gap:8px;width:100%;max-width:640px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:15px}
+.cert dt{color:var(--mint);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.cert dd{margin:0}
+.field{display:grid;gap:6px;max-width:360px;width:100%}
+.field input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+
+/* title draw */
+.draw path,.draw circle,.draw rect{stroke-dasharray:400;stroke-dashoffset:400}
+.slide.on .draw path,.slide.on .draw circle,.slide.on .draw rect{animation:draw 1.8s ease-in-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.toc{list-style:none;display:grid}
+.toc li{display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);font-size:clamp(16px,1.8vw,22px)}
+.toc li span{color:var(--mint);font-size:13px;font-variant-numeric:tabular-nums;width:22px}
+
+@media (max-width:860px){
+  .stage{aspect-ratio:auto}
+  .slide{position:static;padding:28px 20px}
+  .slide.on{justify-content:flex-start}
+  .g3,.g4,.split,.heat{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .check{grid-template-columns:1fr}
+  .band{padding:12px 16px}
+  .navinfo{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .draw path,.draw circle,.draw rect{stroke-dashoffset:0}.wear{transition:none}.hl{background-size:100% 100%}}
+/* shared components (timeline, flip cards, map, sort, org, path, door, quote) */
+.yrs{font-size:clamp(64px,9vw,120px);line-height:1;font-variant-numeric:tabular-nums;color:var(--on-forest);letter-spacing:-.02em}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:6px}
+.tl::before{content:"";position:absolute;left:10%;right:10%;top:25px;height:2px;background:var(--brand-100)}
+.tl .fill{position:absolute;left:10%;top:25px;height:2px;background:var(--brand-600);width:0;transition:width .5s ease-in-out}
+.tl button{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;background:none;border:0;padding:0;font-weight:300;text-align:center}
+.tl .dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);transition:background .18s ease-in-out,color .18s ease-in-out,border-color .18s ease-in-out}
+.tl button[aria-pressed="true"] .dot,.tl button.seen .dot{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.tl .yr{font-size:15px;font-variant-numeric:tabular-nums}
+.tl .tg{font-size:12px;color:var(--muted)}
+.tldetail{min-height:150px}
+.tldetail .card{animation:rise .22s ease-in-out both}
+.flip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.flip button{position:relative;min-height:210px;border:0;background:none;padding:0;perspective:900px;text-align:left;font-weight:300}
+.flip .in{position:absolute;inset:0;transition:transform .5s ease-in-out;transform-style:preserve-3d}
+.flip button[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px}
+.flip .front{background:var(--grad-card);border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.flip .back{background:var(--grad-forest);color:var(--on-forest);transform:rotateY(180deg);font-size:15px}
+.flip .back b{color:#fff}
+.flip h3{font-size:24px}
+.flip .hint{margin-top:auto;font-size:13px;color:var(--brand-600)}
+.map{position:relative}
+.map svg{width:100%;height:auto;max-height:58vh;display:block}
+.sort{grid-template-columns:1fr 1fr}
+#vBox .choices{grid-template-columns:1fr 1fr}
+@media (max-width:860px){.sort,#vBox .choices{grid-template-columns:1fr}}
+.fl{fill:var(--brand-50);stroke:var(--brand-400);stroke-width:1.4;stroke-linejoin:round}
+.spoke{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-dasharray:3 4;opacity:.8}
+.slide.on .spoke{animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.pin{cursor:pointer}
+.pin circle.core{fill:var(--brand-600);stroke:#fff;stroke-width:2;transition:r .18s ease-in-out}
+.pin.hub circle.core{fill:var(--forest)}
+.pin circle.halo{fill:var(--brand-400);opacity:0;transform-box:fill-box;transform-origin:center}
+.slide.on .pin circle.halo{animation:halo 2.6s ease-out infinite}
+.slide.on .pin:nth-of-type(2) circle.halo{animation-delay:.6s}.slide.on .pin:nth-of-type(3) circle.halo{animation-delay:1.2s}.slide.on .pin:nth-of-type(4) circle.halo{animation-delay:1.8s}
+@keyframes halo{0%{opacity:.45;transform:scale(.6)}100%{opacity:0;transform:scale(2.4)}}
+.pin text{font-family:var(--font);font-size:8px;fill:var(--ink);font-weight:400}
+.pin.sel circle.core{stroke:var(--forest);stroke-width:3}
+.blist{display:grid;gap:8px}
+.blist button{display:flex;gap:12px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-weight:300}
+.blist button[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.blist button small{display:block;color:var(--muted);font-size:13px}
+.hubwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.hubwrap .arrow{display:grid;place-items:center;color:var(--brand-400)}
+.hubwrap ul{list-style:none;display:grid;gap:8px;margin-top:10px}
+.hubwrap li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.hubwrap li .ico{color:var(--brand-600);width:20px;height:20px;margin-top:2px}
+.sort{display:grid;gap:8px}
+.sort .row{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;font-size:15px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.sort .row.ok{border-color:var(--positive);background:#EAF5EE}
+.sort .row.no{border-color:var(--danger);background:#FDEEEE}
+.sort .opts{display:flex;gap:6px;flex:0 0 auto}
+.sort .opts button{border:1px solid var(--line);background:var(--surface);border-radius:var(--pill);padding:5px 12px;font-size:13px}
+.sort .opts button[aria-pressed="true"]{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+.sort .why{font-size:13px;color:var(--muted);flex-basis:100%}
+.org{display:grid;gap:10px}
+.org .tier{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+.org .tier > span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.org .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.org .p{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;font-weight:300;line-height:1.3;min-width:0}
+.org .p b{display:block;font-size:14px}
+.org .p small{display:block;color:var(--muted);font-size:12px}
+.org .p[aria-pressed="true"]{border-color:var(--brand-600);background:var(--brand-50)}
+.org .p.seen:not([aria-pressed="true"]){border-color:var(--brand-200)}
+.who ul{list-style:none;display:grid;gap:6px;margin-top:10px;font-size:15px}
+.who li{display:flex;gap:10px}
+.who li::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--brand-400);margin-top:9px}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.path .st{position:relative;display:grid;gap:8px;padding:0 10px}
+.path .st .n{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--brand-300);display:grid;place-items:center;color:var(--brand-600);position:relative;z-index:1}
+.path .st::after{content:"";position:absolute;top:23px;left:56px;right:-10px;height:2px;background:var(--brand-200);transform-origin:left;transform:scaleX(0)}
+.slide.on .path .st::after{animation:grow .5s ease-in-out forwards;animation-delay:calc(var(--i,0) * 220ms + .3s)}
+.path .st:last-child::after{display:none}
+@keyframes grow{to{transform:scaleX(1)}}
+.path .st h3{font-size:16px}
+.path .st p{font-size:14px;color:var(--muted)}
+.path .st.top .n{background:var(--grad-emerald);color:#fff;border-color:transparent}
+.quote{font-size:clamp(20px,2.4vw,28px);line-height:1.35;border-left:3px solid var(--brand-600);padding-left:20px;max-width:46ch}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.forest .quote{border-left-color:var(--mint)}
+.forest .quote cite{color:var(--mint)}
+.door{display:grid;gap:10px}
+.door .pair{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:center}
+.door .pair .ico{color:var(--brand-400);justify-self:center}
+.door .then{font-size:15px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:12px 14px}
+.door .now{font-size:15px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--radius);padding:12px 14px}
+.door .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+@media (max-width:860px){
+  .flip,.hubwrap,.path,.org .cards{grid-template-columns:1fr}
+  .hubwrap .arrow{transform:rotate(90deg)}
+  .org .tier{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl .tg{display:none}
+  .door .pair{grid-template-columns:1fr}
+  .door .pair .ico{transform:rotate(90deg)}
+  .path .st::after{display:none}
+  .flip button{min-height:180px}
+}
+@media (prefers-reduced-motion:reduce){.flip .in{transition:none}.path .st::after{transform:none}}
+
+
+/* FC-10 · PestPac Mobile: phone mocks, order list, timing bars, materials form, record checker, note picker, end of day */
+.dots-list{list-style:none;display:grid;gap:5px;margin-top:8px;font-size:14.5px;line-height:1.45}
+.dots-list li{position:relative;padding-left:16px}
+.dots-list li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--brand-400)}
+.dots-list.nev li::before{background:var(--danger)}
+.tight{gap:14px}
+.tight .steps li{padding:9px 0;font-size:15px}
+.tight .num{flex-basis:28px;height:28px;font-size:13px}
+.tight .callout{padding:11px 16px}
+.slide .card h3{margin-bottom:4px}
+.meter{height:6px;background:var(--brand-100);border-radius:var(--pill);overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;width:0;background:var(--grad-emerald);transition:width .22s ease-in-out}
+
+/* sync figures */
+.syncfig svg,.nosig svg{max-width:320px}
+.sf-l{fill:none;stroke:var(--brand-600);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sf-f{fill:var(--brand-100);stroke:var(--brand-400);stroke-width:1}
+.sf-d{fill:none;stroke:var(--brand-500);stroke-width:2;stroke-dasharray:4 6;stroke-linecap:round}
+.slide.on .sf-d{animation:dash 1.8s linear infinite}
+.slide.on .sf-r{animation-direction:reverse}
+.figbox text{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.ns-x{fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round}
+.slide.on .ns-d{animation:none;opacity:.35}
+.slide.on .nosig .q1,.slide.on .nosig .q2,.slide.on .nosig .q3{animation:qpulse 2.4s ease-in-out infinite}
+.slide.on .nosig .q2{animation-delay:.3s}.slide.on .nosig .q3{animation-delay:.6s}
+@keyframes qpulse{0%,100%{fill:var(--brand-100)}50%{fill:var(--brand-300)}}
+
+/* phone mock */
+.pmock{width:270px;height:500px;border:1px solid var(--line);border-radius:30px;background:var(--surface);box-shadow:var(--shadow-card);padding:12px;display:flex;flex-direction:column;gap:8px;position:relative}
+.pmock::before{content:"";position:absolute;top:6px;left:50%;width:60px;height:4px;margin-left:-30px;border-radius:4px;background:var(--line)}
+.ps-top{display:flex;justify-content:space-between;align-items:center;background:var(--grad-forest);color:var(--on-forest);border-radius:14px 14px 6px 6px;padding:10px 12px;font-size:14px;margin-top:6px}
+.ps-top .ico{color:var(--mint);width:18px;height:18px}
+.ps-body{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.ps-st{font-size:11px;border-radius:var(--pill);padding:2px 9px;background:rgba(255,255,255,.12)}
+.oc{display:grid;gap:4px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--grad-card);text-align:left;font-weight:300;width:100%}
+.oc-m b{display:block;font-weight:500;font-size:13.5px}
+.oc-m span{color:var(--muted);font-size:12px}
+.oc-i{display:flex;gap:4px;padding-top:4px;border-top:1px solid var(--line)}
+.oc-i button{flex:1;display:grid;place-items:center;border:1px solid transparent;background:var(--brand-50);color:var(--brand-700);border-radius:8px;padding:5px 0}
+.st-pill{justify-self:start;font-size:11px;border-radius:var(--pill);padding:2px 10px;border:1px solid var(--line);background:var(--surface)}
+.s-ns{color:var(--muted)}
+.s-ip{color:var(--brand-700);border-color:var(--brand-300);background:var(--brand-50)}
+.s-pa{color:var(--ink);border-style:dashed}
+.s-co{color:#fff;background:var(--positive);border-color:var(--positive)}
+.ps-top .s-co{background:var(--positive)}
+#olList [data-k]{cursor:pointer;box-shadow:0 0 0 2px var(--brand-200);transition:box-shadow .18s ease-in-out}
+#olList [data-k].seen{box-shadow:0 0 0 2px var(--brand-500)}
+#olList [data-k].sel{box-shadow:0 0 0 3px var(--forest)}
+.pmock.big{height:510px}
+.tap{cursor:pointer}
+.pulse{box-shadow:0 0 0 0 rgba(79,138,95,.5)}
+.slide.on .pulse{animation:ring 2.2s ease-out infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(79,138,95,.55)}70%,100%{box-shadow:0 0 0 10px rgba(79,138,95,0)}}
+.sec{display:grid;gap:2px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface)}
+.sec .eyebrow{font-size:10px}
+.sec b{font-weight:500}
+.sec.ctr{justify-items:center;text-align:center;padding:14px 10px}
+.pbtns{display:flex;gap:8px;margin-top:auto}
+.pb{flex:1;border:0;border-radius:10px;padding:10px;font-weight:500;font-size:14px}
+.pb.go{background:var(--grad-emerald);color:#fff}
+.pb.grey{background:var(--canvas);border:1px solid var(--line)}
+.pb[disabled]{opacity:.4;cursor:not-allowed}
+.pb.link{background:none;color:var(--muted);font-weight:300;font-size:12px;padding:4px;text-decoration:underline}
+.ahead{display:flex;justify-content:space-between;align-items:center;font-weight:500;font-size:13.5px}
+.nicon{border:1px solid var(--brand-300);background:var(--brand-50);color:var(--brand-700);border-radius:8px;width:34px;height:30px;display:grid;place-items:center}
+.nicon.done{background:var(--brand-600);color:#fff}
+.aw{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface);text-align:left;font-weight:400;width:100%}
+.aw small{display:block;color:var(--muted);font-weight:300;font-size:11.5px;line-height:1.35}
+.aw .ico{color:var(--brand-500)}
+.aw.done{border-color:var(--brand-400);background:var(--brand-50)}
+.aw.done .ico{color:var(--positive)}
+.prel{display:grid;gap:6px}
+.prel button{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 10px;font-weight:300}
+.ntext{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:120px;background:var(--surface);font-size:12.5px;line-height:1.5}
+.sigpad{height:70px;border:1px dashed var(--brand-400);border-radius:10px;background:var(--canvas);display:grid;place-items:center;color:var(--muted);width:100%}
+.sigpad svg{width:90%;height:50px}
+.sigline{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.2s ease-in-out forwards}
+.sync-ring{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--brand-50);color:var(--positive);margin-bottom:6px}
+.slide.on .sync-ring .ico{animation:spin 2.4s linear 1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pw-steps{display:flex;gap:6px;flex-wrap:wrap}
+.pw-steps span{font-size:12px;border-radius:var(--pill);padding:4px 11px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.pw-steps span.cur{border-color:var(--brand-600);color:var(--brand-700);background:var(--brand-50)}
+.pw-steps span.done{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+
+/* timing */
+.tml{display:grid;gap:10px}
+.tml-axis{display:grid;grid-template-columns:repeat(6,1fr);margin-left:140px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tml-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;font-size:14px}
+.tml-bar{position:relative;height:22px;background:var(--canvas);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tml-bar i{position:absolute;top:3px;bottom:3px;border-radius:4px;transition:left .22s ease-in-out,width .22s ease-in-out}
+.tml-bar .act{background:var(--brand-300)}
+.tml-bar .rec.ok{background:var(--grad-emerald)}
+.tml-bar .rec.no{background:var(--danger)}
+
+/* materials form */
+.matform{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.mf-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--grad-forest);color:var(--on-forest);padding:10px 14px;font-size:14px}
+.mf-row{display:grid;grid-template-columns:130px 1fr;gap:10px;padding:8px 14px;border-top:1px solid var(--line);font-size:14px}
+.mf-row span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.mf-row b{font-weight:400}
+
+/* order screen list */
+#osList button{padding:8px 14px}
+
+/* record checker */
+.rec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+.rec-h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--brand-50)}
+.rec-r{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 14px;border-top:1px solid var(--line);font-size:14px}
+.rec-r span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.rec-r b{font-weight:400}
+.rec-r b.blank{color:var(--danger)}
+
+/* note picker */
+.npslot{display:grid;gap:5px}
+.npslot .pick button{text-align:left;border-radius:10px;font-size:13px;padding:6px 10px;line-height:1.35}
+.notecard{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand-600);border-radius:var(--radius);padding:14px 16px;font-size:14.5px;line-height:1.5}
+.notecard p{margin-top:6px}
+
+/* end of day */
+.eod{display:grid;gap:7px}
+.eod-r{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;font-size:14px;transition:border-color .18s ease-in-out,background .18s ease-in-out}
+.eod-r b{font-weight:500}
+.eod-r small{display:block;color:var(--muted);font-size:12.5px}
+.eod-r .seg button{padding:5px 12px;font-size:13px}
+.eod-r .why{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.eod-r .why:empty{display:none}
+.eod-r.ok{border-color:var(--positive);background:#EAF5EE}
+.eod-r.no{border-color:var(--danger);background:#FDEEEE}
+.eod-n{font-size:64px;line-height:1;font-variant-numeric:tabular-nums;color:var(--brand-700);margin:6px 0}
+
+.flip button{min-height:170px}
+.flip .face{padding:18px}
+.flip h3{font-size:21px}
+
+@media (max-width:860px){
+  .pmock,.pmock.big{width:100%;max-width:300px;margin:0 auto}
+  .tml-axis{margin-left:0;grid-template-columns:repeat(6,1fr)}
+  .tml-row{grid-template-columns:1fr}
+  .mf-row,.rec-r{grid-template-columns:1fr;gap:2px}
+  .eod-r{grid-template-columns:1fr}
+  .sort .row{flex-wrap:wrap}
+  .sort .opts{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){.sigline{stroke-dashoffset:0}}
+
+#wSort{grid-template-columns:1fr;gap:6px}
+#wSort .row{padding:7px 12px}
+#osList{gap:6px}
+#osList button{padding:6px 14px}
+#sBox .choices{grid-template-columns:1fr 1fr}
+#sBox .choice{padding:10px 14px;font-size:15px}
+.eod-r{padding:6px 12px}
+.notecard{font-size:13.5px;padding:12px 14px}
+#npFb .fb{font-size:13.5px;padding:10px 14px}
+@media (max-width:860px){#sBox .choices{grid-template-columns:1fr}}
+.npslot .pick{gap:5px}
+.npslot .pick button{padding:4px 10px}
+section[data-label="Practice: write a good note"]{gap:10px}
+.pick button.miss[aria-pressed="true"],.pick button.extra[aria-pressed="true"]{background:#FDEEEE;color:var(--danger);border-color:var(--danger)}
+.ps-top .ps-st{color:var(--on-forest);border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08)}
+.ps-top .ps-st.s-co{background:var(--positive);border-color:var(--positive)}
+.sec .chip{text-transform:none;letter-spacing:0;margin-left:4px;padding:1px 7px;font-size:10px}
+.tml-axis{display:block;position:relative;height:18px}
+.tml-axis span{position:absolute;top:0;transform:translateX(-50%)}
+.tml-axis span:first-child{transform:none}
+@media (max-width:860px){.tml-axis{margin-left:0}}
+#wSort .row{display:grid;grid-template-columns:1fr auto;gap:2px 12px}
+#wSort .why{grid-column:1/-1;font-size:12.5px}
+.flip .back{font-size:14px;line-height:1.5}
+@media (max-width:860px){
+  .split{grid-template-columns:1fr!important}
+  #wSort .row{grid-template-columns:1fr}
+  .tml-axis{margin-left:0!important}
+}
+section[data-label="Practice: where would you find it?"] h2{font-size:clamp(20px,2.2vw,26px)}
+section[data-label="Practice: where would you find it?"]{gap:10px}
+#wSort{gap:4px}
+#wSort .row{padding:5px 12px}
+#wSort .row .opts button{padding:4px 10px}
+
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7a7 7 0 01-7 7h-.5a6 6 0 01-5-2.7L3.8 13.6a1.6 1.6 0 012.6-1.8L8 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 10-3-3"/><path d="M3 12h15a3 3 0 11-3 3"/><path d="M3 16h7"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 4h14l-1.5 15a2 2 0 01-2 1.8h-7a2 2 0 01-2-1.8z"/><path d="M5.5 9h13"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 006 6L15 13l5 2v3a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 014 0v8.5a4 4 0 11-4 0z"/><path d="M12 9v7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4"/><path d="M3 14l1.5-6M21 14l-1.5-6"/></symbol>
+    <symbol id="i-boot" viewBox="0 0 24 24"><path d="M7 3h6v9l6 3.5V20H5V12z"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5 5.5 11 7 10v11h10V10l1.5 1L21 6.5 16 3a4 4 0 01-8 0z"/></symbol>
+    <symbol id="i-mask" viewBox="0 0 24 24"><path d="M5 9c2-3 12-3 14 0l-1 6c-1 3-4 5-6 5s-5-2-6-5z"/><circle cx="8" cy="14" r="1.6"/><circle cx="16" cy="14" r="1.6"/><path d="M5 9L3 7M19 9l2-2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 13l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14a6.5 6.5 0 013.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.8-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 9c0 6.2-8 11-8 11z"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 011-1h12a1 1 0 011 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12.5" r=".8"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-1.5 2-4 2h-2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 000-7H9a3.5 3.5 0 010-7h6.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+
+  </defs>
+</svg>
+
+<div class="shell">
+<div class="frame">
+  <header class="band" id="band">
+    <div class="brand"><span class="wordmark" aria-label="CanopyOS">CanopyOS</span><span class="sep" aria-hidden="true"></span><span class="tr">Training</span></div>
+    <div class="band-r"><span class="count" id="count">01 / 32</span><span class="code-chip">FC-10 · PestPac Mobile</span></div>
+  </header>
+  <main class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0014.3 4.6L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-nosig" viewBox="0 0 24 24"><path d="M5 19v-2M9 19v-5M13 19v-8M17 19V8"/><path d="M3 3l18 18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.7"/><path d="M4 4v4h4"/></symbol>
+  </defs></svg>
+
+  <!-- 1 TITLE -->
+  <section class="slide forest" data-label="Title">
+    <div class="split">
+      <div class="grid" style="gap:20px">
+        <span class="eyebrow a">Field Core · FC-10</span>
+        <h1 class="display a" style="--i:1">PestPac Mobile</h1>
+        <p class="lead a" style="--i:2">Your route, your service orders and your legal record, all in one app. How to start the day, work an order from open to complete, record products the way Florida requires, write notes customers read, and keep the data right.</p>
+        <div class="a" style="--i:3;display:flex;gap:8px;flex-wrap:wrap"><span class="code-chip">45–55 min</span><span class="code-chip">4 checkpoints</span><span class="code-chip">20-question check · 80% to pass</span></div>
+      </div>
+      <div class="grid a" style="--i:2;justify-items:center">
+        <svg class="draw" viewBox="0 0 320 210" aria-hidden="true" style="width:100%;max-width:400px;stroke:#A7BDB0;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round">
+          <rect x="112" y="14" width="96" height="182" rx="14"/><path d="M146 26h28M152 184h16"/>
+          <rect x="124" y="44" width="72" height="26" rx="4"/><path d="M132 54h30M132 62h44"/>
+          <rect x="124" y="78" width="72" height="26" rx="4"/><path d="M132 88h36M132 96h24"/>
+          <rect x="124" y="112" width="72" height="26" rx="4"/><path d="M132 122h26M132 130h40"/>
+          <path d="M136 156l8 8 16-16"/>
+          <path d="M40 150c10-30 30-50 60-58"/><circle cx="36" cy="160" r="10"/><path d="M36 154v6l4 3"/>
+          <path d="M220 92c30 4 52 22 62 52"/><rect x="262" y="148" width="44" height="34" rx="4"/><path d="M270 160h28M270 170h18"/>
+          <path d="M28 60h44M28 72h30"/><rect x="20" y="44" width="60" height="40" rx="5"/>
+          <path d="M248 40a20 20 0 0136 0"/><path d="M256 46a10 10 0 0120 0"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide" data-label="Objectives">
+    <span class="eyebrow a">Course objectives</span>
+    <h2 class="a" style="--i:1">By the end of this course you will be able to:</h2>
+    <div class="grid g2">
+      <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-sync"/></svg><span>Start the day right: log in, sync, and read your Order List, instructions and account notes</span></div>
+      <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-clock"/></svg><span>Start each order on arrival and complete it before you drive to the next stop</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-drop"/></svg><span>Record every product, amount, target pest and area treated the way Florida rule 5E-14.142 expects</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-pen"/></svg><span>Write professional notes for the inspection report, and send office matters to technotes@</span></div>
+      <div class="callout a" style="--i:6"><svg class="ico"><use href="#i-reset"/></svg><span>Use Reset, Reschedule and Completion correctly, and know when the office must unpost an order</span></div>
+      <div class="callout a" style="--i:7"><svg class="ico"><use href="#i-nosig"/></svg><span>Keep working with no signal, and keep every record accurate, complete and true</span></div>
+    </div>
+  </section>
+
+  <!-- 3 WHY -->
+  <section class="slide" data-label="Why it matters">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Why this course matters</span>
+        <h2 class="a display" style="--i:1;font-size:clamp(28px,3.6vw,44px)">If it isn't posted in PestPac, <span class="em">it didn't happen.</span></h2>
+        <p class="quote a" style="--i:2;font-size:clamp(17px,1.8vw,21px)">"You are expected to log in to each appointment upon arrival at the customers' property, fill out relevant notes during the service, and log out of the appointment upon completion of the work before physically moving to the next stop."<cite>CLEMENTS EMPLOYEE POLICY HANDBOOK · POSTING WORK TO MOBILE APP</cite></p>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-shield"/></svg></div><div><h3>It is the legal record</h3><p>Florida rule 5E-14.142 requires pest control records to be recorded within two working days, kept at least two years and shown to FDACS inspectors on request. Your posted order is that record.</p></div></div></div>
+        <div class="card a" style="--i:4"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-mail"/></svg></div><div><h3>It is the customer's report</h3><p>Customers with an email on file get an inspection report with your notes after every service. It is often the only thing they read from us.</p></div></div></div>
+        <div class="card a" style="--i:5"><div style="display:flex;gap:14px"><div class="icobox" style="margin:0"><svg class="ico"><use href="#i-clock"/></svg></div><div><h3>It is proof of the work</h3><p>Start and finish times verify you were there. Billing, callbacks, complaints and your own defense all depend on what you posted.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PART ONE -->
+  <section class="slide forest" data-label="Part one: your day in the app">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part one</span>
+        <h1 class="display a" style="--i:1">Your day in the app</h1>
+        <p class="lead a" style="--i:2">Why it matters: ten minutes with the app before your first stop prevents a missed gate code, a skipped instruction or a stop left on last week's calendar.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Set up and stay secure</li><li><span>02</span>Start of day and sync</li><li><span>03</span>The Order List Screen</li><li><span>04</span>Words we use</li><li><span>05</span>Practice: where would you find it?</li></ol>
+    </div>
+  </section>
+
+  <!-- 5 SETUP -->
+  <section class="slide" data-label="Set up and stay secure">
+    <span class="eyebrow a">01 · Set up and stay secure</span>
+    <h2 class="a" style="--i:1">The app goes where you go. So does the responsibility.</h2>
+    <div class="grid g3" style="gap:14px;align-items:stretch">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-phone"/></svg></div><h3>Get set up</h3><ul class="dots-list">
+        <li>Install "PestPac Mobile" from the App Store or Google Play, on a company phone or your own</li>
+        <li>Your supervisor arranges your PestPac account and sign-in</li>
+        <li>Turn on location services so the map and directions work</li>
+        <li>Keep the app and phone updated</li></ul></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Your sign-in is yours</h3><ul class="dots-list">
+        <li>Never share it or sign in for someone else. Every order posted under it is recorded as your work</li>
+        <li>Screen lock on, phone never left in view in the truck</li>
+        <li>The app holds gate codes, pets and schedules. Lost phone? Tell your supervisor immediately</li></ul></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-truck"/></svg></div><h3>Never while driving</h3><ul class="dots-list">
+        <li>No texting, calling, browsing or app use while the truck is moving</li>
+        <li>Set the next stop's directions before you drive, or adjust them only when safely stopped</li>
+        <li>Calls go to voicemail; return them when parked</li></ul></div>
+    </div>
+    <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-book"/></svg><span>Personal phone used for work? The same professional and security standards apply as on a company phone (Mobile Device Policy). CW-10 covers passwords and phishing.</span></div>
+  </section>
+
+  <!-- 6 START OF DAY -->
+  <section class="slide tight" data-label="Start of day and sync">
+    <span class="eyebrow a">02 · Start of day and sync</span>
+    <h2 class="a" style="--i:1">Before the first stop</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:28px;align-items:center">
+      <ol class="steps a" style="--i:2">
+        <li><span class="num">1</span><span><b>Log in with a good signal</b> (shop or home Wi-Fi is ideal) so the day's orders and any office changes download. <span class="chip">sync timing: typical</span></span></li>
+        <li><span class="num">2</span><span><b>Read the Order List.</b> Every stop, in time order. Orders without a time sit at the top.</span></li>
+        <li><span class="num">3</span><span><b>Read the account notes and instructions</b> for every order: gate codes, pets, customer preferences, last visit's findings.</span></li>
+        <li><span class="num">4</span><span><b>Check the calendar for past dates.</b> No order should be sitting unserviced on an earlier day.</span></li>
+        <li><span class="num">5</span><span><b>Check your truck against the day:</b> products and equipment for every service on the list.</span></li>
+      </ol>
+      <div class="figbox a syncfig" style="--i:3">
+        <svg viewBox="0 0 300 200" aria-hidden="true">
+          <rect x="22" y="40" width="62" height="114" rx="10" class="sf-l"/><path d="M42 50h22" class="sf-l"/><rect x="32" y="66" width="42" height="12" rx="3" class="sf-f"/><rect x="32" y="84" width="42" height="12" rx="3" class="sf-f"/><rect x="32" y="102" width="42" height="12" rx="3" class="sf-f"/>
+          <path d="M100 82h96" class="sf-d"/><path d="M196 112h-96" class="sf-d sf-r"/>
+          <path d="M188 76l8 6-8 6M108 106l-8 6 8 6" class="sf-l"/>
+          <rect x="212" y="58" width="72" height="80" rx="8" class="sf-l"/><path d="M226 78h44M226 92h30M226 106h38M226 120h22" class="sf-l"/>
+          <text x="53" y="176" text-anchor="middle">PestPac Mobile</text><text x="248" y="160" text-anchor="middle">PestPac (office)</text>
+          <text x="148" y="72" text-anchor="middle">today's orders</text><text x="148" y="134" text-anchor="middle">your posted work</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ORDER LIST -->
+  <section class="slide" data-label="The Order List Screen">
+    <div class="split" style="grid-template-columns:auto 1fr;gap:34px">
+      <div class="pmock a" style="--i:2">
+        <div class="ps-top"><span>Orders · Today</span><svg class="ico"><use href="#i-search"/></svg></div>
+        <div class="ps-body" id="olList"></div>
+      </div>
+      <div class="grid" style="gap:14px">
+        <span class="eyebrow a">03 · The Order List Screen</span>
+        <h2 class="a" style="--i:1">Your route for the day. Select a status symbol or an icon.</h2>
+        <div class="card a" style="--i:2" id="olDetail"><span class="eyebrow">Select a highlighted item on the phone</span><p style="margin-top:6px">Each order card shows a status symbol at the top and action icons below it.</p></div>
+        <p class="small muted a" style="--i:3" id="olCount">0 of 9 explored</p>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-eye"/></svg><span>Screens here are simplified illustrations of PestPac Mobile. Labels match our Feb 2025 best-practice guide; your version may look slightly different.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 VOCAB -->
+  <section class="slide tight" data-label="Words we use">
+    <span class="eyebrow a">04 · Words we use</span>
+    <h2 class="a" style="--i:1">Same words, same meaning, tech to office. Select each card.</h2>
+    <div class="flip a" style="--i:2" id="vflip"></div>
+  </section>
+
+  <!-- 9 SORT -->
+  <section class="slide tight" data-label="Practice: where would you find it?">
+    <span class="eyebrow a">05 · Practice · where would you find it?</span>
+    <h2 class="a" style="--i:1">Service Instructions, Order Instructions or Account Notes?</h2>
+    <div class="sort a" style="--i:2" id="wSort"></div>
+    <div class="a" style="--i:3;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn primary" id="wCheck">Check my answers</button><span id="wFb"></span></div>
+  </section>
+
+  <!-- 10 CP1 -->
+  <section class="slide" data-label="Checkpoint 1" data-cp="1"></section>
+
+  <!-- 11 PART TWO -->
+  <section class="slide forest" data-label="Part two: working the order">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part two</span>
+        <h1 class="display a" style="--i:1">Working the order</h1>
+        <p class="lead a" style="--i:2">Why it matters: the times, products, pests and areas you post are what the State of Florida inspects and what the customer is billed for. Right time, right product, right amount, every stop.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>The Order Screen</li><li><span>02</span>Start on arrival, complete before you drive</li><li><span>03</span>Products and amounts: what Florida requires</li><li><span>04</span>Pests, areas, photos and payment</li><li><span>05</span>Practice: work an order</li><li><span>06</span>Practice: is this record complete?</li></ol>
+    </div>
+  </section>
+
+  <!-- 12 ORDER SCREEN -->
+  <section class="slide" data-label="The Order Screen">
+    <span class="eyebrow a">01 · The Order Screen</span>
+    <h2 class="a" style="--i:1">Read the order before you start. Select each section.</h2>
+    <div class="split" style="grid-template-columns:1fr 1.2fr;gap:24px;align-items:start">
+      <div class="blist a" style="--i:2" id="osList"></div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3" id="osDetail"></div>
+        <div class="bar-forest a" style="--i:4"><svg class="ico"><use href="#i-check"/></svg><span>At the bottom: <b>Start</b> (orange in the app) and <b>Reschedule</b> (grey). Once started, the options menu also offers <b>Reset Work Order</b>.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 TIMING -->
+  <section class="slide" data-label="Start on arrival">
+    <span class="eyebrow a">02 · Start on arrival, complete before you drive</span>
+    <h2 class="a" style="--i:1">Every order is clocked. What does your record say?</h2>
+    <div class="seg a" style="--i:2;align-self:start" id="tmSeg"></div>
+    <div class="card a tml" style="--i:3">
+      <div class="tml-axis" id="tmAxis"></div>
+      <div class="tml-row"><span>What happened</span><div class="tml-bar"><i class="act" style="left:4%;width:64%"></i></div></div>
+      <div class="tml-row"><span>What you posted</span><div class="tml-bar"><i class="rec" id="tmRec"></i></div></div>
+      <p id="tmOut" style="margin-top:12px;font-size:15px"></p>
+    </div>
+    <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clock"/></svg><span>Start when you get out of the truck. Complete when the work is done and the equipment is stowed, <b>before you drive away</b>. Then the record matches reality without any effort.</span></div>
+  </section>
+
+  <!-- 14 PRODUCTS -->
+  <section class="slide tight" data-label="Products and amounts">
+    <span class="eyebrow a">03 · Products and amounts: what Florida requires</span>
+    <h2 class="a" style="--i:1">Every product, every amount, every service</h2>
+    <div class="split" style="grid-template-columns:1fr 1.1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="card a" style="--i:2"><span class="eyebrow">Florida rule 5E-14.142 · F.A.C.</span><ul class="dots-list">
+          <li>Pest control records are kept for every licensee's work, including contracts</li>
+          <li>For restricted-use pesticides the record must show the <b>brand name, amount, use, date and location</b></li>
+          <li>Recorded <b>no later than two working days</b> after the application</li>
+          <li>Kept <b>at least two years</b> (three for preventive termite treatment in new construction), electronic records included, and produced for FDACS on request</li></ul></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-shield"/></svg><span><b>Clements standard:</b> record every product this way on every service, restricted-use or not. Recording it at the stop is easier than proving it later.</span></div>
+      </div>
+      <div class="matform a" style="--i:3">
+        <div class="mf-head"><span>Materials · add product</span><span class="chip">field names typical · confirm in your app</span></div>
+        <div class="mf-row"><span>Product</span><b>Brand name exactly as on the label</b></div>
+        <div class="mf-row"><span>EPA Reg. No.</span><b>From the label, if your screen asks</b></div>
+        <div class="mf-row"><span>Amount applied</span><b>The quantity, with the unit: gal, oz, g, lb</b></div>
+        <div class="mf-row"><span>Rate / dilution</span><b>The label rate you mixed or applied at</b></div>
+        <div class="mf-row"><span>Target pest(s)</span><b>What you were treating for (the "use")</b></div>
+        <div class="mf-row"><span>Area / site</span><b>Where it went (the "location")</b></div>
+        <div class="mf-row"><span>Date and time</span><b>Set by starting and completing the order</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 PESTS AREAS PHOTOS -->
+  <section class="slide tight" data-label="Pests, areas, photos and payment">
+    <span class="eyebrow a">04 · Pests, areas, photos and payment</span>
+    <h2 class="a" style="--i:1">Specific beats general, every time</h2>
+    <div class="grid g4" style="gap:12px;align-items:stretch">
+      <div class="card a" style="--i:2"><div class="icobox"><svg class="ico"><use href="#i-target"/></svg></div><h3>Target pests</h3><p>Name what you treated for: "German cockroach", "fire ants", "spiders". Not "bugs" or "general".</p></div>
+      <div class="card a" style="--i:3"><div class="icobox"><svg class="ico"><use href="#i-pin"/></svg></div><h3>Areas treated</h3><p>Where it went: "exterior perimeter, kitchen baseboards, garage". Never "everywhere". Note areas skipped and why.</p></div>
+      <div class="card a" style="--i:4"><div class="icobox"><svg class="ico"><use href="#i-cam"/></svg></div><h3>Photos</h3><p>Attach to the order: conducive conditions, damage, a damaged station, a locked gate. Never people. Never on social media. <span class="chip">attachments: typical</span></p></div>
+      <div class="card a" style="--i:5"><div class="icobox"><svg class="ico"><use href="#i-lock"/></svg></div><h3>Payment</h3><p>If you take payment at the stop, use only the app's approved process. Never write, text or photograph card numbers.</p></div>
+    </div>
+    <div class="bar-forest a" style="--i:6"><svg class="ico"><use href="#i-clip"/></svg><span><b>Products, pests and areas belong in the structured fields</b> where your screen has them, not only in the notes. The fields are what reports, audits and the next technician rely on.</span></div>
+  </section>
+
+  <!-- 16 PHONE WALKTHROUGH -->
+  <section class="slide" data-label="Practice: work an order">
+    <div class="split" style="grid-template-columns:auto 1fr;gap:34px">
+      <div class="pmock big a" style="--i:2">
+        <div class="ps-top"><span id="pwTitle">Orders · Today</span><span class="ps-st" id="pwStat">Not Started</span></div>
+        <div class="ps-body" id="pwBody"></div>
+      </div>
+      <div class="grid" style="gap:12px;align-content:center">
+        <span class="eyebrow a">05 · Practice · work an order</span>
+        <h2 class="a" style="--i:1">Take one order from open to complete</h2>
+        <div class="pw-steps a" style="--i:2" id="pwSteps"></div>
+        <div class="card a" style="--i:3" id="pwGuide"></div>
+        <div class="a" style="--i:4"><button type="button" class="btn" id="pwRestart">Start over</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 COMPLETE CHECKER -->
+  <section class="slide tight" data-label="Practice: is this record complete?">
+    <span class="eyebrow a">06 · Practice · is this record complete?</span>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="scen-tabs a" style="--i:1" id="rcTabs"></div>
+        <div class="rec a" style="--i:2" id="rcRec"></div>
+      </div>
+      <div class="grid" style="gap:10px">
+        <h2 class="a" style="--i:1;font-size:clamp(20px,2.2vw,26px)">Select every problem with this record, or "Complete".</h2>
+        <div class="pick a" style="--i:2" id="rcPick"></div>
+        <div class="a" style="--i:3"><button type="button" class="btn primary" id="rcCheck">Check</button></div>
+        <div id="rcFb"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 CP2 -->
+  <section class="slide" data-label="Checkpoint 2" data-cp="2"></section>
+
+  <!-- 19 PART THREE -->
+  <section class="slide forest" data-label="Part three: notes, reports and the customer">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part three</span>
+        <h1 class="display a" style="--i:1">Notes, reports and the customer</h1>
+        <p class="lead a" style="--i:2">Why it matters: your notes go straight to the customer's inbox on the inspection report. A clear note builds trust and saves a phone call. A careless one costs both.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>Notes the customer reads</li><li><span>02</span>Practice: write a good note</li><li><span>03</span>Inspection report, signature and completion</li><li><span>04</span>Talking to the office</li></ol>
+    </div>
+  </section>
+
+  <!-- 20 NOTES -->
+  <section class="slide tight" data-label="Notes the customer reads">
+    <span class="eyebrow a">01 · Notes the customer reads</span>
+    <h2 class="a" style="--i:1">Activities, then the Notes icon, then Save</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="grid" style="gap:10px">
+        <div class="callout a" style="--i:2"><svg class="ico"><use href="#i-star"/></svg><span><b>Start with a preloaded note.</b> Tap the Star icon and pick the one that matches the service. It keeps wording and grammar consistent.</span></div>
+        <div class="callout a" style="--i:3"><svg class="ico"><use href="#i-pen"/></svg><span><b>Then add today's specifics</b> the preloaded note can't know: what you found, what you recommend, what happens next, who you spoke with.</span></div>
+        <div class="callout warn a" style="--i:4"><svg class="ico"><use href="#i-alert"/></svg><span><b>Tap Save.</b> If you leave without saving, the notes are erased.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-eye"/></svg><span><b>Write for the customer.</b> These notes go on the emailed inspection report. Nothing about the office, coworkers, pricing or complaints.</span></div>
+      </div>
+      <div class="card a" style="--i:3"><span class="eyebrow">Anatomy of a good note · same as CW-04</span>
+        <ol class="steps" style="margin-top:6px">
+          <li><span class="num">1</span><span><b>What you did, and where</b></span></li>
+          <li><span class="num">2</span><span><b>What you found</b>: activity, conducive conditions</span></li>
+          <li><span class="num">3</span><span><b>What the customer can do</b></span></li>
+          <li><span class="num">4</span><span><b>Follow-up</b>: next visit, callback or office action</span></li>
+          <li><span class="num">5</span><span><b>Who you spoke with</b>, or the door hanger left</span></li>
+        </ol>
+        <p class="small muted">Plain, professional, factual. No slang, no ALL CAPS, no blame.</p></div>
+    </div>
+  </section>
+
+  <!-- 21 NOTE PICKER -->
+  <section class="slide tight" data-label="Practice: write a good note">
+    <span class="eyebrow a">02 · Practice · write a good note</span>
+    <p class="a muted small" style="--i:1;max-width:none"><b>The visit:</b> quarterly exterior service. Customer not home, side gate unlocked. Cobwebs and a small paper wasp nest under the front eave, removed. Heavy spider activity around the porch lights. Door hanger left.</p>
+    <div class="grid g2 a" style="--i:2;gap:10px 18px" id="npSlots"></div>
+    <div class="grid g2" style="gap:14px;align-items:start">
+      <div class="notecard a" style="--i:3"><span class="eyebrow">Inspection report preview</span><p id="npOut"></p></div>
+      <div id="npFb" class="a" style="--i:4"></div>
+    </div>
+  </section>
+
+  <!-- 22 REPORT SIGN COMPLETE -->
+  <section class="slide tight" data-label="Report, signature and completion">
+    <span class="eyebrow a">03 · Inspection report, signature and completion</span>
+    <h2 class="a" style="--i:1">The last screen is the one the customer sees</h2>
+    <div class="path a" style="--i:2">
+      <div class="st" style="--i:0"><span class="n"><svg class="ico"><use href="#i-clip"/></svg></span><h3>Review</h3><p>On the Completion page, check products, amounts, pests, areas and notes. This is your last easy chance to fix them.</p></div>
+      <div class="st" style="--i:1"><span class="n"><svg class="ico"><use href="#i-pen"/></svg></span><h3>Signature</h3><p>If the customer is home and your screen asks, have them sign. Not home? Don't sign for them; note it. <span class="chip">typical</span></p></div>
+      <div class="st" style="--i:2"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><h3>Complete</h3><p>Tap Completion. The order posts, leaves your Order List and syncs to the office.</p></div>
+      <div class="st top" style="--i:3"><span class="n"><svg class="ico"><use href="#i-mail"/></svg></span><h3>Report sent</h3><p>Customers with an email on file get the inspection report automatically, with your notes.</p></div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-mail"/></svg><span><b>No email on file?</b> The customer gets no report. If they'd like one, send the request to technotes@ so customer service can update the account.</span></div>
+      <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-reset"/></svg><span><b>You can't unpost it yourself.</b> Completed the wrong order or missed something? Call or email the office right away for an unpost.</span></div>
+    </div>
+  </section>
+
+  <!-- 23 OFFICE -->
+  <section class="slide" data-label="Talking to the office">
+    <span class="eyebrow a">04 · Talking to the office</span>
+    <h2 class="a" style="--i:1">Notes are for the customer. The office needs a message.</h2>
+    <div class="hubwrap a" style="--i:2">
+      <div class="card"><div class="icobox"><svg class="ico"><use href="#i-clip"/></svg></div><h3>In the order notes</h3><ul><li><svg class="ico"><use href="#i-check"/></svg>What you did, found and recommend</li><li><svg class="ico"><use href="#i-check"/></svg>Areas you couldn't reach, and why</li><li><svg class="ico"><use href="#i-check"/></svg>Who you spoke with, door hanger left</li></ul></div>
+      <div class="arrow"><svg class="ico"><use href="#i-arrow"/></svg></div>
+      <div class="card"><div class="icobox"><svg class="ico"><use href="#i-mail"/></svg></div><h3>To technotes@clementspestcontrol.com</h3><ul><li><svg class="ico"><use href="#i-check"/></svg>New phone, email or gate code</li><li><svg class="ico"><use href="#i-check"/></svg>Permanent schedule or service changes, upsell leads</li><li><svg class="ico"><use href="#i-check"/></svg>Billing questions, unpost requests, anything to act on</li></ul></div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="bar-forest a" style="--i:3"><svg class="ico"><use href="#i-phone"/></svg><span><b>Urgent, customer waiting?</b> Call the tech line, 772-469-2566, from a parked truck.</span></div>
+      <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-clock"/></svg><span><b>Office emails and calls:</b> answer during the business day. Nothing left unanswered at end of day.</span></div>
+    </div>
+  </section>
+
+  <!-- 24 CP3 -->
+  <section class="slide" data-label="Checkpoint 3" data-cp="3"></section>
+
+  <!-- 25 PART FOUR -->
+  <section class="slide forest" data-label="Part four: when things go wrong">
+    <div class="split">
+      <div class="grid" style="gap:18px">
+        <span class="eyebrow a">Part four</span>
+        <h1 class="display a" style="--i:1">No signal, wrong order, bad data</h1>
+        <p class="lead a" style="--i:2">Why it matters: things will go wrong in the field. A dead zone or a wrong tap is a small problem. A missing, guessed or altered record is a big one, for the customer, the company and your license.</p>
+      </div>
+      <ol class="toc a" style="--i:3"><li><span>01</span>No signal</li><li><span>02</span>Practice: what would you do?</li><li><span>03</span>Accurate, complete, true</li><li><span>04</span>End of day</li></ol>
+    </div>
+  </section>
+
+  <!-- 26 NO SIGNAL -->
+  <section class="slide tight" data-label="No signal">
+    <span class="eyebrow a">01 · No signal</span>
+    <h2 class="a" style="--i:1">Dead zone? Keep working, keep recording.</h2>
+    <div class="split" style="grid-template-columns:1.15fr 1fr;gap:26px;align-items:center">
+      <ol class="steps a" style="--i:2">
+        <li><span class="num">1</span><span><b>Start the order as normal.</b> The app keeps what you enter on the phone until it can sync. <span class="chip">offline behavior: typical</span></span></li>
+        <li><span class="num">2</span><span><b>Record everything at the stop</b>: products, amounts, pests, areas, notes. Don't save it for later.</span></li>
+        <li><span class="num">3</span><span><b>Don't delete, reinstall or log out</b> while orders are waiting to sync. Unsynced work can be lost.</span></li>
+        <li><span class="num">4</span><span><b>Back in coverage, confirm it synced</b> before the end of the day.</span></li>
+        <li><span class="num red">5</span><span><b>App down completely?</b> Write it on paper with the real times, tell the office, and enter it as soon as you can. Well inside two working days.</span></li>
+      </ol>
+      <div class="figbox a nosig" style="--i:3">
+        <svg viewBox="0 0 280 180" aria-hidden="true">
+          <rect x="30" y="30" width="64" height="120" rx="10" class="sf-l"/><path d="M50 40h24" class="sf-l"/>
+          <rect x="40" y="58" width="44" height="10" rx="3" class="sf-f q1"/><rect x="40" y="74" width="44" height="10" rx="3" class="sf-f q2"/><rect x="40" y="90" width="44" height="10" rx="3" class="sf-f q3"/>
+          <path d="M112 90h70" class="sf-d ns-d"/>
+          <path d="M140 80l14 20M154 80l-14 20" class="ns-x"/>
+          <rect x="196" y="56" width="64" height="70" rx="8" class="sf-l"/><path d="M208 74h40M208 88h28M208 102h36" class="sf-l"/>
+          <text x="62" y="170" text-anchor="middle">saved on phone</text><text x="228" y="146" text-anchor="middle">syncs later</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27 SCENARIOS -->
+  <section class="slide" data-label="Practice: what would you do?">
+    <span class="eyebrow a">02 · Practice · what would you do?</span>
+    <h2 class="a" style="--i:1">Reset, Reschedule, unpost or email?</h2>
+    <div class="scen-tabs a" style="--i:2" id="sTabs"></div>
+    <div class="grid a" style="--i:3;gap:10px" id="sBox"></div>
+  </section>
+
+  <!-- 28 ACCURACY -->
+  <section class="slide tight" data-label="Accurate, complete, true">
+    <span class="eyebrow a">03 · Accurate, complete, true</span>
+    <h2 class="a" style="--i:1">Your posted record is a legal document</h2>
+    <div class="split" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div class="card a" style="--i:2"><span class="eyebrow">Never</span><ul class="dots-list nev">
+        <li>Post a service, product or area you didn't do</li>
+        <li>Copy last visit's products or notes without checking them against today</li>
+        <li>Guess an amount, or round it to look right</li>
+        <li>Start or complete orders in a batch at the end of the day</li>
+        <li>Change a record to make a visit look better than it was</li>
+        <li>Post work under someone else's sign-in, or let them use yours</li></ul></div>
+      <div class="grid" style="gap:10px">
+        <div class="callout danger a" style="--i:3"><svg class="ico"><use href="#i-alert"/></svg><span><b>The law:</b> violating Chapter 482 or its rules, or failing to give FDACS true information about the materials used and work performed, are grounds for license discipline (s. 482.161, F.S.).</span></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-book"/></svg><span><b>The company:</b> falsified records are misconduct under the handbook, up to termination.</span></div>
+        <div class="callout a" style="--i:5"><svg class="ico"><use href="#i-check"/></svg><span><b>Made a mistake?</b> That's normal. Tell the office the same day so it is corrected properly. Honest corrections are never the problem.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 29 END OF DAY -->
+  <section class="slide" data-label="End of day">
+    <span class="eyebrow a">04 · End of day</span>
+    <h2 class="a" style="--i:1">Nothing left pending. Decide each one.</h2>
+    <div class="split" style="grid-template-columns:1.2fr 1fr;gap:26px;align-items:center">
+      <div class="eod a" style="--i:2" id="eod"></div>
+      <div class="grid" style="gap:12px">
+        <div class="card a" style="--i:3;text-align:center"><span class="eyebrow">Pending orders</span><div class="eod-n" id="eodN">6</div><div class="meter"><i id="eodBar"></i></div><p class="small muted" id="eodMsg">Every order should end the day Completed or Rescheduled.</p></div>
+        <div class="callout a" style="--i:4"><svg class="ico"><use href="#i-cal"/></svg><span>Unserviced orders get rescheduled within the next week, and none stay on past dates. FC-09 covers the Friday unserviced report.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30 CP4 -->
+  <section class="slide" data-label="Checkpoint 4" data-cp="4"></section>
+
+  <!-- 31 SIGN-OFF -->
+  <section class="slide" data-label="Field sign-off" data-cp="5">
+    <span class="eyebrow a">Field application · supervisor sign-off</span>
+    <h2 class="a" style="--i:1">Show it on a real route</h2>
+    <p class="a muted" style="--i:2">Your supervisor observes each of these with you, on a practice account or a ride-along day, before FC-10 is complete. Never say or show a password while doing them.</p>
+    <ul class="check a" style="--i:3">
+      <li><label><input type="checkbox" id="f1"> Log in, sync, and walk through the day's Order List, account notes, Service and Order Instructions</label></li>
+      <li><label><input type="checkbox" id="f2"> Find a work order with search, and get directions with the map marker before driving</label></li>
+      <li><label><input type="checkbox" id="f3"> Start an order on arrival and use Reset Work Order correctly on a practice order</label></li>
+      <li><label><input type="checkbox" id="f4"> Record every product with amount and unit, target pests and areas treated, matching what was applied</label></li>
+      <li><label><input type="checkbox" id="f5"> Write and save a note (preloaded plus specifics) your supervisor approves for the inspection report</label></li>
+      <li><label><input type="checkbox" id="f6"> Complete an order before leaving the property, and confirm it synced</label></li>
+      <li><label><input type="checkbox" id="f7"> Reschedule an order to a new date and explain when an account change goes to technotes@ instead</label></li>
+      <li><label><input type="checkbox" id="f8"> End the day with no pending orders and nothing on past dates</label></li>
+    </ul>
+  </section>
+
+  <!-- 32 QUIZ -->
+  <section class="slide" data-label="Knowledge check" id="quizSlide"><div id="quiz" class="grid" style="gap:18px"></div></section>
+
+  </main>
+</div>
+<div class="nav">
+  <button type="button" class="btn" id="prev">Back</button>
+  <div class="track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" id="trackBar"><i id="track"></i></div>
+  <span class="navinfo" id="navinfo"></span>
+  <button type="button" class="btn primary" id="next">Next</button>
+</div>
+<p class="gate" id="gate" hidden></p>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+  var store={get:function(k){try{return JSON.parse(localStorage.getItem('fc10:'+k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem('fc10:'+k,JSON.stringify(v))}catch(e){}}};
+  var slides=$$('.slide'), cur=0, passed=store.get('cp')||{};
+  var N=slides.length;
+  var META={"code": "FC-10", "titleHtml": "PestPac Mobile", "nextHtml": "FC-11 \u00b7 The Clements Service Visit", "passNote": "Your field sign-off with your supervisor completes the course."};
+  var SIGNOFF_LABEL="Field sign-off checklist";
+  var CP={
+    1:{t:'Checkpoint 1 · Your day in the app',q:'7:40 at the shop: an order is still sitting on last Tuesday, and you haven\'t read today\'s Account Notes. What do you do before driving out?',o:['Read today\'s account notes and instructions, and move last Tuesday\'s order to a future date, confirming with the customer if needed','Drive out now and deal with both after lunch','Complete last Tuesday\'s order so it disappears from the calendar','Ask the office to delete the old order'],a:0,e:'Start the day by reading notes and instructions for every stop and clearing past dates. An unserviced order is rescheduled to a real future date, never completed to make it disappear.'},
+    2:{t:'Checkpoint 2 · Working the order',q:'You used two products inside and out for German cockroaches and ants. Which materials entry meets the Florida rule and our standard?',o:['"Sprayed inside and out" in the notes, no materials entered','Only the product you used most','The same materials as last quarter\'s visit, since the service is the same','Both products by label brand name, each with the amount and unit applied, the target pests, and the areas where each went'],a:3,e:'5E-14.142 expects brand name, amount, use and location (and date, which the order records). Clements records every product that way on every service. Never copy last visit\'s materials without checking them against what you actually applied.'},
+    3:{t:'Checkpoint 3 · Notes and the customer',q:'A customer says her gate code changed. You also found a moisture problem under her kitchen sink. Where does each go?',o:['Both in the order notes','Both in an email to technotes@','The moisture finding and recommendation in the order notes; the gate code change by email to technotes@','The gate code in the order notes so the next tech sees it; the moisture issue by phone'],a:2,e:'Order notes go to the customer on the inspection report, and the office doesn\'t act on them. Findings and recommendations belong in the notes. Account changes such as a gate code go to customer service at technotes@ so the account is updated securely.'},
+    4:{t:'Checkpoint 4 · When things go wrong',q:'After completing an order and driving off, you realize you never recorded the bait you placed in the garage. What is the fix?',o:['Leave it; the notes mention bait','Re-enter the whole service as a new order','Call or email the office right away so the order can be unposted and corrected, then record the bait exactly as applied','Add it to the next visit\'s materials instead'],a:2,e:'You can\'t unpost a completed order yourself. Ask the office promptly so the record is corrected well within the two working days the rule allows. Never move a product to a different visit.'},
+    5:{t:'',q:'',o:[],a:-1}
+  };
+  var NCP=5;
+  var Q=[
+    {k:'Multiple choice',q:'According to the Clements handbook, when do you log in to (start) an appointment in PestPac Mobile?',o:['At the start of the workday for all stops','On arrival at the customer\'s property','When the treatment is finished','When the office reminds you'],a:1,e:'Log in on arrival, fill out notes during the service, and log out on completion before physically moving to the next stop.'},
+    {k:'True or false',q:'It is acceptable to complete all of the day\'s orders at the end of the day, as long as the notes are accurate.',o:['True','False'],a:1,e:'False. Each order is clocked. Batch completion makes every time on the record wrong, and the times are part of the proof of work.'},
+    {k:'Multiple choice',q:'Under Florida rule 5E-14.142, how soon after an application must the required record information be recorded?',o:['Within 24 hours','By the end of the month','No later than two working days','Within 30 days'],a:2,e:'No later than two working days after the application date. Recording at the stop keeps you well inside that limit.'},
+    {k:'Multiple choice',q:'How long must pest control records generally be kept under 5E-14.142?',o:['Six months','One year','Five years','At least two years (three for preventive termite treatment in new construction)'],a:3,e:'Two years, or three for preventive subterranean termite treatment in new construction. Electronic records must be produced for FDACS on request.'},
+    {k:'Multiple choice',q:'For a restricted-use pesticide, which set of information must the record include?',o:['Brand name, amount, use, date and location of application','Brand name and price','Only the date and customer name','The technician\'s phone number and the product color'],a:0,e:'The rule lists product brand names, amounts, uses, dates and application locations. Clements records every product this way.'},
+    {k:'Scenario',q:'You opened an order and tapped Start, then realized you\'re at the wrong account. What should you do?',o:['Complete it and tell the office','Call the office to fix it','Leave it In Progress until tomorrow','Use Reset Work Order to return it to Not Started'],a:3,e:'Reset Work Order puts the order back to Not Started. You don\'t need to call the office for that.'},
+    {k:'Multiple choice',q:'Where do you find customer-specific preferences for their ongoing service, such as "please use the side gate"?',o:['Order Instructions','Account Balance','Service code','Invoice history'],a:0,e:'Order Instructions hold the customer\'s preferences. Service Instructions are task-specific guidance; Account Notes hold details like gate codes, pets and history.'},
+    {k:'True or false',q:'If you don\'t tap Save after writing notes on the Activities page, the notes are erased.',o:['True','False'],a:0,e:'True. Always tap Save before moving on to the Completion page.'},
+    {k:'Multiple choice',q:'Who reads the notes you add to an order?',o:['Only the office','No one; they\'re internal','The customer, on the emailed inspection report, and they stay on the service record','Only your branch manager'],a:2,e:'Notes go to customers with an email on file and remain part of the record. Write them for the customer, and send office matters to technotes@.'},
+    {k:'Scenario',q:'A customer mentions she has a new email address and would like the inspection reports. What do you do?',o:['Type the address into your order notes','Send it to customer service at technotes@ so the account is updated','Tell her to call next year','Text it to a coworker'],a:1,e:'Contact detail changes are made by customer service. Notes go to the customer, not to someone who updates accounts.'},
+    {k:'Multiple choice',q:'Which target pest entry is best?',o:['"Bugs"','"General"','"Everything"','"German cockroach"'],a:3,e:'Name the pest you treated for. The target pest is the "use" in the Florida record rule.'},
+    {k:'Multiple choice',q:'You completed an order by mistake. How is it unposted?',o:['Tap Reset Work Order','Delete the app and reinstall','Call or email the office for assistance','It can\'t be fixed'],a:2,e:'Once completed, an order leaves your Order List. The office unposts it.'},
+    {k:'Scenario',q:'You\'re in a dead zone at a rural stop. What should you do?',o:['Skip recording and enter everything from memory tonight','Log out and back in until it connects','Reinstall the app','Start and work the order as normal, record everything at the stop, and confirm it synced once back in coverage'],a:3,e:'Keep working and recording. Don\'t log out or reinstall while work is waiting to sync, and confirm it synced before the day ends.'},
+    {k:'True or false',q:'It\'s fine to adjust your GPS directions while driving if traffic is light.',o:['True','False'],a:1,e:'False. Set directions before driving, and adjust them only when safely stopped. App use while driving is prohibited.'},
+    {k:'Multiple choice',q:'Which note best meets the Clements standard?',o:['"Treated. Call office w/ questions."','"Exterior perimeter and eaves treated for spiders. Paper wasp nest removed from front eave. Heavy spider activity at porch lights; switching to warm or yellow bulbs will help. Will recheck at next quarterly. Customer not home; door hanger left."','"SPIDERS EVERYWHERE!! Customer needs to clean."','"Same as last time."'],a:1,e:'It says what was done and where, what was found, what the customer can do, the follow-up, and the contact. Professional and specific.'},
+    {k:'Multiple choice',q:'A customer at the door asks to move just today\'s visit to Thursday. How is that handled?',o:['Use Reschedule in the app to give the order a new day and time','Email HR','Complete the order and come back Thursday','Tell her to cancel her agreement'],a:0,e:'A one-time move is a Reschedule in the app. A permanent schedule change goes to customer service at technotes@.'},
+    {k:'Multiple choice',q:'At the end of the day, every order should be:',o:['In Progress','Paused','Completed, or Rescheduled to a future date','Left for the office to sort out'],a:2,e:'No pending orders: Completed if finished, Rescheduled if not. Nothing left on past dates.'},
+    {k:'True or false',q:'If the customer is not home, you may sign the signature line for them so the order can be completed.',o:['True','False'],a:1,e:'False. Never sign for a customer. Note that they were not home and how you communicated, such as a door hanger.'},
+    {k:'Scenario',q:'A coworker\'s phone died and he asks to post his last two stops under your sign-in. What do you do?',o:['Let him, then fix it tomorrow','Post them yourself as your own work','Decline; he records them on paper with the real times and enters them under his own sign-in, telling the office','Ignore the stops'],a:2,e:'Everything posted under your sign-in is recorded as your work. Each technician posts his own work, accurately and promptly.'},
+    {k:'Multiple choice',q:'Under s. 482.161, F.S., which of these is grounds for license discipline?',o:['Using preloaded notes','Rescheduling a customer','Failing to give FDACS true information about materials used and work performed','Taking photos of conducive conditions'],a:2,e:'Violating Chapter 482 or its rules, or giving untrue information about materials and work, puts licenses at risk. Accurate records protect you.'}
+  ];
+
+  function ico(n,s){return '<svg class="ico"'+(s?' style="'+s+'"':'')+'><use href="#'+n+'"/></svg>'}
+
+  /* ---------- Order List mock ---------- */
+  var OLK={
+    ns:{h:'Not Started',p:'No action taken yet. Every order starts the day here.'},
+    ip:{h:'In Progress',p:'Started but not completed. You tapped Start on arrival and are working the stop.'},
+    pa:{h:'Paused',p:'Started, then paused. Don\'t leave orders paused at the end of the day: complete or reschedule them.'},
+    co:{h:'Complete',p:'Finished and posted. The order leaves your list and syncs to the office. Only the office can unpost it.'},
+    map:{h:'Map Marker icon',p:'Opens your default navigation app with directions to the stop. Set it before you drive.'},
+    ph:{h:'Phone icon',p:'Calls the customer from your phone, for example a quick heads-up that you\'re on the way. Parked, never driving.'},
+    em:{h:'Envelope icon',p:'Opens your email app to write to the customer. Keep it professional: it is a company record.'},
+    clk:{h:'Clock icon',p:'Shows the customer\'s invoice history.'},
+    cal:{h:'Calendar icon',p:'Opens Reschedule Order to give the order a new day and time.'}
+  };
+  var OL=[
+    {t:'8:00 AM',n:'Sample Customer A',s:'co',sv:'Quarterly pest control'},
+    {t:'9:00 AM',n:'Sample Customer B',s:'ip',sv:'Quarterly pest control'},
+    {t:'10:30 AM',n:'Sample Customer C',s:'pa',sv:'Monthly lawn'},
+    {t:'12:00 PM',n:'Sample Customer D',s:'ns',sv:'Bi-monthly pest control'}
+  ];
+  var olSeen=store.get('ol')||{};
+  function olCard(o,icons){return '<div class="oc"><button type="button" class="st-pill s-'+o.s+'" data-k="'+o.s+'" id="olk_'+o.s+'">'+OLK[o.s].h+'</button><div class="oc-m"><b>'+o.n+'</b><span>'+o.t+' · '+o.sv+'</span></div>'+(icons?'<div class="oc-i">'+[['map','i-pin'],['ph','i-phone'],['em','i-mail'],['clk','i-clock'],['cal','i-cal']].map(function(x){return '<button type="button" data-k="'+x[0]+'" id="olk_'+x[0]+'" aria-label="'+OLK[x[0]].h+'">'+ico(x[1],'width:18px;height:18px')+'</button>'}).join('')+'</div>':'')+'</div>'}
+  var oll=$('#olList');
+  oll.innerHTML=OL.map(function(o,i){return olCard(o,i===3)}).join('');
+  function olMark(){$$('[data-k]',oll).forEach(function(b){b.classList.toggle('seen',!!olSeen[b.dataset.k])});$('#olCount').textContent=Object.keys(olSeen).length+' of 9 explored'+(Object.keys(olSeen).length===9?'. Nicely done.':'');}
+  $$('[data-k]',oll).forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k;olSeen[k]=1;store.set('ol',olSeen);$$('[data-k]',oll).forEach(function(x){x.classList.toggle('sel',x===b)});
+    $('#olDetail').innerHTML='<span class="eyebrow">'+(k.length===2&&['ns','ip','pa','co'].indexOf(k)>-1?'Status symbol':'Location action icon')+'</span><h3 style="margin-top:4px">'+OLK[k].h+'</h3><p>'+OLK[k].p+'</p>';olMark()})});
+  olMark();
+
+  /* ---------- vocabulary flip cards ---------- */
+  var VOC=[
+    {h:'Work Order',f:'Not a "ticket" or a "job"',b:'The assigned service request: the job, the customer and the service instructions. You see it on the <b>Order List Screen</b> and open it on the <b>Order Screen</b>.'},
+    {h:'Service Instructions',f:'How to do this service',b:'Task-specific guidance such as treatment locations and safety precautions. Found in the <b>Service Instructions</b> section of the Order Screen.'},
+    {h:'Order Instructions',f:'What this customer prefers',b:'Customer preferences for their ongoing service or account. Found in the <b>Order Instructions</b> section of the Order Screen.'},
+    {h:'Account Notes',f:'What you need to know first',b:'Gate codes, pets, service history. Found under <b>Notes &amp; Attachments</b> or in the customer profile. Confidential: never shared outside the job.'},
+    {h:'Reschedule',f:'Not "move a job" or "push a ticket"',b:'Moving an order to a new date and time when service can\'t be done as scheduled. The <b>Calendar icon</b> or the grey <b>Reschedule</b> button.'},
+    {h:'Reset Work Order',f:'Not "restart" or "cancel"',b:'Puts an order you opened by mistake back to <b>Not Started</b>. From the options menu. No call to the office needed.'}
+  ];
+  var vf=$('#vflip');
+  VOC.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.id='vf'+i;b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="in"><span class="face front"><span class="eyebrow">Term '+(i+1)+'</span><h3>'+v.h+'</h3><span class="small muted">'+v.f+'</span><span class="hint">Select to flip</span></span><span class="face back"><span>'+v.b+'</span></span></span>';
+    b.addEventListener('click',function(){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});vf.appendChild(b)});
+
+  /* ---------- where would you find it (sort) ---------- */
+  var WS=[
+    {q:'"Interior treatment on even-month visits only; exterior every visit."',a:0,w:'Task-specific guidance for the service: Service Instructions.'},
+    {q:'"Please text before arriving and use the side gate."',a:1,w:'A customer preference for their ongoing service: Order Instructions.'},
+    {q:'"Gate code on file. Large dog in the backyard."',a:2,w:'Access details and pets live in Account Notes.'},
+    {q:'"Do not apply within the vegetable garden beds."',a:0,w:'A treatment location and safety precaution: Service Instructions.'},
+    {q:'"Last visit: ant activity at the kitchen slider."',a:2,w:'Service history is in Account Notes (Notes &amp; Attachments).'},
+    {q:'"Knock, don\'t ring. Baby sleeping in the mornings."',a:1,w:'A customer preference: Order Instructions.'}
+  ];
+  var WO=['Service Instructions','Order Instructions','Account Notes'], wAns={};
+  var ws=$('#wSort');
+  WS.forEach(function(r,i){var d=document.createElement('div');d.className='row';d.innerHTML='<span>'+r.q+'</span><span class="opts">'+WO.map(function(o,j){return '<button type="button" id="ws'+i+'_'+j+'" aria-pressed="false">'+o+'</button>'}).join('')+'</span>';
+    $$('.opts button',d).forEach(function(b,j){b.addEventListener('click',function(){wAns[i]=j;$$('.opts button',d).forEach(function(x,k){x.setAttribute('aria-pressed',k===j)});d.classList.remove('ok','no');var w=$('.why',d);if(w)w.remove();})});ws.appendChild(d)});
+  $('#wCheck').addEventListener('click',function(){var rows=$$('.row',ws),ok=0,blank=0;
+    rows.forEach(function(d,i){d.classList.remove('ok','no');var w=$('.why',d);if(w)w.remove();if(wAns[i]===undefined){blank++;return}
+      var r=wAns[i]===WS[i].a;if(r)ok++;d.classList.add(r?'ok':'no');var s=document.createElement('span');s.className='why';s.innerHTML=WS[i].w;d.appendChild(s)});
+    $('#wFb').innerHTML=blank?'<span class="fb no" style="display:inline-block">Answer all six first.</span>':'<span class="fb'+(ok===6?'':' no')+'" style="display:inline-block">'+ok+' of 6. '+(ok===6?'You know where to look.':'Read the reasons, change your answers and check again.')+'</span>'});
+
+  /* ---------- Order Screen sections ---------- */
+  var OS=[
+    {n:'Location',i:'i-pin',s:'Who and where',p:'Location number, customer or company name, service address and <b>Location Instructions</b>. The action icons here also include the <b>Person icon</b>, which sends the customer a notification if notifications are set up for the order.'},
+    {n:'Order Status',i:'i-clock',s:'Where this order stands',p:'Not Started, In Progress, Paused or Complete. It updates automatically when you Start, pause or complete the order.'},
+    {n:'Services',i:'i-clip',s:'What you\'re there to do',p:'The service code, the price of the service, and the <b>Service Instructions</b> and <b>Order Instructions</b>. Scroll down for notes from previous visits.'},
+    {n:'Contacts',i:'i-users',s:'Who to talk to',p:'The customer contacts on the account. Use them to call or email from the order, and keep everything you send professional.'},
+    {n:'Notes & Attachments',i:'i-book',s:'What you need to know first',p:'<b>Account Notes</b> such as gate codes, pets and service history, plus any files attached to the account. Read them before you knock.'},
+    {n:'Account Balance',i:'i-dollar',s:'What is owed',p:'The balance on the account. If you take a payment at the stop, use only the app\'s approved process. Billing questions go to the office.'}
+  ];
+  var osl=$('#osList'), osSeen=store.get('os')||{};
+  function showOS(n){$$('button',osl).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var o=OS[n];osSeen[n]=1;store.set('os',osSeen);
+    $('#osDetail').innerHTML='<span class="eyebrow">Section '+(n+1)+' of 6 · '+o.s+'</span><h3 style="margin-top:4px">'+o.n+'</h3><p>'+o.p+'</p>';}
+  OS.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.id='os'+i;b.innerHTML=ico(o.i==='i-dollar'?'i-lock':o.i)+'<span>'+o.n.replace('&','&amp;')+'<small>'+o.s+'</small></span>';b.addEventListener('click',function(){showOS(i)});osl.appendChild(b)});
+  showOS(0);
+
+  /* ---------- timing ---------- */
+  var TM=[
+    {n:'Right way',l:4,w:64,c:'ok',o:'<b>Posted 9:02 to 9:34 AM.</b> Start on arrival, complete before driving off. The record matches the visit, and the customer\'s report shows a real time on site.'},
+    {n:'Started at the end',l:66,w:4,c:'no',o:'<b>Posted 9:33 to 9:35 AM.</b> A 32-minute service now looks like 2 minutes. To a customer, a manager or an FDACS inspector, that looks like the work wasn\'t done.'},
+    {n:'Completed at end of day',l:4,w:96,c:'no',o:'<b>Posted 9:02 AM to 4:48 PM.</b> Every stop after this one overlaps. The record can no longer show when you were where, and it breaks the handbook rule.'}
+  ];
+  var tseg=$('#tmSeg');
+  $('#tmAxis').innerHTML=[['9:00',0],['9:10',20],['9:20',40],['9:30',60],['9:40',80],['later',94]].map(function(t){return '<span style="left:'+t[1]+'%">'+t[0]+'</span>'}).join('');
+  function showTM(n){$$('button',tseg).forEach(function(b,j){b.setAttribute('aria-pressed',j===n)});var t=TM[n],r=$('#tmRec');r.style.left=t.l+'%';r.style.width=Math.min(t.w,100-t.l)+'%';r.className='rec '+t.c;$('#tmOut').innerHTML=t.o;}
+  TM.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.id='tm'+i;b.textContent=t.n;b.addEventListener('click',function(){showTM(i)});tseg.appendChild(b)});
+  showTM(0);
+
+  /* ---------- phone walkthrough ---------- */
+  var PW={s:0,mat:0,pest:0,area:0,photo:0,note:0,pre:0,spec:0,sig:0};
+  var PSTEPS=['Open','Start','Work','Activities','Notes','Complete'];
+  var GUIDE=[
+    ['Open the order','Your 9:00 stop is next. Tap the order card to open the Order Screen and read it before you knock.'],
+    ['Read, then Start','Read the Service Instructions, Order Instructions and Account Notes. You\'re out of the truck at the door: tap <b>Start</b>.'],
+    ['Do the work','The order is In Progress and the clock is running. Phone in your pocket. When the treatment is finished and equipment is stowed, tap <b>Activities</b>.'],
+    ['Record the service','Add the materials, target pests and areas treated. Photos are optional. Then tap the <b>Notes</b> icon. <b>Completion</b> unlocks when the record is complete.'],
+    ['Write and save the note','Tap the <b>Star</b> for a preloaded note, add today\'s specifics, then <b>Save</b>.'],
+    ['Review, sign, complete','Check the summary. The customer is home: ask them to sign. Then tap <b>Complete</b> before you drive away.'],
+    ['Posted','The order is complete, synced, and off your list. The customer has an email on file, so the inspection report with your notes is on its way.']
+  ];
+  var pwb=$('#pwBody');
+  function pwRow(id,label,done,val){return '<button type="button" class="aw'+(done?' done':'')+'" id="'+id+'"><span>'+label+(done?'<small>'+val+'</small>':'<small>Tap to add</small>')+'</span>'+ico(done?'i-check':'i-arrow','width:18px;height:18px')+'</button>'}
+  function pwGuide(extra){var g=GUIDE[PW.s];$('#pwGuide').innerHTML='<span class="eyebrow">Step '+Math.min(PW.s+1,6)+' of 6</span><h3 style="margin-top:4px">'+g[0]+'</h3><p>'+g[1]+'</p>'+(extra?'<div class="fb'+(extra.no?' no':'')+'" style="margin-top:10px">'+extra.t+'</div>':'');}
+  function pwRender(extra){
+    var s=PW.s,st=['Not Started','Not Started','In Progress','In Progress','In Progress','In Progress','Complete'][s];
+    $('#pwStat').textContent=st;$('#pwStat').className='ps-st s-'+(s<2?'ns':(s<6?'ip':'co'));
+    $('#pwTitle').textContent=['Orders · Today','Order · 9:00 AM','Order · 9:00 AM','Activities','Notes','Completion','Orders · Today'][s];
+    $('#pwSteps').innerHTML=PSTEPS.map(function(p,i){var k=Math.min(s,5);return '<span class="'+(i<k||s===6?'done':(i===k?'cur':''))+'">'+p+'</span>'}).join('');
+    var h='';
+    if(s===0){h=olCard({t:'8:00 AM',n:'Sample Customer A',s:'co',sv:'Quarterly pest control'})+'<button type="button" class="oc tap pulse" id="pwOpen"><span class="st-pill s-ns">Not Started</span><span class="oc-m"><b>Sample Customer B</b><span>9:00 AM · Quarterly pest control</span></span></button>'+olCard({t:'10:30 AM',n:'Sample Customer C',s:'ns',sv:'Monthly lawn'});}
+    if(s===1){h='<div class="sec"><span class="eyebrow">Location</span><b>Sample Customer B</b><span>1234 Example Ln · Location Instructions: park on street</span></div><div class="sec"><span class="eyebrow">Service Instructions</span><span>Exterior perimeter, eaves, entry points. Interior on request.</span></div><div class="sec"><span class="eyebrow">Order Instructions</span><span>Customer prefers a knock, not the doorbell.</span></div><div class="sec"><span class="eyebrow">Account Notes</span><span>Friendly dog, keep side gate latched. Last visit: spiders at porch.</span></div><div class="pbtns"><button type="button" class="pb grey" id="pwRes">Reschedule</button><button type="button" class="pb go" id="pwStart">Start</button></div>';}
+    if(s===2){h='<div class="sec ctr"><span class="eyebrow">In Progress</span><b style="font-size:26px">9:02 AM</b><span>Started on arrival</span></div><div class="sec ctr muted"><span>Phone in pocket. Treat the property.</span></div><div class="pbtns"><button type="button" class="pb go" id="pwAct" style="flex:1">Activities</button></div>';}
+    if(s===3){h='<div class="ahead"><span>Sample Customer B</span><button type="button" class="nicon'+(PW.note?' done':'')+'" id="pwNoteI" aria-label="Notes">'+ico('i-pen','width:18px;height:18px')+'</button></div>'+
+      pwRow('pwMat','Materials',PW.mat,'Example liquid insecticide · 1.5 gal finished at label rate<br>Example granular bait · 1 lb')+
+      pwRow('pwPest','Target pests',PW.pest,'Spiders, ants')+
+      pwRow('pwArea','Areas treated',PW.area,'Exterior perimeter, eaves, entry points')+
+      pwRow('pwPhoto','Photos (optional)',PW.photo,'1 photo: heavy webbing at porch light')+
+      '<div class="aw nrow'+(PW.note?' done':'')+'"><span>Notes<small>'+(PW.note?'Saved':'Use the Notes icon, top right')+'</small></span></div>'+
+      '<div class="pbtns"><button type="button" class="pb go" id="pwComp" style="flex:1"'+(PW.mat&&PW.pest&&PW.area&&PW.note?'':' disabled')+'>Completion</button></div>';}
+    if(s===4){h='<div class="ahead"><span>Notes · Sample Customer B</span><button type="button" class="nicon" id="pwStar" aria-label="Preloaded notes">'+ico('i-star','width:18px;height:18px')+'</button></div>'+
+      (PW.pre===-1?'<div class="prel">'+['Quarterly exterior pest service','Interior cockroach clean-out','Monthly lawn fertilization'].map(function(p,i){return '<button type="button" id="pwPre'+i+'">'+p+'</button>'}).join('')+'</div>':
+      '<div class="ntext">'+(PW.pre>0?'Performed quarterly exterior pest control service: treated the perimeter, eaves and entry points and removed webbing. ':'<span class="muted">Tap the Star to insert a preloaded note.</span>')+(PW.spec?'<br>Heavy spider activity at the porch lights; warm or yellow bulbs will attract fewer insects. Will recheck next quarter. Spoke with homeowner.':'')+'</div>')+
+      '<button type="button" class="pb link" id="pwBack" style="flex:0;margin-top:auto">Back without saving</button><div class="pbtns" style="margin-top:0"><button type="button" class="pb grey" id="pwSpec"'+(PW.pre>0?'':' disabled')+'>Add specifics</button><button type="button" class="pb go" id="pwSave"'+(PW.pre>0?'':' disabled')+'>Save</button></div>';}
+    if(s===5){h='<div class="sec"><span class="eyebrow">Review</span><span>2 materials · spiders, ants · perimeter, eaves, entry points · note saved</span></div><div class="sec"><span class="eyebrow">Customer signature <span class="chip">typical</span></span><button type="button" class="sigpad'+(PW.sig?' signed':'')+'" id="pwSig">'+(PW.sig?'<svg viewBox="0 0 200 50" aria-hidden="true"><path class="sigline" d="M10 34c12-20 18-22 22-6s10 10 18-8 14 2 18 14 14-18 26-14 8 16 20 6 18-10 26-4 18 8 30 2"/></svg>':'<span>Customer signs here</span>')+'</button></div><div class="sec"><span class="eyebrow">Inspection report</span><span>Email on file: yes. Sent on completion.</span></div><div class="pbtns"><button type="button" class="pb go" id="pwDone" style="flex:1"'+(PW.sig?'':' disabled')+'>Complete</button></div>';}
+    if(s===6){h='<div class="sec ctr"><span class="sync-ring">'+ico('i-sync','width:34px;height:34px')+'</span><b>Order complete</b><span>Synced to the office · removed from your list</span></div><div class="sec ctr"><span>'+ico('i-mail','width:18px;height:18px;vertical-align:-4px')+' Inspection report emailed to the address on file</span></div>'+olCard({t:'10:30 AM',n:'Sample Customer C',s:'ns',sv:'Monthly lawn'});}
+    pwb.innerHTML=h;pwGuide(extra);pwBind();
+  }
+  function on(id,f){var e=$('#'+id);if(e)e.addEventListener('click',f)}
+  function pwBind(){
+    on('pwOpen',function(){PW.s=1;pwRender()});
+    on('pwRes',function(){pwRender({no:1,t:'Not this time. The customer is home and expecting you. Reschedule is for an order that can\'t be done as scheduled.'})});
+    on('pwStart',function(){PW.s=2;pwRender({t:'Started at 9:02 AM, the moment you arrived. That time is now on the record.'})});
+    on('pwAct',function(){PW.s=3;pwRender()});
+    on('pwMat',function(){PW.mat=1;pwRender({t:'Each product by label brand name, with the amount and unit. Field names vary: use the ones on your screen.'})});
+    on('pwPest',function(){PW.pest=1;pwRender()});
+    on('pwArea',function(){PW.area=1;pwRender()});
+    on('pwPhoto',function(){PW.photo=1;pwRender({t:'Photo of the condition, attached to the order. No people, never on social media.'})});
+    on('pwNoteI',function(){PW.s=4;if(!PW.note){PW.pre=0;PW.spec=0}pwRender()});
+    on('pwComp',function(){PW.s=5;pwRender()});
+    on('pwStar',function(){PW.pre=-1;pwRender()});
+    [0,1,2].forEach(function(i){on('pwPre'+i,function(){if(i===0){PW.pre=1;pwRender({t:'That one matches today\'s service. Now add what only you know.'})}else{PW.pre=-1;pwRender({no:1,t:'That preloaded note describes a different service. Pick the one that matches what you did.'})}})});
+    on('pwSpec',function(){PW.spec=1;pwRender()});
+    on('pwSave',function(){if(!PW.spec){pwRender({no:1,t:'The preloaded note is a start. Add today\'s findings and recommendation before saving.'});return}PW.note=1;PW.s=3;pwRender({t:'Saved. Your note will appear on the customer\'s inspection report.'})});
+    on('pwBack',function(){PW.pre=0;PW.spec=0;PW.note=0;PW.s=3;pwRender({no:1,t:'Notes not saved are erased. Always tap Save.'})});
+    on('pwSig',function(){PW.sig=1;pwRender()});
+    on('pwDone',function(){PW.s=6;store.set('pw',1);pwRender()});
+  }
+  $('#pwRestart').addEventListener('click',function(){PW={s:0,mat:0,pest:0,area:0,photo:0,note:0,pre:0,spec:0,sig:0};pwRender()});
+  pwRender();
+
+  /* ---------- is this record complete ---------- */
+  var RCO=['Product','Amount','Target pests','Areas','Times','Notes','Complete'];
+  var RC=[
+    {n:'Record 1',f:[['Product','Example liquid insecticide (label brand name)'],['Amount',''],['Target pests','Ants'],['Areas','Exterior perimeter, garage door'],['Times','9:02 to 9:31 AM'],['Notes','Treated perimeter and garage entry for ants. Light trail at garage door from the mulch bed; pulling mulch back 12 inches will help. Recheck next quarter.']],a:[1],e:'The amount is missing. The rule requires the amount applied, with its unit. Never fill it in later from memory.'},
+    {n:'Record 2',f:[['Product','Example bait gel (label brand name) · 30 g'],['Amount','30 g'],['Target pests','General'],['Areas','Everywhere'],['Times','1:05 to 1:48 PM'],['Notes','Gel bait placed for roaches. Recheck in two weeks.']],a:[2,3],e:'"General" and "Everywhere" don\'t say what you treated for or where the product went. Name the pest (German cockroach) and the sites (kitchen cabinets, bathroom vanities).'},
+    {n:'Record 3',f:[['Product','Example liquid insecticide · Example granular bait (label brand names)'],['Amount','1.5 gal finished at label rate · 1 lb'],['Target pests','Spiders, ants'],['Areas','Exterior perimeter, eaves, entry points'],['Times','9:02 to 9:34 AM'],['Notes','Exterior treated for spiders and ants; wasp nest removed from front eave. Heavy spider activity at porch lights; warm bulbs will help. Door hanger left.']],a:[6],e:'Complete: products by brand name, amounts with units, targets, areas, real times and a professional note.'},
+    {n:'Record 4',f:[['Product','Same as last visit'],['Amount','1 gal'],['Target pests','Spiders'],['Areas','Eaves, lanai screen'],['Times','4:51 to 4:52 PM (posted with five other stops)'],['Notes','Did the usual.']],a:[0,4,5],e:'"Same as last visit" isn\'t a brand name, batch-posted times are wrong, and "Did the usual" tells the customer nothing.'}
+  ];
+  var rcSel={}, rcDone=store.get('rc')||{}, rcN=0;
+  function showRC(n){rcN=n;rcSel={};$$('#rcTabs button').forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!rcDone[j])});
+    var r=RC[n];$('#rcRec').innerHTML='<div class="rec-h"><span class="eyebrow">Posted order · '+r.n+'</span><span class="small muted">Sample Customer · example data</span></div>'+r.f.map(function(f){return '<div class="rec-r"><span>'+f[0]+'</span><b class="'+(f[1]?'':'blank')+'">'+(f[1]||'(blank)')+'</b></div>'}).join('');
+    $('#rcPick').innerHTML=RCO.map(function(o,i){return '<button type="button" id="rcp'+i+'" aria-pressed="false">'+o+'</button>'}).join('');
+    $$('#rcPick button').forEach(function(b,i){b.addEventListener('click',function(){if(i===6){rcSel={6:1}}else{delete rcSel[6];if(rcSel[i])delete rcSel[i];else rcSel[i]=1}
+      $$('#rcPick button').forEach(function(x,j){x.setAttribute('aria-pressed',!!rcSel[j]);x.classList.remove('miss','extra')});$('#rcFb').innerHTML=''})});
+    $('#rcFb').innerHTML='';}
+  RC.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.id='rct'+i;b.textContent=r.n;b.addEventListener('click',function(){showRC(i)});$('#rcTabs').appendChild(b)});
+  $('#rcCheck').addEventListener('click',function(){var r=RC[rcN],picked=Object.keys(rcSel).map(Number);if(!picked.length){$('#rcFb').innerHTML='<div class="fb no">Select at least one, or Complete.</div>';return}
+    var ok=picked.length===r.a.length&&r.a.every(function(x){return rcSel[x]});
+    $$('#rcPick button').forEach(function(x,j){x.classList.remove('miss','extra');if(r.a.indexOf(j)>-1&&!rcSel[j])x.classList.add('miss');if(rcSel[j]&&r.a.indexOf(j)<0)x.classList.add('extra')});
+    if(ok){rcDone[rcN]=1;store.set('rc',rcDone);$$('#rcTabs button')[rcN].classList.add('done')}
+    $('#rcFb').innerHTML='<div class="fb'+(ok?'':' no')+'"><b>'+(ok?'Correct. ':'Not quite. ')+'</b>'+r.e+(ok&&rcN<RC.length-1?' <button type="button" class="btn" id="rcNext" style="margin-left:6px;padding:4px 12px">Next record</button>':'')+'</div>';
+    var nx=$('#rcNext');if(nx)nx.addEventListener('click',function(){showRC(rcN+1)});});
+  showRC(0);
+
+  /* ---------- note picker ---------- */
+  var NP=[
+    {h:'What you did, and where',o:['Sprayed outside.','Treated the exterior perimeter, eaves and entry points for spiders; swept cobwebs and removed a small paper wasp nest from the front eave.','Did the full exterior like always, nothing special.'],a:1,w:['Too vague: where, and for what?','','"Like always" says nothing about today.']},
+    {h:'What you found',o:['Office should have scheduled this sooner.','Spiders all over the place, worst I\'ve seen.','Noted heavy spider activity around the porch lights.'],a:2,w:['Never discuss the office in a customer note.','Unprofessional and alarming. State the facts.','']},
+    {h:'What the customer can do',o:['Switching porch lights to warm or yellow bulbs will attract fewer insects, and fewer spiders will follow.','Customer needs to clean the porch.','Call the office for a quote on more services.'],a:0,w:['','Sounds like blame. Give a helpful, specific tip.','Sales leads go to the office by email, not in the report.']},
+    {h:'Follow-up, and who you spoke with',o:['Call if problems.','We will recheck at your next quarterly service. You were not home today; we left a door hanger.','Gate was unlocked AGAIN, tell office.'],a:1,w:['Doesn\'t say what happens next or who you spoke with.','','Office matters go to technotes@, never in caps in a customer note.']}
+  ];
+  var npA={}, nps=$('#npSlots');
+  NP.forEach(function(s,i){var d=document.createElement('div');d.className='npslot';d.innerHTML='<span class="eyebrow">'+(i+1)+' · '+s.h+'</span><div class="pick">'+s.o.map(function(o,j){return '<button type="button" id="np'+i+'_'+j+'" aria-pressed="false">'+o+'</button>'}).join('')+'</div>';
+    $$('button',d).forEach(function(b,j){b.addEventListener('click',function(){npA[i]=j;$$('button',d).forEach(function(x,k){x.setAttribute('aria-pressed',k===j);x.classList.remove('miss')});npOut()})});nps.appendChild(d)});
+  function npOut(){$('#npOut').innerHTML=NP.map(function(s,i){return npA[i]===undefined?'<span class="muted">['+s.h.toLowerCase()+']</span>':s.o[npA[i]]}).join(' ');
+    var n=Object.keys(npA).length;if(n<4){$('#npFb').innerHTML='<p class="small muted">'+n+' of 4 parts chosen.</p>';return}
+    var bad=NP.map(function(s,i){return npA[i]!==s.a?i:-1}).filter(function(x){return x>-1});
+    bad.forEach(function(i){$('#np'+i+'_'+npA[i]).classList.add('miss')});
+    $('#npFb').innerHTML=bad.length?'<div class="fb no">'+bad.map(function(i){return '<b>Part '+(i+1)+':</b> '+NP[i].w[npA[i]]}).join('<br>')+'</div>':'<div class="fb">That\'s a note the customer can trust: what you did and where, what you found, what they can do, and what happens next.</div>';}
+  npOut();
+
+  /* ---------- scenarios ---------- */
+  var SS=[
+    {n:'Wrong account',s:'You tapped Start on the 10:30 order, but you\'re standing at the 9:00 customer\'s house.',o:['Complete the 10:30 order to clear it','Use Reset Work Order on the 10:30, then Start the 9:00','Call the office and wait for them to fix it','Leave both In Progress'],a:1,e:'Reset Work Order puts the mistaken order back to Not Started. No call needed. Then start the right order so its time is correct.'},
+    {n:'Come back Thursday',s:'The customer is having a party and asks you to come back Thursday for just this visit.',o:['Email technotes@ and leave the order open','Complete it with a note','Use Reschedule to give the order Thursday\'s date and a time','Skip it; the office will notice'],a:2,e:'A one-time move is a Reschedule in the app, so the order sits on a real date. A permanent schedule change would go to customer service at technotes@.'},
+    {n:'Completed by mistake',s:'You tapped Complete on an order before recording the second product you used.',o:['Call or email the office now to unpost it, then record the product correctly','Add the product to the next customer\'s order','Write it in tomorrow\'s notes','Reset Work Order'],a:0,e:'Completed orders leave your list. Only the office can unpost. Ask promptly so the record is right, well inside two working days.'},
+    {n:'Customer update',s:'The customer gives you a new cell number and says the gate code changed.',o:['Put both in the order notes','Remember to tell someone next week','Text them to a coworker','Send them to technotes@ so customer service updates the account'],a:3,e:'Account and access changes go to customer service. Order notes go to the customer and aren\'t how the office updates accounts. Gate codes are confidential.'},
+    {n:'Out of coverage',s:'Your next three stops are in a rural area with no signal.',o:['Wait to start the orders until you\'re back in coverage','Work and record each order normally, and confirm they synced once you have signal','Write everything on paper and enter it Friday','Log out so the app stops trying'],a:1,e:'Keep starting and completing orders at the stop. The app holds the work until it can sync. Don\'t log out or reinstall with work waiting.'}
+  ];
+  var st=$('#sTabs'), sbx=$('#sBox'), sDone=store.get('sc')||{};
+  function showS(n){
+    $$('button',st).forEach(function(b,j){b.setAttribute('aria-pressed',j===n);b.classList.toggle('done',!!sDone[j])});
+    var s=SS[n];
+    sbx.innerHTML='<div class="card" style="padding:16px 20px"><span class="eyebrow">The situation</span><p style="margin-top:4px;font-size:17px">'+s.s+'</p></div><div class="choices">'+s.o.map(function(o,i){return '<button type="button" class="choice" id="sc'+n+'_'+i+'" data-i="'+i+'"><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="sFb"></div>';
+    $$('.choice',sbx).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i;$$('.choice',sbx).forEach(function(x){x.classList.remove('wrong')});
+      if(i===s.a){b.classList.add('right');$$('.choice',sbx).forEach(function(x){x.disabled=true});sDone[n]=1;store.set('sc',sDone);$$('button',st)[n].classList.add('done');
+        $('#sFb').innerHTML='<div class="fb">'+s.e+(n<SS.length-1?' <button type="button" class="btn" id="sNext" style="margin-left:8px;padding:4px 12px">Next situation</button>':'')+'</div>';var nx=$('#sNext');if(nx)nx.addEventListener('click',function(){showS(n+1)});}
+      else{b.classList.add('wrong');$('#sFb').innerHTML='<div class="fb no">Which choice keeps the record accurate and the right people informed? Try again.</div>';}
+    })});
+  }
+  SS.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.id='stb'+i;b.textContent=(i+1)+'. '+s.n;b.addEventListener('click',function(){showS(i)});st.appendChild(b)});
+  showS(0);
+
+  /* ---------- end of day ---------- */
+  var EOD=[
+    {t:'Stop 3 · In Progress',d:'Service finished at 10:15; you forgot to complete it',o:['Complete','Reschedule'],a:0,w:'Complete it now, and tell the office the actual finish time so the record can be corrected if needed.'},
+    {t:'Stop 5 · Not Started',d:'Locked gate, no answer, door hanger left',o:['Complete','Reschedule'],a:1,w:'Not serviced, so it is never completed. Reschedule it within the next week.'},
+    {t:'Stop 6 · Paused',d:'Paused for lunch, finished at 1:40',o:['Complete','Reschedule'],a:0,w:'The work is done: complete it. Paused orders shouldn\'t sit overnight.'},
+    {t:'Stop 9 · Not Started',d:'Ran out of daylight',o:['Complete','Reschedule'],a:1,w:'Reschedule to a real future date and let the customer know if needed.'},
+    {t:'Last Tuesday · Not Started',d:'Still sitting on a past date',o:['Leave it','Reschedule'],a:1,w:'Nothing stays on past dates. Move it forward and confirm with the customer.'},
+    {t:'Sync status',d:'Two orders waiting to sync after the dead zone',o:['Sync now','Leave it'],a:0,w:'Get to coverage and confirm they synced before you finish the day.'}
+  ];
+  var eod=$('#eod'), eDone={};
+  EOD.forEach(function(e,i){var d=document.createElement('div');d.className='eod-r';d.innerHTML='<div><b>'+e.t+'</b><small>'+e.d+'</small></div><div class="seg">'+e.o.map(function(o,j){return '<button type="button" id="eod'+i+'_'+j+'" aria-pressed="false">'+o+'</button>'}).join('')+'</div><span class="why"></span>';
+    $$('.seg button',d).forEach(function(b,j){b.addEventListener('click',function(){$$('.seg button',d).forEach(function(x,k){x.setAttribute('aria-pressed',k===j)});var ok=j===e.a;d.classList.toggle('ok',ok);d.classList.toggle('no',!ok);$('.why',d).textContent=ok?'':'Think again: what does this order need?';if(ok)eDone[i]=1;else delete eDone[i];eodUpd(ok?e.w:'')})});eod.appendChild(d)});
+  function eodUpd(w){var n=EOD.length-Object.keys(eDone).length;$('#eodN').textContent=n;$('#eodBar').style.width=Math.round((EOD.length-n)/EOD.length*100)+'%';$('#eodMsg').textContent=n?(w||'Every order should end the day Completed or Rescheduled.'):'Nothing pending. Now end your day in the app.';}
+  eodUpd();
+
+  /* ---------- checkpoints ---------- */
+  /* CP, NCP come from data.js */
+  function renderCP(sec){
+    var id=sec.dataset.cp; if(+id===NCP)return; var c=CP[id], ok=!!passed[id];
+    sec.innerHTML='<div class="cp-tag a"><span class="eyebrow">'+c.t+'</span><span class="state'+(ok?' ok':'')+'">'+(ok?'Passed':'Answer correctly to continue')+'</span></div><h2 class="a" style="--i:1">'+c.q+'</h2><div class="choices a" style="--i:2">'+c.o.map(function(o,i){return '<button type="button" class="choice" id="cp'+id+'_'+i+'" data-i="'+i+'"'+(ok?' disabled':'')+'><span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span></button>'}).join('')+'</div><div class="cpfb a" style="--i:3"></div>';
+    if(ok){$('[data-i="'+c.a+'"]',sec).classList.add('right');$('.cpfb',sec).innerHTML='<div class="fb">'+c.e+'</div>';return;}
+    $$('.choice',sec).forEach(function(b){b.addEventListener('click',function(){
+      if(+b.dataset.i===c.a){passed[id]=1;store.set('cp',passed);renderCP(sec);sec.classList.add('on');updateNav();}
+      else{$$('.choice',sec).forEach(function(x){x.classList.remove('wrong')});b.classList.add('wrong');$('.cpfb',sec).innerHTML='<div class="fb no">Not quite. Go back and review, or try again.</div>';}
+    })});
+  }
+  $$('[data-cp]').forEach(renderCP);
+  var fboxes=$$('[data-cp="'+NCP+'"] input');
+  var fsaved=store.get('field')||{};
+  fboxes.forEach(function(x){x.checked=!!fsaved[x.id];x.addEventListener('change',function(){fsaved[x.id]=x.checked;store.set('field',fsaved);passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;store.set('cp',passed);updateNav();})});
+  passed[NCP]=fboxes.every(function(y){return y.checked})?1:0;
+
+  /* ---------- quiz ---------- */
+  /* Q comes from data.js */
+  var qbox=$('#quiz'), qi=0, ans=[], started=false, CPS=Object.keys(CP).map(Number);
+  function allCP(){return CPS.every(function(k){return passed[k]})}
+  function quizGate(){
+    if(started)return;
+    if(!allCP()){
+      var left=CPS.filter(function(k){return !passed[k]});
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check · locked</span><h2 class="a" style="--i:1">Pass every checkpoint to unlock the knowledge check.</h2><p class="lead a" style="--i:2">Remaining: '+left.map(function(k){return k===NCP?SIGNOFF_LABEL:'Checkpoint '+k}).join(', ')+'.</p><div class="a" style="--i:3"><button type="button" class="btn" id="goFirst">Go to the next one</button></div>';
+      $('#goFirst').addEventListener('click',function(){var k=left[0];var idx=slides.findIndex(function(s){return s.dataset.cp==String(k)});show(idx)});
+    } else {
+      qbox.innerHTML='<span class="eyebrow a">Knowledge check</span><h2 class="a" style="--i:1">Twenty questions. Sixteen correct to pass.</h2><p class="lead a" style="--i:2">You\'ll see the right answer after each question, and a review of anything you missed at the end.</p><div class="a" style="--i:3"><button type="button" class="btn primary" id="qStart">Start the knowledge check</button></div>';
+      $('#qStart').addEventListener('click',function(){started=true;qi=0;ans=[];showQ()});
+    }
+  }
+  function dots(){return '<div class="dots" aria-hidden="true">'+Q.map(function(_,i){var c=i===qi&&ans[i]===undefined?'cur':(ans[i]===undefined?'':(ans[i]===Q[i].a?'ok':'no'));return '<i class="'+c+'"></i>'}).join('')+'</div>'}
+  function showQ(){
+    var q=Q[qi];
+    qbox.innerHTML='<div class="qhead"><span class="eyebrow">Knowledge check · Question '+(qi+1)+' of '+Q.length+'</span>'+dots()+'</div><span class="qtype">'+q.k+'</span><h2 class="qtext">'+q.q+'</h2><div class="choices" style="max-width:760px">'+q.o.map(function(o,i){return '<button type="button" class="choice" id="q'+qi+'_'+i+'" data-i="'+i+'"><span class="k">'+(q.o.length===2?o[0]:'ABCD'[i])+'</span><span>'+o+'</span></button>'}).join('')+'</div><div id="qfb"></div>';
+    $$('.choice',qbox).forEach(function(b){b.addEventListener('click',function(){
+      var i=+b.dataset.i; ans[qi]=i;
+      $$('.choice',qbox).forEach(function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right')});
+      if(i!==q.a)b.classList.add('wrong');
+      $('.dots',qbox).outerHTML=dots();
+      var last=qi===Q.length-1;
+      $('#qfb').innerHTML='<div style="display:grid;gap:10px;max-width:760px"><div class="fb'+(i===q.a?'':' no')+'"><b>'+(i===q.a?'Correct. ':'Not quite. ')+'</b>'+q.e+'</div><div><button type="button" class="btn primary" id="qNext">'+(last?'See my score':'Next question')+'</button></div></div>';
+      $('#qNext').addEventListener('click',function(){if(last)result();else{qi++;showQ()}});
+      $('#qNext').focus({preventScroll:true});
+    })});
+  }
+  function result(){
+    var s=ans.filter(function(a,i){return a===Q[i].a}).length, pct=Math.round(s/Q.length*100), pass=pct>=80;
+    var tries=(store.get('tries')||0)+1;store.set('tries',tries);
+    var R=46,CC=2*Math.PI*R, col=pass?'#15B85C':(pct>=72?'#86C540':(pct>=45?'#F6B318':'#E5484D'));
+    var txt=pass?'#0E7A3D':(pct>=45?'#8F6400':'#C42A2F');
+    var missed=Q.map(function(q,i){return ans[i]!==q.a?'<div><b>Q'+(i+1)+'.</b> '+q.q+' <span class="muted">Answer: '+q.o[q.a]+'</span></div>':''}).join('');
+    var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    qbox.innerHTML='<div class="result"><span class="eyebrow">Knowledge check · attempt '+tries+'</span><div class="ringwrap"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Score '+pct+' percent"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#DCE9DF" stroke-width="12"/><circle id="sRing" cx="60" cy="60" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+CC.toFixed(1)+'" stroke-dashoffset="'+CC.toFixed(1)+'" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .7s ease-out"/><text x="60" y="66" text-anchor="middle" font-size="24" font-family="Helvetica Neue,Arial,sans-serif" fill="'+txt+'">'+pct+'%</text></svg><div><h2>'+(pass?'You passed '+META.code+'.':'Almost there.')+'</h2><p class="muted">'+s+' of '+Q.length+' correct. '+(pass?META.passNote:'You need 16 of 20. Review the items below, then retake the check.')+'</p></div></div>'+
+      (pass?'<div class="field"><label for="learner" class="eyebrow">Your name for the completion record</label><input id="learner" autocomplete="name" placeholder="First and last name"></div><div class="cert"><span class="eyebrow">CanopyOS Training · Course complete</span><h2 style="color:#EEF4F0">'+META.code+' · '+META.titleHtml+'</h2><dl><dt>Name</dt><dd id="cName">Enter your name above</dd><dt>Score</dt><dd>'+s+' of '+Q.length+' ('+pct+'%)</dd><dt>Attempt</dt><dd>'+tries+'</dd><dt>Date</dt><dd>'+today+'</dd><dt>Next</dt><dd>'+META.nextHtml+'</dd></dl></div>':'')+
+      (missed?'<div class="missed"><span class="eyebrow">Review what you missed</span>'+missed+'</div>':'')+
+      '<div><button type="button" class="btn" id="retake">Retake the check</button></div></div>';
+    requestAnimationFrame(function(){requestAnimationFrame(function(){var r=$('#sRing');if(r)r.setAttribute('stroke-dashoffset',(CC*(1-pct/100)).toFixed(1))})});
+    $('#retake').addEventListener('click',function(){qi=0;ans=[];showQ()});
+    var inp=$('#learner');if(inp)inp.addEventListener('input',function(){$('#cName').textContent=inp.value.trim()||'Enter your name above'});
+  }
+
+  /* ---------- player ---------- */
+  var prev=$('#prev'), next=$('#next'), gate=$('#gate');
+  function blocked(i){var s=slides[i];return s.dataset.cp&&!passed[s.dataset.cp];}
+  function updateNav(){
+    prev.disabled=cur===0;
+    var b=blocked(cur); next.disabled=b||cur===N-1;
+    gate.hidden=!b; gate.textContent=+slides[cur].dataset.cp===NCP?'Tick every item on the sign-off list to continue.':'Answer the checkpoint correctly to continue.';
+    $('#count').textContent=(cur<9?'0':'')+(cur+1)+' / '+N;
+    var pct=Math.round(cur/(N-1)*100);$('#track').style.width=pct+'%';$('#trackBar').setAttribute('aria-valuenow',pct);
+    $('#navinfo').textContent=slides[cur].dataset.label;
+    $('#band').classList.toggle('alert',!!slides[cur].dataset.alert);
+    if(slides[cur].id==='quizSlide')quizGate();
+    if(typeof onShow==='function')onShow(cur);
+  }
+  function show(i){
+    if(i<0||i>=N)return;
+    for(var k=cur;k<i;k++){if(blocked(k)){i=k;break;}}
+    slides[cur].classList.remove('on');cur=i;slides[cur].classList.add('on');slides[cur].scrollTop=0;
+    store.set('pos',cur);updateNav();
+    if(window.innerWidth<860)document.querySelector('.frame').scrollIntoView({block:'start'});
+  }
+  prev.addEventListener('click',function(){show(cur-1)});
+  next.addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'&&!next.disabled)show(cur+1);if(e.key==='ArrowLeft'&&!prev.disabled)show(cur-1)});
+  var start=store.get('pos')||0; slides[0].classList.add('on'); cur=0;
+  if(start>0)show(start); else updateNav();
+  window.__T={CP:CP,NCP:NCP,Q:Q};
+
+})();
+</script>
+
+</body></html>
