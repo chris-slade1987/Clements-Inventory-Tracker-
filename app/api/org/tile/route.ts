@@ -30,6 +30,9 @@ export async function POST(req: Request) {
     if ("serviceNotes" in body) patch.serviceNotes = body.serviceNotes;
     if ("serviceSchedulingNote" in body) patch.serviceSchedulingNote = body.serviceSchedulingNote;
     if ("personalSchedulingNote" in body) patch.personalSchedulingNote = body.personalSchedulingNote;
+    if ("roleResponsibilities" in body) patch.roleResponsibilities = body.roleResponsibilities;
+    if ("contactReasons" in body) patch.contactReasons = body.contactReasons;
+    if ("contactGuidance" in body) patch.contactGuidance = body.contactGuidance;
 
     const tile = await updateTileFields(user, employeeId, patch);
     return NextResponse.json({ ok: true, tile });

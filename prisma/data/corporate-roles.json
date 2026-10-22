@@ -1,0 +1,110 @@
+{
+  "version": "2026-10-22",
+  "note": "Corporate Contact & Reference Sheet — what each corporate role does, when to go to them, and how to reach them. Seeded ONCE (version-gated) onto matching employees by email; later edits made on the org chart are preserved. Bump `version` to re-apply an updated sheet (that will overwrite edits for the matched people). Bullet fields use one line per bullet.",
+  "roles": [
+    {
+      "email": "c.slade@clementspestcontrol.com",
+      "name": "Christopher Slade",
+      "title": "Chief Operating Officer",
+      "roleResponsibilities": "Oversees daily company operations and coordinates between departments\nImplements company strategy, goals, and performance objectives\nWorks with department heads to improve efficiency and streamline processes\nOversees major projects, acquisitions, and business growth initiatives\nHandles escalated customer or operational issues requiring executive input",
+      "contactReasons": "Escalated operational or customer issues that require executive involvement\nStrategic company initiatives, planning, or direction\nMajor project updates, decisions, or approvals\nCoordination on acquisitions, expansions, or high-impact changes",
+      "contactGuidance": "Email unless urgent · c.slade@clementspestcontrol.com · Mobile 772-643-8028 · Office 772-562-6450 ext. 106"
+    },
+    {
+      "email": "jglanville@clementspestcontrol.com",
+      "name": "Julie Glanville",
+      "title": "Chief of Staff",
+      "roleResponsibilities": "Serves as strategic partner to the COO and supports execution of company priorities\nLeads cross-functional initiatives, special projects, and process improvements\nDevelops and maintains company policies, SOPs, and internal documentation\nCoordinates acquisition due diligence and integration efforts\nTracks departmental priorities, deadlines, and follow-through across teams\nPrepares reports, presentations, and communications for leadership\nManages the COO's calendar, meetings, and priorities",
+      "contactReasons": "Company-wide projects, initiatives, or process changes\nPolicies, SOPs, templates, or internal documentation\nReports, presentations, or documentation for leadership\nScheduling meetings or requesting time with the COO",
+      "contactGuidance": "Email unless urgent · jglanville@clementspestcontrol.com · Office 772-562-6450 ext. 111"
+    },
+    {
+      "email": "awilliford@clementspestcontrol.com",
+      "name": "April Williford",
+      "title": "Director of HR & Administrative Affairs",
+      "roleResponsibilities": "Oversees all HR functions including hiring, onboarding, payroll, benefits, and employee discipline\nTracks and reports commission for the team\nManages employee benefits programs, renewals, and vendor relationships\nEnsures compliance with employment laws, regulations, and company policies\nLeads employee relations, workplace culture, and retention initiatives\nTracks HR metrics, training completion, and workforce compliance\nPartners with leadership on workforce planning and succession strategies",
+      "contactReasons": "Payroll questions or discrepancies\nBenefits or health insurance questions\nPTO, leave, or time-off requests\nOnboarding and hiring questions or paperwork\nQuestions about training assigned by HR\nHR policies, employee relations, or workplace concerns\nApril handles HR matters only. Non-HR questions should go to your Branch Manager or the appropriate contact on this sheet.",
+      "contactGuidance": "Email unless urgent · awilliford@clementspestcontrol.com · Office 772-562-6450 ext. 103"
+    },
+    {
+      "email": "gfoster@clementspestcontrol.com",
+      "name": "Graham Foster",
+      "title": "Director of Field Operations",
+      "roleResponsibilities": "Oversees branch operations and evaluates branch manager performance\nConducts weekly check-ins with Branch Managers to monitor progress\nSupports technician performance, routing, and operational issue resolution\nConducts semi-annual audits of branches to ensure compliance and standards\nEnsures safety protocols and approved product usage are followed\nReviews and improves operational processes and maintenance procedures\nHandles escalated customer service issues requiring field operations input\nSupports sales, marketing, and customer retention initiatives\nOversees technician training compliance and continued education\nMonthly branch visits\nEquips new vehicles and oversees vehicle deployment and operation\nFinal interview on most new hires\nAcquires all uniforms for new hires",
+      "contactReasons": "Escalated operational or technician performance issues\nQuestions about branch audits or safety compliance\nSupport needed for routing, technician scheduling, or operational processes\nCoordination on sales, marketing, or retention efforts involving field operations\nTechnician training compliance and ongoing education inquiries",
+      "contactGuidance": "gfoster@clementspestcontrol.com · Mobile 772-766-4397"
+    },
+    {
+      "email": "hcohn@clementspestcontrol.com",
+      "name": "Howard Cohn",
+      "title": "Director of Sales",
+      "roleResponsibilities": "Leads and manages the sales team\nWorks daily with Branch Managers and the Director of Field Operations\nOversees events, groups, and community outreach\nLeads marketing and sales initiatives in coordination with the Marketing Coordinator\nSupports sales team training and performance",
+      "contactReasons": "Questions about events, groups, or community outreach\nMarketing or sales initiatives and promotions\nSales team, sales process, or lead questions\nQuestions about services, pricing, customer complaints, or other operational issues should go to your Branch Manager",
+      "contactGuidance": "hcohn@clementspestcontrol.com · Mobile 954-326-6700"
+    },
+    {
+      "email": "jcolontrelle@clementspestcontrol.com",
+      "name": "Jason Colontrelle",
+      "title": "Branch Manager — Vero Beach",
+      "roleResponsibilities": "Manages daily branch operations and supervises team performance\nReviews key performance indicators (KPIs) and meets regularly with technicians\nRuns reports on cancellations, schedules, and branch activity\nFollows up on sales leads and ensures data accuracy in the system\nContacts customers to help retain accounts and resolve issues\nManages inventory, supplies, and equipment maintenance for the branch\nOversees branch cleanliness, safety inspections, and proper product use\nEnsures branch compliance with all company policies and procedures",
+      "contactReasons": "Questions about services, treatment options, or pricing\nCustomer complaints or issues requiring escalation beyond front-line staff\nLocal branch operational concerns or issues\nQuestions about technician performance, scheduling, or conduct",
+      "contactGuidance": "Vero Beach · jcolontrelle@clementspestcontrol.com · Mobile 772-766-4392"
+    },
+    {
+      "email": "agoetz@clementspestcontrol.com",
+      "name": "Adam Goetz",
+      "title": "Branch Manager — Stuart",
+      "roleResponsibilities": "Manages daily branch operations and supervises team performance\nReviews key performance indicators (KPIs) and meets regularly with technicians\nRuns reports on cancellations, schedules, and branch activity\nFollows up on sales leads and ensures data accuracy in the system\nContacts customers to help retain accounts and resolve issues\nManages inventory, supplies, and equipment maintenance for the branch\nOversees branch cleanliness, safety inspections, and proper product use\nEnsures branch compliance with all company policies and procedures",
+      "contactReasons": "Questions about services, treatment options, or pricing\nCustomer complaints or issues requiring escalation beyond front-line staff\nLocal branch operational concerns or issues\nQuestions about technician performance, scheduling, or conduct",
+      "contactGuidance": "Stuart · agoetz@clementspestcontrol.com · Mobile 772-529-4216"
+    },
+    {
+      "email": "etravelute@clementspestcontrol.com",
+      "name": "Ted Travelute",
+      "title": "Branch Manager — Orlando",
+      "roleResponsibilities": "Manages daily branch operations and supervises team performance\nReviews key performance indicators (KPIs) and meets regularly with technicians\nRuns reports on cancellations, schedules, and branch activity\nFollows up on sales leads and ensures data accuracy in the system\nContacts customers to help retain accounts and resolve issues\nManages inventory, supplies, and equipment maintenance for the branch\nOversees branch cleanliness, safety inspections, and proper product use\nEnsures branch compliance with all company policies and procedures",
+      "contactReasons": "Questions about services, treatment options, or pricing\nCustomer complaints or issues requiring escalation beyond front-line staff\nLocal branch operational concerns or issues\nQuestions about technician performance, scheduling, or conduct",
+      "contactGuidance": "Orlando · etravelute@clementspestcontrol.com · Mobile 407-873-1832"
+    },
+    {
+      "email": "ccarter@clementspestcontrol.com",
+      "name": "Corey Carter",
+      "title": "Branch Manager — Naples",
+      "roleResponsibilities": "Manages daily branch operations and supervises team performance\nReviews key performance indicators (KPIs) and meets regularly with technicians\nRuns reports on cancellations, schedules, and branch activity\nFollows up on sales leads and ensures data accuracy in the system\nContacts customers to help retain accounts and resolve issues\nManages inventory, supplies, and equipment maintenance for the branch\nOversees branch cleanliness, safety inspections, and proper product use\nEnsures branch compliance with all company policies and procedures",
+      "contactReasons": "Questions about services, treatment options, or pricing\nCustomer complaints or issues requiring escalation beyond front-line staff\nLocal branch operational concerns or issues\nQuestions about technician performance, scheduling, or conduct",
+      "contactGuidance": "Naples · ccarter@clementspestcontrol.com · Mobile 239-473-0607"
+    },
+    {
+      "email": "lignazio@clementspestcontrol.com",
+      "name": "Larry Ignazio",
+      "title": "Marketing Coordinator",
+      "roleResponsibilities": "Develops and executes marketing campaigns, promotions, and initiatives\nCoordinates branding efforts and promotional activities with leadership\nManages digital marketing channels, including social media platforms\nSupports sales by generating leads and providing marketing materials\nCollaborates closely with Chris and Julie on overall marketing strategy",
+      "contactReasons": "Requests for marketing materials or branded assets\nSocial media, website, or digital marketing inquiries\nBranding-related questions\nQuestions about events, groups, or marketing/sales initiatives should go to Howard Cohn",
+      "contactGuidance": "Email unless urgent · lignazio@clementspestcontrol.com · Office 772-562-6450 ext. 108"
+    },
+    {
+      "email": "etrione@clementspestcontrol.com",
+      "name": "Emily Trione",
+      "title": "CSR Coordinator",
+      "roleResponsibilities": "Serves as the primary point of contact for all customer account matters\nOversees account setup, updates, and changes to ensure accuracy in the system\nSupports the Customer Service Team with account-related requests and follow-up\nInvestigates and resolves account issues and discrepancies\nRoutes billing and payment matters to Finance and other issues to the appropriate department",
+      "contactReasons": "Any question regarding customer accounts\nAccount setup, updates, changes, or corrections\nAccount issues that need to be looked into or resolved\nAccount status, service agreement details, or account history",
+      "contactGuidance": "etrione@clementspestcontrol.com · Office 772-562-6450"
+    },
+    {
+      "email": "rberning@clementspestcontrol.com",
+      "name": "Robin Berning",
+      "title": "Finance & Accounting Coordinator",
+      "roleResponsibilities": "Processes accounts payable and ensures timely vendor payments\nManages accounts receivable, collections, and customer payment processing\nRecords daily deposits and posts completed service orders\nCoordinates bookkeeping activities with the company's accountants\nAssists with preparing financial statements and tracking procurement expenses",
+      "contactReasons": "Payment issues beyond a standard online payment\nBilling adjustments, account balances, or payment application\nVendor payment issues or status updates\nInquiries about invoices or statements",
+      "contactGuidance": "Email unless urgent · rberning@clementspestcontrol.com · Office 772-562-6450 ext. 105"
+    },
+    {
+      "email": "jsanderson@clementspestcontrol.com",
+      "name": "Jessica Sanderson",
+      "title": "Routing & Logistics Coordinator",
+      "roleResponsibilities": "Manages and optimizes technician routing and daily schedules\nInputs new customer agreements and service start-ups into PestPac\nTracks and reports sales for the team\nGenerates PestPac reports and completes ad hoc reporting requests\nOversees Sentricon reporting requirements and documentation\nAssists with generating monthly service orders and ensuring accuracy",
+      "contactReasons": "Questions or requests about route changes or scheduling adjustments\nEntry of new customer agreements or service start-ups\nService set-up corrections, updates, or scheduling conflicts\nRequests for PestPac or Sentricon reporting",
+      "contactGuidance": "Email unless urgent · jsanderson@clementspestcontrol.com · Office 772-562-6450 ext. 102"
+    }
+  ]
+}

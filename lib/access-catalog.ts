@@ -74,7 +74,7 @@ export const MODULES: AccessModule[] = [
     { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
     { id: "groundwork", name: "Groundwork", note: "Universal work home: My Work (To-Dos + follow-ups), Huddles, The Greenhouse, Projects. Assigning to others is role-scoped server-side." },
-    { id: "org-chart", name: "Org Chart (company)", note: "Universal company-readable reporting chart + directory search (/org); tile edits (services, scheduling, route) are role/branch-scoped server-side. Distinct from the HR-console Org Chart item." },
+    { id: "org-chart", name: "Org Chart (company)", note: "Universal company-readable reporting chart + directory search (/org); cards are read-only for field TECHNICIANS, and every other staff member may expand + edit a card's info (route, approved services, corporate role / who-to-go-to, scheduling) company-wide — enforced server-side in updateTileFields. Distinct from the HR-console Org Chart item." },
     { id: "ask-canopy", name: "Ask Canopy (Copilot)", note: "Universal docked assistant; answers are access-scoped server-side" } ] },
 ];
 

@@ -20,6 +20,7 @@ import { documentsForEmployee } from "@/lib/branch-hub";
 import { emailConfigured } from "@/lib/email";
 import { etParts, isSameMonthDay } from "@/lib/date";
 import { CelebrationBanner } from "@/components/Buzz";
+import RoleReferenceCard from "@/components/RoleReferenceCard";
 import EmployeeContact from "./EmployeeContact";
 import PasswordResetCard from "./PasswordResetCard";
 import AccessRightsCard from "./AccessRightsCard";
@@ -209,6 +210,15 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
           <p className="text-sm text-muted">No route, approved services, or scheduling rules set yet. Add them on the <Link href="/management/people/org" className="text-brand-700 hover:underline">org chart</Link>.</p>
         )}
       </Card>
+
+      {/* Corporate role / who-to-go-to reference (from the Contact & Reference
+          Sheet; edited on the org chart). */}
+      <RoleReferenceCard
+        roleResponsibilities={e.roleResponsibilities}
+        contactReasons={e.contactReasons}
+        contactGuidance={e.contactGuidance}
+        editHref="/management/people/org"
+      />
 
       {/* Access rights — super admins only. Set the access level, or grant a
           sign-in to a login-less employee (same controls as the org chart). */}

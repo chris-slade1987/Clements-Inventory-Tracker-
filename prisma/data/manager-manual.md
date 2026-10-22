@@ -19,7 +19,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Branch Hub** for on-site licenses/documents with expiry reminders. See *FDACS On-site Document Management* and *Warehouse Safety*.
 - **Sales Team** — service advisors plan their month with a built-in **Monthly Goal Sheet**, and the **Sales Director** oversees advisors and goals across all four branches. See *Sales Team*.
 - **Certifications** — a read-only console to browse the internal certification program's structure (certifications, modules, prerequisites, and career pathways). Leadership and HR can SEE the program today; training content and tracking are coming. See *Certifications*.
-- **Org Chart & Directory** — a universal, company-readable reporting chart of square employee tiles nested under their manager, with search (name, route number, service, branch), collapsible teams, and — for HR/leadership and branch managers — editable approved services, scheduling rules, route numbers, and an attributed note log. Open to everyone from the **Org Chart** button in the top bar (`/org`). See *Org Chart & Directory*.
+- **Org Chart & Directory** — a universal, company-readable reporting chart laid out as a **family tree** that branches across the screen, with search (name, route number, service, branch) and collapsible teams. Each card expands to show the person's **corporate role** (what they do + when to go to them for help), certifications, approved services, scheduling rules, and latest note. **Every staff member except field technicians** can expand a card and edit its details. Open to everyone from the **Org Chart** button in the top bar (`/org`). See *Org Chart & Directory*.
 
 ## Table of Contents
 
@@ -237,27 +237,31 @@ Each of these fires once per person per year — nothing is duplicated if the da
 
 > **Portal (v1).** The **Org Chart** is a company-wide reporting chart and people
 > directory, open to **everyone** from the **Org Chart** button in the top bar
-> (`/org`). It draws the real reporting structure — square tiles for each person
-> **nested under their manager** and connected by lines. Each tile shows the
-> person's name, title, branch, **route number**, earned **certifications**, the
-> services they're **approved to do**, any service notes, their **scheduling
-> rules** (a highlighted block with the per-service rule and the personal rule),
-> and their **latest note**.
+> (`/org`). It draws the real reporting structure as a **family tree** — each
+> person's direct reports sit **side by side beneath them**, connected by lines, so
+> the chart **branches out across the width of the screen** rather than running
+> down a long list. On a phone it stacks into a simple indented list instead.
 
 **Finding someone.** Use the search box to look up a person by **name, route
 number, service, or branch** (for example "route 42", "bees Naples", or a name),
-and the **branch** and **service** filters to narrow the list. Collapse or expand
-any lead's team with the control on their tile, or use **Expand all / Collapse
-all**. The chart scrolls sideways on a phone so wide teams stay readable.
+and the **branch** and **service** filters to narrow the list. Large teams start
+**collapsed** (a "N reports" chip) so the whole company fits on screen; open one
+with its chip, or use **Expand all / Collapse all teams**.
 
-**Keeping a tile current (authorized only).** HR, senior leadership, and super
-admins can edit **any** person's tile; a **branch manager** can edit **their own
-branch's** people. Tap **Edit details** on a tile to set the **approved services**,
-**service notes**, **service** and **personal scheduling rules**, and **route
-number**, then **Save** — the change shows everywhere at once. Everyone else sees
-the chart read-only (no edit controls appear). The same operational fields also
-appear on the person's HR profile under **Operational profile** (edit from the org
-chart).
+**Opening a card.** Each card starts collapsed, showing the person's name, title,
+branch, and **route number**. Tap **Expand** to see the saved details — earned
+**certifications**, the services they're **approved to do**, their **corporate
+role** (*what they do* and *when to go to them for help*), any service notes, their
+**scheduling rules**, and their **latest note**.
+
+**Keeping a card current.** **Every staff member can edit cards — except field
+technicians**, who see the chart read-only. Expand a card and tap **Edit details**
+to set the **route number**, **approved services**, the role's **what-they-do** and
+**when-to-go-to-them** lists, **how to reach** them, **service notes**, and the
+**service** and **personal scheduling rules**, then **Save** — the change shows
+everywhere at once, and you can revise or clear any field the same way. The role
+and operational fields also appear on the person's profile (under **Role &
+responsibilities** and **Operational profile**); edit them from the org chart.
 
 **Employee notes.** Each person has an attributed, timestamped **note log** on
 their HR profile (**People / HR → the person → Employee notes**). Managers, HR,

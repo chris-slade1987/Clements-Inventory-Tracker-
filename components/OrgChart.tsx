@@ -4,16 +4,21 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link";
 import { btn, Spinner } from "@/components/ui";
 
-// Shared Org Chart (Round 2) — the company reporting chart of square employee
-// tiles nested under their manager, connected by pure-CSS lines, branches
-// collapsible, with a search bar (name · route · service · branch) wired to
-// /api/org and branch + service filters. Read-only for everyone; scoped tile
-// editing (approved services, service/scheduling notes, route number) for HR /
-// leadership / super-admins (anyone) and branch managers (own branch).
+// Shared Org Chart (Round 4) — the company reporting chart of employee cards,
+// laid out as a TOP-DOWN FAMILY TREE: each person's direct reports sit side by
+// side beneath them, joined by pure-CSS connectors, branching out across the
+// width of the screen (no sideways sliding in the default view — large teams
+// collapse to a chip, and phones fall back to a vertical indented stack).
+//
+// Each card is COLLAPSED by default (name, title, branch, route). An "Expand"
+// control reveals the saved info (certs, approved services, corporate role /
+// who-to-go-to, scheduling, latest note); inside the expanded view an "Edit"
+// button opens the inline editor. Editing is open to every staff member EXCEPT
+// field technicians (and read-only board observers) — enforced here by the
+// `canEditAll` flag and re-checked server-side in `updateTileFields`.
 //
 // Consumed by the universal Company → Org Chart page (/org) and the HR console
-// (/management/people/org). No action buttons on tiles (no CRM link) — the name
-// and the latest note link to the profile only when the viewer may open it.
+// (/management/people/org).
 
 // ---- Types (structural copies of lib/org-chart's payload; that module is
 //      server-only, so the client re-declares the plain JSON shape). ----------
@@ -39,6 +44,9 @@ export type OrgTile = {
   serviceNotes: string | null;
   serviceSchedulingNote: string | null;
   personalSchedulingNote: string | null;
+  roleResponsibilities: string | null;
+  contactReasons: string | null;
+  contactGuidance: string | null;
   latestNotes: OrgTileNote[];
 };
 export type OrgTreeNode = OrgTile & { reports: OrgTreeNode[] };
@@ -50,9 +58,9 @@ export type OrgChartProps = {
   tiles: OrgTile[];
   serviceTags: Tag[];
   branches: Tag[];
-  /** HR / senior leadership / super-admins may edit ANY tile. */
+  /** True when the viewer may edit cards (every non-technician staff member). */
   canEditAll?: boolean;
-  /** A branch manager may edit only their own branch's tiles (branch key). */
+  /** Retained for the call sites; no longer scopes editing to one branch. */
   editBranch?: string | null;
   /** When set, the name + "full notes" link point at `${profileBase}/<id>`. */
   profileBase?: string | null;
@@ -89,7 +97,30 @@ const ICON = {
   clock: "M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   collapse: "M5 12h14",
   expand: "M12 5v14M5 12h14",
+  chevron: "M6 9l6 6 6-6",
+  phone: "M4 4h4l2 5-2.5 1.5a11 11 0 006 6L15 14l5 2v4a1 1 0 01-1 1A16 16 0 013 5a1 1 0 011-1z",
+  help: "M12 17h.01M12 14a2 2 0 00.4-3.96A2.5 2.5 0 109.6 8.5M12 21a9 9 0 110-18 9 9 0 010 18z",
+  role: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0",
 };
+
+// Split a multiline bullet field into clean bullet strings (strips any leading
+// "-"/"•" the author typed). One line → render as a paragraph instead.
+function toBullets(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map((s) => s.replace(/^\s*[-•·*]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function BulletList({ text }: { text: string }) {
+  const items = toBullets(text);
+  if (items.length <= 1) return <p className="oct-roletext">{items[0] ?? text}</p>;
+  return (
+    <ul className="oct-bullets">
+      {items.map((b, i) => <li key={i}>{b}</li>)}
+    </ul>
+  );
+}
 
 // Collect the descendant ids of a node (for collapse-all seeding).
 function collectInners(nodes: OrgTreeNode[], out: Set<string>) {
@@ -103,9 +134,8 @@ function collectInners(nodes: OrgTreeNode[], out: Set<string>) {
 
 // Scope the tree to a single branch: keep nodes whose branch matches, nesting
 // their kept reports beneath them. A matching node whose manager is NOT in the
-// branch (e.g. a branch manager reporting up to Vero leadership) surfaces as a
-// root of the pruned forest — so selecting "Stuart" shows Adam on top with his
-// techs and advisors flowing beneath, rather than the whole company.
+// branch surfaces as a root of the pruned forest — so selecting "Stuart" shows
+// Adam on top with his techs and advisors flowing beneath.
 function pruneBranch(nodes: OrgTreeNode[], branch: string): OrgTreeNode[] {
   const out: OrgTreeNode[] = [];
   for (const n of nodes) {
@@ -113,7 +143,6 @@ function pruneBranch(nodes: OrgTreeNode[], branch: string): OrgTreeNode[] {
     if (n.branch === branch) {
       out.push({ ...n, reports: keptKids });
     } else {
-      // Not in the branch — promote any in-branch descendants up a level.
       out.push(...keptKids);
     }
   }
@@ -133,7 +162,7 @@ export default function OrgChart({
   serviceTags,
   branches,
   canEditAll = false,
-  editBranch = null,
+  editBranch = null, // eslint-disable-line @typescript-eslint/no-unused-vars
   profileBase = null,
 }: OrgChartProps) {
   // Live tile state so an edit reflects everywhere (tree + search) instantly.
@@ -143,12 +172,10 @@ export default function OrgChart({
   }, [tiles]);
 
   const liveTile = useCallback((t: OrgTile) => tilesById.get(t.id) ?? t, [tilesById]);
-  const canEditTile = useCallback(
-    (t: OrgTile) => canEditAll || (!!editBranch && t.branch === editBranch),
-    [canEditAll, editBranch],
-  );
+  // Every non-technician staff member may edit any card (checked again server-side).
 
-  // Collapse state — collapse large sub-teams (>5 reports) by default.
+  // Team collapse state — collapse large sub-teams (>5 reports) by default so the
+  // tree fits the screen width without sideways scrolling.
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
     const s = new Set<string>();
     const walk = (nodes: OrgTreeNode[]) => {
@@ -174,6 +201,16 @@ export default function OrgChart({
   };
   const expandAll = () => setCollapsed(new Set());
 
+  // Per-card detail expand state (separate from the team collapse above).
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(() => new Set());
+  const toggleCard = (id: string) =>
+    setExpandedCards((c) => {
+      const n = new Set(c);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+
   // --- Search + filters (wired to /api/org) ---------------------------------
   const [query, setQuery] = useState("");
   const [branch, setBranch] = useState("");
@@ -183,9 +220,6 @@ export default function OrgChart({
   const [searchError, setSearchError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Free-text or service filter → a cross-cutting results grid fetched from
-  // /api/org (branch, if also set, narrows it). A branch-ONLY selection stays
-  // in tree mode, scoped to that branch's subtree.
   const textSearch = query.trim().length > 0 || !!service;
   const branchOnly = !textSearch && !!branch;
 
@@ -211,7 +245,6 @@ export default function OrgChart({
         const res = await fetch(`/api/org?${params.toString()}`, { signal: ac.signal });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.error || "Search failed.");
-        // Map ids to the live (possibly-edited) tiles so edits stay reflected.
         const mapped: OrgTile[] = (data.results ?? []).map((r: OrgTile) => tilesById.get(r.id) ?? r);
         setResults(mapped);
       } catch (e) {
@@ -223,8 +256,6 @@ export default function OrgChart({
       }
     }, 200);
     return () => clearTimeout(handle);
-    // tilesById intentionally excluded — a tile edit shouldn't re-run the fetch;
-    // the live map is read at render time so results stay fresh regardless.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, branch, service, textSearch]);
 
@@ -239,11 +270,25 @@ export default function OrgChart({
 
   const totalPeople = tiles.length;
 
-  // The tree to render: the full company, or — when a branch alone is picked —
-  // that branch's subtree (its manager on top, reports flowing beneath).
   const visibleRoots = branchOnly ? pruneBranch(roots, branch) : roots;
   const visibleCount = branchOnly ? countPeople(visibleRoots) : totalPeople;
   const branchLabel = branchOnly ? branches.find((b) => b.key === branch)?.label ?? null : null;
+
+  const cardProps = (t: OrgTile) => ({
+    tile: liveTile(t),
+    editable: canEditAll,
+    expanded: expandedCards.has(t.id),
+    onToggleExpand: () => toggleCard(t.id),
+    editing: editingId === t.id,
+    onEdit: () => { setExpandedCards((c) => new Set(c).add(t.id)); setEditingId(t.id); },
+    onCancel: () => setEditingId(null),
+    onSaved: (updated: OrgTile) => {
+      setTilesById((m) => new Map(m).set(updated.id, updated));
+      setEditingId(null);
+    },
+    serviceTags,
+    profileBase,
+  });
 
   return (
     <div>
@@ -268,7 +313,6 @@ export default function OrgChart({
           value={branch}
           onChange={(e) => {
             setBranch(e.target.value);
-            // Open the chosen branch fully so its whole team is visible at once.
             setCollapsed(new Set());
           }}
           aria-label="Filter by branch"
@@ -299,14 +343,14 @@ export default function OrgChart({
       {!textSearch ? (
         <div className="mb-3 flex items-center justify-between gap-2">
           <p className="text-[11px] text-muted">
-            {branchLabel ? `${branchLabel} — ` : ""}{visibleCount} {visibleCount === 1 ? "person" : "people"} · tap a lead&apos;s <span className="font-medium">report</span> toggle to open their team.
+            {branchLabel ? `${branchLabel} — ` : ""}{visibleCount} {visibleCount === 1 ? "person" : "people"} · tap <span className="font-medium">Expand</span> on a card for details, or a lead&apos;s <span className="font-medium">report</span> toggle to open their team.
           </p>
           <div className="flex items-center gap-1">
             <button type="button" onClick={expandAll} className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-              <Icon path={ICON.expand} className="h-3.5 w-3.5" /> Expand all
+              <Icon path={ICON.expand} className="h-3.5 w-3.5" /> Expand all teams
             </button>
             <button type="button" onClick={collapseAll} className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-              <Icon path={ICON.collapse} className="h-3.5 w-3.5" /> Collapse all
+              <Icon path={ICON.collapse} className="h-3.5 w-3.5" /> Collapse all teams
             </button>
           </div>
         </div>
@@ -327,22 +371,9 @@ export default function OrgChart({
           ) : (
             <>
               <p className="mb-3 text-[11px] text-muted">{results?.length} match{results?.length === 1 ? "" : "es"}{searching ? " · updating…" : ""}</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 items-start">
                 {results?.map((t) => (
-                  <TileCard
-                    key={t.id}
-                    tile={liveTile(t)}
-                    editable={canEditTile(t)}
-                    editing={editingId === t.id}
-                    onEdit={() => setEditingId(t.id)}
-                    onCancel={() => setEditingId(null)}
-                    onSaved={(updated) => {
-                      setTilesById((m) => new Map(m).set(updated.id, updated));
-                      setEditingId(null);
-                    }}
-                    serviceTags={serviceTags}
-                    profileBase={profileBase}
-                  />
+                  <TileCard key={t.id} {...cardProps(t)} />
                 ))}
               </div>
             </>
@@ -363,16 +394,7 @@ export default function OrgChart({
                   node={r}
                   collapsed={collapsed}
                   toggle={toggle}
-                  liveTile={liveTile}
-                  canEditTile={canEditTile}
-                  editingId={editingId}
-                  setEditingId={setEditingId}
-                  onSaved={(updated) => {
-                    setTilesById((m) => new Map(m).set(updated.id, updated));
-                    setEditingId(null);
-                  }}
-                  serviceTags={serviceTags}
-                  profileBase={profileBase}
+                  cardProps={cardProps}
                 />
               ))}
             </ul>
@@ -388,24 +410,12 @@ function TreeNode({
   node,
   collapsed,
   toggle,
-  liveTile,
-  canEditTile,
-  editingId,
-  setEditingId,
-  onSaved,
-  serviceTags,
-  profileBase,
+  cardProps,
 }: {
   node: OrgTreeNode;
   collapsed: Set<string>;
   toggle: (id: string) => void;
-  liveTile: (t: OrgTile) => OrgTile;
-  canEditTile: (t: OrgTile) => boolean;
-  editingId: string | null;
-  setEditingId: (id: string | null) => void;
-  onSaved: (t: OrgTile) => void;
-  serviceTags: Tag[];
-  profileBase: string | null;
+  cardProps: (t: OrgTile) => Omit<Parameters<typeof TileCard>[0], "footer">;
 }) {
   const kids = node.reports;
   const isCollapsed = collapsed.has(node.id);
@@ -413,21 +423,14 @@ function TreeNode({
     <li>
       <div className="octree-node">
         <TileCard
-          tile={liveTile(node)}
-          editable={canEditTile(node)}
-          editing={editingId === node.id}
-          onEdit={() => setEditingId(node.id)}
-          onCancel={() => setEditingId(null)}
-          onSaved={onSaved}
-          serviceTags={serviceTags}
-          profileBase={profileBase}
+          {...cardProps(node)}
           footer={
             kids.length ? (
               <button
                 type="button"
                 onClick={() => toggle(node.id)}
                 aria-expanded={!isCollapsed}
-                className="mt-1 inline-flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1 text-[11px] font-medium text-brand-700 hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="mt-1 inline-flex items-center gap-1 self-center rounded-lg border border-line bg-surface px-2 py-1 text-[11px] font-medium text-brand-700 hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <Icon path={isCollapsed ? ICON.expand : ICON.collapse} className="h-3 w-3" />
                 {isCollapsed ? `${kids.length} report${kids.length > 1 ? "s" : ""}` : "Hide team"}
@@ -439,19 +442,7 @@ function TreeNode({
       {kids.length && !isCollapsed ? (
         <ul>
           {kids.map((k) => (
-            <TreeNode
-              key={k.id}
-              node={k}
-              collapsed={collapsed}
-              toggle={toggle}
-              liveTile={liveTile}
-              canEditTile={canEditTile}
-              editingId={editingId}
-              setEditingId={setEditingId}
-              onSaved={onSaved}
-              serviceTags={serviceTags}
-              profileBase={profileBase}
-            />
+            <TreeNode key={k.id} node={k} collapsed={collapsed} toggle={toggle} cardProps={cardProps} />
           ))}
         </ul>
       ) : null}
@@ -459,10 +450,12 @@ function TreeNode({
   );
 }
 
-// ---- A single square employee tile ----------------------------------------
+// ---- A single employee card ------------------------------------------------
 function TileCard({
   tile,
   editable,
+  expanded,
+  onToggleExpand,
   editing,
   onEdit,
   onCancel,
@@ -473,6 +466,8 @@ function TileCard({
 }: {
   tile: OrgTile;
   editable: boolean;
+  expanded: boolean;
+  onToggleExpand: () => void;
   editing: boolean;
   onEdit: () => void;
   onCancel: () => void;
@@ -485,8 +480,22 @@ function TileCard({
   const latest = tile.latestNotes[0];
   const sched = tile.serviceSchedulingNote || tile.personalSchedulingNote;
 
+  const hasDetail =
+    tile.certifications.length > 0 ||
+    tile.approvedServices.length > 0 ||
+    !!tile.roleResponsibilities ||
+    !!tile.contactReasons ||
+    !!tile.contactGuidance ||
+    !!tile.serviceNotes ||
+    !!sched ||
+    !!latest;
+
+  // Show the expand control if there's anything to reveal, or the viewer may add it.
+  const showExpand = hasDetail || editable;
+  const isOpen = expanded || editing;
+
   return (
-    <div className="oct-tile">
+    <div className={`oct-tile${isOpen ? " oct-tile-open" : ""}`}>
       {/* Header — name with the route number right beside it */}
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -506,82 +515,129 @@ function TileCard({
         <div className="oct-sub">{[tile.title || tile.role, tile.branchLabel].filter(Boolean).join(" · ") || "—"}</div>
       </div>
 
-      {/* Certifications */}
-      {tile.certifications.length ? (
-        <div className="mt-2">
-          <div className="oct-label">Certifications</div>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {tile.certifications.map((c) => (
-              <span key={c.code} className="oct-chip oct-chip-cert" title={`${c.name} · earned ${new Date(c.awardedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`}>
-                <Icon path={ICON.cert} className="h-3 w-3" /> {c.code}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {/* Approved services */}
-      {tile.approvedServices.length ? (
-        <div className="mt-2">
-          <div className="oct-label">Approved to do</div>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {tile.approvedServices.map((s) => (
-              <span key={s.key} className="oct-chip">{s.label}</span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {/* Service notes */}
-      {tile.serviceNotes ? (
-        <p className="mt-2 text-[11px] leading-snug text-muted">{tile.serviceNotes}</p>
-      ) : null}
-
-      {/* Scheduling (amber) */}
-      {sched ? (
-        <div className="oct-sched">
-          {tile.serviceSchedulingNote ? (
-            <div><span className="oct-sched-label">Service scheduling</span> {tile.serviceSchedulingNote}</div>
-          ) : null}
-          {tile.personalSchedulingNote ? (
-            <div className={tile.serviceSchedulingNote ? "mt-1" : ""}><span className="oct-sched-label">Personal</span> {tile.personalSchedulingNote}</div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Latest note */}
-      {latest ? (
-        <div className="oct-note">
-          <div className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted">
-            <Icon path={ICON.note} className="h-3 w-3" /> Latest note
-          </div>
-          <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-ink">{latest.body}</p>
-          <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted">
-            <span className="font-medium">{latest.authorName}</span>
-            <span aria-hidden="true">·</span>
-            <span className="inline-flex items-center gap-0.5"><Icon path={ICON.clock} className="h-2.5 w-2.5" />{relTime(latest.createdAt)}</span>
-          </div>
-          {profileHref ? (
-            <Link href={`${profileHref}#employee-notes`} className="mt-0.5 inline-block text-[10px] font-medium text-brand-700 hover:underline">
-              Full note log →
-            </Link>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Edit affordance (authorized only, read-only tiles show nothing) */}
-      {editable && !editing ? (
+      {/* Expand / collapse the saved info */}
+      {showExpand ? (
         <button
           type="button"
-          onClick={onEdit}
-          className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-line bg-surface px-2 py-1 text-[11px] font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          onClick={onToggleExpand}
+          aria-expanded={isOpen}
+          className="oct-expand"
         >
-          <Icon path={ICON.edit} className="h-3 w-3" /> Edit details
+          <Icon path={ICON.chevron} className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+          {isOpen ? "Collapse" : "Expand"}
+          {!isOpen && !hasDetail ? <span className="oct-expand-hint">add info</span> : null}
         </button>
       ) : null}
 
-      {editing ? (
-        <TileEditor tile={tile} serviceTags={serviceTags} onCancel={onCancel} onSaved={onSaved} />
+      {/* Expanded detail */}
+      {isOpen ? (
+        <div className="oct-detail">
+          {!hasDetail && !editing ? (
+            <p className="text-[11px] italic text-muted">No details saved yet.</p>
+          ) : null}
+
+          {/* Certifications */}
+          {tile.certifications.length ? (
+            <div>
+              <div className="oct-label">Certifications</div>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {tile.certifications.map((c) => (
+                  <span key={c.code} className="oct-chip oct-chip-cert" title={`${c.name} · earned ${new Date(c.awardedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`}>
+                    <Icon path={ICON.cert} className="h-3 w-3" /> {c.code}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Approved services */}
+          {tile.approvedServices.length ? (
+            <div>
+              <div className="oct-label">Approved to do</div>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {tile.approvedServices.map((s) => (
+                  <span key={s.key} className="oct-chip">{s.label}</span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Corporate role — what they do */}
+          {tile.roleResponsibilities ? (
+            <div>
+              <div className="oct-label"><Icon path={ICON.role} className="mr-1 inline h-3 w-3 -translate-y-px" />What they do</div>
+              <div className="mt-0.5"><BulletList text={tile.roleResponsibilities} /></div>
+            </div>
+          ) : null}
+
+          {/* Corporate role — when to go to them */}
+          {tile.contactReasons ? (
+            <div>
+              <div className="oct-label"><Icon path={ICON.help} className="mr-1 inline h-3 w-3 -translate-y-px" />When to go to them</div>
+              <div className="mt-0.5"><BulletList text={tile.contactReasons} /></div>
+            </div>
+          ) : null}
+
+          {/* How to reach them */}
+          {tile.contactGuidance ? (
+            <div className="oct-contact">
+              <Icon path={ICON.phone} className="mt-px h-3 w-3 shrink-0" />
+              <span>{tile.contactGuidance}</span>
+            </div>
+          ) : null}
+
+          {/* Service notes */}
+          {tile.serviceNotes ? (
+            <p className="text-[11px] leading-snug text-muted">{tile.serviceNotes}</p>
+          ) : null}
+
+          {/* Scheduling (amber) */}
+          {sched ? (
+            <div className="oct-sched">
+              {tile.serviceSchedulingNote ? (
+                <div><span className="oct-sched-label">Service scheduling</span> {tile.serviceSchedulingNote}</div>
+              ) : null}
+              {tile.personalSchedulingNote ? (
+                <div className={tile.serviceSchedulingNote ? "mt-1" : ""}><span className="oct-sched-label">Personal</span> {tile.personalSchedulingNote}</div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Latest note */}
+          {latest ? (
+            <div className="oct-note">
+              <div className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted">
+                <Icon path={ICON.note} className="h-3 w-3" /> Latest note
+              </div>
+              <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-ink">{latest.body}</p>
+              <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted">
+                <span className="font-medium">{latest.authorName}</span>
+                <span aria-hidden="true">·</span>
+                <span className="inline-flex items-center gap-0.5"><Icon path={ICON.clock} className="h-2.5 w-2.5" />{relTime(latest.createdAt)}</span>
+              </div>
+              {profileHref ? (
+                <Link href={`${profileHref}#employee-notes`} className="mt-0.5 inline-block text-[10px] font-medium text-brand-700 hover:underline">
+                  Full note log →
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Edit affordance — inside the expanded view, non-technicians only */}
+          {editable && !editing ? (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="mt-1 inline-flex items-center gap-1 self-start rounded-lg border border-line bg-surface px-2 py-1 text-[11px] font-medium text-ink hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <Icon path={ICON.edit} className="h-3 w-3" /> Edit details
+            </button>
+          ) : null}
+
+          {editing ? (
+            <TileEditor tile={tile} serviceTags={serviceTags} onCancel={onCancel} onSaved={onSaved} />
+          ) : null}
+        </div>
       ) : null}
 
       {footer}
@@ -603,6 +659,9 @@ function TileEditor({
 }) {
   const [routeNumber, setRouteNumber] = useState(tile.routeNumber ?? "");
   const [services, setServices] = useState<Set<string>>(() => new Set(tile.approvedServices.map((s) => s.key)));
+  const [roleResponsibilities, setRoleResponsibilities] = useState(tile.roleResponsibilities ?? "");
+  const [contactReasons, setContactReasons] = useState(tile.contactReasons ?? "");
+  const [contactGuidance, setContactGuidance] = useState(tile.contactGuidance ?? "");
   const [serviceNotes, setServiceNotes] = useState(tile.serviceNotes ?? "");
   const [serviceSchedulingNote, setServiceSchedulingNote] = useState(tile.serviceSchedulingNote ?? "");
   const [personalSchedulingNote, setPersonalSchedulingNote] = useState(tile.personalSchedulingNote ?? "");
@@ -628,6 +687,9 @@ function TileEditor({
           employeeId: tile.id,
           routeNumber: routeNumber.trim() || null,
           approvedServices: [...services],
+          roleResponsibilities: roleResponsibilities.trim() || null,
+          contactReasons: contactReasons.trim() || null,
+          contactGuidance: contactGuidance.trim() || null,
           serviceNotes: serviceNotes.trim() || null,
           serviceSchedulingNote: serviceSchedulingNote.trim() || null,
           personalSchedulingNote: personalSchedulingNote.trim() || null,
@@ -678,6 +740,21 @@ function TileEditor({
       </div>
 
       <label className="oct-field">
+        <span className="oct-label">What they do (one per line)</span>
+        <textarea value={roleResponsibilities} onChange={(e) => setRoleResponsibilities(e.target.value)} rows={3} className="oct-input" placeholder="Oversees branch operations&#10;Runs weekly check-ins" />
+      </label>
+
+      <label className="oct-field">
+        <span className="oct-label">When to go to them (one per line)</span>
+        <textarea value={contactReasons} onChange={(e) => setContactReasons(e.target.value)} rows={3} className="oct-input" placeholder="Payroll questions&#10;PTO / time-off requests" />
+      </label>
+
+      <label className="oct-field">
+        <span className="oct-label">How to reach them</span>
+        <input value={contactGuidance} onChange={(e) => setContactGuidance(e.target.value)} className="oct-input" placeholder="Email unless urgent · Office ext. 106" />
+      </label>
+
+      <label className="oct-field">
         <span className="oct-label">Service notes</span>
         <textarea value={serviceNotes} onChange={(e) => setServiceNotes(e.target.value)} rows={2} className="oct-input" placeholder="What they're approved/known for" />
       </label>
@@ -706,53 +783,73 @@ function TileEditor({
   );
 }
 
-// Pure-CSS VERTICAL indented connector tree + the square tile styling. The tree
-// flows top-down (manager on top, reports beneath, indented one step) so it
-// reads like an outline and never sprawls sideways — no left/right sliding.
-// Namespaced `oct`/`octree` so it never collides with the legacy
-// OrgChartClient's `.orgtree`.
+// Pure-CSS TOP-DOWN FAMILY TREE: each manager's direct reports sit side by side
+// beneath them, joined by connector lines, so the chart branches out across the
+// width of the screen. Large teams collapse to a chip by default (so the default
+// view fits without sideways sliding); on phones it falls back to a vertical
+// indented stack. Namespaced `oct`/`octree`.
 const CSS = `
-.octree { display: block; width: 100%; }
-.octree ul { list-style: none; margin: 0; padding: 0; }
-.octree li { position: relative; list-style: none; }
+.octree { display: inline-block; min-width: 100%; box-sizing: border-box; }
+.octree ul { display: flex; justify-content: center; list-style: none; margin: 0; padding: 0; position: relative; }
+.octree li { list-style: none; position: relative; display: flex; flex-direction: column; align-items: center; }
 
-/* A root stacks vertically with a little breathing room between branches. */
-.octree > ul > li { margin-bottom: 18px; }
+/* Nested (non-root) rows: top padding leaves room for the connector bus. */
+.octree ul ul { padding-top: 22px; }
+.octree ul ul > li { padding: 22px 10px 0; }
 
-/* Nested reports: indent one step under the manager and draw the rail + elbow
-   on each child so siblings share one continuous vertical line. */
-.octree ul ul { margin: 0 0 0 20px; }
-.octree ul ul > li { padding-left: 26px; }
-.octree ul ul > li::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: #C3DAC9; }
-.octree ul ul > li:last-child::before { height: 30px; }
-.octree ul ul > li::after { content: ''; position: absolute; left: 0; top: 30px; width: 22px; height: 2px; background: #C3DAC9; }
+/* Elbow connectors on each child, and the stem from a parent down to the bus. */
+.octree ul ul > li::before, .octree ul ul > li::after {
+  content: ''; position: absolute; top: 0; right: 50%; width: 50%; height: 22px; border-top: 2px solid #C3DAC9;
+}
+.octree ul ul > li::after { right: auto; left: 50%; border-left: 2px solid #C3DAC9; }
+.octree ul ul > li:only-child::before, .octree ul ul > li:only-child::after { display: none; }
+.octree ul ul > li:first-child::before, .octree ul ul > li:last-child::after { border: 0 none; }
+.octree ul ul > li:last-child::before { border-right: 2px solid #C3DAC9; border-radius: 0 6px 0 0; }
+.octree ul ul > li:first-child::after { border-radius: 6px 0 0 0; }
+.octree ul ul::before {
+  content: ''; position: absolute; top: 0; left: 50%; width: 0; height: 22px; border-left: 2px solid #C3DAC9;
+}
 
-.octree-node { padding: 8px 0; }
+.octree-node { padding: 6px 0 0; display: flex; flex-direction: column; align-items: center; }
 
-@media (max-width: 640px) {
-  .octree ul ul { margin-left: 10px; }
-  .octree ul ul > li { padding-left: 18px; }
-  .octree ul ul > li::after { width: 14px; }
+/* Phones: fall back to a vertical indented stack (no sideways scroll). */
+@media (max-width: 720px) {
+  .octree { display: block; }
+  .octree ul { flex-direction: column; align-items: stretch; }
+  .octree ul ul { padding-top: 0; margin-left: 14px; border-left: 2px solid #C3DAC9; }
+  .octree ul ul > li { padding: 10px 0 0 14px; align-items: stretch; }
+  .octree ul ul > li::before, .octree ul ul > li::after, .octree ul ul::before { display: none; }
+  .octree-node { align-items: stretch; }
 }
 
 .oct-tile {
-  display: flex; flex-direction: column; width: 240px; max-width: 86vw;
+  display: flex; flex-direction: column; width: 244px; max-width: 86vw;
   border: 1px solid #D9DEDA; border-radius: 12px; background: linear-gradient(160deg,#FFFFFF,#F4F6F5);
   padding: 12px; text-align: left;
   box-shadow: 0 1px 2px rgba(8,37,24,.04), 0 14px 30px -24px rgba(8,37,24,.45);
 }
+.oct-tile-open { border-color: #B6CDBE; box-shadow: 0 1px 2px rgba(8,37,24,.05), 0 18px 38px -22px rgba(8,37,24,.5); }
 .oct-name { font-size: 14px; font-weight: 500; color: #0B3D20; line-height: 1.2; }
 .oct-sub { font-size: 11px; color: #5C6B62; line-height: 1.3; margin-top: 2px; }
 .oct-label { font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #5C6B62; }
 .oct-route { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; border-radius: 999px; background: #1F5836; color: #EEF4F0; font-size: 10px; font-weight: 600; padding: 2px 7px; white-space: nowrap; }
 .oct-chip { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; background: #EEF4F0; color: #1F5836; font-size: 10px; font-weight: 500; padding: 2px 7px; }
 .oct-chip-cert { background: #DCE9DF; color: #144229; }
-.oct-sched { margin-top: 8px; border-left: 3px solid #E3B23C; background: #FFFBEB; border-radius: 0 8px 8px 0; padding: 6px 8px; font-size: 11px; line-height: 1.35; color: #7a5a12; }
+.oct-expand { margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; border-radius: 8px; border: 1px solid #D9DEDA; background: #fff; padding: 3px 8px; font-size: 11px; font-weight: 600; color: #1F5836; }
+.oct-expand:hover { border-color: #9FBFA9; }
+.oct-expand:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(79,138,95,.35); }
+.oct-expand-hint { color: #9aa49d; font-weight: 500; font-style: italic; }
+.oct-detail { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.oct-roletext { font-size: 11px; line-height: 1.4; color: #243229; margin: 0; }
+.oct-bullets { margin: 0; padding-left: 14px; list-style: disc; display: flex; flex-direction: column; gap: 2px; }
+.oct-bullets li { font-size: 11px; line-height: 1.35; color: #243229; }
+.oct-contact { display: flex; align-items: flex-start; gap: 5px; border-radius: 8px; background: #EEF4F0; color: #1F5836; font-size: 11px; line-height: 1.35; padding: 6px 8px; }
+.oct-sched { border-left: 3px solid #E3B23C; background: #FFFBEB; border-radius: 0 8px 8px 0; padding: 6px 8px; font-size: 11px; line-height: 1.35; color: #7a5a12; }
 .oct-sched-label { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #8F6400; margin-right: 4px; }
-.oct-note { margin-top: 8px; border-top: 1px dashed #D9DEDA; padding-top: 6px; display: flex; flex-direction: column; }
-.oct-editor { margin-top: 8px; border-top: 1px dashed #D9DEDA; padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.oct-note { border-top: 1px dashed #D9DEDA; padding-top: 6px; display: flex; flex-direction: column; }
+.oct-editor { border-top: 1px dashed #D9DEDA; padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .oct-field { display: flex; flex-direction: column; gap: 2px; }
 .oct-input { width: 100%; border: 1px solid #D9DEDA; border-radius: 8px; background: #fff; padding: 5px 8px; font-size: 12px; color: #1D2A23; }
 .oct-input:focus-visible { outline: none; border-color: #4F8A5F; box-shadow: 0 0 0 2px rgba(79,138,95,.35); }
-@media (max-width: 640px) { .oct-tile { width: 260px; } }
+@media (max-width: 720px) { .oct-tile { width: 100%; max-width: 100%; } }
 `;

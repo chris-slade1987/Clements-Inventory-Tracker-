@@ -667,6 +667,19 @@ async function main() {
       );
     });
 
+    // Corporate role reference (Org Chart R4) — version-gated one-time backfill of
+    // the Contact & Reference Sheet onto matching employees' cards. Preserves later
+    // manager edits (skips once the stored version matches the data file).
+    await runStep("corporate roles seed", async () => {
+      const { seedCorporateRoles } = await import("../prisma/seed-corporate-roles");
+      const cr = await seedCorporateRoles(prisma);
+      if (cr.skipped) {
+        console.log(`deploy-db: corporate roles — already at v${cr.version}, skipped.`);
+      } else {
+        console.log(`deploy-db: corporate roles — v${cr.version}, matched ${cr.matched}/${cr.total}${cr.unmatched.length ? `, unmatched: ${cr.unmatched.join("; ")}` : ""}.`);
+      }
+    });
+
     // Backfill public apply tokens on any Job that predates the public
     // application "front door", so every existing job gets a shareable
     // /apply/<token> link. Idempotent — only fills nulls, one unique token each.

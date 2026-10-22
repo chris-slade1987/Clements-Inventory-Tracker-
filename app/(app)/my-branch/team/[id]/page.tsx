@@ -17,6 +17,7 @@ import AbsenceCard from "@/components/AbsenceCard";
 import RemindersCard from "@/components/RemindersCard";
 import { etParts, isSameMonthDay } from "@/lib/date";
 import { CelebrationBanner } from "@/components/Buzz";
+import RoleReferenceCard from "@/components/RoleReferenceCard";
 import RecordForm from "./RecordForm";
 import SignatureBlock from "./SignatureBlock";
 import OtherNoteForm from "./OtherNoteForm";
@@ -127,6 +128,14 @@ export default async function TeamMemberPage({ params }: { params: Promise<{ id:
           {avgPct != null ? <p className="mt-3 text-xs text-muted">Inspection avg: <span className="font-medium text-ink">{avgPct}%</span> · grade {grade}</p> : null}
         </Card>
       </div>
+
+      {/* Corporate role / who-to-go-to reference (edited on the org chart) */}
+      <RoleReferenceCard
+        roleResponsibilities={e.roleResponsibilities}
+        contactReasons={e.contactReasons}
+        contactGuidance={e.contactGuidance}
+        editHref="/org"
+      />
 
       {/* Paid time off */}
       <PtoProfileCard employeeId={e.id} canManage={canManage} />

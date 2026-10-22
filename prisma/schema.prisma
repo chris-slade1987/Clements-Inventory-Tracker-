@@ -1151,6 +1151,12 @@ model Employee {
   serviceNotes           String? @map("service_notes") // short free text ("Handles all bee jobs in Naples")
   serviceSchedulingNote  String? @map("service_scheduling_note") // per-service scheduling rule ("Bee jobs: 3–5 PM only")
   personalSchedulingNote String? @map("personal_scheduling_note") // personal scheduling rule ("No first appt before 8:30 AM")
+  // Org Chart (Round 4) — corporate role / "who to go to" reference. Company-readable.
+  // Seeded from the Corporate Contact & Reference Sheet; editable by any non-tech
+  // staff on the org chart. Newline-separated bullet lists for the first two.
+  roleResponsibilities   String? @map("role_responsibilities") // what this role does (one bullet per line)
+  contactReasons         String? @map("contact_reasons") // when to go to them for help (one bullet per line)
+  contactGuidance        String? @map("contact_guidance") // how to reach them (preferred method, ext., mobile)
   ptoAllowanceDays Int?       @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
   notes            String?
   createdAt        DateTime   @default(now()) @map("created_at")

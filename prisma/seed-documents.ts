@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 34 · Last updated October 21, 2026",
+    effective: "Version 35 · Last updated October 22, 2026",
+    // v35: Org Chart & Directory reconciled — horizontal family-tree layout,
+    // collapsed cards that Expand to show details (incl. the new corporate role:
+    // what they do + when to go to them for help), and card editing opened to every
+    // staff member EXCEPT field technicians (was HR/leadership + branch managers).
     // v34: Catalog Review (Duplicates / Off-catalog / New products tabs; merge
     // consolidates on-hand onto one row) + Products defaults to the Approved catalog.
     // v33: added the "Photo Catalog" section — human-in-the-loop capture (review

@@ -9,7 +9,7 @@ import {
   isServiceTag,
 } from "@/lib/service-catalog";
 import { routeNumberFor } from "@/lib/route-numbers";
-import type { SessionUser } from "@/lib/auth";
+import { isBoardObserver, type SessionUser } from "@/lib/auth";
 
 // Org Chart (Round 1) — data + services layer for the real reporting org chart of
 // rich employee tiles. Builds on the existing reporting structure (Employee.reportsToId /
@@ -38,6 +38,10 @@ export type OrgTile = {
   serviceNotes: string | null;
   serviceSchedulingNote: string | null;
   personalSchedulingNote: string | null;
+  // Corporate role / "who to go to" reference (Round 4).
+  roleResponsibilities: string | null; // what they do (one bullet per line)
+  contactReasons: string | null; // when to go to them (one bullet per line)
+  contactGuidance: string | null; // how to reach them
   latestNotes: OrgTileNote[]; // latest 1–2 employee notes for the tile
 };
 
@@ -65,6 +69,9 @@ export async function orgTileData(): Promise<OrgTile[]> {
       serviceNotes: true,
       serviceSchedulingNote: true,
       personalSchedulingNote: true,
+      roleResponsibilities: true,
+      contactReasons: true,
+      contactGuidance: true,
       certAwards: {
         orderBy: { awardedAt: "desc" },
         select: { awardedAt: true, certification: { select: { code: true, name: true } } },
@@ -98,6 +105,9 @@ export async function orgTileData(): Promise<OrgTile[]> {
     serviceNotes: e.serviceNotes,
     serviceSchedulingNote: e.serviceSchedulingNote,
     personalSchedulingNote: e.personalSchedulingNote,
+    roleResponsibilities: e.roleResponsibilities,
+    contactReasons: e.contactReasons,
+    contactGuidance: e.contactGuidance,
     latestNotes: e.employeeNotes.map((n) => ({
       id: n.id,
       authorId: n.authorId,
@@ -185,20 +195,39 @@ export type TileFieldPatch = {
   serviceNotes?: string | null;
   serviceSchedulingNote?: string | null;
   personalSchedulingNote?: string | null;
+  roleResponsibilities?: string | null;
+  contactReasons?: string | null;
+  contactGuidance?: string | null;
 };
 
 /**
- * Who may EDIT an employee's tile fields: HR / senior leadership / (super)admins may
- * edit anyone; a branch MANAGER may edit only their OWN branch's people. Everyone
- * else is read-only. Enforced server-side.
+ * Who may EDIT org-chart cards (Round 4). Per the COO: EVERY staff member may add,
+ * revise, or delete a card's info — EXCEPT field technicians, who are read-only.
+ * Read-only board observers are also excluded. "Staff" = leadership (admins, senior
+ * leadership, HR), branch managers (any branch now, not just their own), and office
+ * roles (CSR, service advisors, the sales director). A technician is `role:
+ * "employee"` without one of those office access levels.
+ */
+export function canEditOrgCards(
+  user: Pick<SessionUser, "role" | "accessLevel" | "seniorLeadership" | "hrAccess" | "boardObserver">,
+): boolean {
+  if (isBoardObserver(user as SessionUser)) return false;
+  if (user.role === "admin" || user.role === "manager") return true;
+  if (user.seniorLeadership || user.hrAccess) return true;
+  const OFFICE_LEVELS = new Set(["csr", "sales", "sales_director"]);
+  return !!user.accessLevel && OFFICE_LEVELS.has(user.accessLevel);
+}
+
+/**
+ * Server-side gate for a tile-field write. Mirrors `canEditOrgCards` (all non-tech
+ * staff, company-wide). The `employeeBranch` argument is kept for the call site but
+ * no longer scopes editing to a manager's own branch.
  */
 export function canEditTileFields(
-  user: Pick<SessionUser, "role" | "seniorLeadership" | "hrAccess" | "branch">,
-  employeeBranch: string | null,
+  user: Pick<SessionUser, "role" | "accessLevel" | "seniorLeadership" | "hrAccess" | "boardObserver">,
+  _employeeBranch: string | null,
 ): boolean {
-  if (user.role === "admin" || user.seniorLeadership || user.hrAccess) return true;
-  if (user.role === "manager") return !!user.branch && user.branch === employeeBranch;
-  return false;
+  return canEditOrgCards(user);
 }
 
 const MAX_SHORT = 500;
@@ -227,13 +256,16 @@ export async function updateTileFields(
   });
   if (!emp) throw new HttpError("That employee no longer exists.", 404);
   if (!canEditTileFields(user, emp.branch))
-    throw new HttpError("You can only edit your own branch's people.", 403);
+    throw new HttpError("Technicians can't edit org-chart cards.", 403);
 
   const data: Record<string, string | null> = {};
   if ("routeNumber" in patch) data.routeNumber = cleanStr(patch.routeNumber, 50);
   if ("serviceNotes" in patch) data.serviceNotes = cleanStr(patch.serviceNotes, MAX_SHORT);
   if ("serviceSchedulingNote" in patch) data.serviceSchedulingNote = cleanStr(patch.serviceSchedulingNote, MAX_NOTE);
   if ("personalSchedulingNote" in patch) data.personalSchedulingNote = cleanStr(patch.personalSchedulingNote, MAX_NOTE);
+  if ("roleResponsibilities" in patch) data.roleResponsibilities = cleanStr(patch.roleResponsibilities, MAX_NOTE);
+  if ("contactReasons" in patch) data.contactReasons = cleanStr(patch.contactReasons, MAX_NOTE);
+  if ("contactGuidance" in patch) data.contactGuidance = cleanStr(patch.contactGuidance, MAX_SHORT);
   if ("approvedServices" in patch) {
     const tags = sanitizeServiceTags(patch.approvedServices);
     data.approvedServices = tags.length ? serializeApprovedServices(tags) : null;
