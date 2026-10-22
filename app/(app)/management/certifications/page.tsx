@@ -2,27 +2,33 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
-import { listCertifications, listCourseLibrary, programSummary, canViewCertifications } from "@/lib/certifications";
+import { listCourseLibrary, programSummary, canViewCertifications } from "@/lib/certifications";
+import { moduleStatsList } from "@/lib/training-center";
 import TrainingCenterTabs from "@/components/TrainingCenterTabs";
 import ReseedCatalogButton from "./ReseedCatalogButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Certifications — CanopyOS" };
 
+function pct(n: number | null) {
+  return n == null ? "—" : `${n}%`;
+}
+
+// Certifications tab — the MODULES people earn their certifications through, each
+// with live completion + pass-rate stats and a drill-in (courses + who's assigned).
+// The course launch library sits below for quick opening.
 export default async function CertificationsIndexPage() {
   const user = await requireUser();
   if (!canViewCertifications(user)) {
     redirect(isBoardObserver(user) ? "/management/board" : homePath(user));
   }
 
-  // Load defensively — a query error must never leave the Certifications tab a
-  // silent blank. On error we show a clear message instead of a 500.
-  let certs: Awaited<ReturnType<typeof listCertifications>> = [];
+  let modules: Awaited<ReturnType<typeof moduleStatsList>> = [];
   let summary: Awaited<ReturnType<typeof programSummary>> = { certifications: 0, programs: 0, modules: 0, courses: 0, exists: 0, partial: 0, none: 0 } as Awaited<ReturnType<typeof programSummary>>;
   let library: Awaited<ReturnType<typeof listCourseLibrary>> = [];
   let loadError = false;
   try {
-    [certs, summary, library] = await Promise.all([listCertifications(), programSummary(), listCourseLibrary()]);
+    [modules, summary, library] = await Promise.all([moduleStatsList(), programSummary(), listCourseLibrary()]);
   } catch (e) {
     loadError = true;
     console.error("certifications page load failed:", e);
@@ -35,7 +41,7 @@ export default async function CertificationsIndexPage() {
       <TrainingCenterTabs showCourses={user.role === "admin"} />
       <PageHeader
         title="Certifications"
-        subtitle="The certification groups and their course catalog. A certification is awarded when every course in its group — including the field sign-off — is complete and approved."
+        subtitle="The modules people complete to earn each certification — with live completion and pass-rate stats. Click a module to see its courses and who's completed them."
         actions={
           <Link
             href="/management/certifications/pathways"
@@ -49,6 +55,10 @@ export default async function CertificationsIndexPage() {
       <Card className="mb-5 p-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <div>
+            <span className="text-lg font-semibold text-ink tabular-nums">{summary.modules}</span>
+            <span className="ml-1.5 text-muted">modules</span>
+          </div>
+          <div>
             <span className="text-lg font-semibold text-ink tabular-nums">{summary.certifications}</span>
             <span className="ml-1.5 text-muted">certifications</span>
           </div>
@@ -56,25 +66,60 @@ export default async function CertificationsIndexPage() {
             <span className="text-lg font-semibold text-ink tabular-nums">{summary.courses}</span>
             <span className="ml-1.5 text-muted">courses</span>
           </div>
-          <div className="text-muted">
-            <span className="font-medium text-emerald-700 tabular-nums">{summary.exists}</span> exist ·{" "}
-            <span className="font-medium text-amber-700 tabular-nums">{summary.partial}</span> partial ·{" "}
-            <span className="font-medium text-slate-600 tabular-nums">{summary.none}</span> none
-          </div>
         </div>
-        {(loadError || certs.length === 0) && user.role === "admin" ? (
+        {(loadError || modules.length === 0) && user.role === "admin" ? (
           <div className="mt-3 border-t border-line pt-3">
             <p className="text-sm text-amber-700">
-              {loadError
-                ? "The certification catalog couldn't be read in this environment."
-                : "No certification catalog is loaded in this environment yet."}
+              {loadError ? "The certification catalog couldn't be read in this environment." : "No certification catalog is loaded in this environment yet."}
             </p>
             <ReseedCatalogButton />
           </div>
         ) : null}
       </Card>
 
-      {/* Built course library — every course with a hosted page, openable here. */}
+      {/* Modules — the primary structure, with stats + drill-in */}
+      <h2 className="mb-2 text-sm font-semibold text-ink">Modules</h2>
+      {modules.length > 0 ? (
+        <Card className="mb-6 p-0 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted border-b border-line">
+                  <th className="px-4 py-2 font-medium">Module</th>
+                  <th className="px-3 py-2 font-medium">Earns</th>
+                  <th className="px-3 py-2 font-medium text-right">Courses</th>
+                  <th className="px-3 py-2 font-medium text-right">Assigned</th>
+                  <th className="px-3 py-2 font-medium text-right">Completed</th>
+                  <th className="px-3 py-2 font-medium text-right">Completion</th>
+                  <th className="px-4 py-2 font-medium text-right">Pass rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modules.map((m) => (
+                  <tr key={m.code} className="border-b border-line last:border-0 hover:bg-black/[0.02]">
+                    <td className="px-4 py-2">
+                      <Link href={`/management/certifications/modules/${m.code}`} className="inline-flex items-center gap-2">
+                        <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{m.code}</span>
+                        <span className="font-medium text-brand-700 hover:underline">{m.name}</span>
+                      </Link>
+                    </td>
+                    <td className="px-3 py-2 text-muted">{m.certificationsEarned ?? "—"}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{m.courseCount}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{m.assignedCount}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{m.completedCount}</td>
+                    <td className="px-3 py-2 text-right tabular-nums font-medium text-emerald-700">{pct(m.completionPct)}</td>
+                    <td className="px-4 py-2 text-right tabular-nums font-medium text-sky-700">{pct(m.passRate)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      ) : (
+        <Card className="mb-6 p-6 text-center text-sm text-muted">No modules loaded yet.</Card>
+      )}
+
+      {/* Course launch library — quick open of any built course */}
       {totalBuilt > 0 ? (
         <section className="mb-6">
           <h2 className="mb-2 text-sm font-semibold text-ink">Course library · {totalBuilt} built course{totalBuilt === 1 ? "" : "s"} ready to open</h2>
@@ -103,35 +148,6 @@ export default async function CertificationsIndexPage() {
           </div>
         </section>
       ) : null}
-
-      <h2 className="mb-2 text-sm font-semibold text-ink">All certification groups</h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {certs.map((c) => (
-          <Link key={c.code} href={`/management/certifications/${c.code}`} className="block">
-            <Card className="p-4 h-full hover:bg-black/[0.02]">
-              <div className="flex items-start justify-between gap-2">
-                <span className="inline-flex items-center gap-2">
-                  <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{c.code}</span>
-                  <span className="font-medium text-ink">{c.name}</span>
-                </span>
-                <span className="shrink-0 text-xs text-muted tabular-nums">{c.courseCount} courses</span>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
-                {c.isServiceCert ? (
-                  <span className="rounded-full bg-sky-100 px-2 py-0.5 font-medium text-sky-800">service cert</span>
-                ) : null}
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-800">{c.statusCounts.exists} ready</span>
-                {c.statusCounts.partial > 0 ? (
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800">{c.statusCounts.partial} partial</span>
-                ) : null}
-                {c.statusCounts.none > 0 ? (
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">{c.statusCounts.none} none</span>
-                ) : null}
-              </div>
-            </Card>
-          </Link>
-        ))}
-      </div>
     </>
   );
 }

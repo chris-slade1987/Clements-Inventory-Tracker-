@@ -65,6 +65,184 @@ export async function outstandingCertModuleCount(employeeId: string): Promise<nu
   return prisma.moduleAssignment.count({ where: { employeeId, status: "active" } });
 }
 
+// ---------------------------------------------------------------------------
+// Module statistics (Certifications tab) — completion + pass rate per module.
+// "Completed" = a module assignment no longer active. "Pass rate" = of the scored
+// course attempts on the module's courses, the share scoring ≥ 80.
+// ---------------------------------------------------------------------------
+const PASS_SCORE = 80;
+
+export type ModuleStat = {
+  code: string;
+  name: string;
+  certificationsEarned: string | null;
+  courseCount: number;
+  assignedCount: number;
+  completedCount: number;
+  completionPct: number;
+  passRate: number | null;
+};
+
+export async function moduleStatsList(): Promise<ModuleStat[]> {
+  const [modules, moduleCourses, assignments, progress] = await Promise.all([
+    prisma.trainingModule.findMany({
+      orderBy: { order: "asc" },
+      select: { id: true, code: true, name: true, certificationsEarned: true, _count: { select: { courses: true } } },
+    }),
+    prisma.trainingModuleCourse.findMany({ select: { moduleId: true, courseId: true } }),
+    prisma.moduleAssignment.findMany({ where: { NOT: { moduleId: null } }, select: { moduleId: true, status: true } }),
+    prisma.courseProgress.findMany({ select: { courseId: true, score: true } }),
+  ]);
+  const modulesByCourse = new Map<string, string[]>();
+  for (const mc of moduleCourses) {
+    const a = modulesByCourse.get(mc.courseId) ?? [];
+    a.push(mc.moduleId);
+    modulesByCourse.set(mc.courseId, a);
+  }
+  const asg = new Map<string, { assigned: number; completed: number }>();
+  for (const a of assignments) {
+    if (!a.moduleId) continue;
+    const t = asg.get(a.moduleId) ?? { assigned: 0, completed: 0 };
+    t.assigned++;
+    if (a.status !== "active") t.completed++;
+    asg.set(a.moduleId, t);
+  }
+  const pr = new Map<string, { scored: number; passed: number }>();
+  for (const p of progress) {
+    if (p.score == null) continue;
+    for (const mid of modulesByCourse.get(p.courseId) ?? []) {
+      const t = pr.get(mid) ?? { scored: 0, passed: 0 };
+      t.scored++;
+      if (p.score >= PASS_SCORE) t.passed++;
+      pr.set(mid, t);
+    }
+  }
+  return modules.map((m) => {
+    const a = asg.get(m.id) ?? { assigned: 0, completed: 0 };
+    const p = pr.get(m.id);
+    return {
+      code: m.code,
+      name: m.name,
+      certificationsEarned: m.certificationsEarned,
+      courseCount: m._count.courses,
+      assignedCount: a.assigned,
+      completedCount: a.completed,
+      completionPct: a.assigned ? Math.round((a.completed / a.assigned) * 100) : 0,
+      passRate: p && p.scored ? Math.round((p.passed / p.scored) * 100) : null,
+    };
+  });
+}
+
+export type ModuleCourseStat = {
+  sequence: number;
+  code: string;
+  name: string;
+  courseType: string;
+  group: string;
+  contentUrl: string | null;
+  completedCount: number;
+  passRate: number | null;
+};
+export type ModuleRosterRow = {
+  employeeId: string;
+  name: string;
+  branch: string | null;
+  status: string;
+  assignedAt: string;
+  completeCount: number;
+  totalCount: number;
+};
+export type ModuleReport = {
+  code: string;
+  name: string;
+  certificationsEarned: string | null;
+  courseCount: number;
+  assignedCount: number;
+  completedCount: number;
+  completionPct: number;
+  passRate: number | null;
+  courses: ModuleCourseStat[];
+  roster: ModuleRosterRow[];
+};
+
+/** Full drill-in for one module: its ordered courses with per-course completion +
+ *  pass rate, and the roster of everyone assigned it with their progress. */
+export async function getModuleReport(code: string): Promise<ModuleReport | null> {
+  const mod = await prisma.trainingModule.findUnique({
+    where: { code: code.toUpperCase() },
+    include: {
+      courses: { orderBy: { sequence: "asc" }, include: { course: { include: { certification: { select: { code: true } } } } } },
+      _count: { select: { courses: true } },
+    },
+  });
+  if (!mod) return null;
+
+  const courseList = mod.courses.map((l) => l.course);
+  const courseIds = courseList.map((c) => c.id);
+
+  const assignments = await prisma.moduleAssignment.findMany({
+    where: { moduleId: mod.id },
+    orderBy: { assignedAt: "desc" },
+    include: { employee: { select: { id: true, name: true, branch: true } } },
+  });
+  const empIds = assignments.map((a) => a.employeeId);
+  const progress = empIds.length
+    ? await prisma.courseProgress.findMany({
+        where: { courseId: { in: courseIds }, employeeId: { in: empIds } },
+        select: { employeeId: true, courseId: true, status: true, score: true },
+      })
+    : [];
+
+  const DONE = new Set(["complete", "credited"]);
+  // Per-course tallies.
+  const courses: ModuleCourseStat[] = courseList.map((c, i) => {
+    const rows = progress.filter((p) => p.courseId === c.id);
+    const completedCount = rows.filter((p) => DONE.has(p.status)).length;
+    const scored = rows.filter((p) => p.score != null);
+    const passRate = scored.length ? Math.round((scored.filter((p) => (p.score as number) >= PASS_SCORE).length / scored.length) * 100) : null;
+    return {
+      sequence: mod.courses[i].sequence,
+      code: c.code,
+      name: c.name,
+      courseType: c.courseType,
+      group: c.certification.code,
+      contentUrl: c.contentUrl ?? null,
+      completedCount,
+      passRate,
+    };
+  });
+
+  // Per-employee completion of this module's courses.
+  const doneByEmp = new Map<string, number>();
+  for (const p of progress) {
+    if (DONE.has(p.status)) doneByEmp.set(p.employeeId, (doneByEmp.get(p.employeeId) ?? 0) + 1);
+  }
+  const roster: ModuleRosterRow[] = assignments.map((a) => ({
+    employeeId: a.employeeId,
+    name: a.employee?.name ?? "—",
+    branch: a.employee?.branch ?? null,
+    status: a.status,
+    assignedAt: a.assignedAt.toISOString().slice(0, 10),
+    completeCount: doneByEmp.get(a.employeeId) ?? 0,
+    totalCount: courseList.length,
+  }));
+
+  const completedCount = assignments.filter((a) => a.status !== "active").length;
+  const allScored = progress.filter((p) => p.score != null);
+  return {
+    code: mod.code,
+    name: mod.name,
+    certificationsEarned: mod.certificationsEarned,
+    courseCount: mod._count.courses,
+    assignedCount: assignments.length,
+    completedCount,
+    completionPct: assignments.length ? Math.round((completedCount / assignments.length) * 100) : 0,
+    passRate: allScored.length ? Math.round((allScored.filter((p) => (p.score as number) >= PASS_SCORE).length / allScored.length) * 100) : null,
+    courses,
+    roster,
+  };
+}
+
 export async function getEmployeeRecord(employeeId: string): Promise<EmployeeRecord | null> {
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
