@@ -365,6 +365,9 @@ export async function postSystemThread(opts: {
   contextHref?: string | null;
   branch?: string | null;
   authorName?: string;
+  /** When false, the in-app Inbox thread is still created but NO "New discussion"
+   *  email is sent (use when a dedicated, purpose-built email is sent separately). */
+  emailParticipants?: boolean;
 }): Promise<string | null> {
   const seen = new Set<string>();
   const parts: { userId: string | null; employeeId: string | null; name: string; email: string | null }[] = [];
@@ -398,15 +401,17 @@ export async function postSystemThread(opts: {
     },
   });
 
-  await notifyThread({
-    threadId: thread.id,
-    subject: opts.subject,
-    contextLabel: opts.contextLabel ?? null,
-    authorName: author,
-    authorUserId: null,
-    body: opts.body,
-    isNew: true,
-  }).catch(() => {});
+  if (opts.emailParticipants !== false) {
+    await notifyThread({
+      threadId: thread.id,
+      subject: opts.subject,
+      contextLabel: opts.contextLabel ?? null,
+      authorName: author,
+      authorUserId: null,
+      body: opts.body,
+      isNew: true,
+    }).catch(() => {});
+  }
 
   return thread.id;
 }

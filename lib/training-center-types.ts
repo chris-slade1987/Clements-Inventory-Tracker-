@@ -29,6 +29,7 @@ export type EmployeeCourseRow = {
   status: string; // assigned | in_progress | complete | credited | not_started
   completedDate: string | null;
   score: number | null;
+  contentUrl: string | null; // hosted course page to open (null if none built yet)
 };
 
 export type EmployeeAssignmentView = {

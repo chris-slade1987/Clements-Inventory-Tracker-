@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { employeeAssignments, STATUS_LABEL } from "@/lib/training";
+import { outstandingCertModuleCount } from "@/lib/training-center";
 import { openReviewsForEmployee, reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { interviewsForUser, hiringResultsForUser, INTERVIEW_TYPE_LABELS } from "@/lib/ats";
 import { TECH_ROUTINES, CADENCE_LABEL, isFieldRoutineViewer, type Cadence } from "@/lib/routines";
@@ -98,7 +99,7 @@ export default async function MyWorkPage() {
     );
   }
 
-  const [assignments, reviews, conducting, interviews, hiringResults, pto, empMeta] = await Promise.all([
+  const [assignments, reviews, conducting, interviews, hiringResults, pto, empMeta, certOpen] = await Promise.all([
     employeeAssignments(employeeId),
     openReviewsForEmployee(employeeId),
     reviewsForReviewer(user.id),
@@ -106,6 +107,7 @@ export default async function MyWorkPage() {
     hiringResultsForUser(user.id),
     ptoBalance(employeeId),
     prisma.employee.findUnique({ where: { id: employeeId }, select: { role: true, division: true } }),
+    outstandingCertModuleCount(employeeId),
   ]);
   const showRoutines = isFieldRoutineViewer({ accessLevel: user.accessLevel, employeeRole: empMeta?.role, division: empMeta?.division });
   const recentHiringResults = hiringResults.slice(0, 2);
@@ -114,15 +116,18 @@ export default async function MyWorkPage() {
   const reviewsToSign = reviews.filter((r) => !r.employeeSignedAt);
   const now = Date.now();
 
+  // Outstanding training = legacy CEU assignments PLUS active certification modules,
+  // so a freshly-assigned certification module lights the tile (not "All caught up").
+  const openTotal = open.length + certOpen;
   const ptoLabel = `${pto.remaining} of ${pto.allowance} days left${pto.pending ? ` · ${pto.pending} pending` : ""}`;
-  const trainingLabel = open.length ? `${open.length} open · action needed` : "All caught up";
+  const trainingLabel = openTotal ? `${openTotal} open · action needed` : "All caught up";
 
   // Operating-rhythm ribbon — the employee's recurring routines by cadence plus
   // the personal items due now (unified Theme 3 ribbon).
   const employeeRhythm = buildEmployeeRhythm({
     now: new Date(),
     routines: showRoutines ? TECH_ROUTINES.map((r) => ({ key: r.key, label: r.label, cadence: r.cadence, href: r.href })) : [],
-    openTraining: open.length,
+    openTraining: openTotal,
     trainingOverdue: open.some((a) => a.dueDate != null && a.dueDate.getTime() < now),
     reviewsToSign: reviewsToSign.length,
     interviews: interviews.length,
@@ -139,7 +144,7 @@ export default async function MyWorkPage() {
       <HubGrid ptoLabel={ptoLabel} trainingLabel={trainingLabel} inboxUnread={inboxUnread} />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-5">
-        <Tile label="Open training" value={String(open.length)} tone={open.length ? "bad" : "good"} sub={open.length ? "Action needed" : "All caught up"} />
+        <Tile label="Open training" value={String(openTotal)} tone={openTotal ? "bad" : "good"} sub={openTotal ? "Action needed" : "All caught up"} />
         <Tile label="Completed" value={String(completed.length)} tone="good" />
         <Tile label="Assigned total" value={String(assignments.length)} />
       </div>

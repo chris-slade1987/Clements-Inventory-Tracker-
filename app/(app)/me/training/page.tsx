@@ -115,19 +115,33 @@ export default async function MyTrainingPage() {
                 <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{a.prereqNote}</div>
               ) : null}
               <ol className="space-y-1.5">
-                {a.courses.map((c) => (
-                  <li key={c.code} className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] font-semibold text-slate-700">{c.code}</span>
-                    <span className="text-ink">{c.name}</span>
-                    {c.courseType === "field_signoff" ? (
-                      <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-medium text-sky-800">field sign-off</span>
-                    ) : null}
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_CHIP[c.status] ?? "bg-slate-100 text-slate-700"}`}>
-                      {COURSE_STATUS_LABEL[c.status] ?? c.status}
-                    </span>
-                    {c.completedDate ? <span className="text-xs text-muted">{c.completedDate}</span> : null}
-                  </li>
-                ))}
+                {a.courses.map((c) => {
+                  const done = c.status === "complete" || c.status === "credited";
+                  const openable = !!c.contentUrl && c.courseType !== "field_signoff";
+                  return (
+                    <li key={c.code} className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] font-semibold text-slate-700">{c.code}</span>
+                      {openable ? (
+                        <a href={c.contentUrl!} target="_blank" rel="noreferrer" className="font-medium text-brand-700 hover:underline">{c.name}</a>
+                      ) : (
+                        <span className="text-ink">{c.name}</span>
+                      )}
+                      {c.courseType === "field_signoff" ? (
+                        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-medium text-sky-800">field sign-off</span>
+                      ) : null}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_CHIP[c.status] ?? "bg-slate-100 text-slate-700"}`}>
+                        {COURSE_STATUS_LABEL[c.status] ?? c.status}
+                      </span>
+                      {c.completedDate ? <span className="text-xs text-muted">{c.completedDate}</span> : null}
+                      {openable ? (
+                        <a href={c.contentUrl!} target="_blank" rel="noreferrer" className="ml-auto shrink-0 inline-flex items-center gap-1 rounded-lg bg-emerald-grad px-2.5 py-1 text-[11px] font-semibold text-white hover:brightness-95">
+                          {done ? "Review" : "Open"}
+                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" /></svg>
+                        </a>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ol>
               {a.courses.some((c) => c.courseType === "field_signoff") ? (
                 <p className="mt-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">

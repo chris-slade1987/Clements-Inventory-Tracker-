@@ -56,6 +56,15 @@ export async function listCourseCatalog(): Promise<CoursePick[]> {
 // Employee record
 // ---------------------------------------------------------------------------
 
+/** Count an employee's OUTSTANDING certification work for the Employee Hub tile —
+ *  active module assignments that still have at least one incomplete course. Cheap
+ *  (no snapshot expansion): an assignment is outstanding while its status is
+ *  "active". Lets the Hub tile reflect certification modules, not just the legacy
+ *  CEU assignments. */
+export async function outstandingCertModuleCount(employeeId: string): Promise<number> {
+  return prisma.moduleAssignment.count({ where: { employeeId, status: "active" } });
+}
+
 export async function getEmployeeRecord(employeeId: string): Promise<EmployeeRecord | null> {
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
@@ -117,6 +126,7 @@ export async function getEmployeeRecord(employeeId: string): Promise<EmployeeRec
         status: p.status,
         completedDate: p.completedDate ? p.completedDate.toISOString().slice(0, 10) : null,
         score: p.score ?? null,
+        contentUrl: p.course.contentUrl ?? null,
       };
     }
     const c = missingByCode.get(code);
@@ -128,6 +138,7 @@ export async function getEmployeeRecord(employeeId: string): Promise<EmployeeRec
       status: "not_started",
       completedDate: null,
       score: null,
+      contentUrl: c?.contentUrl ?? null,
     };
   }
 
@@ -186,6 +197,7 @@ export async function getEmployeeRecord(employeeId: string): Promise<EmployeeRec
         status: p.status,
         completedDate: p.completedDate ? p.completedDate.toISOString().slice(0, 10) : null,
         score: p.score ?? null,
+        contentUrl: p.course.contentUrl ?? null,
       }))
       .sort((a, b) => a.group.localeCompare(b.group) || a.code.localeCompare(b.code)),
   };

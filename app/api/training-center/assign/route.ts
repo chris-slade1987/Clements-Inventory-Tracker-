@@ -6,9 +6,13 @@ import { confirmAssignment, assignNextAdvancementStep } from "@/lib/training-ass
 import { fail, HttpError } from "@/lib/http";
 import { sendEmail } from "@/lib/email";
 import { postSystemThread, employeeRecipient } from "@/lib/threads";
+import { appUrl } from "@/lib/app-url";
 
-/** Notify an employee that training was assigned — reliable Inbox notice plus
- *  email. Best-effort: a failed notice never fails the assignment. */
+/** Notify an employee that training was assigned: an in-app Inbox notice PLUS one
+ *  purpose-built email with a direct link to their Employee Hub training. The
+ *  Inbox thread is created WITHOUT its generic "New discussion" email (the single
+ *  training email below replaces it). Best-effort — a failed notice never fails
+ *  the assignment. */
 async function notifyTrainingAssigned(employeeId: string, what: string, branch: string | null) {
   try {
     const recip = await employeeRecipient(employeeId);
@@ -22,16 +26,23 @@ async function notifyTrainingAssigned(employeeId: string, what: string, branch: 
       contextLabel: "Training assigned",
       contextHref: "/me/training",
       branch,
+      emailParticipants: false, // the dedicated training email below is sent instead
     });
     if (recip.email) {
+      // Deep-link straight to the employee's Training & Certificates area.
+      const hubLink = `${appUrl()}/me/training`;
+      const first = recip.name.split(" ")[0];
+      const button = appUrl()
+        ? `<p style="margin:16px 0"><a href="${hubLink}" style="background:#146A3A;color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600">Open my Training &amp; Certificates</a></p>`
+        : "";
       await sendEmail({
         to: recip.email,
         subject: `New training assigned: ${what}`,
         kind: "training_assigned",
         relatedType: "module_assignment",
         relatedId: employeeId,
-        text: `Hi ${recip.name.split(" ")[0]},\n\nYou've been assigned ${what}. Open My Training to get started.\n\n— CanopyOS`,
-        html: `<p>Hi ${recip.name.split(" ")[0]},</p><p>You've been assigned <strong>${what}</strong>. Open My Training to get started.</p><p>— CanopyOS</p>`,
+        text: `Hi ${first},\n\nYou've been assigned ${what}.\n\nOpen your Training & Certificates in the Employee Hub to get started:\n${hubLink}\n\n— CanopyOS`,
+        html: `<p>Hi ${first},</p><p>You've been assigned <strong>${what}</strong>.</p><p>Open your <strong>Training &amp; Certificates</strong> in the Employee Hub to get started.</p>${button}<p style="margin:12px 0 0;font-size:12px;color:#889">— CanopyOS</p>`,
       });
     }
   } catch {
