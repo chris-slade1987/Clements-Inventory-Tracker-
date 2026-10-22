@@ -142,6 +142,28 @@ export async function companyRootEmployeeIds(): Promise<string[]> {
   return [...ids];
 }
 
+/**
+ * Auto-heal the org chart at RUNTIME (the build-time deploy seed does not persist to
+ * the live production database, so this is the only reliable write path). Idempotent
+ * and cheap: always re-pins the company roots (Chris + Tim to the top), and applies
+ * the Corporate Contact & Reference Sheet role details to every matching employee
+ * whenever NOBODY has role details yet (the broken state) — then it's a no-op. Safe
+ * to call on every super-admin org-chart load; failures are swallowed.
+ */
+export async function ensureOrgFixed(): Promise<void> {
+  try {
+    const [{ seedLeadershipRoots }, { seedCorporateRoles }] = await Promise.all([
+      import("@/prisma/seed-org-chart"),
+      import("@/prisma/seed-corporate-roles"),
+    ]);
+    await seedLeadershipRoots(prisma);
+    const anyRole = await prisma.employee.count({ where: { NOT: { roleResponsibilities: null } } });
+    if (anyRole === 0) await seedCorporateRoles(prisma, { force: true });
+  } catch (e) {
+    console.error("ensureOrgFixed failed (non-fatal):", e);
+  }
+}
+
 export type OrgTreeNode = OrgTile & { reports: OrgTreeNode[] };
 
 /**

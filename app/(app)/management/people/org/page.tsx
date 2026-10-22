@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireUser, canEditAccessLevels } from "@/lib/auth";
 import { listOrgEmployees } from "@/lib/org";
-import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds } from "@/lib/org-chart";
+import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds, ensureOrgFixed } from "@/lib/org-chart";
 import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
@@ -19,6 +19,10 @@ export default async function OrgChartPage() {
   if (!(user.role === "admin" || user.hrAccess || user.seniorLeadership)) {
     redirect("/org");
   }
+
+  // Auto-heal at runtime (deploy seed doesn't persist to prod): pin Chris + Tim to
+  // the top and apply the corporate role sheet when missing. Super admins only.
+  if (canManageAccessRights(user)) await ensureOrgFixed();
 
   const [{ roots, tiles }, employees, topLevelIds] = await Promise.all([buildOrgTree(), listOrgEmployees(), companyRootEmployeeIds()]);
 

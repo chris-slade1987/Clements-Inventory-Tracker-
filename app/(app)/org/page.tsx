@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds } from "@/lib/org-chart";
+import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds, ensureOrgFixed } from "@/lib/org-chart";
 import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
@@ -17,6 +17,9 @@ export const metadata = { title: "Org Chart — CanopyOS" };
 // Re-checked server-side in `updateTileFields`.
 export default async function CompanyOrgChartPage() {
   const user = await requireUser();
+  // Auto-heal at runtime (deploy seed doesn't persist to prod): pin Chris + Tim to
+  // the top and apply the corporate role sheet when missing. Super-admin loads only.
+  if (canManageAccessRights(user)) await ensureOrgFixed();
   const [{ roots, tiles }, topLevelIds] = await Promise.all([buildOrgTree(), companyRootEmployeeIds()]);
 
   // Every non-technician staff member may edit cards.
