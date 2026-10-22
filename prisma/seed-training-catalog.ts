@@ -2,11 +2,12 @@ import type { PrismaClient } from "@prisma/client";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-/** Scan public/courses for hosted, interactive course pages and map each to its
- *  course CODE by filename prefix (e.g. "fc-01-pest-management-ipm.html" → "FC-01").
- *  So dropping a new <code>-<slug>.html into public/courses auto-links it to its
- *  catalog course — no per-course config. Returns {} if the folder is absent. */
-function hostedCoursesByCode(): Record<string, string> {
+/** Map each hosted, interactive course page to its course CODE. At build time we
+ *  scan public/courses (so a newly-dropped <code>-<slug>.html auto-links with no
+ *  config); at runtime (serverless, where that folder isn't on disk) we fall back
+ *  to the committed manifest prisma/data/hosted-courses.json so the on-demand
+ *  reseed still links courses. Regenerate the manifest with gen-hosted-courses. */
+async function hostedCoursesByCode(): Promise<Record<string, string>> {
   const out: Record<string, string> = {};
   try {
     for (const f of readdirSync(join(process.cwd(), "public", "courses"))) {
@@ -15,9 +16,27 @@ function hostedCoursesByCode(): Record<string, string> {
       if (m) out[m[1].toUpperCase()] = `/courses/${f}`;
     }
   } catch {
-    /* no hosted courses folder in this environment */
+    /* folder not on disk here */
+  }
+  if (Object.keys(out).length === 0) {
+    try {
+      const manifest = (await import("./data/hosted-courses.json")).default as Record<string, string>;
+      Object.assign(out, manifest);
+    } catch {
+      /* no manifest either */
+    }
   }
   return out;
+}
+
+/** Load the catalog JSON — from disk at build time, else the bundled import at
+ *  runtime (so the on-demand reseed works in the serverless function). */
+async function loadCatalog(): Promise<Catalog> {
+  try {
+    return JSON.parse(readFileSync(join(process.cwd(), "prisma", "data", "training-catalog.json"), "utf8")) as Catalog;
+  } catch {
+    return (await import("./data/training-catalog.json")).default as unknown as Catalog;
+  }
 }
 
 /**
@@ -69,8 +88,7 @@ type Catalog = {
 export const ASSIGNMENT_GUIDE_SETTING = "training.assignment_guide";
 
 export async function seedTrainingCatalog(prisma: PrismaClient) {
-  const path = join(process.cwd(), "prisma", "data", "training-catalog.json");
-  const cat = JSON.parse(readFileSync(path, "utf8")) as Catalog;
+  const cat = await loadCatalog();
 
   // 1. Certifications (groups)
   const certIdByCode = new Map<string, string>();
@@ -85,7 +103,7 @@ export async function seedTrainingCatalog(prisma: PrismaClient) {
 
   // 2. Courses (units). A hosted interactive page (public/courses/<code>-*.html)
   //    auto-links via contentUrl and marks the course content "Exists".
-  const hosted = hostedCoursesByCode();
+  const hosted = await hostedCoursesByCode();
   const courseIdByCode = new Map<string, string>();
   for (const c of cat.courses) {
     const certificationId = certIdByCode.get(c.group);

@@ -4,6 +4,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
 import { listCertifications, listCourseLibrary, programSummary, canViewCertifications } from "@/lib/certifications";
 import TrainingCenterTabs from "@/components/TrainingCenterTabs";
+import ReseedCatalogButton from "./ReseedCatalogButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Certifications — CanopyOS" };
@@ -14,7 +15,18 @@ export default async function CertificationsIndexPage() {
     redirect(isBoardObserver(user) ? "/management/board" : homePath(user));
   }
 
-  const [certs, summary, library] = await Promise.all([listCertifications(), programSummary(), listCourseLibrary()]);
+  // Load defensively — a query error must never leave the Certifications tab a
+  // silent blank. On error we show a clear message instead of a 500.
+  let certs: Awaited<ReturnType<typeof listCertifications>> = [];
+  let summary: Awaited<ReturnType<typeof programSummary>> = { certifications: 0, programs: 0, modules: 0, courses: 0, exists: 0, partial: 0, none: 0 } as Awaited<ReturnType<typeof programSummary>>;
+  let library: Awaited<ReturnType<typeof listCourseLibrary>> = [];
+  let loadError = false;
+  try {
+    [certs, summary, library] = await Promise.all([listCertifications(), programSummary(), listCourseLibrary()]);
+  } catch (e) {
+    loadError = true;
+    console.error("certifications page load failed:", e);
+  }
   const withContent = library.map((c) => ({ ...c, courses: c.courses.filter((m) => m.contentUrl) })).filter((c) => c.courses.length > 0);
   const totalBuilt = withContent.reduce((s, c) => s + c.courses.length, 0);
 
@@ -50,6 +62,16 @@ export default async function CertificationsIndexPage() {
             <span className="font-medium text-slate-600 tabular-nums">{summary.none}</span> none
           </div>
         </div>
+        {(loadError || certs.length === 0) && user.role === "admin" ? (
+          <div className="mt-3 border-t border-line pt-3">
+            <p className="text-sm text-amber-700">
+              {loadError
+                ? "The certification catalog couldn't be read in this environment."
+                : "No certification catalog is loaded in this environment yet."}
+            </p>
+            <ReseedCatalogButton />
+          </div>
+        ) : null}
       </Card>
 
       {/* Built course library — every course with a hosted page, openable here. */}
