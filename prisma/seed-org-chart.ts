@@ -48,15 +48,20 @@ export async function seedOrgChart(prisma: PrismaClient) {
 // (Tim Slade) report to no one. Idempotent — only clears a non-null line — so it
 // lifts Chris to the top alongside Tim and keeps them both there on every deploy.
 export async function seedLeadershipRoots(prisma: PrismaClient) {
-  const owner = await prisma.user.findFirst({
-    where: { email: "c.slade@clementspestcontrol.com" },
-    select: { employeeId: true },
-  });
-  const tim = await prisma.employee.findFirst({
-    where: { status: "active", name: { contains: "Tim Slade" } },
+  // Collect EVERY record for Chris + Tim (they can each exist under more than one
+  // name, e.g. "Chris Slade" and "Christopher Slade"), by login email and by name,
+  // so whichever record the chart shows is pinned to the top.
+  const emails = ["c.slade@clementspestcontrol.com", "tslade@clementspestcontrol.com"];
+  const names = ["Chris Slade", "Christopher Slade", "Tim Slade", "Timothy Slade"];
+  const ids = new Set<string>();
+  const logins = await prisma.user.findMany({ where: { email: { in: emails } }, select: { employeeId: true } });
+  for (const l of logins) if (l.employeeId) ids.add(l.employeeId);
+  const emps = await prisma.employee.findMany({
+    where: { OR: [{ email: { in: emails } }, { name: { in: names } }] },
     select: { id: true },
   });
-  const rootIds = [owner?.employeeId, tim?.id].filter(Boolean) as string[];
+  for (const e of emps) ids.add(e.id);
+  const rootIds = [...ids];
   if (rootIds.length === 0) return { roots: 0, cleared: 0 };
   const res = await prisma.employee.updateMany({
     where: { id: { in: rootIds }, NOT: { reportsToId: null } },
@@ -98,9 +103,20 @@ export async function attachRemainingReports(prisma: PrismaClient) {
     where: { email: "c.slade@clementspestcontrol.com" },
     select: { employeeId: true },
   });
-  const chrisId = owner?.employeeId ?? null;
-  const rootIds = [tim?.id, chrisId].filter(Boolean) as string[];
-  const topId = tim?.id ?? chrisId ?? null;
+  const topId = tim?.id ?? owner?.employeeId ?? null;
+  // ALL records for the two company roots (Chris + Tim can each have duplicate
+  // records under different names) — none of them is ever re-parented below anyone.
+  const rootEmails = ["c.slade@clementspestcontrol.com", "tslade@clementspestcontrol.com"];
+  const rootNames = ["Chris Slade", "Christopher Slade", "Tim Slade", "Timothy Slade"];
+  const rootIdSet = new Set<string>();
+  const rootLogins = await prisma.user.findMany({ where: { email: { in: rootEmails } }, select: { employeeId: true } });
+  for (const l of rootLogins) if (l.employeeId) rootIdSet.add(l.employeeId);
+  const rootEmps = await prisma.employee.findMany({
+    where: { OR: [{ email: { in: rootEmails } }, { name: { in: rootNames } }] },
+    select: { id: true },
+  });
+  for (const e of rootEmps) rootIdSet.add(e.id);
+  const rootIds = [...rootIdSet];
 
   // Field-Operations director — the branch managers' parent.
   const graham = await prisma.employee.findFirst({

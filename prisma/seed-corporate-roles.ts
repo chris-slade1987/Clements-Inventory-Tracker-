@@ -16,6 +16,7 @@ import { join } from "node:path";
 type RoleEntry = {
   email: string;
   name: string;
+  aliases?: string[]; // other names the same person appears under (duplicate records)
   title?: string;
   roleResponsibilities: string;
   contactReasons: string;
@@ -47,40 +48,51 @@ export async function seedCorporateRoles(prisma: PrismaClient) {
     prisma.user.findMany({ select: { employeeId: true, email: true } }),
   ]);
 
-  // Resolve the CANONICAL person for each sheet email, in priority order:
-  //   1) the employee their LOGIN points at (User.email == sheet email, with an
-  //      employeeId) — the real person whose profile is opened in the app,
-  //   2) an ACTIVE employee whose own work email matches,
-  //   3) an ACTIVE employee whose exact name matches.
-  // Active records always win over inactive duplicates (e.g. a stray "April").
+  // Resolve ALL of a person's employee records, because the same person can have
+  // more than one (e.g. Chris exists as both "Christopher Slade" — his login — and
+  // a roster-created "Chris Slade"). We match by: the record their LOGIN points at
+  // (User.email == sheet email), any record whose work email matches, and any
+  // record whose name matches the sheet name OR a listed alias. Whichever record
+  // the chart shows, it gets the role data. Prefer active records; if a person has
+  // only inactive records we still fill them.
   const loginByEmail = new Map<string, string>();
   for (const u of users) if (u.email && u.employeeId) loginByEmail.set(u.email.trim().toLowerCase(), u.employeeId);
 
-  const empByEmail = new Map<string, string>();
-  const empByName = new Map<string, string>();
-  const isActive = new Map(employees.map((e) => [e.id, e.status === "active"]));
-  const prefer = (map: Map<string, string>, key: string, id: string) => {
-    const cur = map.get(key);
-    if (!cur || (!isActive.get(cur) && isActive.get(id))) map.set(key, id);
+  const idsByEmail = new Map<string, string[]>();
+  const idsByName = new Map<string, string[]>();
+  const push = (map: Map<string, string[]>, key: string, id: string) => {
+    const a = map.get(key) ?? [];
+    a.push(id);
+    map.set(key, a);
   };
   for (const e of employees) {
-    if (e.email) prefer(empByEmail, e.email.trim().toLowerCase(), e.id);
-    prefer(empByName, e.name.trim().toLowerCase(), e.id);
+    if (e.email) push(idsByEmail, e.email.trim().toLowerCase(), e.id);
+    push(idsByName, e.name.trim().toLowerCase(), e.id);
   }
+  const isActive = new Map(employees.map((e) => [e.id, e.status === "active"]));
 
   let matched = 0;
   let failed = 0;
   const unmatched: string[] = [];
   for (const r of file.roles) {
     const emailKey = r.email.trim().toLowerCase();
-    const id = loginByEmail.get(emailKey) ?? empByEmail.get(emailKey) ?? empByName.get(r.name.trim().toLowerCase());
-    if (!id) {
+    const names = [r.name, ...(r.aliases ?? [])].map((n) => n.trim().toLowerCase());
+    const targets = new Set<string>();
+    const loginId = loginByEmail.get(emailKey);
+    if (loginId) targets.add(loginId);
+    for (const id of idsByEmail.get(emailKey) ?? []) targets.add(id);
+    for (const n of names) for (const id of idsByName.get(n) ?? []) targets.add(id);
+    // If there's at least one active record, only fill the active ones.
+    const all = [...targets];
+    const active = all.filter((id) => isActive.get(id));
+    const toFill = active.length ? active : all;
+    if (toFill.length === 0) {
       unmatched.push(`${r.name} <${r.email}>`);
       continue;
     }
     try {
-      await prisma.employee.update({
-        where: { id },
+      await prisma.employee.updateMany({
+        where: { id: { in: toFill } },
         data: {
           roleResponsibilities: r.roleResponsibilities,
           contactReasons: r.contactReasons,

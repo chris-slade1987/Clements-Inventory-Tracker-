@@ -1,10 +1,11 @@
 {
-  "version": "2026-10-23",
+  "version": "2026-10-23b",
   "note": "Corporate Contact & Reference Sheet — what each corporate role does, when to go to them, and how to reach them. Seeded ONCE (version-gated) onto matching employees by email; later edits made on the org chart are preserved. Bump `version` to re-apply an updated sheet (that will overwrite edits for the matched people). Bullet fields use one line per bullet.",
   "roles": [
     {
       "email": "c.slade@clementspestcontrol.com",
       "name": "Christopher Slade",
+      "aliases": ["Chris Slade"],
       "title": "Chief Operating Officer",
       "roleResponsibilities": "Oversees daily company operations and coordinates between departments\nImplements company strategy, goals, and performance objectives\nWorks with department heads to improve efficiency and streamline processes\nOversees major projects, acquisitions, and business growth initiatives\nHandles escalated customer or operational issues requiring executive input",
       "contactReasons": "Escalated operational or customer issues that require executive involvement\nStrategic company initiatives, planning, or direction\nMajor project updates, decisions, or approvals\nCoordination on acquisitions, expansions, or high-impact changes",
