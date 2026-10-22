@@ -75,7 +75,8 @@ export const MODULES: AccessModule[] = [
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
     { id: "groundwork", name: "Groundwork", note: "Universal work home: My Work (To-Dos + follow-ups), Huddles, The Greenhouse, Projects. Assigning to others is role-scoped server-side." },
     { id: "org-chart", name: "Org Chart (company)", note: "Universal company-readable reporting chart + directory search (/org); cards are read-only for field TECHNICIANS, and every other staff member may expand + edit a card's info (route, approved services, corporate role / who-to-go-to, scheduling) company-wide — enforced server-side in updateTileFields. SUPER ADMINS (Chris/Julie/April) additionally get an 'Edit structure' mode to reassign a person's supervisor (POST /api/org/reports-to, gated by canManageAccessRights, cycle-guarded) which updates their profile + team. Distinct from the HR-console Org Chart item." },
-    { id: "ask-canopy", name: "Ask Canopy (Copilot)", note: "Universal docked assistant; answers are access-scoped server-side" } ] },
+    { id: "ask-canopy", name: "Ask Canopy (Copilot)", note: "Universal docked assistant; answers are access-scoped server-side" },
+    { id: "uniforms", name: "Uniform Guidelines", note: "Universal: the approved customer-facing uniform standard per field role (/uniforms). A viewer's own role is called out; referenced from onboarding." } ] },
 ];
 
 export const ALL_ITEMS: AccessItem[] = MODULES.flatMap((m) => m.items);
@@ -93,7 +94,7 @@ function allAccess(except: string[] = []): Grants {
   return g;
 }
 
-const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true, groundwork: true, "org-chart": true, "ask-canopy": true };
+const SELF_BASIC: Grants = { me: true, "me-profile": true, "me-hr": true, "me-training": true, "me-pto": true, account: true, bulletin: true, inbox: true, help: true, groundwork: true, "org-chart": true, "ask-canopy": true, uniforms: true };
 
 /** Each level's access AS IT IS TODAY — the pre-checked state on the admin screen. */
 export const DEFAULT_GRANTS: Record<string, Grants> = {

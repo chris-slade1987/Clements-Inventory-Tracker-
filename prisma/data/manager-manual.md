@@ -20,6 +20,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Sales Team** — service advisors plan their month with a built-in **Monthly Goal Sheet**, and the **Sales Director** oversees advisors and goals across all four branches. See *Sales Team*.
 - **Certifications** — a read-only console to browse the internal certification program's structure (certifications, modules, prerequisites, and career pathways). Leadership and HR can SEE the program today; training content and tracking are coming. See *Certifications*.
 - **Org Chart & Directory** — a universal, company-readable reporting chart laid out as a **family tree** that branches across the screen, with search (name, route number, service, branch) and collapsible teams. Each card expands to show the person's **corporate role** (what they do + when to go to them for help), certifications, approved services, scheduling rules, and latest note. **Every staff member except field technicians** can expand a card and edit its details. Open to everyone from the **Org Chart** button in the top bar (`/org`). See *Org Chart & Directory*.
+- **Uniform Guidelines** — the approved customer-facing uniform standard for each field role (Service Manager, Service Advisor, Technician). Open to everyone at **`/uniforms`** and from the **Uniform guidelines** card on the Employee Hub; a person whose role has a uniform sees theirs called out first. Point new hires here on day one so they know exactly what to wear.
 
 ## Table of Contents
 

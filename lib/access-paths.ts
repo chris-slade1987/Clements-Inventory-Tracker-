@@ -29,6 +29,7 @@ const RULES: [RegExp, string][] = [
   [/^\/help(\/|$)/, "help"],
   [/^\/groundwork(\/|$)/, "groundwork"],
   [/^\/org(\/|$)/, "org-chart"],
+  [/^\/uniforms(\/|$)/, "uniforms"],
 
   // --- My Branch ---
   [/^\/my-branch\/team(\/|$)/, "team"],

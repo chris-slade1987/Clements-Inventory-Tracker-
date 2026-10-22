@@ -57,6 +57,7 @@ function HubGrid({ ptoLabel, trainingLabel, inboxUnread }: { ptoLabel?: string; 
     { href: "/me/pto", glyph: "calendar", title: "Time off", sub: ptoLabel ?? "Request & track PTO" },
     { href: "/me/hr", glyph: "shield", title: "HR & support", sub: "Message HR or request a meeting" },
     { href: "/resources/handbook", glyph: "award", title: "Handbook & policies", sub: "Read & acknowledge" },
+    { href: "/uniforms", glyph: "shield", title: "Uniform guidelines", sub: "Approved standard for your role" },
     { href: "/me/training", glyph: "cap", title: "Training & certificates", sub: trainingLabel ?? "Courses & sign-offs" },
     { href: "/inbox", glyph: "megaphone", title: "Inbox", sub: inboxSub, badge: inboxUnread },
   ];

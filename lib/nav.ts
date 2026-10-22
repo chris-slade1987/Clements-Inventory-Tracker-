@@ -342,6 +342,12 @@ export const EMPLOYEE_NAV: NavItem[] = [
     shortLabel: "Library",
     icon: "M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2zM8 7h6M8 11h8M8 15h8",
   },
+  {
+    href: "/uniforms",
+    label: "Uniform Guidelines",
+    shortLabel: "Uniform",
+    icon: "M16 3l4 2-2 4-2-1v13H8V8L6 9 4 5l4-2 2 2a2 2 0 004 0z",
+  },
 ];
 
 // Branch-manager home: their operational dashboard — reminders, this month's
