@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { buildOrgTree, canEditOrgCards } from "@/lib/org-chart";
+import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds } from "@/lib/org-chart";
 import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
@@ -16,7 +16,7 @@ export const metadata = { title: "Org Chart — CanopyOS" };
 // Re-checked server-side in `updateTileFields`.
 export default async function CompanyOrgChartPage() {
   const user = await requireUser();
-  const { roots, tiles } = await buildOrgTree();
+  const [{ roots, tiles }, topLevelIds] = await Promise.all([buildOrgTree(), companyRootEmployeeIds()]);
 
   // Every non-technician staff member may edit cards.
   const canEditAll = canEditOrgCards(user);
@@ -38,6 +38,7 @@ export default async function CompanyOrgChartPage() {
         branches={BRANCHES.map((b) => ({ key: b.key, label: b.label }))}
         canEditAll={canEditAll}
         canReassign={canManageAccessRights(user)}
+        topLevelIds={topLevelIds}
         profileBase={canOpenProfiles ? "/management/people" : null}
       />
     </>

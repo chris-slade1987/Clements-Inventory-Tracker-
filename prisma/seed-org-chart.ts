@@ -44,6 +44,27 @@ export async function seedOrgChart(prisma: PrismaClient) {
 // guaranteeing one connected tree with exactly one root. This closes the gap
 // where someone added after the one-time bootstrap (e.g. a late advisor/tech)
 // had no reporting line and rendered as an orphan tile.
+// Pin the company ROOTS to the top: the CEO (Chris / c.slade@) and the President
+// (Tim Slade) report to no one. Idempotent — only clears a non-null line — so it
+// lifts Chris to the top alongside Tim and keeps them both there on every deploy.
+export async function seedLeadershipRoots(prisma: PrismaClient) {
+  const owner = await prisma.user.findFirst({
+    where: { email: "c.slade@clementspestcontrol.com" },
+    select: { employeeId: true },
+  });
+  const tim = await prisma.employee.findFirst({
+    where: { status: "active", name: { contains: "Tim Slade" } },
+    select: { id: true },
+  });
+  const rootIds = [owner?.employeeId, tim?.id].filter(Boolean) as string[];
+  if (rootIds.length === 0) return { roots: 0, cleared: 0 };
+  const res = await prisma.employee.updateMany({
+    where: { id: { in: rootIds }, NOT: { reportsToId: null } },
+    data: { reportsToId: null },
+  });
+  return { roots: rootIds.length, cleared: res.count };
+}
+
 export async function attachRemainingReports(prisma: PrismaClient) {
   const branches = ["vero", "stuart", "orlando", "naples"];
 
@@ -66,8 +87,9 @@ export async function attachRemainingReports(prisma: PrismaClient) {
     }
   }
 
-  // The single company root: the President (Tim Slade) if present, else the
-  // owner/COO login's profile — so the President never gets re-parented below.
+  // Company ROOTS: the President (Tim Slade) AND the CEO (Chris / c.slade@) both sit
+  // at the top with no supervisor — neither is ever re-parented below anyone. The
+  // President is the default parent for otherwise-unattached people.
   const tim = await prisma.employee.findFirst({
     where: { status: "active", name: { contains: "Tim Slade" } },
     select: { id: true },
@@ -76,7 +98,9 @@ export async function attachRemainingReports(prisma: PrismaClient) {
     where: { email: "c.slade@clementspestcontrol.com" },
     select: { employeeId: true },
   });
-  const topId = tim?.id ?? owner?.employeeId ?? null;
+  const chrisId = owner?.employeeId ?? null;
+  const rootIds = [tim?.id, chrisId].filter(Boolean) as string[];
+  const topId = tim?.id ?? chrisId ?? null;
 
   // Field-Operations director — the branch managers' parent.
   const graham = await prisma.employee.findFirst({
@@ -122,10 +146,10 @@ export async function attachRemainingReports(prisma: PrismaClient) {
   }
 
   // 3) Everyone else still unattached (no branch, or no resolvable manager) →
-  //    the single company top, except the top itself.
+  //    the President, EXCEPT the company roots themselves (Tim + Chris stay at top).
   if (topId) {
     linked += (await prisma.employee.updateMany({
-      where: { status: "active", reportsToId: null, id: { not: topId } },
+      where: { status: "active", reportsToId: null, id: { notIn: rootIds.length ? rootIds : [topId] } },
       data: { reportsToId: topId },
     })).count;
   }

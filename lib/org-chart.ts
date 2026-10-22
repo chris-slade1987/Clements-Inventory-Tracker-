@@ -118,6 +118,30 @@ export async function orgTileData(): Promise<OrgTile[]> {
   }));
 }
 
+/**
+ * Employee ids of the people who sit at the very TOP of the company (CEO + President
+ * — Chris Slade and Tim Slade), identified by their login email then name. They
+ * legitimately report to no one, so the chart never flags them "No supervisor".
+ * Overridable via COMPANY_ROOT_EMAILS (comma-separated).
+ */
+export async function companyRootEmployeeIds(): Promise<string[]> {
+  const emails = (process.env.COMPANY_ROOT_EMAILS || "c.slade@clementspestcontrol.com,tslade@clementspestcontrol.com")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const names = ["Chris Slade", "Christopher Slade", "Tim Slade", "Timothy Slade"];
+
+  const ids = new Set<string>();
+  const logins = await prisma.user.findMany({ where: { email: { in: emails } }, select: { employeeId: true } });
+  for (const l of logins) if (l.employeeId) ids.add(l.employeeId);
+  const emps = await prisma.employee.findMany({
+    where: { OR: [{ email: { in: emails } }, { name: { in: names } }] },
+    select: { id: true },
+  });
+  for (const e of emps) ids.add(e.id);
+  return [...ids];
+}
+
 export type OrgTreeNode = OrgTile & { reports: OrgTreeNode[] };
 
 /**

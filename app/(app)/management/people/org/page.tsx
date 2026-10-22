@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireUser, canEditAccessLevels } from "@/lib/auth";
 import { listOrgEmployees } from "@/lib/org";
-import { buildOrgTree, canEditOrgCards } from "@/lib/org-chart";
+import { buildOrgTree, canEditOrgCards, companyRootEmployeeIds } from "@/lib/org-chart";
 import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
@@ -20,7 +20,7 @@ export default async function OrgChartPage() {
     redirect("/org");
   }
 
-  const [{ roots, tiles }, employees] = await Promise.all([buildOrgTree(), listOrgEmployees()]);
+  const [{ roots, tiles }, employees, topLevelIds] = await Promise.all([buildOrgTree(), listOrgEmployees(), companyRootEmployeeIds()]);
 
   // Every non-technician staff member may edit cards.
   const canEditAll = canEditOrgCards(user);
@@ -42,6 +42,7 @@ export default async function OrgChartPage() {
           branches: BRANCHES.map((b) => ({ key: b.key, label: b.label })),
           canEditAll,
           canReassign: canManageAccessRights(user),
+          topLevelIds,
           profileBase: "/management/people",
         }}
         employees={employees}

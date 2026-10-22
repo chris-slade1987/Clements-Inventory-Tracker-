@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-22",
+  "version": "2026-10-23",
   "note": "Corporate Contact & Reference Sheet — what each corporate role does, when to go to them, and how to reach them. Seeded ONCE (version-gated) onto matching employees by email; later edits made on the org chart are preserved. Bump `version` to re-apply an updated sheet (that will overwrite edits for the matched people). Bullet fields use one line per bullet.",
   "roles": [
     {

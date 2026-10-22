@@ -43,45 +43,69 @@ export async function seedCorporateRoles(prisma: PrismaClient) {
   }
 
   const [employees, users] = await Promise.all([
-    prisma.employee.findMany({ select: { id: true, name: true, email: true } }),
+    prisma.employee.findMany({ select: { id: true, name: true, email: true, status: true } }),
     prisma.user.findMany({ select: { employeeId: true, email: true } }),
   ]);
-  const byEmpEmail = new Map<string, string>();
-  const byName = new Map<string, string>();
+
+  // Resolve the CANONICAL person for each sheet email, in priority order:
+  //   1) the employee their LOGIN points at (User.email == sheet email, with an
+  //      employeeId) — the real person whose profile is opened in the app,
+  //   2) an ACTIVE employee whose own work email matches,
+  //   3) an ACTIVE employee whose exact name matches.
+  // Active records always win over inactive duplicates (e.g. a stray "April").
+  const loginByEmail = new Map<string, string>();
+  for (const u of users) if (u.email && u.employeeId) loginByEmail.set(u.email.trim().toLowerCase(), u.employeeId);
+
+  const empByEmail = new Map<string, string>();
+  const empByName = new Map<string, string>();
+  const isActive = new Map(employees.map((e) => [e.id, e.status === "active"]));
+  const prefer = (map: Map<string, string>, key: string, id: string) => {
+    const cur = map.get(key);
+    if (!cur || (!isActive.get(cur) && isActive.get(id))) map.set(key, id);
+  };
   for (const e of employees) {
-    if (e.email) byEmpEmail.set(e.email.trim().toLowerCase(), e.id);
-    byName.set(e.name.trim().toLowerCase(), e.id);
+    if (e.email) prefer(empByEmail, e.email.trim().toLowerCase(), e.id);
+    prefer(empByName, e.name.trim().toLowerCase(), e.id);
   }
-  const byUserEmail = new Map<string, string>();
-  for (const u of users) if (u.email && u.employeeId) byUserEmail.set(u.email.trim().toLowerCase(), u.employeeId);
 
   let matched = 0;
+  let failed = 0;
   const unmatched: string[] = [];
   for (const r of file.roles) {
     const emailKey = r.email.trim().toLowerCase();
-    const id = byEmpEmail.get(emailKey) ?? byUserEmail.get(emailKey) ?? byName.get(r.name.trim().toLowerCase());
+    const id = loginByEmail.get(emailKey) ?? empByEmail.get(emailKey) ?? empByName.get(r.name.trim().toLowerCase());
     if (!id) {
       unmatched.push(`${r.name} <${r.email}>`);
       continue;
     }
-    await prisma.employee.update({
-      where: { id },
-      data: {
-        roleResponsibilities: r.roleResponsibilities,
-        contactReasons: r.contactReasons,
-        contactGuidance: r.contactGuidance,
-      },
-    });
-    matched++;
+    try {
+      await prisma.employee.update({
+        where: { id },
+        data: {
+          roleResponsibilities: r.roleResponsibilities,
+          contactReasons: r.contactReasons,
+          contactGuidance: r.contactGuidance,
+        },
+      });
+      matched++;
+    } catch (e) {
+      failed++;
+      unmatched.push(`${r.name} (update failed: ${(e as Error).message})`);
+    }
   }
 
-  await prisma.setting.upsert({
-    where: { key: VERSION_KEY },
-    create: { key: VERSION_KEY, value: version },
-    update: { value: version },
-  });
+  // Record the version once every matched row applied cleanly (a sheet person who
+  // simply isn't in the system yet doesn't block it). A real update failure leaves
+  // the version unset so the next deploy retries instead of locking out.
+  if (failed === 0) {
+    await prisma.setting.upsert({
+      where: { key: VERSION_KEY },
+      create: { key: VERSION_KEY, value: version },
+      update: { value: version },
+    });
+  }
 
-  return { skipped: false, version, total: file.roles.length, matched, unmatched };
+  return { skipped: false, version, total: file.roles.length, matched, failed, unmatched };
 }
 
 // Allow running standalone: `tsx prisma/seed-corporate-roles.ts`

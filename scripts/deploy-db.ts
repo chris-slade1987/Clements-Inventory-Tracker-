@@ -444,7 +444,9 @@ async function main() {
     // branch manager (or the company top) so nobody renders as a stray root.
     // Fill-if-null only; runs last among the org steps. Idempotent; non-fatal.
     try {
-      const { attachRemainingReports } = await import("../prisma/seed-org-chart");
+      const { seedLeadershipRoots, attachRemainingReports } = await import("../prisma/seed-org-chart");
+      const lr = await seedLeadershipRoots(prisma);
+      console.log(`deploy-db: org chart — pinned ${lr.roots} company root(s) to the top (cleared ${lr.cleared}).`);
       const ar = await attachRemainingReports(prisma);
       console.log(`deploy-db: org chart — repaired ${ar.repaired} dangling line(s), attached ${ar.linked} remaining report(s) to a manager.`);
     } catch (e) {
@@ -676,7 +678,7 @@ async function main() {
       if (cr.skipped) {
         console.log(`deploy-db: corporate roles — already at v${cr.version}, skipped.`);
       } else {
-        console.log(`deploy-db: corporate roles — v${cr.version}, matched ${cr.matched}/${cr.total}${cr.unmatched.length ? `, unmatched: ${cr.unmatched.join("; ")}` : ""}.`);
+        console.log(`deploy-db: corporate roles — v${cr.version}, matched ${cr.matched}/${cr.total}, failed ${cr.failed ?? 0}${cr.unmatched.length ? `, unmatched: ${cr.unmatched.join("; ")}` : ""}.`);
       }
     });
 

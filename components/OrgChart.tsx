@@ -68,6 +68,9 @@ export type OrgChartProps = {
   /** True for super admins (Chris / Julie / April) — unlocks "Edit structure"
    *  mode to move people to a new supervisor (updates their profile + team). */
   canReassign?: boolean;
+  /** Employee ids that sit at the very top of the company (CEO / President) — they
+   *  legitimately have no supervisor, so they're never flagged "No supervisor". */
+  topLevelIds?: string[];
 };
 
 // ---- Small helpers ---------------------------------------------------------
@@ -172,6 +175,7 @@ export default function OrgChart({
   editBranch = null, // eslint-disable-line @typescript-eslint/no-unused-vars
   profileBase = null,
   canReassign = false,
+  topLevelIds = [],
 }: OrgChartProps) {
   const router = useRouter();
   // Structure-edit mode (super admins only) + the person currently being moved.
@@ -309,9 +313,13 @@ export default function OrgChart({
       return out;
     };
     for (const t of tiles) descend(t.id);
-    const noSupervisorIds = new Set(tiles.filter((t) => !t.reportsToId || !ids.has(t.reportsToId)).map((t) => t.id));
+    // The CEO / President sit at the top with no supervisor by design — never flag them.
+    const topSet = new Set(topLevelIds);
+    const noSupervisorIds = new Set(
+      tiles.filter((t) => !topSet.has(t.id) && (!t.reportsToId || !ids.has(t.reportsToId))).map((t) => t.id),
+    );
     return { nameById, descById, noSupervisorIds };
-  }, [tiles]);
+  }, [tiles, topLevelIds]);
 
   const visibleRoots = branchOnly ? pruneBranch(roots, branch) : roots;
   const visibleCount = branchOnly ? countPeople(visibleRoots) : totalPeople;
