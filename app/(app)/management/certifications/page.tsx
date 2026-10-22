@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, isBoardObserver, homePath } from "@/lib/auth";
-import { listCertifications, programSummary, canViewCertifications } from "@/lib/certifications";
+import { listCertifications, listCourseLibrary, programSummary, canViewCertifications } from "@/lib/certifications";
 import TrainingCenterTabs from "@/components/TrainingCenterTabs";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,9 @@ export default async function CertificationsIndexPage() {
     redirect(isBoardObserver(user) ? "/management/board" : homePath(user));
   }
 
-  const [certs, summary] = await Promise.all([listCertifications(), programSummary()]);
+  const [certs, summary, library] = await Promise.all([listCertifications(), programSummary(), listCourseLibrary()]);
+  const withContent = library.map((c) => ({ ...c, courses: c.courses.filter((m) => m.contentUrl) })).filter((c) => c.courses.length > 0);
+  const totalBuilt = withContent.reduce((s, c) => s + c.courses.length, 0);
 
   return (
     <>
@@ -50,6 +52,37 @@ export default async function CertificationsIndexPage() {
         </div>
       </Card>
 
+      {/* Built course library — every course with a hosted page, openable here. */}
+      {totalBuilt > 0 ? (
+        <section className="mb-6">
+          <h2 className="mb-2 text-sm font-semibold text-ink">Course library · {totalBuilt} built course{totalBuilt === 1 ? "" : "s"} ready to open</h2>
+          <div className="space-y-4">
+            {withContent.map((c) => (
+              <Card key={c.code} className="p-0 overflow-hidden">
+                <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
+                  <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[11px] font-semibold text-brand-700">{c.code}</span>
+                  <span className="text-sm font-medium text-ink">{c.name}</span>
+                  <span className="ml-auto text-[11px] text-muted">{c.courses.length} course{c.courses.length === 1 ? "" : "s"}</span>
+                </div>
+                <ul className="divide-y divide-line">
+                  {c.courses.map((m) => (
+                    <li key={m.code} className="flex items-center gap-3 px-4 py-2.5">
+                      <span className="rounded bg-black/[0.05] px-1.5 py-0.5 text-[11px] font-semibold text-ink">{m.code}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-ink">{m.name}</span>
+                      <a href={m.contentUrl!} target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-emerald-grad px-3 py-1.5 text-[11px] font-semibold text-white hover:brightness-95">
+                        Open
+                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" /></svg>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <h2 className="mb-2 text-sm font-semibold text-ink">All certification groups</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {certs.map((c) => (
           <Link key={c.code} href={`/management/certifications/${c.code}`} className="block">

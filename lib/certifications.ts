@@ -61,6 +61,29 @@ export async function listCertifications(): Promise<CertListItem[]> {
   }));
 }
 
+// A full course library: every certification group with its ordered courses and
+// their launch URLs, so the Certifications tab can show (and open) all courses
+// without drilling into each group.
+export type CourseLibraryItem = {
+  code: string;
+  name: string;
+  isServiceCert: boolean;
+  courses: { code: string; name: string; courseType: string; contentStatus: string; contentUrl: string | null }[];
+};
+
+export async function listCourseLibrary(): Promise<CourseLibraryItem[]> {
+  const certs = await prisma.certification.findMany({
+    orderBy: { order: "asc" },
+    include: { courses: { orderBy: { order: "asc" }, select: { code: true, name: true, courseType: true, contentStatus: true, contentUrl: true } } },
+  });
+  return certs.map((c) => ({
+    code: c.code,
+    name: c.name,
+    isServiceCert: c.isServiceCert,
+    courses: c.courses.map((m) => ({ code: m.code, name: m.name, courseType: m.courseType, contentStatus: m.contentStatus, contentUrl: m.contentUrl })),
+  }));
+}
+
 export type ProgramSummary = {
   certifications: number;
   programs: number;
