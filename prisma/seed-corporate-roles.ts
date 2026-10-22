@@ -34,13 +34,13 @@ async function loadRoleFile(): Promise<RoleFile> {
   }
 }
 
-export async function seedCorporateRoles(prisma: PrismaClient) {
+export async function seedCorporateRoles(prisma: PrismaClient, opts?: { force?: boolean }) {
   const file = await loadRoleFile();
   const version = file.version || "0";
 
   const existing = await prisma.setting.findUnique({ where: { key: VERSION_KEY } }).catch(() => null);
-  if (existing?.value === version) {
-    return { skipped: true, version, total: file.roles.length, matched: 0, unmatched: [] as string[] };
+  if (!opts?.force && existing?.value === version) {
+    return { skipped: true, version, total: file.roles.length, matched: 0, failed: 0, unmatched: [] as string[] };
   }
 
   const [employees, users] = await Promise.all([
