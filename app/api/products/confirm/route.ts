@@ -109,8 +109,13 @@ export async function POST(req: Request) {
       const existing = await prisma.product.findUnique({ where: { id } });
       if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
       const name = clean(body?.name) ?? existing.name;
-      const unitOfMeasure = clean(body?.unitOfMeasure) ?? existing.unitOfMeasure;
-      if (!isUomCode(unitOfMeasure)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
+      // Only validate a unit of measure the caller is actually changing. Approving
+      // in place (e.g. from the flat Approve/Reject list, which sends no UOM) must
+      // NOT be blocked by a legacy/non-canonical unit already on the record — keep
+      // it as-is so the product can move onto the catalog.
+      const providedUom = clean(body?.unitOfMeasure);
+      if (providedUom && !isUomCode(providedUom)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
+      const unitOfMeasure = providedUom ?? existing.unitOfMeasure;
       const { division, subdivision } = normalizeClassification(body?.division, body?.subdivision);
       const notes = clean((existing.notes ?? "").replace(/Flagged for review by catalog cleanup[^.]*\.\s*/i, "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
       await prisma.product.update({
