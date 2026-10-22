@@ -48,9 +48,25 @@ export type OrgTile = {
   roleResponsibilities: string | null;
   contactReasons: string | null;
   contactGuidance: string | null;
+  accessLevel: string | null;
   latestNotes: OrgTileNote[];
 };
 export type OrgTreeNode = OrgTile & { reports: OrgTreeNode[] };
+
+// Tile color coding by access level (matches the legacy Structure & access view).
+const LEVEL_STYLE: Record<string, { border: string; bg: string; chip: string; label: string }> = {
+  super_admin: { border: "#059669", bg: "#ecfdf5", chip: "bg-emerald-100 text-emerald-800", label: "Super Admin" },
+  admin: { border: "#0284c7", bg: "#eff6ff", chip: "bg-sky-100 text-sky-800", label: "Admin" },
+  manager: { border: "#d97706", bg: "#fffbeb", chip: "bg-amber-100 text-amber-800", label: "Manager" },
+  sales_director: { border: "#4f46e5", bg: "#eef2ff", chip: "bg-indigo-100 text-indigo-800", label: "Sales Director" },
+  csr: { border: "#7c3aed", bg: "#f5f3ff", chip: "bg-violet-100 text-violet-800", label: "CSR" },
+  sales: { border: "#db2777", bg: "#fdf2f8", chip: "bg-pink-100 text-pink-800", label: "Service Advisor" },
+  technician: { border: "#94a3b8", bg: "#f8fafc", chip: "bg-slate-100 text-slate-700", label: "Technician" },
+};
+const NO_LEVEL = { border: "#cbd5e1", bg: "#ffffff", chip: "bg-black/5 text-muted", label: "No login" };
+const styleForLevel = (lvl: string | null) => (lvl && LEVEL_STYLE[lvl]) || NO_LEVEL;
+// Legend order (only levels actually present are shown).
+const LEVEL_ORDER = ["super_admin", "admin", "manager", "sales_director", "csr", "sales", "technician"];
 
 type Tag = { key: string; label: string };
 
@@ -109,6 +125,7 @@ const ICON = {
   help: "M12 17h.01M12 14a2 2 0 00.4-3.96A2.5 2.5 0 109.6 8.5M12 21a9 9 0 110-18 9 9 0 010 18z",
   role: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0",
   move: "M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20",
+  palette: "M12 3a9 9 0 100 18h1.5a2.5 2.5 0 002.5-2.5 2 2 0 012-2H20a2 2 0 002-2 7 7 0 00-7-7zM7.5 11a1 1 0 110-2 1 1 0 010 2zm3-4a1 1 0 110-2 1 1 0 010 2zm5 0a1 1 0 110-2 1 1 0 010 2z",
   warn: "M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
   close: "M18 6 6 18M6 6l12 12",
 };
@@ -181,6 +198,8 @@ export default function OrgChart({
   // Structure-edit mode (super admins only) + the person currently being moved.
   const [editStructure, setEditStructure] = useState(false);
   const [moveFor, setMoveFor] = useState<OrgTile | null>(null);
+  // Color the tiles by access level (on by default — the directory reads at a glance).
+  const [colorByLevel, setColorByLevel] = useState(true);
 
   // Live tile state so an edit reflects everywhere (tree + search) instantly.
   const [tilesById, setTilesById] = useState<Map<string, OrgTile>>(() => new Map(tiles.map((t) => [t.id, t])));
@@ -325,6 +344,8 @@ export default function OrgChart({
   const visibleCount = branchOnly ? countPeople(visibleRoots) : totalPeople;
   const branchLabel = branchOnly ? branches.find((b) => b.key === branch)?.label ?? null : null;
   const unassignedCount = noSupervisorIds.size;
+  const presentLevels = LEVEL_ORDER.filter((l) => tiles.some((t) => t.accessLevel === l));
+  const hasNoLogin = tiles.some((t) => !t.accessLevel);
 
   const cardProps = (t: OrgTile) => ({
     tile: liveTile(t),
@@ -340,6 +361,7 @@ export default function OrgChart({
     },
     serviceTags,
     profileBase,
+    colored: colorByLevel,
     // Structure-edit affordances (super admins only, when edit mode is on).
     reassignable: canReassign && editStructure,
     needsSupervisor: noSupervisorIds.has(t.id),
@@ -403,6 +425,14 @@ export default function OrgChart({
             {branchLabel ? `${branchLabel} — ` : ""}{visibleCount} {visibleCount === 1 ? "person" : "people"} · tap <span className="font-medium">Expand</span> on a card for details, or a lead&apos;s <span className="font-medium">report</span> toggle to open their team.
           </p>
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setColorByLevel((v) => !v)}
+              aria-pressed={colorByLevel}
+              className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${colorByLevel ? "border-brand-500 bg-brand-50 text-brand-700" : "border-line bg-surface text-ink hover:border-brand-300"}`}
+            >
+              <Icon path={ICON.palette} className="h-3.5 w-3.5" /> Color by level
+            </button>
             {canReassign ? (
               <button
                 type="button"
@@ -420,6 +450,25 @@ export default function OrgChart({
               <Icon path={ICON.collapse} className="h-3.5 w-3.5" /> Collapse all teams
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {/* Access-level legend (when coloring is on) */}
+      {!textSearch && colorByLevel && (presentLevels.length > 0 || hasNoLogin) ? (
+        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
+          <span className="font-medium text-ink">Access level:</span>
+          {presentLevels.map((l) => (
+            <span key={l} className="inline-flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: LEVEL_STYLE[l].border }} aria-hidden="true" />
+              {LEVEL_STYLE[l].label}
+            </span>
+          ))}
+          {hasNoLogin ? (
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: NO_LEVEL.border }} aria-hidden="true" />
+              {NO_LEVEL.label}
+            </span>
+          ) : null}
         </div>
       ) : null}
 
@@ -689,6 +738,7 @@ function TileCard({
   onSaved,
   serviceTags,
   profileBase,
+  colored = false,
   reassignable = false,
   needsSupervisor = false,
   managerName = null,
@@ -705,12 +755,14 @@ function TileCard({
   onSaved: (t: OrgTile) => void;
   serviceTags: Tag[];
   profileBase: string | null;
+  colored?: boolean;
   reassignable?: boolean;
   needsSupervisor?: boolean;
   managerName?: string | null;
   onReassign?: () => void;
   footer?: ReactNode;
 }) {
+  const lvl = styleForLevel(tile.accessLevel);
   const profileHref = profileBase ? `${profileBase}/${tile.id}` : null;
   const latest = tile.latestNotes[0];
   const sched = tile.serviceSchedulingNote || tile.personalSchedulingNote;
@@ -730,7 +782,10 @@ function TileCard({
   const isOpen = expanded || editing;
 
   return (
-    <div className={`oct-tile${isOpen ? " oct-tile-open" : ""}`}>
+    <div
+      className={`oct-tile${isOpen ? " oct-tile-open" : ""}`}
+      style={colored ? { borderColor: lvl.border, borderLeftWidth: 4, background: lvl.bg } : undefined}
+    >
       {/* Header — name with the route number right beside it */}
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -753,6 +808,9 @@ function TileCard({
           ) : null}
         </div>
         <div className="oct-sub">{[tile.title || tile.role, tile.branchLabel].filter(Boolean).join(" · ") || "—"}</div>
+        {colored ? (
+          <span className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${lvl.chip}`}>{lvl.label}</span>
+        ) : null}
         {reassignable ? (
           <div className="oct-sub mt-0.5">Reports to: <span className="font-medium text-ink">{managerName ?? "— no supervisor —"}</span></div>
         ) : null}

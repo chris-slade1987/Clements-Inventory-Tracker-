@@ -42,6 +42,7 @@ export type OrgTile = {
   roleResponsibilities: string | null; // what they do (one bullet per line)
   contactReasons: string | null; // when to go to them (one bullet per line)
   contactGuidance: string | null; // how to reach them
+  accessLevel: string | null; // the person's login access level (for color coding)
   latestNotes: OrgTileNote[]; // latest 1–2 employee notes for the tile
 };
 
@@ -72,6 +73,7 @@ export async function orgTileData(): Promise<OrgTile[]> {
       roleResponsibilities: true,
       contactReasons: true,
       contactGuidance: true,
+      user: { select: { accessLevel: true } },
       certAwards: {
         orderBy: { awardedAt: "desc" },
         select: { awardedAt: true, certification: { select: { code: true, name: true } } },
@@ -108,6 +110,7 @@ export async function orgTileData(): Promise<OrgTile[]> {
     roleResponsibilities: e.roleResponsibilities,
     contactReasons: e.contactReasons,
     contactGuidance: e.contactGuidance,
+    accessLevel: e.user?.accessLevel ?? null,
     latestNotes: e.employeeNotes.map((n) => ({
       id: n.id,
       authorId: n.authorId,

@@ -5,7 +5,6 @@ import { canManageAccessRights } from "@/lib/access";
 import { SERVICE_TAGS } from "@/lib/service-catalog";
 import { BRANCHES } from "@/lib/management";
 import OrgChart from "@/components/OrgChart";
-import OrgRepairButton from "./OrgRepairButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Org Chart — CanopyOS" };
@@ -24,7 +23,6 @@ export default async function CompanyOrgChartPage() {
 
   // Every non-technician staff member may edit cards.
   const canEditAll = canEditOrgCards(user);
-  const isSuperAdmin = canManageAccessRights(user);
   // The full note log + the profile link live on the HR profile, which only
   // these principals may open; everyone else sees the chart read-only.
   const canOpenProfiles =
@@ -36,7 +34,6 @@ export default async function CompanyOrgChartPage() {
         title="Org Chart"
         subtitle="Who's who across Vero Beach, Stuart, Orlando, and Naples — search by name, route number, service, or branch."
       />
-      {isSuperAdmin ? <OrgRepairButton /> : null}
       <OrgChart
         roots={roots}
         tiles={tiles}
