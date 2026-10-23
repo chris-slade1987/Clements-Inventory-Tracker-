@@ -8,6 +8,7 @@ import { canManageAccessRights, effectiveGrantsForUser } from "@/lib/access";
 import { matchPathToItem } from "@/lib/access-paths";
 import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
+import { ensureMbrLoaded } from "@/lib/mbr-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -17,6 +18,13 @@ export default async function AppGroupLayout({
   children: React.ReactNode;
 }) {
   const user = await requireUser();
+
+  // Make sure every committed monthly board report (and all its branch-scoped rows)
+  // is present in the live DB — the build-time seed doesn't reliably reach production.
+  // Hoisted here so EVERY data surface benefits, including the Branch KPIs/scorecards
+  // and branch-locked managers who can't reach the exec/board dashboards. Idempotent,
+  // non-fatal, cheap fast-path once the newest month is complete.
+  await ensureMbrLoaded();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still
