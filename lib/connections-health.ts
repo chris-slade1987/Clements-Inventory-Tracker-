@@ -4,6 +4,7 @@ import { smarterLaunchConfigured, getStoredQuota } from "@/lib/smarterlaunch";
 import { isConfigured as coastConfigured } from "@/lib/coast";
 import { isConfigured as workwaveConfigured } from "@/lib/workwave";
 import { latestSalesSnapshot } from "@/lib/sales-sync";
+import { isCalendarConfigured } from "@/lib/google-calendar";
 
 // ---------------------------------------------------------------------------
 // Data Connections health aggregator (Theme 8 — the integration spine).
@@ -287,6 +288,40 @@ async function paychexHealth(): Promise<ConnectorHealth> {
   };
 }
 
+function googleCalendarHealth(): ConnectorHealth {
+  // Google Workspace calendar sync is an ON-DEMAND API (free/busy for Suggested
+  // Times + event create/update/cancel for huddles & interviews via a service
+  // account with domain-wide delegation). There is no polling/webhook and no
+  // stored sync log, so status is derived purely from credential presence: a live
+  // service-account key means "healthy", its absence means "not configured" (and
+  // callers fall back to .ics / add-to-calendar links). We only read whether the
+  // key and optional domain env vars are PRESENT — never their values.
+  const live = isCalendarConfigured();
+  const domainSet = Boolean(process.env.GOOGLE_WORKSPACE_CUSTOMER_DOMAIN?.trim());
+  const status: ConnStatus = live ? "healthy" : "not-configured";
+
+  return {
+    key: "google-calendar",
+    name: "Google Workspace Calendar",
+    category: "Scheduling & Calendar",
+    status,
+    statusLabel: STATUS_LABEL[status],
+    mode: "On-demand API (free/busy + events)",
+    live,
+    lastSync: null,
+    lastSyncLabel: "On-demand (no sync log)",
+    detail: live
+      ? "Service account connected. Powers Suggested Times (free/busy) and live Google Calendar invites for huddles & interviews."
+      : "Not connected — Suggested Times and live invites fall back to .ics add-to-calendar links. Add the service-account key (domain-wide delegation) to enable: see docs or Settings.",
+    facts: [
+      { label: "Live credential", value: live ? "Yes — service account present" : "No" },
+      { label: "Impersonation domain restricted", value: domainSet ? "Yes" : "No" },
+      { label: "Scopes", value: "calendar.events, calendar.freebusy" },
+    ],
+    envKeys: ["GOOGLE_WORKSPACE_SA_JSON", "GOOGLE_WORKSPACE_SA_JSON_BASE64", "GOOGLE_WORKSPACE_CUSTOMER_DOMAIN"],
+  };
+}
+
 /**
  * The full read-only health board. Each builder is independent and swallows its
  * own query errors, so one connector's bad read never blanks the whole page.
@@ -298,6 +333,7 @@ export async function getConnectionsHealth(): Promise<ConnectorHealth[]> {
     coastHealth(),
     pestpacHealth(),
     paychexHealth(),
+    Promise.resolve(googleCalendarHealth()),
   ]);
 }
 
