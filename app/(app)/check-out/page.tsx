@@ -36,13 +36,18 @@ export default async function CheckOutPage({
     prisma.stockMovement.findMany({ where: { type: "adjustment" }, select: { productId: true, warehouseId: true, reason: true } }),
   ]);
 
-  // Default branch: a branch-locked manager is pinned to their own warehouse; an
-  // admin may pass ?branch=<warehouseId>, else their home, else the first one.
-  const lockedWarehouseId = user.warehouseId ?? "";
+  // Default branch: the user's own warehouse, else their BRANCH's warehouse (matched
+  // by name — Warehouse has no branch column — so the Vero manager lands on Vero
+  // Beach, not Naples/first-alphabetical), else the first warehouse. A requested
+  // ?branch=<warehouseId> wins for anyone. Managers can toggle (branchLocked=false).
+  const branchKey = (user.branch ?? "").trim().toLowerCase();
+  const homeWarehouseId =
+    user.warehouseId ||
+    (branchKey ? warehouses.find((w) => w.name.toLowerCase().includes(branchKey))?.id : undefined) ||
+    "";
   const requested = (sp.branch ?? "").trim();
-  const defaultWarehouseId = isAdmin
-    ? (warehouses.find((w) => w.id === requested)?.id ?? lockedWarehouseId ?? warehouses[0]?.id ?? "")
-    : (lockedWarehouseId || warehouses[0]?.id || "");
+  const defaultWarehouseId =
+    warehouses.find((w) => w.id === requested)?.id || homeWarehouseId || warehouses[0]?.id || "";
 
   // on-hand matrix → plain object.
   const onHand: Record<string, Record<string, number>> = {};
@@ -66,7 +71,7 @@ export default async function CheckOutPage({
       />
       <InventorySubnav isAdmin={isAdmin} />
       <ScanCheckoutClient
-        branchLocked={!isAdmin}
+        branchLocked={false}
         defaultWarehouseId={defaultWarehouseId}
         warehouses={warehouses.map((w) => ({ id: w.id, name: w.name }))}
         technicians={technicians.map((t) => ({ id: t.id, name: t.name, homeWarehouseId: t.homeWarehouseId }))}
