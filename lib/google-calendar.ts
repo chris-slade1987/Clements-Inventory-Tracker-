@@ -86,6 +86,57 @@ function serviceAccount(): ServiceAccountKey | null {
   return _saCache;
 }
 
+/** Rebuild a canonical PEM from a private key however its newlines arrived —
+ *  escaped `\n`, real CR/LF, or stripped entirely — so a mangled paste still works. */
+function normalizePrivateKey(k: string): string {
+  const body = k
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .trim();
+  // Keep exactly one trailing newline (the canonical PEM form, unchanged from the
+  // prior behavior for a correctly-set key).
+  return body ? `${body}\n` : body;
+}
+
+/** Strict parse: the value is well-formed JSON (a correct paste, or decoded base64). */
+function parseStrict(raw: string): ServiceAccountKey | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<ServiceAccountKey>;
+    const client_email = typeof parsed.client_email === "string" ? parsed.client_email.trim() : "";
+    const private_key =
+      typeof parsed.private_key === "string" ? normalizePrivateKey(parsed.private_key) : "";
+    if (!client_email || !private_key.includes("PRIVATE KEY")) return null;
+    return { client_email, private_key };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Lenient recovery for the classic broken paste: when the private key's `\n`
+ * escapes were turned into REAL line breaks, the value is no longer valid JSON and
+ * parseStrict throws. We pull `client_email` (a single safe line) and the PEM block
+ * out by regex — tolerating real newlines, escaped `\n`, or none between the BEGIN/END
+ * markers — then rebuild a canonical 64-column PEM. This also survives a value that a
+ * secret store wrapped in extra quotes, since we scan the raw text directly.
+ */
+function parseLenient(raw: string): ServiceAccountKey | null {
+  const emailMatch = raw.match(/"client_email"\s*:\s*"([^"\s]+@[^"\s]+)"/);
+  const pemMatch = raw.match(
+    /(-----BEGIN [A-Z ]*PRIVATE KEY-----)([\s\S]*?)(-----END [A-Z ]*PRIVATE KEY-----)/,
+  );
+  if (!emailMatch || !pemMatch) return null;
+  // The base64 body: drop escaped `\n`, real whitespace, and stray quotes/commas, then
+  // re-wrap at 64 chars into a proper PEM.
+  const body = pemMatch[2].replace(/\\n/g, "").replace(/[\s"',]/g, "").trim();
+  if (!body) return null;
+  const wrapped = body.match(/.{1,64}/g)?.join("\n") ?? body;
+  const private_key = `${pemMatch[1]}\n${wrapped}\n${pemMatch[3]}\n`;
+  return { client_email: emailMatch[1].trim(), private_key };
+}
+
 function loadServiceAccount(): ServiceAccountKey | null {
   let raw = process.env.GOOGLE_WORKSPACE_SA_JSON?.trim();
   if (!raw) {
@@ -99,17 +150,9 @@ function loadServiceAccount(): ServiceAccountKey | null {
     }
   }
   if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as Partial<ServiceAccountKey>;
-    const client_email = typeof parsed.client_email === "string" ? parsed.client_email : "";
-    // Secret stores often escape newlines; normalize `\n` back to real newlines.
-    const private_key =
-      typeof parsed.private_key === "string" ? parsed.private_key.replace(/\\n/g, "\n") : "";
-    if (!client_email || !private_key) return null;
-    return { client_email, private_key };
-  } catch {
-    return null;
-  }
+  // Strict first (correct paste / base64); fall back to lenient recovery of a
+  // newline-mangled or quote-wrapped paste so a near-miss value still connects.
+  return parseStrict(raw) ?? parseLenient(raw);
 }
 
 /** True when a usable service-account key is present in the environment. */
