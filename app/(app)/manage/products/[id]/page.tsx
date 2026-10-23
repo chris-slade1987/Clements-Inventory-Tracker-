@@ -1,23 +1,27 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
-import { requireAdmin } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
 import { money, qty, dateShort } from "@/lib/format";
+import ProductPhotos from "./ProductPhotos";
 
 export const dynamic = "force-dynamic";
 
 const MOVE_LABEL: Record<string, string> = { check_in: "Check-in", check_out: "Check-out", adjustment: "Adjustment" };
 
 export default async function ProductProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  // Super-admin-only: the product profile/Edit window manages catalog data + photos.
+  const user = await requireUser();
+  if (!isSuperAdmin(user)) redirect("/dashboard");
   const { id } = await params;
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) notFound();
 
-  const [warehouses, grouped, movements, labelPhoto] = await Promise.all([
+  const [warehouses, grouped, movements, photos] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.stockMovement.groupBy({ by: ["warehouseId"], where: { productId: id }, _sum: { quantity: true } }),
     prisma.stockMovement.findMany({
@@ -26,8 +30,9 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
       take: 25,
       include: { warehouse: { select: { name: true } }, technician: { select: { name: true } } },
     }),
-    prisma.productPhoto.findFirst({ where: { productId: id, status: "assigned" }, orderBy: [{ primary: "desc" }, { assignedAt: "desc" }] }),
+    prisma.productPhoto.findMany({ where: { productId: id, status: "assigned" }, orderBy: [{ primary: "desc" }, { assignedAt: "desc" }] }),
   ]);
+  const labelPhoto = photos[0] ?? null;
   const onHandByWh = new Map(grouped.map((g) => [g.warehouseId, g._sum.quantity ?? 0]));
   const totalOnHand = [...onHandByWh.values()].reduce((s, v) => s + v, 0);
   const unit = uomLabel(product.unitOfMeasure);
@@ -116,6 +121,12 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
           )}
         </div>
       </Card>
+
+      {/* Reference photos — super-admin photo management (feeds check-out identify). */}
+      <ProductPhotos
+        productId={product.id}
+        photos={photos.map((p) => ({ id: p.id, photoUrl: p.photoUrl, kind: p.kind, primary: p.primary }))}
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Product facts */}

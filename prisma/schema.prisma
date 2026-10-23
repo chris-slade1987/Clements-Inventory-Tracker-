@@ -297,6 +297,13 @@ model ProductRequest {
   distributorSku    String?   @map("distributor_sku")
   reason            String?
   photoUrl          String?   @map("photo_url")
+  // AI-filled catalog fields captured when the manager requests the product, so a
+  // super admin can review/correct them in the approval form. `onHandQty` is how
+  // many the requester has on hand at their branch RIGHT NOW — posted as an
+  // `adjustment` movement at approval (never written to on-hand directly).
+  unitOfMeasure     String?   @map("unit_of_measure") // canonical UoM code (lib/uom.ts)
+  division          String?
+  onHandQty         Int?      @map("on_hand_qty")
   warehouseId       String?   @map("warehouse_id")
   branch            String?
   requestedByUserId String    @map("requested_by_user_id")
@@ -307,6 +314,8 @@ model ProductRequest {
   decisionNote      String?   @map("decision_note")
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  photos ProductPhoto[]
 
   @@index([status])
   @@map("product_requests")
@@ -322,9 +331,12 @@ model ProductRequest {
 model ProductPhoto {
   id                   String    @id @default(cuid())
   productId            String?   @map("product_id") // null while unassigned / discarded
+  // Set when this photo belongs to a pending ProductRequest (manager "Request new
+  // product" flow). On approval the photo gets productId + status assigned.
+  productRequestId     String?   @map("product_request_id")
   photoUrl             String    @map("photo_url")
   status               String    @default("unassigned") // "unassigned" | "assigned" | "discarded"
-  kind                 String    @default("label") // "label" | "barcode" | "other"
+  kind                 String    @default("label") // "product" | "label" | "barcode" | "other"
   primary              Boolean   @default(false) // the product's canonical label photo
   aiSuggestedProductId String?   @map("ai_suggested_product_id")
   aiConfidence         Float?    @map("ai_confidence")
@@ -339,9 +351,11 @@ model ProductPhoto {
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @updatedAt @map("updated_at")
 
-  product Product? @relation(fields: [productId], references: [id])
+  product        Product?        @relation(fields: [productId], references: [id])
+  productRequest ProductRequest? @relation(fields: [productRequestId], references: [id])
 
   @@index([productId])
+  @@index([productRequestId])
   @@index([status])
   @@map("product_photos")
 }

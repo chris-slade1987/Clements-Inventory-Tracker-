@@ -18,6 +18,20 @@ export type CatalogEntry = {
   unit: string; // canonical UoM code
 };
 
+// A stored reference photo of a catalog product, passed into identify so the AI
+// can compare the submitted shelf photo against real pictures of each product
+// (not just its name/SKU text). Kept small + capped by the caller.
+export type ReferenceImage = {
+  productId: string;
+  kind: string; // "product" | "label" | "barcode" | "other"
+  base64: string;
+  mime: string;
+};
+
+// How many reference images we allow into a single identify call. Vision payloads
+// grow fast, so we cap the total; products past the cap still get text matching.
+export const REFERENCE_IMAGE_CAP = 12;
+
 export type IdentifyCandidate = {
   productId: string;
   confidence: number; // 0..1
@@ -97,20 +111,22 @@ function parseJson(text: string): Record<string, unknown> | null {
   }
 }
 
-function systemPrompt(catalog: CatalogEntry[]): string {
+function systemPrompt(catalog: CatalogEntry[], hasReferences: boolean): string {
   const list = catalog
     .map((c) => `- ${c.id}: ${c.name}${c.distributorSku ? ` (SKU ${c.distributorSku})` : ""} [${uomLabel(c.unit)}]`)
     .join("\n");
-  return `You identify a pest-control product from a photo so a warehouse manager can check it out to a technician. You are given a photo of ONE product (a chemical jug/bottle/bag/can/box or a device) and the branch's active catalog. Decide which catalog product the photo most likely shows.
+  return `You identify a pest-control product from a photo so a warehouse manager can check it out to a technician. The FIRST image is the photo to identify (one product: a chemical jug/bottle/bag/can/box or a device). You are also given the branch's active catalog. Decide which catalog product the first photo most likely shows.
 
 Active catalog (id: name (SKU) [unit]):
 ${list}
-
+${hasReferences ? `
+Reference photos: after the first image, you are given stored REFERENCE photos of specific catalog products. Each reference is introduced by a line like "REFERENCE productId=<id> kind=<product|label|barcode>". Compare the first photo against these reference photos — a strong visual match (same bottle shape, label artwork, color, barcode) is the most reliable signal and should raise confidence well above a name-only guess. Products with no reference photo must still be matched on their name/SKU text alone.
+` : ""}
 Rules:
 - Only choose from the catalog ids above. NEVER invent an id.
-- Return the TOP 3 most likely matches, best first, each with a confidence 0..1 and a short reason (what on the label drove the match: brand, active ingredient, size).
+- Return the TOP 3 most likely matches, best first, each with a confidence 0..1 and a short reason (what drove the match: ${hasReferences ? "reference-photo match, " : ""}brand, active ingredient, size).
 - If nothing in the catalog plausibly matches, return an empty "candidates" array.
-- Also return any readable product/label text you can see ("labelText"), to help the manager search by hand.
+- Also return any readable product/label text you can see on the FIRST photo ("labelText"), to help the manager search by hand.
 
 Respond with ONLY a JSON object, no prose or code fences:
 {
@@ -128,10 +144,12 @@ export async function identifyProduct(
   base64: string,
   mime: string,
   catalog: CatalogEntry[],
+  references: ReferenceImage[] = [],
 ): Promise<IdentifyResult> {
   const started = Date.now();
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const byId = new Map(catalog.map((c) => [c.id, c]));
+  const refs = references.filter((r) => r.base64 && byId.has(r.productId)).slice(0, REFERENCE_IMAGE_CAP);
 
   if (!apiKey) {
     const res: IdentifyResult = {
@@ -159,13 +177,18 @@ export async function identifyProduct(
       body: JSON.stringify({
         model,
         max_tokens: 800,
-        system: systemPrompt(catalog),
+        system: systemPrompt(catalog, refs.length > 0),
         messages: [
           {
             role: "user",
             content: [
+              { type: "text", text: "Photo to identify:" },
               { type: "image", source: { type: "base64", media_type: mime || "image/jpeg", data: base64 } },
-              { type: "text", text: "Identify this product from the catalog above." },
+              ...refs.flatMap((r) => [
+                { type: "text" as const, text: `REFERENCE productId=${r.productId} kind=${r.kind}` },
+                { type: "image" as const, source: { type: "base64" as const, media_type: r.mime || "image/jpeg", data: r.base64 } },
+              ]),
+              { type: "text", text: "Identify the first photo against the catalog above." },
             ],
           },
         ],
@@ -243,4 +266,116 @@ export async function identifyProduct(
         : "Identification failed — search the catalog instead.",
     };
   }
+}
+
+/** The allowed photo kinds for a product reference photo. */
+export const PHOTO_KINDS = ["product", "label", "barcode", "other"] as const;
+export type PhotoKind = (typeof PHOTO_KINDS)[number];
+
+/** Shared one-shot Claude vision JSON call. Returns parsed JSON or null on any
+ *  failure (no key, timeout, error, unparseable) so callers degrade gracefully. */
+async function visionJson(
+  base64s: { base64: string; mime: string }[],
+  system: string,
+  userText: string,
+  maxTokens = 500,
+): Promise<Record<string, unknown> | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || base64s.length === 0) return null;
+  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), IDENTIFY_TIMEOUT_MS);
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        system,
+        messages: [
+          {
+            role: "user",
+            content: [
+              ...base64s.map((b) => ({ type: "image" as const, source: { type: "base64" as const, media_type: b.mime || "image/jpeg", data: b.base64 } })),
+              { type: "text" as const, text: userText },
+            ],
+          },
+        ],
+      }),
+    });
+    clearTimeout(timer);
+    if (!r.ok) return null;
+    const data = (await r.json()) as { content?: { text?: string }[] };
+    const text = data.content?.map((c) => c.text ?? "").join("") ?? "";
+    return parseJson(text);
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+/**
+ * Auto-classify a single product photo as product | label | barcode, and read any
+ * label text. Degrades to { kind: "other", labelText: null } with no key / on
+ * failure so the uploader can pick the kind by hand.
+ */
+export async function classifyPhoto(base64: string, mime: string): Promise<{ kind: PhotoKind; labelText: string | null; ai: boolean }> {
+  const raw = await visionJson(
+    [{ base64, mime }],
+    `You classify ONE photo of a pest-control product for a warehouse catalog. Decide what the photo primarily shows:
+- "product": the whole product (jug/bottle/bag/can/box/device).
+- "label": a close-up of the product's printed label / front panel.
+- "barcode": a close-up of a barcode / UPC.
+- "other": anything else or unclear.
+Also return any readable product/label text ("labelText").
+Respond with ONLY JSON: { "kind": "product"|"label"|"barcode"|"other", "labelText": string | null }`,
+    "Classify this photo.",
+    300,
+  );
+  if (!raw) return { kind: "other", labelText: null, ai: false };
+  const k = String(raw.kind ?? "").trim().toLowerCase();
+  const kind = (PHOTO_KINDS as readonly string[]).includes(k) ? (k as PhotoKind) : "other";
+  const labelText = raw.labelText != null ? String(raw.labelText).trim() || null : null;
+  return { kind, labelText, ai: true };
+}
+
+export type ProductAutofill = {
+  name: string | null;
+  description: string | null;
+  manufacturer: string | null;
+  distributorSku: string | null;
+  unitOfMeasure: string | null; // free-text UoM hint; caller maps to a canonical code
+  division: string | null; // GHP | LO | TERMITE | RODENT | OTHER hint
+  ai: boolean;
+};
+
+/**
+ * Read one or more photos of a NOT-yet-cataloged product and pre-fill the fields
+ * a manager would otherwise type by hand (name, description, manufacturer, SKU,
+ * unit, line-of-service). Everything is a suggestion the reviewer can correct.
+ * Degrades to all-null (ai:false) with no key / on failure.
+ */
+export async function autofillProduct(images: { base64: string; mime: string }[]): Promise<ProductAutofill> {
+  const empty: ProductAutofill = { name: null, description: null, manufacturer: null, distributorSku: null, unitOfMeasure: null, division: null, ai: false };
+  const raw = await visionJson(
+    images.slice(0, 3),
+    `You read photos of a single pest-control product (chemical or device) that a warehouse manager wants added to the catalog. From the label/packaging, extract what you can. Guess conservatively — use null when unsure. Division is the line of service: "GHP" (general/household pest), "LO" (lawn & ornamental / fertilizer), "TERMITE", "RODENT", or "OTHER".
+Respond with ONLY JSON:
+{ "name": string|null, "description": string|null, "manufacturer": string|null, "distributorSku": string|null, "unitOfMeasure": string|null, "division": "GHP"|"LO"|"TERMITE"|"RODENT"|"OTHER"|null }`,
+    "Read this product and fill the fields.",
+    600,
+  );
+  if (!raw) return empty;
+  const str = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
+  return {
+    name: str(raw.name),
+    description: str(raw.description),
+    manufacturer: str(raw.manufacturer),
+    distributorSku: str(raw.distributorSku),
+    unitOfMeasure: str(raw.unitOfMeasure),
+    division: str(raw.division),
+    ai: true,
+  };
 }

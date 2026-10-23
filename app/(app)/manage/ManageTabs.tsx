@@ -28,10 +28,10 @@ export default function ManageTabs({
   toRequests?: number;
 }) {
   const pathname = usePathname();
-  // Admins get every catalog tab; HR-only users see just the confirm queue. The
-  // Requests tab (new-product approvals) is super-admin-only.
-  const tabs = (isAdmin ? CATALOG_TABS : CATALOG_TABS.filter((t) => t.href === "/manage/confirm"))
-    .filter((t) => t.href !== "/manage/product-requests" || superAdmin);
+  // Catalog tabs (Products, Stock Import, Catalog Review, Requests) are all
+  // super-admin-only now. Team-scoped admins see no catalog tabs — only the
+  // Technicians + Users & Access settings links below.
+  const tabs = superAdmin ? CATALOG_TABS : [];
   return (
     <div className="mb-4 flex items-center gap-1 border-b border-line overflow-x-auto">
       {tabs.map((t) => {

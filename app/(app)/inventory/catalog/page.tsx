@@ -1,6 +1,7 @@
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import InventorySubnav from "@/components/InventorySubnav";
-import { requireAdmin } from "@/lib/auth";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomCode } from "@/lib/uom";
 import CatalogClient from "./CatalogClient";
@@ -8,7 +9,9 @@ import CatalogClient from "./CatalogClient";
 export const dynamic = "force-dynamic";
 
 export default async function CatalogPage() {
-  await requireAdmin();
+  // Catalog admin (barcode/field edits + CSV import) is super-admin-only.
+  const user = await requireUser();
+  if (!isSuperAdmin(user)) redirect("/dashboard");
   const products = await prisma.product.findMany({
     orderBy: [{ approved: "desc" }, { name: "asc" }],
     include: { barcodes: { orderBy: { createdAt: "asc" } } },

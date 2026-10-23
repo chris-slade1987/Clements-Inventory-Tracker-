@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { isUomCode } from "@/lib/uom";
 
 export const maxDuration = 20;
 
+// Catalog create/update/deactivate — super-admin-only (Chris, Julie, April).
 async function guard() {
   const user = await getSessionUser();
-  if (!user || user.role !== "admin") return null;
+  if (!user || !isSuperAdmin(user)) return null;
   return user;
 }
 

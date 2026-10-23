@@ -45,7 +45,15 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 36 · Last updated October 22, 2026",
+    effective: "Version 37 · Last updated October 23, 2026",
+    // v37: Catalog management is now SUPER-ADMIN-ONLY (Chris, Julie, April) — the
+    // Products catalog, Catalog Review, Stock Import, and product photos are no
+    // longer manager/admin/HR editable; everyone else uses check-out identify and
+    // the "Request new product" flow. That request flow now takes up to 3 photos
+    // (product/barcode/label) with AI autofill + an on-hand count; on approval the
+    // product is cataloged with the reviewed fields, its photos are attached, and
+    // the on-hand is posted as an adjustment. Reference photos now feed check-out
+    // identify. Re-prompts prior acknowledgers.
     // v36: Org Chart — super admins (Chris/Julie/April) get "Edit structure" to
     // move a person to a new supervisor (search → confirm pop-up → save), which
     // updates their profile's Reporting line (supervisor + team); unassigned people
@@ -167,7 +175,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 34,
+    version: 37,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

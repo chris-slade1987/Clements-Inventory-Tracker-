@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { parseCsvObjects } from "@/lib/csv";
 import { readXlsxObjects } from "@/lib/xlsx";
 import { normalizeRole, normalizeDivision, categorizeProduct, unitLabel } from "@/lib/constants";
@@ -34,6 +34,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Upload a file." }, { status: 400 });
   if (type !== "products" && type !== "technicians")
     return NextResponse.json({ error: "Unknown import type." }, { status: 400 });
+  // Bulk product import mutates the catalog → super-admin-only. The technician
+  // roster import stays open to admins (not a catalog edit).
+  if (type === "products" && !isSuperAdmin(user))
+    return NextResponse.json({ error: "Only a super admin can import products." }, { status: 403 });
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const name = (file as File).name ?? "";

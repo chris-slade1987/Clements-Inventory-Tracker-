@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
@@ -20,8 +20,9 @@ const DISCARD_MARK = "Discarded from confirm queue";
 // truth: merge duplicate look-alikes, approve/merge/discard off-catalog items, and
 // confirm auto-added products. Admin + HR only (data-quality gate).
 export default async function CatalogReviewPage() {
+  // Catalog Review (confirm / approve / merge / discard) is super-admin-only.
   const user = await requireUser();
-  if (user.role !== "admin" && !user.hrAccess) redirect("/dashboard");
+  if (!isSuperAdmin(user)) redirect("/dashboard");
 
   // One-time baseline: the curated active product list is the source of truth, so
   // accept it onto the approved catalog and clear the stale review backlog. Runs once

@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function ManageIndex() {
-  // Admins land on the product catalog; HR-only users on the confirm queue.
+  // Super admins land on the product catalog; other admins (team-scoped) land on
+  // the Technicians roster — the catalog tabs are super-admin-only.
   const user = await requireUser();
-  redirect(user.role === "admin" ? "/manage/products" : "/manage/confirm");
+  redirect(isSuperAdmin(user) ? "/manage/products" : "/manage/technicians");
 }

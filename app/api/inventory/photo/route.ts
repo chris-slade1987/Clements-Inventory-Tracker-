@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { fail } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { getSessionUser, isBoardObserver, isSuperAdmin } from "@/lib/auth";
 import { saveUpload, deleteUpload } from "@/lib/storage";
-import { identifyProduct, type CatalogEntry } from "@/lib/inventory-identify";
+import { identifyProduct, classifyPhoto, PHOTO_KINDS, type CatalogEntry, type PhotoKind } from "@/lib/inventory-identify";
 import { uomCode } from "@/lib/uom";
 
 export const runtime = "nodejs";
@@ -11,18 +11,40 @@ export const maxDuration = 20;
 
 const s = (v: unknown) => { const t = typeof v === "string" ? v.trim() : ""; return t === "" ? null : t; };
 
-// Photo Catalog (Phase 6) — HUMAN-IN-THE-LOOP label/barcode photo capture.
+// Max reference photos a single product may carry (Part 2).
+const MAX_PHOTOS_PER_PRODUCT = 3;
+
+// Strip a data: URL prefix and return raw base64, or "" if empty.
+function rawBase64(v: unknown): string {
+  let image = String(v ?? "").trim();
+  if (!image) return "";
+  const comma = image.indexOf(",");
+  if (image.startsWith("data:") && comma !== -1) image = image.slice(comma + 1);
+  return image;
+}
+
+function normKind(v: unknown): PhotoKind | null {
+  const k = s(v)?.toLowerCase() ?? "";
+  return (PHOTO_KINDS as readonly string[]).includes(k) ? (k as PhotoKind) : null;
+}
+
+// Photo Catalog (Phase 6) + product Edit-window photos (Part 2).
 //  - identify:  save the submitted photo (unassigned) + ask the AI to PROPOSE a
-//               match. Never assigns — a person decides.
-//  - assign:    attach a photo to a product (becomes that product's primary label
-//               photo). Used for both first-assign and re-assign (correction).
-//  - discard:   mark "not a product" / bad shot (keeps the row, detaches it).
-//  - delete:    remove the photo entirely (true delete — photos aren't audit records).
-//  - setPrimary: pick which of a product's photos is the canonical one.
+//               match. Never assigns — a person decides. (managers + admins)
+//  - add:       SUPER ADMIN. Save an uploaded image, AI-classify its kind, and
+//               attach it to a product (status assigned). Enforces max 3/product.
+//  - replace:   SUPER ADMIN. Delete one photo and add a new one in its place.
+//  - setKind:   SUPER ADMIN. Manual kind override (Product/Label/Barcode).
+//  - assign:    SUPER ADMIN. Attach a photo to a product (first-assign / re-assign).
+//  - discard:   SUPER ADMIN. Mark "not a product" / bad shot (detaches it).
+//  - delete:    SUPER ADMIN. Remove the photo entirely (a true delete).
+//  - setPrimary: SUPER ADMIN. Pick which of a product's photos is canonical.
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isBoardObserver(user)) return NextResponse.json({ error: "Read-only access." }, { status: 403 });
+  // Capture (identify) stays open to managers/admins; every catalog-edit action
+  // below is additionally gated to super admins.
   if (user.role !== "admin" && user.role !== "manager") {
     return NextResponse.json({ error: "Only managers or admins can manage product photos." }, { status: 403 });
   }
@@ -30,13 +52,17 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const action = s(body?.action);
 
+  // Catalog-edit actions are super-admin-only (Chris, Julie, April).
+  const EDIT_ACTIONS = new Set(["add", "replace", "setKind", "assign", "discard", "delete", "setPrimary"]);
+  if (action && EDIT_ACTIONS.has(action) && !isSuperAdmin(user)) {
+    return NextResponse.json({ error: "Only a super admin can manage catalog photos." }, { status: 403 });
+  }
+
   try {
     if (action === "identify") {
-      let image = String(body?.image ?? "").trim();
+      const image = rawBase64(body?.image);
       const mime = String(body?.mime ?? "image/jpeg").trim() || "image/jpeg";
       if (!image) return NextResponse.json({ error: "Missing image." }, { status: 400 });
-      const comma = image.indexOf(",");
-      if (image.startsWith("data:") && comma !== -1) image = image.slice(comma + 1);
 
       // Persist the photo FIRST (the human already chose to submit it). Fail loudly
       // if storage rejects it — we never want a dangling suggestion with no image.
@@ -83,6 +109,91 @@ export async function POST(req: Request) {
       });
     }
 
+    // Add a reference photo straight onto a product from the Edit window.
+    if (action === "add") {
+      const productId = s(body?.productId);
+      const image = rawBase64(body?.image);
+      const mime = String(body?.mime ?? "image/jpeg").trim() || "image/jpeg";
+      if (!productId) return NextResponse.json({ error: "Missing product." }, { status: 400 });
+      if (!image) return NextResponse.json({ error: "Missing image." }, { status: 400 });
+      const product = await prisma.product.findUnique({ where: { id: productId }, select: { id: true } });
+      if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+      const existing = await prisma.productPhoto.count({ where: { productId, status: "assigned" } });
+      if (existing >= MAX_PHOTOS_PER_PRODUCT) {
+        return NextResponse.json({ error: `A product can have at most ${MAX_PHOTOS_PER_PRODUCT} photos. Delete one first.` }, { status: 409 });
+      }
+
+      const photoUrl = await saveUpload(Buffer.from(image, "base64"), "product-photo.jpg", mime, "product-photos").catch(() => null);
+      if (!photoUrl) {
+        return NextResponse.json({ error: "The photo could not be stored. Document storage isn't configured — try again." }, { status: 503 });
+      }
+
+      // AI auto-classifies the kind; an explicit manual kind wins. Degrades to
+      // "other" when AI is unavailable so the uploader can pick it afterward.
+      const manualKind = normKind(body?.kind);
+      const classified = manualKind ? { kind: manualKind, labelText: null as string | null, ai: false } : await classifyPhoto(image, mime);
+
+      const photo = await prisma.productPhoto.create({
+        data: {
+          productId,
+          photoUrl,
+          status: "assigned",
+          kind: classified.kind,
+          primary: existing === 0, // first photo becomes the canonical one
+          labelText: classified.labelText,
+          capturedByUserId: user.id, capturedByName: user.name,
+          assignedByUserId: user.id, assignedByName: user.name, assignedAt: new Date(),
+          branch: user.branch ?? null,
+        },
+      });
+      return NextResponse.json({ ok: true, photoId: photo.id, photoUrl, kind: classified.kind, ai: classified.ai });
+    }
+
+    // Replace = delete one photo + add a new one (keeps the ≤3 cap honest).
+    if (action === "replace") {
+      const photoId = s(body?.photoId);
+      const image = rawBase64(body?.image);
+      const mime = String(body?.mime ?? "image/jpeg").trim() || "image/jpeg";
+      if (!photoId) return NextResponse.json({ error: "Missing photo." }, { status: 400 });
+      if (!image) return NextResponse.json({ error: "Missing image." }, { status: 400 });
+      const old = await prisma.productPhoto.findUnique({ where: { id: photoId } });
+      if (!old || !old.productId) return NextResponse.json({ error: "Photo not found." }, { status: 404 });
+      const productId = old.productId;
+      const wasPrimary = old.primary;
+
+      const photoUrl = await saveUpload(Buffer.from(image, "base64"), "product-photo.jpg", mime, "product-photos").catch(() => null);
+      if (!photoUrl) {
+        return NextResponse.json({ error: "The photo could not be stored. Try again." }, { status: 503 });
+      }
+      const manualKind = normKind(body?.kind);
+      const classified = manualKind ? { kind: manualKind, labelText: null as string | null } : await classifyPhoto(image, mime);
+
+      if (old.photoUrl) await deleteUpload(old.photoUrl).catch(() => {});
+      const photo = await prisma.$transaction(async (tx) => {
+        await tx.productPhoto.delete({ where: { id: photoId } });
+        return tx.productPhoto.create({
+          data: {
+            productId, photoUrl, status: "assigned", kind: classified.kind,
+            primary: wasPrimary, labelText: classified.labelText,
+            capturedByUserId: user.id, capturedByName: user.name,
+            assignedByUserId: user.id, assignedByName: user.name, assignedAt: new Date(),
+            branch: user.branch ?? null,
+          },
+        });
+      });
+      return NextResponse.json({ ok: true, photoId: photo.id, photoUrl, kind: classified.kind });
+    }
+
+    // Manual kind override (Product / Label / Barcode / Other).
+    if (action === "setKind") {
+      const photoId = s(body?.photoId);
+      const kind = normKind(body?.kind);
+      if (!photoId || !kind) return NextResponse.json({ error: "Pick a kind." }, { status: 400 });
+      await prisma.productPhoto.update({ where: { id: photoId }, data: { kind } });
+      return NextResponse.json({ ok: true });
+    }
+
     if (action === "assign") {
       const photoId = s(body?.photoId);
       const productId = s(body?.productId);
@@ -93,6 +204,12 @@ export async function POST(req: Request) {
       ]);
       if (!photo) return NextResponse.json({ error: "Photo not found." }, { status: 404 });
       if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+      // Enforce the per-product cap on (re)assign too.
+      const existing = await prisma.productPhoto.count({ where: { productId, status: "assigned", NOT: { id: photoId } } });
+      if (existing >= MAX_PHOTOS_PER_PRODUCT) {
+        return NextResponse.json({ error: `A product can have at most ${MAX_PHOTOS_PER_PRODUCT} photos. Delete one first.` }, { status: 409 });
+      }
 
       // This photo becomes the product's primary label photo; demote any previous
       // primary for that product so there's exactly one canonical shot.

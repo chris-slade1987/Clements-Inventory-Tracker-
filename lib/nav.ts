@@ -211,8 +211,9 @@ export const MANUAL_NAV_ITEM: NavItem = {
 // Catalog administration — the former standalone "Manage" area, now owned by
 // the Inventory center. One entry into the sub-area (Products, Stock Import,
 // Confirm Queue, Technicians); href is /manage so it redirects each principal
-// to their allowed landing (admin → Products, HR → Confirm Queue) and lights
-// up on every /manage/* route. Admin + HR only — gated in AppShell.
+// to their allowed landing (super admin → Products, team-scoped admin →
+// Technicians) and lights up on every /manage/* route. Admin-only; the catalog
+// tabs inside are super-admin-only (self-guarded).
 export const CATALOG_ADMIN_NAV_ITEM: NavItem = {
   href: "/manage",
   label: "Catalog Admin",
@@ -728,8 +729,11 @@ export function buildNavForMode(mode: Mode, p: NavPrincipal): NavItem[] {
   if (p.isFieldOpsDirector && mode !== "employee" && !items.some((i) => i.href === FIELD_OPS_HOME_NAV_ITEM.href)) {
     items = [FIELD_OPS_HOME_NAV_ITEM, ...items];
   }
-  // Catalog administration lives in the Inventory center (admin + HR only).
-  if (mode === "inventory" && (isAdmin || !!p.isHrAccess)) {
+  // Catalog administration lives in the Inventory center. Admins only now — the
+  // catalog tabs (Products, Stock Import, Catalog Review, Requests) are super-admin-
+  // only and self-guard; team-scoped admins still reach Technicians + Users & Access.
+  // HR no longer has any catalog surface, so the link is dropped for them.
+  if (mode === "inventory" && isAdmin) {
     items = [...items, CATALOG_ADMIN_NAV_ITEM];
   }
   // Hide any remaining links the viewer's saved grants turn off.

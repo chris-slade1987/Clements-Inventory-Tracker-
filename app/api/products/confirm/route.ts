@@ -1,7 +1,7 @@
 import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { isUomCode, uomCode } from "@/lib/uom";
 import { normalizeClassification } from "@/lib/constants";
 
@@ -10,11 +10,11 @@ export const maxDuration = 20;
 // The new-product formal-approval (confirm) queue actions. Confirming a product
 // marks it human-reviewed (confirmed=true) and saves any edits; merging repoints
 // a naming variant into a canonical product and deactivates the variant (never a
-// hard-delete). Admin + HR only — this is a data-quality gate.
+// hard-delete). SUPER-ADMIN-ONLY (Chris, Julie, April) — catalog edits are locked
+// to super admins; see lib/access-catalog.ts.
 async function guard() {
   const user = await getSessionUser();
-  if (!user) return null;
-  if (user.role !== "admin" && !user.hrAccess) return null;
+  if (!user || !isSuperAdmin(user)) return null;
   return user;
 }
 

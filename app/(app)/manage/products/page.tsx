@@ -1,11 +1,16 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 import ManageProducts from "./ManageProducts";
 
 export const dynamic = "force-dynamic";
 
 export default async function ManageProductsPage() {
-  await requireAdmin();
+  // Catalog editing is super-admin-only (Chris, Julie, April). Everyone else —
+  // including branch managers — uses check-out identify and the "Request new
+  // product" flow instead. See lib/access-catalog.ts.
+  const user = await requireUser();
+  if (!isSuperAdmin(user)) redirect("/dashboard");
   const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
   return (
     <ManageProducts

@@ -2,30 +2,74 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, btn } from "@/components/ui";
+import { Card, btn, UnitSelect } from "@/components/ui";
 import { dateShort } from "@/lib/format";
+import { DIVISIONS, divisionLabel } from "@/lib/constants";
 import type { ProductRequestRow } from "@/lib/product-requests";
 
-// Approve / deny new-product requests. Approving catalogs the product (an edited
-// name carries through) and notifies the requester; denying asks for a reason.
+type Draft = {
+  name: string;
+  manufacturer: string;
+  distributorSku: string;
+  unitOfMeasure: string;
+  division: string;
+  description: string;
+  onHandQty: string;
+  note: string;
+};
+
+function draftFor(r: ProductRequestRow): Draft {
+  return {
+    name: r.proposedName,
+    manufacturer: r.manufacturer ?? "",
+    distributorSku: r.distributorSku ?? "",
+    unitOfMeasure: r.unitOfMeasure ?? "EA",
+    division: r.division ?? "",
+    description: r.description ?? "",
+    onHandQty: r.onHandQty != null ? String(r.onHandQty) : "",
+    note: "",
+  };
+}
+
+// Approve / deny new-product requests. Approving catalogs the product from the
+// REVIEWED fields (AI-filled, correctable here), attaches the request's photos,
+// and posts the on-hand count as an adjustment at the branch; denying asks for a
+// reason. All edits carry through to /api/inventory/product-request.
 export default function ProductRequestsClient({ requests }: { requests: ProductRequestRow[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [names, setNames] = useState<Record<string, string>>(() =>
-    Object.fromEntries(requests.map((r) => [r.id, r.proposedName])),
+  const [drafts, setDrafts] = useState<Record<string, Draft>>(() =>
+    Object.fromEntries(requests.map((r) => [r.id, draftFor(r)])),
   );
-  const [notes, setNotes] = useState<Record<string, string>>({});
   const [denying, setDenying] = useState<string | null>(null);
 
+  const setField = (id: string, k: keyof Draft, v: string) =>
+    setDrafts((m) => ({ ...m, [id]: { ...m[id], [k]: v } }));
+
   async function decide(id: string, action: "approve" | "deny") {
+    const d = drafts[id];
     setBusyId(id);
     setError(null);
     try {
       const res = await fetch("/api/inventory/product-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, id, name: names[id]?.trim() || undefined, note: notes[id]?.trim() || undefined }),
+        body: JSON.stringify(
+          action === "approve"
+            ? {
+                action, id,
+                name: d.name.trim() || undefined,
+                manufacturer: d.manufacturer.trim() || undefined,
+                distributorSku: d.distributorSku.trim() || undefined,
+                unitOfMeasure: d.unitOfMeasure || undefined,
+                division: d.division || undefined,
+                description: d.description.trim() || undefined,
+                onHandQty: d.onHandQty === "" ? undefined : d.onHandQty,
+                note: d.note.trim() || undefined,
+              }
+            : { action, id, note: d.note.trim() || undefined },
+        ),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setError(data.error ?? "Action failed."); setBusyId(null); return; }
@@ -42,46 +86,63 @@ export default function ProductRequestsClient({ requests }: { requests: ProductR
       {requests.map((r) => {
         const busy = busyId === r.id;
         const isDenying = denying === r.id;
+        const d = drafts[r.id];
+        if (!d) return null;
         return (
-          <Card key={r.id} className="p-4 space-y-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-xs text-muted">
-                  Requested by {r.requestedByName}
-                  {r.branchLabel ? ` · ${r.branchLabel}` : ""} · {dateShort(r.createdAt)}
-                </div>
-                {r.reason ? <div className="mt-1 text-sm text-ink">{r.reason}</div> : null}
-                {r.manufacturer || r.distributorSku ? (
-                  <div className="mt-0.5 text-[11px] text-muted">
-                    {r.manufacturer ?? ""}{r.manufacturer && r.distributorSku ? " · " : ""}{r.distributorSku ? `SKU ${r.distributorSku}` : ""}
+          <Card key={r.id} className="space-y-3 p-4">
+            <div className="text-xs text-muted">
+              Requested by {r.requestedByName}
+              {r.branchLabel ? ` · ${r.branchLabel}` : ""} · {dateShort(r.createdAt)}
+              {r.productId ? " · linked to an existing off-catalog product" : ""}
+            </div>
+            {r.reason ? <div className="text-sm text-ink">{r.reason}</div> : null}
+
+            {r.photos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {r.photos.map((p) => (
+                  <div key={p.id}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.photoUrl} alt={p.kind} className="h-20 w-full rounded-lg border border-line object-cover" />
+                    <div className="mt-0.5 text-center text-[10px] capitalize text-muted">{p.kind}</div>
                   </div>
-                ) : null}
-                {r.productId ? <div className="mt-0.5 text-[11px] text-muted">Linked to an existing off-catalog product.</div> : null}
+                ))}
               </div>
-              {r.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={r.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover border border-line" />
-              ) : null}
+            ) : r.photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={r.photoUrl} alt="" className="h-20 w-20 rounded-lg border border-line object-cover" />
+            ) : null}
+
+            {/* Editable new-product form (AI-filled, correctable). */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm font-medium sm:col-span-2">Catalog name
+                <input value={d.name} onChange={(e) => setField(r.id, "name", e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
+              <label className="block text-sm font-medium">Manufacturer
+                <input value={d.manufacturer} onChange={(e) => setField(r.id, "manufacturer", e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
+              <label className="block text-sm font-medium">Distributor SKU
+                <input value={d.distributorSku} onChange={(e) => setField(r.id, "distributorSku", e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
+              <label className="block text-sm font-medium">Unit
+                <UnitSelect value={d.unitOfMeasure} onChange={(c) => setField(r.id, "unitOfMeasure", c)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface" />
+              </label>
+              <label className="block text-sm font-medium">Line of service
+                <select value={d.division} onChange={(e) => setField(r.id, "division", e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
+                  <option value="">—</option>
+                  {DIVISIONS.map((x) => <option key={x} value={x}>{divisionLabel(x)}</option>)}
+                </select>
+              </label>
+              <label className="block text-sm font-medium sm:col-span-2">Description
+                <textarea value={d.description} onChange={(e) => setField(r.id, "description", e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
+              <label className="block text-sm font-medium">On-hand to post{r.branchLabel ? ` (${r.branchLabel})` : ""}
+                <input type="number" min={0} value={d.onHandQty} onChange={(e) => setField(r.id, "onHandQty", e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+              </label>
             </div>
 
-            <label className="block text-sm font-medium">
-              Catalog name
-              <input
-                value={names[r.id] ?? ""}
-                onChange={(e) => setNames((m) => ({ ...m, [r.id]: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
-              />
-            </label>
-
             {isDenying ? (
-              <label className="block text-sm font-medium">
-                Reason for denial (sent to {r.requestedByName})
-                <textarea
-                  value={notes[r.id] ?? ""}
-                  onChange={(e) => setNotes((m) => ({ ...m, [r.id]: e.target.value }))}
-                  rows={2}
-                  className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
-                />
+              <label className="block text-sm font-medium">Reason for denial (sent to {r.requestedByName})
+                <textarea value={d.note} onChange={(e) => setField(r.id, "note", e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
               </label>
             ) : null}
 
@@ -99,7 +160,8 @@ export default function ProductRequestsClient({ requests }: { requests: ProductR
               )}
             </div>
             <p className="text-[11px] text-muted">
-              Approving creates the product with unit <strong>Each</strong> — set the real unit / classification in the Products catalog.
+              Approving creates the product (approved + confirmed + active) from these fields, attaches the photos, and
+              {d.onHandQty && Number(d.onHandQty) > 0 ? ` posts ${d.onHandQty} on hand` : " posts no on-hand (quantity blank)"} at the branch.
             </p>
           </Card>
         );

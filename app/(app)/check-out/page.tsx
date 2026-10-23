@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import InventorySubnav from "@/components/InventorySubnav";
+import RequestProductButton from "@/components/RequestProductButton";
 import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { onHandMatrix } from "@/lib/inventory";
@@ -61,6 +62,7 @@ export default async function CheckOutPage({
       <PageHeader
         title="Check-Out"
         subtitle="Scan or photograph a product and issue it to a technician's truck."
+        actions={<RequestProductButton warehouseId={defaultWarehouseId} />}
       />
       <InventorySubnav isAdmin={isAdmin} />
       <ScanCheckoutClient

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { parseInventoryReport, matchBranch } from "@/lib/pestpac";
 import { normalizeCategory, unitLabel } from "@/lib/constants";
 
@@ -10,8 +10,9 @@ export const maxDuration = 60;
 const EPS = 1e-6;
 
 export async function POST(req: Request) {
+  // Creates catalog products + posts stock adjustments — super-admin-only.
   const user = await getSessionUser();
-  if (!user || user.role !== "admin")
+  if (!user || !isSuperAdmin(user))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const form = await req.formData().catch(() => null);

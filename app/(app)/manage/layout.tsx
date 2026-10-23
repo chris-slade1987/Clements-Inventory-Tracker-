@@ -12,11 +12,13 @@ export default async function ManageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Admins get the full Manage area; HR (hrAccess) reaches ONLY the product
-  // confirm queue (the individual admin-only pages guard themselves as well).
+  // Catalog management (Products, Stock Import, Catalog Review, Requests) is now
+  // super-admin-only (Chris, Julie, April). Team-scoped admins still reach the
+  // non-catalog tools in this area (Technicians, Users & Access); every catalog
+  // page also self-guards with isSuperAdmin. HR no longer has a catalog surface.
   const user = await requireUser();
   const isAdmin = user.role === "admin";
-  if (!isAdmin && !user.hrAccess) redirect("/dashboard");
+  if (!isAdmin) redirect("/dashboard");
   const superAdmin = isSuperAdmin(user);
 
   const [toConfirm, toRequests] = await Promise.all([

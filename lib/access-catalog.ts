@@ -47,7 +47,9 @@ export const MODULES: AccessModule[] = [
     { id: "photo-catalog", name: "Photo Catalog", note: "Capture + match product label photos (human-in-the-loop); managers + admins" },
     { id: "catalog", name: "Catalog" }, { id: "labels", name: "Labels" } ] },
   { id: "catadmin", name: "Catalog & Inventory Admin", sub: "The /manage area", items: [
-    { id: "products", name: "Products" }, { id: "stock-import", name: "Stock Import" }, { id: "confirm", name: "Catalog Review", note: "Duplicates + off-catalog + new-product confirm queue" },
+    { id: "products", name: "Products", note: "Catalog add/edit/deactivate + per-product photos — super-admin-only (Chris, Julie, April)" },
+    { id: "stock-import", name: "Stock Import", note: "Bulk product/stock import — super-admin-only" },
+    { id: "confirm", name: "Catalog Review", note: "Duplicates + off-catalog + new-product confirm queue — super-admin-only" },
     { id: "product-requests", name: "Product Requests", note: "New-product approval queue — super-admin-only (Chris, Julie, April); self-guarded with isSuperAdmin" },
     { id: "technicians", name: "Technicians" } ] },
   { id: "fleet", name: "Fleet", sub: "Vehicles & fuel", items: [
@@ -101,9 +103,11 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   super_admin: allAccess(),
   // Data Connections and Copilot Insights (like Access Rights) are super-admin-only
   // surfaces; exclude them from the team-scoped admin's otherwise-full reach. The
-  // pages self-guard with canManageAccessRights (Chris, Julie, April).
-  admin: allAccess(["access-rights", "connections", "copilot-insights", "product-requests"]),
-  field_ops: allAccess(["connections", "copilot-insights", "product-requests"]),
+  // pages self-guard with canManageAccessRights (Chris, Julie, April). Catalog
+  // editing (products, stock-import, confirm/Catalog Review, product-requests) is
+  // ALSO super-admin-only now — excluded here and self-guarded with isSuperAdmin.
+  admin: allAccess(["access-rights", "connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm"]),
+  field_ops: allAccess(["connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm"]),
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",
@@ -120,7 +124,9 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   hr: {
     "hr-home": true, people: "edit", "people-profile": "edit", "pto-calendar": true, callouts: true, reviews: true, hiring: true,
     candidates: true, "hiring-templates": true, prehires: true, former: true, org: true, "handbook-acks": true,
-    confirm: true, "training-assign": true, "training-record": "edit", "training-reports": true, certifications: "view",
+    // Catalog Review ("confirm") was removed from HR — catalog editing is now
+    // super-admin-only.
+    "training-assign": true, "training-record": "edit", "training-reports": true, certifications: "view",
     insurance: "view", documents: "view", ...SELF_BASIC,
   },
   // Admin-level reach for the sales domain (COO decision, Oct 2026): the Sales

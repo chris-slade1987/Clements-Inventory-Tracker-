@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
-import { identifyProduct, type CatalogEntry } from "@/lib/inventory-identify";
+import { identifyProduct, REFERENCE_IMAGE_CAP, type CatalogEntry, type ReferenceImage } from "@/lib/inventory-identify";
 import { onHandByWarehouse } from "@/lib/inventory";
 import { resolveWarehouseId } from "@/lib/inventory-scope";
 import { countedProductIds } from "@/lib/stock-count";
-import { saveUpload } from "@/lib/storage";
+import { saveUpload, readUpload } from "@/lib/storage";
 import { uomCode } from "@/lib/uom";
 
 export const runtime = "nodejs";
@@ -45,7 +45,33 @@ export async function POST(req: Request) {
     unit: uomCode(p.unitOfMeasure) ?? p.unitOfMeasure,
   }));
 
-  const result = await identifyProduct(image, mime, catalog);
+  // Reference photos: compare the submitted shelf photo against stored reference
+  // photos of catalog products (the Part 2 accuracy win). Bounded by
+  // REFERENCE_IMAGE_CAP; primary photos first. Degrades to text-only matching when
+  // no product has a photo yet or storage can't return the bytes.
+  const activeIds = new Set(products.map((p) => p.id));
+  const references: ReferenceImage[] = [];
+  try {
+    const photoRows = await prisma.productPhoto.findMany({
+      where: { status: "assigned", productId: { not: null } },
+      orderBy: [{ primary: "desc" }, { assignedAt: "desc" }],
+      take: REFERENCE_IMAGE_CAP * 2,
+      select: { productId: true, kind: true, photoUrl: true },
+    });
+    const seenProducts = new Set<string>();
+    for (const row of photoRows) {
+      if (references.length >= REFERENCE_IMAGE_CAP) break;
+      if (!row.productId || !activeIds.has(row.productId) || seenProducts.has(row.productId)) continue;
+      const bytes = await readUpload(row.photoUrl);
+      if (!bytes) continue;
+      seenProducts.add(row.productId);
+      references.push({ productId: row.productId, kind: row.kind, base64: bytes.toString("base64"), mime: "image/jpeg" });
+    }
+  } catch {
+    /* references are an enhancement only — never block identify */
+  }
+
+  const result = await identifyProduct(image, mime, catalog, references);
 
   // Persist the photo (best-effort) so the chosen line can carry a thumbnail into
   // history. Never blocks identification.

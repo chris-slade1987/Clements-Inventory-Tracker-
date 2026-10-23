@@ -8,6 +8,8 @@ import { branchLabel } from "@/lib/management";
 // super admin to catalog it. Any super admin (Chris, Julie, April) can approve;
 // approval makes the product checkout-eligible and notifies the requester.
 
+export type ProductRequestPhoto = { id: string; photoUrl: string; kind: string };
+
 export type ProductRequestRow = {
   id: string;
   status: string;
@@ -16,10 +18,15 @@ export type ProductRequestRow = {
   description: string | null;
   manufacturer: string | null;
   distributorSku: string | null;
+  unitOfMeasure: string | null;
+  division: string | null;
+  onHandQty: number | null;
   reason: string | null;
   photoUrl: string | null;
+  photos: ProductRequestPhoto[];
   branch: string | null;
   branchLabel: string | null;
+  warehouseId: string | null;
   requestedByName: string;
   requestedByUserId: string;
   decidedByName: string | null;
@@ -47,20 +54,32 @@ export async function pendingProductRequestCount(): Promise<number> {
   return prisma.productRequest.count({ where: { status: "pending" } });
 }
 
-const toRow = (r: {
+type RawRequest = {
   id: string; status: string; productId: string | null; proposedName: string; description: string | null;
-  manufacturer: string | null; distributorSku: string | null; reason: string | null; photoUrl: string | null;
-  branch: string | null; requestedByName: string; requestedByUserId: string; decidedByName: string | null;
-  decidedAt: Date | null; decisionNote: string | null; createdAt: Date;
-}): ProductRequestRow => ({
-  ...r,
+  manufacturer: string | null; distributorSku: string | null; unitOfMeasure: string | null; division: string | null;
+  onHandQty: number | null; reason: string | null; photoUrl: string | null;
+  branch: string | null; warehouseId: string | null; requestedByName: string; requestedByUserId: string;
+  decidedByName: string | null; decidedAt: Date | null; decisionNote: string | null; createdAt: Date;
+  photos?: { id: string; photoUrl: string; kind: string }[];
+};
+
+const toRow = (r: RawRequest): ProductRequestRow => ({
+  id: r.id, status: r.status, productId: r.productId, proposedName: r.proposedName, description: r.description,
+  manufacturer: r.manufacturer, distributorSku: r.distributorSku, unitOfMeasure: r.unitOfMeasure, division: r.division,
+  onHandQty: r.onHandQty, reason: r.reason, photoUrl: r.photoUrl, branch: r.branch, warehouseId: r.warehouseId,
+  requestedByName: r.requestedByName, requestedByUserId: r.requestedByUserId, decidedByName: r.decidedByName,
+  decidedAt: r.decidedAt, decisionNote: r.decisionNote, createdAt: r.createdAt,
   branchLabel: r.branch ? branchLabel(r.branch) : null,
+  photos: (r.photos ?? []).map((p) => ({ id: p.id, photoUrl: p.photoUrl, kind: p.kind })),
 });
 
 /** Pending requests first (oldest first), then recently decided ones. */
 export async function listProductRequests(limit = 50): Promise<{ pending: ProductRequestRow[]; decided: ProductRequestRow[] }> {
   const [pending, decided] = await Promise.all([
-    prisma.productRequest.findMany({ where: { status: "pending" }, orderBy: { createdAt: "asc" } }),
+    prisma.productRequest.findMany({
+      where: { status: "pending" }, orderBy: { createdAt: "asc" },
+      include: { photos: { where: { status: "unassigned" }, select: { id: true, photoUrl: true, kind: true } } },
+    }),
     prisma.productRequest.findMany({ where: { status: { not: "pending" } }, orderBy: { decidedAt: "desc" }, take: limit }),
   ]);
   return { pending: pending.map(toRow), decided: decided.map(toRow) };
