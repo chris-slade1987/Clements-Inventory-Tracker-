@@ -22,9 +22,12 @@ export default async function HuddleRunPage({ params }: { params: Promise<{ id: 
   const canManage = canManageMeeting(user, { organizerId: meeting.organizerId });
   const calendarLive = isCalendarConfigured();
 
-  // Fallback "add to calendar" — only when there's a scheduled time and sync is off.
+  // Fallback "add to calendar" — whenever there's a scheduled time but NO live
+  // Google event was created for this Huddle (calendar off, or the organizer isn't a
+  // domain mailbox, or a create failed). When a real event exists we show the synced
+  // badge + Join Meet link instead (driven by meeting.calendarEventId in HuddleRun).
   let googleUrl: string | null = null;
-  if (!calendarLive && meeting.scheduledStart && meeting.scheduledEnd) {
+  if (!meeting.calendarEventId && meeting.scheduledStart && meeting.scheduledEnd) {
     googleUrl = huddleGoogleCalendarUrl({
       id: meeting.id,
       title: meeting.title,

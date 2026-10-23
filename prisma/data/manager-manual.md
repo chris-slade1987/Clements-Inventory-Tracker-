@@ -1536,11 +1536,19 @@ people's plates.
    template** (Sales Director Weekly, Marketing, Branch / Ops, 1:1) so you are not starting
    from a blank page, and add attendees.
 2. **Pick a time.** Choose a length and a starting day and the portal **suggests times**. If
-   Google Calendar is connected, it reads everyone's free/busy and offers conflict-free
-   slots; if it is not connected yet, it suggests sensible business-hour times and gives you
-   an **.ics file / "Add to Google Calendar"** link so invites still go out. The screen always
+   Google Calendar is connected, it reads everyone's free/busy and offers conflict-free slots;
+   if it is not connected yet, it suggests sensible business-hour times. The screen always
    tells you honestly which mode you are in.
-3. **Run it.** In the Huddle, check off agenda items as you cover them, keep **live notes** as
+3. **Scheduling the Huddle books it on Google.** When Google Calendar is connected, saving a
+   Huddle with a start and end time **creates a real event on your (the organizer's) Google
+   Calendar, invites the Clements attendees — Google sends the invite emails — and attaches a
+   Google Meet link automatically.** The Huddle screen then shows **"Synced to Google Calendar"**
+   with a **Join Meet** button, and editing the time/title or adding and removing attendees
+   keeps the Google event in step (cancelling the Huddle cancels the event). Only
+   `@clementspestcontrol.com` people are invited. If Google is not connected (or the organizer
+   is not a company mailbox), the Huddle still saves and the screen offers an **.ics file /
+   "Add to Google Calendar"** link so you can place it on a calendar manually.
+4. **Run it.** In the Huddle, check off agenda items as you cover them, keep **live notes** as
    a running log, and assign **follow-ups** — each one goes to an attendee with a due date and
    **appears on their My Work immediately** (and notifies them). When the last follow-up is
    closed out, Buzz celebrates.

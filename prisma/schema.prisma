@@ -3161,9 +3161,16 @@ model ProjectMember {
 
 // A Huddle (meeting): scheduled/in-progress/completed/cancelled, with a working
 // agenda (seeded from a template, editable live), live notes, and real-time
-// follow-ups (WorkItems with meetingId set). Calendar is OUT of scope for this
-// round — `calendarEventIds` is a nullable JSON map (email→eventId) the calendar
-// service fills later; nothing here calls it.
+// follow-ups (WorkItems with meetingId set). Google Calendar sync is LIVE when a
+// Workspace service account is configured (lib/google-calendar.ts): scheduling a
+// Huddle auto-creates a real Google event on the organizer's calendar, invites the
+// domain attendees (Google sends the invite emails), and attaches a Google Meet
+// link — kept in sync on update / cancel / attendee changes (see lib/huddle-calendar.ts).
+// The synced event is remembered on `calendarEventId` / `calendarMeetLink` /
+// `calendarOrganizerEmail` / `calendarHtmlLink`; when calendar isn't configured (or
+// the organizer isn't a domain mailbox) those stay null and the .ics / "Add to
+// Google Calendar" fallback (lib/huddle-ics.ts) is used instead. `calendarEventIds`
+// is the legacy per-email JSON map (unused by the live sync; retained, nullable).
 model Meeting {
   id               String    @id @default(cuid())
   title            String
@@ -3177,7 +3184,12 @@ model Meeting {
   agendaTemplateId String?   @map("agenda_template_id")
   status           String    @default("scheduled") // "scheduled" | "in_progress" | "completed" | "cancelled"
   recurrence       String? // free-form recurrence hint (e.g. "weekly"); scheduling owned by Round 1-B
-  calendarEventIds String?   @map("calendar_event_ids") // JSON map email→eventId, filled later by the calendar service
+  calendarEventIds String?   @map("calendar_event_ids") // legacy JSON map email→eventId (unused by live sync; retained)
+  // --- Live Google Calendar sync (lib/huddle-calendar.ts) — all nullable ---
+  calendarEventId        String? @map("calendar_event_id") // the synced Google event id (on the organizer's calendar)
+  calendarMeetLink       String? @map("calendar_meet_link") // the attached Google Meet join link
+  calendarOrganizerEmail String? @map("calendar_organizer_email") // the @clementspestcontrol.com mailbox the event lives on (the impersonated organizer)
+  calendarHtmlLink       String? @map("calendar_html_link") // the event's "view in Google Calendar" URL
   branch           String?
   completedAt      DateTime? @map("completed_at")
   createdAt        DateTime  @default(now()) @map("created_at")

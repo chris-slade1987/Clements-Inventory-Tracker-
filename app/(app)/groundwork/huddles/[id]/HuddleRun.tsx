@@ -100,14 +100,27 @@ export default function HuddleRun({
 
         {/* Calendar sync — honest live vs. fallback */}
         <div className="mt-3 border-t border-line pt-3">
-          {calendarLive ? (
-            <p className="inline-flex items-center gap-1.5 text-[12px] text-brand-700">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4M9 15l2 2 4-4" /></svg>
-              Synced with Google Calendar — invites go out automatically.
-            </p>
+          {m.calendarEventId ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px]">
+              <span className="inline-flex items-center gap-1.5 text-brand-700">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4M9 15l2 2 4-4" /></svg>
+                Synced to Google Calendar — invites sent automatically.
+              </span>
+              {m.calendarMeetLink ? (
+                <a href={m.calendarMeetLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[#cfe0d6] bg-white px-2.5 py-1 font-medium text-brand-700 hover:bg-[#eef5f0]">
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M15 10l4.5-2.5v9L15 14M4 6h9a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                  Join Meet
+                </a>
+              ) : null}
+              {m.calendarHtmlLink ? (
+                <a href={m.calendarHtmlLink} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-700 hover:underline">
+                  View in Google Calendar
+                </a>
+              ) : null}
+            </div>
           ) : m.scheduledStart ? (
             <div className="flex flex-wrap items-center gap-2 text-[12px]">
-              <span className="text-muted">Calendar not connected —</span>
+              <span className="text-muted">{calendarLive ? "Not synced to Google (organizer isn't a company mailbox) —" : "Calendar not connected —"}</span>
               <a href={`/api/huddles/ics?id=${m.id}`} className="inline-flex items-center gap-1 rounded-lg border border-[#cfe0d6] bg-white px-2.5 py-1 font-medium text-brand-700 hover:bg-[#eef5f0]">
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V4M8 8l4-4 4 4M4 14v5a1 1 0 001 1h14a1 1 0 001-1v-5" /></svg>
                 Download .ics

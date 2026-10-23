@@ -5,6 +5,7 @@ import {
   createWorkItem, toWorkItemDTO, isGroundworkLeadership, parseWorkDate,
   type WorkItemDTO,
 } from "@/lib/groundwork";
+import { reconcileHuddleEvent, cancelHuddleEvent } from "@/lib/huddle-calendar";
 
 // ---------------------------------------------------------------------------
 // HUDDLES — meetings with a live agenda (seeded from a template, editable live),
@@ -12,9 +13,13 @@ import {
 // on each owner's My Work). A completed Huddle — with its notes + each person's
 // follow-ups — is retrievable from every attendee's profile (huddlesForUser).
 //
-// Calendar / scheduling is OUT of scope this round (Round 1-B owns it). We store
-// Meeting.calendarEventIds as a nullable JSON field the calendar service fills
-// later; nothing here imports lib/calendar.ts or calls Google Calendar.
+// Google Calendar sync is LIVE when a Workspace service account is configured:
+// scheduling a Huddle auto-creates a real Google event on the organizer's calendar,
+// invites the domain attendees (Google sends the invite emails), and attaches a
+// Google Meet link — kept in sync on update / cancel / attendee changes. All of that
+// is in lib/huddle-calendar.ts and is best-effort + NON-FATAL: when calendar isn't
+// configured (or the organizer isn't an @clementspestcontrol.com mailbox) it no-ops
+// and the .ics / "Add to Google Calendar" fallback (lib/huddle-ics.ts) is used.
 // ---------------------------------------------------------------------------
 
 export const MEETING_KINDS = ["sales", "marketing", "ops", "one_on_one", "custom"] as const;
@@ -46,6 +51,10 @@ export type MeetingDTO = {
   recurrence: string | null;
   branch: string | null;
   branchLabel: string | null;
+  // Live Google Calendar sync (null when not synced — fall back to .ics).
+  calendarEventId: string | null;
+  calendarMeetLink: string | null;
+  calendarHtmlLink: string | null;
   completedAt: string | null;
   createdAt: string;
   attendees?: MeetingAttendeeDTO[];
@@ -58,6 +67,7 @@ type MeetingRow = {
   id: string; title: string; kind: string | null; organizerId: string; organizerName: string | null;
   scheduledStart: Date | null; scheduledEnd: Date | null; location: string | null; meetingLink: string | null;
   agendaTemplateId: string | null; status: string; recurrence: string | null; branch: string | null;
+  calendarEventId: string | null; calendarMeetLink: string | null; calendarHtmlLink: string | null;
   completedAt: Date | null; createdAt: Date;
   attendees?: { id: string; userId: string | null; email: string; name: string | null; role: string; response: string | null }[];
   agendaItems?: { id: string; order: number; title: string; prompt: string | null; done: boolean }[];
@@ -71,6 +81,7 @@ export function toMeetingDTO(r: MeetingRow): MeetingDTO {
     scheduledStart: iso(r.scheduledStart), scheduledEnd: iso(r.scheduledEnd), location: r.location, meetingLink: r.meetingLink,
     agendaTemplateId: r.agendaTemplateId, status: r.status, recurrence: r.recurrence,
     branch: r.branch, branchLabel: r.branch ? branchLabel(r.branch) : null,
+    calendarEventId: r.calendarEventId, calendarMeetLink: r.calendarMeetLink, calendarHtmlLink: r.calendarHtmlLink,
     completedAt: iso(r.completedAt), createdAt: r.createdAt.toISOString(),
     attendees: r.attendees?.map((a) => ({ id: a.id, userId: a.userId, email: a.email, name: a.name, role: a.role, response: a.response })),
     agendaItems: r.agendaItems?.map((a) => ({ id: a.id, order: a.order, title: a.title, prompt: a.prompt, done: a.done })),
@@ -135,6 +146,12 @@ export async function createMeeting(user: SessionUser, input: CreateMeetingInput
   if (input.agendaTemplateKey) await applyAgendaTemplate(meeting.id, input.agendaTemplateKey);
   if (input.attendees?.length) await addAttendees(user, meeting.id, input.attendees);
 
+  // Auto-create the Google Calendar event (+ Meet link, + invite the domain
+  // attendees) when calendar is configured, the Huddle has start+end, and the
+  // organizer is a domain mailbox. Best-effort + non-fatal — a calendar failure
+  // never fails the create; the .ics fallback remains. See lib/huddle-calendar.ts.
+  await reconcileHuddleEvent(meeting.id, "full");
+
   return getMeeting(user, meeting.id) as Promise<MeetingDTO>;
 }
 
@@ -169,6 +186,11 @@ export async function addAttendees(
       update: { userId: userId ?? undefined, name: name ?? undefined },
     });
   }
+
+  // If the Huddle already has a synced Google event, patch its attendee list so
+  // Google re-invites the new people. Non-fatal; never creates an event here (that
+  // happens on create/update when there's a scheduled time).
+  await reconcileHuddleEvent(meetingId, "patch-only");
 }
 
 /** Remove an attendee (operational membership — not a business record). The
@@ -181,6 +203,9 @@ export async function removeAttendee(user: SessionUser, meetingId: string, atten
   if (!a) return;
   if (a.role === "organizer") throw new Error("The organizer can't be removed.");
   await prisma.meetingAttendee.delete({ where: { id: attendeeId } });
+
+  // Patch the synced Google event's attendee list so Google uninvites them. Non-fatal.
+  await reconcileHuddleEvent(meetingId, "patch-only");
 }
 
 // ── Agenda (template apply + live edits) ──────────────────────────────────────
@@ -332,6 +357,23 @@ export async function updateMeeting(user: SessionUser, meetingId: string, input:
     if (input.status === "completed") data.completedAt = meeting.completedAt ?? new Date();
   }
   await prisma.meeting.update({ where: { id: meetingId }, data });
+
+  // Keep the Google Calendar event in sync. If this update cancels the Huddle,
+  // cancel the event (Google notifies attendees). Otherwise re-sync: a full sync
+  // (re-send invites) when the time/title/location changed, else create-only so an
+  // event missed earlier (e.g. created while calendar was down) gets backfilled
+  // without re-inviting on unrelated edits. All non-fatal — never fails the update.
+  if (data.status === "cancelled") {
+    await cancelHuddleEvent(meetingId);
+  } else {
+    const timeOrTitleChanged =
+      data.title !== undefined ||
+      data.scheduledStart !== undefined ||
+      data.scheduledEnd !== undefined ||
+      data.location !== undefined;
+    await reconcileHuddleEvent(meetingId, timeOrTitleChanged ? "full" : "create-only");
+  }
+
   return getMeeting(user, meetingId) as Promise<MeetingDTO>;
 }
 
@@ -351,6 +393,11 @@ export async function cancelMeeting(user: SessionUser, meetingId: string): Promi
   if (!meeting) throw new Error("That Huddle no longer exists.");
   if (!canManageMeeting(user, meeting)) throw new Error("Only the organizer can cancel the Huddle.");
   await prisma.meeting.update({ where: { id: meetingId }, data: { status: "cancelled" } });
+
+  // Cancel the synced Google Calendar event (Google notifies attendees) + clear the
+  // stored event id/links. Non-fatal; no-op when there's no synced event.
+  await cancelHuddleEvent(meetingId);
+
   return getMeeting(user, meetingId) as Promise<MeetingDTO>;
 }
 

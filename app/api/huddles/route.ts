@@ -14,7 +14,10 @@ export const maxDuration = 20;
 // Huddle history (notes + their follow-ups) for the profile. Writes (POST, action
 // switch): create / update / complete / cancel; attendees; agenda (apply template,
 // add, update/check-off); live notes; real-time follow-ups. Access scoping +
-// participation checks in lib/huddles. Calendar is out of scope (Round 1-B).
+// participation checks in lib/huddles. Google Calendar sync is wired into the
+// create/update/cancel/attendee paths (lib/huddle-calendar.ts) — auto-creating a
+// real Google event + Meet link and inviting the domain attendees when a Workspace
+// service account is configured; it no-ops to the .ics fallback otherwise.
 export async function GET(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
