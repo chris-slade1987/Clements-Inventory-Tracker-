@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireUser, homePath } from "@/lib/auth";
 import { canManageAccessRights } from "@/lib/access";
+import { calendarLiveProbe } from "@/lib/google-calendar";
 import { PageHeader, Card } from "@/components/ui";
 import {
   getConnectionsHealth,
@@ -160,6 +161,33 @@ export default async function ConnectionsPage() {
   if (!canManageAccessRights(user)) redirect(homePath(user));
 
   const connectors = await getConnectionsHealth();
+
+  // Google Calendar: when the key parses, do a LIVE probe (impersonating the viewing
+  // super admin) so the tile reflects whether Google actually honors the service
+  // account — this is where a missing domain-wide-delegation grant shows up, which a
+  // credential-only check can't catch. Overrides the calendar connector in place.
+  const calIdx = connectors.findIndex((c) => c.key === "google-calendar");
+  if (calIdx >= 0 && connectors[calIdx].live && user.email) {
+    const probe = await calendarLiveProbe(user.email);
+    const base = connectors[calIdx];
+    connectors[calIdx] = probe.ok
+      ? {
+          ...base,
+          status: "healthy",
+          statusLabel: "Healthy",
+          detail:
+            "Service account connected and a live free/busy call to Google succeeded. Suggested Times and calendar invites will work.",
+          facts: [{ label: "Live check", value: "Passed" }, ...base.facts.slice(1)],
+        }
+      : {
+          ...base,
+          status: "error",
+          statusLabel: "Error",
+          detail: `The key is valid, but the live Google call FAILED: ${probe.error}`,
+          facts: [{ label: "Live check", value: "Failed — see detail" }, ...base.facts.slice(1)],
+        };
+  }
+
   const summary = summarizeHealth(connectors);
 
   const summaryTiles: { status: ConnStatus; label: string; count: number }[] = [
@@ -199,9 +227,9 @@ export default async function ConnectionsPage() {
       </div>
 
       <p className="text-xs text-muted">
-        Health is derived from stored sync timestamps, webhook rows, and quota headers already captured by Canopy — no external
-        API is called when this page loads. Only the names of the environment variables that gate each connector are shown, never
-        any secret value.
+        Health is derived from stored sync timestamps, webhook rows, and quota headers already captured by Canopy. The one
+        exception is Google Workspace Calendar, which runs a quick live free/busy check on load so a delegation problem shows up
+        here. Only the names of the environment variables that gate each connector are shown, never any secret value.
       </p>
     </div>
   );

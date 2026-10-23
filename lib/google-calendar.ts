@@ -371,6 +371,58 @@ export async function cancelEvent(organizerEmail: string, eventId: string): Prom
   }
 }
 
+/** Turn a Google/Gaxios error into a short, admin-readable reason — with a plain
+ *  hint for the two usual causes (delegation not granted, or API not enabled). */
+function describeCalendarError(e: unknown): string {
+  const any = e as {
+    message?: string;
+    code?: number | string;
+    response?: { data?: { error?: string; error_description?: string; error_message?: string } };
+    errors?: { message?: string }[];
+  };
+  const d = any?.response?.data;
+  const parts = [
+    typeof d?.error === "string" ? d.error : undefined,
+    typeof d?.error_description === "string" ? d.error_description : undefined,
+    typeof d?.error_message === "string" ? d.error_message : undefined,
+    any?.errors?.[0]?.message,
+    any?.message,
+  ].filter(Boolean);
+  let msg = (parts.join(" — ") || "Unknown calendar error.").trim();
+  if (/unauthorized_client|not authorized|access_denied|forbidden|insufficient|invalid_grant/i.test(msg)) {
+    msg +=
+      " — Likely the service account's DOMAIN-WIDE DELEGATION isn't granted (or is missing a scope). In Google Workspace Admin → Security → Access and data control → API controls → Domain-wide delegation, add the service account's numeric Client ID with scopes https://www.googleapis.com/auth/calendar.events,https://www.googleapis.com/auth/calendar.freebusy. New grants can take a few minutes to propagate.";
+  } else if (/has not been used|SERVICE_DISABLED|accessNotConfigured|disabled/i.test(msg)) {
+    msg += " — Likely the Google Calendar API is not enabled in the Cloud project.";
+  }
+  return msg.slice(0, 500);
+}
+
+/**
+ * Live connectivity probe for the Data Connections tile: impersonates `subject`
+ * (a Workspace mailbox — we use the viewing super admin) and does a tiny free/busy
+ * query. Returns { ok:true } when Google accepts it, or { ok:false, error } with
+ * the real reason. This is the difference between "the key parses" and "Google
+ * actually honors it" — it exposes a missing domain-wide-delegation grant, which a
+ * credential-only check can't see.
+ */
+export async function calendarLiveProbe(subject: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const cal = clientFor(subject);
+    const now = new Date();
+    await cal.freebusy.query({
+      requestBody: {
+        timeMin: now.toISOString(),
+        timeMax: new Date(now.getTime() + 3_600_000).toISOString(),
+        items: [{ id: subject }],
+      },
+    });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: describeCalendarError(e) };
+  }
+}
+
 /**
  * Per-email busy intervals in [windowStart, windowEnd). Uses the Calendar
  * free/busy API, which returns ONLY busy time ranges — never event titles,
