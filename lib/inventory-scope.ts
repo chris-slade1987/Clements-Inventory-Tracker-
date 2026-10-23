@@ -13,6 +13,44 @@ import type { SessionUser } from "@/lib/auth";
  *
  * Returns a concrete, active warehouse id, or null when none exists.
  */
+// Runtime backfill: set each active login's `warehouseId` to their BRANCH's
+// warehouse (matched by name, since Warehouse has no branch column) when it's unset.
+// So every branch-scoped screen — for managers AND technicians — defaults to the
+// user's own branch instead of the first warehouse alphabetically (Naples). The
+// build-time seed doesn't reliably reach the live DB, so this runs at runtime from
+// the shared app layout. Idempotent + non-fatal, with a per-instance fast-path.
+// Company-wide users with no branch (admins/execs) are left null on purpose — they
+// toggle branch and shouldn't be pinned to one.
+let _userWhRan = false;
+export async function ensureUserWarehouses(): Promise<void> {
+  if (_userWhRan) return;
+  try {
+    const needing = await prisma.user.findMany({
+      where: { active: true, warehouseId: null, branch: { not: null } },
+      select: { id: true, branch: true },
+    });
+    if (needing.length === 0) {
+      _userWhRan = true;
+      return;
+    }
+    const whs = await prisma.warehouse.findMany({ where: { active: true }, select: { id: true, name: true } });
+    for (const u of needing) {
+      const b = (u.branch ?? "").trim().toLowerCase();
+      if (!b) continue; // empty branch → don't match (would otherwise match every name)
+      const match = whs.find((w) => w.name.toLowerCase().includes(b));
+      if (!match) continue;
+      try {
+        await prisma.user.update({ where: { id: u.id }, data: { warehouseId: match.id } });
+      } catch (e) {
+        console.error("ensureUserWarehouses: failed to set", u.id, e);
+      }
+    }
+    _userWhRan = true;
+  } catch (e) {
+    console.error("ensureUserWarehouses failed (non-fatal):", e);
+  }
+}
+
 export async function resolveWarehouseId(user: SessionUser, requested?: string | null): Promise<string | null> {
   const want = (requested ?? "").trim();
   if (want) {

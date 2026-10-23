@@ -9,6 +9,7 @@ import { matchPathToItem } from "@/lib/access-paths";
 import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
 import { ensureMbrLoaded } from "@/lib/mbr-ensure";
+import { ensureUserWarehouses } from "@/lib/inventory-scope";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -25,6 +26,11 @@ export default async function AppGroupLayout({
   // and branch-locked managers who can't reach the exec/board dashboards. Idempotent,
   // non-fatal, cheap fast-path once the newest month is complete.
   await ensureMbrLoaded();
+
+  // Set each active login's home warehouse from their branch when unset, so every
+  // branch-scoped screen defaults to the user's own branch (managers + technicians)
+  // rather than the first warehouse alphabetically. Idempotent, non-fatal.
+  await ensureUserWarehouses();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still
