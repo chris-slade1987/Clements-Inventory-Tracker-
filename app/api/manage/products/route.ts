@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { isUomCode } from "@/lib/uom";
+import { normalizeClassification } from "@/lib/constants";
+import { Prisma } from "@prisma/client";
 
 export const maxDuration = 20;
 
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
       if (!unitOfMeasure) return NextResponse.json({ error: "Unit of measure is required." }, { status: 400 });
       if (!isUomCode(unitOfMeasure)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
 
-      const data = {
+      const data: Prisma.ProductUncheckedCreateInput = {
         name,
         unitOfMeasure,
         manufacturer: clean(body?.manufacturer),
@@ -44,6 +46,19 @@ export async function POST(req: Request) {
         barcode: clean(body?.barcode),
         distributorSku: clean(body?.distributorSku),
       };
+
+      // Extra profile fields the Edit screen sends. Only touched when present in
+      // the body, so the catalog-list form (which omits them) never nulls them.
+      const has = (k: string) => Object.prototype.hasOwnProperty.call(body ?? {}, k);
+      if (has("form")) data.form = clean(body?.form);
+      if (has("notes")) data.notes = clean(body?.notes);
+      if (has("approved")) data.approved = body?.approved === true;
+      if (has("active")) data.active = body?.active === true;
+      if (has("division") || has("subdivision")) {
+        const norm = normalizeClassification(body?.division, body?.subdivision);
+        data.division = norm.division;
+        data.subdivision = norm.subdivision;
+      }
 
       if (action === "create") {
         const p = await prisma.product.create({ data });

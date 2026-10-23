@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader, btn } from "@/components/ui";
 import { redirect } from "next/navigation";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
 import { money, qty, dateShort } from "@/lib/format";
-import ProductPhotos from "./ProductPhotos";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +20,7 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) notFound();
 
-  const [warehouses, grouped, movements, photos] = await Promise.all([
+  const [warehouses, grouped, movements, photos, linkedBarcodes] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.stockMovement.groupBy({ by: ["warehouseId"], where: { productId: id }, _sum: { quantity: true } }),
     prisma.stockMovement.findMany({
@@ -31,8 +30,14 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
       include: { warehouse: { select: { name: true } }, technician: { select: { name: true } } },
     }),
     prisma.productPhoto.findMany({ where: { productId: id, status: "assigned" }, orderBy: [{ primary: "desc" }, { assignedAt: "desc" }] }),
+    prisma.productBarcode.findMany({ where: { productId: id }, orderBy: { createdAt: "asc" }, select: { id: true, code: true, symbology: true } }),
   ]);
   const labelPhoto = photos[0] ?? null;
+  // Every barcode that resolves to this product at check-out: the linked
+  // ProductBarcode rows plus the legacy Product.barcode mirror (de-duped).
+  const barcodeCodes = Array.from(
+    new Set([...linkedBarcodes.map((b) => b.code), ...(product.barcode ? [product.barcode] : [])]),
+  );
   const onHandByWh = new Map(grouped.map((g) => [g.warehouseId, g._sum.quantity ?? 0]));
   const totalOnHand = [...onHandByWh.values()].reduce((s, v) => s + v, 0);
   const unit = uomLabel(product.unitOfMeasure);
@@ -51,7 +56,18 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
     { label: "Units per case", value: product.unitsPerCase != null ? String(product.unitsPerCase) : "—" },
     { label: "EPA reg. no.", value: product.epaRegNumber ?? <span className="text-muted">Not on file</span> },
     { label: "Distributor SKU", value: product.distributorSku ?? "—" },
-    { label: "Barcode", value: product.barcode ?? "—" },
+    {
+      label: barcodeCodes.length > 1 ? "Barcodes" : "Barcode",
+      value: barcodeCodes.length ? (
+        <span className="flex flex-wrap justify-end gap-1">
+          {barcodeCodes.map((c) => (
+            <span key={c} className="rounded-full border border-line bg-surface px-2 py-0.5 font-mono text-xs text-ink">{c}</span>
+          ))}
+        </span>
+      ) : (
+        <span className="text-muted">None linked</span>
+      ),
+    },
   ];
 
   return (
@@ -73,31 +89,47 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
               <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">Unconfirmed</span>
             )}
             {product.active ? null : <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">Inactive</span>}
+            <Link href={`/manage/products/${product.id}/edit`} className={btn.primary}>
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" /></svg>
+              Edit
+            </Link>
           </div>
         }
       />
 
-      {/* Product profile — label photo + what it is / used for (research-enriched). */}
-      {product.usedFor || labelPhoto ? (
-        <Card className="mb-4 p-4">
-          <div className="flex flex-wrap gap-4 sm:flex-nowrap">
-            {labelPhoto ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={labelPhoto.photoUrl} alt={`${product.name} label`} className="h-28 w-28 shrink-0 rounded-lg border border-line object-cover" />
-            ) : null}
-            <div className="min-w-0">
-              <div className="text-xs font-medium text-muted">What it is / used for</div>
-              <p className="mt-1 text-sm text-ink">{product.usedFor ?? "No description on file yet."}</p>
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-                {product.activeIngredient ? <span><span className="font-medium text-ink">Active:</span> {product.activeIngredient}</span> : null}
-                {product.form ? <span><span className="font-medium text-ink">Form:</span> {formLabel}</span> : null}
-                {product.manufacturer ? <span><span className="font-medium text-ink">Maker:</span> {product.manufacturer}</span> : null}
-              </div>
-              {!labelPhoto ? <div className="mt-2 text-[11px] text-muted">No label photo yet — add one in Inventory → Photo Catalog.</div> : null}
+      {/* Product profile — primary photo prominently + read-only reference thumbnails
+          and "what it is / used for". Photos are managed on the Edit screen. */}
+      <Card className="mb-4 p-4">
+        <div className="flex flex-wrap gap-4 sm:flex-nowrap">
+          {labelPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={labelPhoto.photoUrl} alt={`${product.name} reference photo`} className="h-40 w-40 shrink-0 rounded-xl border border-line object-cover" />
+          ) : (
+            <div className="grid h-40 w-40 shrink-0 place-items-center rounded-xl border border-dashed border-line bg-surface text-center text-[11px] text-muted">
+              No photo on file
             </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-medium text-muted">What it is / used for</div>
+            <p className="mt-1 text-sm text-ink">{product.usedFor ?? "No description on file yet."}</p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+              {product.activeIngredient ? <span><span className="font-medium text-ink">Active:</span> {product.activeIngredient}</span> : null}
+              {product.form ? <span><span className="font-medium text-ink">Form:</span> {formLabel}</span> : null}
+              {product.manufacturer ? <span><span className="font-medium text-ink">Maker:</span> {product.manufacturer}</span> : null}
+            </div>
+            {/* Read-only thumbnail strip of the other reference photos. */}
+            {photos.length > 1 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {photos.slice(1).map((p) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={p.id} src={p.photoUrl} alt={`${product.name} reference`} className="h-14 w-14 rounded-lg border border-line object-cover" />
+                ))}
+              </div>
+            ) : null}
+            <div className="mt-3 text-[11px] text-muted">Photos feed check-out identify. Add, replace, or tag them on the Edit screen.</div>
           </div>
-        </Card>
-      ) : null}
+        </div>
+      </Card>
 
       {/* Safety Data Sheet — prominent, opens the manufacturer SDS PDF. */}
       <Card className="mb-4 p-4">
@@ -121,12 +153,6 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
           )}
         </div>
       </Card>
-
-      {/* Reference photos — super-admin photo management (feeds check-out identify). */}
-      <ProductPhotos
-        productId={product.id}
-        photos={photos.map((p) => ({ id: p.id, photoUrl: p.photoUrl, kind: p.kind, primary: p.primary }))}
-      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Product facts */}
