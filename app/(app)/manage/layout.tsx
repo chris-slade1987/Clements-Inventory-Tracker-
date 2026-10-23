@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
+import { userCanAccess } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { pendingProductRequestCount } from "@/lib/product-requests";
 import ManageTabs from "./ManageTabs";
@@ -18,7 +20,19 @@ export default async function ManageLayout({
   // page also self-guards with isSuperAdmin. HR no longer has a catalog surface.
   const user = await requireUser();
   const isAdmin = user.role === "admin";
-  if (!isAdmin) redirect("/dashboard");
+  if (!isAdmin) {
+    // Non-admins (e.g. branch managers) may open the READ-ONLY product profile
+    // VIEW at /manage/products/[id] — but nothing else under /manage. The view page
+    // self-guards and renders its own header, so skip the admin Inventory
+    // Administration chrome. Everything else (list, edit, other tabs) stays
+    // super-admin-only via the redirect below.
+    const path = ((await headers()).get("x-pathname") ?? "").replace(/\/$/, "");
+    const isProductView = /^\/manage\/products\/[^/]+$/.test(path) && !path.endsWith("/edit");
+    if (isProductView && (await userCanAccess(user, "product-profile"))) {
+      return <>{children}</>;
+    }
+    redirect("/dashboard");
+  }
   const superAdmin = isSuperAdmin(user);
 
   const [toConfirm, toRequests] = await Promise.all([

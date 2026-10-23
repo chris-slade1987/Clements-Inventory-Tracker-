@@ -73,6 +73,13 @@ export async function POST(req: Request) {
 
   const result = await identifyProduct(image, mime, catalog, references);
 
+  // Non-secret signal so we can tell when the photo path couldn't actually "see"
+  // the image (no vision key / timeout / error) vs a genuine no-match. Never logs
+  // the key or any image bytes — only the status + timing.
+  if (!result.ai) {
+    console.warn(`[inventory/identify] vision unavailable: status=${result.status} latencyMs=${result.latencyMs} (ANTHROPIC_API_KEY ${process.env.ANTHROPIC_API_KEY ? "set" : "absent"})`);
+  }
+
   // Persist the photo (best-effort) so the chosen line can carry a thumbnail into
   // history. Never blocks identification.
   let photoUrl: string | null = null;

@@ -160,12 +160,17 @@ model Product {
 
 // A scanned barcode linked to a catalog product. Multiple barcodes may point at
 // the same product (first-time linking of new barcodes at check-out adds rows
-// here). `code` is globally unique. `Product.barcode` is kept as a legacy mirror;
-// lookups check ProductBarcode first, then Product.barcode.
+// here). `code` is globally unique. `normalizedCode` is the GTIN-14-canonical form
+// (see lib/barcode.normalizeBarcode) so the same physical barcode resolves even
+// when the profile scan and the check-out scan differ by a leading zero, a check
+// digit, or UPC-A(12)/EAN-13(13)/GTIN encoding. `Product.barcode` is kept as a
+// legacy mirror; lookups check ProductBarcode (exact, then normalized) first, then
+// Product.barcode (exact, then normalized).
 model ProductBarcode {
   id              String   @id @default(cuid())
   productId       String   @map("product_id")
   code            String   @unique
+  normalizedCode  String?  @map("normalized_code") // GTIN-14 canonical; non-unique (many codes collapse to one key)
   symbology       String? // e.g. "upc_a" | "ean_13" | "code_128" | "qr" (optional)
   createdByUserId String?  @map("created_by_user_id")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -173,6 +178,7 @@ model ProductBarcode {
   product Product @relation(fields: [productId], references: [id])
 
   @@index([productId])
+  @@index([normalizedCode])
   @@map("product_barcodes")
 }
 

@@ -109,6 +109,11 @@ const RULES: [RegExp, string][] = [
   [/^\/field-ops(\/|$)/, "field-ops"],
 
   // --- Catalog admin (/manage) — login/role admin pages left unmapped ---
+  // Order matters (first match wins): the Edit screen and the Products LIST are
+  // super-admin-only ("products"); the read-only product PROFILE view in between
+  // is open to any inventory viewer ("product-profile").
+  [/^\/manage\/products\/[^/]+\/edit(\/|$)/, "products"],
+  [/^\/manage\/products\/[^/]+(\/|$)/, "product-profile"],
   [/^\/manage\/products(\/|$)/, "products"],
   [/^\/manage\/inventory(\/|$)/, "stock-import"],
   [/^\/manage\/confirm(\/|$)/, "confirm"],

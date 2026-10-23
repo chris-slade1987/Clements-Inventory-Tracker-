@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
+import { normalizeBarcode } from "@/lib/barcode";
 import { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -29,7 +30,9 @@ export async function POST(req: Request) {
 
   try {
     const bc = await prisma.productBarcode.create({
-      data: { productId, code, symbology, createdByUserId: user.id },
+      // Store both the raw `code` and its GTIN-14 canonical `normalizedCode` so the
+      // same physical barcode resolves at check-out across encodings/leading zeros.
+      data: { productId, code, normalizedCode: normalizeBarcode(code) || null, symbology, createdByUserId: user.id },
     });
     return NextResponse.json({ ok: true, barcode: { id: bc.id, code: bc.code, productId: bc.productId } });
   } catch (e) {

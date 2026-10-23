@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Card, PageHeader, btn } from "@/components/ui";
 import { redirect } from "next/navigation";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
+import { userCanAccess } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
@@ -13,9 +14,12 @@ export const dynamic = "force-dynamic";
 const MOVE_LABEL: Record<string, string> = { check_in: "Check-in", check_out: "Check-out", adjustment: "Adjustment" };
 
 export default async function ProductProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  // Super-admin-only: the product profile/Edit window manages catalog data + photos.
+  // VIEW is read-only and open to any inventory viewer (branch managers + admins);
+  // only SUPER ADMINS edit (the Edit button + /edit screen manage catalog data,
+  // photos, and barcodes). Non-super-admins see no mutating control and no cost.
   const user = await requireUser();
-  if (!isSuperAdmin(user)) redirect("/dashboard");
+  const canEdit = isSuperAdmin(user);
+  if (!canEdit && !(await userCanAccess(user, "product-profile"))) redirect("/dashboard");
   const { id } = await params;
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) notFound();
@@ -73,7 +77,11 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
   return (
     <>
       <div className="mb-2">
-        <Link href="/manage/products" className="text-xs font-medium text-brand-700 hover:underline">← All products</Link>
+        {canEdit ? (
+          <Link href="/manage/products" className="text-xs font-medium text-brand-700 hover:underline">← All products</Link>
+        ) : (
+          <Link href="/inventory/stock" className="text-xs font-medium text-brand-700 hover:underline">← Back to inventory</Link>
+        )}
       </div>
       <PageHeader
         title={product.name}
@@ -89,10 +97,12 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
               <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">Unconfirmed</span>
             )}
             {product.active ? null : <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">Inactive</span>}
-            <Link href={`/manage/products/${product.id}/edit`} className={btn.primary}>
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" /></svg>
-              Edit
-            </Link>
+            {canEdit ? (
+              <Link href={`/manage/products/${product.id}/edit`} className={btn.primary}>
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" /></svg>
+                Edit
+              </Link>
+            ) : null}
           </div>
         }
       />
@@ -126,7 +136,9 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
                 ))}
               </div>
             ) : null}
-            <div className="mt-3 text-[11px] text-muted">Photos feed check-out identify. Add, replace, or tag them on the Edit screen.</div>
+            <div className="mt-3 text-[11px] text-muted">
+              Photos feed check-out identify.{canEdit ? " Add, replace, or tag them on the Edit screen." : ""}
+            </div>
           </div>
         </div>
       </Card>
@@ -214,7 +226,8 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
                     <td className="px-4 py-2 whitespace-nowrap text-muted">{dateShort(m.createdAt)}</td>
                     <td className="px-3 py-2">{MOVE_LABEL[m.type] ?? m.type}</td>
                     <td className="px-3 py-2 text-muted">{m.warehouse?.name.replace(" (HQ)", "") ?? "—"}</td>
-                    <td className="px-3 py-2 text-muted">{m.technician?.name ?? m.reason ?? (m.unitPrice != null ? money(m.unitPrice) + "/unit" : "—")}</td>
+                    {/* Unit cost is a sensitive field — only super admins see it. */}
+                    <td className="px-3 py-2 text-muted">{m.technician?.name ?? m.reason ?? (canEdit && m.unitPrice != null ? money(m.unitPrice) + "/unit" : "—")}</td>
                     <td className={`px-4 py-2 text-right tabular-nums font-medium ${m.quantity < 0 ? "text-red-600" : "text-emerald-700"}`}>
                       {m.quantity > 0 ? "+" : ""}{qty(m.quantity)}
                     </td>

@@ -98,7 +98,7 @@ export default function ScanCheckoutClient({
 
   // Overlays.
   const [pending, setPending] = useState<Pending | null>(null);
-  const [candidates, setCandidates] = useState<{ list: Candidate[]; photoUrl: string | null; message?: string; aiSuggestedProductId: string | null } | null>(null);
+  const [candidates, setCandidates] = useState<{ list: Candidate[]; photoUrl: string | null; message?: string; aiSuggestedProductId: string | null; status?: string; ai?: boolean } | null>(null);
   const [linkFlow, setLinkFlow] = useState<{ code: string } | null>(null);
   const [search, setSearch] = useState(""); // manual search / link search query
 
@@ -213,7 +213,8 @@ export default function ScanCheckoutClient({
           return;
         }
       }
-      setCandidates({ list, photoUrl, message: data.message, aiSuggestedProductId });
+      setSearch("");
+      setCandidates({ list, photoUrl, message: data.message, aiSuggestedProductId, status: data.status, ai: data.ai });
     } catch {
       setBusy(false);
       setError("Network error during identification.");
@@ -665,13 +666,34 @@ export default function ScanCheckoutClient({
         />
       ) : null}
 
-      {/* AI candidates overlay */}
+      {/* AI candidates overlay — surface the top match(es) to approve/correct;
+          when the AI is off or has no acceptable catalog match, say so plainly and
+          offer manual search + the new-product request (never a bare "no match"). */}
       {candidates ? (
-        <Overlay onClose={() => setCandidates(null)} title="Which product is this?">
-          {candidates.message ? <p className="text-sm text-muted mb-2">{candidates.message}</p> : null}
-          {candidates.list.length === 0 ? (
-            <p className="text-sm text-muted">No confident match. Close this and search the catalog by name.</p>
-          ) : (
+        <Overlay onClose={() => setCandidates(null)} title={candidates.list.length ? "Which product is this? Pick the match" : "Identify this product"}>
+          {candidates.photoUrl ? (
+            <div className="mb-3 flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={candidates.photoUrl} alt="" className="h-14 w-14 rounded-lg object-cover border border-line" />
+              <p className="text-xs text-muted">Tap the right product to confirm the match, or search / request below.</p>
+            </div>
+          ) : null}
+
+          {candidates.status === "no_key" ? (
+            <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              Photo matching needs the AI vision key, which isn&apos;t configured here — the portal can only text-match right now. Search the catalog by name, or request it as a new product.
+            </p>
+          ) : candidates.list.length === 0 && candidates.ai === false ? (
+            <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              {candidates.message ?? "Photo identification is unavailable right now."} Search the catalog by name, or request it as a new product.
+            </p>
+          ) : candidates.message && candidates.list.length === 0 ? (
+            <p className="text-sm text-muted mb-3">{candidates.message}</p>
+          ) : candidates.message ? (
+            <p className="text-sm text-muted mb-2">{candidates.message}</p>
+          ) : null}
+
+          {candidates.list.length > 0 ? (
             <ul className="divide-y divide-line">
               {candidates.list.map((c) => (
                 <li key={c.productId}>
@@ -685,7 +707,27 @@ export default function ScanCheckoutClient({
                 </li>
               ))}
             </ul>
-          )}
+          ) : null}
+
+          {/* Always-available fallbacks: search the catalog by hand, or (for a
+              genuinely off-catalog item) route to the super-admin new-product request. */}
+          <div className="mt-3 border-t border-line pt-3">
+            <p className="mb-1 text-xs font-medium text-muted">{candidates.list.length ? "Not one of these?" : "Find it yourself"}</p>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search the catalog by name or SKU…"
+              className="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+            <ManualResults products={products} query={search} onPick={(p) => { setCandidates(null); pickManual(p); }} onHandFor={onHandFor} countedFor={countedFor} />
+          </div>
+          <button
+            type="button"
+            className={`${btn.secondary} mt-3 w-full`}
+            onClick={() => { setCandidates(null); setRequestFor({ name: "" }); }}
+          >
+            Not on the catalog — request a new product
+          </button>
         </Overlay>
       ) : null}
 
@@ -711,6 +753,15 @@ export default function ScanCheckoutClient({
               onChange={(e) => { const f = e.target.files?.[0]; if (f) { setLinkFlow(null); handlePhoto(f); } }}
             />
           </label>
+          {/* Not an existing catalog product? Route to the super-admin new-product
+              request instead of forcing a link to the wrong product. */}
+          <button
+            type="button"
+            className={`${btn.secondary} mt-2 w-full`}
+            onClick={() => { setLinkFlow(null); setSearch(""); setRequestFor({ name: "" }); }}
+          >
+            Not on the catalog — request a new product
+          </button>
         </Overlay>
       ) : null}
 

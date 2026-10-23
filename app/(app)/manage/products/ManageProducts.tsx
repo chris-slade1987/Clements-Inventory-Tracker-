@@ -235,26 +235,11 @@ export default function ManageProducts({ products }: { products: Product[] }) {
                   </td>
                   <td className="px-3 py-2 text-xs">{p.epaRegNumber ?? "—"}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
-                    <button
-                      onClick={() =>
-                        setForm({
-                          id: p.id,
-                          name: p.name,
-                          manufacturer: p.manufacturer ?? "",
-                          epaRegNumber: p.epaRegNumber ?? "",
-                          unitOfMeasure: p.unitOfMeasure,
-                          category: p.category ?? "Other",
-                          activeIngredient: p.activeIngredient ?? "",
-                          targetPest: p.targetPest ?? "",
-                          applicationMethod: p.applicationMethod ?? "",
-                          barcode: p.barcode ?? "",
-                          distributorSku: p.distributorSku ?? "",
-                        })
-                      }
-                      className="text-xs font-medium text-brand-700 hover:underline"
-                    >
-                      Edit
-                    </button>
+                    {/* Editing a product happens ONLY on its profile → Edit screen
+                        (super-admin-guarded). No inline edit here. */}
+                    <Link href={`/manage/products/${p.id}`} className="text-xs font-medium text-brand-700 hover:underline">
+                      Open profile
+                    </Link>
                     <span className="text-line px-1">·</span>
                     {p.active ? (
                       <button onClick={() => setActive(p.id, false)} className="text-xs font-medium text-red-600 hover:underline">
