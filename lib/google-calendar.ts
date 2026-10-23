@@ -138,21 +138,30 @@ function parseLenient(raw: string): ServiceAccountKey | null {
 }
 
 function loadServiceAccount(): ServiceAccountKey | null {
-  let raw = process.env.GOOGLE_WORKSPACE_SA_JSON?.trim();
-  if (!raw) {
-    const b64 = process.env.GOOGLE_WORKSPACE_SA_JSON_BASE64?.trim();
-    if (b64) {
-      try {
-        raw = Buffer.from(b64, "base64").toString("utf8").trim();
-      } catch {
-        return null;
-      }
+  // Collect every candidate source, then return the FIRST that yields a usable key.
+  // Order: the plain JSON var, then the base64 var. Crucially this no longer
+  // requires the JSON var to be empty before trying base64 — so if someone set a
+  // mangled GOOGLE_WORKSPACE_SA_JSON *and* a clean GOOGLE_WORKSPACE_SA_JSON_BASE64,
+  // the clean base64 one wins instead of the broken plain one blocking it.
+  const candidates: string[] = [];
+  const jsonRaw = process.env.GOOGLE_WORKSPACE_SA_JSON?.trim();
+  if (jsonRaw) candidates.push(jsonRaw);
+  const b64 = process.env.GOOGLE_WORKSPACE_SA_JSON_BASE64?.trim();
+  if (b64) {
+    try {
+      const decoded = Buffer.from(b64, "base64").toString("utf8").trim();
+      if (decoded) candidates.push(decoded);
+    } catch {
+      /* ignore a bad base64 value — a later candidate may still work */
     }
   }
-  if (!raw) return null;
-  // Strict first (correct paste / base64); fall back to lenient recovery of a
-  // newline-mangled or quote-wrapped paste so a near-miss value still connects.
-  return parseStrict(raw) ?? parseLenient(raw);
+  for (const raw of candidates) {
+    // Strict first (correct paste / base64); fall back to lenient recovery of a
+    // newline-mangled or quote-wrapped paste so a near-miss value still connects.
+    const parsed = parseStrict(raw) ?? parseLenient(raw);
+    if (parsed) return parsed;
+  }
+  return null;
 }
 
 /** True when a usable service-account key is present in the environment. */
