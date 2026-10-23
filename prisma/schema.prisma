@@ -215,6 +215,15 @@ model CheckoutLine {
   identifiedBy String  @map("identified_by") // "BARCODE" | "AI_PHOTO" | "MANUAL_SEARCH" | "SHELF_QR"
   photoUrl     String? @map("photo_url")
   aiConfidence Float?  @map("ai_confidence")
+  // The AI's TOP-ranked candidate at identify time (Scan Intelligence loop). Set
+  // only on AI_PHOTO lines; the CONFIRMED match is `productId`. When this equals
+  // productId the AI's #1 was right; when it differs the manager corrected it;
+  // null = no AI suggestion (barcode / manual / QR line, or legacy row).
+  aiSuggestedProductId String? @map("ai_suggested_product_id")
+  // Set when a super admin has acted on this scan in the "turn good scans into
+  // reference photos" queue (promoted it to a ProductPhoto, or dismissed it), so
+  // it stops reappearing. Null = still a candidate.
+  refPhotoReviewedAt   DateTime? @map("ref_photo_reviewed_at")
 
   checkout Checkout       @relation(fields: [checkoutId], references: [id], onDelete: Cascade)
   product  Product        @relation(fields: [productId], references: [id])

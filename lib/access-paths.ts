@@ -112,6 +112,7 @@ const RULES: [RegExp, string][] = [
   [/^\/manage\/products(\/|$)/, "products"],
   [/^\/manage\/inventory(\/|$)/, "stock-import"],
   [/^\/manage\/confirm(\/|$)/, "confirm"],
+  [/^\/manage\/scan-intel(\/|$)/, "scan-intel"],
   [/^\/manage\/technicians(\/|$)/, "technicians"],
 ];
 

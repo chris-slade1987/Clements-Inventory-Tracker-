@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { fail } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver, isSuperAdmin } from "@/lib/auth";
-import { saveUpload, deleteUpload } from "@/lib/storage";
+import { saveUpload, deleteUpload, readUpload } from "@/lib/storage";
 import { identifyProduct, classifyPhoto, PHOTO_KINDS, type CatalogEntry, type PhotoKind } from "@/lib/inventory-identify";
 import { uomCode } from "@/lib/uom";
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   const action = s(body?.action);
 
   // Catalog-edit actions are super-admin-only (Chris, Julie, April).
-  const EDIT_ACTIONS = new Set(["add", "replace", "setKind", "assign", "discard", "delete", "setPrimary"]);
+  const EDIT_ACTIONS = new Set(["add", "replace", "setKind", "assign", "discard", "delete", "setPrimary", "promoteScan", "dismissScan"]);
   if (action && EDIT_ACTIONS.has(action) && !isSuperAdmin(user)) {
     return NextResponse.json({ error: "Only a super admin can manage catalog photos." }, { status: 403 });
   }
@@ -251,6 +251,74 @@ export async function POST(req: Request) {
       const photo = await prisma.productPhoto.findUnique({ where: { id: photoId } });
       if (photo?.photoUrl) await deleteUpload(photo.photoUrl).catch(() => {});
       await prisma.productPhoto.delete({ where: { id: photoId } });
+      return NextResponse.json({ ok: true });
+    }
+
+    // Scan Intelligence (Part 3): promote a good confirmed check-out scan into a
+    // curated reference ProductPhoto so /api/inventory/identify compares against
+    // it next time. Reuses the SAME storage + classify + cap + primary rules as
+    // "add", but sources the image bytes from the stored scan (no re-upload from
+    // the client). SUPER-ADMIN only (gated above).
+    if (action === "promoteScan") {
+      const lineId = s(body?.lineId);
+      if (!lineId) return NextResponse.json({ error: "Missing scan." }, { status: 400 });
+      const line = await prisma.checkoutLine.findUnique({
+        where: { id: lineId },
+        select: { id: true, productId: true, photoUrl: true, refPhotoReviewedAt: true, product: { select: { id: true } } },
+      });
+      if (!line) return NextResponse.json({ error: "Scan not found." }, { status: 404 });
+      if (!line.photoUrl) return NextResponse.json({ error: "This scan has no stored photo." }, { status: 400 });
+      if (!line.product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+      const productId = line.productId;
+
+      const existing = await prisma.productPhoto.count({ where: { productId, status: "assigned" } });
+      if (existing >= MAX_PHOTOS_PER_PRODUCT) {
+        return NextResponse.json({ error: `A product can have at most ${MAX_PHOTOS_PER_PRODUCT} photos. Delete one first.` }, { status: 409 });
+      }
+
+      // Read the stored scan bytes and re-save into the product-photos space so
+      // the reference photo owns its own object (no dangling ref if the checkout
+      // is later voided/cleaned up).
+      const bytes = await readUpload(line.photoUrl);
+      if (!bytes) {
+        return NextResponse.json({ error: "The scan image could not be read. It may have been removed." }, { status: 410 });
+      }
+      const photoUrl = await saveUpload(bytes, "reference-photo.jpg", "image/jpeg", "product-photos").catch(() => null);
+      if (!photoUrl) {
+        return NextResponse.json({ error: "The photo could not be stored. Try again." }, { status: 503 });
+      }
+
+      // AI auto-classifies the kind; degrades to "other" when AI is unavailable.
+      const classified = await classifyPhoto(bytes.toString("base64"), "image/jpeg");
+
+      const photo = await prisma.$transaction(async (tx) => {
+        const created = await tx.productPhoto.create({
+          data: {
+            productId,
+            photoUrl,
+            status: "assigned",
+            kind: classified.kind,
+            primary: existing === 0, // the first reference photo becomes canonical
+            labelText: classified.labelText,
+            capturedByUserId: user.id, capturedByName: user.name,
+            assignedByUserId: user.id, assignedByName: user.name, assignedAt: new Date(),
+            branch: user.branch ?? null,
+          },
+        });
+        // Mark this scan reviewed so it leaves the promotion queue.
+        await tx.checkoutLine.update({ where: { id: lineId }, data: { refPhotoReviewedAt: new Date() } });
+        return created;
+      });
+      return NextResponse.json({ ok: true, photoId: photo.id, photoUrl, kind: classified.kind, ai: classified.ai });
+    }
+
+    // Scan Intelligence: hide a scan from the promotion queue without promoting it.
+    if (action === "dismissScan") {
+      const lineId = s(body?.lineId);
+      if (!lineId) return NextResponse.json({ error: "Missing scan." }, { status: 400 });
+      const line = await prisma.checkoutLine.findUnique({ where: { id: lineId }, select: { id: true } });
+      if (!line) return NextResponse.json({ error: "Scan not found." }, { status: 404 });
+      await prisma.checkoutLine.update({ where: { id: lineId }, data: { refPhotoReviewedAt: new Date() } });
       return NextResponse.json({ ok: true });
     }
 

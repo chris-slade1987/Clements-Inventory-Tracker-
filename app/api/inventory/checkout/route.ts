@@ -17,6 +17,7 @@ type LineIn = {
   identifiedBy: string;
   photoUrl?: string | null;
   aiConfidence?: number | null;
+  aiSuggestedProductId?: string | null;
 };
 
 // POST /api/inventory/checkout
@@ -44,13 +45,21 @@ export async function POST(req: Request) {
   }
 
   const lines = rawLines
-    .map((l) => ({
-      productId: String(l.productId),
-      quantity: Math.trunc(Number(l.quantity)),
-      identifiedBy: IDENTIFIED_BY.has(String(l.identifiedBy)) ? String(l.identifiedBy) : "MANUAL_SEARCH",
-      photoUrl: l.photoUrl ? String(l.photoUrl) : null,
-      aiConfidence: typeof l.aiConfidence === "number" && Number.isFinite(l.aiConfidence) ? l.aiConfidence : null,
-    }))
+    .map((l) => {
+      const identifiedBy = IDENTIFIED_BY.has(String(l.identifiedBy)) ? String(l.identifiedBy) : "MANUAL_SEARCH";
+      // The AI's top pick is only meaningful on an AI_PHOTO line — ignore it on
+      // barcode / manual / QR lines so an outcome can't be miscredited to the AI.
+      const aiSuggestedProductId =
+        identifiedBy === "AI_PHOTO" && l.aiSuggestedProductId ? String(l.aiSuggestedProductId) : null;
+      return {
+        productId: String(l.productId),
+        quantity: Math.trunc(Number(l.quantity)),
+        identifiedBy,
+        photoUrl: l.photoUrl ? String(l.photoUrl) : null,
+        aiConfidence: typeof l.aiConfidence === "number" && Number.isFinite(l.aiConfidence) ? l.aiConfidence : null,
+        aiSuggestedProductId,
+      };
+    })
     .filter((l) => l.productId && Number.isFinite(l.quantity) && l.quantity > 0);
 
   if (!warehouseId) return NextResponse.json({ error: "Select a warehouse." }, { status: 400 });
@@ -156,6 +165,7 @@ export async function POST(req: Request) {
           identifiedBy: l.identifiedBy,
           photoUrl: l.photoUrl,
           aiConfidence: l.aiConfidence,
+          aiSuggestedProductId: l.aiSuggestedProductId,
         },
       });
       await tx.stockMovement.create({

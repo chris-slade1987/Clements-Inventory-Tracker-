@@ -32,6 +32,9 @@ type CartLine = {
   identifiedBy: IdentifiedBy;
   photoUrl?: string | null;
   aiConfidence?: number | null;
+  // AI's #1 pick at identify time (AI_PHOTO lines only) — lets Scan Intelligence
+  // score the confirmed productId as right / a correction.
+  aiSuggestedProductId?: string | null;
 };
 type Pending = {
   productId: string;
@@ -42,6 +45,7 @@ type Pending = {
   identifiedBy: IdentifiedBy;
   photoUrl?: string | null;
   aiConfidence?: number | null;
+  aiSuggestedProductId?: string | null;
   quantity: number;
 };
 type Candidate = {
@@ -94,7 +98,7 @@ export default function ScanCheckoutClient({
 
   // Overlays.
   const [pending, setPending] = useState<Pending | null>(null);
-  const [candidates, setCandidates] = useState<{ list: Candidate[]; photoUrl: string | null; message?: string } | null>(null);
+  const [candidates, setCandidates] = useState<{ list: Candidate[]; photoUrl: string | null; message?: string; aiSuggestedProductId: string | null } | null>(null);
   const [linkFlow, setLinkFlow] = useState<{ code: string } | null>(null);
   const [search, setSearch] = useState(""); // manual search / link search query
 
@@ -187,6 +191,10 @@ export default function ScanCheckoutClient({
       }
       const list: Candidate[] = Array.isArray(data.candidates) ? data.candidates : [];
       const photoUrl: string | null = data.photoUrl ?? null;
+      // The AI's #1 at identify time — candidates[0] is the top-ranked match
+      // (falling back to the preselect id). Carried onto the line so a later
+      // correction is scorable, regardless of which candidate the manager picks.
+      const aiSuggestedProductId: string | null = list[0]?.productId ?? data.preselectProductId ?? null;
       // High-confidence preselect → straight to the confirm card.
       if (data.preselectProductId) {
         const top = list.find((c) => c.productId === data.preselectProductId) ?? list[0];
@@ -200,18 +208,19 @@ export default function ScanCheckoutClient({
             identifiedBy: "AI_PHOTO",
             aiConfidence: top.confidence,
             photoUrl,
+            aiSuggestedProductId,
           });
           return;
         }
       }
-      setCandidates({ list, photoUrl, message: data.message });
+      setCandidates({ list, photoUrl, message: data.message, aiSuggestedProductId });
     } catch {
       setBusy(false);
       setError("Network error during identification.");
     }
   }
 
-  function pickCandidate(c: Candidate, photoUrl: string | null) {
+  function pickCandidate(c: Candidate, photoUrl: string | null, aiSuggestedProductId: string | null) {
     setCandidates(null);
     openConfirm({
       productId: c.productId,
@@ -222,6 +231,7 @@ export default function ScanCheckoutClient({
       identifiedBy: "AI_PHOTO",
       aiConfidence: c.confidence,
       photoUrl,
+      aiSuggestedProductId,
     });
   }
 
@@ -328,6 +338,7 @@ export default function ScanCheckoutClient({
           identifiedBy: pending.identifiedBy,
           photoUrl: pending.photoUrl ?? null,
           aiConfidence: pending.aiConfidence ?? null,
+          aiSuggestedProductId: pending.aiSuggestedProductId ?? null,
         },
       ];
     });
@@ -664,7 +675,7 @@ export default function ScanCheckoutClient({
             <ul className="divide-y divide-line">
               {candidates.list.map((c) => (
                 <li key={c.productId}>
-                  <button className="flex w-full items-center justify-between gap-2 py-3 text-left" onClick={() => pickCandidate(c, candidates.photoUrl)}>
+                  <button className="flex w-full items-center justify-between gap-2 py-3 text-left" onClick={() => pickCandidate(c, candidates.photoUrl, candidates.aiSuggestedProductId)}>
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium">{c.name}</span>
                       <span className="block text-xs text-muted">{Math.round(c.confidence * 100)}% · {c.reason || "match"}</span>

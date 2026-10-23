@@ -9,6 +9,7 @@ const CATALOG_TABS = [
   { href: "/manage/inventory", label: "Stock Import" },
   { href: "/manage/confirm", label: "Catalog Review" },
   { href: "/manage/product-requests", label: "Requests" },
+  { href: "/manage/scan-intel", label: "Scan Intelligence" },
 ];
 // De-emphasized settings links (not catalog tabs). Technicians (the checkout-
 // recipient roster) lives here rather than as a tab — it auto-syncs from HR

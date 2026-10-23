@@ -51,6 +51,7 @@ export const MODULES: AccessModule[] = [
     { id: "stock-import", name: "Stock Import", note: "Bulk product/stock import — super-admin-only" },
     { id: "confirm", name: "Catalog Review", note: "Duplicates + off-catalog + new-product confirm queue — super-admin-only" },
     { id: "product-requests", name: "Product Requests", note: "New-product approval queue — super-admin-only (Chris, Julie, April); self-guarded with isSuperAdmin" },
+    { id: "scan-intel", name: "Scan Intelligence", note: "Check-out AI photo-identify accuracy log + 'turn good scans into reference photos' queue — super-admin-only (Chris, Julie, April); self-guarded with isSuperAdmin" },
     { id: "technicians", name: "Technicians" } ] },
   { id: "fleet", name: "Fleet", sub: "Vehicles & fuel", items: [
     { id: "fleet", name: "Fleet Overview" }, { id: "fleet-detail", name: "Vehicle Detail" }, { id: "fleet-inspect", name: "Inspect Vehicle" },
@@ -106,8 +107,8 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   // pages self-guard with canManageAccessRights (Chris, Julie, April). Catalog
   // editing (products, stock-import, confirm/Catalog Review, product-requests) is
   // ALSO super-admin-only now — excluded here and self-guarded with isSuperAdmin.
-  admin: allAccess(["access-rights", "connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm"]),
-  field_ops: allAccess(["connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm"]),
+  admin: allAccess(["access-rights", "connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm", "scan-intel"]),
+  field_ops: allAccess(["connections", "copilot-insights", "product-requests", "products", "stock-import", "confirm", "scan-intel"]),
   manager: {
     "my-branch": true, team: "edit", inspections: true, warehouse: "edit", qc: "edit", "branch-hub": true,
     scorecard: "edit", "branch-training": true, "branch-pto": true, checklists: "edit", sops: "edit",
