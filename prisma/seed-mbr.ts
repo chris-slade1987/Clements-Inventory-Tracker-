@@ -45,7 +45,14 @@ const PNL_DETAIL_KEYS = new Set<string>([
 export async function seedMbrFromFile(prisma: PrismaClient, base: string) {
   const file = join(__dirname, "data", `${base}.json`);
   const p = JSON.parse(readFileSync(file, "utf8")) as ParsedMbr;
+  return seedMbrParsed(prisma, p);
+}
 
+// Load a single parsed MBR snapshot. Split out from seedMbrFromFile so a RUNTIME
+// caller (lib/mbr-ensure.ts) can pass an imported JSON object — reading a repo file
+// off disk isn't reliable inside a serverless function, but a statically-imported
+// JSON module is bundled and always available.
+export async function seedMbrParsed(prisma: PrismaClient, p: ParsedMbr) {
   // Guard: don't clobber an existing period's KPIs/tech (a later manual
   // correction wins) — BUT always reconcile line-of-business revenue AND the
   // P&L line-item detail from the snapshot, so corrected LOB mappings and the

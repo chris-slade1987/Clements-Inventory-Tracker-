@@ -20,6 +20,7 @@ import {
 import Controls from "../Controls";
 import { AreaTrend, Donut, ForecastTrend, Waterfall } from "@/components/charts";
 import InsightsLink from "@/components/InsightsLink";
+import { ensureMbrLoaded } from "@/lib/mbr-ensure";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,10 @@ export default async function BoardPage({
   if (!canViewExec(user)) redirect("/my-branch");
   const isObserver = isBoardObserver(user);
   const sp = await searchParams;
+  // Make sure every committed monthly board report is loaded into the live DB — the
+  // build-time seed doesn't reliably reach production, so this backfills any missing
+  // month (idempotent, non-fatal) before the board reads periods.
+  await ensureMbrLoaded();
   const periods = await listPeriods();
   if (periods.length === 0) {
     return (

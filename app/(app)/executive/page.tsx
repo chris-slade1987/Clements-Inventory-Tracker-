@@ -30,6 +30,7 @@ import MetricInfo from "@/components/MetricInfo";
 import { hasMetric } from "@/lib/metrics-registry";
 import { collectAttention } from "@/lib/needs-attention";
 import { buildExecutiveRhythm } from "@/lib/rhythm";
+import { ensureMbrLoaded } from "@/lib/mbr-ensure";
 import RhythmRibbon from "@/components/RhythmRibbon";
 import NeedsAttentionList from "@/components/NeedsAttentionList";
 
@@ -57,6 +58,10 @@ export default async function ManagementPage({
     redirect("/management");
   }
   const sp = await searchParams;
+
+  // Backfill any committed monthly board report missing from the live DB (the
+  // build-time seed doesn't reliably reach production). Idempotent + non-fatal.
+  await ensureMbrLoaded();
 
   const periods = await listPeriods();
   if (periods.length === 0) {
