@@ -138,11 +138,7 @@ export async function technicianGrades(branch?: string): Promise<
 // anyone whose level/role reads as leadership (manager/director/officer/…).
 // ───────────────────────────────────────────────────────────────────────────
 
-/** Assignable access levels (lib/access-levels.ts keys) whose drivers are inspected. */
-export const INSPECTABLE_LEVELS = ["technician", "sales"] as const;
-
 const LEADERSHIP_ROLE_RE = /manager|director|dir\.|officer|chief|\bcoo\b|\bceo\b|\bcfo\b|president|owner|supervisor/i;
-const TECH_ADVISOR_ROLE_RE = /tech(nician)?\b|service advisor|sales advisor|\badvisor\b/i;
 
 /** Obvious trailers / non-vehicle equipment — never inspected. */
 export function isTrailerLike(v: { name?: string | null; make?: string | null; model?: string | null; assignedTo?: string | null }): boolean {
@@ -150,18 +146,30 @@ export function isTrailerLike(v: { name?: string | null; make?: string | null; m
   return /trailer/.test(hay);
 }
 
-/** Does this employee (by assignable level + role string) drive an inspectable vehicle? */
-export function employeeIsInspectable(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
+/** True only when the driver clearly resolves to leadership (exec / manager /
+ *  director) — they maintain their own vehicles and are never inspected. */
+export function driverIsLeadership(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
   if (!emp) return false;
   const level = emp.accessLevel ?? null;
   const role = emp.role ?? "";
-  // Hard excludes — executives / managers / directors maintain their own vehicles.
-  if (level === "manager" || level === "admin" || level === "super_admin" || level === "sales_director") return false;
-  if (LEADERSHIP_ROLE_RE.test(role)) return false;
-  // Technicians & service advisors by assignable access level …
-  if (level && (INSPECTABLE_LEVELS as readonly string[]).includes(level)) return true;
-  // … or by role string when the login/level isn't decisive (prod data varies).
-  return TECH_ADVISOR_ROLE_RE.test(role);
+  if (level === "manager" || level === "admin" || level === "super_admin" || level === "sales_director") return true;
+  if (LEADERSHIP_ROLE_RE.test(role)) return true;
+  return false;
+}
+
+/**
+ * FAIL-OPEN: a resolved driver is inspectable UNLESS they are clearly leadership.
+ * We deliberately do NOT require a positive "technician/advisor" signal, because
+ * prod access-level/role data is inconsistent and a strict include-only rule
+ * silently dropped real technicians (e.g. a tech with a blank role or a login
+ * level that wasn't filled). Only executives/managers/directors are excluded;
+ * everyone else who drives a company vehicle is inspected. Trailers, unassigned
+ * spares, and force-exempt vehicles are filtered separately in
+ * listInspectableVehicles.
+ */
+export function employeeIsInspectable(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
+  if (!emp) return false;
+  return !driverIsLeadership(emp);
 }
 
 type InspectableVehicle = {
@@ -197,12 +205,18 @@ export async function listInspectableVehicles(branch?: string): Promise<Inspecta
   for (const v of vehicles) {
     if (v.inspectExempt) continue;
     if (isTrailerLike(v)) continue;
+    // Must have an assigned driver — unassigned spares aren't inspected.
+    const hasDriver = !!(v.assignedEmployeeId || (v.assignedTo && v.assignedTo.trim()));
+    if (!hasDriver) continue;
     let emp = v.assignedEmployee ? byId.get(v.assignedEmployee.id) ?? null : null;
     if (!emp) {
       const mid = matchEmployeeByName(v.assignedTo, roster);
       emp = mid ? byId.get(mid) ?? null : null;
     }
-    if (!employeeIsInspectable(emp ? { role: emp.role, accessLevel: emp.user?.accessLevel ?? null } : null)) continue;
+    // FAIL-OPEN: an assigned vehicle is inspected unless its driver clearly
+    // resolves to leadership. A technician/advisor with messy or unresolved data
+    // is NOT dropped (the earlier include-only rule wrongly excluded real techs).
+    if (emp && driverIsLeadership({ role: emp.role, accessLevel: emp.user?.accessLevel ?? null })) continue;
     out.push({ id: v.id, unitNumber: v.unitNumber, name: v.name, branch: v.branch, assignedTo: v.assignedTo, currentMileage: v.currentMileage });
   }
   return out;
