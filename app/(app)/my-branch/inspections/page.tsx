@@ -81,8 +81,8 @@ export default async function InspectionsPage({
                       )}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <Link href={`/fleet/${r.id}/inspect`} className="text-xs font-medium text-brand-700 hover:underline">
-                        {r.inspection ? "View / edit" : "Start inspection"}
+                      <Link href={`/fleet/${r.id}/inspect${r.inspection ? "?view=report" : ""}`} className="text-xs font-medium text-brand-700 hover:underline">
+                        {r.inspection ? "View report" : "Start inspection"}
                       </Link>
                     </td>
                   </tr>

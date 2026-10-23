@@ -7,6 +7,8 @@ import { branchLabel } from "@/lib/management";
 import { parseJson } from "@/lib/inspection";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import InspectionForm from "./InspectionForm";
+import InspectionReport from "./InspectionReport";
+import PrintButton from "./PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +72,30 @@ export default async function InspectPage({
   };
 
   const vlabel = `${vehicle.unitNumber ? `#${vehicle.unitNumber} · ` : ""}${vehicle.name}`;
+  const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
+
+  // Read-only report view: clicked into from the inspections list when an inspection
+  // exists. Editing stays on the form (?view omitted).
+  if (existing && sp.view === "report") {
+    const canEdit = !branchLocked(user) || vehicle.branch === user.branch;
+    return (
+      <>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <Link href={`/fleet/${id}`} className="text-xs font-medium text-brand-700 hover:underline">← {vlabel}</Link>
+          <PrintButton />
+        </div>
+        <PageHeader title="Vehicle Inspection Report" subtitle={[vlabel, vehicle.branch ? branchLabel(vehicle.branch) : null].filter(Boolean).join(" · ")} />
+        <InspectionReport
+          vehicleId={id}
+          vlabel={vlabel}
+          branchName={vehicle.branch ? branchLabel(vehicle.branch) : null}
+          periodLabel={`${monthName} ${year}`}
+          canEdit={canEdit}
+          inspection={existing}
+        />
+      </>
+    );
+  }
 
   return (
     <>

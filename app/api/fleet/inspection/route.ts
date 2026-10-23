@@ -179,40 +179,63 @@ export async function POST(req: Request) {
       await prisma.alert.deleteMany({ where: { dedupeKey } });
     }
 
-    // Email the graded employee a copy of their score (no-ops + logs until
-    // addresses / an email provider are configured).
-    let emailStatus: string | null = null;
-    if (employeeId) {
-      const emp = await prisma.employee.findUnique({ where: { id: employeeId } });
-      if (emp) {
-        const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
-        // Absolute URLs so the photos load in an email client (relative /api/file
-        // paths won't resolve in an inbox). Links never block the email — a broken
-        // image just shows a placeholder; the "view" link still works.
-        const origin = appUrl() || (() => { try { return new URL(req.url).origin; } catch { return ""; } })();
-        const abs = (u: string) => (/^https?:\/\//i.test(u) ? u : `${origin}${u.startsWith("/") ? "" : "/"}${u}`);
-        const photosHtml = resolvedPhotos.length
-          ? `<p style="margin-top:16px;font-weight:600">Inspection photos</p><table role="presentation" cellpadding="0" cellspacing="8"><tr>${resolvedPhotos
-              .map((p) => `<td style="text-align:center;font-size:11px;color:#475569"><a href="${abs(p.photoUrl)}"><img src="${abs(p.photoUrl)}" alt="${inspectionPhotoLabel(p.kind)}" width="120" style="width:120px;height:90px;object-fit:cover;border:1px solid #e2e8f0;border-radius:6px;display:block" /></a><div style="margin-top:4px;max-width:120px">${inspectionPhotoLabel(p.kind)}</div></td>`)
-              .join("")}</tr></table>`
-          : "";
-        const photosText = resolvedPhotos.length
-          ? `\nPhotos:\n${resolvedPhotos.map((p) => `- ${inspectionPhotoLabel(p.kind)}: ${abs(p.photoUrl)}`).join("\n")}\n`
-          : "";
-        const res = await sendEmail({
-          to: emp.email,
-          subject: `Your ${monthName} ${year} vehicle inspection — grade ${grade} (${scorePct}%)`,
-          kind: "inspection_score",
-          relatedType: "vehicle_inspection",
-          relatedId: saved.id,
-          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}${photosText}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— CanopyOS`,
-          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}${photosHtml}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— CanopyOS</p>`,
-        });
-        emailStatus = res.status;
-      }
+    // Email a copy of the report to BOTH the graded employee AND the inspector who
+    // completed it (previously only the graded employee got it, so the inspecting
+    // admin/manager never received a copy). No-ops + logs until an email provider
+    // (RESEND_API_KEY) and addresses are configured — nothing actually sends before
+    // then; the in-app report (?view=report) is always available regardless.
+    const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
+    const origin = appUrl() || (() => { try { return new URL(req.url).origin; } catch { return ""; } })();
+    const abs = (u: string) => (/^https?:\/\//i.test(u) ? u : `${origin}${u.startsWith("/") ? "" : "/"}${u}`);
+    const reportUrl = origin ? `${origin}/fleet/${vehicle.id}/inspect?view=report&year=${year}&month=${month}` : "";
+    const photosHtml = resolvedPhotos.length
+      ? `<p style="margin-top:16px;font-weight:600">Inspection photos</p><table role="presentation" cellpadding="0" cellspacing="8"><tr>${resolvedPhotos
+          .map((p) => `<td style="text-align:center;font-size:11px;color:#475569"><a href="${abs(p.photoUrl)}"><img src="${abs(p.photoUrl)}" alt="${inspectionPhotoLabel(p.kind)}" width="120" style="width:120px;height:90px;object-fit:cover;border:1px solid #e2e8f0;border-radius:6px;display:block" /></a><div style="margin-top:4px;max-width:120px">${inspectionPhotoLabel(p.kind)}</div></td>`)
+          .join("")}</tr></table>`
+      : "";
+    const photosText = resolvedPhotos.length
+      ? `\nPhotos:\n${resolvedPhotos.map((p) => `- ${inspectionPhotoLabel(p.kind)}: ${abs(p.photoUrl)}`).join("\n")}\n`
+      : "";
+    const failsHtml = fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : "";
+    const failsText = fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : "";
+    const reportHtml = reportUrl ? `<p><a href="${reportUrl}">View the full report</a></p>` : "";
+    const reportText = reportUrl ? `\nFull report: ${reportUrl}\n` : "";
+    const scoreLine = `Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}`;
+
+    const emailStatuses: Record<string, string> = {};
+    const emp = employeeId ? await prisma.employee.findUnique({ where: { id: employeeId } }) : null;
+
+    // 1) Graded driver.
+    if (emp?.email) {
+      const r = await sendEmail({
+        to: emp.email,
+        subject: `Your ${monthName} ${year} vehicle inspection — grade ${grade} (${scorePct}%)`,
+        kind: "inspection_score",
+        relatedType: "vehicle_inspection",
+        relatedId: saved.id,
+        text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\n${scoreLine}.${failsText}${photosText}${reportText}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— CanopyOS`,
+        html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>${scoreLine}</strong></p>${failsHtml}${photosHtml}${reportHtml}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— CanopyOS</p>`,
+      });
+      emailStatuses.driver = r.status;
     }
 
-    return NextResponse.json({ ok: true, id: saved.id, score, maxScore, scorePct, grade, criticalFailures: fails.length, emailStatus });
+    // 2) Inspector who completed it (a copy for their records) — skip if they ARE the
+    //    graded employee to avoid a duplicate.
+    const inspectorEmail = (user.email ?? "").trim();
+    if (inspectorEmail && inspectorEmail.toLowerCase() !== (emp?.email ?? "").toLowerCase()) {
+      const r = await sendEmail({
+        to: inspectorEmail,
+        subject: `Inspection filed — ${vlabel} — ${monthName} ${year} (grade ${grade}, ${scorePct}%)`,
+        kind: "inspection_score",
+        relatedType: "vehicle_inspection",
+        relatedId: saved.id,
+        text: `You completed the ${monthName} ${year} vehicle inspection for ${vlabel}${technicianName ? ` (driver: ${technicianName})` : ""}.\n\n${scoreLine}.${failsText}${photosText}${reportText}\n— CanopyOS`,
+        html: `<p>You completed the <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong>${technicianName ? ` (driver: ${technicianName})` : ""}.</p><p style="font-size:18px"><strong>${scoreLine}</strong></p>${failsHtml}${photosHtml}${reportHtml}<p>— CanopyOS</p>`,
+      });
+      emailStatuses.inspector = r.status;
+    }
+
+    return NextResponse.json({ ok: true, id: saved.id, score, maxScore, scorePct, grade, criticalFailures: fails.length, emailStatuses });
   } catch (e) {
     return fail(e);
   }
