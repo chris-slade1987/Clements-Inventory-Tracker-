@@ -237,7 +237,7 @@ export default function StockCountClient({
         </div>
       ) : null}
 
-      <div className="sticky bottom-20 md:bottom-4">
+      <div className="copilot-safe-actions sticky bottom-20 md:bottom-4">
         <button className={`${btn.primary} w-full`} onClick={submit} disabled={busy || pendingCount === 0 || !branchId}>
           {busy ? "Saving…" : `Save ${pendingCount || ""} count${pendingCount === 1 ? "" : "s"}`}
         </button>

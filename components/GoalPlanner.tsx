@@ -622,7 +622,7 @@ export default function GoalPlanner({
 
       {/* Save */}
       {canEdit ? (
-        <div className="sticky bottom-0 -mx-1 flex flex-wrap items-center gap-3 rounded-xl bg-canvas/80 px-1 py-2 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
+        <div className="copilot-safe-actions sticky bottom-0 -mx-1 flex flex-wrap items-center gap-3 rounded-xl bg-canvas/80 px-1 py-2 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
           <button onClick={save} disabled={busy} className={`${btn.primary}`}>{busy ? "Saving…" : "Save goal sheet"}</button>
           {msg ? <span className={`text-sm ${err ? "text-red-600" : "text-brand-700"}`}>{msg}</span> : null}
         </div>

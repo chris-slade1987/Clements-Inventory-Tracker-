@@ -4,13 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
+import { fileToJpegDataUrl } from "@/lib/client-image";
 import {
   CONDITION_ITEMS,
   RATING_SCALE,
   CHECK_ITEMS,
   MAX_SCORE,
+  INSPECTION_PHOTO_KINDS,
   scoreInspection,
-  gradeLetter,
   type Ratings,
   type Checks,
 } from "@/lib/inspection";
@@ -23,16 +24,13 @@ type Prefill = {
   technicianName: string;
   inspectorName: string;
   mileage: string;
-  oilChangeLast: string;
+  oilChangeNextMileage: string;
   oilChangeNext: string;
-  tireRotationLast: string;
-  tireRotationNext: string;
-  otherMaintLast: string;
-  otherMaintNext: string;
   notes: string;
   ratings: Record<string, number>;
   ratingIssues: Record<string, string>;
   checks: Record<string, boolean>;
+  photos: Record<string, string>; // kind -> existing photo URL
 };
 
 export default function InspectionForm({
@@ -59,17 +57,16 @@ export default function InspectionForm({
     technicianName: prefill.technicianName,
     inspectorName: prefill.inspectorName,
     mileage: prefill.mileage,
-    oilChangeLast: prefill.oilChangeLast,
+    oilChangeNextMileage: prefill.oilChangeNextMileage,
     oilChangeNext: prefill.oilChangeNext,
-    tireRotationLast: prefill.tireRotationLast,
-    tireRotationNext: prefill.tireRotationNext,
-    otherMaintLast: prefill.otherMaintLast,
-    otherMaintNext: prefill.otherMaintNext,
     notes: prefill.notes,
   });
   const [ratings, setRatings] = useState<Ratings>(prefill.ratings ?? {});
   const [ratingIssues, setRatingIssues] = useState<Record<string, string>>(prefill.ratingIssues ?? {});
   const [checks, setChecks] = useState<Checks>(prefill.checks ?? {});
+  // Photos: kind -> data URL (new capture) or existing URL. All four required.
+  const [photos, setPhotos] = useState<Record<string, string>>(prefill.photos ?? {});
+  const [photoBusy, setPhotoBusy] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -100,13 +97,46 @@ export default function InspectionForm({
   const answered = CONDITION_ITEMS.filter((it) => ratings[it.key]).length + CHECK_ITEMS.filter((it) => checks[it.key] != null).length;
   const totalItems = CONDITION_ITEMS.length + CHECK_ITEMS.length;
 
+  // ── Required-field validation (mirrored server-side) ──────────────────────
+  const mileageNum = parseInt(String(f.mileage).replace(/[^0-9]/g, ""), 10);
+  const mileageValid = Number.isFinite(mileageNum) && mileageNum > 0;
+  const oilMileageNum = parseInt(String(f.oilChangeNextMileage).replace(/[^0-9]/g, ""), 10);
+  const oilValid = (Number.isFinite(oilMileageNum) && oilMileageNum > 0) || f.oilChangeNext.trim() !== "";
+  const missingPhotos = INSPECTION_PHOTO_KINDS.filter((p) => !photos[p.key]);
+  const photosComplete = missingPhotos.length === 0;
+  const canSubmit = mileageValid && oilValid && photosComplete && !busy && !photoBusy;
+
+  function validationMessage(): string | null {
+    if (!mileageValid) return "Enter the current odometer mileage.";
+    if (!oilValid) return "Enter the next oil change — a next-due mileage and/or a next-due month.";
+    if (!photosComplete) return `Capture all 4 required photos (missing: ${missingPhotos.map((p) => p.label).join(", ")}).`;
+    return null;
+  }
+
+  async function onPhoto(kind: string, file: File | null | undefined) {
+    if (!file) return;
+    setPhotoBusy(kind);
+    setError(null);
+    try {
+      const dataUrl = await fileToJpegDataUrl(file, 1280, 0.8);
+      setDirty(true);
+      setPhotos((s) => ({ ...s, [kind]: dataUrl }));
+    } catch {
+      setError("Could not read that image. Try another photo.");
+    } finally {
+      setPhotoBusy(null);
+    }
+  }
+
   async function save() {
+    const vmsg = validationMessage();
+    if (vmsg) return setError(vmsg);
     setBusy(true);
     setError(null);
     const res = await fetch("/api/fleet/inspection", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vehicleId, year, month, ...f, ratings, ratingIssues, checks }),
+      body: JSON.stringify({ vehicleId, year, month, ...f, ratings, ratingIssues, checks, photos }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -160,7 +190,7 @@ export default function InspectionForm({
         <label className="block text-sm font-medium">Inspection date
           <DateInput className="mt-1" value={f.date} onChange={(v) => set({ date: v })} />
         </label>
-        <Field label="Mileage" v={f.mileage} on={(v) => set({ mileage: v })} hint="Pre-filled from file; updating syncs the vehicle" />
+        <Field label="Mileage" required v={f.mileage} on={(v) => set({ mileage: v })} hint="Required — pre-filled from file; updating syncs the vehicle" invalid={!mileageValid} />
         {mileageWarning ? <p className="sm:col-span-2 text-xs text-amber-700">{mileageWarning}</p> : null}
       </Card>
 
@@ -198,13 +228,36 @@ export default function InspectionForm({
         ))}
       </div>
 
-      {/* Section B — maintenance log review */}
-      <SectionTitle n="B" title="Routine maintenance log review" hint="Oil change dates pre-filled from service history." />
-      <Card className="p-4 space-y-3">
-        <MaintRow label="Oil change" last={f.oilChangeLast} next={f.oilChangeNext} onLast={(v) => set({ oilChangeLast: v })} onNext={(v) => set({ oilChangeNext: v })} />
-        <MaintRow label="Tire rotation" last={f.tireRotationLast} next={f.tireRotationNext} onLast={(v) => set({ tireRotationLast: v })} onNext={(v) => set({ tireRotationNext: v })} />
-        <MaintRow label="Other" last={f.otherMaintLast} next={f.otherMaintNext} onLast={(v) => set({ otherMaintLast: v })} onNext={(v) => set({ otherMaintNext: v })} />
+      {/* Section B — next oil change (from the truck's service sticker) */}
+      <SectionTitle n="B" title="Next oil change" hint="From the sticker on the truck — enter a mileage and/or a month. At least one is required." />
+      <Card className={`p-4 grid gap-3 sm:grid-cols-2 ${!oilValid ? "ring-1 ring-amber-300" : ""}`}>
+        <Field
+          label="Next due — mileage"
+          v={f.oilChangeNextMileage}
+          on={(v) => set({ oilChangeNextMileage: v })}
+          hint="Odometer reading the next oil change is due at"
+        />
+        <label className="block text-sm font-medium">Next due — month/year
+          <DateInput className="mt-1" value={f.oilChangeNext} onChange={(v) => set({ oilChangeNext: v })} />
+          <span className="mt-0.5 block text-[11px] font-normal text-muted">Date the next oil change is due by</span>
+        </label>
+        {!oilValid ? <p className="sm:col-span-2 text-xs text-amber-700">Enter a next-due mileage and/or a next-due date.</p> : null}
       </Card>
+
+      {/* Section B2 — required photos */}
+      <SectionTitle n="D" title="Required photos" hint="Capture all 4. Use the camera or upload from your phone." />
+      <div className="grid gap-2 sm:grid-cols-2">
+        {INSPECTION_PHOTO_KINDS.map((p) => (
+          <PhotoTile
+            key={p.key}
+            label={p.label}
+            value={photos[p.key] ?? null}
+            busy={photoBusy === p.key}
+            onPick={(file) => onPhoto(p.key, file)}
+            onClear={() => { setDirty(true); setPhotos((s) => { const n = { ...s }; delete n[p.key]; return n; }); }}
+          />
+        ))}
+      </div>
 
       {/* Section C — compliance checks */}
       <SectionTitle n="C" title="FDACS / insurance / maintenance" hint="1 point each. Critical items flag a safety alert when failed." />
@@ -245,7 +298,7 @@ export default function InspectionForm({
 
       {/* Sticky live score / save bar — offset to clear the mobile bottom nav
           (the app's bottom-20 md:bottom-4 floating pattern). */}
-      <div className="fixed bottom-20 md:bottom-4 inset-x-0 sm:left-60 px-4 z-20">
+      <div className="copilot-safe-actions fixed bottom-20 md:bottom-4 inset-x-0 sm:left-60 px-4 z-20">
         <div className="max-w-3xl mx-auto flex items-center gap-4 rounded-xl border border-line bg-surface/95 backdrop-blur px-4 py-3 shadow-lg">
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
@@ -254,10 +307,11 @@ export default function InspectionForm({
               <div className="text-xs text-muted">
                 {answered}/{totalItems} answered
                 {critFails.length > 0 ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}
+                {!canSubmit && !busy ? <span className="ml-2 text-amber-600 font-medium">· {validationMessage()}</span> : null}
               </div>
             </div>
           </div>
-          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>
+          <button onClick={save} disabled={!canSubmit} className={`${btn.primary} ml-auto`}>
             {busy ? "Saving…" : isEdit ? "Update inspection" : "Save inspection"}
           </button>
         </div>
@@ -282,25 +336,54 @@ function SectionTitle({ n, title, hint }: { n: string; title: string; hint?: str
   );
 }
 
-function Field({ label, v, on, hint }: { label: string; v: string; on: (v: string) => void; hint?: string }) {
+function Field({ label, v, on, hint, required, invalid }: { label: string; v: string; on: (v: string) => void; hint?: string; required?: boolean; invalid?: boolean }) {
   return (
-    <label className="block text-sm font-medium">{label}
-      <input value={v} onChange={(e) => on(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm" />
+    <label className="block text-sm font-medium">{label}{required ? <span className="ml-1 text-red-600">*</span> : null}
+      <input value={v} onChange={(e) => on(e.target.value)} className={`mt-1 w-full rounded-lg border px-3 py-2.5 text-sm ${invalid ? "border-amber-400 ring-1 ring-amber-300" : "border-line"}`} />
       {hint ? <span className="mt-0.5 block text-[11px] font-normal text-muted">{hint}</span> : null}
     </label>
   );
 }
 
-function MaintRow({ label, last, next, onLast, onNext }: { label: string; last: string; next: string; onLast: (v: string) => void; onNext: (v: string) => void }) {
+// A single required-photo tile: shows a thumbnail once captured, otherwise a
+// camera-capture + upload control. `capture="environment"` opens the rear camera
+// on phones; it silently degrades to a normal file picker where no camera exists.
+function PhotoTile({ label, value, busy, onPick, onClear }: { label: string; value: string | null; busy: boolean; onPick: (file: File | null) => void; onClear: () => void }) {
+  const inputId = `photo-${label.replace(/[^a-z0-9]/gi, "-").toLowerCase()}`;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr] gap-2 items-center">
-      <div className="text-sm font-medium text-ink">{label}</div>
-      <label className="text-xs text-muted">Last service
-        <DateInput className="mt-0.5" value={last} onChange={onLast} />
-      </label>
-      <label className="text-xs text-muted">Next scheduled
-        <DateInput className="mt-0.5" value={next} onChange={onNext} />
-      </label>
-    </div>
+    <Card className={`p-3 ${value ? "" : "ring-1 ring-amber-300"}`}>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 text-sm font-medium text-ink">{label}<span className="ml-1 text-red-600">*</span></div>
+        {value ? (
+          <button type="button" onClick={onClear} className="text-xs font-medium text-red-600 hover:underline">Remove</button>
+        ) : null}
+      </div>
+      {value ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={value} alt={label} className="mt-2 h-40 w-full rounded-lg border border-line object-cover" />
+      ) : (
+        <label htmlFor={inputId} className="mt-2 flex h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-slate-50 text-center text-xs text-muted hover:bg-slate-100">
+          {busy ? (
+            <span>Processing…</span>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" className="h-7 w-7 text-brand-400" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span>Tap to take a photo or upload</span>
+            </>
+          )}
+        </label>
+      )}
+      <input
+        id={inputId}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => { onPick(e.target.files?.[0] ?? null); e.target.value = ""; }}
+      />
+    </Card>
   );
 }

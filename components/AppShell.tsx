@@ -600,7 +600,7 @@ export default function AppShell({
           </div>
         </header>
 
-        <main className={`flex-1 px-4 py-5 md:py-8 pb-24 md:pb-8 w-full mx-auto ${
+        <main className={`app-main flex-1 px-4 py-5 md:py-8 pb-24 md:pb-8 w-full mx-auto ${
           pathname === "/org" || pathname.startsWith("/management/people/org")
             ? "max-w-none md:px-6" // org chart stretches to the screen edge for a wider view
             : "max-w-5xl md:px-8"

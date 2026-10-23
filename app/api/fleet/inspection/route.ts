@@ -2,10 +2,12 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
-import { scoreInspection, criticalFailures, type Ratings, type Checks } from "@/lib/inspection";
+import { scoreInspection, criticalFailures, INSPECTION_PHOTO_KINDS, inspectionPhotoLabel, type Ratings, type Checks } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import { sendEmail } from "@/lib/email";
+import { saveUpload, deleteUpload } from "@/lib/storage";
+import { appUrl } from "@/lib/app-url";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -13,6 +15,20 @@ export const maxDuration = 20;
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const int = (v: unknown) => { const n = parseInt(String(v ?? "").replace(/[^0-9-]/g, ""), 10); return Number.isFinite(n) ? n : null; };
 const date = (v: unknown) => { if (!v) return null; const d = new Date(String(v)); return isNaN(d.getTime()) ? null : d; };
+
+// Decode a `data:<mime>;base64,<...>` URL into bytes + content type.
+function parseDataUrl(s: string): { buffer: Buffer; contentType: string } | null {
+  const m = /^data:([^;,]+)?(;base64)?,([\s\S]*)$/.exec(s);
+  if (!m) return null;
+  const contentType = m[1] || "application/octet-stream";
+  const data = m[3];
+  try {
+    const buffer = m[2] ? Buffer.from(data, "base64") : Buffer.from(decodeURIComponent(data));
+    return { buffer, contentType };
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
   // Inspections are completed by branch managers as well as admins.
@@ -44,7 +60,50 @@ export async function POST(req: Request) {
     const ratings: Ratings = (body?.ratings ?? {}) as Ratings;
     const checks: Checks = (body?.checks ?? {}) as Checks;
     const { score, maxScore, scorePct, grade } = scoreInspection(ratings, checks);
+
+    // ── Required-field validation (mirrors the client) ──────────────────────
     const mileage = int(body?.mileage);
+    if (mileage == null || mileage <= 0)
+      return NextResponse.json({ error: "Mileage is required." }, { status: 400 });
+
+    const oilChangeNextMileage = int(body?.oilChangeNextMileage);
+    const oilChangeNext = date(body?.oilChangeNext);
+    if ((oilChangeNextMileage == null || oilChangeNextMileage <= 0) && !oilChangeNext)
+      return NextResponse.json({ error: "Next oil change is required — enter a next-due mileage and/or a next-due date." }, { status: 400 });
+
+    // Photos: all four required. Each value is a new data URL or an existing URL.
+    const photosIn = (body?.photos ?? {}) as Record<string, unknown>;
+    const existingInsp = await prisma.vehicleInspection.findUnique({
+      where: { vehicleId_year_month: { vehicleId, year, month } },
+      include: { photos: true },
+    });
+    const existingByKind = new Map((existingInsp?.photos ?? []).map((p) => [p.kind, p]));
+    const resolvedPhotos: { kind: string; photoUrl: string }[] = [];
+    const replacedUrls: string[] = [];
+    for (const { key, label } of INSPECTION_PHOTO_KINDS) {
+      const raw = typeof photosIn[key] === "string" ? (photosIn[key] as string).trim() : "";
+      if (raw.startsWith("data:")) {
+        const parsed = parseDataUrl(raw);
+        if (!parsed) return NextResponse.json({ error: `Could not read the ${label} photo.` }, { status: 400 });
+        const url = await saveUpload(parsed.buffer, `inspection-${key}.jpg`, parsed.contentType, "vehicle-inspections");
+        if (!url) {
+          // Fall back to an existing photo for this kind if the store failed.
+          const prev = existingByKind.get(key);
+          if (prev) { resolvedPhotos.push({ kind: key, photoUrl: prev.photoUrl }); continue; }
+          return NextResponse.json({ error: `Could not store the ${label} photo. Try again.` }, { status: 500 });
+        }
+        const prev = existingByKind.get(key);
+        if (prev && prev.photoUrl !== url) replacedUrls.push(prev.photoUrl);
+        resolvedPhotos.push({ kind: key, photoUrl: url });
+      } else if (raw) {
+        resolvedPhotos.push({ kind: key, photoUrl: raw });
+      }
+    }
+    if (resolvedPhotos.length < INSPECTION_PHOTO_KINDS.length) {
+      const have = new Set(resolvedPhotos.map((p) => p.kind));
+      const missing = INSPECTION_PHOTO_KINDS.filter((p) => !have.has(p.key)).map((p) => p.label);
+      return NextResponse.json({ error: `Missing required photo(s): ${missing.join(", ")}.` }, { status: 400 });
+    }
 
     // Resolve the graded employee: explicit pick wins; else match by name.
     const technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
@@ -66,12 +125,10 @@ export async function POST(req: Request) {
       ratings: JSON.stringify(ratings),
       ratingIssues: JSON.stringify(body?.ratingIssues ?? {}),
       checks: JSON.stringify(checks),
-      oilChangeLast: date(body?.oilChangeLast),
-      oilChangeNext: date(body?.oilChangeNext),
-      tireRotationLast: date(body?.tireRotationLast),
-      tireRotationNext: date(body?.tireRotationNext),
-      otherMaintLast: date(body?.otherMaintLast),
-      otherMaintNext: date(body?.otherMaintNext),
+      // Section B is now next-oil-change only. Legacy maintenance columns are left
+      // untouched (not written here) so existing history is preserved.
+      oilChangeNextMileage,
+      oilChangeNext,
       mileage,
       notes: str(body?.notes),
       score,
@@ -85,6 +142,14 @@ export async function POST(req: Request) {
       create: data,
       update: data,
     });
+
+    // Persist the four photos (replace the set each save).
+    await prisma.vehicleInspectionPhoto.deleteMany({ where: { inspectionId: saved.id } });
+    await prisma.vehicleInspectionPhoto.createMany({
+      data: resolvedPhotos.map((p) => ({ inspectionId: saved.id, kind: p.kind, photoUrl: p.photoUrl })),
+    });
+    // Best-effort cleanup of blobs/files that were replaced this save.
+    for (const u of replacedUrls) await deleteUpload(u).catch(() => {});
 
     // Keep the vehicle odometer in sync if this inspection reports a higher reading.
     if (mileage != null && (vehicle.currentMileage == null || mileage > vehicle.currentMileage)) {
@@ -121,14 +186,27 @@ export async function POST(req: Request) {
       const emp = await prisma.employee.findUnique({ where: { id: employeeId } });
       if (emp) {
         const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
+        // Absolute URLs so the photos load in an email client (relative /api/file
+        // paths won't resolve in an inbox). Links never block the email — a broken
+        // image just shows a placeholder; the "view" link still works.
+        const origin = appUrl() || (() => { try { return new URL(req.url).origin; } catch { return ""; } })();
+        const abs = (u: string) => (/^https?:\/\//i.test(u) ? u : `${origin}${u.startsWith("/") ? "" : "/"}${u}`);
+        const photosHtml = resolvedPhotos.length
+          ? `<p style="margin-top:16px;font-weight:600">Inspection photos</p><table role="presentation" cellpadding="0" cellspacing="8"><tr>${resolvedPhotos
+              .map((p) => `<td style="text-align:center;font-size:11px;color:#475569"><a href="${abs(p.photoUrl)}"><img src="${abs(p.photoUrl)}" alt="${inspectionPhotoLabel(p.kind)}" width="120" style="width:120px;height:90px;object-fit:cover;border:1px solid #e2e8f0;border-radius:6px;display:block" /></a><div style="margin-top:4px;max-width:120px">${inspectionPhotoLabel(p.kind)}</div></td>`)
+              .join("")}</tr></table>`
+          : "";
+        const photosText = resolvedPhotos.length
+          ? `\nPhotos:\n${resolvedPhotos.map((p) => `- ${inspectionPhotoLabel(p.kind)}: ${abs(p.photoUrl)}`).join("\n")}\n`
+          : "";
         const res = await sendEmail({
           to: emp.email,
           subject: `Your ${monthName} ${year} vehicle inspection — grade ${grade} (${scorePct}%)`,
           kind: "inspection_score",
           relatedType: "vehicle_inspection",
           relatedId: saved.id,
-          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— CanopyOS`,
-          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— CanopyOS</p>`,
+          text: `Hi ${emp.name.split(" ")[0]},\n\nYour ${monthName} ${year} vehicle inspection for ${vlabel} was completed by ${data.inspectorName}.\n\nScore: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}.\n${fails.length ? `\nItems to correct: ${fails.map((f) => f.label).join("; ")}.\n` : ""}${photosText}\nThis is recorded on your personnel profile and will factor into your annual review.\n\n— CanopyOS`,
+          html: `<p>Hi ${emp.name.split(" ")[0]},</p><p>Your <strong>${monthName} ${year}</strong> vehicle inspection for <strong>${vlabel}</strong> was completed by ${data.inspectorName}.</p><p style="font-size:18px"><strong>Score: ${score}/${maxScore} (${scorePct}%) — Grade ${grade}</strong></p>${fails.length ? `<p style="color:#b91c1c">Items to correct: ${fails.map((f) => f.label).join("; ")}.</p>` : ""}${photosHtml}<p>This is recorded on your personnel profile and will factor into your annual review.</p><p>— CanopyOS</p>`,
         });
         emailStatus = res.status;
       }

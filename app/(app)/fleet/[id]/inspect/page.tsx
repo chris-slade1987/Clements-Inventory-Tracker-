@@ -35,15 +35,12 @@ export default async function InspectPage({
   // Existing inspection for this month (edit mode).
   const existing = await prisma.vehicleInspection.findUnique({
     where: { vehicleId_year_month: { vehicleId: id, year, month } },
+    include: { photos: true },
   });
 
-  // Prefill the maintenance-log review from recorded services.
+  // Prefill the next oil change from recorded services (next-due mileage/date).
   const lastOil = await prisma.vehicleService.findFirst({
     where: { vehicleId: id, type: "oil_change" },
-    orderBy: { date: "desc" },
-  });
-  const lastTires = await prisma.vehicleService.findFirst({
-    where: { vehicleId: id, type: "tires" },
     orderBy: { date: "desc" },
   });
 
@@ -58,16 +55,18 @@ export default async function InspectPage({
     technicianName: existing?.technicianName ?? vehicle.assignedTo ?? "",
     inspectorName: existing?.inspectorName ?? user.name ?? user.email,
     mileage: existing?.mileage != null ? String(existing.mileage) : vehicle.currentMileage != null ? String(vehicle.currentMileage) : "",
-    oilChangeLast: iso(existing?.oilChangeLast ?? lastOil?.date),
+    oilChangeNextMileage:
+      existing?.oilChangeNextMileage != null
+        ? String(existing.oilChangeNextMileage)
+        : lastOil?.nextDueMileage != null
+          ? String(lastOil.nextDueMileage)
+          : "",
     oilChangeNext: iso(existing?.oilChangeNext ?? lastOil?.nextDueDate),
-    tireRotationLast: iso(existing?.tireRotationLast ?? lastTires?.date),
-    tireRotationNext: iso(existing?.tireRotationNext ?? lastTires?.nextDueDate),
-    otherMaintLast: iso(existing?.otherMaintLast),
-    otherMaintNext: iso(existing?.otherMaintNext),
     notes: existing?.notes ?? "",
     ratings: parseJson<Record<string, number>>(existing?.ratings, {}),
     ratingIssues: parseJson<Record<string, string>>(existing?.ratingIssues, {}),
     checks: parseJson<Record<string, boolean>>(existing?.checks, {}),
+    photos: Object.fromEntries((existing?.photos ?? []).map((p) => [p.kind, p.photoUrl])),
   };
 
   const vlabel = `${vehicle.unitNumber ? `#${vehicle.unitNumber} · ` : ""}${vehicle.name}`;

@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 37 · Last updated October 23, 2026",
+    effective: "Version 38 · Last updated October 23, 2026",
+    // v38: Vehicle Inspection Form overhaul. Mileage is now REQUIRED; Section B is
+    // next-oil-change-only (next-due mileage and/or month from the sticker, at least
+    // one required) and drives an oil-change-due alert (within 500 mi / ~1 month);
+    // FOUR photos are now REQUIRED (exterior front, truck bed, interior front,
+    // interior back) and ride on the filed record + the emailed copy; and only
+    // technician / service-advisor trucks are listed for inspection (execs,
+    // managers, spares, and trailers are excluded). Re-prompts prior acknowledgers.
     // v37: Catalog management is now SUPER-ADMIN-ONLY (Chris, Julie, April) — the
     // Products catalog, Catalog Review, Stock Import, and product photos are no
     // longer manager/admin/HR editable; everyone else uses check-out identify and
@@ -175,7 +182,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 37,
+    version: 38,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

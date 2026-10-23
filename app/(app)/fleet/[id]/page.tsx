@@ -9,7 +9,8 @@ import { vehicleFuel } from "@/lib/fuel";
 import VehicleFuelPanel from "@/components/VehicleFuelPanel";
 import { docsForVehicle } from "@/lib/documents";
 import { remindersForVehicle } from "@/lib/manual-reminders";
-import { vehicleInspections } from "@/lib/inspection";
+import { Fragment } from "react";
+import { vehicleInspections, inspectionPhotoLabel as photoLabel } from "@/lib/inspection";
 import { listEmployees } from "@/lib/people";
 import ServiceForm from "./ServiceForm";
 import VehicleDisposition from "./VehicleDisposition";
@@ -245,16 +246,32 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               </thead>
               <tbody>
                 {inspections.map((ins) => (
-                  <tr key={ins.id} className="border-b border-line last:border-0">
-                    <td className="px-4 py-2 whitespace-nowrap">{MONTH_ABBR[ins.month]} {ins.year}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">{dateShort(ins.date)}</td>
-                    <td className="px-3 py-2 text-muted">{ins.technicianName ?? "—"}</td>
-                    <td className="px-3 py-2 text-muted">{ins.inspectorName ?? "—"}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{ins.score}/{ins.maxScore} · {ins.scorePct}%</td>
-                    <td className="px-4 py-2 text-center">
-                      <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${ins.grade === "A" || ins.grade === "B" ? "bg-emerald-100 text-emerald-700" : ins.grade === "C" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{ins.grade}</span>
-                    </td>
-                  </tr>
+                  <Fragment key={ins.id}>
+                    <tr className={`${ins.photos.length ? "" : "border-b border-line last:border-0"}`}>
+                      <td className="px-4 py-2 whitespace-nowrap">{MONTH_ABBR[ins.month]} {ins.year}</td>
+                      <td className="px-3 py-2 whitespace-nowrap">{dateShort(ins.date)}</td>
+                      <td className="px-3 py-2 text-muted">{ins.technicianName ?? "—"}</td>
+                      <td className="px-3 py-2 text-muted">{ins.inspectorName ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{ins.score}/{ins.maxScore} · {ins.scorePct}%</td>
+                      <td className="px-4 py-2 text-center">
+                        <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${ins.grade === "A" || ins.grade === "B" ? "bg-emerald-100 text-emerald-700" : ins.grade === "C" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{ins.grade}</span>
+                      </td>
+                    </tr>
+                    {ins.photos.length ? (
+                      <tr className="border-b border-line last:border-0">
+                        <td colSpan={6} className="px-4 pb-3">
+                          <div className="flex flex-wrap gap-2">
+                            {ins.photos.map((p) => (
+                              <a key={p.id} href={p.photoUrl} target="_blank" rel="noreferrer" title={photoLabel(p.kind)} className="block">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={p.photoUrl} alt={photoLabel(p.kind)} className="h-16 w-20 rounded-md border border-line object-cover" />
+                              </a>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { leadWindowOpen } from "@/lib/reminders-shared";
 import { isDueSoon, listVehicles } from "@/lib/fleet";
-import { inspectionStatus } from "@/lib/inspection";
+import { inspectionStatus, listInspectableVehicles, oilChangeAlert } from "@/lib/inspection";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
 import { BRANCHES, branchLabel } from "@/lib/management";
@@ -16,6 +16,7 @@ import { lowStockForBranch } from "@/lib/reorder";
 
 export type ReminderKind =
   | "inspection_due"
+  | "oil_change_due"
   | "maintenance_due"
   | "registration_expiring"
   | "loan_payoff"
@@ -84,6 +85,48 @@ export async function managerReminders(branch?: string): Promise<Reminder[]> {
       href: `/fleet/${row.id}/inspect`,
       dueDate: null,
       key: `inspection_due:${row.id}:${year}-${month}`,
+    });
+  }
+
+  // Oil-change alerts — within 500 mi or ~1 month of the next oil change recorded
+  // on the vehicle's latest inspection (the truck's service sticker). Only for
+  // inspectable (tech/advisor) vehicles. Mirrors the registration-renewal path.
+  const oilVehicles = await listInspectableVehicles(branch);
+  const oilIds = oilVehicles.map((v) => v.id);
+  const oilRows = oilIds.length
+    ? await prisma.vehicleInspection.findMany({
+        where: {
+          vehicleId: { in: oilIds },
+          OR: [{ oilChangeNextMileage: { not: null } }, { oilChangeNext: { not: null } }],
+        },
+        orderBy: [{ year: "desc" }, { month: "desc" }, { date: "desc" }],
+        select: { vehicleId: true, oilChangeNextMileage: true, oilChangeNext: true },
+      })
+    : [];
+  const latestOil = new Map<string, { oilChangeNextMileage: number | null; oilChangeNext: Date | null }>();
+  for (const r of oilRows) if (!latestOil.has(r.vehicleId)) latestOil.set(r.vehicleId, { oilChangeNextMileage: r.oilChangeNextMileage, oilChangeNext: r.oilChangeNext });
+  for (const v of oilVehicles) {
+    const o = latestOil.get(v.id);
+    if (!o) continue;
+    const alert = oilChangeAlert(v.currentMileage, o.oilChangeNextMileage, o.oilChangeNext, now);
+    if (!alert) continue;
+    const label = `${v.unitNumber ? `#${v.unitNumber} · ` : ""}${v.name}`;
+    const parts: string[] = [];
+    if (alert.byMiles != null) parts.push(alert.byMiles <= 0 ? `overdue by ${Math.abs(alert.byMiles).toLocaleString()} mi` : `within ${alert.byMiles.toLocaleString()} mi`);
+    if (alert.byDays != null) {
+      const weeks = Math.round(alert.byDays / 7);
+      parts.push(alert.byDays <= 0 ? "past the due date" : alert.byDays <= 10 ? `due in ${alert.byDays} day${alert.byDays === 1 ? "" : "s"}` : `due in ~${weeks} week${weeks === 1 ? "" : "s"}`);
+    }
+    const overdue = (alert.byMiles != null && alert.byMiles <= 0) || (alert.byDays != null && alert.byDays <= 0);
+    reminders.push({
+      kind: "oil_change_due",
+      severity: overdue ? "critical" : "warning",
+      title: overdue ? "Oil change overdue" : "Oil change due soon",
+      detail: `${label} — ${parts.join(" / ")}.`,
+      branch: v.branch,
+      href: `/fleet/${v.id}`,
+      dueDate: o.oilChangeNext,
+      key: `oil_change_due:${v.id}:${o.oilChangeNextMileage ?? "none"}:${dkey(o.oilChangeNext)}`,
     });
   }
 

@@ -155,6 +155,18 @@ textarea:focus-visible {
 @media (min-width: 768px) {
   html[data-copilot-open="1"] .app-canvas { padding-right: 420px; }
 }
+/* Canopy Copilot collapsed launcher (mobile): a compact icon bubble floats at the
+   bottom-right above the bottom nav. Reserve clearance site-wide so primary
+   Submit/Save actions never sit under it. Phone-only — desktop uses the docked
+   panel + padding-right rule above. */
+@media (max-width: 767px) {
+  :root { --copilot-fab-clear: 4.75rem; } /* icon bubble footprint + gap */
+  /* A form's scroll-to-bottom Save/Submit clears the bubble (6rem base nav clearance + bubble). */
+  .app-main { padding-bottom: calc(5rem + var(--copilot-fab-clear)) !important; }
+  /* Sticky/fixed action bars reserve right-side room so their primary button clears the bubble. */
+  .copilot-safe-actions { padding-right: var(--copilot-fab-clear) !important; }
+}
+
 /* Gentle "come use me" pulse on the collapsed launcher bubble. */
 @keyframes canopy-invite {
   0%, 100% { transform: scale(1); opacity: 0.55; }
