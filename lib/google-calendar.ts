@@ -117,6 +117,23 @@ export function isCalendarConfigured(): boolean {
   return serviceAccount() !== null;
 }
 
+/**
+ * Non-secret diagnostic for the Data Connections tile:
+ *   - "absent"  : no GOOGLE_WORKSPACE_SA_JSON / _BASE64 set at all.
+ *   - "invalid" : a key env IS set but could not be parsed into a usable
+ *                 {client_email, private_key} (most often the private key's
+ *                 newlines were mangled on paste — use the _BASE64 variant).
+ *   - "ok"      : a usable service-account key is present.
+ * Never returns or logs any secret value — only which of these three states.
+ */
+export type CalendarConfigState = "ok" | "absent" | "invalid";
+export function calendarConfigState(): CalendarConfigState {
+  const hasJson = Boolean(process.env.GOOGLE_WORKSPACE_SA_JSON?.trim());
+  const hasB64 = Boolean(process.env.GOOGLE_WORKSPACE_SA_JSON_BASE64?.trim());
+  if (!hasJson && !hasB64) return "absent";
+  return serviceAccount() ? "ok" : "invalid";
+}
+
 const DOMAIN = process.env.GOOGLE_WORKSPACE_CUSTOMER_DOMAIN?.trim().toLowerCase() || null;
 
 /**

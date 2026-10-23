@@ -4,7 +4,7 @@ import { smarterLaunchConfigured, getStoredQuota } from "@/lib/smarterlaunch";
 import { isConfigured as coastConfigured } from "@/lib/coast";
 import { isConfigured as workwaveConfigured } from "@/lib/workwave";
 import { latestSalesSnapshot } from "@/lib/sales-sync";
-import { isCalendarConfigured } from "@/lib/google-calendar";
+import { isCalendarConfigured, calendarConfigState } from "@/lib/google-calendar";
 
 // ---------------------------------------------------------------------------
 // Data Connections health aggregator (Theme 8 — the integration spine).
@@ -297,8 +297,27 @@ function googleCalendarHealth(): ConnectorHealth {
   // callers fall back to .ics / add-to-calendar links). We only read whether the
   // key and optional domain env vars are PRESENT — never their values.
   const live = isCalendarConfigured();
+  const cfg = calendarConfigState(); // "ok" | "absent" | "invalid"
   const domainSet = Boolean(process.env.GOOGLE_WORKSPACE_CUSTOMER_DOMAIN?.trim());
-  const status: ConnStatus = live ? "healthy" : "not-configured";
+
+  // "invalid" (key set but unparseable) is an ERROR, not merely unconfigured —
+  // that distinction is the whole point: it tells the admin the secret IS present
+  // but malformed, so they stop re-checking Vercel's "is it set" and fix the value.
+  const status: ConnStatus = cfg === "ok" ? "healthy" : cfg === "invalid" ? "error" : "not-configured";
+
+  const detail =
+    cfg === "ok"
+      ? "Service account connected. Powers Suggested Times (free/busy) and live Google Calendar invites for huddles & interviews."
+      : cfg === "invalid"
+        ? "A key IS set but Canopy could not parse it into a usable service account — almost always the private key's newlines were mangled when pasted. Fix: base64-encode the whole JSON key and set it as GOOGLE_WORKSPACE_SA_JSON_BASE64 (leave GOOGLE_WORKSPACE_SA_JSON empty), then redeploy."
+        : "Not connected — Suggested Times and live invites fall back to .ics add-to-calendar links. Add the service-account key (domain-wide delegation) on the Production environment and redeploy.";
+
+  const keyFact =
+    cfg === "ok"
+      ? "Yes — service account present"
+      : cfg === "invalid"
+        ? "Set, but unparseable (see detail)"
+        : "Not set on this environment";
 
   return {
     key: "google-calendar",
@@ -310,11 +329,9 @@ function googleCalendarHealth(): ConnectorHealth {
     live,
     lastSync: null,
     lastSyncLabel: "On-demand (no sync log)",
-    detail: live
-      ? "Service account connected. Powers Suggested Times (free/busy) and live Google Calendar invites for huddles & interviews."
-      : "Not connected — Suggested Times and live invites fall back to .ics add-to-calendar links. Add the service-account key (domain-wide delegation) to enable: see docs or Settings.",
+    detail,
     facts: [
-      { label: "Live credential", value: live ? "Yes — service account present" : "No" },
+      { label: "Service-account key", value: keyFact },
       { label: "Impersonation domain restricted", value: domainSet ? "Yes" : "No" },
       { label: "Scopes", value: "calendar.events, calendar.freebusy" },
     ],
