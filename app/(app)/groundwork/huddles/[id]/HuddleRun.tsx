@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, BackLink, useToast } from "@/components/ui";
 import AskCanopy from "@/components/AskCanopy";
 import {
-  postHuddle, getJson, CheckOff, PriorityChip, DueChip, BuzzCelebration,
+  postHuddle, getJson, suggestTimes, Modal, CheckOff, PriorityChip, DueChip, BuzzCelebration,
   fieldClass, labelClass, fmtDateTime, fmtTime, fmtDay,
-  type MeetingDTO, type AgendaItemDTO, type MeetingNoteDTO, type WorkItemDTO, type AssignablePerson,
+  type MeetingDTO, type AgendaItemDTO, type MeetingNoteDTO, type WorkItemDTO, type AssignablePerson, type SuggestResult,
 } from "../../shared";
 
 export default function HuddleRun({
@@ -20,8 +21,12 @@ export default function HuddleRun({
   googleUrl: string | null;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [m, setM] = useState<MeetingDTO>(initialMeeting);
   const [celebrate, setCelebrate] = useState(false);
+  const [rescheduling, setRescheduling] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const refresh = useCallback(async () => {
     const data = await getJson<{ meeting: MeetingDTO }>(`/api/huddles?id=${m.id}`);
@@ -42,6 +47,19 @@ export default function HuddleRun({
     } catch (err) {
       toast({ message: err instanceof Error ? err.message : "Something went wrong.", tone: "error" });
       await refresh();
+    }
+  }
+
+  async function del() {
+    setDeleting(true);
+    try {
+      await postHuddle({ action: "delete", id: m.id });
+      toast({ message: "Huddle deleted — the calendar invite was cancelled.", tone: "success" });
+      router.push("/groundwork?tab=huddles");
+    } catch (err) {
+      toast({ message: err instanceof Error ? err.message : "Couldn't delete the Huddle.", tone: "error" });
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -75,6 +93,34 @@ export default function HuddleRun({
         <BuzzCelebration headline="Follow-ups closed out!" sub="Every action item from this Huddle is done." onDone={() => setCelebrate(false)} />
       ) : null}
 
+      {rescheduling ? (
+        <RescheduleModal
+          meeting={m}
+          onClose={() => setRescheduling(false)}
+          onSaved={async (slot) => {
+            await act({ action: "update", scheduledStart: slot.start, scheduledEnd: slot.end }, () =>
+              toast({ message: "Huddle moved — attendees were re-notified.", tone: "success" }),
+            );
+            setRescheduling(false);
+          }}
+        />
+      ) : null}
+
+      {confirmDelete ? (
+        <Modal title="Delete this Huddle?" onClose={() => (deleting ? undefined : setConfirmDelete(false))}>
+          <div className="space-y-4">
+            <p className="text-sm text-ink">This removes the Huddle and cancels the calendar invite for everyone. This can&apos;t be undone.</p>
+            <p className="text-[12px] text-muted">If the Huddle actually happened, use <span className="font-medium">Cancel</span> instead so its notes and follow-ups are kept.</p>
+            <div className="flex items-center justify-end gap-2">
+              <button type="button" onClick={() => setConfirmDelete(false)} disabled={deleting} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-[#0e1b15] hover:bg-[#eef5f0] disabled:opacity-50">Keep it</button>
+              <button type="button" onClick={del} disabled={deleting} className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:opacity-50">
+                {deleting ? "Deleting…" : "Delete Huddle"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+
       <BackLink href="/groundwork?tab=huddles">Huddles</BackLink>
 
       {/* Header */}
@@ -85,16 +131,28 @@ export default function HuddleRun({
               <h1 className="text-xl font-light tracking-tight text-ink md:text-2xl">{m.title}</h1>
               {m.kind ? <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium capitalize text-slate-600">{m.kind.replace("_", " ")}</span> : null}
               {completed ? <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">Completed</span> : null}
+              {m.status === "cancelled" ? <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">Cancelled</span> : null}
             </div>
             <div className="mt-1 text-sm text-muted">
               {m.scheduledStart ? `${fmtDateTime(m.scheduledStart)}${m.scheduledEnd ? ` – ${fmtTime(m.scheduledEnd)}` : ""}` : "No set time yet"}
               {m.branchLabel ? ` · ${m.branchLabel}` : ""}
             </div>
           </div>
-          {canManage && !completed ? (
-            <button onClick={() => act({ action: "complete" }, () => toast({ message: "Huddle completed.", tone: "success" }))} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-brand-700 hover:bg-[#eef5f0]">
-              Complete Huddle
-            </button>
+          {canManage && !completed && m.status !== "cancelled" ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <button onClick={() => setRescheduling(true)} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-brand-700 hover:bg-[#eef5f0]">
+                Reschedule
+              </button>
+              <button onClick={() => act({ action: "complete" }, () => toast({ message: "Huddle completed.", tone: "success" }))} className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-[filter] hover:brightness-110">
+                Complete
+              </button>
+              <button onClick={() => act({ action: "cancel" }, () => toast({ message: "Huddle cancelled — the calendar invite was withdrawn.", tone: "success" }))} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-[#eef5f0]">
+                Cancel
+              </button>
+              <button onClick={() => setConfirmDelete(true)} className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">
+                Delete
+              </button>
+            </div>
           ) : null}
         </div>
 
@@ -332,6 +390,172 @@ function AddFollowUp({
         <button type="submit" disabled={!title.trim()} className="shrink-0 rounded-lg bg-emerald-grad px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-[filter] hover:brightness-110 disabled:opacity-40">Assign</button>
       </div>
     </form>
+  );
+}
+
+// ── Reschedule modal — reuses the Suggest Times flow + a direct date/time picker ──
+
+/** Business-hour time options (7:00 AM – 6:00 PM, every 30 min). */
+const TIME_OPTIONS: { value: string; label: string }[] = (() => {
+  const out: { value: string; label: string }[] = [];
+  for (let h = 7; h <= 18; h++) {
+    for (const mm of [0, 30]) {
+      const value = `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+      const hour12 = ((h + 11) % 12) + 1;
+      out.push({ value, label: `${hour12}:${String(mm).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}` });
+    }
+  }
+  return out;
+})();
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const localDay = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function nextWeekdayDay(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+  return localDay(d);
+}
+function slotFrom(day: string, time: string, durationMins: number): { start: string; end: string } | null {
+  if (!day || !time) return null;
+  const start = new Date(`${day}T${time}:00`);
+  if (Number.isNaN(start.getTime())) return null;
+  return { start: start.toISOString(), end: new Date(start.getTime() + durationMins * 60000).toISOString() };
+}
+function halfHour(d: Date): string {
+  const mm = d.getMinutes() < 15 ? 0 : d.getMinutes() < 45 ? 30 : 0;
+  const h = d.getMinutes() >= 45 ? (d.getHours() + 1) % 24 : d.getHours();
+  return `${pad(h)}:${pad(mm)}`;
+}
+
+function RescheduleModal({
+  meeting, onClose, onSaved,
+}: { meeting: MeetingDTO; onClose: () => void; onSaved: (slot: { start: string; end: string }) => Promise<void> }) {
+  const existingStart = meeting.scheduledStart ? new Date(meeting.scheduledStart) : null;
+  const existingMins =
+    meeting.scheduledStart && meeting.scheduledEnd
+      ? Math.max(15, Math.round((new Date(meeting.scheduledEnd).getTime() - new Date(meeting.scheduledStart).getTime()) / 60000))
+      : 30;
+
+  const [durationMins, setDurationMins] = useState(existingMins);
+  const [day, setDay] = useState(existingStart ? localDay(existingStart) : nextWeekdayDay());
+  const [time, setTime] = useState(existingStart ? halfHour(existingStart) : "09:00");
+  const [finding, setFinding] = useState(false);
+  const [suggest, setSuggest] = useState<SuggestResult | null>(null);
+  const [pickedSlot, setPickedSlot] = useState<{ start: string; end: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const effectiveSlot = pickedSlot ?? slotFrom(day, time, durationMins);
+  const attendeeEmails = (meeting.attendees ?? []).map((a) => a.email).filter(Boolean);
+
+  async function findTimes() {
+    setFinding(true); setError(null); setSuggest(null); setPickedSlot(null);
+    try {
+      const start = new Date(`${day}T00:00:00`);
+      const earliest = new Date(Math.max(Date.now(), start.getTime()));
+      const latest = new Date(start.getTime() + 6 * 864e5);
+      const res = await suggestTimes({ attendeeEmails, durationMins, earliest: earliest.toISOString(), latest: latest.toISOString() });
+      setSuggest(res);
+      if (res.slots[0]) setPickedSlot({ start: res.slots[0].start, end: res.slots[0].end });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't suggest times.");
+    } finally {
+      setFinding(false);
+    }
+  }
+
+  async function save() {
+    if (!effectiveSlot) { setError("Pick a date and time."); return; }
+    setSaving(true); setError(null);
+    try {
+      await onSaved(effectiveSlot);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't reschedule.");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title="Reschedule Huddle" onClose={onClose} wide>
+      <div className="space-y-4">
+        <p className="text-sm text-muted">Pick a new time for <span className="font-medium text-ink">{meeting.title}</span>. The calendar event and everyone&apos;s invite update automatically, and attendees are re-notified.</p>
+
+        <div className="rounded-xl border border-line bg-[#f7faf8] p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div>
+              <label className={labelClass} htmlFor="rs-day">Date</label>
+              <input id="rs-day" type="date" value={day} min={localDay(new Date())} onChange={(e) => { setDay(e.target.value); setSuggest(null); setPickedSlot(null); }} className={fieldClass} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="rs-time">Start time</label>
+              <select id="rs-time" value={time} onChange={(e) => { setTime(e.target.value); setPickedSlot(null); }} className={fieldClass}>
+                {TIME_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="rs-dur">Length</label>
+              <select id="rs-dur" value={durationMins} onChange={(e) => { setDurationMins(Number(e.target.value)); setSuggest(null); setPickedSlot(null); }} className={fieldClass}>
+                <option value={15}>15 min</option><option value={30}>30 min</option><option value={45}>45 min</option><option value={60}>1 hour</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {effectiveSlot ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[12px] font-medium text-brand-800">
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
+                {fmtDateTime(effectiveSlot.start)}
+              </span>
+            ) : null}
+            <button type="button" onClick={findTimes} disabled={finding} className="rounded-lg border border-[#cfe0d6] bg-white px-4 py-2 text-sm font-medium text-brand-700 shadow-sm hover:bg-[#eef5f0] disabled:opacity-50">
+              {finding ? "Finding…" : "Find a new time"}
+            </button>
+          </div>
+
+          {suggest ? (
+            <div className="mt-3">
+              <p className={`mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium ${suggest.availabilityKnown ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d={suggest.availabilityKnown ? "M5 13l4 4L19 7" : "M12 8v5m0 3h.01M12 3a9 9 0 100 18 9 9 0 000-18z"} /></svg>
+                {suggest.availabilityKnown ? "Live free/busy from Google Calendar — conflicts avoided" : "Calendar not connected — business-hour suggestions"}
+              </p>
+              {suggest.slots.length === 0 ? (
+                <p className="text-sm text-muted">No open slots in that window — try another day or a shorter length.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {suggest.slots.map((s) => {
+                    const picked = pickedSlot?.start === s.start;
+                    return (
+                      <button
+                        key={s.start}
+                        type="button"
+                        onClick={() => { setPickedSlot({ start: s.start, end: s.end }); setDay(localDay(new Date(s.start))); setTime(halfHour(new Date(s.start))); }}
+                        title={s.conflicts.length ? `Busy: ${s.conflicts.join(", ")}` : "Everyone free"}
+                        className={`rounded-lg border px-3 py-1.5 text-[13px] transition-colors ${
+                          picked ? "border-brand-600 bg-brand-50 text-brand-800" : s.available ? "border-[#cfe0d6] bg-white text-ink hover:bg-[#eef5f0]" : "border-amber-200 bg-amber-50/50 text-amber-800 hover:bg-amber-50"
+                        }`}
+                      >
+                        {fmtDateTime(s.start)}
+                        {suggest.availabilityKnown && !s.available ? <span className="ml-1 text-[11px]">({s.conflicts.length} busy)</span> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        <div className="flex items-center justify-end gap-2">
+          <button type="button" onClick={onClose} disabled={saving} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-[#0e1b15] hover:bg-[#eef5f0] disabled:opacity-50">Cancel</button>
+          <button type="button" onClick={save} disabled={saving || !effectiveSlot} className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-[filter] hover:brightness-110 disabled:opacity-50">
+            {saving ? "Saving…" : "Save new time"}
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 

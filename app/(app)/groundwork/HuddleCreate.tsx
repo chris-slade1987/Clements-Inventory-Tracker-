@@ -22,7 +22,50 @@ function nextWeekday(): string {
   const d = new Date();
   d.setDate(d.getDate() + 1);
   while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  // Local YYYY-MM-DD (not UTC) so the date control shows the intended calendar day.
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Business-hour time options (7:00 AM – 6:00 PM, every 30 min) for the time picker. */
+const TIME_OPTIONS: { value: string; label: string }[] = (() => {
+  const out: { value: string; label: string }[] = [];
+  for (let h = 7; h <= 18; h++) {
+    for (const mm of [0, 30]) {
+      const value = `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+      const hour12 = ((h + 11) % 12) + 1;
+      const ampm = h < 12 ? "AM" : "PM";
+      out.push({ value, label: `${hour12}:${String(mm).padStart(2, "0")} ${ampm}` });
+    }
+  }
+  return out;
+})();
+
+/** Build the start/end ISO pair from a local date + time + duration (minutes). */
+function slotFrom(day: string, time: string, durationMins: number): { start: string; end: string } | null {
+  if (!day || !time) return null;
+  const start = new Date(`${day}T${time}:00`);
+  if (Number.isNaN(start.getTime())) return null;
+  const end = new Date(start.getTime() + durationMins * 60000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+/** The local YYYY-MM-DD for an ISO instant (for syncing the date control to a slot). */
+function dayOf(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** The nearest half-hour "HH:MM" for an ISO instant (for syncing the time control). */
+function timeOf(iso: string): string {
+  const d = new Date(iso);
+  const mm = d.getMinutes() < 15 ? 0 : d.getMinutes() < 45 ? 30 : 0;
+  const h = d.getMinutes() >= 45 ? (d.getHours() + 1) % 24 : d.getHours();
+  return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+function todayLocal(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export default function HuddleCreate({
@@ -42,11 +85,17 @@ export default function HuddleCreate({
   const [extraEmails, setExtraEmails] = useState<string[]>([]);
   const [durationMins, setDurationMins] = useState(30);
   const [day, setDay] = useState(nextWeekday());
+  const [time, setTime] = useState("09:00");
+  const [setTimeLater, setSetTimeLater] = useState(false);
   const [finding, setFinding] = useState(false);
   const [suggest, setSuggest] = useState<SuggestResult | null>(null);
   const [pickedSlot, setPickedSlot] = useState<{ start: string; end: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // The time the Huddle will be booked at: a suggested slot the user tapped wins,
+  // otherwise the date + time they chose directly. Null only when "decide later".
+  const effectiveSlot = setTimeLater ? null : (pickedSlot ?? slotFrom(day, time, durationMins));
 
   useEffect(() => {
     getJson<{ templates: TemplateDTO[] }>("/api/huddles?view=templates")
@@ -107,7 +156,7 @@ export default function HuddleCreate({
         kind: kind || null,
         agendaTemplateKey: templateKey || null,
         attendees,
-        ...(pickedSlot ? { scheduledStart: pickedSlot.start, scheduledEnd: pickedSlot.end } : {}),
+        ...(effectiveSlot ? { scheduledStart: effectiveSlot.start, scheduledEnd: effectiveSlot.end } : {}),
       });
       await onCreated();
       const meeting = data.meeting as MeetingDTO | undefined;
@@ -177,23 +226,59 @@ export default function HuddleCreate({
         </div>
 
         <div className="rounded-xl border border-line bg-[#f7faf8] p-3">
-          <div className="flex flex-wrap items-end gap-3">
-            <div>
-              <label className={labelClass} htmlFor="hc-dur">Length</label>
-              <select id="hc-dur" value={durationMins} onChange={(e) => { setDurationMins(Number(e.target.value)); setSuggest(null); setPickedSlot(null); }} className={fieldClass}>
-                <option value={15}>15 min</option><option value={30}>30 min</option><option value={45}>45 min</option><option value={60}>1 hour</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass} htmlFor="hc-day">From</label>
-              <input id="hc-day" type="date" value={day} onChange={(e) => { setDay(e.target.value); setSuggest(null); setPickedSlot(null); }} className={fieldClass} />
-            </div>
-            <button type="button" onClick={findTimes} disabled={finding} className="rounded-lg bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-[filter] hover:brightness-110 disabled:opacity-50">
-              {finding ? "Finding…" : "Suggest times"}
-            </button>
+          <div className="flex items-center justify-between gap-2">
+            <span className={labelClass}>When</span>
+            <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-muted">
+              <input type="checkbox" checked={setTimeLater} onChange={(e) => { setSetTimeLater(e.target.checked); if (e.target.checked) { setSuggest(null); setPickedSlot(null); } }} className="h-4 w-4 accent-brand-600" />
+              Decide the time later
+            </label>
           </div>
 
-          {suggest ? (
+          {!setTimeLater ? (
+            <>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <label className={labelClass} htmlFor="hc-day">Date</label>
+                  <input
+                    id="hc-day"
+                    type="date"
+                    value={day}
+                    min={todayLocal()}
+                    onChange={(e) => { setDay(e.target.value); setSuggest(null); setPickedSlot(null); }}
+                    className={fieldClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="hc-time">Start time</label>
+                  <select id="hc-time" value={time} onChange={(e) => { setTime(e.target.value); setPickedSlot(null); }} className={fieldClass}>
+                    {TIME_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="hc-dur">Length</label>
+                  <select id="hc-dur" value={durationMins} onChange={(e) => { setDurationMins(Number(e.target.value)); setSuggest(null); setPickedSlot(null); }} className={fieldClass}>
+                    <option value={15}>15 min</option><option value={30}>30 min</option><option value={45}>45 min</option><option value={60}>1 hour</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {effectiveSlot ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[12px] font-medium text-brand-800">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
+                    {fmtDateTime(effectiveSlot.start)}
+                  </span>
+                ) : null}
+                <button type="button" onClick={findTimes} disabled={finding} className="rounded-lg border border-[#cfe0d6] bg-white px-4 py-2 text-sm font-medium text-brand-700 shadow-sm hover:bg-[#eef5f0] disabled:opacity-50">
+                  {finding ? "Finding…" : "Suggest conflict-free times"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="mt-2 text-[12px] text-muted">You can create the Huddle now and set a time later from its page.</p>
+          )}
+
+          {!setTimeLater && suggest ? (
             <div className="mt-3">
               <p className={`mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium ${suggest.availabilityKnown ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d={suggest.availabilityKnown ? "M5 13l4 4L19 7" : "M12 8v5m0 3h.01M12 3a9 9 0 100 18 9 9 0 000-18z"} /></svg>
@@ -209,7 +294,7 @@ export default function HuddleCreate({
                       <button
                         key={s.start}
                         type="button"
-                        onClick={() => setPickedSlot({ start: s.start, end: s.end })}
+                        onClick={() => { setPickedSlot({ start: s.start, end: s.end }); setDay(dayOf(s.start)); setTime(timeOf(s.start)); }}
                         title={s.conflicts.length ? `Busy: ${s.conflicts.join(", ")}` : "Everyone free"}
                         className={`rounded-lg border px-3 py-1.5 text-[13px] transition-colors ${
                           picked ? "border-brand-600 bg-brand-50 text-brand-800" : s.available ? "border-[#cfe0d6] bg-white text-ink hover:bg-[#eef5f0]" : "border-amber-200 bg-amber-50/50 text-amber-800 hover:bg-amber-50"
@@ -223,9 +308,9 @@ export default function HuddleCreate({
                 </div>
               )}
             </div>
-          ) : (
-            <p className="mt-2 text-[12px] text-muted">Pick who&apos;s coming, then suggest times. You can also create it now and set a time later.</p>
-          )}
+          ) : !setTimeLater ? (
+            <p className="mt-2 text-[12px] text-muted">Set a date and start time above, or tap <span className="font-medium text-brand-700">Suggest conflict-free times</span> to let Canopy find an opening for everyone.</p>
+          ) : null}
         </div>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -233,7 +318,7 @@ export default function HuddleCreate({
         <div className="flex items-center justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2.5 text-sm font-medium text-[#0e1b15] hover:bg-[#eef5f0]">Cancel</button>
           <button type="button" onClick={create} disabled={saving || !title.trim()} className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-[filter] hover:brightness-110 disabled:opacity-50">
-            {saving ? "Creating…" : pickedSlot ? "Create Huddle" : "Create (set time later)"}
+            {saving ? "Creating…" : effectiveSlot ? "Create Huddle" : "Create (set time later)"}
           </button>
         </div>
       </div>

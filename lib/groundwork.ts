@@ -546,7 +546,20 @@ export type AssignablePerson = { id: string; name: string; email: string; branch
  *   - Everyone else → just themselves.
  * The caller themselves is always first. Used only to populate the pickers; the
  * real guard still runs on every write (canAssignToPerson / canAssignToBranch).
+ *
+ * TERMINATED STAFF ARE EXCLUDED: termination marks the Employee record inactive
+ * (`Employee.status = "inactive"`) while the linked login often stays
+ * `User.active = true`, so a `User.active` filter alone would still surface former
+ * staff. We additionally drop any user whose LINKED Employee (via `User.employeeId`)
+ * is not active. Users with NO linked Employee record are kept (there's no inactive
+ * match to exclude them on). The current user themselves is always included (they're
+ * the signed-in actor), filtered only by the usual `User.active` login gate.
  */
+// Keep a user only if they have no personnel record, or that record is still active.
+const EMPLOYEE_ACTIVE_FILTER = {
+  OR: [{ employeeId: null }, { employee: { is: { status: "active" } } }],
+};
+
 export async function assignablePeople(user: SessionUser): Promise<AssignablePerson[]> {
   const toDTO = (u: { id: string; name: string; email: string; branch: string | null }): AssignablePerson => ({
     id: u.id, name: u.name, email: u.email, branch: u.branch, branchLabel: u.branch ? branchLabel(u.branch) : null,
@@ -558,14 +571,14 @@ export async function assignablePeople(user: SessionUser): Promise<AssignablePer
   let others: AssignablePerson[] = [];
   if (isGroundworkLeadership(user)) {
     const rows = await prisma.user.findMany({
-      where: { active: true, id: { not: user.id } },
+      where: { active: true, id: { not: user.id }, ...EMPLOYEE_ACTIVE_FILTER },
       select: { id: true, name: true, email: true, branch: true },
       orderBy: [{ name: "asc" }],
     });
     others = rows.map(toDTO);
   } else if (user.role === "manager" && user.branch) {
     const rows = await prisma.user.findMany({
-      where: { active: true, branch: user.branch, id: { not: user.id } },
+      where: { active: true, branch: user.branch, id: { not: user.id }, ...EMPLOYEE_ACTIVE_FILTER },
       select: { id: true, name: true, email: true, branch: true },
       orderBy: [{ name: "asc" }],
     });

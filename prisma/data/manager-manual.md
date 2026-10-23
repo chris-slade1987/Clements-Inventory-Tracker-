@@ -1553,6 +1553,29 @@ people's plates.
    **appears on their My Work immediately** (and notifies them). When the last follow-up is
    closed out, Buzz celebrates.
 
+**Everyone gets a Canopy notice.** When you schedule a Huddle, Canopy sends its own
+notification — an **in-app Inbox message and (when email is turned on) an email** — to **every
+attendee, including you, the organizer**. (Google only emails the people you invite, never you,
+so this makes sure the person who booked it hears about it too.) The notice carries the title,
+the date and time (Eastern), the Meet link or location, and a link straight to the Huddle. The
+same notice goes out again when you **move the Huddle to a new time** or **add new attendees**
+(only the people newly added are notified). Private notes are never included.
+
+**Moving or removing a Huddle.** On the Huddle page you (the organizer, or an admin /
+leadership) can:
+
+- **Reschedule** — pick a new time (including **"Find a new time"**, the same conflict-free
+  suggestions as when you created it). The Google event updates and everyone is re-notified.
+- **Cancel** — the softer option: the Huddle is marked cancelled and the calendar invite is
+  withdrawn, but the Huddle and its record are kept.
+- **Delete** — for a Huddle that **didn't happen**. This removes it and cancels the calendar
+  invite. If the Huddle already has **notes or follow-ups**, delete is blocked — use **Cancel**
+  instead so the record stays intact. A confirmation dialog guards the delete.
+
+Former employees no longer appear in the attendee picker, the Add-someone list, or the
+suggested-times availability — once a person is marked a former employee they drop off those
+lists automatically.
+
 A completed Huddle keeps its notes and each person's follow-ups, so you can look back at what
 was decided and who owns what.
 
@@ -1564,6 +1587,8 @@ assigns their tasks in one step — they are notified and see the project in the
 Groundwork. Projects stay lightweight on purpose: tasks, people, and progress, not Gantt
 charts.
 
-> Everything in Groundwork is kept, never deleted — To-Dos and Huddles are completed or
-> archived, and notes and comments are append-only, so there is always a trail of what
-> happened.
+> Work with a record is kept, never deleted — To-Dos are completed or archived, a Huddle that
+> actually happened is completed or cancelled (not deleted), and notes and comments are
+> append-only, so there is always a trail of what happened. The one exception is a Huddle that
+> **never took place**: with no notes or follow-ups it can be deleted outright (and its calendar
+> invite withdrawn), since there is no record to preserve.

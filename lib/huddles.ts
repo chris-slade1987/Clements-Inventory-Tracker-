@@ -6,6 +6,7 @@ import {
   type WorkItemDTO,
 } from "@/lib/groundwork";
 import { reconcileHuddleEvent, cancelHuddleEvent } from "@/lib/huddle-calendar";
+import { notifyHuddleScheduled } from "@/lib/huddle-notify";
 
 // ---------------------------------------------------------------------------
 // HUDDLES — meetings with a live agenda (seeded from a template, editable live),
@@ -144,13 +145,21 @@ export async function createMeeting(user: SessionUser, input: CreateMeetingInput
   });
 
   if (input.agendaTemplateKey) await applyAgendaTemplate(meeting.id, input.agendaTemplateKey);
-  if (input.attendees?.length) await addAttendees(user, meeting.id, input.attendees);
+  // Suppress the per-attendee notice here — the single "Huddle scheduled" notice
+  // below already covers everyone (organizer + attendees), so we don't double-notify.
+  if (input.attendees?.length) await addAttendees(user, meeting.id, input.attendees, { suppressNotify: true });
 
   // Auto-create the Google Calendar event (+ Meet link, + invite the domain
   // attendees) when calendar is configured, the Huddle has start+end, and the
   // organizer is a domain mailbox. Best-effort + non-fatal — a calendar failure
   // never fails the create; the .ics fallback remains. See lib/huddle-calendar.ts.
   await reconcileHuddleEvent(meeting.id, "full");
+
+  // Canopy's own notice (Inbox + email) to every attendee INCLUDING the organizer —
+  // Google never emails the organizer about their own event. Only fires when the
+  // Huddle has a scheduled time; best-effort + non-fatal. Runs after the calendar
+  // reconcile so the Meet link (if any) is included.
+  await notifyHuddleScheduled(meeting.id, "created");
 
   return getMeeting(user, meeting.id) as Promise<MeetingDTO>;
 }
@@ -161,10 +170,15 @@ export async function addAttendees(
   user: SessionUser,
   meetingId: string,
   attendees: { userId?: string | null; email?: string | null; name?: string | null }[],
+  opts: { suppressNotify?: boolean } = {},
 ): Promise<void> {
   const meeting = await prisma.meeting.findUnique({ where: { id: meetingId }, include: { attendees: true } });
   if (!meeting) throw new Error("That Huddle no longer exists.");
   if (!canManageMeeting(user, meeting)) throw new Error("Only the organizer can add attendees.");
+
+  // Remember who was already on the Huddle so we only notify the NEWLY added ones.
+  const before = new Set(meeting.attendees.map((a) => a.email.toLowerCase()));
+  const addedEmails: string[] = [];
 
   for (const a of attendees) {
     let email = (a.email ?? "").trim().toLowerCase();
@@ -180,6 +194,7 @@ export async function addAttendees(
       if (u) { userId = u.id; name = name || u.name; }
     }
     if (!email) continue; // email is the unique key — skip rows with neither
+    if (!before.has(email)) addedEmails.push(email);
     await prisma.meetingAttendee.upsert({
       where: { meetingId_email: { meetingId, email } },
       create: { meetingId, userId, email, name, role: "attendee", response: "none" },
@@ -191,6 +206,12 @@ export async function addAttendees(
   // Google re-invites the new people. Non-fatal; never creates an event here (that
   // happens on create/update when there's a scheduled time).
   await reconcileHuddleEvent(meetingId, "patch-only");
+
+  // Notify only the newly-added attendees (Inbox + email), unless suppressed (e.g.
+  // during create, where the "Huddle scheduled" notice already covers everyone).
+  if (!opts.suppressNotify && addedEmails.length) {
+    await notifyHuddleScheduled(meetingId, "attendees_added", addedEmails);
+  }
 }
 
 /** Remove an attendee (operational membership — not a business record). The
@@ -363,6 +384,15 @@ export async function updateMeeting(user: SessionUser, meetingId: string, input:
   // (re-send invites) when the time/title/location changed, else create-only so an
   // event missed earlier (e.g. created while calendar was down) gets backfilled
   // without re-inviting on unrelated edits. All non-fatal — never fails the update.
+  // Did the scheduled TIME actually move? (a reschedule — re-notify the attendees).
+  const startMoved =
+    data.scheduledStart !== undefined &&
+    (meeting.scheduledStart?.getTime() ?? null) !== ((data.scheduledStart as Date | null)?.getTime() ?? null);
+  const endMoved =
+    data.scheduledEnd !== undefined &&
+    (meeting.scheduledEnd?.getTime() ?? null) !== ((data.scheduledEnd as Date | null)?.getTime() ?? null);
+  const timeMoved = startMoved || endMoved;
+
   if (data.status === "cancelled") {
     await cancelHuddleEvent(meetingId);
   } else {
@@ -372,6 +402,11 @@ export async function updateMeeting(user: SessionUser, meetingId: string, input:
       data.scheduledEnd !== undefined ||
       data.location !== undefined;
     await reconcileHuddleEvent(meetingId, timeOrTitleChanged ? "full" : "create-only");
+
+    // A real reschedule → Canopy re-notifies every attendee (incl. the organizer),
+    // mirroring the create notice. Only when the time moved to a concrete new value;
+    // best-effort + non-fatal. Runs after reconcile so the Meet link is current.
+    if (timeMoved) await notifyHuddleScheduled(meetingId, "rescheduled");
   }
 
   return getMeeting(user, meetingId) as Promise<MeetingDTO>;
@@ -399,6 +434,38 @@ export async function cancelMeeting(user: SessionUser, meetingId: string): Promi
   await cancelHuddleEvent(meetingId);
 
   return getMeeting(user, meetingId) as Promise<MeetingDTO>;
+}
+
+/**
+ * Delete a Huddle that didn't happen — a hard delete, which is allowed here (the
+ * "never hard-delete" rule is about STOCK movements / inventory audit rows, not
+ * meetings). Guardrails so nothing of substance is lost or orphaned:
+ *   - Only the organizer / admin / Groundwork leadership may delete (canManageMeeting).
+ *   - If the Huddle has real history — live notes, or open/active follow-ups — we
+ *     BLOCK and tell the caller to Cancel it instead (keeps its record intact).
+ *   - The Google Calendar event (if any) is cancelled FIRST so the invite is
+ *     withdrawn and attendees are notified, then the row is removed.
+ * On delete, attendees / agenda items / notes cascade with the Meeting (schema
+ * onDelete: Cascade); any leftover (cancelled) follow-up WorkItems are detached
+ * (meetingId → null via onDelete: SetNull), so nothing is orphaned.
+ */
+export async function deleteMeeting(user: SessionUser, meetingId: string): Promise<void> {
+  const meeting = await prisma.meeting.findUnique({ where: { id: meetingId } });
+  if (!meeting) throw new Error("That Huddle no longer exists.");
+  if (!canManageMeeting(user, meeting)) throw new Error("Only the organizer can delete the Huddle.");
+
+  // Block when the Huddle carries real history — a completed/run Huddle is a record.
+  const [noteCount, liveFollowUps] = await Promise.all([
+    prisma.meetingNote.count({ where: { meetingId } }),
+    prisma.workItem.count({ where: { meetingId, status: { notIn: ["cancelled"] } } }),
+  ]);
+  if (noteCount > 0 || liveFollowUps > 0) {
+    throw new Error("This Huddle has notes or follow-ups — cancel it instead of deleting so its record stays intact.");
+  }
+
+  // Withdraw the calendar invite first (Google notifies attendees), then delete.
+  await cancelHuddleEvent(meetingId);
+  await prisma.meeting.delete({ where: { id: meetingId } });
 }
 
 // ── Agenda templates (for the create picker) ──────────────────────────────────

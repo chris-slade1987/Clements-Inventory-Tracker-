@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { fail } from "@/lib/http";
 import {
-  createMeeting, updateMeeting, completeMeeting, cancelMeeting,
+  createMeeting, updateMeeting, completeMeeting, cancelMeeting, deleteMeeting,
   addAttendees, removeAttendee, applyAgendaTemplate, addAgendaItem, updateAgendaItem,
   addNote, createFollowUp, getMeeting, listMyHuddles, huddlesForUser, listAgendaTemplates,
 } from "@/lib/huddles";
@@ -12,7 +12,7 @@ export const maxDuration = 20;
 
 // Huddles surface. Reads (GET): my Huddles, one Huddle in full, or a person's
 // Huddle history (notes + their follow-ups) for the profile. Writes (POST, action
-// switch): create / update / complete / cancel; attendees; agenda (apply template,
+// switch): create / update (incl. reschedule) / complete / cancel / delete; attendees; agenda (apply template,
 // add, update/check-off); live notes; real-time follow-ups. Access scoping +
 // participation checks in lib/huddles. Google Calendar sync is wired into the
 // create/update/cancel/attendee paths (lib/huddle-calendar.ts) — auto-creating a
@@ -73,6 +73,11 @@ export async function POST(req: Request) {
         if (!body.id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
         const meeting = await cancelMeeting(user, String(body.id));
         return NextResponse.json({ ok: true, meeting });
+      }
+      case "delete": {
+        if (!body.id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+        await deleteMeeting(user, String(body.id));
+        return NextResponse.json({ ok: true, deleted: true });
       }
       case "add_attendees": {
         if (!body.id || !Array.isArray(body.attendees)) return NextResponse.json({ error: "Missing attendees." }, { status: 400 });
