@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { inspectionStatus, technicianGrades, gradeLetter } from "@/lib/inspection";
+import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps } from "@/lib/inspection";
 
 export const dynamic = "force-dynamic";
 
@@ -28,9 +28,10 @@ export default async function InspectionsPage({
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const [insp, grades] = await Promise.all([
+  const [insp, grades, coverageGaps] = await Promise.all([
     inspectionStatus(year, month, branch ?? undefined),
     technicianGrades(branch ?? undefined),
+    vehicleCoverageGaps(branch ?? undefined),
   ]);
 
   return (
@@ -89,6 +90,41 @@ export default async function InspectionsPage({
               </tbody>
             </table>
           </div>
+        )}
+      </Card>
+
+      {/* Coverage gaps — techs / advisors with no vehicle linked (fix these) */}
+      <Card className="p-0 overflow-hidden mb-5">
+        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">
+          Needs a vehicle linked · technicians &amp; service advisors
+          {coverageGaps.length > 0 ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">{coverageGaps.length}</span> : null}
+        </div>
+        {coverageGaps.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">Every active technician and service advisor has a vehicle linked.</p>
+        ) : (
+          <>
+            <p className="px-4 pt-3 text-xs text-muted">These people have no vehicle assigned, so nothing shows for them on inspections. Link a truck on <Link href="/fleet/assignments" className="text-brand-700 hover:underline">Fleet → Driver assignments</Link>.</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted border-b border-line">
+                    <th className="px-4 py-2 font-medium">Name</th>
+                    <th className="px-3 py-2 font-medium">Role</th>
+                    <th className="px-4 py-2 font-medium">Branch</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {coverageGaps.map((g) => (
+                    <tr key={g.id} className="border-b border-line last:border-0">
+                      <td className="px-4 py-2 font-medium">{g.name}</td>
+                      <td className="px-3 py-2 text-muted">{g.role ?? "—"}</td>
+                      <td className="px-4 py-2 text-muted">{g.branch ? branchLabel(g.branch) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
 

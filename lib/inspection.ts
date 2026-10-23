@@ -222,6 +222,57 @@ export async function listInspectableVehicles(branch?: string): Promise<Inspecta
   return out;
 }
 
+// ── Coverage gaps: tech/advisor with NO inspectable vehicle ───────────────────
+// Reads the org-chart roster (active employees) and flags every TECHNICIAN or
+// SERVICE ADVISOR who is NOT the assigned driver of an inspectable vehicle, so the
+// user can fix the linkage (assign/link a truck on Fleet → Driver assignments).
+// This is the positive side of the fail-open inspection rule: here we DO identify
+// field drivers (by access level technician/sales, or a tech/advisor role string),
+// excluding leadership, and list those with no truck.
+const FIELD_DRIVER_ROLE_RE = /tech(nician)?\b|service advisor|sales advisor|\badvisor\b/i;
+
+export type CoverageGap = { id: string; name: string; role: string | null; branch: string | null };
+
+export async function vehicleCoverageGaps(branch?: string): Promise<CoverageGap[]> {
+  const [employees, vehicles] = await Promise.all([
+    prisma.employee.findMany({
+      where: { status: "active", ...(branch ? { branch } : {}) },
+      include: { user: { select: { accessLevel: true } } },
+    }),
+    prisma.vehicle.findMany({
+      where: { status: "active" },
+      select: { id: true, assignedEmployeeId: true, assignedTo: true, inspectExempt: true, name: true, make: true, model: true },
+    }),
+  ]);
+  const roster: EmployeeLite[] = employees.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch, nickname: e.nickname }));
+
+  // Employees who ARE the driver of an inspectable (active, non-exempt, non-trailer) vehicle.
+  const driven = new Set<string>();
+  for (const v of vehicles) {
+    if (v.inspectExempt) continue;
+    if (isTrailerLike(v)) continue;
+    if (v.assignedEmployeeId) {
+      driven.add(v.assignedEmployeeId);
+      continue;
+    }
+    const mid = matchEmployeeByName(v.assignedTo, roster);
+    if (mid) driven.add(mid);
+  }
+
+  const gaps: CoverageGap[] = [];
+  for (const e of employees) {
+    const level = e.user?.accessLevel ?? null;
+    const role = e.role ?? "";
+    const isFieldDriver = level === "technician" || level === "sales" || FIELD_DRIVER_ROLE_RE.test(role);
+    if (!isFieldDriver) continue;
+    if (driverIsLeadership({ role, accessLevel: level })) continue;
+    if (driven.has(e.id)) continue;
+    gaps.push({ id: e.id, name: e.name, role: e.role, branch: e.branch });
+  }
+  gaps.sort((a, b) => (a.branch ?? "").localeCompare(b.branch ?? "") || a.name.localeCompare(b.name));
+  return gaps;
+}
+
 // ── Oil-change AI/agent alert ────────────────────────────────────────────────
 // Surface an alert when a vehicle is within 500 mi of its next-due oil-change
 // mileage (vs Vehicle.currentMileage) OR within ~one month of its next-due date.

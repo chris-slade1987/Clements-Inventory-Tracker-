@@ -238,8 +238,8 @@ export default function InspectionForm({
           hint="Odometer reading the next oil change is due at"
         />
         <label className="block text-sm font-medium">Next due — month/year
-          <DateInput className="mt-1" value={f.oilChangeNext} onChange={(v) => set({ oilChangeNext: v })} />
-          <span className="mt-0.5 block text-[11px] font-normal text-muted">Date the next oil change is due by</span>
+          <MonthYearSelect value={f.oilChangeNext} onChange={(v) => set({ oilChangeNext: v })} />
+          <span className="mt-0.5 block text-[11px] font-normal text-muted">The month/year on the truck&apos;s oil-change sticker (no day needed)</span>
         </label>
         {!oilValid ? <p className="sm:col-span-2 text-xs text-amber-700">Enter a next-due mileage and/or a next-due date.</p> : null}
       </Card>
@@ -332,6 +332,39 @@ function SectionTitle({ n, title, hint }: { n: string; title: string; hint?: str
       <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">{n}</span>
       <h3 className="text-sm font-semibold text-ink">{title}</h3>
       {hint ? <span className="text-xs text-muted">· {hint}</span> : null}
+    </div>
+  );
+}
+
+// Month + Year dropdowns for the next oil change — mechanics give a month/year on
+// the sticker, never a specific day. Stores the value as "YYYY-MM-01" so the server
+// keeps reading it as a date; shows nothing picked until both are chosen.
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function MonthYearSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [yStr, mStr] = (value ? value.slice(0, 7) : "").split("-");
+  const month = mStr ?? "";
+  const year = yStr ?? "";
+  const nowY = new Date().getFullYear();
+  const yearsSet = new Set<string>();
+  for (let y = nowY - 1; y <= nowY + 4; y++) yearsSet.add(String(y));
+  if (year) yearsSet.add(year); // keep an already-saved out-of-range year selectable
+  const years = [...yearsSet].sort();
+  const cls = "mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm";
+  const emit = (m: string, y: string) => onChange(m && y ? `${y}-${m}-01` : "");
+  return (
+    <div className="mt-1 grid grid-cols-2 gap-2">
+      <select aria-label="Oil change due month" className={cls} value={month} onChange={(e) => emit(e.target.value, year)}>
+        <option value="">Month</option>
+        {MONTH_NAMES.map((nm, i) => (
+          <option key={nm} value={String(i + 1).padStart(2, "0")}>{nm}</option>
+        ))}
+      </select>
+      <select aria-label="Oil change due year" className={cls} value={year} onChange={(e) => emit(month, e.target.value)}>
+        <option value="">Year</option>
+        {years.map((y) => (
+          <option key={y} value={y}>{y}</option>
+        ))}
+      </select>
     </div>
   );
 }
