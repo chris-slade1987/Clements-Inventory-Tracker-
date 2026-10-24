@@ -112,20 +112,16 @@ export function computeFlags(input: RulesInput, thresholds: Thresholds): Flag[] 
     });
   }
 
-  // THUNDER — hourly short text or gridpoint thunder fields.
-  const thunderHours = Array.from(
-    new Set([
-      ...todayHours.filter((h) => h.thunder).map((h) => h.time),
-      ...input.grid.thunderHours.filter((iso) => localDate(iso) === input.date),
-    ])
-  ).sort();
-  if (thunderHours.length > 0) {
+  // THUNDER — hourly short text (precise hours) or the gridpoint thunder signal. The
+  // affected hours come from the hourly text; the gridpoint is a boolean fallback.
+  const thunderHours = todayHours.filter((h) => h.thunder).map((h) => h.time).sort();
+  if (thunderHours.length > 0 || input.grid.thunderLikely) {
     flags.push({
       code: "THUNDER",
       level: "yellow",
       label: "Thunderstorms",
       meaning: "Stop outdoor work during those hours; front-load routes.",
-      hours: thunderHours,
+      ...(thunderHours.length > 0 ? { hours: thunderHours } : {}),
     });
   }
 

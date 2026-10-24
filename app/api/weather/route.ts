@@ -20,6 +20,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const requested = url.searchParams.get("branch");
   const withBriefing = url.searchParams.get("brief") !== "0";
+  const force = url.searchParams.get("force") === "1"; // manual "Refresh now" (scoped)
 
   if (requested && requested !== "all" && !VALID.has(requested))
     return NextResponse.json({ error: "Unknown branch." }, { status: 400 });
@@ -31,14 +32,14 @@ export async function GET(req: Request) {
   try {
     if (!canSeeAll) {
       if (!user.branch) return NextResponse.json({ error: "No branch assigned." }, { status: 403 });
-      const territory = await getTerritory(user.branch, { withBriefing });
+      const territory = await getTerritory(user.branch, { withBriefing, force });
       return NextResponse.json({ canSeeAll: false, scope: user.branch, territories: [territory] });
     }
     if (requested && requested !== "all") {
-      const territory = await getTerritory(requested, { withBriefing });
+      const territory = await getTerritory(requested, { withBriefing, force });
       return NextResponse.json({ canSeeAll: true, scope: requested, territories: [territory] });
     }
-    const territories = await getAllTerritories({ withBriefing });
+    const territories = await getAllTerritories({ withBriefing, force });
     return NextResponse.json({ canSeeAll: true, scope: "all", territories });
   } catch (e) {
     console.error("GET /api/weather:", e);

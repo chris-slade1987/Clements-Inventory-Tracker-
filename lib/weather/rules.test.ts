@@ -23,7 +23,7 @@ function hr(hour: number, over: Partial<HourPoint> = {}): HourPoint {
     ...over,
   };
 }
-const EMPTY_GRID: GridData = { qpf24In: 0, maxGustMph: 8, maxHeatIndexF: 90, thunderHours: [] };
+const EMPTY_GRID: GridData = { qpf24In: 0, maxGustMph: 8, maxHeatIndexF: 90, thunderLikely: false };
 function input(over: Partial<RulesInput> = {}): RulesInput {
   return {
     hourly: [hr(8), hr(12), hr(16)],
@@ -78,9 +78,13 @@ test("WIND_NO_SPRAY fires on sustained ≥15", () => {
   assert.ok(!codes(input({ hourly: [hr(10, { windMph: 14 })] })).includes("WIND_NO_SPRAY"));
 });
 
-test("THUNDER fires from short text OR gridpoint hours", () => {
-  assert.ok(codes(input({ hourly: [hr(15, { short: "Scattered Thunderstorms", thunder: true })] })).includes("THUNDER"));
-  assert.ok(codes(input({ grid: { ...EMPTY_GRID, thunderHours: [`${DATE}T15:00:00-04:00`] } })).includes("THUNDER"));
+test("THUNDER fires from short text OR gridpoint signal", () => {
+  const fromText = computeFlags(input({ hourly: [hr(15, { short: "Scattered Thunderstorms", thunder: true })] }), T).find((f) => f.code === "THUNDER");
+  assert.ok(fromText, "fires from hourly text");
+  assert.deepEqual(fromText!.hours, [`${DATE}T15:00:00-04:00`], "hours sourced from hourly text");
+  // gridpoint boolean fires the flag even when no hourly text mentions it (no hours then)
+  const fromGrid = computeFlags(input({ grid: { ...EMPTY_GRID, thunderLikely: true } }), T).find((f) => f.code === "THUNDER");
+  assert.ok(fromGrid && fromGrid.hours === undefined, "fires from gridpoint with no pinned hours");
 });
 
 test("HEAT_HIGH at 103–115, HEAT_EXTREME above 115 (not both)", () => {

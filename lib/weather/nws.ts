@@ -119,15 +119,13 @@ export async function fetchDaily(url: string): Promise<DayPoint[]> {
 // A gridpoint time series: { uom, values: [{ validTime: "ISO/PnДT..", value }] }.
 type GridSeries = { values?: { validTime: string; value: number | null }[] } | undefined;
 
-/** Expand an ISO8601 interval "2026-07-15T06:00:00+00:00/PT1H" to its start ISO + hours. */
+/** Start ISO of an ISO8601 interval "2026-07-15T06:00:00+00:00/PT1H". */
 function intervalStart(validTime: string): string {
   return validTime.split("/")[0];
 }
-function intervalHours(validTime: string): number {
-  const dur = validTime.split("/")[1] ?? "PT1H";
-  const d = dur.match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/);
-  const days = Number(d?.[1] ?? 0), hours = Number(d?.[2] ?? 0);
-  return days * 24 + hours || 1;
+/** Eastern-time calendar date ("YYYY-MM-DD") for an instant — gridpoint times are UTC. */
+function etDate(d: Date): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
 }
 
 /**
@@ -167,17 +165,20 @@ export async function fetchGrid(url: string): Promise<GridData> {
   const heatC = maxSeries(props.maxHeatIndex ?? props.heatIndex ?? props.apparentTemperature, (c) => c, horizon);
   const maxHeatIndexF = heatC == null ? null : Math.round((heatC * 9) / 5 + 32);
 
-  // Thunder: any interval with a non-zero thunder/lightning probability or level.
-  const thunderHours: string[] = [];
+  // Thunder: is any gridpoint thunder/lightning probability non-zero TODAY (ET)? This
+  // is a secondary, boolean trigger — the precise flagged hours come from the hourly
+  // shortForecast text (reliable + in local time), so we don't try to pin grid hours.
+  const today = etDate(new Date(now));
+  let thunderLikely = false;
   const thunderSeries = props.probabilityOfThunder ?? props.thunderstormProbability ?? props.lightningActivityLevel;
   for (const v of thunderSeries?.values ?? []) {
-    const start = new Date(intervalStart(v.validTime)).getTime();
-    if (start >= now && start <= horizon && typeof v.value === "number" && v.value > 0) {
-      const hrs = intervalHours(v.validTime);
-      for (let h = 0; h < hrs; h++) thunderHours.push(new Date(start + h * 3600 * 1000).toISOString());
+    const start = new Date(intervalStart(v.validTime));
+    if (start.getTime() >= now && start.getTime() <= horizon && typeof v.value === "number" && v.value > 0 && etDate(start) === today) {
+      thunderLikely = true;
+      break;
     }
   }
-  return { qpf24In, maxGustMph: maxGustMph == null ? null : Math.round(maxGustMph), maxHeatIndexF, thunderHours };
+  return { qpf24In, maxGustMph: maxGustMph == null ? null : Math.round(maxGustMph), maxHeatIndexF, thunderLikely };
 }
 
 function maxSeries(s: GridSeries, convert: (v: number) => number, horizon: number): number | null {

@@ -4,7 +4,8 @@ import { requireUser, branchLocked } from "@/lib/auth";
 import { BRANCHES } from "@/lib/management";
 import { getTerritory, getAllTerritories, todayET, type TerritoryView } from "@/lib/weather/service";
 import { fiveDay, hourLabel, radarLoopUrl, riskBadgeClass, riskDotClass, riskLabel, updatedAgo } from "@/lib/weather/ui";
-import type { Flag, RiskLevel } from "@/lib/weather/types";
+import type { RiskLevel } from "@/lib/weather/types";
+import RefreshButton from "@/components/weather/RefreshButton";
 
 // Weather Ops — the full forecast page. Managers land directly on their territory;
 // admins/leadership get an all-territories grid and can open any one. Server-rendered
@@ -29,7 +30,7 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
     const t = await getTerritory(user.branch, { withBriefing: true });
     return (
       <>
-        <PageHeader title="Weather Ops" subtitle={`${t.label} · ${t.current?.short ?? "forecast"}`} />
+        <PageHeader title="Weather Ops" subtitle={`${t.label} · ${t.current?.short ?? "forecast"}`} actions={<RefreshButton scope={user.branch} />} />
         <TerritoryDetail t={t} />
       </>
     );
@@ -45,7 +46,12 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
       <PageHeader
         title="Weather Ops"
         subtitle={`All territories · worst risk today: ${riskLabel(worst)}`}
-        actions={<Link href="/weather/settings" className="text-sm text-brand-600 hover:underline">Settings</Link>}
+        actions={
+          <div className="flex items-center gap-3">
+            <RefreshButton scope={requested ?? "all"} />
+            <Link href="/weather/settings" className="text-sm text-brand-600 hover:underline">Settings</Link>
+          </div>
+        }
       />
 
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -30,7 +30,7 @@ export type GridData = {
   qpf24In: number | null; // max forecast precip (inches) in any rolling 24h ahead
   maxGustMph: number | null; // peak wind gust ahead
   maxHeatIndexF: number | null; // peak heat index ahead
-  thunderHours: string[]; // ISO hours the gridpoint flags thunder/lightning
+  thunderLikely: boolean; // gridpoint thunder/lightning probability > 0 for today (ET)
 };
 
 /** An active NWS alert, trimmed. */

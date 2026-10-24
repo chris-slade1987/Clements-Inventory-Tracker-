@@ -88,7 +88,7 @@ function snapshotToView(s: {
     fetchedAt: s.fetchedAt.toISOString(),
     hourly: parseJson<HourPoint[]>(s.hourly, []),
     daily: parseJson<DayPoint[]>(s.daily, []),
-    grid: parseJson<GridData>(s.grid, { qpf24In: null, maxGustMph: null, maxHeatIndexF: null, thunderHours: [] }),
+    grid: parseJson<GridData>(s.grid, { qpf24In: null, maxGustMph: null, maxHeatIndexF: null, thunderLikely: false }),
     alerts: parseJson<WxAlert[]>(s.alerts, []),
     flags: parseJson<Flag[]>(s.flags, []),
     riskLevel: (s.riskLevel as RiskLevel) ?? "green",

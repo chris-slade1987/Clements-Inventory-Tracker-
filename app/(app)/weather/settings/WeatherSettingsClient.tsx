@@ -33,14 +33,23 @@ export default function WeatherSettingsClient() {
   const [busy, setBusy] = useState(false);
   const [thresholds, setThresholds] = useState<Record<string, string>>({});
 
-  async function load() {
-    const r = await fetch("/api/weather/settings");
-    if (!r.ok) { setErr("Could not load settings."); return; }
-    const j = (await r.json()) as Data;
+  function apply(j: Data) {
     setData(j);
     setThresholds(Object.fromEntries(Object.entries(j.thresholds).map(([k, v]) => [k, String(v)])));
   }
-  useEffect(() => { load(); }, []);
+  async function load() {
+    const r = await fetch("/api/weather/settings");
+    if (!r.ok) { setErr("Could not load settings."); return; }
+    apply((await r.json()) as Data);
+  }
+  useEffect(() => {
+    let live = true;
+    fetch("/api/weather/settings")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("load"))))
+      .then((j: Data) => { if (live) apply(j); })
+      .catch(() => { if (live) setErr("Could not load settings."); });
+    return () => { live = false; };
+  }, []);
 
   async function post(payload: Record<string, unknown>) {
     setBusy(true); setErr(null);
