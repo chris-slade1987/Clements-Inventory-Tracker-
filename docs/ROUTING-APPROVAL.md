@@ -85,6 +85,27 @@ stop). Optional but ideal: **latitude/longitude**, **scheduled duration**, **dri
 time/mileage** (if present we use them instead of estimating). A sample export (one month,
 one branch) pins the parser exactly.
 
+## Fuel forecast (the routing ↔ fuel ↔ $ story)
+
+Once routes are geocoded, each tech-month yields **estimated miles**. Combined with
+**fleet MPG** (per-vehicle, derived from `FuelTransaction` gallons vs. odometer, or a branch
+default) and a **$/gallon** input, Canopy forecasts the month's fuel spend per tech / per
+branch:
+
+```
+forecast_fuel_$  =  est_miles / mpg  ×  forecast_price_per_gallon
+```
+
+- **Historical price** comes from the **Coast** fuel data already in Canopy
+  (`FuelTransaction`, `coast_fuel_last_sync`) — a trailing average $/gallon and its trend.
+- **Current price** is a fresh input (a recent-weeks Coast average, optionally blended with a
+  live retail price for the branch's metro) so the forecast reflects today, not last quarter.
+- Output: projected fuel spend for the month beside the routing, variance vs. the trailing
+  actuals, and a per-tech "cost-to-serve" lens (fuel $ per stop / per $ produced). This is a
+  first pillar of the longitudinal AI story (routing → mileage → vehicle → fuel → production).
+
+Lands with/after Phase 3 (it needs the geocoded mileage estimate + the Coast history join).
+
 ## Phases
 
 1. **Design + schema (now):** this doc + the models above (`prisma db push`-safe).
@@ -92,7 +113,9 @@ one branch) pins the parser exactly.
    dashboard + per-tech approval + month sign-off + manager-checklist/rhythm/miss wiring.
 3. **AI findings:** day-size / drive-time / mileage anomaly detection + forced responses.
 4. **Leadership rollup:** cross-branch routing-approval status.
-5. **In tandem:** PestPac routing API replaces the upload; OSRM upgrades estimates to exact.
+5. **Fuel forecast:** est-miles × fleet MPG × forecast $/gallon (Coast history + current
+   price), per tech/branch, with variance vs. trailing actuals (see *Fuel forecast* above).
+6. **In tandem:** PestPac routing API replaces the upload; OSRM upgrades estimates to exact.
 
 ## Access
 
