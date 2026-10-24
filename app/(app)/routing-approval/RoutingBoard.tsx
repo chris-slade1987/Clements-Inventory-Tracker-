@@ -15,9 +15,9 @@ const money = (n: number) => "$" + Math.round(n).toLocaleString();
 
 type Finding = { id: string; severity: string; title: string; detail: string; question: string | null; requiresResponse: boolean; managerResponse: string | null; status: string };
 type Tech = { id: string; routeNo: string | null; name: string; kind: string; partnerRouteNo: string | null; totalDays: number; totalStops: number; totalDollars: number; avgStopsPerDay: number | null; estMiles: number | null; estDriveMinutes: number | null; status: string; approved: boolean; perStop: number; loads: number[]; findings: Finding[] };
-type Stop = { seq: number; svc: string; customer: string; addr: string; city: string; zip: string; lat: number | null; lng: number | null; amt: number };
+type Stop = { seq: number; account: string; svc: string; customer: string; addr: string; city: string; zip: string; lat: number | null; lng: number | null; amt: number };
 type Day = { date: string; stops: Stop[] };
-type Move = { addr: string; city: string; amt: number; svc: string; from: string; to: string };
+type Move = { account: string; customer: string; addr: string; city: string; amt: number; svc: string; from: string; to: string };
 type Proposal = { moves: Move[]; balBefore: number; balAfter: number; maxBefore: number; maxAfter: number };
 type Data = { month: { id: string; branch: string; periodKey: string; status: string; signedName: string | null; signedAt: string | null; loaded: boolean; uploadedAt: string | null; uploadedBy: string | null }; techs: Tech[]; gate: { techs: number; unapproved: number; openFindings: number; canSign: boolean }; totals: { stops: number; dollars: number; miles: number } };
 
@@ -190,7 +190,7 @@ type FocusProps = {
   onLocate: () => void; locating: boolean; branch: string;
 };
 function FocusCard(props: FocusProps) {
-  const { sel, days, selDate, setSelDate, locks, setLocks, proposal, setProposal, changeset, setChangeset, signed, busy, post, onLocate, locating, branch } = props;
+  const { sel, days, selDate, setSelDate, periodKey, locks, setLocks, proposal, setProposal, changeset, setChangeset, signed, busy, post, onLocate, locating, branch } = props;
   const loading = !days;
   const sizes = sel.loads;
   const m = {
@@ -247,7 +247,7 @@ function FocusCard(props: FocusProps) {
               <StopList sel={sel} day={curDay} locks={locks} setLocks={setLocks} signed={signed} setProposal={setProposal} />
             </div>
           </div>
-          <Optimize sel={sel} days={days!} locks={locks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} />
+          <Optimize sel={sel} days={days!} locks={locks} setLocks={setLocks} periodKey={periodKey} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} />
         </>
       )}
 
@@ -356,7 +356,30 @@ function StopList({ sel, day, locks, setLocks, signed, setProposal }: { sel: Tec
   );
 }
 
-function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChangeset }: { sel: Tech; days: Day[]; locks: Set<string>; proposal: Proposal | null; setProposal: (p: Proposal | null) => void; changeset: string | null; setChangeset: (s: string | null) => void }) {
+// Build a PestPac-ready change set and hand it to the browser as a .csv download.
+// This is a CLIENT-SIDE export only — it writes nothing back to Canopy. The columns
+// are keyed on the PestPac Account # so the reschedule can be matched on import; the
+// manager reviews it, then applies the date moves in PestPac. (If PestPac needs an
+// exact import layout, we match these columns to that template.)
+function downloadChangeSet(sel: Tech, periodKey: string, proposal: Proposal, setChangeset: (s: string | null) => void) {
+  const esc = (v: string | number) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const usDate = (iso: string) => { const [y, m, d] = iso.split("-").map(Number); return `${m}/${d}/${y}`; };
+  const header = ["Account", "Customer", "Service", "Current Date", "Proposed Date", "Amount"];
+  const rows = proposal.moves.map((mv: Move) => [mv.account, mv.customer, mv.svc, usDate(mv.from), usDate(mv.to), mv.amt.toFixed(2)].map(esc).join(","));
+  const csv = "﻿" + [header.join(","), ...rows].join("\r\n") + "\r\n";
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `canopy-changeset_route-${sel.routeNo}_${periodKey}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setChangeset(`Downloaded ${proposal.moves.length} proposed move${proposal.moves.length === 1 ? "" : "s"} for route ${sel.routeNo} (${sel.name}) — review in Excel, then apply the date changes in PestPac. Nothing in Canopy changed.`);
+}
+
+function Optimize({ sel, days, locks, setLocks, periodKey, proposal, setProposal, changeset, setChangeset }: { sel: Tech; days: Day[]; locks: Set<string>; setLocks: (s: Set<string>) => void; periodKey: string; proposal: Proposal | null; setProposal: (p: Proposal | null) => void; changeset: string | null; setChangeset: (s: string | null) => void }) {
   const fmtD = (ds: string) => { const [y, m, d] = ds.split("-").map(Number); return DOW[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + " " + m + "/" + d; };
   const nloc = [...locks].filter((k) => k.startsWith(sel.routeNo + "|")).length;
   const run = () => {
@@ -364,7 +387,7 @@ function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChang
     if (work.length < 2) { setProposal({ moves: [], balBefore: 0, balAfter: 0, maxBefore: 0, maxAfter: 0 }); return; }
     const size = (d: { stops: unknown[] }) => d.stops.length;
     const sizesBefore = work.map(size);
-    const moves: { addr: string; city: string; amt: number; svc: string; from: string; to: string }[] = [];
+    const moves: Move[] = [];
     let guard = 0;
     while (guard++ < 400) {
       const donor = work.reduce((a, b) => (size(b) > size(a) ? b : a));
@@ -373,7 +396,7 @@ function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChang
       const cand = donor.stops.filter((s) => !locks.has(`${sel.routeNo}|${donor.date}|${s.seq}`)).sort((a, b) => a.amt - b.amt)[0];
       if (!cand) break;
       donor.stops = donor.stops.filter((s) => s !== cand); recip.stops.push(cand);
-      moves.push({ addr: cand.addr, city: cand.city, amt: cand.amt, svc: cand.svc, from: donor.date, to: recip.date });
+      moves.push({ account: cand.account, customer: cand.customer, addr: cand.addr, city: cand.city, amt: cand.amt, svc: cand.svc, from: donor.date, to: recip.date });
       if (moves.length >= 60) break;
     }
     const sizesAfter = work.map(size);
@@ -408,11 +431,12 @@ function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChang
             ))}
             {proposal.moves.length > 14 && <div className="mt-1 text-xs text-muted">+ {proposal.moves.length - 14} more moves</div>}
           </div>
-          <div className="mt-3 flex gap-2">
-            <button className={btn.secondary} onClick={() => setChangeset(["CanopyOS — proposed routing changes", `Route ${sel.routeNo} ${sel.name} · ${sel.kind}`, `Respecting ${nloc} locked job(s)`, "----", ...proposal.moves.map((mv: Move) => `MOVE  ${mv.addr}, ${mv.city}  ($${Math.round(mv.amt)} ${mv.svc})  ${mv.from} -> ${mv.to}`)].join("\n"))}>Export change set for PestPac</button>
-            <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted" onClick={() => { setProposal(null); setChangeset(null); }}>Discard</button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button className={btn.primary} onClick={() => downloadChangeSet(sel, periodKey, proposal, setChangeset)}>Download PestPac change set (.csv)</button>
+            <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted hover:bg-black/5" onClick={() => { setProposal(null); setChangeset(null); setLocks(new Set()); }}>Revert to original</button>
           </div>
-          {changeset && <pre className="mt-3 overflow-x-auto whitespace-pre rounded-lg border border-line bg-black/[0.02] p-3 text-[11px] text-ink">{changeset}</pre>}
+          <p className="mt-2 text-[11px] text-muted">Rebalancing is a working draft — it never changes your loaded routing. Canopy only overwrites data when you upload a new schedule. Revert to original clears this draft and every lock; your loaded month is untouched.</p>
+          {changeset && <p className="mt-2 text-xs text-brand-700">{changeset}</p>}
         </div>
       )}
     </div>

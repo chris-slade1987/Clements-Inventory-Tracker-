@@ -116,12 +116,23 @@ Routing Approval is not just a review surface — managers/admins/super-admins c
 - **Lock jobs in place.** Any stop a customer requires on a specific day/time is **locked**;
   the optimizer reworks everything else **around the locks** and never moves a locked job.
 - **Proposed summary of changes → PestPac.** The output is a concrete change set ("move
-  <customer> from Tue 11/10 → Mon 11/23"), reviewable, with a one-click **export** the routing
-  dept implements in PestPac. (Phase: a direct PestPac write-back is a later integration; the
-  first version produces the reviewed change list + export.)
+  <customer> from Tue 11/10 → Mon 11/23"), reviewable, with a one-click **Download PestPac
+  change set (.csv)** the routing dept implements in PestPac. The CSV is UTF-8 (BOM for Excel)
+  with columns **Account, Customer, Service, Current Date, Proposed Date, Amount** — keyed on
+  the PestPac **Account #** so the reschedule matches on import (M/D/YYYY dates). The file name
+  is `canopy-changeset_route-<routeNo>_<period>.csv`. (Phase: a direct PestPac write-back is a
+  later integration; the first version produces the reviewed change list + export. If PestPac
+  requires an exact import layout, these columns are matched to that template.)
+- **Non-destructive by design — always revertible.** Rebalancing is a **working draft held in
+  the browser only**. It writes nothing back to Canopy: no API call, no DB write on rebalance
+  or export. **Revert to original** clears the draft and every lock in one click, and the loaded
+  month is untouched. Canopy overwrites routing data **only** when a new schedule is uploaded
+  from outside Canopy (see Ingest, which replaces the month). Sign-off records the review; it
+  does not alter the loaded stops.
 
 Everything stays human-in-the-loop: the AI proposes, the manager approves per technician, and
-nothing changes in PestPac without an explicit, reviewed export.
+nothing changes in PestPac — or in Canopy's loaded data — without an explicit, reviewed export
+followed by a manual PestPac import.
 
 ## Fuel forecast (the routing ↔ fuel ↔ $ story)
 

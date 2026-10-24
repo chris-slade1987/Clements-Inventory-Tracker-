@@ -134,7 +134,7 @@ export async function getTechDays(routingMonthId: string, techName: string) {
   const stops = await prisma.routeStop.findMany({
     where: { routingMonthId, techName },
     orderBy: [{ date: "asc" }, { seq: "asc" }],
-    select: { date: true, seq: true, service: true, customer: true, address: true, city: true, zip: true, lat: true, lng: true, dollars: true },
+    select: { date: true, seq: true, account: true, service: true, customer: true, address: true, city: true, zip: true, lat: true, lng: true, dollars: true },
   });
   const byDate = new Map<string, typeof stops>();
   for (const s of stops) {
@@ -146,6 +146,7 @@ export async function getTechDays(routingMonthId: string, techName: string) {
     date,
     stops: ss.map((s) => ({
       seq: s.seq,
+      account: s.account ?? "",
       svc: s.service ?? "",
       customer: s.customer ?? "",
       addr: s.address ?? "",

@@ -180,6 +180,7 @@ export async function ingestRoutingReport(opts: {
             techName: t.name,
             date: toDate(d.date),
             seq: i + 1,
+            account: s.account,
             service: s.service,
             customer: s.customer,
             address: s.address,

@@ -3597,6 +3597,7 @@ model RouteStop {
   techName       String   @map("tech_name")
   date           DateTime // service day
   seq            Int // stop order within the day (1..x)
+  account        String? // PestPac account # — the key a PestPac re-route import matches on
   service        String?
   customer       String?
   address        String?
