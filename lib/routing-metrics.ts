@@ -76,6 +76,37 @@ export function computeMetrics(days: DayInput[]): RouteMetrics {
   };
 }
 
+export type RebalanceMove = { customer: string; amt: number; from: string; to: string };
+export type RebalanceResult = { moves: RebalanceMove[]; balanceBefore: number; balanceAfter: number; maxBefore: number; maxAfter: number };
+
+/** Even out a route's daily load by moving unlocked stops from the heaviest days to
+ *  the lightest, respecting a lock predicate. Pure — shared by the UI optimizer and
+ *  the Copilot propose_route_rebalance tool. */
+export function rebalanceRoute(
+  days: { date: string; stops: { seq: number; customer: string; amt: number }[] }[],
+  locked: (date: string, seq: number) => boolean,
+): RebalanceResult {
+  const work = days.map((d) => ({ date: d.date, stops: d.stops.map((s) => ({ ...s })) })).filter((d) => d.stops.length > 0);
+  const size = (d: { stops: unknown[] }) => d.stops.length;
+  const sizesBefore = work.map(size);
+  const moves: RebalanceMove[] = [];
+  let guard = 0;
+  while (guard++ < 400 && work.length >= 2) {
+    const donor = work.reduce((a, b) => (size(b) > size(a) ? b : a));
+    const recip = work.reduce((a, b) => (size(b) < size(a) ? b : a));
+    if (size(donor) - size(recip) <= 2) break;
+    const cand = donor.stops.filter((s) => !locked(donor.date, s.seq)).sort((a, b) => a.amt - b.amt)[0];
+    if (!cand) break;
+    donor.stops = donor.stops.filter((s) => s !== cand);
+    recip.stops.push(cand);
+    moves.push({ customer: cand.customer, amt: cand.amt, from: donor.date, to: recip.date });
+    if (moves.length >= 60) break;
+  }
+  const sizesAfter = work.map(size);
+  const bal = (a: number[]) => { const mm = mean(a); return mm ? Math.max(0, Math.min(100, Math.round((1 - std(a) / mm) * 100))) : 0; };
+  return { moves, balanceBefore: bal(sizesBefore), balanceAfter: bal(sizesAfter), maxBefore: Math.max(0, ...sizesBefore), maxAfter: Math.max(0, ...sizesAfter) };
+}
+
 export function routeStatus(kind: RouteKind, m: RouteMetrics): Status {
   if (kind !== "route") return "info";
   if (m.max >= 30) return "alarm";

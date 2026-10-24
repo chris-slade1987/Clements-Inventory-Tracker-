@@ -547,8 +547,96 @@ const findPeople: CopilotTool = {
 
 // ---- registry ---------------------------------------------------------------
 
+// ===========================================================================
+// 10 & 11. Routing — read a route's monthly routing + propose a rebalanced month
+// ===========================================================================
+
+async function resolveRoute(ctx: ToolContext, routeQ: string | undefined, branchReq: string | undefined, periodReq: string | undefined) {
+  const { getRoutingOverview, listRoutingPeriods, currentRoutingPeriod } = await import("@/lib/routing");
+  const { branch } = scopeBranch(ctx, branchReq);
+  if (!branch) return { error: "Tell me which branch (vero|stuart|orlando|naples)." as string };
+  const period = periodReq ?? (await listRoutingPeriods(branch))[0] ?? currentRoutingPeriod();
+  const view = await getRoutingOverview(branch, period);
+  if (!view.month.loaded) return { error: `No routing is loaded for ${branchLabel(branch)} (${period}).` };
+  const q = (routeQ ?? "").toLowerCase();
+  const tech = view.techs.find((t) => t.routeNo === routeQ || t.name.toLowerCase() === q || (q.length > 1 && t.name.toLowerCase().includes(q)));
+  if (!tech) return { error: `No route matches "${routeQ}". Routes at ${branchLabel(branch)}: ${view.techs.map((t) => `${t.routeNo} ${t.name}`).join(", ")}` };
+  return { branch, period, view, tech };
+}
+
+const getRouting: CopilotTool = {
+  schema: {
+    name: "get_routing",
+    description:
+      "Read a technician's monthly ROUTING for the caller's branch: totals (stops, days, scheduled production $, avg stops/day, modeled miles/fuel), the per-day stop counts, and any routing flags (heavy/light/uneven days). Use for questions like 'how does route 26 look this month?' or 'which of Rob's days are overloaded?'. Branch-locked managers always get their own branch.",
+    input_schema: {
+      type: "object",
+      properties: {
+        route: { type: "string", description: "Route number (e.g. '26') or technician name (e.g. 'Rob')." },
+        branch: { type: "string", description: "Branch key; ignored for branch-locked managers." },
+        period: { type: "string", description: "Month YYYY-MM; defaults to the loaded month." },
+      },
+      required: ["route"],
+    },
+  },
+  handler: async (input, ctx) => {
+    const r = await resolveRoute(ctx, str(input.route), str(input.branch), str(input.period));
+    if ("error" in r) return r;
+    const t = r.tech;
+    return {
+      branch: branchLabel(r.branch), period: r.period, route: t.routeNo, name: t.name, kind: t.kind,
+      totals: { stops: t.totalStops, days: t.totalDays, production: Math.round(t.totalDollars), avgStopsPerDay: t.avgStopsPerDay, estMiles: t.estMiles, estFuelUsd: Math.round((t.estMiles ?? 0) / 18 * 3.45) },
+      dailyStopCounts: t.loads,
+      flags: t.findings.filter((f) => f.severity !== "info").map((f) => ({ severity: f.severity, title: f.title, detail: f.detail })),
+      note: "Mileage/fuel are modeled estimates. The manager approves + signs routing in Routing Approval.",
+    };
+  },
+};
+
+const proposeRouteRebalance: CopilotTool = {
+  schema: {
+    name: "propose_route_rebalance",
+    description:
+      "Propose a more balanced month for a route by moving stops from its heaviest days to its lightest, OPTIONALLY keeping named customers on their current day. Returns the specific proposed moves and the before/after balance + heaviest-day. Use when the manager asks to rework, rebalance, or even out a route (e.g. 'rebalance route 26 but keep the Smith account on Tuesday'). This is a PROPOSAL only — the manager reviews it in Routing Approval and exports the change set to PestPac; nothing is written.",
+    input_schema: {
+      type: "object",
+      properties: {
+        route: { type: "string", description: "Route number or technician name." },
+        lockCustomers: { type: "array", items: { type: "string" }, description: "Customer names (or fragments) whose stops must NOT move." },
+        branch: { type: "string", description: "Branch key; ignored for branch-locked managers." },
+        period: { type: "string", description: "Month YYYY-MM; defaults to the loaded month." },
+      },
+      required: ["route"],
+    },
+  },
+  handler: async (input, ctx) => {
+    const r = await resolveRoute(ctx, str(input.route), str(input.branch), str(input.period));
+    if ("error" in r) return r;
+    const { getTechDays } = await import("@/lib/routing");
+    const { rebalanceRoute } = await import("@/lib/routing-metrics");
+    const days = await getTechDays(r.view.month.id, r.tech.name);
+    const lockList = Array.isArray(input.lockCustomers) ? (input.lockCustomers as unknown[]).map((x) => String(x).toLowerCase().trim()).filter(Boolean) : [];
+    const locked = (date: string, seq: number) => {
+      const d = days.find((x) => x.date === date);
+      const s = d?.stops.find((st) => st.seq === seq);
+      return !!s && lockList.some((lc) => (s.customer || "").toLowerCase().includes(lc));
+    };
+    const result = rebalanceRoute(days.map((d) => ({ date: d.date, stops: d.stops.map((s) => ({ seq: s.seq, customer: s.customer, amt: s.amt })) })), locked);
+    return {
+      route: r.tech.routeNo, name: r.tech.name, period: r.period, lockedCustomers: lockList,
+      proposedMoves: result.moves.length,
+      balance: `${result.balanceBefore} → ${result.balanceAfter}`,
+      heaviestDay: `${result.maxBefore} → ${result.maxAfter} stops`,
+      moves: result.moves.slice(0, 40),
+      note: result.moves.length ? "Proposal only. The manager opens Routing Approval, locks jobs as needed, and exports the change set to PestPac." : "Already well balanced — no moves needed.",
+    };
+  },
+};
+
 export const COPILOT_TOOLS: CopilotTool[] = [
   getBranchKpis,
+  getRouting,
+  proposeRouteRebalance,
   getMetricDefinition,
   getBranchBenchmarking,
   getNeedsAttention,
