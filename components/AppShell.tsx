@@ -243,6 +243,12 @@ export default function AppShell({
         ? "management"
         : pathname.startsWith("/sops")
           ? "manager"
+      // Branch Command (weekly) + Routing Approval (monthly) are My Branch /
+      // Company responsibilities, not Inventory — light that center.
+      : pathname.startsWith("/branch-command")
+        ? "manager"
+      : pathname.startsWith("/routing-approval")
+        ? "manager"
       : pathname.startsWith("/my-branch")
         ? "manager"
         // Company KPIs live at /management (the Company center); the /management/*

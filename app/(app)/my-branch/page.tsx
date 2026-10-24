@@ -14,6 +14,7 @@ import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import { sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
 import { getCurrentBranchWeekSummary } from "@/lib/branch-command";
+import { getRoutingSummary } from "@/lib/routing";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -84,6 +85,7 @@ export default async function MyBranchPage({
   const warehouse = await warehouseStatus(year, month, scBranch);
   // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
   const bwSummary = await getCurrentBranchWeekSummary(scBranch, now);
+  const routingSummary = await getRoutingSummary(scBranch);
   // Missed-checklist penalty: detect lazily (no cron), then surface open misses
   // for this branch as a red banner. Managers can see them but never clear them.
   await sweepMissedChecklists();
@@ -260,6 +262,15 @@ export default async function MyBranchPage({
               cadence: "Weekly" as const,
               due: fridayEndOf(now),
               dueLabel: fridayLabel(now),
+            },
+            {
+              label: "Routing Approval",
+              href: `/routing-approval?branch=${scBranch}`,
+              done: routingSummary.signed,
+              status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : "Review & sign each tech",
+              cadence: "Monthly" as const,
+              due: endOfMonth(now),
+              dueLabel: endOfMonthLabel(now),
             },
             {
               label: "Vehicle Inspections",
