@@ -3645,3 +3645,27 @@ model GeocodeCache {
 
   @@map("geocode_cache")
 }
+
+// Durable, editable per-route configuration — the "learned" knowledge about each
+// route/technician that the AI and the routing review rely on. Defaults ship in
+// lib/route-profiles.ts; this table holds confirmations + edits (the confirm-once
+// matching that self-corrects over time). Keyed by route number (globally unique
+// in PestPac: 01-29 Vero, 2xx Stuart, 3xx Orlando, 4xx Naples). See docs/ROUTING-APPROVAL.md.
+model RouteProfile {
+  id                  String    @id @default(cuid())
+  routeNumber         String    @unique @map("route_number")
+  branch              String?
+  canonicalName       String?   @map("canonical_name")
+  kind                String    @default("route") // "route" | "commercial" | "senior" | "exclude"
+  canopyEmployeeId    String?   @map("canopy_employee_id")
+  partnerRouteNumbers String?   @map("partner_route_numbers") // JSON ["16"] — paired crews
+  aliases             String? // JSON ["NATHAN"] — names that merge into this route
+  note                String?
+  confirmed           Boolean   @default(false)
+  confirmedById       String?   @map("confirmed_by_id")
+  confirmedByName     String?   @map("confirmed_by_name")
+  confirmedAt         DateTime? @map("confirmed_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@map("route_profiles")
+}

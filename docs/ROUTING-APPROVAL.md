@@ -85,6 +85,26 @@ stop). Optional but ideal: **latitude/longitude**, **scheduled duration**, **dri
 time/mileage** (if present we use them instead of estimating). A sample export (one month,
 one branch) pins the parser exactly.
 
+## Route profiles — the branch knowledge the AI learns
+
+Each route carries durable, editable config (`lib/route-profiles.ts` defaults + the
+`RouteProfile` table for confirmations/edits), so the system *understands* the branch
+instead of grading everyone identically. Per route: canonical name, **kind**, Canopy
+employee link, paired-crew links, and name aliases.
+
+- **kind** `route` (graded on stops/day efficiency) · `commercial` (big accounts, few
+  stops — not graded on stops/day) · `senior` (senior personnel/managers — schedule
+  reviewed so nothing's missed, never graded on efficiency) · `exclude`.
+- **aliases** merge stray names into the right route (e.g. a stop logged under `NATHAN`
+  belongs to route 17 = `BRIAN`).
+- **partners** link paired crews with overlapping jobs (e.g. `19 GUS` ↔ `16 JACOB`) so
+  the AI treats their work as one unit and never flags the overlap as duplication.
+
+Seeded defaults (confirmed 2026-10-24): route 17 = BRIAN (alias NATHAN); GUS 19 ↔ JACOB 16
+(commercial, paired); TIM 22 / JASON 20 / TED 302 / ADAM 201 / COREY 404 / SENTR 47 = senior
+(included, not efficiency-graded). These are the first entries in the knowledge layer; the
+confirm-once matching UI grows it over time.
+
 ## Fuel forecast (the routing ↔ fuel ↔ $ story)
 
 Once routes are geocoded, each tech-month yields **estimated miles**. Combined with
