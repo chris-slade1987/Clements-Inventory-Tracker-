@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/smarterlaunch-sync",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/weather/refresh",
+      "schedule": "0 * * * *"
     }
   ]
 }

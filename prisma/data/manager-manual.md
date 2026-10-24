@@ -180,6 +180,12 @@ To help guide you, a checklist and set of procedures follow this section. These 
 - Hurricane Preparedness Guidelines (see policy)
 - Ordering chemicals, equipment and supplies (in process)
 
+## Weather Ops
+
+> **Portal — what the weather means for your day.** **My Branch → Weather Ops** (and the Weather tile on your dashboard) is a forecast built for routing and service completion, not just a temperature. It reads the free National Weather Service and National Hurricane Center feeds and grades today as **Green** (clear to work), **Yellow** (caution — some work is affected), or **Red** (high risk — expect disruption). The risk level is computed by a fixed rules engine (rain windows, heavy rain, wind/drift, thunder, heat index, NWS warnings, tropical systems); Canopy's AI then writes a plain-language ops briefing — the best work window, what it means for lawn / pest / termite work, crew-safety notes, and a look-ahead. A branch manager sees their own territory; leadership sees all four.
+>
+> **Use it to plan the day.** Front-load routes before a storm window, hold liquid sprays when it's too windy, and move fertilizer apps off heavy-rain or flood-alert days. The forecast refreshes automatically (never more than about an hour old during the day); if a feed is down you'll see the last good reading with a "stale" note rather than a blank tile. The **fertilizer blackout calendar** is reminder-only and must be set by an admin per county ordinance — it never blocks work on its own. *(Thresholds, forecast points, and blackout dates are admin-settable under Weather Ops → Settings.)*
+
 ## Standard Operating Procedures (SOPs)
 
 > **Portal — guided, signed SOPs.** Recurring branch procedures that aren't on the weekly checklist now live in the portal as **Standard Operating Procedures** under **My Branch → SOPs**. An SOP is a step-by-step, phone-first walk-through: tap through each step (some are a simple check, others ask for a short note, a number, or a photo), then sign your typed name to file a permanent record. The flow has a progress bar and a stepper you can jump around in, and it **remembers your place** if you get interrupted and come back. Any step marked *required* must be answered before you can sign.

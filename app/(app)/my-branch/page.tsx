@@ -26,6 +26,7 @@ import FollowUps from "./FollowUps";
 import MyBranchViewToggle from "./MyBranchViewToggle";
 import { AchievementBar, ProgressRing, encouragement } from "@/components/motivation";
 import AskCanopy from "@/components/AskCanopy";
+import WeatherTile from "@/components/WeatherTile";
 
 export const dynamic = "force-dynamic";
 
@@ -152,6 +153,11 @@ export default async function MyBranchPage({
       <BulletinBanner />
 
       <RhythmRibbon segments={rhythm} />
+
+      {/* Weather Ops — what the forecast means for routing & service completion.
+          Branch-locked managers see their territory; admins see all four. Loads from
+          the scoped /api/weather so it never blocks the dashboard render. */}
+      <WeatherTile canSeeAll={!locked} />
 
       {/* Momentum — this period's compliance at a glance, on the encouragement
           ramp (motivation kit). Built from data already on the page; nothing is

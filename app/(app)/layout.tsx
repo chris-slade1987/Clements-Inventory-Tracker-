@@ -10,6 +10,7 @@ import { isDemoMode } from "@/lib/demo";
 import DemoModeBanner from "@/components/DemoModeBanner";
 import { ensureMbrLoaded } from "@/lib/mbr-ensure";
 import { ensureUserWarehouses } from "@/lib/inventory-scope";
+import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -31,6 +32,9 @@ export default async function AppGroupLayout({
   // branch-scoped screen defaults to the user's own branch (managers + technicians)
   // rather than the first warehouse alphabetically. Idempotent, non-fatal.
   await ensureUserWarehouses();
+
+  // Seed the four branch weather forecast points if missing (add-only, non-fatal).
+  await ensureWeatherLoaded();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

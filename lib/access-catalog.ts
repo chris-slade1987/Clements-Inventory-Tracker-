@@ -43,7 +43,8 @@ export const MODULES: AccessModule[] = [
     { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" },
     { id: "branch-command", name: "Branch Command", ve: true, note: "Weekly branch cockpit — fed scoreboard + AI forced-feedback + attested weekly sign-off. Edit = respond / sign." },
     { id: "routing-approval", name: "Routing Approval", ve: true, note: "Monthly routing review — map + per-tech sign-off + AI optimize/change-set. Edit = approve / sign. Upload is admin-only." },
-    { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" } ] },
+    { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" },
+    { id: "weather", name: "Weather Ops", note: "Forecast → routing/service impact: current + risk + AI ops briefing + 5-day + radar. Managers see their territory; admins all. Read-only page (config is weather-settings)." } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
     { id: "dashboard", name: "Inventory Dashboard" }, { id: "check-in", name: "Check-In" }, { id: "check-out", name: "Check-Out" }, { id: "stock", name: "Stock" },
     { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports" }, { id: "alerts", name: "Alerts" },
@@ -76,7 +77,7 @@ export const MODULES: AccessModule[] = [
     { id: "training-courses", name: "Course Authoring" }, { id: "training-assign", name: "Assign Training" }, { id: "training-record", name: "Employee Cert Record", ve: true, note: "Edit = mark complete" },
     { id: "training-reports", name: "Training Reports" }, { id: "certifications", name: "Certifications Catalog", ve: true } ] },
   { id: "settings", name: "Settings & Admin", sub: "Super-admin tools", items: [
-    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "copilot-insights", name: "Copilot Insights", note: "Read-only Copilot usage + knowledge-gaps report; self-guarded (super admins)" }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
+    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "copilot-insights", name: "Copilot Insights", note: "Read-only Copilot usage + knowledge-gaps report; self-guarded (super admins)" }, { id: "weather-settings", name: "Weather Settings", note: "Admin-only — Weather Ops rule thresholds, forecast locations, and the fertilizer blackout calendar. Page self-guards with requireAdmin." }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
     { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
@@ -118,12 +119,12 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     scorecard: "edit", "branch-training": true, "branch-pto": true, "branch-command": "edit", "routing-approval": "edit", checklists: "edit", sops: "edit",
     dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true, "photo-catalog": true, "product-profile": true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
-    management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", ...SELF_BASIC,
+    management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", weather: true, ...SELF_BASIC,
   },
   senior: {
     board: "view", management: "view", executive: "view", benchmarking: true, insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,
     "checklist-oversight": true, "branch-command-oversight": true, "routing-oversight": true, scorecards: "view", audits: "view", insurance: "view", documents: "view", "field-ops": true,
-    "sop-library": "edit", sops: "view",
+    "sop-library": "edit", sops: "view", weather: true,
     people: "view", org: true, ...SELF_BASIC,
   },
   hr: {

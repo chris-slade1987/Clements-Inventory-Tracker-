@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 39 · Last updated October 24, 2026",
+    effective: "Version 40 · Last updated October 24, 2026",
+    // v40: Weather Ops added — a new My Branch tool (and dashboard tile) that turns
+    // the NWS/NHC forecast into a Green/Yellow/Red ops read for routing & service
+    // completion, with a rules-computed risk level + an AI ops briefing. Managers see
+    // their territory; leadership sees all four. New manual "Weather Ops" subsection.
+    // Re-prompts prior acknowledgers.
     // v39: Weekly oversight consolidated into BRANCH COMMAND. §2 Weekly
     // Responsibilities now describes the weekly cockpit (fed scoreboard across the
     // seven domains, AI-flagged items you must explain, per-technician review, and
@@ -189,7 +194,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 39,
+    version: 40,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

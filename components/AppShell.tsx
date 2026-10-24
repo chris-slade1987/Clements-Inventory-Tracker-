@@ -249,6 +249,9 @@ export default function AppShell({
         ? "manager"
       : pathname.startsWith("/routing-approval")
         ? "manager"
+      // Weather Ops is a My Branch / Company tool, not Inventory — light that center.
+      : pathname.startsWith("/weather")
+        ? "manager"
       : pathname.startsWith("/my-branch")
         ? "manager"
         // Company KPIs live at /management (the Company center); the /management/*

@@ -43,6 +43,8 @@ const RULES: [RegExp, string][] = [
   [/^\/my-branch(\/|$)/, "my-branch"],
   [/^\/branch-command(\/|$)/, "branch-command"],
   [/^\/routing-approval(\/|$)/, "routing-approval"],
+  [/^\/weather\/settings(\/|$)/, "weather-settings"],
+  [/^\/weather(\/|$)/, "weather"],
   [/^\/checklists\/oversight(\/|$)/, "checklist-oversight"],
   [/^\/checklists(\/|$)/, "checklists"],
   [/^\/sops\/library(\/|$)/, "sop-library"],

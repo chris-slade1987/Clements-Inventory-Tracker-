@@ -3674,3 +3674,101 @@ model RouteProfile {
 
   @@map("route_profiles")
 }
+
+// ============================================================================
+// Weather Ops — forecast that tells managers what the weather MEANS for routing
+// and service completion, not just what it is. Free data only (NWS + NHC, no key).
+// Branch is a bare slug ("vero" | "stuart" | "orlando" | "naples"), like the rest
+// of the portal. JSON blobs are String? (SQLite-safe). See docs/WEATHER-OPS.md.
+// ============================================================================
+
+// One forecast point per territory (a territory may hold several — Orlando is big).
+// NWS gridId/gridX/gridY + the forecast URLs + radarStation are resolved ONCE from
+// /points on first fetch and cached here (they never change for a lat/lon).
+model WeatherLocation {
+  id                  String   @id @default(cuid())
+  branch              String   // "vero" | "stuart" | "orlando" | "naples"
+  name                String   // human label, e.g. "Vero Beach (branch area)"
+  lat                 Float
+  lon                 Float
+  gridId              String?  @map("grid_id") // NWS office, e.g. "MLB"
+  gridX               Int?     @map("grid_x")
+  gridY               Int?     @map("grid_y")
+  radarStation        String?  @map("radar_station") // e.g. "KMLB"
+  forecastUrl         String?  @map("forecast_url")
+  forecastHourlyUrl   String?  @map("forecast_hourly_url")
+  forecastGridDataUrl String?  @map("forecast_grid_data_url")
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  snapshots WeatherSnapshot[]
+
+  @@unique([branch, lat, lon])
+  @@index([branch])
+  @@map("weather_locations")
+}
+
+// A fetched forecast for one location at one time. Raw provider blobs are trimmed
+// to what we use and stored as JSON strings. flags/riskLevel are the deterministic
+// rules-engine output computed at fetch time (the AI never sets the risk level).
+model WeatherSnapshot {
+  id         String   @id @default(cuid())
+  locationId String   @map("location_id")
+  fetchedAt  DateTime @default(now()) @map("fetched_at")
+  hourly     String?  // JSON: [{time,tempF,pop,windMph,windDir,gustMph,short,thunder}]
+  daily      String?  // JSON: [{name,isDaytime,tempF,short,pop,icon}]
+  grid       String?  // JSON: {qpf24[],maxGustMph,maxHeatIndexF,thunderHours[]}
+  alerts     String?  // JSON: [{event,severity,headline,description,onset,ends}]
+  flags      String?  // JSON: [{code,level,label,meaning,hours?}]
+  riskLevel  String   @default("green") @map("risk_level") // "green" | "yellow" | "red"
+  isStale    Boolean  @default(false) @map("is_stale")
+
+  location WeatherLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@index([locationId, fetchedAt])
+  @@map("weather_snapshots")
+}
+
+// The AI ops briefing for a territory + day. Regenerated on the morning run and
+// whenever the risk level or flag set changes (kept forever for later forecast-vs-
+// actual analysis). content is the structured JSON the model returned.
+model WeatherBriefing {
+  id          String   @id @default(cuid())
+  branch      String   // "vero" | "stuart" | "orlando" | "naples"
+  generatedAt DateTime @default(now()) @map("generated_at")
+  forDate     String   @map("for_date") // "YYYY-MM-DD" (local ET)
+  riskLevel   String   @default("green") @map("risk_level")
+  flags       String?  // JSON: [code,...] — the flag set this briefing was built for
+  content     String?  // JSON: {headline,summary,bestWorkWindow,byServiceLine,crewSafety,lookAhead}
+  model       String?  // the Anthropic model id, or "fallback"
+
+  @@index([branch, generatedAt])
+  @@map("weather_briefings")
+}
+
+// Admin-editable rules-engine thresholds, stored as a single JSON row (key/value
+// singleton). Missing keys fall back to code defaults in lib/weather/rules.ts.
+model WeatherSettings {
+  id        String   @id @default("singleton")
+  thresholds String? // JSON: { rainPopPct, heavyRainIn, windCautionMph, windGustCautionMph, windNoSprayMph, heatHighF, heatExtremeF }
+  updatedById String? @map("updated_by_id")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("weather_settings")
+}
+
+// Per-territory fertilizer blackout window (admin-editable; empty by default —
+// managers enter dates after checking each county ordinance). Month/day so it can
+// recur yearly; a "reminder only" flag, never a hard block.
+model FertBlackout {
+  id            String   @id @default(cuid())
+  branch        String   // "vero" | "stuart" | "orlando" | "naples"
+  startMonthDay String   @map("start_month_day") // "MM-DD"
+  endMonthDay   String   @map("end_month_day")   // "MM-DD"
+  note          String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([branch])
+  @@map("fert_blackouts")
+}
