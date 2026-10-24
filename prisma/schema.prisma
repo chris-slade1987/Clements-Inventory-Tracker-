@@ -214,18 +214,18 @@ model Checkout {
 // One product line within a Checkout. `identifiedBy` records how the product was
 // chosen (barcode scan, AI photo, manual catalog search, or a shelf QR label).
 model CheckoutLine {
-  id           String  @id @default(cuid())
-  checkoutId   String  @map("checkout_id")
-  productId    String  @map("product_id")
-  quantity     Int
-  identifiedBy String  @map("identified_by") // "BARCODE" | "AI_PHOTO" | "MANUAL_SEARCH" | "SHELF_QR"
-  photoUrl     String? @map("photo_url")
-  aiConfidence Float?  @map("ai_confidence")
+  id                   String    @id @default(cuid())
+  checkoutId           String    @map("checkout_id")
+  productId            String    @map("product_id")
+  quantity             Int
+  identifiedBy         String    @map("identified_by") // "BARCODE" | "AI_PHOTO" | "MANUAL_SEARCH" | "SHELF_QR"
+  photoUrl             String?   @map("photo_url")
+  aiConfidence         Float?    @map("ai_confidence")
   // The AI's TOP-ranked candidate at identify time (Scan Intelligence loop). Set
   // only on AI_PHOTO lines; the CONFIRMED match is `productId`. When this equals
   // productId the AI's #1 was right; when it differs the manager corrected it;
   // null = no AI suggestion (barcode / manual / QR line, or legacy row).
-  aiSuggestedProductId String? @map("ai_suggested_product_id")
+  aiSuggestedProductId String?   @map("ai_suggested_product_id")
   // Set when a super admin has acted on this scan in the "turn good scans into
   // reference photos" queue (promoted it to a ProductPhoto, or dismissed it), so
   // it stops reappearing. Null = still a candidate.
@@ -281,12 +281,12 @@ model InvoiceLine {
   lineTotal      Float?  @map("line_total")
   matched        Boolean @default(false)
   // --- Reconciled-import fields (inventory reset) ---
-  itemNumber     String?  @map("item_number")
+  itemNumber     String? @map("item_number")
   category       String?
-  unitCost       Float?   @map("unit_cost")
-  nonInventory   Boolean  @default(false) @map("non_inventory")
-  externalRef    String?  @unique @map("external_ref")
-  invoiceUnits   Float?   @map("inventory_units_received")
+  unitCost       Float?  @map("unit_cost")
+  nonInventory   Boolean @default(false) @map("non_inventory")
+  externalRef    String? @unique @map("external_ref")
+  invoiceUnits   Float?  @map("inventory_units_received")
 
   invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   product Product? @relation(fields: [productId], references: [id])
@@ -378,27 +378,27 @@ model ProductPhoto {
 // Every stock change is a movement. On-hand = SUM(quantity) per product+warehouse.
 // check_in => positive, check_out => negative, adjustment => either sign.
 model StockMovement {
-  id              String   @id @default(cuid())
-  type            String // "check_in" | "check_out" | "adjustment"
-  productId       String   @map("product_id")
-  warehouseId     String   @map("warehouse_id")
-  technicianId    String?  @map("technician_id")
-  quantity        Float
+  id                String    @id @default(cuid())
+  type              String // "check_in" | "check_out" | "adjustment"
+  productId         String    @map("product_id")
+  warehouseId       String    @map("warehouse_id")
+  technicianId      String?   @map("technician_id")
+  quantity          Float
   // Canonical UoM code (lib/uom.ts) chosen at check-in/out. Nullable: when
   // unset the product's unitOfMeasure governs. Never free text.
-  unit            String?
-  unitPrice       Float?   @map("unit_price")
-  sourceInvoiceId String?  @map("source_invoice_id")
-  reason          String?
-  userId          String?  @map("user_id")
+  unit              String?
+  unitPrice         Float?    @map("unit_price")
+  sourceInvoiceId   String?   @map("source_invoice_id")
+  reason            String?
+  userId            String?   @map("user_id")
   // Reconciliation: reversals reference the movement they undo. Nothing is ever
   // hard-deleted; a reversed movement stays and gets an offsetting entry.
-  reversalOfId    String?  @unique @map("reversal_of_id")
+  reversalOfId      String?   @unique @map("reversal_of_id")
   // Scan-to-issue: ties an issue (`check_out`) movement back to its CheckoutLine
   // so a checkout can be reconstructed and undone/voided. Null for all other
   // movements (invoice receipts, reconciliations, legacy check-outs).
-  checkoutLineId  String?  @unique @map("checkout_line_id")
-  createdAt       DateTime @default(now()) @map("created_at")
+  checkoutLineId    String?   @unique @map("checkout_line_id")
+  createdAt         DateTime  @default(now()) @map("created_at")
   // --- Reconciled-import fields (inventory reset) ---
   movementDate      DateTime? @map("movement_date")
   externalRef       String?   @unique @map("external_ref")
@@ -763,7 +763,7 @@ model Vehicle {
   // override on top of that query-time rule: true force-EXCLUDES a vehicle from the
   // inspectable set (e.g. a trailer or pool unit the heuristic missed). Nullable /
   // defaulted so prod picks it up via `prisma db push` without a data purge.
-  inspectExempt    Boolean   @default(false) @map("inspect_exempt")
+  inspectExempt Boolean @default(false) @map("inspect_exempt")
 
   // Registration / access / telematics
   driverCard          String?   @map("driver_card") // fuel card (Coast)
@@ -1122,15 +1122,15 @@ model VehicleInspection {
   // legacy columns below are kept nullable for history/back-compat but are no
   // longer collected by the form. `oilChangeNextMileage` is the next-due odometer
   // reading; `oilChangeNext` is the next-due month/year — at least one is required.
-  oilChangeNextMileage Int?   @map("oil_change_next_mileage")
-  oilChangeLast    DateTime? @map("oil_change_last")
-  oilChangeNext    DateTime? @map("oil_change_next")
-  tireRotationLast DateTime? @map("tire_rotation_last")
-  tireRotationNext DateTime? @map("tire_rotation_next")
-  otherMaintLast   DateTime? @map("other_maint_last")
-  otherMaintNext   DateTime? @map("other_maint_next")
-  mileage          Int?
-  notes            String?
+  oilChangeNextMileage Int?      @map("oil_change_next_mileage")
+  oilChangeLast        DateTime? @map("oil_change_last")
+  oilChangeNext        DateTime? @map("oil_change_next")
+  tireRotationLast     DateTime? @map("tire_rotation_last")
+  tireRotationNext     DateTime? @map("tire_rotation_next")
+  otherMaintLast       DateTime? @map("other_maint_last")
+  otherMaintNext       DateTime? @map("other_maint_next")
+  mileage              Int?
+  notes                String?
 
   // Computed grade (points earned out of maxScore).
   score    Int    @default(0)
@@ -1140,8 +1140,8 @@ model VehicleInspection {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  employee Employee? @relation(fields: [employeeId], references: [id])
+  vehicle  Vehicle                  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  employee Employee?                @relation(fields: [employeeId], references: [id])
   photos   VehicleInspectionPhoto[]
 
   @@unique([vehicleId, year, month])
@@ -1173,52 +1173,52 @@ model VehicleInspectionPhoto {
 // (future) annual reviews tag to the profile so scores accrue to the person.
 // ---------------------------------------------------------------------------
 model Employee {
-  id               String     @id @default(cuid())
-  name             String
-  nickname         String? // preferred/known-by name; used for Technician / vehicle roster name-matching (e.g. a tech listed under a nickname)
-  email            String? // work email (for emailing inspection scores); filled later
-  phone            String? // WORK phone
-  personalPhone    String?    @map("personal_phone") // personal/cell number (separate from work phone)
-  personalEmail    String?    @map("personal_email") // personal email (separate from work email)
+  id                     String     @id @default(cuid())
+  name                   String
+  nickname               String? // preferred/known-by name; used for Technician / vehicle roster name-matching (e.g. a tech listed under a nickname)
+  email                  String? // work email (for emailing inspection scores); filled later
+  phone                  String? // WORK phone
+  personalPhone          String?    @map("personal_phone") // personal/cell number (separate from work phone)
+  personalEmail          String?    @map("personal_email") // personal email (separate from work email)
   // Emergency contact — employee-maintained via self-service (/me/profile). All
   // nullable; kept on the Employee record so field safety info stays current
   // without an HR phone loop.
-  emergencyName         String? @map("emergency_name")
-  emergencyRelationship String? @map("emergency_relationship")
-  emergencyPhone        String? @map("emergency_phone")
-  role             String? // "Technician" | "Manager" | "Sales Advisor" | ...
-  division         String? // "Lawn" | "Service" | "General Pest" | ...
-  branch           String? // "vero" | "stuart" | "orlando" | "naples"
-  title            String?
-  status           String     @default("active") // "active" | "inactive" (former employee)
-  hireDate         DateTime?  @map("hire_date")
-  birthMonth       Int?       @map("birth_month") // 1-12; feeds month+day birthday celebrations (bulletin/team view)
-  birthDay         Int?       @map("birth_day") // 1-31
-  birthYear        Int?       @map("birth_year") // HR-ONLY — shown only on the HR profile, never on the bulletin/team view or any derived celebration
-  terminatedAt     DateTime?  @map("terminated_at")
-  licenseNumber    String?    @map("license_number")
+  emergencyName          String?    @map("emergency_name")
+  emergencyRelationship  String?    @map("emergency_relationship")
+  emergencyPhone         String?    @map("emergency_phone")
+  role                   String? // "Technician" | "Manager" | "Sales Advisor" | ...
+  division               String? // "Lawn" | "Service" | "General Pest" | ...
+  branch                 String? // "vero" | "stuart" | "orlando" | "naples"
+  title                  String?
+  status                 String     @default("active") // "active" | "inactive" (former employee)
+  hireDate               DateTime?  @map("hire_date")
+  birthMonth             Int?       @map("birth_month") // 1-12; feeds month+day birthday celebrations (bulletin/team view)
+  birthDay               Int?       @map("birth_day") // 1-31
+  birthYear              Int?       @map("birth_year") // HR-ONLY — shown only on the HR profile, never on the bulletin/team view or any derived celebration
+  terminatedAt           DateTime?  @map("terminated_at")
+  licenseNumber          String?    @map("license_number")
   // Org chart: who this employee reports to (their team lead / manager). Forms a
   // self-referencing tree — a person's "team" is everyone in the subtree beneath
   // them. Powers the visual org chart and team-scoped Admin-Lite access.
-  reportsToId      String?    @map("reports_to_id")
-  reportsTo        Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
-  reports          Employee[] @relation("OrgChart")
+  reportsToId            String?    @map("reports_to_id")
+  reportsTo              Employee?  @relation("OrgChart", fields: [reportsToId], references: [id], onDelete: SetNull)
+  reports                Employee[] @relation("OrgChart")
   // Org Chart (Round 1) — operational tile fields. All nullable; company-readable
   // (structure + these fields), NOT sensitive personnel data. See lib/org-chart.ts.
-  routeNumber            String? @map("route_number") // technician/field route number (searchable; loaded from photos later)
-  approvedServices       String? @map("approved_services") // JSON array of service tags (see lib/service-catalog.ts)
-  serviceNotes           String? @map("service_notes") // short free text ("Handles all bee jobs in Naples")
-  serviceSchedulingNote  String? @map("service_scheduling_note") // per-service scheduling rule ("Bee jobs: 3–5 PM only")
-  personalSchedulingNote String? @map("personal_scheduling_note") // personal scheduling rule ("No first appt before 8:30 AM")
+  routeNumber            String?    @map("route_number") // technician/field route number (searchable; loaded from photos later)
+  approvedServices       String?    @map("approved_services") // JSON array of service tags (see lib/service-catalog.ts)
+  serviceNotes           String?    @map("service_notes") // short free text ("Handles all bee jobs in Naples")
+  serviceSchedulingNote  String?    @map("service_scheduling_note") // per-service scheduling rule ("Bee jobs: 3–5 PM only")
+  personalSchedulingNote String?    @map("personal_scheduling_note") // personal scheduling rule ("No first appt before 8:30 AM")
   // Org Chart (Round 4) — corporate role / "who to go to" reference. Company-readable.
   // Seeded from the Corporate Contact & Reference Sheet; editable by any non-tech
   // staff on the org chart. Newline-separated bullet lists for the first two.
-  roleResponsibilities   String? @map("role_responsibilities") // what this role does (one bullet per line)
-  contactReasons         String? @map("contact_reasons") // when to go to them for help (one bullet per line)
-  contactGuidance        String? @map("contact_guidance") // how to reach them (preferred method, ext., mobile)
-  ptoAllowanceDays Int?       @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
-  notes            String?
-  createdAt        DateTime   @default(now()) @map("created_at")
+  roleResponsibilities   String?    @map("role_responsibilities") // what this role does (one bullet per line)
+  contactReasons         String?    @map("contact_reasons") // when to go to them for help (one bullet per line)
+  contactGuidance        String?    @map("contact_guidance") // how to reach them (preferred method, ext., mobile)
+  ptoAllowanceDays       Int?       @map("pto_allowance_days") // annual PTO allotment set by HR (null = use default)
+  notes                  String?
+  createdAt              DateTime   @default(now()) @map("created_at")
 
   inspections       VehicleInspection[]
   rideAlongs        AuditRideAlong[]
@@ -1553,7 +1553,7 @@ model SalesGoalSheet {
   // This month's focus (advisor-set): a JSON array of initiative labels (group
   // networking, drop-offs, cross-selling lists, team ride-alongs, + custom) and a
   // free-text note the advisor wants to discuss with the Sales Director.
-  initiatives       String?  // JSON array of focus-initiative labels
+  initiatives       String? // JSON array of focus-initiative labels
   notesForDirector  String?  @map("notes_for_director")
   // Sales-Director co-goal-setting: the director may PROPOSE a goal alongside the
   // advisor's without overwriting the advisor's entered sheet. The advisor accepts
@@ -2992,26 +2992,26 @@ model TrainingModuleCourse {
 // employee. The engine expands it into CourseProgress rows (credited / linked /
 // assigned). `startMonth` anchors the one-module-per-month pacing rule.
 model ModuleAssignment {
-  id                 String    @id @default(cuid())
-  employeeId         String    @map("employee_id")
-  programId          String?   @map("program_id")
-  moduleId           String?   @map("module_id") // null for a standalone-course assignment
-  standaloneCourseId String?   @map("standalone_course_id") // set for a single-course assignment
-  moduleVersion      Int?      @map("module_version") // snapshot of TrainingModule.version at assignment
-  branch             String?
-  assignedById       String?   @map("assigned_by_id")
-  assignedByName     String?   @map("assigned_by_name")
-  assignedAt         DateTime  @default(now()) @map("assigned_at")
-  startMonth         String?   @map("start_month") // "YYYY-MM" pacing anchor
-  status             String    @default("active") // "active" | "complete" | "cancelled"
+  id                  String    @id @default(cuid())
+  employeeId          String    @map("employee_id")
+  programId           String?   @map("program_id")
+  moduleId            String?   @map("module_id") // null for a standalone-course assignment
+  standaloneCourseId  String?   @map("standalone_course_id") // set for a single-course assignment
+  moduleVersion       Int?      @map("module_version") // snapshot of TrainingModule.version at assignment
+  branch              String?
+  assignedById        String?   @map("assigned_by_id")
+  assignedByName      String?   @map("assigned_by_name")
+  assignedAt          DateTime  @default(now()) @map("assigned_at")
+  startMonth          String?   @map("start_month") // "YYYY-MM" pacing anchor
+  status              String    @default("active") // "active" | "complete" | "cancelled"
   // Ordered course-code list snapshotted at assignment time, so a later template
   // edit (which bumps the module version) never changes an assignment already in
   // progress. JSON string array, e.g. ["FC-01",...,"PC-FLD"].
-  courseCodesSnapshot String? @map("course_codes_snapshot")
-  prereqNote         String?   @map("prereq_note") // e.g. "SVC-FC added: no Field Core on record"
-  completedAt        DateTime? @map("completed_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  courseCodesSnapshot String?   @map("course_codes_snapshot")
+  prereqNote          String?   @map("prereq_note") // e.g. "SVC-FC added: no Field Core on record"
+  completedAt         DateTime? @map("completed_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   program          TrainingProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
@@ -3231,27 +3231,27 @@ model ProjectMember {
 // Google Calendar" fallback (lib/huddle-ics.ts) is used instead. `calendarEventIds`
 // is the legacy per-email JSON map (unused by the live sync; retained, nullable).
 model Meeting {
-  id               String    @id @default(cuid())
-  title            String
-  kind             String? // "sales" | "marketing" | "ops" | "one_on_one" | "custom"
-  organizerId      String    @map("organizer_id") // User.id
-  organizerName    String?   @map("organizer_name")
-  scheduledStart   DateTime? @map("scheduled_start")
-  scheduledEnd     DateTime? @map("scheduled_end")
-  location         String?
-  meetingLink      String?   @map("meeting_link")
-  agendaTemplateId String?   @map("agenda_template_id")
-  status           String    @default("scheduled") // "scheduled" | "in_progress" | "completed" | "cancelled"
-  recurrence       String? // free-form recurrence hint (e.g. "weekly"); scheduling owned by Round 1-B
-  calendarEventIds String?   @map("calendar_event_ids") // legacy JSON map email→eventId (unused by live sync; retained)
+  id                     String    @id @default(cuid())
+  title                  String
+  kind                   String? // "sales" | "marketing" | "ops" | "one_on_one" | "custom"
+  organizerId            String    @map("organizer_id") // User.id
+  organizerName          String?   @map("organizer_name")
+  scheduledStart         DateTime? @map("scheduled_start")
+  scheduledEnd           DateTime? @map("scheduled_end")
+  location               String?
+  meetingLink            String?   @map("meeting_link")
+  agendaTemplateId       String?   @map("agenda_template_id")
+  status                 String    @default("scheduled") // "scheduled" | "in_progress" | "completed" | "cancelled"
+  recurrence             String? // free-form recurrence hint (e.g. "weekly"); scheduling owned by Round 1-B
+  calendarEventIds       String?   @map("calendar_event_ids") // legacy JSON map email→eventId (unused by live sync; retained)
   // --- Live Google Calendar sync (lib/huddle-calendar.ts) — all nullable ---
-  calendarEventId        String? @map("calendar_event_id") // the synced Google event id (on the organizer's calendar)
-  calendarMeetLink       String? @map("calendar_meet_link") // the attached Google Meet join link
-  calendarOrganizerEmail String? @map("calendar_organizer_email") // the @clementspestcontrol.com mailbox the event lives on (the impersonated organizer)
-  calendarHtmlLink       String? @map("calendar_html_link") // the event's "view in Google Calendar" URL
-  branch           String?
-  completedAt      DateTime? @map("completed_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
+  calendarEventId        String?   @map("calendar_event_id") // the synced Google event id (on the organizer's calendar)
+  calendarMeetLink       String?   @map("calendar_meet_link") // the attached Google Meet join link
+  calendarOrganizerEmail String?   @map("calendar_organizer_email") // the @clementspestcontrol.com mailbox the event lives on (the impersonated organizer)
+  calendarHtmlLink       String?   @map("calendar_html_link") // the event's "view in Google Calendar" URL
+  branch                 String?
+  completedAt            DateTime? @map("completed_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
 
   attendees   MeetingAttendee[]
   agendaItems MeetingAgendaItem[]
@@ -3373,10 +3373,10 @@ model BranchWeek {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  uploads  WeeklyReportUpload[]
-  metrics  WeeklyMetric[]
+  uploads   WeeklyReportUpload[]
+  metrics   WeeklyMetric[]
   techWeeks TechWeek[]
-  findings CommandFinding[]
+  findings  CommandFinding[]
 
   @@unique([branch, periodKey])
   @@index([branch])
@@ -3388,18 +3388,18 @@ model BranchWeek {
 // parsed into WeeklyMetric / TechWeek rows. `payload` keeps the normalized parse
 // for audit / reparse. `source` on the resulting metrics is set to "upload".
 model WeeklyReportUpload {
-  id            String   @id @default(cuid())
-  branchWeekId  String   @map("branch_week_id")
-  reportKey     String   @map("report_key") // "production" | "cancellations" | "callbacks" | "unserviced" | "schedule" | ...
-  fileName      String   @map("file_name")
-  fileUrl       String?  @map("file_url") // stored via saveUpload (or StoredFile fallback)
-  status        String   @default("uploaded") // "uploaded" | "parsed" | "error"
-  parseError    String?  @map("parse_error")
-  rowCount      Int?     @map("row_count")
-  payload       String? // JSON normalized rows
-  uploadedById  String?  @map("uploaded_by_id")
-  uploadedByName String? @map("uploaded_by_name")
-  uploadedAt    DateTime @default(now()) @map("uploaded_at")
+  id             String   @id @default(cuid())
+  branchWeekId   String   @map("branch_week_id")
+  reportKey      String   @map("report_key") // "production" | "cancellations" | "callbacks" | "unserviced" | "schedule" | ...
+  fileName       String   @map("file_name")
+  fileUrl        String?  @map("file_url") // stored via saveUpload (or StoredFile fallback)
+  status         String   @default("uploaded") // "uploaded" | "parsed" | "error"
+  parseError     String?  @map("parse_error")
+  rowCount       Int?     @map("row_count")
+  payload        String? // JSON normalized rows
+  uploadedById   String?  @map("uploaded_by_id")
+  uploadedByName String?  @map("uploaded_by_name")
+  uploadedAt     DateTime @default(now()) @map("uploaded_at")
 
   branchWeek BranchWeek @relation(fields: [branchWeekId], references: [id], onDelete: Cascade)
 
@@ -3410,17 +3410,17 @@ model WeeklyReportUpload {
 // A normalized branch-level weekly number. Source-agnostic: upload now, PestPac
 // API / routing feed later, or manual entry. `status` colors the scoreboard chip.
 model WeeklyMetric {
-  id           String  @id @default(cuid())
-  branchWeekId String  @map("branch_week_id")
+  id           String   @id @default(cuid())
+  branchWeekId String   @map("branch_week_id")
   domain       String // "production" | "route" | "retention" | "technician" | "compliance" | "inventory" | "sales"
   key          String // stable metric key, e.g. "production_mtd_vs_budget", "callback_rate", "stops_per_day"
   label        String
   value        Float?
-  displayValue String? @map("display_value") // preformatted ("$42,100", "92%")
+  displayValue String?  @map("display_value") // preformatted ("$42,100", "92%")
   target       Float?
   unit         String? // "%" | "$" | "count" | "per_day" | ...
-  status       String  @default("info") // "good" | "warn" | "alarm" | "info"
-  source       String  @default("manual") // "upload" | "manual" | "api"
+  status       String   @default("info") // "good" | "warn" | "alarm" | "info"
+  source       String   @default("manual") // "upload" | "manual" | "api"
   note         String?
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -3486,4 +3486,162 @@ model CommandFinding {
   @@index([branchWeekId])
   @@index([status])
   @@map("command_findings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Routing Approval (CanopyOS) — monthly proactive routing sign-off. The routing
+// dept sets each month's routing; managers review a visual dashboard (map + stops
+// + monthly summary) in the FIRST WEEK and must approve EACH technician's month
+// before it runs. Sibling of Branch Command (weekly) — same fed-data + AI-findings
+// + forced per-unit sign-off pattern, monthly. Source-agnostic (upload|manual|api).
+// See docs/ROUTING-APPROVAL.md. All models additive/defaulted → db push-safe.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model RoutingMonth {
+  id          String    @id @default(cuid())
+  branch      String // "vero" | "stuart" | "orlando" | "naples"
+  periodKey   String    @map("period_key") // "2026-11"
+  monthStart  DateTime  @map("month_start")
+  monthEnd    DateTime  @map("month_end")
+  status      String    @default("open") // "open" | "in_review" | "signed"
+  signedById  String?   @map("signed_by_id")
+  signedName  String?   @map("signed_name")
+  signedAt    DateTime? @map("signed_at")
+  attestation String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  uploads    RoutingUpload[]
+  techMonths RouteTechMonth[]
+  days       RouteDay[]
+  stops      RouteStop[]
+  findings   RoutingFinding[]
+
+  @@unique([branch, periodKey])
+  @@index([branch])
+  @@index([periodKey])
+  @@map("routing_months")
+}
+
+model RoutingUpload {
+  id             String   @id @default(cuid())
+  routingMonthId String   @map("routing_month_id")
+  fileName       String   @map("file_name")
+  fileUrl        String?  @map("file_url")
+  status         String   @default("uploaded") // "uploaded" | "parsed" | "error"
+  parseError     String?  @map("parse_error")
+  rowCount       Int?     @map("row_count")
+  payload        String? // JSON normalized rows
+  uploadedById   String?  @map("uploaded_by_id")
+  uploadedByName String?  @map("uploaded_by_name")
+  uploadedAt     DateTime @default(now()) @map("uploaded_at")
+
+  routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
+
+  @@index([routingMonthId])
+  @@map("routing_uploads")
+}
+
+// Per-technician monthly rollup — the SIGN-OFF unit. The manager approves each of
+// these before the RoutingMonth can be signed.
+model RouteTechMonth {
+  id              String    @id @default(cuid())
+  routingMonthId  String    @map("routing_month_id")
+  techName        String    @map("tech_name")
+  employeeId      String?   @map("employee_id")
+  routeNo         String?   @map("route_no")
+  totalDays       Int       @default(0) @map("total_days")
+  totalStops      Int       @default(0) @map("total_stops")
+  totalDollars    Float     @default(0) @map("total_dollars")
+  avgStopsPerDay  Float?    @map("avg_stops_per_day")
+  estMiles        Float?    @map("est_miles")
+  estDriveMinutes Float?    @map("est_drive_minutes")
+  status          String    @default("info") // "good" | "warn" | "alarm" | "info"
+  approved        Boolean   @default(false)
+  approvedNote    String?   @map("approved_note")
+  approvedById    String?   @map("approved_by_id")
+  approvedAt      DateTime? @map("approved_at")
+  source          String    @default("manual") // "upload" | "manual" | "api"
+
+  routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
+
+  @@index([routingMonthId])
+  @@map("route_tech_months")
+}
+
+model RouteDay {
+  id              String   @id @default(cuid())
+  routingMonthId  String   @map("routing_month_id")
+  techName        String   @map("tech_name")
+  employeeId      String?  @map("employee_id")
+  date            DateTime
+  dayLabel        String?  @map("day_label")
+  stopCount       Int      @default(0) @map("stop_count")
+  dollars         Float    @default(0)
+  estMiles        Float?   @map("est_miles")
+  estDriveMinutes Float?   @map("est_drive_minutes")
+  status          String   @default("info")
+
+  routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
+  stops        RouteStop[]
+
+  @@index([routingMonthId])
+  @@index([routingMonthId, techName])
+  @@map("route_days")
+}
+
+model RouteStop {
+  id             String  @id @default(cuid())
+  routingMonthId String  @map("routing_month_id")
+  routeDayId     String  @map("route_day_id")
+  seq            Int // stop order within the day (1..x)
+  customer       String?
+  address        String?
+  lat            Float?
+  lng            Float?
+  dollars        Float?
+
+  routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
+  routeDay     RouteDay     @relation(fields: [routeDayId], references: [id], onDelete: Cascade)
+
+  @@index([routeDayId])
+  @@index([routingMonthId])
+  @@map("route_stops")
+}
+
+model RoutingFinding {
+  id               String    @id @default(cuid())
+  routingMonthId   String    @map("routing_month_id")
+  techName         String?   @map("tech_name")
+  date             DateTime?
+  severity         String    @default("warn") // "info" | "warn" | "alarm"
+  title            String
+  detail           String
+  question         String?
+  requiresResponse Boolean   @default(true) @map("requires_response")
+  managerResponse  String?   @map("manager_response")
+  respondedById    String?   @map("responded_by_id")
+  respondedByName  String?   @map("responded_by_name")
+  respondedAt      DateTime? @map("responded_at")
+  status           String    @default("open") // "open" | "answered" | "dismissed"
+  source           String    @default("ai") // "ai" | "rule" | "manual"
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
+
+  @@index([routingMonthId])
+  @@map("routing_findings")
+}
+
+// Shared address → lat/lng cache so each address is geocoded once, ever (across
+// every month + branch). Keyed by a normalized address string.
+model GeocodeCache {
+  id        String   @id @default(cuid())
+  query     String   @unique // normalized address
+  lat       Float
+  lng       Float
+  source    String   @default("nominatim")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("geocode_cache")
 }
