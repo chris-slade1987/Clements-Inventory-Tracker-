@@ -246,6 +246,17 @@ export async function getBranchCommand(branch: string, date: Date = new Date()) 
   return { branchWeek: bw, scoreboard, techWeeks, findings, itemResults, gate };
 }
 
+/** Read-only summary of a branch's CURRENT week sign-off, for the My Branch card +
+ *  rhythm ribbon. Does NOT create a BranchWeek (viewing My Branch shouldn't open
+ *  the week — only the Branch Command page does that). */
+export async function getCurrentBranchWeekSummary(branch: string, date: Date = new Date()) {
+  const periodKey = weekPeriodKey(date);
+  const bw = await prisma.branchWeek
+    .findUnique({ where: { branch_periodKey: { branch, periodKey } }, select: { status: true, signedName: true } })
+    .catch(() => null);
+  return { signed: bw?.status === "signed", signedName: bw?.signedName ?? null, status: bw?.status ?? "open" };
+}
+
 export function attestationText(name: string, branch: string, date: Date = new Date()): string {
   return `I, ${name}, verify that I have reviewed the ${weekPeriodLabel(date)} Branch Command report for the ${branchLabel(
     branch,

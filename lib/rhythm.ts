@@ -95,7 +95,7 @@ export function buildBranchRhythm(i: BranchRhythmInput): RhythmSegment[] {
   ];
   const week: RhythmItem[] = [
     {
-      key: "b_weekly", label: "Weekly oversight checklist", href: i.weeklyChecklistHref,
+      key: "b_weekly", label: "Branch Command (weekly review)", href: i.weeklyChecklistHref,
       meta: i.weeklyChecklistDone ? "Signed" : "Not signed",
       status: i.weeklyChecklistDone ? "done" : "due",
     },

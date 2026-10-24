@@ -203,8 +203,27 @@ export async function checklistStatusForBranch(branch: string, now: Date = new D
   for (const t of templates) {
     const periodKey = periodKeyFor(t.cadence, now);
     const periodLabel = periodLabelFor(t.cadence, now);
-    const completion = await completionFor(t.id, branch, periodKey);
-    const completed = !!completion;
+    // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
+    // Read it there so the leadership rollup reflects the real sign-off; other
+    // cadences still use ChecklistCompletion.
+    let completed: boolean;
+    let completion: { signedName: string; createdAt: Date; userId: string | null } | null;
+    if (t.cadence === "weekly") {
+      const bw = await prisma.branchWeek
+        .findUnique({
+          where: { branch_periodKey: { branch, periodKey } },
+          select: { status: true, signedName: true, signedAt: true, signedById: true },
+        })
+        .catch(() => null);
+      completed = bw?.status === "signed";
+      completion = completed
+        ? { signedName: bw!.signedName ?? "manager", createdAt: bw!.signedAt ?? new Date(), userId: bw!.signedById ?? null }
+        : null;
+    } else {
+      const c = await completionFor(t.id, branch, periodKey);
+      completed = !!c;
+      completion = c ? { signedName: c.signedName, createdAt: c.createdAt, userId: c.userId } : null;
+    }
     let overdue = false;
     let dueLabel: string;
     if (t.cadence === "weekly") {
@@ -218,9 +237,7 @@ export async function checklistStatusForBranch(branch: string, now: Date = new D
       periodKey,
       periodLabel,
       completed,
-      completion: completion
-        ? { signedName: completion.signedName, createdAt: completion.createdAt, userId: completion.userId }
-        : null,
+      completion,
       overdue,
       dueLabel,
     });
@@ -269,6 +286,13 @@ export async function rollup(now: Date = new Date()): Promise<{ columns: RollupC
 
 const SWEEP_LOOKBACK_WEEKS = 26; // bound the loop to a sane window
 
+// Branch Command go-live. The weekly oversight sign-off now lives in Branch
+// Command (a signed BranchWeek), NOT the legacy ChecklistCompletion. The first
+// week that can be "missed" is the week of the first due Friday (Oct 30, 2026);
+// the sweep never raises a miss for any week starting before this Monday,
+// regardless of when the template row itself was created. (America/New_York.)
+export const BRANCH_COMMAND_GO_LIVE = new Date("2026-10-26T00:00:00-04:00");
+
 /**
  * Lazy, idempotent detection of missed WEEKLY checklists. For each active weekly
  * template and each branch, enumerate every FULLY-ELAPSED ISO week from the
@@ -286,7 +310,7 @@ export async function sweepMissedChecklists(now: Date = new Date()): Promise<num
   let created = 0;
 
   for (const t of templates) {
-    const goLiveMonday = mondayOf(t.createdAt).getTime();
+    const goLiveMonday = Math.max(mondayOf(t.createdAt).getTime(), mondayOf(BRANCH_COMMAND_GO_LIVE).getTime());
     const earliest = Math.max(goLiveMonday, currentMonday - SWEEP_LOOKBACK_WEEKS * week);
 
     // Build the set of fully-elapsed weeks in range.
@@ -300,10 +324,14 @@ export async function sweepMissedChecklists(now: Date = new Date()): Promise<num
     if (weeks.length === 0) continue;
     const periodKeys = weeks.map((w) => w.periodKey);
 
-    // Bulk pre-check so we only ever create genuinely new rows.
-    const [completions, misses] = await Promise.all([
-      prisma.checklistCompletion.findMany({
-        where: { templateId: t.id, periodKey: { in: periodKeys } },
+    // Bulk pre-check so we only ever create genuinely new rows. A week is
+    // "covered" by a SIGNED BranchWeek — Branch Command is now the weekly
+    // oversight sign-off (the legacy ChecklistCompletion is no longer the
+    // source). Misses stay keyed to the weekly template id so the leadership
+    // oversight console and the branch red banner work unchanged.
+    const [signedWeeks, misses] = await Promise.all([
+      prisma.branchWeek.findMany({
+        where: { periodKey: { in: periodKeys }, status: "signed" },
         select: { branch: true, periodKey: true },
       }),
       prisma.checklistMiss.findMany({
@@ -312,7 +340,7 @@ export async function sweepMissedChecklists(now: Date = new Date()): Promise<num
       }),
     ]);
     const have = new Set<string>();
-    for (const c of completions) have.add(`${c.branch}|${c.periodKey}`);
+    for (const c of signedWeeks) have.add(`${c.branch}|${c.periodKey}`);
     for (const mrow of misses) have.add(`${mrow.branch}|${mrow.periodKey}`);
 
     for (const w of weeks) {

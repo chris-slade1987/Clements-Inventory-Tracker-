@@ -407,7 +407,6 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   BRANCH_COMMAND_NAV_ITEM,
-  CHECKLISTS_NAV_ITEM,
   SOPS_NAV_ITEM,
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):
   // company-wide for admins/super admins, own-branch read-only for branch managers.

@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 38 · Last updated October 23, 2026",
+    effective: "Version 39 · Last updated October 24, 2026",
+    // v39: Weekly oversight consolidated into BRANCH COMMAND. §2 Weekly
+    // Responsibilities now describes the weekly cockpit (fed scoreboard across the
+    // seven domains, AI-flagged items you must explain, per-technician review, and
+    // a sign-off you cannot complete until every flag is answered / tech reviewed /
+    // item checked, due every Friday). Branch Command replaces the old weekly
+    // checklist (that page now redirects there); a missed Friday is still a
+    // CEO/HR-clearable miss. Re-prompts prior acknowledgers.
     // v38: Vehicle Inspection Form overhaul. Mileage is now REQUIRED; Section B is
     // next-oil-change-only (next-due mileage and/or month from the sticker, at least
     // one required) and drives an oil-change-due alert (within 500 mi / ~1 month);
@@ -182,7 +189,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 38,
+    version: 39,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

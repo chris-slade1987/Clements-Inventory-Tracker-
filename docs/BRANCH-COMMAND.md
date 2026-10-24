@@ -1,7 +1,10 @@
 # Branch Command — weekly branch oversight (design + spec)
 
-**Status:** Phase 1 (plumbing) in progress · **Owner:** Chris / Director of Field Ops
+**Status:** Phase 1 shipped + weekly checklist consolidated in · **Owner:** Chris / Director of Field Ops
 **Supersedes:** the 6-item signed weekly oversight checklist (`seed-checklists.ts` template `"weekly"`).
+`/checklists` and `/checklists/weekly` now redirect here; the Friday miss-penalty keys off a signed
+`BranchWeek` anchored to go-live **Mon Oct 26, 2026** (first due Friday **Oct 30, 2026**). First weeks
+will be pre-loaded with data for managers.
 
 Branch Command is the branch manager's **weekly cockpit**. Instead of making managers
 pull and decode PestPac reports (the "42-tab" problem Rentokil-Terminix publicly

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
@@ -26,6 +26,10 @@ export default async function ChecklistRunPage({
   const { key } = await params;
   const sp = await searchParams;
   const user = await requireUser();
+
+  // The weekly oversight checklist now lives in Branch Command — redirect any
+  // lingering links (bookmarks, the old nav) to the cockpit.
+  if (key === "weekly") redirect(sp.branch ? `/branch-command?branch=${sp.branch}` : "/branch-command");
 
   const template = await getTemplateByKey(key);
   if (!template || !template.active) notFound();

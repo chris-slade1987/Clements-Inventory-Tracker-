@@ -12,7 +12,8 @@ import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
-import { checklistStatusForBranch, sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
+import { sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
+import { getCurrentBranchWeekSummary } from "@/lib/branch-command";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -81,9 +82,8 @@ export default async function MyBranchPage({
   // branch when viewing all, just to show progress).
   const scBranch = branch ?? BRANCHES[0].key;
   const warehouse = await warehouseStatus(year, month, scBranch);
-  // Recurring oversight sign-offs (the weekly attested checklist).
-  const checklistStatuses = await checklistStatusForBranch(scBranch, now);
-  const weekly = checklistStatuses.find((s) => s.template.cadence === "weekly") ?? null;
+  // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
+  const bwSummary = await getCurrentBranchWeekSummary(scBranch, now);
   // Missed-checklist penalty: detect lazily (no cron), then surface open misses
   // for this branch as a red banner. Managers can see them but never clear them.
   await sweepMissedChecklists();
@@ -101,7 +101,7 @@ export default async function MyBranchPage({
   // real signal — QC has no completion feed yet, so it's left out rather than
   // counted as always-incomplete).
   const duties: boolean[] = [
-    !!weekly?.completed,
+    bwSummary.signed,
     ...(insp.total > 0 ? [insp.pending === 0] : []),
     warehouse.done,
     ...(totalTraining > 0 ? [trainingDone] : []),
@@ -122,8 +122,8 @@ export default async function MyBranchPage({
   const rhythm = buildBranchRhythm({
     now,
     quarter,
-    weeklyChecklistDone: !!weekly?.completed,
-    weeklyChecklistHref: `/checklists/weekly?branch=${scBranch}`,
+    weeklyChecklistDone: bwSummary.signed,
+    weeklyChecklistHref: `/branch-command?branch=${scBranch}`,
     inspections: insp.total > 0 ? { completed: insp.completed, total: insp.total } : null,
     warehouseDone: warehouse.done,
     qcLogged: false,
@@ -244,7 +244,7 @@ export default async function MyBranchPage({
             <p className="text-xs text-muted mt-0.5">Every recurring duty in one place — stay ahead of each due date. Outstanding items are flagged in red.</p>
           </div>
           <AskCanopy
-            task="Help me complete my weekly checklist"
+            task="Help me complete my Branch Command weekly review"
             label="Ask Canopy"
             context={`${scopeLabel} — ${MONTHS[month]} ${year} manager checklist`}
             className="shrink-0"
@@ -253,10 +253,10 @@ export default async function MyBranchPage({
         <ul className="divide-y divide-line">
           {[
             {
-              label: "Weekly Oversight Checklist",
-              href: `/checklists/weekly?branch=${scBranch}`,
-              done: !!weekly?.completed,
-              status: weekly?.completed && weekly.completion ? `Signed by ${weekly.completion.signedName}` : "Not yet signed",
+              label: "Branch Command (weekly review)",
+              href: `/branch-command?branch=${scBranch}`,
+              done: bwSummary.signed,
+              status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed",
               cadence: "Weekly" as const,
               due: fridayEndOf(now),
               dueLabel: fridayLabel(now),
