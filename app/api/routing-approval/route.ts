@@ -51,10 +51,16 @@ export async function POST(req: Request) {
       const month = await ensureRoutingMonth(branch, periodKey);
       const techName = str(body?.techName);
       if (!techName) return NextResponse.json({ error: "Missing technician." }, { status: 400 });
-      // Best-effort: top up coordinates for this month (bounded) before returning.
-      await geocodeRoutingMonth(month.id, 40).catch(() => {});
+      // Return immediately — never block on geocoding (the map falls back to a
+      // modeled layout). Coordinate backfill is a separate explicit action.
       const days = await getTechDays(month.id, techName);
       return NextResponse.json({ ok: true, days });
+    }
+
+    if (action === "geocode") {
+      const month = await ensureRoutingMonth(branch, periodKey);
+      const n = await geocodeRoutingMonth(month.id, 60).catch(() => 0);
+      return NextResponse.json({ ok: true, geocoded: n });
     }
 
     const month = await ensureRoutingMonth(branch, periodKey);
