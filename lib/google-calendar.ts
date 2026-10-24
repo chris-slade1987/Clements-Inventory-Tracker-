@@ -169,6 +169,17 @@ export function isCalendarConfigured(): boolean {
   return serviceAccount() !== null;
 }
 
+/** The parsed Workspace service-account key (or null) — reused by the Gmail sender
+ *  so email can go through the same domain-wide-delegation service account. */
+export function getWorkspaceServiceAccount(): { client_email: string; private_key: string } | null {
+  return serviceAccount();
+}
+
+/** The configured Workspace domain (lower-cased) for impersonation guards, or null. */
+export function workspaceDomain(): string | null {
+  return DOMAIN;
+}
+
 /**
  * Non-secret diagnostic for the Data Connections tile:
  *   - "absent"  : no GOOGLE_WORKSPACE_SA_JSON / _BASE64 set at all.

@@ -8,6 +8,17 @@ import { prisma } from "@/lib/prisma";
 export type SendResult = { status: "sent" | "skipped_no_provider" | "skipped_no_address" | "error"; error?: string };
 
 const FROM = process.env.EMAIL_FROM || "CanopyOS <no-reply@clementspestcontrol.com>";
+// Display name for the Gmail-send path (which sends AS GOOGLE_WORKSPACE_EMAIL_FROM).
+const FROM_NAME = (FROM.match(/^\s*(.*?)\s*</)?.[1] || "CanopyOS").trim() || "CanopyOS";
+
+/** Gmail-send (Workspace service account) is usable when a SA key AND a sender
+ *  mailbox are set — checked via env only so this stays sync and import-light. */
+function gmailEnvPresent(): boolean {
+  return (
+    !!(process.env.GOOGLE_WORKSPACE_SA_JSON || process.env.GOOGLE_WORKSPACE_SA_JSON_BASE64) &&
+    !!(process.env.GOOGLE_WORKSPACE_EMAIL_FROM || "").trim()
+  );
+}
 
 export async function sendEmail(opts: {
   to: string | string[] | null | undefined;
@@ -34,11 +45,14 @@ export async function sendEmail(opts: {
   const subject = redirect && intended ? `[test → ${intended}] ${opts.subject}` : opts.subject;
   let result: SendResult;
 
+  // Provider order: Resend (if its key is set), else Google Workspace Gmail-send
+  // (the service account already used for Calendar, impersonating
+  // GOOGLE_WORKSPACE_EMAIL_FROM). Falls back to a logged no-op when neither is set.
+  const gmailReady = !process.env.RESEND_API_KEY && gmailEnvPresent();
+
   if (!to) {
     result = { status: "skipped_no_address" };
-  } else if (!process.env.RESEND_API_KEY) {
-    result = { status: "skipped_no_provider" };
-  } else {
+  } else if (process.env.RESEND_API_KEY) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -49,6 +63,16 @@ export async function sendEmail(opts: {
     } catch (e) {
       result = { status: "error", error: (e as Error).message };
     }
+  } else if (gmailReady) {
+    try {
+      const { sendViaGmail } = await import("@/lib/google-gmail");
+      const r = await sendViaGmail({ to, subject, html: opts.html, text: opts.text, fromName: FROM_NAME });
+      result = r.ok ? { status: "sent" } : { status: "error", error: r.error };
+    } catch (e) {
+      result = { status: "error", error: (e as Error).message };
+    }
+  } else {
+    result = { status: "skipped_no_provider" };
   }
 
   await prisma.emailLog
@@ -69,5 +93,5 @@ export async function sendEmail(opts: {
 }
 
 export function emailConfigured(): boolean {
-  return !!process.env.RESEND_API_KEY;
+  return !!process.env.RESEND_API_KEY || gmailEnvPresent();
 }

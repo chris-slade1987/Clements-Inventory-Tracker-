@@ -343,6 +343,48 @@ function googleCalendarHealth(): ConnectorHealth {
  * The full read-only health board. Each builder is independent and swallows its
  * own query errors, so one connector's bad read never blanks the whole page.
  */
+async function emailHealth(): Promise<ConnectorHealth> {
+  // Outbound email provider. Resend wins if its key is set; otherwise Google
+  // Workspace Gmail-send (the Calendar service account impersonating
+  // GOOGLE_WORKSPACE_EMAIL_FROM) when a SA key + sender mailbox are present.
+  const resend = !!process.env.RESEND_API_KEY;
+  const gmail = !!(process.env.GOOGLE_WORKSPACE_SA_JSON || process.env.GOOGLE_WORKSPACE_SA_JSON_BASE64) && !!(process.env.GOOGLE_WORKSPACE_EMAIL_FROM || "").trim();
+  const live = resend || gmail;
+  const mode = resend ? "Resend (API)" : gmail ? "Google Workspace (Gmail send)" : "Not configured";
+
+  const [lastSent, lastError, sent7, err7] = await Promise.all([
+    prisma.emailLog.findFirst({ where: { status: "sent" }, orderBy: { createdAt: "desc" }, select: { createdAt: true } }).catch(() => null),
+    prisma.emailLog.findFirst({ where: { status: "error" }, orderBy: { createdAt: "desc" }, select: { createdAt: true, error: true } }).catch(() => null),
+    prisma.emailLog.count({ where: { status: "sent", createdAt: { gte: new Date(Date.now() - 7 * DAY) } } }).catch(() => 0),
+    prisma.emailLog.count({ where: { status: "error", createdAt: { gte: new Date(Date.now() - 7 * DAY) } } }).catch(() => 0),
+  ]);
+  const recentErr = Boolean(lastError && (!lastSent || lastError.createdAt.getTime() >= lastSent.createdAt.getTime()) && err7 > 0);
+
+  const status: ConnStatus = !live ? "not-configured" : recentErr ? "error" : "healthy";
+  return {
+    key: "email",
+    name: "Email (outbound)",
+    category: "Notifications",
+    status,
+    statusLabel: STATUS_LABEL[status],
+    mode,
+    live,
+    lastSync: iso(lastSent?.createdAt ?? null),
+    lastSyncLabel: "Last email sent",
+    detail: !live
+      ? "No email provider configured — notifications (inspection reports, huddle invites, training, approvals) are logged but NOT sent. Set RESEND_API_KEY, or add the gmail.send scope to the Workspace service account's domain-wide delegation and set GOOGLE_WORKSPACE_EMAIL_FROM to a real mailbox."
+      : recentErr
+        ? `Provider set (${mode}) but recent sends FAILED: ${(lastError?.error ?? "").slice(0, 200)}`
+        : `Sending via ${mode}. Every attempt is recorded in the Email Log.`,
+    facts: [
+      { label: "Provider", value: mode },
+      { label: "Sent (7d)", value: String(sent7) },
+      { label: "Errors (7d)", value: String(err7) },
+    ],
+    envKeys: ["RESEND_API_KEY", "GOOGLE_WORKSPACE_SA_JSON", "GOOGLE_WORKSPACE_EMAIL_FROM"],
+  };
+}
+
 export async function getConnectionsHealth(): Promise<ConnectorHealth[]> {
   return Promise.all([
     smarterLaunchHealth(),
@@ -351,6 +393,7 @@ export async function getConnectionsHealth(): Promise<ConnectorHealth[]> {
     pestpacHealth(),
     paychexHealth(),
     Promise.resolve(googleCalendarHealth()),
+    emailHealth(),
   ]);
 }
 
