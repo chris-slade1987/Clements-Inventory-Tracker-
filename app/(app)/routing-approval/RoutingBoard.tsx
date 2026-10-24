@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import AskCanopy from "@/components/AskCanopy";
+import RouteLeafletMap from "./RouteLeafletMap";
 
 const MPG = 18, GAS = 3.45;
 const SC: Record<string, string> = { good: "#1F7A45", warn: "#E3B23C", alarm: "#DC2626", info: "#5c6b62" };
@@ -24,8 +25,6 @@ const median = (a: number[]) => { if (!a.length) return 0; const b = [...a].sort
 const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 const std = (a: number[]) => { const m = mean(a); return Math.sqrt(mean(a.map((x) => (x - m) ** 2))); };
 const balanceOf = (a: number[]) => { const m = mean(a); return m ? Math.max(0, Math.min(100, Math.round((1 - std(a) / m) * 100))) : 0; };
-function hash(s: string) { let x = 0; for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
-function rnd(seed: number) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 
 export default function RoutingBoard({ data, canUpload, periodKey }: { data: Data; canUpload: boolean; periodKey: string }) {
   const router = useRouter();
@@ -37,6 +36,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
   const [locks, setLocks] = useState<Set<string>>(new Set());
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [changeset, setChangeset] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
   const [signName, setSignName] = useState("");
   const signed = data.month.status === "signed";
   const sel = data.techs.find((t) => t.id === selId) || data.techs[0] || null;
@@ -51,6 +51,18 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
       router.refresh(); return true;
     } catch (e) { setErr((e as Error).message); return false; } finally { setBusy(null); }
   };
+
+  // Geocode this month's stops (bounded, server-side) then reload the tech's days
+  // so the street map fills in. Best-effort: in environments where geocoding is
+  // blocked it simply no-ops and the located count stays put.
+  async function locateStops() {
+    if (!sel) return;
+    setLocating(true);
+    try {
+      await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "geocode", branch: data.month.branch, periodKey }) });
+      setDaysByTech((p) => { const n = { ...p }; delete n[sel.name]; return n; });
+    } catch { /* ignore */ } finally { setLocating(false); }
+  }
 
   // fetch a tech's day/stop detail on demand
   useEffect(() => {
@@ -135,7 +147,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
       </Card>
 
       {/* focus */}
-      {sel && <FocusCard sel={sel} days={days} selDate={selDate} setSelDate={setSelDate} periodKey={periodKey} locks={locks} setLocks={setLocks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed} busy={busy} post={post} />}
+      {sel && <FocusCard sel={sel} days={days} selDate={selDate} setSelDate={setSelDate} periodKey={periodKey} locks={locks} setLocks={setLocks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed} busy={busy} post={post} onLocate={locateStops} locating={locating} branch={data.month.branch} />}
 
       {/* sign-off */}
       {!signed && (
@@ -175,14 +187,16 @@ type FocusProps = {
   sel: Tech; days: Day[] | undefined; selDate: string | null; setSelDate: (d: string | null) => void; periodKey: string;
   locks: Set<string>; setLocks: (s: Set<string>) => void; proposal: Proposal | null; setProposal: (p: Proposal | null) => void; changeset: string | null; setChangeset: (s: string | null) => void;
   signed: boolean; busy: string | null; post: (p: Record<string, unknown>, t: string) => Promise<boolean>;
+  onLocate: () => void; locating: boolean; branch: string;
 };
 function FocusCard(props: FocusProps) {
-  const { sel, days, selDate, setSelDate, periodKey, locks, setLocks, proposal, setProposal, changeset, setChangeset, signed, busy, post } = props;
+  const { sel, days, selDate, setSelDate, locks, setLocks, proposal, setProposal, changeset, setChangeset, signed, busy, post, onLocate, locating, branch } = props;
   const loading = !days;
   const sizes = sel.loads;
   const m = {
-    days: sel.totalDays, stops: sel.totalStops, avg: sel.avgStopsPerDay ?? 0, median: median(sizes),
-    balance: balanceOf(sizes), perStop: sel.perStop, miles: sel.estMiles ?? 0, drive: sel.estDriveMinutes ?? 0, fuel: (sel.estMiles ?? 0) / MPG * GAS,
+    avg: sel.avgStopsPerDay ?? 0, median: median(sizes), balance: balanceOf(sizes),
+    max: sizes.length ? Math.max(...sizes) : 0, min: sizes.length ? Math.min(...sizes) : 0,
+    miles: sel.estMiles ?? 0, drive: sel.estDriveMinutes ?? 0, fuel: (sel.estMiles ?? 0) / MPG * GAS,
   };
   const curDay = useMemo(() => {
     if (!days || !days.length) return null;
@@ -190,11 +204,16 @@ function FocusCard(props: FocusProps) {
     return days.reduce((a, b) => (b.stops.length > a.stops.length ? b : a), days[0]);
   }, [days, selDate]);
 
-  const astats: [string, string, string, boolean][] = [
-    ["Days", String(m.days), "", false], ["Stops", String(m.stops), "", false], ["Avg/day", String(m.avg), "median " + m.median, false],
+  // Monthly summary tiles (bottom of the focus). Green = modeled estimate.
+  const summary: [string, string, string, boolean][] = [
+    ["Est. production", money(sel.totalDollars), `${sel.totalStops} stops · ${sel.totalDays} days`, false],
+    ["Avg stops/day", String(m.avg), `median ${m.median}`, false],
+    ["Biggest day", String(m.max), m.max >= 30 ? "heavy" : "", false],
+    ["Smallest day", String(m.min), "", false],
+    ["Est. fuel", money(m.fuel), `@ $${GAS}/gal`, true],
+    ["Est. miles", m.miles.toLocaleString(), "modeled", true],
+    ["Est. drive", Math.round(m.drive / 60) + "h " + (m.drive % 60) + "m", "modeled", true],
     ["Balance", sel.kind === "route" ? String(m.balance) : "—", sel.kind === "route" ? "day evenness" : "not graded", false],
-    ["$/stop", money(m.perStop), "", false], ["Est. miles", m.miles.toLocaleString(), "modeled", true],
-    ["Est. drive", Math.round(m.drive / 60) + "h", (m.drive % 60) + "m · modeled", true], ["Est. fuel", money(m.fuel), "modeled", true],
   ];
 
   return (
@@ -214,47 +233,75 @@ function FocusCard(props: FocusProps) {
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-        {astats.map((a) => (
-          <div key={a[0]} className="rounded-lg border border-line bg-black/[0.015] px-3 py-2">
-            <div className="text-[10px] uppercase tracking-wide text-muted">{a[0]}</div>
-            <div className="mt-0.5 text-base font-light tabular-nums" style={{ color: a[3] ? SC.good : undefined }}>{a[1]}</div>
-            <div className="text-[10px] text-muted">{a[2]}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* findings */}
-      <div className="mt-5">
-        <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">What Canopy flagged</div>
-        <div className="mt-2 space-y-2">
-          {sel.findings.map((f) => <FindingRow key={f.id} f={f} signed={signed} busy={busy} post={post} />)}
-        </div>
-      </div>
-
-      {/* calendar + map + stops */}
-      <div className="mt-5 text-[11px] uppercase tracking-wide text-muted">Daily load — tap a day</div>
+      {/* Daily load — bigger clickable bar chart (tap a bar to open that day below) */}
+      <div className="mt-4 text-[11px] uppercase tracking-wide text-muted">Daily load — tap a day</div>
       {loading ? <p className="mt-2 text-sm text-muted">Loading {sel.name}&apos;s routes…</p> : (
         <>
-          <Calendar periodKey={periodKey} days={days!} curDate={curDay?.date} onPick={setSelDate} />
-          <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DayBars days={days!} curDate={curDay?.date} onPick={setSelDate} />
+          <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
-              <RouteMap sel={sel} day={curDay} />
-              <p className="mt-2 text-[11px] text-muted">Route in service order with direction of travel. {curDay && curDay.stops.some((s) => s.lat == null) ? "Pin positions are modeled until addresses finish geocoding." : "Pins are geocoded addresses."} Real street maps + road drive-time in the full build.</p>
+              <div className="mb-1 text-sm font-medium text-ink">{curDay ? dayLabel(curDay.date) : ""} <span className="text-xs font-normal text-muted">· {curDay?.stops.length} stops · {money(curDay?.stops.reduce((s, x) => s + x.amt, 0) ?? 0)}</span></div>
+              <RouteLeafletMap stops={curDay?.stops ?? []} branch={branch} canLocate={!signed} onLocate={onLocate} locating={locating} />
             </div>
             <div>
               <StopList sel={sel} day={curDay} locks={locks} setLocks={setLocks} signed={signed} setProposal={setProposal} />
             </div>
           </div>
-          {/* optimize */}
           <Optimize sel={sel} days={days!} locks={locks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} />
         </>
       )}
+
+      {/* Monthly summary (bottom) + flags with AI drill-in */}
+      <div className="mt-6 border-t border-line pt-4">
+        <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">Monthly summary — {sel.name}</div>
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {summary.map((a) => (
+            <div key={a[0]} className="rounded-lg border border-line bg-black/[0.015] px-3 py-2">
+              <div className="text-[10px] uppercase tracking-wide text-muted">{a[0]}</div>
+              <div className="mt-0.5 text-lg font-light tabular-nums" style={{ color: a[3] ? SC.good : a[0] === "Biggest day" && m.max >= 30 ? SC.alarm : undefined }}>{a[1]}</div>
+              <div className="text-[10px] text-muted">{a[2]}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div className="text-[11px] uppercase tracking-wide text-muted">Flags {sel.findings.filter((f) => f.severity !== "good" && f.severity !== "info").length ? `· ${sel.findings.filter((f) => f.severity !== "good" && f.severity !== "info").length} to address` : "· none critical"}</div>
+        </div>
+        <div className="mt-2 space-y-2">
+          {sel.findings.map((f) => <FindingRow key={f.id} f={f} sel={sel} signed={signed} busy={busy} post={post} />)}
+        </div>
+      </div>
     </Card>
   );
 }
 
-function FindingRow({ f, signed, busy, post }: { f: Finding; signed: boolean; busy: string | null; post: (p: Record<string, unknown>, t: string) => Promise<boolean>; }) {
+// Bigger version of the roster sparkline: one clickable bar per working day.
+function DayBars({ days, curDate, onPick }: { days: Day[]; curDate?: string; onPick: (d: string) => void }) {
+  const max = Math.max(1, ...days.map((d) => d.stops.length));
+  return (
+    <div className="mt-2 flex items-end gap-1 overflow-x-auto rounded-xl border border-line bg-black/[0.015] p-3" style={{ minHeight: 132 }}>
+      {days.map((d) => {
+        const n = d.stops.length;
+        const h = Math.max(6, Math.round((n / max) * 96));
+        const on = d.date === curDate;
+        const col = n >= 30 ? SC.alarm : n >= max * 0.8 ? "#2e6f47" : "#74a96e";
+        return (
+          <button key={d.date} onClick={() => onPick(d.date)} title={`${dayLabel(d.date)} · ${n} stops`} className="flex shrink-0 flex-col items-center gap-1" style={{ width: 30 }}>
+            <span className="text-[10px] tabular-nums" style={{ color: on ? "var(--color-ink)" : "var(--color-muted)" }}>{n}</span>
+            <span className="w-full rounded-t" style={{ height: h, background: col, outline: on ? "2px solid var(--color-brand-600)" : "none", outlineOffset: 1, opacity: on ? 1 : 0.85 }} />
+            <span className="text-[9px] tabular-nums" style={{ color: on ? "var(--color-ink)" : "var(--color-muted)" }}>{d.date.slice(5).replace("-", "/")}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function dayLabel(ds: string): string {
+  const [y, m, d] = ds.split("-").map(Number);
+  return DOW[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + " " + m + "/" + d;
+}
+
+function FindingRow({ f, sel, signed, busy, post }: { f: Finding; sel: Tech; signed: boolean; busy: string | null; post: (p: Record<string, unknown>, t: string) => Promise<boolean>; }) {
   const [resp, setResp] = useState(f.managerResponse ?? "");
   const c = SC[f.severity] ?? SC.warn;
   const answered = f.status === "answered";
@@ -262,7 +309,14 @@ function FindingRow({ f, signed, busy, post }: { f: Finding; signed: boolean; bu
     <div className="rounded-lg border border-l-4 border-line p-3" style={{ borderLeftColor: c }}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm text-ink">{f.title}</p>
-        {answered && <span className="shrink-0 text-xs font-medium" style={{ color: SC.good }}>Answered</span>}
+        <div className="flex shrink-0 items-center gap-2">
+          {answered && <span className="text-xs font-medium" style={{ color: SC.good }}>Answered</span>}
+          <AskCanopy
+            label="Ask Canopy"
+            task={`On route ${sel.routeNo} (${sel.name}), help me with this routing flag: "${f.title}". ${f.detail} What are my options, and can you help me rework the month to fix it?`}
+            context={`Route ${sel.routeNo} ${sel.name} · ${sel.totalStops} stops / ${sel.totalDays} days · daily loads [${sel.loads.join(", ")}]`}
+          />
+        </div>
       </div>
       <p className="mt-0.5 text-xs text-muted">{f.detail}</p>
       {f.question && !signed && (
@@ -272,58 +326,6 @@ function FindingRow({ f, signed, busy, post }: { f: Finding; signed: boolean; bu
         </div>
       )}
       {f.question && signed && f.managerResponse && <p className="mt-2 text-sm text-ink"><span className="text-muted">Response:</span> {f.managerResponse}</p>}
-    </div>
-  );
-}
-
-function Calendar({ periodKey, days, curDate, onPick }: { periodKey: string; days: Day[]; curDate?: string; onPick: (d: string) => void }) {
-  const [y, mo] = periodKey.split("-").map(Number);
-  const counts: Record<string, number> = {}; days.forEach((d) => (counts[d.date] = d.stops.length));
-  const max = Math.max(1, ...Object.values(counts));
-  const first = new Date(Date.UTC(y, mo - 1, 1)).getUTCDay();
-  const dim = new Date(Date.UTC(y, mo, 0)).getUTCDate();
-  const cells: React.ReactNode[] = ["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={"h" + i} className="text-center text-[10px] text-muted">{d}</div>);
-  for (let i = 0; i < first; i++) cells.push(<div key={"b" + i} />);
-  for (let day = 1; day <= dim; day++) {
-    const ds = `${y}-${String(mo).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const c = counts[ds] || 0; const t = c / max;
-    cells.push(
-      <button key={ds} disabled={!c} onClick={() => onPick(ds)} className={`relative rounded-md border p-1 text-left ${ds === curDate ? "outline outline-2 outline-brand-600" : ""} ${c ? "cursor-pointer" : "opacity-40"}`}
-        style={{ aspectRatio: "1 / 0.8", borderColor: "var(--color-line)", background: c ? `color-mix(in srgb, #2e6f47 ${Math.round(18 + t * 72)}%, transparent)` : "transparent" }}>
-        <span className="text-[10px]" style={{ color: t > 0.55 ? "rgba(255,255,255,.85)" : "var(--color-muted)" }}>{day}</span>
-        {c > 0 && <span className="absolute bottom-0.5 left-1 text-[11px] tabular-nums" style={{ color: t > 0.55 ? "#fff" : "var(--color-ink)" }}>{c}</span>}
-      </button>
-    );
-  }
-  return <div className="mt-1 grid grid-cols-7 gap-1">{cells}</div>;
-}
-
-function dayCoords(sel: Tech, day: Day): [number, number][] {
-  if (day.stops.length && day.stops.every((s) => s.lat != null && s.lng != null)) return day.stops.map((s) => [s.lat as number, s.lng as number]);
-  // Illustrative layout (normalized by the map anyway) until geocoding completes.
-  const r = rnd(hash(String(sel.routeNo) + day.date)); const out: [number, number][] = []; let lat = 0, lng = 0; const head = r() * 6.283;
-  for (let i = 0; i < day.stops.length; i++) { const ang = head + Math.sin(i * 0.9) * 0.9 + (r() - 0.5) * 0.5; const step = 0.004 + r() * 0.004; lat += Math.cos(ang) * step; lng += Math.sin(ang) * step; out.push([lat, lng]); }
-  return out;
-}
-function RouteMap({ sel, day }: { sel: Tech; day: Day | null }) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  if (!day) return <div className="grid h-72 place-items-center rounded-xl border border-line text-sm text-muted">No route for this day</div>;
-  const cs = dayCoords(sel, day); const lats = cs.map((c) => c[0]), lngs = cs.map((c) => c[1]);
-  const pad = 46, W = 600, H = 460;
-  const minx = Math.min(...lngs), maxx = Math.max(...lngs), miny = Math.min(...lats), maxy = Math.max(...lats);
-  const sx = (v: number) => pad + ((v - minx) / ((maxx - minx) || 1)) * (W - 2 * pad);
-  const sy = (v: number) => H - pad - ((v - miny) / ((maxy - miny) || 1)) * (H - 2 * pad);
-  const pts = cs.map((c) => [sx(c[1]), sy(c[0])] as [number, number]);
-  const total = day.stops.reduce((s, x) => s + x.amt, 0);
-  return (
-    <div className="relative overflow-hidden rounded-xl border border-line" style={{ background: "#eef2ee" }}>
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="Route map">
-        {[1, 2, 3, 4, 5].map((i) => <g key={i}><line x1={0} y1={(H / 6) * i} x2={W} y2={(H / 6) * i} stroke="#d4ddd5" /><line x1={(W / 6) * i} y1={0} x2={(W / 6) * i} y2={H} stroke="#d4ddd5" /></g>)}
-        <polyline fill="none" stroke="#2e6f47" strokeWidth={2.3} strokeLinejoin="round" strokeOpacity={0.65} points={pts.map((p) => p.join(",")).join(" ")} />
-        {pts.map((p, i) => (<g key={i}><circle cx={p[0]} cy={p[1]} r={day.stops[i].amt >= 150 ? 12 : 10} fill="#1f5836" stroke="#fff" strokeWidth={1.5}><title>{day.stops[i].seq}. {day.stops[i].svc} — {day.stops[i].addr} — {money(day.stops[i].amt)}</title></circle><text x={p[0]} y={p[1] + 3.5} textAnchor="middle" fontSize={10} fill="#fff">{day.stops[i].seq}</text></g>))}
-        <circle cx={pts[0][0]} cy={pts[0][1]} r={15} fill="none" stroke="#1F7A45" strokeWidth={2} />
-      </svg>
-      <div className="absolute bottom-2 left-2 rounded-lg border border-line bg-white/85 px-2 py-1 text-[11px] text-ink">{day.stops.length} stops · {money(total)}</div>
     </div>
   );
 }
