@@ -99,6 +99,19 @@ const TEMPLATES = [
     items: withOrder(MONTHLY_ITEMS),
     active: false,
   },
+  {
+    // Miss IDENTITY ONLY for Routing Approval (the real sign-off lives on the
+    // RoutingMonth, not a ChecklistCompletion). Kept active:false so it never
+    // appears in the checklist UI or the oversight rollup grid; ChecklistMiss rows
+    // reference it so routing misses show in the branch banner + the leadership
+    // miss console generically. sweepMissedRouting() (lib/routing.ts) creates them.
+    key: "routing-approval",
+    title: "Monthly Routing Approval",
+    cadence: "monthly",
+    intro: "Review and sign each technician's routing in the first week of the month.",
+    items: [],
+    active: false,
+  },
 ];
 
 export async function seedChecklists(prisma: PrismaClient) {

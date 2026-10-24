@@ -77,6 +77,7 @@ export type BranchRhythmInput = {
   quarter: number;
   weeklyChecklistDone: boolean;
   weeklyChecklistHref: string;
+  routing?: { loaded: boolean; signed: boolean; overdue: boolean; href: string } | null;
   inspections: { completed: number; total: number } | null;
   warehouseDone: boolean;
   qcLogged: boolean;
@@ -101,6 +102,12 @@ export function buildBranchRhythm(i: BranchRhythmInput): RhythmSegment[] {
     },
   ];
   const month: RhythmItem[] = [];
+  if (i.routing)
+    month.push({
+      key: "b_routing", label: "Routing approval", href: i.routing.href,
+      meta: i.routing.signed ? "Signed" : i.routing.loaded ? (i.routing.overdue ? "Overdue" : "Review") : "Not loaded",
+      status: i.routing.signed ? "done" : i.routing.loaded ? (i.routing.overdue ? "overdue" : "due") : "info",
+    });
   if (i.inspections && i.inspections.total > 0)
     month.push({
       key: "b_insp", label: "Vehicle inspections", href: "/my-branch/inspections",

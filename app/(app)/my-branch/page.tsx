@@ -14,7 +14,7 @@ import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
 import { sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
 import { getCurrentBranchWeekSummary } from "@/lib/branch-command";
-import { getRoutingSummary } from "@/lib/routing";
+import { getRoutingSummary, sweepMissedRouting, routingDueDate } from "@/lib/routing";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -86,9 +86,12 @@ export default async function MyBranchPage({
   // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
   const bwSummary = await getCurrentBranchWeekSummary(scBranch, now);
   const routingSummary = await getRoutingSummary(scBranch);
-  // Missed-checklist penalty: detect lazily (no cron), then surface open misses
+  const routingDue = routingDueDate(routingSummary.periodKey);
+  const routingOverdue = routingSummary.loaded && !routingSummary.signed && now.getTime() > routingDue.getTime();
+  // Missed-oversight penalty: detect lazily (no cron), then surface open misses
   // for this branch as a red banner. Managers can see them but never clear them.
   await sweepMissedChecklists();
+  await sweepMissedRouting();
   const branchMisses = await openMisses(branch ?? undefined);
   // CEU/training: complete when the branch has assignments and none are open.
   const openTraining = await prisma.trainingAssignment.count({ where: { status: { not: "completed" }, ...(branch ? { branch } : {}) } });
@@ -126,6 +129,9 @@ export default async function MyBranchPage({
     quarter,
     weeklyChecklistDone: bwSummary.signed,
     weeklyChecklistHref: `/branch-command?branch=${scBranch}`,
+    routing: routingSummary.exists
+      ? { loaded: routingSummary.loaded, signed: routingSummary.signed, overdue: routingOverdue, href: `/routing-approval?branch=${scBranch}` }
+      : null,
     inspections: insp.total > 0 ? { completed: insp.completed, total: insp.total } : null,
     warehouseDone: warehouse.done,
     qcLogged: false,
@@ -188,7 +194,7 @@ export default async function MyBranchPage({
       {branchMisses.length > 0 ? (
         <div className="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3" data-testid="miss-banner">
           <div className="text-sm font-semibold text-red-700">
-            {branchMisses.length} missed weekly checklist{branchMisses.length === 1 ? "" : "s"} on record.
+            {branchMisses.length} missed oversight item{branchMisses.length === 1 ? "" : "s"} on record (weekly Branch Command / monthly Routing Approval).
           </div>
           <div className="text-xs text-red-600 mt-0.5">
             Only HR or the CEO can clear these. {branchMisses.slice(0, 3).map((m) => m.periodLabel).join(", ")}
@@ -273,8 +279,8 @@ export default async function MyBranchPage({
                   ? "Signed off"
                   : `${routingSummary.approved}/${routingSummary.techs} techs approved`,
               cadence: "Monthly" as const,
-              due: endOfMonth(now),
-              dueLabel: endOfMonthLabel(now),
+              due: routingDue,
+              dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)`,
             },
             {
               label: "Vehicle Inspections",

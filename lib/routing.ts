@@ -1,5 +1,22 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { BRANCHES } from "@/lib/management";
+
+// Routing Approval go-live: never raise a miss for a month before this (the first
+// month loaded). Routing for month M is due by the FIRST FRIDAY of M.
+const ROUTING_GO_LIVE = new Date("2026-11-01T00:00:00-04:00");
+
+function periodLabelOf(pk: string): string {
+  const [y, m] = pk.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
+/** End of the first Friday of the given month (UTC) — the sign-off deadline. */
+export function routingDueDate(pk: string): Date {
+  const [y, m] = pk.split("-").map(Number);
+  const first = new Date(Date.UTC(y, m - 1, 1));
+  const add = (5 - first.getUTCDay() + 7) % 7; // 5 = Friday
+  return new Date(Date.UTC(y, m - 1, 1 + add, 23, 59, 59));
+}
 
 // Data access for the Routing Approval dashboard. Reads the Route* tables the
 // ingest layer populated and assembles the branch view + the sign-off gate. Heavy
@@ -139,6 +156,40 @@ export async function getTechDays(routingMonthId: string, techName: string) {
       amt: s.dollars ?? 0,
     })),
   }));
+}
+
+/** Lazy, idempotent miss sweep: a branch that has routing LOADED but NOT SIGNED by
+ *  the first Friday of the month is recorded as a missed routing approval (keyed to
+ *  the inactive "routing-approval" template so it surfaces in the branch banner +
+ *  the leadership miss console). Only CEO/HR clear it — same as checklist misses.
+ *  Anchored to go-live so no month before the first loaded one is ever missed. */
+export async function sweepMissedRouting(now: Date = new Date()): Promise<number> {
+  const tmpl = await prisma.checklistTemplate.findUnique({ where: { key: "routing-approval" }, select: { id: true } }).catch(() => null);
+  if (!tmpl) return 0;
+  const months: string[] = [];
+  let d = new Date(Date.UTC(ROUTING_GO_LIVE.getUTCFullYear(), ROUTING_GO_LIVE.getUTCMonth(), 1));
+  const cur = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  while (d <= cur) {
+    months.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+  }
+  let created = 0;
+  for (const pk of months) {
+    if (now.getTime() < routingDueDate(pk).getTime()) continue; // not due yet
+    for (const b of BRANCHES) {
+      const rm = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch: b.key, periodKey: pk } }, select: { id: true, status: true } }).catch(() => null);
+      if (!rm || rm.status === "signed") continue;
+      const techs = await prisma.routeTechMonth.count({ where: { routingMonthId: rm.id } }).catch(() => 0);
+      if (techs === 0) continue; // nothing loaded → nothing to miss
+      try {
+        await prisma.checklistMiss.create({ data: { templateId: tmpl.id, cadence: "monthly", branch: b.key, periodKey: pk, periodLabel: periodLabelOf(pk) } });
+        created++;
+      } catch (e) {
+        if ((e as { code?: string }).code !== "P2002") throw e; // ignore idempotent race
+      }
+    }
+  }
+  return created;
 }
 
 /** Periods (months) that actually have routing loaded for a branch, newest first —
