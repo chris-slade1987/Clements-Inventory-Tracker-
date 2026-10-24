@@ -61,7 +61,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
   }, [sel, daysByTech, data.month.branch, periodKey]);
 
   if (!data.month.loaded) {
-    return <UploadEmpty canUpload={canUpload} onUploaded={() => router.refresh()} periodKey={periodKey} />;
+    return <UploadEmpty canUpload={canUpload} periodKey={periodKey} branch={data.month.branch} />;
   }
 
   const flagged = data.techs.filter((t) => ["warn", "alarm"].includes(t.status)).length;
@@ -83,7 +83,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
         </Card>
       )}
       {err && <p className="text-sm text-red-700">{err}</p>}
-      {canUpload && <div className="flex justify-end"><UploadButton onUploaded={() => router.refresh()} compact /></div>}
+      {canUpload && <div className="flex justify-end"><UploadButton branch={data.month.branch} compact /></div>}
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -402,36 +402,72 @@ function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChang
   );
 }
 
-function UploadButton({ onUploaded, compact }: { onUploaded: () => void; compact?: boolean }) {
+type Preview = { periodKey: string; periodLabel: string; techs: number; stops: number; branches: { branch: string; techs: number; stops: number }[]; fileName: string; text: string };
+const BR_LABEL: Record<string, string> = { vero: "Vero Beach", stuart: "Stuart", orlando: "Orlando", naples: "Naples" };
+
+function UploadButton({ branch, compact }: { branch: string; compact?: boolean }) {
+  const router = useRouter();
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
+
   const onFile = async (file: File) => {
-    setBusy(true); setMsg(null);
+    setBusy(true); setErr(null); setPreview(null);
     try {
       const text = await file.text();
-      const res = await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "upload", fileName: file.name, text }) });
+      const res = await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "preview", text }) });
       const j = await res.json().catch(() => ({}));
-      if (!res.ok) { setMsg(j.error || "Upload failed."); return; }
-      setMsg(`Loaded ${(j.months as { stops: number }[] | undefined)?.reduce((s, m) => s + m.stops, 0)?.toLocaleString()} stops across ${j.months?.length} branches.`);
-      onUploaded();
-    } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); }
+      if (!res.ok || !j.ok) { setErr(j.error || "Could not read that file."); return; }
+      setPreview({ ...j, fileName: file.name, text });
+    } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
+
+  const confirm = async () => {
+    if (!preview) return;
+    setBusy(true); setErr(null);
+    try {
+      const res = await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "upload", fileName: preview.fileName, text: preview.text }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) { setErr(j.error || "Load failed."); return; }
+      // Jump to the month that was just loaded (usually next month, not today's).
+      router.push(`/routing-approval?branch=${branch}&period=${preview.periodKey}`);
+      router.refresh();
+      setPreview(null);
+    } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+  };
+
   return (
-    <div className={compact ? "flex items-center gap-2" : "flex flex-col items-center gap-2"}>
+    <div className={compact ? "flex flex-col items-end gap-2" : "flex flex-col items-center gap-2"}>
       <input ref={ref} type="file" accept=".xls,.tsv,.csv,.txt" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
-      <button className={btn.secondary} disabled={busy} onClick={() => ref.current?.click()}>{busy ? "Loading…" : "Upload monthly routing export"}</button>
-      {msg && <span className="text-xs text-muted">{msg}</span>}
+      {!preview && <button className={btn.secondary} disabled={busy} onClick={() => ref.current?.click()}>{busy ? "Reading…" : "Upload monthly routing export"}</button>}
+      {err && <span className="text-xs text-red-700">{err}</span>}
+      {preview && (
+        <Card className="w-full max-w-lg p-4 text-left">
+          <div className="text-sm text-ink">Confirm this is the routing to load:</div>
+          <div className="mt-2 text-base font-light text-ink">{preview.periodLabel} <span className="text-xs text-muted">· {preview.fileName}</span></div>
+          <div className="mt-1 text-sm text-muted">{preview.techs} technicians · {preview.stops.toLocaleString()} stops across {preview.branches.length} branches</div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {preview.branches.map((b) => <span key={b.branch} className="rounded-full border border-line px-2 py-0.5 text-[11px] text-muted">{BR_LABEL[b.branch] || b.branch}: {b.techs} techs · {b.stops} stops</span>)}
+          </div>
+          <p className="mt-2 text-xs text-muted">This loads as the <strong>{preview.periodLabel}</strong> routing and replaces any {preview.periodLabel} data already loaded. The managers of each branch then review and sign off.</p>
+          <div className="mt-3 flex gap-2">
+            <button className={btn.primary} disabled={busy} onClick={confirm}>{busy ? "Loading…" : `Load ${preview.periodLabel} routing`}</button>
+            <button className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted" disabled={busy} onClick={() => { setPreview(null); setErr(null); }}>Cancel</button>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
-function UploadEmpty({ canUpload, periodKey }: { canUpload: boolean; onUploaded: () => void; periodKey: string }) {
-  const router = useRouter();
+function UploadEmpty({ canUpload, periodKey, branch }: { canUpload: boolean; periodKey: string; branch: string }) {
+  const [y, m] = periodKey.split("-").map(Number);
+  const label = new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
   return (
     <Card className="p-8 text-center">
-      <h3 className="text-lg font-light text-ink">Routing not loaded for {periodKey}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted">{canUpload ? "Load the PestPac “Technician Schedule Report” for the month (sorted by Technician) to populate the review. Re-uploading replaces the month." : "An admin loads the monthly routing export, then you’ll review and sign off on each technician here."}</p>
-      {canUpload && <div className="mt-4 flex justify-center"><UploadButton onUploaded={() => router.refresh()} /></div>}
+      <h3 className="text-lg font-light text-ink">Routing not loaded for {label}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm text-muted">{canUpload ? "Load the PestPac “Technician Schedule Report” for the month (sorted by Technician). You’ll see a summary to confirm before it’s applied, and it opens the month it’s for. Re-uploading replaces that month." : "An admin loads the monthly routing export, then you’ll review and sign off on each technician here."}</p>
+      {canUpload && <div className="mt-4 flex justify-center"><UploadButton branch={branch} /></div>}
     </Card>
   );
 }

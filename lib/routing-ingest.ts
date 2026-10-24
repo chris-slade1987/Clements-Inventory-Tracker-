@@ -32,6 +32,40 @@ type MergedTech = {
   stops: ParsedStop[];
 };
 
+function periodLabelOf(periodKey: string): string {
+  const [y, m] = periodKey.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** Parse + classify WITHOUT writing — for the pre-upload confirmation step, so the
+ *  admin sees exactly what month, how many technicians/stops, and which branches
+ *  before committing (and that it will replace that month). */
+export async function previewRoutingReport(text: string): Promise<{
+  ok: boolean; error?: string; periodKey?: string; periodLabel?: string; techs?: number; stops?: number; branches?: { branch: string; techs: number; stops: number }[];
+}> {
+  const parsed = parseRoutingReport(text);
+  if (!parsed.techs.length) return { ok: false, error: "No technician sections found — is this the by-technician schedule export (sorted by Technician)?" };
+  if (!parsed.periodStart) return { ok: false, error: "Could not read the report's Start Date." };
+  const [py, pm] = parsed.periodStart.split("/").map(Number);
+  const periodKey = `${py}-${String(pm).padStart(2, "0")}`;
+  const profiles = await resolveRouteProfiles();
+  const byBranch = new Map<string, { techs: Set<string>; stops: number }>();
+  const seen = new Set<string>();
+  for (const t of parsed.techs) {
+    const key = normalizeRouteNumber(t.techNumber);
+    const prof = profiles.get(key);
+    if (prof?.kind === "exclude") continue;
+    const branch = prof?.branch || branchFromTechNumber(t.techNumber);
+    if (!byBranch.has(branch)) byBranch.set(branch, { techs: new Set(), stops: 0 });
+    const b = byBranch.get(branch)!;
+    b.techs.add(key);
+    b.stops += t.stops.length;
+    seen.add(key);
+  }
+  const branches = [...byBranch.entries()].map(([branch, v]) => ({ branch, techs: v.techs.size, stops: v.stops }));
+  return { ok: true, periodKey, periodLabel: periodLabelOf(periodKey), techs: seen.size, stops: parsed.totalStops, branches };
+}
+
 export async function ingestRoutingReport(opts: {
   text: string;
   fileName: string;

@@ -141,10 +141,25 @@ export async function getTechDays(routingMonthId: string, techName: string) {
   }));
 }
 
-/** Compact status for the Manager Checklist / rhythm (does not create the month). */
-export async function getRoutingSummary(branch: string, periodKey = currentRoutingPeriod()) {
-  const month = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch, periodKey } }, select: { status: true, id: true } }).catch(() => null);
-  if (!month) return { exists: false, loaded: false, signed: false, status: "open" as string };
+/** Periods (months) that actually have routing loaded for a branch, newest first —
+ *  drives the page's month selector and its default. */
+export async function listRoutingPeriods(branch: string): Promise<string[]> {
+  const months = await prisma.routingMonth.findMany({ where: { branch }, orderBy: { periodKey: "desc" }, select: { id: true, periodKey: true } }).catch(() => []);
+  const out: string[] = [];
+  for (const m of months) {
+    const n = await prisma.routeTechMonth.count({ where: { routingMonthId: m.id } }).catch(() => 0);
+    if (n > 0) out.push(m.periodKey);
+  }
+  return out;
+}
+
+/** Compact status for the Manager Checklist / rhythm (does not create the month).
+ *  Reflects the most recently LOADED month (routing is reviewed ahead of time), so
+ *  the My Branch row shows the month that's actually up for review. */
+export async function getRoutingSummary(branch: string, periodKey?: string) {
+  const pk = periodKey ?? (await listRoutingPeriods(branch))[0] ?? currentRoutingPeriod();
+  const month = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch, periodKey: pk } }, select: { status: true, id: true } }).catch(() => null);
+  if (!month) return { exists: false, loaded: false, signed: false, status: "open" as string, periodKey: pk };
   const techs = await prisma.routeTechMonth.count({ where: { routingMonthId: month.id } }).catch(() => 0);
-  return { exists: true, loaded: techs > 0, signed: month.status === "signed", status: month.status };
+  return { exists: true, loaded: techs > 0, signed: month.status === "signed", status: month.status, periodKey: pk };
 }

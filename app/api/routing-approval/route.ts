@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
-import { ingestRoutingReport } from "@/lib/routing-ingest";
+import { ingestRoutingReport, previewRoutingReport } from "@/lib/routing-ingest";
 import { ensureRoutingMonth, getRoutingOverview, getTechDays, currentRoutingPeriod } from "@/lib/routing";
 import { geocodeRoutingMonth } from "@/lib/geocode";
 import { branchLabel } from "@/lib/management";
@@ -24,6 +24,14 @@ export async function POST(req: Request) {
   const periodKey = str(body?.periodKey) ?? currentRoutingPeriod();
 
   try {
+    if (action === "preview") {
+      if (user.role !== "admin") return NextResponse.json({ error: "Only admins can load the monthly routing export." }, { status: 403 });
+      const text = typeof body?.text === "string" ? body.text : "";
+      if (!text.trim()) return NextResponse.json({ error: "Empty file." }, { status: 400 });
+      const r = await previewRoutingReport(text);
+      return NextResponse.json(r, { status: r.ok ? 200 : 400 });
+    }
+
     if (action === "upload") {
       // One export spans all four branches → admins/super-admins only.
       if (user.role !== "admin") return NextResponse.json({ error: "Only admins can load the monthly routing export." }, { status: 403 });
