@@ -120,6 +120,16 @@ export const PTO_NAV_ITEM: NavItem = {
   icon: "M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM9 14l2 2 4-4",
 };
 
+// Branch Command — the branch manager's weekly cockpit (fed scoreboard + AI
+// forced-feedback + attested sign-off). The primary weekly surface for managers;
+// a gauge/dashboard glyph. See docs/BRANCH-COMMAND.md.
+export const BRANCH_COMMAND_NAV_ITEM: NavItem = {
+  href: "/branch-command",
+  label: "Branch Command",
+  shortLabel: "Command",
+  icon: "M3 13a9 9 0 0118 0M12 13l4-3M12 13a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM5 19h14",
+};
+
 // Manager oversight checklists — the recurring weekly attested sign-offs.
 // Surfaced in the My Branch (manager) nav for managers/admins.
 export const CHECKLISTS_NAV_ITEM: NavItem = {
@@ -396,6 +406,7 @@ export const MANAGER_NAV: NavItem[] = [
     shortLabel: "Score",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
+  BRANCH_COMMAND_NAV_ITEM,
   CHECKLISTS_NAV_ITEM,
   SOPS_NAV_ITEM,
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):

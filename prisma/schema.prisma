@@ -3344,3 +3344,146 @@ model StoredFile {
 
   @@map("stored_files")
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Branch Command (CanopyOS) — the branch manager's weekly cockpit. Instead of
+// managers pulling/decoding PestPac reports, Canopy is FED the data (weekly
+// upload now; PestPac API / Claude routing feed later), shows a live scoreboard
+// across seven oversight domains, and the AI forces written feedback before the
+// week can be signed. Every metric is source-agnostic (upload|manual|api) so the
+// dashboard + AI never change when the feed source changes. See docs/BRANCH-COMMAND.md.
+// All models here are additive/defaulted/nullable → `prisma db push`-safe.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// One record per branch per ISO week — the container the scoreboard, per-tech
+// rows, uploads and findings hang off. Signed once reviewed (attestation + typed
+// signature), mirroring the ChecklistCompletion pattern.
+model BranchWeek {
+  id          String    @id @default(cuid())
+  branch      String // "vero" | "stuart" | "orlando" | "naples"
+  periodKey   String    @map("period_key") // ISO week, e.g. "2026-W44"
+  weekStart   DateTime  @map("week_start") // Monday 00:00 (America/New_York)
+  weekEnd     DateTime  @map("week_end") // Sunday 23:59
+  status      String    @default("open") // "open" | "in_review" | "signed"
+  itemResults String?   @map("item_results") // JSON: [{itemId,checked,note}] domain checkoffs
+  signedById  String?   @map("signed_by_id")
+  signedName  String?   @map("signed_name")
+  signedAt    DateTime? @map("signed_at")
+  attestation String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  uploads  WeeklyReportUpload[]
+  metrics  WeeklyMetric[]
+  techWeeks TechWeek[]
+  findings CommandFinding[]
+
+  @@unique([branch, periodKey])
+  @@index([branch])
+  @@index([periodKey])
+  @@map("branch_weeks")
+}
+
+// One uploaded PestPac export (production, cancellations, callbacks, schedule…),
+// parsed into WeeklyMetric / TechWeek rows. `payload` keeps the normalized parse
+// for audit / reparse. `source` on the resulting metrics is set to "upload".
+model WeeklyReportUpload {
+  id            String   @id @default(cuid())
+  branchWeekId  String   @map("branch_week_id")
+  reportKey     String   @map("report_key") // "production" | "cancellations" | "callbacks" | "unserviced" | "schedule" | ...
+  fileName      String   @map("file_name")
+  fileUrl       String?  @map("file_url") // stored via saveUpload (or StoredFile fallback)
+  status        String   @default("uploaded") // "uploaded" | "parsed" | "error"
+  parseError    String?  @map("parse_error")
+  rowCount      Int?     @map("row_count")
+  payload       String? // JSON normalized rows
+  uploadedById  String?  @map("uploaded_by_id")
+  uploadedByName String? @map("uploaded_by_name")
+  uploadedAt    DateTime @default(now()) @map("uploaded_at")
+
+  branchWeek BranchWeek @relation(fields: [branchWeekId], references: [id], onDelete: Cascade)
+
+  @@index([branchWeekId])
+  @@map("weekly_report_uploads")
+}
+
+// A normalized branch-level weekly number. Source-agnostic: upload now, PestPac
+// API / routing feed later, or manual entry. `status` colors the scoreboard chip.
+model WeeklyMetric {
+  id           String  @id @default(cuid())
+  branchWeekId String  @map("branch_week_id")
+  domain       String // "production" | "route" | "retention" | "technician" | "compliance" | "inventory" | "sales"
+  key          String // stable metric key, e.g. "production_mtd_vs_budget", "callback_rate", "stops_per_day"
+  label        String
+  value        Float?
+  displayValue String? @map("display_value") // preformatted ("$42,100", "92%")
+  target       Float?
+  unit         String? // "%" | "$" | "count" | "per_day" | ...
+  status       String  @default("info") // "good" | "warn" | "alarm" | "info"
+  source       String  @default("manual") // "upload" | "manual" | "api"
+  note         String?
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  branchWeek BranchWeek @relation(fields: [branchWeekId], references: [id], onDelete: Cascade)
+
+  @@unique([branchWeekId, key])
+  @@index([branchWeekId])
+  @@map("weekly_metrics")
+}
+
+// Per-technician weekly numbers — the unit of oversight. The manager must mark
+// each card reviewed (and add a note where a finding asks why) before signing.
+model TechWeek {
+  id               String   @id @default(cuid())
+  branchWeekId     String   @map("branch_week_id")
+  techName         String   @map("tech_name")
+  employeeId       String?  @map("employee_id")
+  routeNo          String?  @map("route_no")
+  production       Float?
+  productionTarget Float?   @map("production_target")
+  stops            Int?
+  stopsPerDay      Float?   @map("stops_per_day")
+  unserviced       Int?
+  cancellations    Int?
+  callbacks        Int?
+  callbackRate     Float?   @map("callback_rate")
+  status           String   @default("info") // "good" | "warn" | "alarm" | "info"
+  reviewed         Boolean  @default(false)
+  managerNote      String?  @map("manager_note")
+  metrics          String? // JSON: any extra per-tech numbers
+  source           String   @default("manual") // "upload" | "manual" | "api"
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  branchWeek BranchWeek @relation(fields: [branchWeekId], references: [id], onDelete: Cascade)
+
+  @@index([branchWeekId])
+  @@map("tech_weeks")
+}
+
+// An AI/rule-detected anomaly for the week. If `requiresResponse`, the manager
+// MUST answer `question` before the week can be signed — the forced-feedback loop.
+// Responses are retained and read back next week as learning context.
+model CommandFinding {
+  id               String    @id @default(cuid())
+  branchWeekId     String    @map("branch_week_id")
+  domain           String
+  severity         String    @default("warn") // "info" | "warn" | "alarm"
+  title            String
+  detail           String // the explanation of the anomaly
+  question         String? // the question the manager must answer
+  techName         String?   @map("tech_name") // set when tech-specific
+  requiresResponse Boolean   @default(true) @map("requires_response")
+  managerResponse  String?   @map("manager_response")
+  respondedById    String?   @map("responded_by_id")
+  respondedByName  String?   @map("responded_by_name")
+  respondedAt      DateTime? @map("responded_at")
+  status           String    @default("open") // "open" | "answered" | "dismissed"
+  source           String    @default("ai") // "ai" | "rule" | "manual"
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  branchWeek BranchWeek @relation(fields: [branchWeekId], references: [id], onDelete: Cascade)
+
+  @@index([branchWeekId])
+  @@index([status])
+  @@map("command_findings")
+}
