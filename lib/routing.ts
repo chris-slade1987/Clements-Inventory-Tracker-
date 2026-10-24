@@ -31,11 +31,18 @@ export type RoutingOverview = Awaited<ReturnType<typeof getRoutingOverview>>;
 
 export async function getRoutingOverview(branch: string, periodKey = currentRoutingPeriod()) {
   const month = await ensureRoutingMonth(branch, periodKey);
-  const [techRows, findingRows, upload] = await Promise.all([
+  const [techRows, findingRows, upload, dayRows] = await Promise.all([
     prisma.routeTechMonth.findMany({ where: { routingMonthId: month.id } }),
     prisma.routingFinding.findMany({ where: { routingMonthId: month.id }, orderBy: { createdAt: "asc" } }),
     prisma.routingUpload.findFirst({ where: { routingMonthId: month.id }, orderBy: { uploadedAt: "desc" } }),
+    prisma.routeDay.findMany({ where: { routingMonthId: month.id }, orderBy: { date: "asc" }, select: { techName: true, stopCount: true } }),
   ]);
+
+  const loadsByTech = new Map<string, number[]>();
+  for (const d of dayRows) {
+    if (!loadsByTech.has(d.techName)) loadsByTech.set(d.techName, []);
+    loadsByTech.get(d.techName)!.push(d.stopCount);
+  }
 
   const findingsByTech = new Map<string, typeof findingRows>();
   for (const f of findingRows) {
@@ -48,6 +55,8 @@ export async function getRoutingOverview(branch: string, periodKey = currentRout
       id: t.id,
       routeNo: t.routeNo,
       name: t.techName,
+      kind: t.kind,
+      partnerRouteNo: t.partnerRouteNo,
       totalDays: t.totalDays,
       totalStops: t.totalStops,
       totalDollars: t.totalDollars,
@@ -58,6 +67,7 @@ export async function getRoutingOverview(branch: string, periodKey = currentRout
       approved: t.approved,
       approvedNote: t.approvedNote,
       perStop: t.totalStops ? t.totalDollars / t.totalStops : 0,
+      loads: loadsByTech.get(t.techName) ?? [],
       findings: (findingsByTech.get(t.techName) ?? []).map((f) => ({
         id: f.id,
         severity: f.severity,

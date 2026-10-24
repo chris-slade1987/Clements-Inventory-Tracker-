@@ -121,6 +121,8 @@ export async function ingestRoutingReport(opts: {
         avgStopsPerDay: m.avg,
         estMiles: m.estMiles,
         estDriveMinutes: m.estDriveMin,
+        kind: t.kind,
+        partnerRouteNo: t.partner,
         status,
         source: "upload",
       });

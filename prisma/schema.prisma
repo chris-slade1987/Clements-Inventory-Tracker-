@@ -3556,6 +3556,8 @@ model RouteTechMonth {
   avgStopsPerDay  Float?    @map("avg_stops_per_day")
   estMiles        Float?    @map("est_miles")
   estDriveMinutes Float?    @map("est_drive_minutes")
+  kind            String    @default("route") // "route" | "commercial" | "senior"
+  partnerRouteNo  String?   @map("partner_route_no")
   status          String    @default("info") // "good" | "warn" | "alarm" | "info"
   approved        Boolean   @default(false)
   approvedNote    String?   @map("approved_note")

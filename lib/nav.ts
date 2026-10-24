@@ -130,6 +130,15 @@ export const BRANCH_COMMAND_NAV_ITEM: NavItem = {
   icon: "M3 13a9 9 0 0118 0M12 13l4-3M12 13a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM5 19h14",
 };
 
+// Routing Approval — the monthly proactive routing review + per-technician sign-off
+// (first week of the month). A My Branch (manager) responsibility. Map-pin glyph.
+export const ROUTING_NAV_ITEM: NavItem = {
+  href: "/routing-approval",
+  label: "Routing Approval",
+  shortLabel: "Routing",
+  icon: "M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11zM12 12a2 2 0 100-4 2 2 0 000 4z",
+};
+
 // Manager oversight checklists — the recurring weekly attested sign-offs.
 // Surfaced in the My Branch (manager) nav for managers/admins.
 export const CHECKLISTS_NAV_ITEM: NavItem = {
@@ -407,6 +416,7 @@ export const MANAGER_NAV: NavItem[] = [
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   BRANCH_COMMAND_NAV_ITEM,
+  ROUTING_NAV_ITEM,
   SOPS_NAV_ITEM,
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):
   // company-wide for admins/super admins, own-branch read-only for branch managers.
