@@ -3583,7 +3583,6 @@ model RouteDay {
   status          String   @default("info")
 
   routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
-  stops        RouteStop[]
 
   @@index([routingMonthId])
   @@index([routingMonthId, techName])
@@ -3591,21 +3590,24 @@ model RouteDay {
 }
 
 model RouteStop {
-  id             String  @id @default(cuid())
-  routingMonthId String  @map("routing_month_id")
-  routeDayId     String  @map("route_day_id")
+  id             String   @id @default(cuid())
+  routingMonthId String   @map("routing_month_id")
+  techName       String   @map("tech_name")
+  date           DateTime // service day
   seq            Int // stop order within the day (1..x)
+  service        String?
   customer       String?
   address        String?
+  city           String?
+  zip            String?
   lat            Float?
   lng            Float?
   dollars        Float?
 
   routingMonth RoutingMonth @relation(fields: [routingMonthId], references: [id], onDelete: Cascade)
-  routeDay     RouteDay     @relation(fields: [routeDayId], references: [id], onDelete: Cascade)
 
-  @@index([routeDayId])
   @@index([routingMonthId])
+  @@index([routingMonthId, techName])
   @@map("route_stops")
 }
 
