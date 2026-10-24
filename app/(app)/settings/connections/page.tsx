@@ -9,6 +9,7 @@ import {
   type ConnStatus,
   type ConnectorHealth,
 } from "@/lib/connections-health";
+import TestEmailButton from "./TestEmailButton";
 
 // Super-admin-only, read-only health board for every external data connector
 // (Theme 8 — the integration spine). Self-guarded with canManageAccessRights
@@ -152,6 +153,8 @@ function ConnectorCard({ c }: { c: ConnectorHealth }) {
           ))}
         </div>
       ) : null}
+
+      {c.key === "email" ? <TestEmailButton configured={c.live} /> : null}
     </Card>
   );
 }
