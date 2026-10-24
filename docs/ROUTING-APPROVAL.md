@@ -105,6 +105,24 @@ Seeded defaults (confirmed 2026-10-24): route 17 = BRIAN (alias NATHAN); GUS 19 
 (included, not efficiency-graded). These are the first entries in the knowledge layer; the
 confirm-once matching UI grows it over time.
 
+## Interactive optimization & the PestPac change-set (manager/admin)
+
+Routing Approval is not just a review surface — managers/admins/super-admins can **act** on it:
+
+- **Ask for insights / optimize.** The manager can ask Canopy to "build a more efficient day,
+  week, or month." The AI proposes a rebalanced schedule that evens daily load and cuts the
+  heaviest days (reducing overtime / late-stop risk), with before→after balance, heaviest-day,
+  and modeled drive/overtime deltas.
+- **Lock jobs in place.** Any stop a customer requires on a specific day/time is **locked**;
+  the optimizer reworks everything else **around the locks** and never moves a locked job.
+- **Proposed summary of changes → PestPac.** The output is a concrete change set ("move
+  <customer> from Tue 11/10 → Mon 11/23"), reviewable, with a one-click **export** the routing
+  dept implements in PestPac. (Phase: a direct PestPac write-back is a later integration; the
+  first version produces the reviewed change list + export.)
+
+Everything stays human-in-the-loop: the AI proposes, the manager approves per technician, and
+nothing changes in PestPac without an explicit, reviewed export.
+
 ## Fuel forecast (the routing ↔ fuel ↔ $ story)
 
 Once routes are geocoded, each tech-month yields **estimated miles**. Combined with
