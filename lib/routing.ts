@@ -159,7 +159,10 @@ export async function listRoutingPeriods(branch: string): Promise<string[]> {
 export async function getRoutingSummary(branch: string, periodKey?: string) {
   const pk = periodKey ?? (await listRoutingPeriods(branch))[0] ?? currentRoutingPeriod();
   const month = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch, periodKey: pk } }, select: { status: true, id: true } }).catch(() => null);
-  if (!month) return { exists: false, loaded: false, signed: false, status: "open" as string, periodKey: pk };
-  const techs = await prisma.routeTechMonth.count({ where: { routingMonthId: month.id } }).catch(() => 0);
-  return { exists: true, loaded: techs > 0, signed: month.status === "signed", status: month.status, periodKey: pk };
+  if (!month) return { exists: false, loaded: false, signed: false, status: "open" as string, periodKey: pk, techs: 0, approved: 0 };
+  const [techs, approved] = await Promise.all([
+    prisma.routeTechMonth.count({ where: { routingMonthId: month.id } }).catch(() => 0),
+    prisma.routeTechMonth.count({ where: { routingMonthId: month.id, approved: true } }).catch(() => 0),
+  ]);
+  return { exists: true, loaded: techs > 0, signed: month.status === "signed", status: month.status, periodKey: pk, techs, approved };
 }

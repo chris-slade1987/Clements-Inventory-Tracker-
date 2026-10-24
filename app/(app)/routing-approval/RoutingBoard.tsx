@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import AskCanopy from "@/components/AskCanopy";
 
 const MPG = 18, GAS = 3.45;
 const SC: Record<string, string> = { good: "#1F7A45", warn: "#E3B23C", alarm: "#DC2626", info: "#5c6b62" };
@@ -203,6 +204,14 @@ function FocusCard(props: FocusProps) {
         <span className="text-xs text-muted tabular-nums">Route {sel.routeNo}</span>
         <KindChip kind={sel.kind} />
         {sel.partnerRouteNo && <span className="text-xs text-muted">paired with route {sel.partnerRouteNo}</span>}
+        <span className="ml-auto">
+          <AskCanopy
+            variant="button"
+            label="Ask Canopy about this route"
+            task={`Help me review and improve route ${sel.routeNo} (${sel.name})'s monthly routing. What stands out, and how could the days be balanced or made more efficient? I can lock jobs that must stay.`}
+            context={`Routing Approval · ${sel.name} (route ${sel.routeNo}, ${sel.kind}) · ${sel.totalStops} stops over ${sel.totalDays} days · avg ${sel.avgStopsPerDay}/day · daily loads [${sel.loads.join(", ")}] · status ${sel.status}`}
+          />
+        </span>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
@@ -374,7 +383,13 @@ function Optimize({ sel, days, locks, proposal, setProposal, changeset, setChang
       <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">Optimize &amp; propose</div>
       <p className="mt-0.5 text-xs text-muted">Lock the jobs that can&apos;t move (a customer&apos;s required day/time), then let Canopy rebalance the rest into a PestPac-ready change set.</p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button onClick={run} className={btn.secondary}>Ask Canopy to rebalance {sel.name}&apos;s month</button>
+        <button onClick={run} className={btn.secondary}>Rebalance {sel.name}&apos;s month</button>
+        <AskCanopy
+          variant="button"
+          label="Ask Canopy to rework it a specific way"
+          task={`Rework route ${sel.routeNo} (${sel.name})'s routing to my needs. Tell me what you'd change and why, then help me build a change set for PestPac. For example I might need a customer kept on a specific day, two techs' territories swapped, or a lighter Friday.`}
+          context={`Route ${sel.routeNo} ${sel.name} · daily loads [${sel.loads.join(", ")}] · ${nloc} job(s) locked`}
+        />
         <span className="text-xs text-muted">{nloc} job{nloc === 1 ? "" : "s"} locked.</span>
       </div>
       {proposal && proposal.moves.length === 0 && <p className="mt-2 text-sm text-muted">{sel.name}&apos;s month is already well balanced — no moves proposed.</p>}

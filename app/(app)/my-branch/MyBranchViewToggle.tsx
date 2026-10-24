@@ -8,7 +8,7 @@ export default function MyBranchViewToggle({
   view,
   branchQuery = "",
 }: {
-  view: "todos" | "kpis";
+  view: "todos" | "kpis" | "routes";
   branchQuery?: string;
 }) {
   const cell = (active: boolean) =>
@@ -22,6 +22,9 @@ export default function MyBranchViewToggle({
       </Link>
       <Link href={`/management${branchQuery}`} className={cell(view === "kpis")}>
         KPIs
+      </Link>
+      <Link href={`/routing-approval${branchQuery}`} className={cell(view === "routes")}>
+        Routes
       </Link>
     </div>
   );

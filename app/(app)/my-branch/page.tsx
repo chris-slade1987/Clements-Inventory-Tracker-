@@ -267,7 +267,11 @@ export default async function MyBranchPage({
               label: "Routing Approval",
               href: `/routing-approval?branch=${scBranch}`,
               done: routingSummary.signed,
-              status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : "Review & sign each tech",
+              status: !routingSummary.loaded
+                ? "Routing not loaded yet"
+                : routingSummary.signed
+                  ? "Signed off"
+                  : `${routingSummary.approved}/${routingSummary.techs} techs approved`,
               cadence: "Monthly" as const,
               due: endOfMonth(now),
               dueLabel: endOfMonthLabel(now),

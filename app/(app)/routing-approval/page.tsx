@@ -5,6 +5,7 @@ import { branchLabel, BRANCHES } from "@/lib/management";
 import { PageHeader } from "@/components/ui";
 import { getRoutingOverview, currentRoutingPeriod, listRoutingPeriods } from "@/lib/routing";
 import RoutingBoard from "./RoutingBoard";
+import MyBranchViewToggle from "../my-branch/MyBranchViewToggle";
 
 // Routing Approval — monthly proactive routing review + per-technician sign-off.
 // Managers see their branch; admins switch branches + load the monthly export.
@@ -36,6 +37,7 @@ export default async function RoutingApprovalPage({ searchParams }: { searchPara
 
   return (
     <div className="space-y-5">
+      <MyBranchViewToggle view="routes" branchQuery={branch ? `?branch=${branch}` : ""} />
       <PageHeader
         title="Routing Approval"
         subtitle={`${branchLabel(branch)} · ${periodLabel(periodKey)} — review each technician's routing, then sign.`}
