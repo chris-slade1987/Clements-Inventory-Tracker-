@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui";
+import ResendReportButton from "./ResendReportButton";
 import {
   CONDITION_ITEMS,
   RATING_SCALE,
@@ -34,6 +35,13 @@ const gradeChip = (grade: string) => {
   return `inline-grid h-9 w-9 place-items-center rounded-full text-base font-bold ${c}`;
 };
 
+const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex justify-between gap-4 py-1 text-sm">
+    <span className="text-muted">{label}</span>
+    <span className="text-ink text-right">{value}</span>
+  </div>
+);
+
 export default function InspectionReport({
   vehicleId,
   vlabel,
@@ -55,13 +63,6 @@ export default function InspectionReport({
   const ratingLabel = (v: number) => RATING_SCALE.find((r) => r.value === v)?.short ?? "—";
   const photoByKind = new Map(i.photos.map((p) => [p.kind, p.photoUrl]));
   const oilMonth = i.oilChangeNext ? i.oilChangeNext.toLocaleString("en-US", { month: "long", year: "numeric" }) : null;
-
-  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="flex justify-between gap-4 py-1 text-sm">
-      <span className="text-muted">{label}</span>
-      <span className="text-ink text-right">{value}</span>
-    </div>
-  );
 
   return (
     <Card className="p-5">
@@ -145,13 +146,14 @@ export default function InspectionReport({
       </div>
 
       {canEdit ? (
-        <div className="mt-5 print:hidden">
+        <div className="mt-5 flex flex-wrap items-start gap-2 print:hidden">
           <Link
             href={`/fleet/${vehicleId}/inspect`}
             className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-black/5"
           >
             Edit inspection
           </Link>
+          <ResendReportButton inspectionId={i.id} />
         </div>
       ) : null}
     </Card>
