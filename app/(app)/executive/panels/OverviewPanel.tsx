@@ -9,6 +9,7 @@ import BranchDashboard, { type DBasis } from "@/components/BranchDashboard";
 import BranchQuarters from "@/components/BranchQuarters";
 import { teamFunnel } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
+import { getProductionRollup } from "@/lib/branch-production-ingest";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
 
@@ -36,6 +37,10 @@ export async function OverviewPanel({
   const scope: Scope = (isCompany ? "company" : branch) as Scope;
   const branchQuery = branch ? `?branch=${branch}` : "";
   const scopeLabel = isCompany ? "All branches" : branchLabel(branch!);
+
+  // Route-completion rollup for leadership — surfaces the Branch Command completion
+  // signal where execs look, deep-linking into each branch's command center.
+  const prodRollup = !locked ? await getProductionRollup(BRANCHES.map((b) => b.key)) : null;
 
   const periods = await listPeriods();
   if (periods.length === 0) {
@@ -116,6 +121,30 @@ export async function OverviewPanel({
 
       <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
       {selector}
+
+      {prodRollup && prodRollup.some((r) => r.periodKey) ? (
+        <div className="mb-4 rounded-xl border border-line bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-wide text-muted">Route completion · all branches</div>
+            <Link href="/branch-command" className="text-xs font-medium text-brand-700 hover:underline">Open Branch Command →</Link>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {prodRollup.map((r) => (
+              <Link key={r.branch} href={`/branch-command?branch=${r.branch}`} className="rounded-lg border border-line p-3 hover:bg-black/[0.02]">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-ink">{branchLabel(r.branch)}</span>
+                  <span className="text-lg font-light tabular-nums text-ink">{r.periodKey ? `${r.completionPct}%` : "—"}</span>
+                </div>
+                {r.periodKey ? (
+                  <div className="mt-1 text-[11px] text-muted">
+                    <span className={r.leftBehind > 0 ? "text-red-600" : ""}>{r.leftBehind} left behind</span> · {r.callbacks} callbacks
+                  </div>
+                ) : <div className="mt-1 text-[11px] text-muted">No month loaded</div>}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <KpiSummaryButton scope={scope} p={periodKey} basis={basisParam === "month" ? "month" : "ytd"} forecastBasis={basisParam === "cy_forecast"} label={isCompany ? "AI company summary" : "AI branch summary"} />
 
