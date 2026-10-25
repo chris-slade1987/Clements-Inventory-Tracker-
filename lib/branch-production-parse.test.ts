@@ -2,7 +2,7 @@
 // Run: npx tsx --test lib/branch-production-parse.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseProductionReport, parseAppointmentList, parseUnservicedReport, parseGainLossReport } from "./branch-production-parse";
+import { parseProductionReport, parseAppointmentList, parseUnservicedReport, parseGainLossReport, parseCallbackReport } from "./branch-production-parse";
 
 const T = (rows: string[][]) => rows.map((r) => r.join("\t")).join("\n");
 
@@ -71,4 +71,16 @@ test("parseGainLossReport tracks route context, gains/losses/net", () => {
   assert.equal(gain.gainsCount, 1);
   assert.equal(gain.gainsValue, 1050);
   assert.equal(gain.net, 1050);
+});
+
+test("parseCallbackReport reads callback events, skips group/totals", () => {
+  const text = T([
+    ["Technician: 01 JOSH"],
+    ["Location", "Name", "City", "Route", "Work Date", "Service Code", "Description"],
+    ["100739", "2300 Ocean Drive LLC", "Vero Beach", "01", "2026/10/15", "3-callback", "CALLBACK SERVICE"],
+    ["Totals Technician: 01 JOSH", "", "", "2"],
+  ]);
+  const rows = parseCallbackReport(text);
+  assert.equal(rows.length, 1);
+  assert.deepEqual(rows[0], { account: "100739", name: "2300 Ocean Drive LLC", city: "Vero Beach", route: "01", date: "2026-10-15", serviceCode: "3-CALLBACK", description: "CALLBACK SERVICE" });
 });

@@ -12,6 +12,7 @@ export type CompletedService = { account: string; date: string; service: string;
 export type OpenAppt = { account: string; date: string; service: string; route: string; techName: string; dollars: number };
 export type UnservicedOrder = { account: string; date: string; service: string; route: string; techName: string; dollars: number; name: string };
 export type RouteGainLoss = { account: string; service: string; route: string; techName: string; gainsCount: number; gainsValue: number; lossCount: number; lossValue: number; net: number };
+export type CallbackRow = { account: string; name: string; city: string; route: string; date: string; serviceCode: string; description: string };
 
 /**
  * Technician Production Report → completed services. Columns (0-indexed after the
@@ -98,6 +99,25 @@ export function parseGainLossReport(text: string): RouteGainLoss[] {
       account: col0, service: (c[1] || "").trim().toUpperCase(), route, techName: tech,
       gainsCount: int(c[2]), gainsValue: money(c[3]), lossCount: int(c[4]), lossValue: money(c[5]), net: money(c[8]),
     });
+  }
+  return out;
+}
+
+/**
+ * Call Back Report → re-service / callback events (quality + at-risk accounts). Data
+ * rows: 0 Location(account) · 1 Name · 2 City · 3 Route · 4 Work Date · 5 Service Code ·
+ * 6 Description. Group/"Totals ..."/header lines are skipped (no account+date).
+ */
+export function parseCallbackReport(text: string): CallbackRow[] {
+  const lines = text.split(/\r?\n/);
+  const out: CallbackRow[] = [];
+  for (const line of lines) {
+    const c = line.split("\t");
+    const account = (c[0] || "").trim();
+    if (!/^\d/.test(account)) continue;
+    const date = isoDate(c[4] || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    out.push({ account, name: (c[1] || "").trim(), city: (c[2] || "").trim(), route: (c[3] || "").trim(), date, serviceCode: (c[5] || "").trim().toUpperCase(), description: (c[6] || "").trim() });
   }
   return out;
 }
