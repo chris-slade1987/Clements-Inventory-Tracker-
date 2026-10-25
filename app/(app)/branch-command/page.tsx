@@ -189,7 +189,7 @@ export default async function BranchCommandPage({
           branch={branch}
           periodKey={prod?.periodKey ?? null}
           routes={(prod?.routes ?? []).map((r) => ({
-          route: r.route, techName: r.techName, scheduledCount: r.scheduledCount, completedCount: r.completedCount,
+          route: r.route, techName: r.techName, scheduledCount: r.scheduledCount, scheduledDollars: r.scheduledDollars, completedCount: r.completedCount,
           completionPct: r.completionPct, expectedPct: r.expectedPct, status: r.status, leftBehindCount: r.leftBehindCount,
           leftBehindDollars: r.leftBehindDollars, remainingCount: r.remainingCount, projectedPct: r.projectedPct,
           callbacks: r.callbacks, netRouteChange: r.netRouteChange, netRouteChangeDollars: r.netRouteChangeDollars,

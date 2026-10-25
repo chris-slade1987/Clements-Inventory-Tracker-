@@ -156,22 +156,22 @@ export function scopedBranch(user: SessionUser, requested: string | null): strin
 export function homePath(user: SessionUser): string {
   // Board observers live entirely in the executive views — send them home there.
   if (isBoardObserver(user)) return "/management/board";
-  // The Sales Director lands on the cross-branch Sales Team hub.
-  if (user.accessLevel === "sales_director") return "/sales";
+  // The Sales Director (Howard Cohn) lands on the cross-branch Sales Team hub —
+  // matched by access level OR email so he always lands there even if the level isn't set.
+  if (user.accessLevel === "sales_director" || (user.email ?? "").toLowerCase() === (process.env.SALES_DIRECTOR_EMAIL || "hcohn@clementspestcontrol.com")) return "/sales";
   // HR flag holders land on the HR Command Center — including April, who is also
   // an admin (plain admins/super admins without the HR flag fall through below).
   if (user.hrAccess) return "/hr";
   // The Director of Field Operations lands on the Field Ops command center
   // (even though he's a full admin — his day-to-day home is field oversight).
   if (isFieldOpsDirector(user)) return "/field-ops";
+  // TODO(technicians): route field technicians to a dedicated route/tech dashboard
+  // once its target + identification are confirmed. For now they use the employee hub.
   if (user.role === "employee") return "/me";
-  // Leadership (senior leadership + company-wide admins like the COO, who carry no
-  // home branch) land on the consolidated Executive dashboard — their "what needs me"
-  // home — instead of the manager My Dashboard.
-  if ((user.seniorLeadership || user.role === "admin") && !user.branch) return "/executive";
-  // Branch managers (and any branch-assigned admin) land on the Company → My Dashboard
-  // home (`/my-branch`), which renders their branch with the To-dos/KPIs/Routes/Command
-  // toggle — not the Inventory dashboard, which is just one tool among many.
+  // Everyone else — admins, senior leadership, and branch managers — lands on the
+  // Company → My Dashboard home (`/my-branch`): their branch (or company-wide for a
+  // no-branch admin) with the To-dos/KPIs/Routes/Command toggle. This is the global
+  // default, not the Inventory or Executive dashboard.
   return "/my-branch";
 }
 

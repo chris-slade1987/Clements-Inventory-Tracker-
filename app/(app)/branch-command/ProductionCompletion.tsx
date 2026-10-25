@@ -11,7 +11,7 @@ import { rampColor } from "@/components/motivation";
 
 export type RouteRow = {
   route: string; techName: string | null;
-  scheduledCount: number; completedCount: number; completionPct: number;
+  scheduledCount: number; scheduledDollars: number; completedCount: number; completionPct: number;
   expectedPct: number; status: string; leftBehindCount: number; leftBehindDollars: number;
   remainingCount: number; projectedPct: number; callbacks: number;
   netRouteChange: number; netRouteChangeDollars: number;
@@ -50,10 +50,11 @@ export default function ProductionCompletion({
         <>
           {/* Per-route table (headline totals live in the command hero above) */}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="text-[11px] uppercase tracking-wide text-muted">
                   <th className="px-3 py-2 text-left">Route</th>
+                  <th className="px-3 py-2 text-right">Scheduled $</th>
                   <th className="px-3 py-2 text-right">Done / Sched</th>
                   <th className="px-3 py-2 text-right">Comp%</th>
                   <th className="px-3 py-2 text-center">Pace</th>
@@ -67,6 +68,7 @@ export default function ProductionCompletion({
                 {routes.map((r) => (
                   <tr key={r.route} className={`border-t border-line ${routeFilter === r.route ? "bg-brand-50/50" : ""}`}>
                     <td className="px-3 py-2"><span className="font-medium">{r.route}</span> <span className="text-xs text-muted">{r.techName}</span></td>
+                    <td className="px-3 py-2 text-right tabular-nums font-medium">{money(r.scheduledDollars)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{r.completedCount}/{r.scheduledCount}</td>
                     <td className="px-3 py-2">
                       <div className="flex items-center justify-end gap-2">
