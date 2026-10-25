@@ -186,7 +186,7 @@ export type TerritoryView = {
   label: string;
   risk: RiskLevel;
   flags: Flag[];
-  current: { tempF: number | null; short: string; windMph: number | null; pop: number | null } | null;
+  current: { tempF: number | null; short: string; windMph: number | null; pop: number | null; humidity: number | null } | null;
   hourly: HourPoint[];
   daily: DayPoint[];
   alerts: WxAlert[];
@@ -202,7 +202,7 @@ function currentConditions(hourly: HourPoint[], date: string): TerritoryView["cu
   const now = Date.now();
   const upcoming = hourly.find((h) => new Date(h.time).getTime() >= now - 30 * 60 * 1000) ?? hourly[0];
   void date;
-  return { tempF: upcoming.tempF, short: upcoming.short, windMph: upcoming.windMph, pop: upcoming.pop };
+  return { tempF: upcoming.tempF, short: upcoming.short, windMph: upcoming.windMph, pop: upcoming.pop, humidity: upcoming.humidity };
 }
 
 /** Dedup flags across a territory's points, keeping the worst level per code. */

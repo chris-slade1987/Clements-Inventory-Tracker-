@@ -15,7 +15,7 @@ type Territory = {
   label: string;
   risk: RiskLevel;
   flags: Flag[];
-  current: { tempF: number | null; short: string; windMph: number | null; pop: number | null } | null;
+  current: { tempF: number | null; short: string; windMph: number | null; pop: number | null; humidity: number | null } | null;
   daily: { name: string; isDaytime: boolean; tempF: number | null; short: string; pop: number | null; icon: string | null }[];
   alerts: { event: string; headline: string }[];
   briefing: BriefingContent | null;
@@ -106,6 +106,7 @@ function ManagerCard({ t }: { t: Territory }) {
           <div className="mt-0.5 text-xs text-muted">
             {t.current?.windMph != null ? `Wind ${t.current.windMph} mph` : ""}
             {t.current?.pop != null ? ` · ${t.current.pop}% rain` : ""}
+            {t.current?.humidity != null ? ` · ${t.current.humidity}% humidity` : ""}
           </div>
         </div>
         <RiskBadge risk={t.risk} />

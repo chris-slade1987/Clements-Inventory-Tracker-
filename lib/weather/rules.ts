@@ -34,6 +34,23 @@ export function localDate(iso: string): string {
   return iso.slice(0, 10);
 }
 
+// Clements cares about land weather that affects outdoor service + driving: rain,
+// heat, thunder/lightning, wind, tropical systems, and temperature (freeze/cold).
+// Coastal/marine/aquatic/astronomical alerts (rip currents, surf, beach hazards,
+// coastal/lakeshore flooding, small craft, marine, storm surge, tsunami, air quality)
+// are irrelevant noise and must NOT drive the risk — so we drop them before the rules
+// ever see them. Exclusions win over inclusions (e.g. "Coastal Flood" is dropped even
+// though it contains "flood"). Pure + exported so nws.ts filters and tests can assert.
+const ALERT_EXCLUDE = /rip current|rip tide|surf|beach|coastal flood|lakeshore|marine|small craft|hazardous seas|gale|storm surge|tsunami|ashfall|volcan|low water|seiche|swim|air quality|dense smoke|freezing spray/i;
+const ALERT_INCLUDE = /thunderstorm|tornado|lightning|flood|wind|heat|hurricane|tropical|freeze|frost|cold|winter|ice|fog|dust/i;
+
+/** True when an NWS alert event is operationally relevant to the branch (see above). */
+export function isOperationalAlert(event: string): boolean {
+  const e = (event ?? "").toLowerCase();
+  if (ALERT_EXCLUDE.test(e)) return false;
+  return ALERT_INCLUDE.test(e);
+}
+
 function isWarningEvent(e: string): boolean {
   return /\bwarning\b/i.test(e);
 }

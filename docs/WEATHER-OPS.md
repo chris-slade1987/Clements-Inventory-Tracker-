@@ -39,6 +39,13 @@ centers (`DEFAULT_LOCATIONS` in `lib/weather/service.ts`), admin-editable afterw
   never change, so they're resolved **once on first fetch** and cached on the
   `WeatherLocation` row (no seed-time call — the sandbox can't reach NWS anyway).
 - Wind comes back as strings ("5 to 10 mph") — parsed to the **high end**.
+- **Alerts are filtered to land weather only** (`isOperationalAlert` in `rules.ts`):
+  thunderstorm, tornado, flood/flash-flood, wind, heat, tropical/hurricane, freeze/cold,
+  fog. Coastal/marine/aquatic/astronomical alerts (rip current, high surf, beach
+  hazards, coastal/lakeshore flood, small craft, marine, storm surge, tsunami, air
+  quality) are dropped **before the rules run**, so they never show and never force a
+  red day. The branch cares about rain, heat, thunder/lightning, humidity, temperature,
+  and wind — hourly data carries temp, rain %, **humidity %**, and wind.
 - Every call retries with backoff (3 tries); on failure the last good snapshot is
   served with a **stale badge** — never an empty tile.
 

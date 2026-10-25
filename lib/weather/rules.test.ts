@@ -2,7 +2,7 @@
 // Run: npx tsx --test lib/weather/rules.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { computeFlags, riskLevel, grade, resolveThresholds, inBlackout, DEFAULT_THRESHOLDS } from "./rules";
+import { computeFlags, riskLevel, grade, resolveThresholds, inBlackout, isOperationalAlert, DEFAULT_THRESHOLDS } from "./rules";
 import type { GridData, HourPoint, RulesInput, WxAlert } from "./types";
 
 const DATE = "2026-07-15";
@@ -15,6 +15,7 @@ function hr(hour: number, over: Partial<HourPoint> = {}): HourPoint {
     time: `${DATE}T${hh}:00:00-04:00`,
     tempF: 88,
     pop: 0,
+    humidity: 60,
     windMph: 5,
     windDir: "E",
     gustMph: 8,
@@ -149,6 +150,23 @@ test("custom threshold changes the flag outcome", () => {
   const i = input({ hourly: [hr(14, { pop: 45 })] });
   assert.ok(!codes(i).includes("RAIN_WINDOW")); // default 50
   assert.ok(computeFlags(i, resolveThresholds({ rainPopPct: 40 })).some((f) => f.code === "RAIN_WINDOW"));
+});
+
+test("isOperationalAlert keeps land weather, drops coastal/marine noise", () => {
+  // Keep — operationally relevant
+  for (const e of ["Severe Thunderstorm Warning", "Tornado Warning", "Flood Watch", "Flash Flood Warning", "High Wind Warning", "Wind Advisory", "Excessive Heat Warning", "Heat Advisory", "Hurricane Warning", "Tropical Storm Watch", "Freeze Warning", "Dense Fog Advisory"]) {
+    assert.ok(isOperationalAlert(e), `should keep: ${e}`);
+  }
+  // Drop — coastal/marine/aquatic/astronomical noise
+  for (const e of ["Rip Current Statement", "High Surf Advisory", "Coastal Flood Warning", "Small Craft Advisory", "Beach Hazards Statement", "Marine Weather Statement", "Storm Surge Warning", "Lakeshore Flood Advisory", "Air Quality Alert", "Hazardous Seas Warning"]) {
+    assert.ok(!isOperationalAlert(e), `should drop: ${e}`);
+  }
+});
+
+test("a coastal-only warning no longer forces a red day (filtered out upstream)", () => {
+  // Rip Current / High Surf never reach the rules, so the day stays green.
+  const i = input({ alerts: [alert("High Surf Warning")].filter((a) => isOperationalAlert(a.event)) });
+  assert.equal(grade(i, T).risk, "green");
 });
 
 test("inBlackout handles normal and year-wrapping windows", () => {

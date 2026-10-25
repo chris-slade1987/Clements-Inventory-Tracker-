@@ -8,6 +8,7 @@ export type HourPoint = {
   time: string; // ISO with local offset, e.g. "2026-10-24T07:00:00-04:00"
   tempF: number | null;
   pop: number; // precipitation probability 0–100
+  humidity: number | null; // relative humidity %
   windMph: number | null; // high end of the sustained-wind range
   windDir: string | null;
   gustMph: number | null;

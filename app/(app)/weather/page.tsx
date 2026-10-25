@@ -185,6 +185,7 @@ function TerritoryDetail({ t }: { t: TerritoryView }) {
                     <div className="text-[10px] text-muted">{hourLabel(h.time)}</div>
                     <div className="mt-0.5 text-sm font-light tabular-nums">{h.tempF != null ? `${h.tempF}°` : "—"}</div>
                     <div className="text-[10px] text-brand-600">{h.pop}%</div>
+                    <div className="text-[10px] text-muted">{h.humidity != null ? `${h.humidity}%rh` : ""}</div>
                     <div className="text-[10px] text-muted">{h.windMph != null ? `${h.windMph}mph` : ""}</div>
                   </div>
                 );

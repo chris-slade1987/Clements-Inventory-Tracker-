@@ -1,5 +1,6 @@
 import "server-only";
 import type { DayPoint, GridData, HourPoint, WxAlert } from "./types";
+import { isOperationalAlert } from "./rules";
 
 // Weather Ops — the data-source client. Free sources only, no API keys:
 //   • National Weather Service (api.weather.gov) — points, hourly, daily, grid, alerts
@@ -82,6 +83,7 @@ type NwsPeriod = {
   temperature: number | null;
   temperatureUnit: string;
   probabilityOfPrecipitation?: { value: number | null } | null;
+  relativeHumidity?: { value: number | null } | null;
   windSpeed?: string | null;
   windDirection?: string | null;
   shortForecast: string;
@@ -95,6 +97,7 @@ export async function fetchHourly(url: string): Promise<HourPoint[]> {
     time: p.startTime,
     tempF: p.temperature ?? null,
     pop: p.probabilityOfPrecipitation?.value ?? 0,
+    humidity: p.relativeHumidity?.value ?? null,
     windMph: parseWindHigh(p.windSpeed),
     windDir: p.windDirection ?? null,
     gustMph: null, // gusts come from the gridpoint feed
@@ -199,14 +202,16 @@ export async function fetchAlerts(lat: number, lon: number): Promise<WxAlert[]> 
   const data = await getJson<{
     features: { properties: { event: string; severity: string; headline?: string; description?: string; onset?: string | null; ends?: string | null } }[];
   }>(`https://api.weather.gov/alerts/active?point=${lat.toFixed(4)},${lon.toFixed(4)}`);
-  return (data.features ?? []).map((f) => ({
-    event: f.properties.event,
-    severity: f.properties.severity ?? "Unknown",
-    headline: f.properties.headline ?? f.properties.event,
-    description: (f.properties.description ?? "").slice(0, 2000),
-    onset: f.properties.onset ?? null,
-    ends: f.properties.ends ?? null,
-  }));
+  return (data.features ?? [])
+    .filter((f) => isOperationalAlert(f.properties.event)) // drop coastal/marine/aquatic noise
+    .map((f) => ({
+      event: f.properties.event,
+      severity: f.properties.severity ?? "Unknown",
+      headline: f.properties.headline ?? f.properties.event,
+      description: (f.properties.description ?? "").slice(0, 2000),
+      onset: f.properties.onset ?? null,
+      ends: f.properties.ends ?? null,
+    }));
 }
 
 /**
