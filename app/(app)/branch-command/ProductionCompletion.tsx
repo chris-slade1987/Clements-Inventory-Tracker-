@@ -48,17 +48,7 @@ export default function ProductionCompletion({
         </div>
       ) : (
         <>
-          {/* Totals strip */}
-          <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4 lg:grid-cols-6">
-            <Stat label="Completion" value={`${totals.completionPct}%`} sub={`${totals.completed}/${totals.scheduled}`} />
-            <Stat label="Left behind" value={String(totals.leftBehind)} sub={money(totals.leftBehindDollars)} tone={totals.leftBehind > 0 ? "bad" : "good"} />
-            <Stat label="Remaining" value={String(totals.remaining)} />
-            <Stat label="Callbacks" value={String(totals.callbacks)} tone={totals.callbacks > 0 ? "warn" : "good"} />
-            <Stat label="Route net" value={`${totals.netChange >= 0 ? "+" : ""}${totals.netChange}`} sub={money(totals.netChangeDollars)} tone={totals.netChangeDollars < 0 ? "bad" : "good"} />
-            <Stat label="Routes" value={String(routes.length)} />
-          </div>
-
-          {/* Per-route table */}
+          {/* Per-route table (headline totals live in the command hero above) */}
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
@@ -119,17 +109,6 @@ export default function ProductionCompletion({
         </>
       )}
     </Card>
-  );
-}
-
-function Stat({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "good" | "warn" | "bad" }) {
-  const c = tone === "bad" ? "text-red-600" : tone === "warn" ? "text-amber-600" : "text-ink";
-  return (
-    <div className="bg-surface px-3 py-3">
-      <div className="text-[10px] uppercase tracking-wide text-muted">{label}</div>
-      <div className={`mt-0.5 text-xl font-light tabular-nums ${c}`}>{value}</div>
-      {sub && <div className="text-[11px] text-muted tabular-nums">{sub}</div>}
-    </div>
   );
 }
 
