@@ -10,6 +10,10 @@ import BranchQuarters from "@/components/BranchQuarters";
 import { teamFunnel } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
 import { getProductionRollup } from "@/lib/branch-production-ingest";
+import { collectAttention } from "@/lib/needs-attention";
+import { buildExecutiveRhythm } from "@/lib/rhythm";
+import RhythmRibbon from "@/components/RhythmRibbon";
+import NeedsAttentionList from "@/components/NeedsAttentionList";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
 
@@ -42,12 +46,49 @@ export async function OverviewPanel({
   // signal where execs look, deep-linking into each branch's command center.
   const prodRollup = !locked ? await getProductionRollup(BRANCHES.map((b) => b.key)) : null;
 
+  // Leadership "what needs me" — the exec attention queue + rhythm, on the landing tab
+  // (moved here from the Branches tab so it's the first thing a leader sees). Exec only;
+  // branch managers reaching Overview via the toggle use their own My Branch worklist.
+  const now = new Date();
+  const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
+  const execAttention = !locked ? await collectAttention({ user, audience: "executive", now }) : [];
+  const renewalKinds = new Set(["policy_renewal", "license_expiring", "lease_expiring"]);
+  const findCount = (kind: string) => execAttention.filter((a) => a.kind === kind).reduce((s, a) => s + (a.count ?? 1), 0);
+  const lastMonthDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const execRhythm = !locked
+    ? buildExecutiveRhythm({
+        now, quarter,
+        overdueFollowUps: findCount("audit_followup"),
+        missedChecklists: findCount("checklist_miss"),
+        mbrMissing: execAttention.some((a) => a.kind === "mbr_missing"),
+        mbrMonthLabel: lastMonthDate.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" }),
+        warehouseMissing: findCount("warehouse_due"),
+        warehouseTotal: BRANCHES.length,
+        auditsMissing: findCount("audit_missing"),
+        auditsTotal: BRANCHES.length,
+        renewals: execAttention.filter((a) => renewalKinds.has(a.kind)).length,
+      })
+    : null;
+  const attentionBlock = !locked && execRhythm ? (
+    <div className="mb-5">
+      <RhythmRibbon segments={execRhythm} />
+      <NeedsAttentionList
+        items={execAttention}
+        title="Needs your attention"
+        showBranch
+        emptyText="Every branch is current — audits in, inspections logged, renewals clear."
+        className="mb-2"
+      />
+    </div>
+  ) : null;
+
   const periods = await listPeriods();
   if (periods.length === 0) {
     return (
       <>
         <PageHeader title={isCompany ? "Company KPIs" : "Branch KPIs"} subtitle={scopeLabel} />
         <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
+        {attentionBlock}
         <EmptyState title="No report data yet" hint="KPIs populate once a Monthly Board Report is uploaded." />
       </>
     );
@@ -121,6 +162,8 @@ export async function OverviewPanel({
 
       <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
       {selector}
+
+      {attentionBlock}
 
       {prodRollup && prodRollup.some((r) => r.periodKey) ? (
         <div className="mb-4 rounded-xl border border-line bg-surface p-4">

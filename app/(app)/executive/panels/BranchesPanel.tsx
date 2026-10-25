@@ -26,10 +26,6 @@ import KpiSummaryButton from "@/components/KpiSummaryButton";
 import { KpiTile, VarianceChip } from "@/components/kpi-tiles";
 import MetricInfo from "@/components/MetricInfo";
 import { hasMetric } from "@/lib/metrics-registry";
-import { collectAttention } from "@/lib/needs-attention";
-import { buildExecutiveRhythm } from "@/lib/rhythm";
-import RhythmRibbon from "@/components/RhythmRibbon";
-import NeedsAttentionList from "@/components/NeedsAttentionList";
 import { computeBenchmarks } from "@/lib/benchmarking";
 import { branchForecasts, companyBookOutlook } from "@/lib/forecasting";
 import BenchmarkingClient from "@/app/(app)/management/benchmarking/BenchmarkingClient";
@@ -110,25 +106,6 @@ export async function BranchesPanel({
   // Leadership "what needs me" lead + operating-rhythm ribbon. Built from the
   // unified needs-attention model; the ribbon reads its cadence straight off those
   // items so it can't drift.
-  const now = new Date();
-  const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
-  const execAttention = await collectAttention({ user, audience: "executive", now });
-  const renewalKinds = new Set(["policy_renewal", "license_expiring", "lease_expiring"]);
-  const findCount = (kind: string) => execAttention.filter((a) => a.kind === kind).reduce((s, a) => s + (a.count ?? 1), 0);
-  const lastMonthDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
-  const execRhythm = buildExecutiveRhythm({
-    now, quarter,
-    overdueFollowUps: findCount("audit_followup"),
-    missedChecklists: findCount("checklist_miss"),
-    mbrMissing: execAttention.some((a) => a.kind === "mbr_missing"),
-    mbrMonthLabel: lastMonthDate.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" }),
-    warehouseMissing: findCount("warehouse_due"),
-    warehouseTotal: BRANCHES.length,
-    auditsMissing: findCount("audit_missing"),
-    auditsTotal: BRANCHES.length,
-    renewals: execAttention.filter((a) => renewalKinds.has(a.kind)).length,
-  });
-
   // Headline KPIs, scope-aware; only those with an actual value are shown.
   const headlineKeys = isCompany
     ? ["net_revenue", "production", "route_contrib_pct", "new_sales", "attrition"]
@@ -206,17 +183,6 @@ export async function BranchesPanel({
       {/* Scope-aware AI read-out — company when viewing all branches, else the
           selected branch. Tailored to exactly what's on screen. */}
       <KpiSummaryButton scope={isCompany ? "company" : scope} p={periodKey} basis={basis} label={isCompany ? "AI company summary" : "AI branch summary"} />
-
-      <div className="mt-4">
-        <RhythmRibbon segments={execRhythm} />
-        <NeedsAttentionList
-          items={execAttention}
-          title="Needs your attention"
-          showBranch
-          emptyText="Every branch is current — audits in, inspections logged, renewals clear."
-          className="mb-6"
-        />
-      </div>
 
       {/* Branch-locked managers default to their own branch; a toggle reveals the
           company / peer-branch comparison view. Admins & exec always see the selector. */}

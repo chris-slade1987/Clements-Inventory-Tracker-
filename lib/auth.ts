@@ -165,9 +165,13 @@ export function homePath(user: SessionUser): string {
   // (even though he's a full admin — his day-to-day home is field oversight).
   if (isFieldOpsDirector(user)) return "/field-ops";
   if (user.role === "employee") return "/me";
-  // Managers AND admins land on the Company → My Dashboard home (`/my-branch`),
-  // which renders company-wide for a no-branch admin (branch ⇄ all-branches
-  // toggle) — not the Inventory dashboard, which is just one tool among many.
+  // Leadership (senior leadership + company-wide admins like the COO, who carry no
+  // home branch) land on the consolidated Executive dashboard — their "what needs me"
+  // home — instead of the manager My Dashboard.
+  if ((user.seniorLeadership || user.role === "admin") && !user.branch) return "/executive";
+  // Branch managers (and any branch-assigned admin) land on the Company → My Dashboard
+  // home (`/my-branch`), which renders their branch with the To-dos/KPIs/Routes/Command
+  // toggle — not the Inventory dashboard, which is just one tool among many.
   return "/my-branch";
 }
 
