@@ -4,8 +4,10 @@ import { requireUser, homePath, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import { getBranchCommand, BRANCH_KEYS, weekPeriodLabel } from "@/lib/branch-command";
 import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs, getProductionRollup } from "@/lib/branch-production-ingest";
+import { getRoutingSummary } from "@/lib/routing";
 import MyBranchViewToggle from "../my-branch/MyBranchViewToggle";
 import BranchCommandHero from "./BranchCommandHero";
+import BranchCommandFlow from "./BranchCommandFlow";
 import BranchCommandBoard from "./BranchCommandBoard";
 import ProductionCompletion from "./ProductionCompletion";
 
@@ -13,6 +15,10 @@ function monthLabelOf(pk: string | null): string | null {
   if (!pk) return null;
   const [y, m] = pk.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+}
+// Current calendar month (Eastern) as YYYY-MM — Branch Command defaults here.
+function currentMonthKeyET(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit" }).format(new Date()).slice(0, 7);
 }
 
 // Branch Command — the branch manager's weekly cockpit. Managers see their own
@@ -35,14 +41,32 @@ export default async function BranchCommandPage({
 
   const data = await getBranchCommand(branch);
 
-  // Production & Completion (route completion / left-behind) — the latest loaded month.
+  // Production & Completion — default to the CURRENT calendar month; if it isn't
+  // loaded yet, fall back to the most recent loaded month (flagged in the hero).
   const prodPeriods = await listProductionPeriods(branch);
-  const prodPeriod = prodPeriods[0] ?? null;
+  const currentMonthKey = currentMonthKeyET();
+  const prodPeriod = prodPeriods.includes(currentMonthKey) ? currentMonthKey : (prodPeriods[0] ?? null);
   const prod = prodPeriod ? await getBranchProductionMonth(branch, prodPeriod) : null;
   const leftBehind = prodPeriod ? await getLeftBehindJobs(branch, prodPeriod) : [];
   const canUploadProd = user.role === "admin" || user.role === "manager";
   // Cross-branch production rollup for leadership (non-branch-locked viewers).
   const prodRollup = !locked ? await getProductionRollup([...BRANCH_KEYS]) : null;
+
+  // Next month's routing to approve (routing is loaded ahead of time; this is the
+  // month "up for review"). Drives the weekly-flow prompt.
+  const routing = await getRoutingSummary(branch);
+  const routingPeriodLabel = monthLabelOf(routing.periodKey) ?? "next month";
+
+  // Data freshness — latest upload time + how many of the six reports are loaded.
+  const latestUpload = prod?.uploads?.[0]?.uploadedAt ?? null;
+  const freshness = {
+    updatedLabel: latestUpload
+      ? new Date(latestUpload).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })
+      : null,
+    reportCount: prod?.uploads?.length ?? 0,
+    isCurrentMonth: prodPeriod === currentMonthKey,
+    currentMonthLabel: monthLabelOf(currentMonthKey) ?? "",
+  };
 
   // Serialize dates for the client component.
   const payload = {
@@ -101,6 +125,23 @@ export default async function BranchCommandPage({
         signedAt={payload.signedAt}
         locked={locked}
         branches={BRANCH_KEYS}
+        freshness={freshness}
+      />
+
+      <BranchCommandFlow
+        branch={branch}
+        monthLabel={monthLabelOf(prodPeriod)}
+        hasProd={!!prod && prod.routes.length > 0}
+        openLeftBehind={payload.gate.openLeftBehind ?? 0}
+        signed={payload.status === "signed"}
+        routing={{
+          loaded: routing.loaded,
+          signed: routing.signed,
+          periodLabel: routingPeriodLabel,
+          approved: routing.approved,
+          techs: routing.techs,
+          href: `/routing-approval?branch=${branch}&period=${routing.periodKey}`,
+        }}
       />
 
       {prodRollup && prodRollup.some((r) => r.periodKey) && (

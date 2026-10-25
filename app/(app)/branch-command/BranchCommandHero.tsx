@@ -24,7 +24,7 @@ function compColor(pct: number): string {
 }
 
 export default function BranchCommandHero({
-  branch, periodLabel, monthLabel, hasProd, totals, status, gate, signedName, signedAt, locked, branches,
+  branch, periodLabel, monthLabel, hasProd, totals, status, gate, signedName, signedAt, locked, branches, freshness,
 }: {
   branch: string;
   periodLabel: string;
@@ -37,6 +37,7 @@ export default function BranchCommandHero({
   signedAt: string | null;
   locked: boolean;
   branches: readonly string[];
+  freshness: { updatedLabel: string | null; reportCount: number; isCurrentMonth: boolean; currentMonthLabel: string } | null;
 }) {
   const signed = status === "signed";
   const blockers: string[] = [];
@@ -62,6 +63,18 @@ export default function BranchCommandHero({
               <span>{periodLabel}</span>
             </div>
             <h1 className="mt-1 text-2xl font-light tracking-tight text-ink sm:text-3xl">{branchLabel(branch)}</h1>
+            {hasProd && freshness ? (
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted">
+                <span className="text-ink">{monthLabel}</span>
+                {freshness.isCurrentMonth ? (
+                  <span className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium" style={{ color: "#86EFAC", backgroundColor: "rgba(134,239,172,.12)" }}>Current month</span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium" style={{ color: "#FDE68A", backgroundColor: "rgba(253,230,138,.12)" }}>{freshness.currentMonthLabel} not loaded yet</span>
+                )}
+                {freshness.updatedLabel ? <span aria-hidden>·</span> : null}
+                {freshness.updatedLabel ? <span>Updated {freshness.updatedLabel}{freshness.reportCount ? ` · ${freshness.reportCount} reports` : ""}</span> : null}
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-2">
             <div
