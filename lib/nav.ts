@@ -36,16 +36,6 @@ export const SYSTEM_MAP_NAV_ITEM: NavItem = {
   icon: "M5 6.5a2 2 0 114 0 2 2 0 01-4 0zm10 11a2 2 0 114 0 2 2 0 01-4 0zM7 8.5v3a2 2 0 002 2h4a2 2 0 012 2v.5M15 6.5h2a2 2 0 012 2v2",
 };
 
-// Insights assistant — conversational, grounded management Q&A. Exec-sensitive
-// financials, so only admins + senior leadership reach the page (it redirects
-// others). A chat-bubble/spark glyph, distinct from the other management icons.
-export const INSIGHTS_NAV_ITEM: NavItem = {
-  href: "/management/insights",
-  label: "Insights",
-  shortLabel: "Insights",
-  icon: "M21 11.5a8 8 0 01-11.8 7L3 20l1.5-5.5A8 8 0 1121 11.5zM12 7.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1L9 10.5l2.1-.9z",
-};
-
 // Sales Team hub — cross-branch service-advisor oversight + monthly goals.
 // Surfaced for admins/super-admins (in the management nav) and the Sales
 // Director (their fixed nav). A target/aim glyph.
@@ -488,17 +478,6 @@ export const INVENTORY_NAV: NavItem[] = [
     icon: "M12 3a6 6 0 00-6 6c0 5-2 6-2 6h16s-2-1-2-6a6 6 0 00-6-6zM10.5 20a2 2 0 003 0",
   },
 ];
-
-// Branch Benchmarking — cross-branch league table + first-slice forecasting
-// (CanopyOS Theme 10). Exec-sensitive cross-branch comparison, gated the same as
-// the Executive operating view (admins / senior leadership / board). A bar-ladder
-// glyph, distinct from the exec bar-chart icon.
-export const BENCHMARKING_NAV_ITEM: NavItem = {
-  href: "/management/benchmarking",
-  label: "Branch Benchmarking",
-  shortLabel: "Bench",
-  icon: "M4 20h16M7 20v-6M12 20V8M17 20v-9M5.5 11l4-4 3 2 5-5",
-};
 
 // Executive center nav — collapsed to ~5 items by the nav/IA refactor (P1/P2). The
 // four MBR-slicing dashboards (Company KPIs, Executive — Operating, Board —

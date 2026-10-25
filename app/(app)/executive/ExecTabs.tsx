@@ -9,15 +9,22 @@ export default function ExecTabs({
   tabs,
   active,
   period,
+  basis,
   basePath = "/executive",
 }: {
   tabs: { key: string; label: string }[];
   active: string;
   period?: string;
+  basis?: string;
   basePath?: string;
 }) {
   if (tabs.length <= 1) return null;
-  const href = (key: string) => `${basePath}?tab=${key}${period ? `&p=${encodeURIComponent(period)}` : ""}`;
+  // Preserve the selected period AND basis (Month · YTD · Forecast · quarter) across
+  // tabs so switching a tab doesn't reset the view the user set.
+  const href = (key: string) =>
+    `${basePath}?tab=${key}` +
+    (period ? `&p=${encodeURIComponent(period)}` : "") +
+    (basis ? `&basis=${encodeURIComponent(basis)}` : "");
   return (
     <div className="mb-5 -mt-1 flex flex-wrap gap-1 border-b border-line">
       {tabs.map((t) => {

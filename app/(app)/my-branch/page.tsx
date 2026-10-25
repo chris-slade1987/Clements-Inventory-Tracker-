@@ -44,9 +44,13 @@ export default async function MyBranchPage({
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
 
-  // Route-completion glance (latest loaded production month) → deep-links to Branch Command.
+  // Route-completion glance → deep-links to Branch Command. Prefer the CURRENT month
+  // (matching Branch Command's default) so the two surfaces never show different figures;
+  // fall back to the most-recent loaded month.
   const prodPeriods = branch ? await listProductionPeriods(branch) : [];
-  const prodGlance = branch && prodPeriods[0] ? await getBranchProductionMonth(branch, prodPeriods[0]) : null;
+  const glanceMonthKey = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit" }).format(new Date()).slice(0, 7);
+  const glancePeriod = prodPeriods.includes(glanceMonthKey) ? glanceMonthKey : prodPeriods[0];
+  const prodGlance = branch && glancePeriod ? await getBranchProductionMonth(branch, glancePeriod) : null;
 
   const now = new Date();
   const year = now.getFullYear();
@@ -161,7 +165,7 @@ export default async function MyBranchPage({
       <WeatherTile canSeeAll={!locked} />
 
       {prodGlance && prodGlance.routes.length > 0 ? (
-        <Link href="/branch-command" className="mb-5 block rounded-xl border border-line bg-surface p-4 hover:shadow-sm">
+        <Link href={branch ? `/branch-command?branch=${branch}` : "/branch-command"} className="mb-5 block rounded-xl border border-line bg-surface p-4 hover:shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-[11px] uppercase tracking-wide text-muted">Route completion · {prodGlance.periodKey}</div>
             <span className="text-xs text-brand-600">Review in Branch Command →</span>

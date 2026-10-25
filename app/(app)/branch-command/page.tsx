@@ -132,7 +132,7 @@ export default async function BranchCommandPage({
         branch={branch}
         monthLabel={monthLabelOf(prodPeriod)}
         hasProd={!!prod && prod.routes.length > 0}
-        openLeftBehind={payload.gate.openLeftBehind ?? 0}
+        gate={payload.gate}
         signed={payload.status === "signed"}
         routing={{
           loaded: routing.loaded,

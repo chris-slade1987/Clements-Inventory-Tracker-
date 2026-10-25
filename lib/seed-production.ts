@@ -24,26 +24,31 @@ export async function ensureProductionSeed(): Promise<void> {
     const existing = await prisma.routeMonth.count({ where: { periodKey: seed.periodKey } });
     if (existing > 0) { done = true; return; }
 
-    await prisma.routeMonth.createMany({
-      data: seed.routeMonth.map((r) => ({
-        ...r,
-        computedAt: r.computedAt ? new Date(r.computedAt) : undefined,
-      })),
-    });
-    await prisma.leftBehindJob.createMany({
-      data: seed.leftBehindJob.map((r) => ({
-        ...r,
-        scheduledDate: r.scheduledDate ? new Date(r.scheduledDate) : null,
-      })),
-    });
-    await prisma.productionReportUpload.createMany({
-      data: seed.productionReportUpload.map((r) => ({
-        ...r,
-        uploadedById: r.uploadedById ?? null,
-        uploadedByName: r.uploadedByName ?? null,
-        uploadedAt: r.uploadedAt ? new Date(r.uploadedAt) : undefined,
-      })),
-    });
+    // All-or-nothing: a partial seed (routes without their left-behind jobs) would let a
+    // manager sign a week with hundreds of jobs silently dropped, so wrap the three inserts
+    // in one transaction.
+    await prisma.$transaction([
+      prisma.routeMonth.createMany({
+        data: seed.routeMonth.map((r) => ({
+          ...r,
+          computedAt: r.computedAt ? new Date(r.computedAt) : undefined,
+        })),
+      }),
+      prisma.leftBehindJob.createMany({
+        data: seed.leftBehindJob.map((r) => ({
+          ...r,
+          scheduledDate: r.scheduledDate ? new Date(r.scheduledDate) : null,
+        })),
+      }),
+      prisma.productionReportUpload.createMany({
+        data: seed.productionReportUpload.map((r) => ({
+          ...r,
+          uploadedById: r.uploadedById ?? null,
+          uploadedByName: r.uploadedByName ?? null,
+          uploadedAt: r.uploadedAt ? new Date(r.uploadedAt) : undefined,
+        })),
+      }),
+    ]);
     done = true;
   } catch {
     // best-effort; never block render

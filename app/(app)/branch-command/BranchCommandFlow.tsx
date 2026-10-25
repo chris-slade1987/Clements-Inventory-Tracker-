@@ -8,18 +8,33 @@ import Link from "next/link";
 type StepState = "done" | "now" | "todo" | "muted";
 
 export default function BranchCommandFlow({
-  branch, monthLabel, hasProd, openLeftBehind, signed, routing,
+  branch, monthLabel, hasProd, gate, signed, routing,
 }: {
   branch: string;
   monthLabel: string | null;
   hasProd: boolean;
-  openLeftBehind: number;
+  gate: { openFindings: number; unreviewedTechs: number; uncheckedItems: number; openLeftBehind?: number; canSign: boolean };
   signed: boolean;
   routing: { loaded: boolean; signed: boolean; periodLabel: string; approved: number; techs: number; href: string };
 }) {
+  const openLeftBehind = gate.openLeftBehind ?? 0;
   // Routing step state: not posted → muted; posted + unsigned → now (actionable);
   // signed → done.
   const routingState: StepState = !routing.loaded ? "muted" : routing.signed ? "done" : "now";
+
+  // Sign step reflects the WHOLE gate (flags, tech review, checkoffs AND left-behind),
+  // so it never reads "ready" while the sign button is still blocked.
+  const signBlockers: string[] = [];
+  if (gate.openFindings) signBlockers.push(`${gate.openFindings} flag${gate.openFindings === 1 ? "" : "s"}`);
+  if (gate.unreviewedTechs) signBlockers.push(`${gate.unreviewedTechs} tech${gate.unreviewedTechs === 1 ? "" : "s"}`);
+  if (gate.uncheckedItems) signBlockers.push(`${gate.uncheckedItems} checkoff${gate.uncheckedItems === 1 ? "" : "s"}`);
+  if (openLeftBehind) signBlockers.push(`${openLeftBehind} job${openLeftBehind === 1 ? "" : "s"} left behind`);
+  const signState: StepState = signed ? "done" : !hasProd ? "muted" : gate.canSign ? "now" : "todo";
+  const signDetail = signed
+    ? "Signed — locked as the record"
+    : signBlockers.length
+      ? `Still open: ${signBlockers.join(" · ")}`
+      : "Respond to every flag, then attest";
 
   const steps: { n: number; label: string; detail: string; state: StepState; cta?: { label: string; href: string } }[] = [
     {
@@ -37,8 +52,8 @@ export default function BranchCommandFlow({
     {
       n: 3,
       label: "Sign the week",
-      detail: signed ? "Signed — locked as the record" : "Respond to every flag, then attest",
-      state: signed ? "done" : !hasProd ? "muted" : openLeftBehind > 0 ? "todo" : "now",
+      detail: signDetail,
+      state: signState,
     },
     {
       n: 4,

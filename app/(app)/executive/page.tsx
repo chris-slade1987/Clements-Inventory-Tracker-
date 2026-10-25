@@ -54,7 +54,7 @@ export default async function ExecutivePage({
 
   return (
     <>
-      <ExecTabs tabs={tabs} active={active} period={sp.p} />
+      <ExecTabs tabs={tabs} active={active} period={sp.p} basis={sp.basis} />
       {active === "overview" ? (
         <OverviewPanel user={user} sp={sp} />
       ) : active === "branches" ? (
