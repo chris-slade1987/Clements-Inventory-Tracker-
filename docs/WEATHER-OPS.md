@@ -63,6 +63,20 @@ centers (`DEFAULT_LOCATIONS` in `lib/weather/service.ts`), admin-editable afterw
 - Every call retries with backoff (3 tries); on failure the last good snapshot is
   served with a **stale badge** — never an empty tile.
 
+## Pest & agronomic pressure (weather + season → service focus)
+
+`lib/weather/pests.ts` (pure, unit-tested in `pests.test.ts`) maps the month + weather
+signals (temp, rain/wet-stretch, humidity, heavy rain, dry stretch) to **elevated/watch
+pest & turf-disease pressure** for the Treasure Coast + Central FL, each with a GENERAL
+ops recommendation (scout / inspect / communicate / service focus — never a product or
+rate, per FL 482). Grounded in the in-house entomologist reference. Covers turf disease
+(large/brown patch, gray leaf spot, Pythium, take-all), turf pests (chinch bugs,
+webworm/armyworm, mole crickets), general invaders (American roaches, ghost/white-footed
+ants, humidity pests), mosquitoes, rodents (roof-rat winter intrusion, flood
+displacement), fleas/ticks, and subterranean termite swarming (native/Asian + Formosan).
+Rendered as a "Pest & agronomic pressure" panel on the station detail. It is a
+likelihood guide, not a diagnosis.
+
 ## Rules engine (deterministic, runs before the AI)
 
 `lib/weather/rules.ts` is a **pure** module (unit-tested in `rules.test.ts`). It

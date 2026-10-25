@@ -8,6 +8,7 @@ import CommandClock from "@/components/weather/CommandClock";
 import WeatherRadarMap from "@/components/weather/WeatherRadarMap";
 import WeatherGlyph, { glyphFor } from "@/components/weather/WeatherGlyph";
 import Gauge from "@/components/weather/Gauge";
+import { pestPressure, pressureDomainLabel, type PressureCard } from "@/lib/weather/pests";
 
 // Weather Ops — the intel "command deck": a dark, Palantir/ops-wall surface (HUD grid,
 // bracketed panels, glowing status lamps, instrument gauges, advisory ticker) built on
@@ -295,6 +296,17 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
   const af = activeFlags(t);
   const blackout = t.flags.find((f) => f.code === "FERT_BLACKOUT");
 
+  // Pest & agronomic pressure (weather + season → likely pest/disease pressure).
+  const month = Number(date.slice(5, 7));
+  const todayHi = Math.max(t.current?.tempF ?? -999, ...timeline.map((h) => h.tempF ?? -999));
+  const pTemp = todayHi > -900 ? todayHi : t.current?.tempF ?? null;
+  const nextPops = strip.map((d) => d.pop);
+  const rainFlag = t.flags.some((f) => f.code === "RAIN_WINDOW" || f.code === "HEAVY_RAIN");
+  const rainActive = rainFlag || (t.current?.pop ?? 0) >= 50 || nextPops.slice(0, 3).some((p) => p >= 50);
+  const dry = !rainActive && (t.current?.pop ?? 100) < 25 && nextPops.slice(0, 2).every((p) => p < 30);
+  const heavyRain = t.flags.some((f) => f.code === "HEAVY_RAIN");
+  const pests = pestPressure({ month, tempF: pTemp, humidity: t.current?.humidity ?? null, rainActive, dry, heavyRain });
+
   return (
     <div className="space-y-4">
       {/* Brief + advisories */}
@@ -334,8 +346,22 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
         </Panel>
       </div>
 
+      {/* Pest & agronomic pressure — weather + season → service focus */}
+      <Panel code="03" title="Pest & agronomic pressure" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{pests.filter((p) => p.level === "elevated").length} elevated</span>}>
+        {pests.length === 0 ? (
+          <p className="text-sm text-muted">No weather-driven pest or turf-disease pressure flagged for today. Normal service focus.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+              {pests.map((p) => <PressureRow key={p.key} p={p} />)}
+            </div>
+            <p className="mt-3 text-[11px] text-muted">Weather + seasonal likelihood for the Treasure Coast — scout to confirm before treating. Ask Canopy for product/treatment specifics.</p>
+          </>
+        )}
+      </Panel>
+
       {/* Radar scope — big, full width */}
-      <Panel code="03" title={`Radar scope${radarStation ? ` · NWS ${radarStation}` : ""}`} right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Live loop</span>}>
+      <Panel code="04" title={`Radar scope${radarStation ? ` · NWS ${radarStation}` : ""}`} right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Live loop</span>}>
         {center ? (
           <WeatherRadarMap lat={center.lat} lon={center.lon} label={t.label} height={520} stops={stops} offices={t.locations.filter((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)).map((l) => ({ label: l.name, lat: l.lat, lon: l.lon }))} />
         ) : (
@@ -344,7 +370,7 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
       </Panel>
 
       {/* 5-day outlook — below the radar, with line-art glyphs */}
-      <Panel code="04" title="5-day outlook">
+      <Panel code="05" title="5-day outlook">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {strip.map((d, i) => (
             <div key={i} className="flex flex-col items-center rounded-lg border border-white/10 bg-white/[0.02] px-2 py-3 text-center">
@@ -359,7 +385,7 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
 
       {/* Ops timeline */}
       {timeline.length > 0 && (
-        <Panel code="05" title="Ops timeline · 6a–8p" right={
+        <Panel code="06" title="Ops timeline · 6a–8p" right={
           <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.14em] text-muted">
             <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-sky-400/50" /> rain</span>
             <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-purple-400/50" /> thunder</span>
@@ -392,7 +418,7 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
 
       {/* Alerts */}
       {t.alerts.length > 0 && (
-        <Panel code="06" title="Active NWS alerts" right={<span className="text-[10px] uppercase tracking-[0.14em] text-red-300">{t.alerts.length} active</span>}>
+        <Panel code="07" title="Active NWS alerts" right={<span className="text-[10px] uppercase tracking-[0.14em] text-red-300">{t.alerts.length} active</span>}>
           <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {t.alerts.map((a, i) => (
               <li key={i} className="rounded-lg border border-red-400/40 bg-red-500/10 p-3">
@@ -407,6 +433,23 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
           </ul>
         </Panel>
       )}
+    </div>
+  );
+}
+
+function PressureRow({ p }: { p: PressureCard }) {
+  const elevated = p.level === "elevated";
+  return (
+    <div className={`rounded-lg border p-3 ${elevated ? "border-amber-400/40 bg-amber-400/[0.07]" : "border-white/10 bg-white/[0.02]"}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${elevated ? "bg-amber-400" : "bg-brand-400/70"}`} />
+          <span className="text-sm font-medium text-ink">{p.title}</span>
+        </div>
+        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-muted">{pressureDomainLabel(p.domain)}</span>
+      </div>
+      <p className="mt-1 text-xs text-muted">{p.driver}</p>
+      <p className="mt-1.5 text-xs text-ink/90"><span className="text-brand-300">▸</span> {p.rec}</p>
     </div>
   );
 }
