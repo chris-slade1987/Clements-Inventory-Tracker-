@@ -612,7 +612,9 @@ export default function AppShell({
         <main className={`app-main flex-1 px-4 py-5 md:py-8 pb-24 md:pb-8 w-full mx-auto ${
           pathname === "/org" || pathname.startsWith("/management/people/org")
             ? "max-w-none md:px-6" // org chart stretches to the screen edge for a wider view
-            : "max-w-5xl md:px-8"
+            : pathname.startsWith("/weather")
+              ? "max-w-[1800px] md:px-6" // weather command deck uses the wide screen
+              : "max-w-5xl md:px-8"
         }`}>
           {denied ? (
             <div
