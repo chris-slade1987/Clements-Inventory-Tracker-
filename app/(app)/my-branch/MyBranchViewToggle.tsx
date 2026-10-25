@@ -20,7 +20,7 @@ export default function MyBranchViewToggle({
       <Link href={`/my-branch${branchQuery}`} className={cell(view === "todos")}>
         To-dos
       </Link>
-      <Link href={`/management${branchQuery}`} className={cell(view === "kpis")}>
+      <Link href={`/executive?tab=overview${branchQuery ? `&${branchQuery.slice(1)}` : ""}`} className={cell(view === "kpis")}>
         KPIs
       </Link>
       <Link href={`/routing-approval${branchQuery}`} className={cell(view === "routes")}>

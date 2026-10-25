@@ -21,7 +21,7 @@ export type Mode = "employee" | "manager" | "inventory" | "management" | "fleet"
 // leaders (Julie, April) who otherwise never see the management area.
 export const COMPLIANCE_NAV_ITEM: NavItem = {
   href: "/management/compliance",
-  label: "Compliance",
+  label: "Compliance & Insurance",
   shortLabel: "Comply",
   icon: "M9 12l2 2 4-4m-2-6l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z",
 };
@@ -500,29 +500,21 @@ export const BENCHMARKING_NAV_ITEM: NavItem = {
   icon: "M4 20h16M7 20v-6M12 20V8M17 20v-9M5.5 11l4-4 3 2 5-5",
 };
 
+// Executive center nav — collapsed to ~5 items by the nav/IA refactor (P1/P2). The
+// four MBR-slicing dashboards (Company KPIs, Executive — Operating, Board —
+// Financial statements, Branch Benchmarking) + Sales & Attrition are now tabs of
+// ONE Executive dashboard at `/executive` (Overview · Branches · Financials · Sales
+// & Attrition); the old routes redirect into the right tab. Insights folded into the
+// docked Copilot (no nav item). Insurance folded into the Compliance center.
+// System Map moved to Settings & Admin (see AppShell). The senior-leadership-only
+// extras (Checklist Oversight, SOP Library) stay, gated in buildNavForMode.
 export const MANAGEMENT_NAV: NavItem[] = [
   {
-    href: "/management/board",
-    label: "Board — Financial statements",
-    shortLabel: "Board",
-    icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
-  },
-  INSIGHTS_NAV_ITEM,
-  {
     href: "/executive",
-    label: "Executive — Operating",
+    label: "Executive",
     shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
-  BENCHMARKING_NAV_ITEM,
-  {
-    href: "/management/sales",
-    label: "Sales & Attrition",
-    shortLabel: "Sales",
-    icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
-  },
-  // NOTE: the Sales Team hub (SALES_TEAM_NAV_ITEM) now lives in the My Branch /
-  // Company center (MANAGER_NAV), not here under Executive — see that array.
   {
     href: "/management/scorecards",
     label: "Scorecards",
@@ -535,24 +527,16 @@ export const MANAGEMENT_NAV: NavItem[] = [
     shortLabel: "Audits",
     icon: "M9 11l3 3 8-8M20 4v7m0 0h-7M4 20h6M4 16h10M4 12h4",
   },
-  // NOTE: the Training Center (TRAINING_CENTER_NAV_ITEM) now lives in the Company
-  // center (MANAGER_NAV), not here under Executive — see that array.
   {
     href: "/management/people",
     label: "People / HR",
     shortLabel: "People",
     icon: "M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 108 0 4 4 0 00-8 0zm14 13v-2a4 4 0 00-3-3.9",
   },
-  // NOTE: the Document Center (DOCUMENTS_NAV_ITEM) now lives in the My Branch /
-  // Company center (MANAGER_NAV), not here under Executive — see that array.
-  {
-    href: "/management/insurance",
-    label: "Insurance",
-    shortLabel: "Insure",
-    icon: "M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3zM9 12l2 2 4-4",
-  },
-  SYSTEM_MAP_NAV_ITEM,
+  // Compliance & Insurance Command Center — senior-leadership (Insurance tab also
+  // reaches HR). Gated in buildNavForMode by canViewCompliance.
   COMPLIANCE_NAV_ITEM,
+  // Senior-leadership-only extras (gated in buildNavForMode):
   CHECKLIST_OVERSIGHT_NAV_ITEM,
   SOP_LIBRARY_NAV_ITEM,
 ];
@@ -562,15 +546,17 @@ export const MANAGEMENT_NAV: NavItem[] = [
 // Team hub plus the read-only Sales & Attrition analytics.
 export const SALES_DIRECTOR_NAV: NavItem[] = [
   SALES_TEAM_NAV_ITEM,
+  // Sales & Attrition — now the Sales tab of the consolidated Executive dashboard.
   {
-    href: "/management/sales",
+    href: "/executive?tab=sales",
     label: "Sales & Attrition",
     shortLabel: "Analytics",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",
   },
-  // Company KPIs (operational: revenue · sales · cancels · expenses), company-wide.
+  // Company KPIs (operational: revenue · sales · cancels · expenses), company-wide —
+  // now the Overview tab of the consolidated Executive dashboard.
   {
-    href: "/management",
+    href: "/executive?tab=overview",
     label: "Company KPIs",
     shortLabel: "KPIs",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
@@ -588,21 +574,24 @@ export const SALES_DIRECTOR_NAV: NavItem[] = [
 // log in after the board meeting). They see ONLY the executive views: Board /
 // Executive, Management, Sales & Attrition, Compliance, and the company
 // bulletin — never inventory, fleet, my-branch, HR, scorecards, or manage.
+// Board observers see ONLY the executive views — now the tabs of the consolidated
+// Executive dashboard (Financials · Branches · Sales), plus Compliance and the
+// bulletin. Every target is an exec view they already had; no new access.
 export const BOARD_OBSERVER_NAV: NavItem[] = [
   {
-    href: "/management/board",
+    href: "/executive?tab=financials",
     label: "Board — Financial statements",
     shortLabel: "Board",
     icon: "M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6",
   },
   {
-    href: "/executive",
+    href: "/executive?tab=branches",
     label: "Executive — Operating",
     shortLabel: "Exec",
     icon: "M4 20V10m6 10V4m6 16v-7M4 20h16",
   },
   {
-    href: "/management/sales",
+    href: "/executive?tab=sales",
     label: "Sales & Attrition",
     shortLabel: "Sales",
     icon: "M3 17l6-6 4 4 8-8M21 7v5m0-5h-5",

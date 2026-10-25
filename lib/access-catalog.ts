@@ -61,12 +61,24 @@ export const MODULES: AccessModule[] = [
   { id: "fleet", name: "Fleet", sub: "Vehicles & fuel", items: [
     { id: "fleet", name: "Fleet Overview" }, { id: "fleet-detail", name: "Vehicle Detail" }, { id: "fleet-inspect", name: "Inspect Vehicle" },
     { id: "fleet-assign", name: "Driver Assignments" }, { id: "fleet-fuel", name: "Fuel" }, { id: "fleet-service", name: "Log Service" }, { id: "fleet-retired", name: "Retired Vehicles" } ] },
+  // Executive dashboard (nav/IA refactor P1): `management`, `executive`, `board`,
+  // `benchmarking` and `sales-attrition` are now the four TABS of the one tabbed
+  // `/executive` dashboard (Overview · Branches · Financials · Sales & Attrition);
+  // the old routes redirect in. The `management` item (Overview) is what the (app)
+  // layout gates `/executive` on — the least-privileged tab; the Branches /
+  // Financials (`executive`/`board`/`benchmarking`) and Sales (`sales-attrition`)
+  // tabs self-guard in-page (canViewExec / canManageSales). `insights` is retired as
+  // a page (folded into the docked Copilot) — kept here for the redirect's guard.
   { id: "mgmt", name: "Management & Executive", sub: "Company-wide", items: [
-    { id: "management", name: "Company KPIs (operational)", ve: true }, { id: "executive", name: "Executive (financials / P&L)", ve: true }, { id: "board", name: "Board / Executive", ve: true }, { id: "insights", name: "Insights (AI)" },
-    { id: "sales-attrition", name: "Sales & Attrition", ve: true }, { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
-    { id: "benchmarking", name: "Branch Benchmarking", note: "Read-only cross-branch league table + pacing" },
-    { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance", ve: true }, { id: "insurance", name: "Insurance", ve: true },
-    { id: "documents", name: "Documents", ve: true }, { id: "system-map", name: "System Map" }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
+    { id: "management", name: "Executive · Overview (operating KPIs)", ve: true, note: "Overview tab of /executive — role-scoped operating budget-vs-actual; gates page access. Not exec-only (branch managers branch-scoped, admins/exec company-wide)." },
+    { id: "executive", name: "Executive · Branches tab (per-branch P&L)", ve: true, note: "Branches tab of /executive — per-branch P&L + cross-branch benchmarking. Exec-only; self-guarded in-page (canViewExec)." },
+    { id: "board", name: "Executive · Financials tab (P&L / balance sheet / cash flow)", ve: true, note: "Financials tab of /executive. Exec-only; self-guarded in-page. `/management/board` redirects here." },
+    { id: "insights", name: "Insights (AI) — retired page / redirect", note: "Standalone page retired; the docked Canopy Copilot is the single AI entry point. Kept for the `/management/insights` redirect's guard (admin + senior)." },
+    { id: "sales-attrition", name: "Executive · Sales & Attrition tab", ve: true, note: "Sales & Attrition tab of /executive — pipeline + cancellations. Exec OR Sales Director; self-guarded in-page (canManageSales). `/management/sales` redirects here." },
+    { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
+    { id: "benchmarking", name: "Branch Benchmarking", note: "Cross-branch league table + pacing — now rendered in the Executive · Branches tab. `/management/benchmarking` redirects there; exec-only (self-guarded)." },
+    { id: "audits", name: "Branch Audits", ve: true }, { id: "compliance", name: "Compliance & Insurance", ve: true, note: "Compliance Command Center (senior leadership) + the Insurance tab (admin / senior / HR). Insurance was folded in from the former standalone page (P2)." }, { id: "insurance", name: "Insurance (tab of Compliance)", ve: true, note: "Now the Insurance tab of /management/compliance. `/management/insurance` redirects there. Admin / senior / HR." },
+    { id: "documents", name: "Documents", ve: true }, { id: "login-audit", name: "Login Audit" }, { id: "upload-mbr", name: "Upload MBR" },
     { id: "checklist-oversight", name: "Checklist Oversight" }, { id: "branch-command-oversight", name: "Branch Command Oversight", note: "Cross-branch weekly scoreboard rollup (Phase 4)" }, { id: "routing-oversight", name: "Routing Oversight", note: "Cross-branch monthly routing sign-off rollup (Phase 4)" }, { id: "field-ops", name: "Field Ops Center" }, { id: "sop-library", name: "SOP Library", ve: true, note: "Edit = publish / assign" } ] },
   { id: "people", name: "People / HR", sub: "Personnel & hiring", items: [
     { id: "hr-home", name: "HR Command Center" }, { id: "people", name: "People Roster", ve: true }, { id: "people-profile", name: "Employee Profile", ve: true },
@@ -77,7 +89,12 @@ export const MODULES: AccessModule[] = [
     { id: "training-courses", name: "Course Authoring" }, { id: "training-assign", name: "Assign Training" }, { id: "training-record", name: "Employee Cert Record", ve: true, note: "Edit = mark complete" },
     { id: "training-reports", name: "Training Reports" }, { id: "certifications", name: "Certifications Catalog", ve: true } ] },
   { id: "settings", name: "Settings & Admin", sub: "Super-admin tools", items: [
-    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "copilot-insights", name: "Copilot Insights", note: "Read-only Copilot usage + knowledge-gaps report; self-guarded (super admins)" }, { id: "weather-settings", name: "Weather Settings", note: "Admin-only — Weather Ops rule thresholds, forecast locations, and the fertilizer blackout calendar. Page self-guards with requireAdmin." }, { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
+    { id: "access-rights", name: "Access Rights" }, { id: "connections", name: "Data Connections" }, { id: "copilot-insights", name: "Copilot Insights", note: "Read-only Copilot usage + knowledge-gaps report; self-guarded (super admins)" }, { id: "weather-settings", name: "Weather Settings", note: "Admin-only — Weather Ops rule thresholds, forecast locations, and the fertilizer blackout calendar. Page self-guards with requireAdmin." },
+    // System Map relocated here from the Management/Executive nav (nav/IA refactor
+    // P2) — it's an admin utility. Admin + senior leadership (page self-guards);
+    // surfaced in the Settings & Admin footer of AppShell.
+    { id: "system-map", name: "System Map", note: "Auto-generated workflow/interconnection map from docs/WORKFLOWS.md; admin + senior leadership. Lives in the Settings & Admin nav footer." },
+    { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
     { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
@@ -133,7 +150,12 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     // Catalog Review ("confirm") was removed from HR — catalog editing is now
     // super-admin-only.
     "training-assign": true, "training-record": "edit", "training-reports": true, certifications: "view",
-    insurance: "view", documents: "view", ...SELF_BASIC,
+    // Insurance folded into the Compliance center as a tab (nav/IA refactor P2).
+    // HR keeps insurance access; `compliance: "view"` lets the (app) layout admit HR
+    // to `/management/compliance` so the Insurance tab resolves — the page still
+    // role-gates the senior-leadership Command Center tab (canViewCompliance), so HR
+    // sees ONLY the Insurance tab, not the compliance board.
+    insurance: "view", compliance: "view", documents: "view", ...SELF_BASIC,
   },
   // Admin-level reach for the sales domain (COO decision, Oct 2026): the Sales
   // Director oversees the sales team AND sees company + branch performance

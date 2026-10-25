@@ -9,5 +9,6 @@ export default async function BranchPnlRedirect({
 }) {
   const sp = await searchParams;
   const branch = sp.branch;
-  redirect(branch ? `/executive?scope=${encodeURIComponent(branch)}` : "/executive");
+  // Branch P&L is the Branches tab of the consolidated Executive dashboard.
+  redirect(branch ? `/executive?tab=branches&scope=${encodeURIComponent(branch)}` : "/executive?tab=branches");
 }
