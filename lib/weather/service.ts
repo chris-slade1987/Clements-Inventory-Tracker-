@@ -112,6 +112,10 @@ async function doRefresh(loc: LocationRow): Promise<SnapshotView> {
         forecastUrl: p.forecastUrl, forecastHourlyUrl: p.forecastHourlyUrl, forecastGridDataUrl: p.forecastGridDataUrl,
       },
     }).catch(() => {});
+    // Reflect the resolved grid on the in-memory row too, so the SAME request that
+    // first resolves a point already renders the radar station (not just the next one).
+    loc.gridId = p.gridId; loc.gridX = p.gridX; loc.gridY = p.gridY; loc.radarStation = p.radarStation;
+    loc.forecastUrl = p.forecastUrl; loc.forecastHourlyUrl = p.forecastHourlyUrl; loc.forecastGridDataUrl = p.forecastGridDataUrl;
   }
 
   const [hourly, daily, gridData, alerts, tropicalActive, thresholds] = await Promise.all([

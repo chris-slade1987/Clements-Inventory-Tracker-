@@ -3,9 +3,10 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { BRANCHES } from "@/lib/management";
 import { getTerritory, getAllTerritories, todayET, type TerritoryView } from "@/lib/weather/service";
-import { fiveDay, hourLabel, radarLoopUrl, riskBadgeClass, riskDotClass, riskLabel, updatedAgo } from "@/lib/weather/ui";
+import { fiveDay, hourLabel, riskBadgeClass, riskDotClass, riskLabel, updatedAgo } from "@/lib/weather/ui";
 import type { RiskLevel } from "@/lib/weather/types";
 import RefreshButton from "@/components/weather/RefreshButton";
+import WeatherRadarMap from "@/components/weather/WeatherRadarMap";
 
 // Weather Ops — the full forecast page. Managers land directly on their territory;
 // admins/leadership get an all-territories grid and can open any one. Server-rendered
@@ -103,7 +104,7 @@ function TerritoryDetail({ t }: { t: TerritoryView }) {
   const date = todayET();
   const strip = fiveDay(t.daily);
   const radarStation = t.locations.find((l) => l.radarStation)?.radarStation ?? null;
-  const radar = radarLoopUrl(radarStation);
+  const center = t.locations.find((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)) ?? null;
 
   // Flagged-hour sets for timeline shading.
   const rainHours = new Set(t.flags.find((f) => f.code === "RAIN_WINDOW")?.hours ?? []);
@@ -232,16 +233,16 @@ function TerritoryDetail({ t }: { t: TerritoryView }) {
         </Card>
       )}
 
-      {/* Radar */}
+      {/* Radar — OSM roads basemap + animated RainViewer overlay */}
       <Card className="p-5">
         <div className="flex items-center justify-between">
-          <div className="text-[11px] uppercase tracking-wide text-muted">Radar{radarStation ? ` · ${radarStation}` : ""}</div>
-          <span className="text-[11px] text-muted">Source: NWS</span>
+          <div className="text-[11px] uppercase tracking-wide text-muted">Radar{radarStation ? ` · NWS ${radarStation}` : ""}</div>
+          <span className="text-[11px] text-muted">Live radar loop</span>
         </div>
-        {radar ? (
-          <img src={radar} alt={`NWS radar loop for ${t.label}`} className="mt-3 w-full rounded-lg border border-line" loading="lazy" />
+        {center ? (
+          <WeatherRadarMap lat={center.lat} lon={center.lon} label={t.label} />
         ) : (
-          <p className="mt-2 text-sm text-muted">Radar station not resolved yet — it loads after the first forecast fetch.</p>
+          <p className="mt-2 text-sm text-muted">Radar loads once a forecast point is set for this territory.</p>
         )}
       </Card>
     </div>

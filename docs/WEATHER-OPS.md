@@ -13,7 +13,8 @@ National Hurricane Center) — no API keys, no paid services.
 - **`/weather` page** (`app/(app)/weather/page.tsx`): managers land on their
   territory; admins/leadership get an all-territories grid + a selected detail. Detail
   = AI briefing card, hourly timeline (6am–8pm, flagged hours shaded), 5-day forecast,
-  active alerts (full text), the NWS radar loop, and the last-updated time.
+  active alerts (full text), an **interactive radar** (OSM roads basemap + animated
+  RainViewer overlay, `components/weather/WeatherRadarMap.tsx`), and last-updated time.
 - **`/weather/settings`** (admin only, `requireAdmin`): rule thresholds, forecast
   locations, and the fertilizer blackout calendar.
 
@@ -30,7 +31,7 @@ centers (`DEFAULT_LOCATIONS` in `lib/weather/service.ts`), admin-editable afterw
 | --- | --- | --- |
 | NWS | hourly, 5-day, gridpoint detail, alerts | `https://api.weather.gov` |
 | NHC | active tropical systems | `https://www.nhc.noaa.gov/CurrentStorms.json` |
-| NWS radar | radar loop image | `https://radar.weather.gov/ridge/standard/{STATION}_loop.gif` |
+| RainViewer | animated radar overlay (free, no key) | `https://api.rainviewer.com/public/weather-maps.json` + tile cache |
 
 - A descriptive **User-Agent** with contact info is required by NWS or requests are
   blocked (`lib/weather/nws.ts`).
