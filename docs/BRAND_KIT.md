@@ -139,6 +139,15 @@ Corners: **12px** (cards/buttons), **16px** (sheets/large frames), **999px**
 - **Callout/tip** — card with a 3px `brand-600` left rule + a line icon. Keep rare.
 - Reuse the real primitives in `components/ui.tsx` (`btn`, `Card`, `PageHeader`,
   `EmptyState`) inside the app rather than re-styling.
+- **Surface scopes** (`app/globals.css`): the app canvas is light (`.app-canvas`
+  re-scopes `--color-ink/muted/line/surface` to dark-on-light). To drop a **forest
+  "command band"** (hero/chrome) inside the light canvas, wrap it in **`.surface-dark`**
+  (the mirror of `.surface-light`) + `.bg-forest-grad`, so the same token classes
+  (`text-ink`/`text-muted`/`border-line`) read correctly as light-on-forest. Example:
+  the Weather Ops command deck (`app/(app)/weather`).
+- **Status lamp** (`.wx-lamp-live`, var `--wx-ring`): a slow (2.8s) ring pulse for a
+  risk indicator — calm, not a flash; stops under `prefers-reduced-motion`. Use the
+  semantic colors (`positive`/`warning`/`danger`) for the lamp fill.
 
 ---
 

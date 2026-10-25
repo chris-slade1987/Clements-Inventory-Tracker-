@@ -10,11 +10,17 @@ National Hurricane Center) — no API keys, no paid services.
   conditions, today's risk badge (green/yellow/red), the AI ops headline, a 5-day
   strip, an alert banner, and "updated X ago". A branch-locked manager sees their
   territory; an admin sees a compact row across all four with the worst-risk rollup.
-- **`/weather` page** (`app/(app)/weather/page.tsx`): managers land on their
-  territory; admins/leadership get an all-territories grid + a selected detail. Detail
-  = AI briefing card, hourly timeline (6am–8pm, flagged hours shaded), 5-day forecast,
-  active alerts (full text), an **interactive radar** (OSM roads basemap + animated
-  RainViewer overlay, `components/weather/WeatherRadarMap.tsx`), and last-updated time.
+- **`/weather` page — the "command deck"** (`app/(app)/weather/page.tsx`): an
+  airline/NWS-ops-console styling on the CanopyOS brand — a forest-green **command band**
+  (`.surface-dark` + `.bg-forest-grad`) with the station title, a posture lamp, a live
+  **ET+Zulu clock with auto-sync** (`components/weather/CommandClock.tsx`, refreshes
+  every 5 min, paused when hidden), and a cockpit **instrument strip** (temp · humidity ·
+  wind · rain · advisories). Below, on the light canvas: admins get a **station board**
+  (per-territory tiles with risk lamps); the selected/own station shows an **ops brief**,
+  **advisories**, an **interactive radar scope** (OSM roads basemap + animated RainViewer
+  overlay + branded office pins, `components/weather/WeatherRadarMap.tsx`), a **5-day
+  outlook**, an **ops timeline** (6a–8p, flagged hours shaded, a pulsing NOW marker), and
+  active NWS alerts. Status lamps use the brand semantic colors with a slow pulse.
 - **`/weather/settings`** (admin only, `requireAdmin`): rule thresholds, forecast
   locations, and the fertilizer blackout calendar.
 

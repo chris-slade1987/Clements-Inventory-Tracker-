@@ -221,6 +221,29 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
   .buzz-confetti { display: none; }
 }
 
+/* ===== Weather Ops — command deck ===== */
+/* Re-scope the neutral tokens back to the on-forest (light-on-dark) scheme, so a
+   command console band dropped inside the light .app-canvas reads correctly with the
+   same token classes (text-ink / text-muted / border-line / bg-surface). Mirror of
+   .surface-light, the other direction. */
+.surface-dark {
+  --color-ink: #eef4f0;
+  --color-muted: #a7bdb0;
+  --color-line: rgba(255, 255, 255, 0.12);
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-canvas: #0b3d20;
+  color: #eef4f0;
+}
+/* Status lamp — a slow, calm ring pulse (never a flash). --wx-ring sets the color. */
+@keyframes wx-lamp { 0% { box-shadow: 0 0 0 0 var(--wx-ring, rgba(220,38,38,.5)); } 70%, 100% { box-shadow: 0 0 0 7px rgba(0,0,0,0); } }
+.wx-lamp-live { animation: wx-lamp 2.8s ease-out infinite; }
+/* The "NOW" marker on the ops timeline — a soft breathing line. */
+@keyframes wx-now { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.wx-now { animation: wx-now 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .wx-lamp-live, .wx-now { animation: none !important; }
+}
+
 /* ===== Goal slider — motivation kit (components/GoalSlider.tsx) ===== */
 /* Driven by inline vars: --pct (0-100%) and --accent (ramp color). The filled
    portion and thumb take the encouragement color; the rest is a calm track. */
