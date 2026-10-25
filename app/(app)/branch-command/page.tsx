@@ -4,7 +4,9 @@ import { requireUser, homePath, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import { PageHeader } from "@/components/ui";
 import { getBranchCommand, BRANCH_KEYS, weekPeriodLabel } from "@/lib/branch-command";
+import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs } from "@/lib/branch-production-ingest";
 import BranchCommandBoard from "./BranchCommandBoard";
+import ProductionCompletion from "./ProductionCompletion";
 
 // Branch Command — the branch manager's weekly cockpit. Managers see their own
 // branch; admins/leadership can switch branches. See docs/BRANCH-COMMAND.md.
@@ -25,6 +27,13 @@ export default async function BranchCommandPage({
     : (sp.branch && (BRANCH_KEYS as readonly string[]).includes(sp.branch) ? sp.branch : user.branch) || BRANCH_KEYS[0];
 
   const data = await getBranchCommand(branch);
+
+  // Production & Completion (route completion / left-behind) — the latest loaded month.
+  const prodPeriods = await listProductionPeriods(branch);
+  const prodPeriod = prodPeriods[0] ?? null;
+  const prod = prodPeriod ? await getBranchProductionMonth(branch, prodPeriod) : null;
+  const leftBehind = prodPeriod ? await getLeftBehindJobs(branch, prodPeriod) : [];
+  const canUploadProd = user.role === "admin" || user.role === "manager";
 
   // Serialize dates for the client component.
   const payload = {
@@ -89,6 +98,21 @@ export default async function BranchCommandPage({
         }
       />
       <BranchCommandBoard data={payload} />
+
+      <ProductionCompletion
+        branch={branch}
+        periodKey={prod?.periodKey ?? null}
+        routes={(prod?.routes ?? []).map((r) => ({
+          route: r.route, techName: r.techName, scheduledCount: r.scheduledCount, completedCount: r.completedCount,
+          completionPct: r.completionPct, expectedPct: r.expectedPct, status: r.status, leftBehindCount: r.leftBehindCount,
+          leftBehindDollars: r.leftBehindDollars, remainingCount: r.remainingCount, projectedPct: r.projectedPct,
+          callbacks: r.callbacks, netRouteChange: r.netRouteChange, netRouteChangeDollars: r.netRouteChangeDollars,
+        }))}
+        totals={prod?.totals ?? { scheduled: 0, completed: 0, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChange: 0, netChangeDollars: 0 }}
+        leftBehind={leftBehind}
+        uploads={prod?.uploads ?? []}
+        canUpload={canUploadProd}
+      />
     </div>
   );
 }
