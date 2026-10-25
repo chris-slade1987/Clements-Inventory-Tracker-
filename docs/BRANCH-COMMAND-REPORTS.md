@@ -69,6 +69,36 @@ Command's weekly upload (same confirm-before-apply + replace-on-re-upload flow a
 Routing Approval); the parser normalizes into `WeeklyMetric` / `TechWeek`, and the
 manager confirms/reacts rather than re-keying.
 
+## Completion & pacing engine (schedule-as-baseline) — `lib/branch-production.ts`
+
+The monthly **Technician Schedule Report is the plan** (already loaded as day-level
+`RouteStop` rows via Routing Approval; every stop carries its PestPac **account #** —
+the join key). Weekly actuals are matched against it by account #:
+
+- **Completion** — stops completed ÷ scheduled (count) **and** production $ ÷ scheduled $
+  (COO decision: track both).
+- **Pace** — judged against the **day-level schedule**, not a flat %: expected-done-by-today
+  = stops the schedule placed on/before today, per route. `paceDeltaPct = completion −
+  expected`; status ahead/on_pace/behind/critical. (So on the 25th each route is measured
+  against its *own* calendar, which is why ~10–15% remaining reads as on-pace.)
+- **Jobs left behind** — past-due, not completed, not moved to a future day. **Cross-checked**:
+  union of the Underserviced report's past-due rows AND schedule-vs-production (so nothing
+  slips). `rescheduledAccounts` are excluded.
+- **Projection** — month-end completion from the route's own throughput (daily rate ×
+  remaining service days); status on_track/at_risk/wont_finish.
+- **Route size** — new starts − cancellations (accounts + $). Explicitly NOT "sales".
+
+Pure + unit-tested (`lib/branch-production.test.ts`). Parsers map each PestPac report into
+its normalized input shape; the engine never touches Prisma or a file format.
+
+### Reports this adds to the weekly set (need real samples to pin parsers)
+- **Technician Production Report** (what's completed, by account/tech) → completion + per-tech.
+- **Underserviced Report** (outstanding + past-due) → jobs left behind.
+- **Cancellation Report** (by route) → `cancellations_count`, route size.
+- **New Start Report** (accounts added/moved to a route) → route growth/decline.
+The **monthly Technician Schedule Report** is the baseline (reuses the routing parser;
+October verified: 35 techs / 5,862 stops / all account-keyed).
+
 ## Build order (Phase 2)
 1. Upload UI on Branch Command (reuse the Routing Approval confirm flow).
 2. Parsers per report (pin to a real sample export of each — same way the routing
