@@ -20,17 +20,19 @@ function officeIconHtml(): string {
   </div>`;
 }
 
-export default function WeatherRadarMap({ lat, lon, label, offices = [], height = 480, zoom = 8 }: { lat: number; lon: number; label: string; offices?: Office[]; height?: number; zoom?: number }) {
+export default function WeatherRadarMap({ lat, lon, label, offices = [], stops = [], height = 480, zoom = 8 }: { lat: number; lon: number; label: string; offices?: Office[]; stops?: { lat: number; lng: number }[]; height?: number; zoom?: number }) {
   const valid = Number.isFinite(lat) && Number.isFinite(lon);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LMap | null>(null);
   const drawRef = useRef<((i: number) => void) | null>(null);
   const framesRef = useRef<Frame[]>([]);
+  const stopsLayerRef = useRef<import("leaflet").LayerGroup | null>(null);
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(true);
   const [idx, setIdx] = useState(0);
   const [count, setCount] = useState(0);
   const [stamp, setStamp] = useState<string>("");
+  const [showStops, setShowStops] = useState(stops.length > 0);
 
   useEffect(() => {
     if (!valid || mapRef.current || !containerRef.current) return;
@@ -48,6 +50,16 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [], height 
         for (const o of pins) {
           if (!Number.isFinite(o.lat) || !Number.isFinite(o.lon)) continue;
           L.marker([o.lat, o.lon], { icon }).addTo(map).bindTooltip(`Clements · ${o.label}`, { direction: "top" });
+        }
+        // Scheduled-stop dots (Canopy routing) — a layer we can toggle on/off.
+        if (stops.length > 0) {
+          const group = L.layerGroup();
+          for (const s of stops) {
+            if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) continue;
+            L.circleMarker([s.lat, s.lng], { radius: 3, color: "#E3B23C", weight: 1, fillColor: "#E3B23C", fillOpacity: 0.85 }).addTo(group);
+          }
+          stopsLayerRef.current = group;
+          if (showStops) group.addTo(map);
         }
         mapRef.current = map;
 
@@ -98,6 +110,14 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [], height 
   // Draw whenever the frame index changes (animation or scrubber).
   useEffect(() => { drawRef.current?.(idx); }, [idx]);
 
+  // Toggle the scheduled-stops layer.
+  useEffect(() => {
+    const group = stopsLayerRef.current, map = mapRef.current;
+    if (!group || !map) return;
+    if (showStops) group.addTo(map);
+    else group.remove();
+  }, [showStops]);
+
   // Animate — skip ticks while the tab is hidden (saves the viewer's data).
   useEffect(() => {
     if (failed || !playing || count === 0) return;
@@ -118,6 +138,11 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [], height 
         <button onClick={() => setPlaying((p) => !p)} className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-ink hover:bg-white/10">
           {playing ? "Pause" : "Play"}
         </button>
+        {stops.length > 0 && (
+          <button onClick={() => setShowStops((s) => !s)} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] ${showStops ? "border-amber-400/50 bg-amber-400/15 text-amber-200" : "border-white/15 bg-white/5 text-muted hover:bg-white/10"}`}>
+            <span className="h-2 w-2 rounded-full" style={{ background: "#E3B23C" }} /> Stops ({stops.length})
+          </button>
+        )}
         <input
           type="range" min={0} max={Math.max(0, count - 1)} value={idx}
           onChange={(e) => { setPlaying(false); setIdx(Number(e.target.value)); }}

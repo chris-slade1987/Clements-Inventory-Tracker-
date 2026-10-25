@@ -334,6 +334,28 @@ export async function purgeOldSnapshots(): Promise<number> {
   return r.count;
 }
 
+/**
+ * Geocoded scheduled stops for a branch on a given ET day, pulled from Canopy's own
+ * routing data (the Route* tables populated by Routing Approval) — NOT an external
+ * feed. Lets the radar show job density against the rain window. Empty until routing
+ * for the day is loaded + geocoded. Capped so the map stays light.
+ */
+export async function getScheduledStops(branch: string, date: string = todayET()): Promise<{ lat: number; lng: number }[]> {
+  const months = await prisma.routingMonth.findMany({ where: { branch }, select: { id: true } }).catch(() => []);
+  if (months.length === 0) return [];
+  const [y, m, d] = date.split("-").map(Number);
+  const start = new Date(Date.UTC(y, m - 1, d));
+  const end = new Date(Date.UTC(y, m - 1, d + 1));
+  const stops = await prisma.routeStop
+    .findMany({
+      where: { routingMonthId: { in: months.map((x) => x.id) }, date: { gte: start, lt: end }, lat: { not: null }, lng: { not: null } },
+      select: { lat: true, lng: true },
+      take: 600,
+    })
+    .catch(() => []);
+  return stops.flatMap((s) => (s.lat != null && s.lng != null ? [{ lat: s.lat, lng: s.lng }] : []));
+}
+
 /** Diagnostics support: last fetch + status per location. */
 export async function diagnosticsSnapshot() {
   const locs = (await prisma.weatherLocation.findMany({ orderBy: { branch: "asc" } }).catch(() => [])) as (LocationRow & { active: boolean })[];

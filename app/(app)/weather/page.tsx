@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { BRANCHES } from "@/lib/management";
-import { getTerritory, getAllTerritories, todayET, type TerritoryView } from "@/lib/weather/service";
-import { fiveDay, hourLabel } from "@/lib/weather/ui";
+import { getTerritory, getAllTerritories, getScheduledStops, todayET, type TerritoryView } from "@/lib/weather/service";
+import { fiveDay, hourLabel, updatedAgo } from "@/lib/weather/ui";
 import type { RiskLevel } from "@/lib/weather/types";
 import CommandClock from "@/components/weather/CommandClock";
 import WeatherRadarMap from "@/components/weather/WeatherRadarMap";
@@ -87,6 +87,7 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
   const stale = selected ? selected.stale : all.some((t) => t.stale);
   const scope = selected?.branch ?? "all";
   const ticker = buildTicker(selected, all);
+  const stops = selected ? await getScheduledStops(selected.branch) : [];
 
   return (
     <Deck
@@ -109,7 +110,7 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {selected ? <Detail t={selected} /> : canSeeAll ? (
+      {selected ? <Detail t={selected} stops={stops} /> : canSeeAll ? (
         <Panel code="//" title="Awaiting selection"><p className="text-sm text-muted">Select a station above to open its ops brief, radar scope, outlook, and timeline.</p></Panel>
       ) : null}
     </Deck>
@@ -124,7 +125,9 @@ function Deck({
   settings?: boolean; tickerItems: string[]; instruments?: React.ReactNode; children: React.ReactNode;
 }) {
   return (
-    <div className="surface-dark bg-forest-grad wx-grid overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_60px_-30px_rgba(0,0,0,.8)]">
+    <div className="surface-dark bg-forest-grad relative overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_60px_-30px_rgba(0,0,0,.8)]">
+      <div aria-hidden className="wx-grid pointer-events-none absolute inset-0 opacity-70" />
+      <div className="relative">
       {/* Classification / system bar */}
       <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-muted">
         <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-brand-400" /> Weather Ops</span>
@@ -155,6 +158,7 @@ function Deck({
         <Ticker items={tickerItems} />
 
         {children}
+      </div>
       </div>
     </div>
   );
@@ -249,7 +253,24 @@ function StationTile({ t, selected }: { t: TerritoryView; selected: boolean }) {
         <span className={af.length ? "text-amber-300" : "text-muted"}>{af.length} advisor{af.length === 1 ? "y" : "ies"}</span>
         {t.alerts.length > 0 && <span className="font-medium text-red-300">{t.alerts.length} alert{t.alerts.length > 1 ? "s" : ""}</span>}
       </div>
+      <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
+        <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted">
+          <Sparkline values={fiveDay(t.daily).map((d) => d.hi).filter((n): n is number => n != null)} className="h-4 w-16 text-brand-300" />
+          5-day
+        </span>
+        <span className="text-[10px] text-muted">{t.stale ? "stale · " : ""}upd {updatedAgo(t.updatedAt)}</span>
+      </div>
     </Link>
+  );
+}
+function Sparkline({ values, className }: { values: number[]; className?: string }) {
+  if (values.length < 2) return <span className={className} />;
+  const w = 64, h = 16, min = Math.min(...values), max = Math.max(...values), span = max - min || 1;
+  const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - ((v - min) / span) * (h - 3) - 1.5}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={className} fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <polyline points={pts} />
+    </svg>
   );
 }
 function Mini({ label, value }: { label: string; value: string }) {
@@ -261,7 +282,7 @@ function Mini({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Detail({ t }: { t: TerritoryView }) {
+function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: number }[] }) {
   const date = todayET();
   const strip = fiveDay(t.daily);
   const center = t.locations.find((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)) ?? null;
@@ -316,7 +337,7 @@ function Detail({ t }: { t: TerritoryView }) {
       {/* Radar scope — big, full width */}
       <Panel code="03" title={`Radar scope${radarStation ? ` · NWS ${radarStation}` : ""}`} right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Live loop</span>}>
         {center ? (
-          <WeatherRadarMap lat={center.lat} lon={center.lon} label={t.label} height={520} offices={t.locations.filter((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)).map((l) => ({ label: l.name, lat: l.lat, lon: l.lon }))} />
+          <WeatherRadarMap lat={center.lat} lon={center.lon} label={t.label} height={520} stops={stops} offices={t.locations.filter((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)).map((l) => ({ label: l.name, lat: l.lat, lon: l.lon }))} />
         ) : (
           <p className="text-sm text-muted">Radar loads once a forecast point is set for this station.</p>
         )}
