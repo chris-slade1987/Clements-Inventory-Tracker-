@@ -21,6 +21,14 @@ National Hurricane Center) — no API keys, no paid services.
   overlay + branded office pins, `components/weather/WeatherRadarMap.tsx`), a **5-day
   outlook**, an **ops timeline** (6a–8p, flagged hours shaded, a pulsing NOW marker), and
   active NWS alerts. Status lamps use the brand semantic colors with a slow pulse.
+- **Intel-deck styling** (liberties within the palette/type): a dark forest ground with a
+  HUD grid, corner-bracketed panels, a classification/system bar, instrument **gauges**
+  (`components/weather/Gauge.tsx` — temp/humidity/wind/rain with threshold zones), and a
+  scrolling **advisory ticker**. Forecast conditions use custom thin line-art
+  **weather glyphs** (`components/weather/WeatherGlyph.tsx`), not raster NWS icons.
+- **Radar**: larger scope (520px), a **play/pause + frame scrubber**, and an
+  `invalidateSize()` fix (plus `ResizeObserver` and `maxNativeZoom`) so tiles load at the
+  default zoom instead of only after the user zooms.
 - **`/weather/settings`** (admin only, `requireAdmin`): rule thresholds, forecast
   locations, and the fertilizer blackout calendar.
 

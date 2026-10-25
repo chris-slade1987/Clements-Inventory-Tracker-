@@ -240,8 +240,20 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
 /* The "NOW" marker on the ops timeline — a soft breathing line. */
 @keyframes wx-now { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 .wx-now { animation: wx-now 2.8s ease-in-out infinite; }
+/* Faint HUD grid for the intel deck ground (reads over the forest gradient). */
+.wx-grid {
+  background-image:
+    linear-gradient(rgba(167,189,176,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,189,176,0.06) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+/* Advisory ticker — a slow, seamless marquee (content duplicated, translate -50%). */
+@keyframes wx-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.wx-ticker-track { animation: wx-ticker 36s linear infinite; }
+.wx-ticker-wrap:hover .wx-ticker-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .wx-lamp-live, .wx-now { animation: none !important; }
+  .wx-ticker-track { animation: none !important; }
 }
 
 /* ===== Goal slider — motivation kit (components/GoalSlider.tsx) ===== */

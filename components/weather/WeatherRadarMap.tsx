@@ -3,59 +3,62 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 
-// Weather Ops radar — a real OpenStreetMap roads basemap with an animated radar
-// overlay from RainViewer (free, no API key; tiles load in the viewer's browser,
-// same Leaflet stack as the Sales lead map). This replaces the old single static
-// NWS loop GIF, which showed nothing if that one URL was unavailable. Degrades to a
-// message if Leaflet or the radar feed can't load. Centered on the territory point.
+// Weather Ops radar — OpenStreetMap roads basemap + an animated radar overlay from
+// RainViewer (free, no API key; tiles load in the viewer's browser). Branded office
+// pins (store-locator style). Interactive: play/pause + a frame scrubber. Fixes the
+// "tiles only load after you zoom" bug by calling invalidateSize once the panel has
+// its real size (and on resize). Degrades to a message if Leaflet/radar can't load.
 type LMap = import("leaflet").Map;
 
 type Frame = { time: number; path: string };
-
 export type Office = { label: string; lat: number; lon: number };
 
-// A teardrop pin badged with the Clements mark — used to plot branch offices on the
-// radar, the way a store locator drops branded markers on Google Maps.
 function officeIconHtml(): string {
   return `<div style="position:relative;width:34px;height:40px;transform:translate(-1px,-2px)">
-    <div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#fff;border:2px solid #2e6f47;box-shadow:0 2px 5px rgba(0,0,0,.35);position:absolute;left:2px;top:0"></div>
+    <div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#fff;border:2px solid #2e6f47;box-shadow:0 2px 6px rgba(0,0,0,.45);position:absolute;left:2px;top:0"></div>
     <img src="/clements-mark.svg" alt="" style="width:18px;height:18px;position:absolute;left:8px;top:5px"/>
   </div>`;
 }
 
-export default function WeatherRadarMap({ lat, lon, label, offices = [] }: { lat: number; lon: number; label: string; offices?: Office[] }) {
+export default function WeatherRadarMap({ lat, lon, label, offices = [], height = 480, zoom = 8 }: { lat: number; lon: number; label: string; offices?: Office[]; height?: number; zoom?: number }) {
   const valid = Number.isFinite(lat) && Number.isFinite(lon);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LMap | null>(null);
   const drawRef = useRef<((i: number) => void) | null>(null);
   const framesRef = useRef<Frame[]>([]);
-  const idxRef = useRef(0);
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(true);
+  const [idx, setIdx] = useState(0);
+  const [count, setCount] = useState(0);
   const [stamp, setStamp] = useState<string>("");
 
-  // Build the map + load the RainViewer frame index once.
   useEffect(() => {
     if (!valid || mapRef.current || !containerRef.current) return;
     let cancelled = false;
+    let ro: ResizeObserver | null = null;
     (async () => {
       try {
         const L = (await import("leaflet")).default;
         if (cancelled || !containerRef.current) return;
-        const map = L.map(containerRef.current, { scrollWheelZoom: false, attributionControl: true }).setView([lat, lon], 8);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: "&copy; OpenStreetMap · radar &copy; RainViewer",
-        }).addTo(map);
-        // Branded office markers (store-locator style). Fall back to the center point
-        // when no offices were passed, so the territory is always marked.
-        const pins: Office[] = offices.length > 0 ? offices : [{ label, lat, lon }];
+        const map = L.map(containerRef.current, { scrollWheelZoom: false, attributionControl: true, zoomControl: true }).setView([lat, lon], zoom);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap · radar &copy; RainViewer" }).addTo(map);
+
         const icon = L.divIcon({ className: "", html: officeIconHtml(), iconSize: [34, 40], iconAnchor: [17, 38], tooltipAnchor: [0, -34] });
+        const pins: Office[] = offices.length > 0 ? offices : [{ label, lat, lon }];
         for (const o of pins) {
           if (!Number.isFinite(o.lat) || !Number.isFinite(o.lon)) continue;
           L.marker([o.lat, o.lon], { icon }).addTo(map).bindTooltip(`Clements · ${o.label}`, { direction: "top" });
         }
         mapRef.current = map;
+
+        // The panel often sizes AFTER the map inits (fonts/layout), leaving Leaflet
+        // with the wrong dimensions so tiles don't fill until you interact. Recompute
+        // once on the next frame and whenever the container resizes.
+        const fix = () => map.invalidateSize();
+        requestAnimationFrame(fix);
+        setTimeout(fix, 250);
+        ro = new ResizeObserver(fix);
+        ro.observe(containerRef.current);
 
         const res = await fetch("https://api.rainviewer.com/public/weather-maps.json", { cache: "no-store" });
         if (!res.ok) throw new Error("radar feed");
@@ -66,53 +69,62 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [] }: { lat
 
         let radar: import("leaflet").TileLayer | null = null;
         drawRef.current = (i: number) => {
-          const f = frames[i % frames.length];
+          const f = frames[((i % frames.length) + frames.length) % frames.length];
+          // maxNativeZoom keeps tiles loading at high map zoom (RainViewer upscales).
           const url = `${data.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`;
           if (radar) radar.setUrl(url);
-          else radar = L.tileLayer(url, { opacity: 0.6, maxZoom: 19 }).addTo(map);
+          else radar = L.tileLayer(url, { opacity: 0.62, maxZoom: 19, maxNativeZoom: 10 }).addTo(map);
           setStamp(new Date(f.time * 1000).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }));
         };
-        idxRef.current = Math.max(0, (data.radar?.past?.length ?? 1) - 1); // start at "now"
-        drawRef.current(idxRef.current);
+        const start = Math.max(0, (data.radar?.past?.length ?? 1) - 1); // "now"
+        setCount(frames.length);
+        setIdx(start);
+        drawRef.current(start);
       } catch {
         if (!cancelled) setFailed(true);
       }
     })();
     return () => {
       cancelled = true;
+      ro?.disconnect();
       mapRef.current?.remove();
       mapRef.current = null;
       drawRef.current = null;
     };
-    // offices change in lockstep with the territory's lat/lon/label (already deps).
+    // offices/height change in lockstep with the territory's lat/lon/label (deps).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valid, lat, lon, label]);
+  }, [valid, lat, lon, label, zoom]);
 
-  // Animate the loop — but skip ticks while the tab isn't visible, so a backgrounded
-  // page stops pulling radar tiles (saves the viewer's data; polite to the free feed).
+  // Draw whenever the frame index changes (animation or scrubber).
+  useEffect(() => { drawRef.current?.(idx); }, [idx]);
+
+  // Animate — skip ticks while the tab is hidden (saves the viewer's data).
   useEffect(() => {
-    if (failed || !playing) return;
+    if (failed || !playing || count === 0) return;
     const timer = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
-      const frames = framesRef.current;
-      if (frames.length === 0 || !drawRef.current) return;
-      idxRef.current = (idxRef.current + 1) % frames.length;
-      drawRef.current(idxRef.current);
-    }, 600);
+      setIdx((i) => (i + 1) % count);
+    }, 650);
     return () => clearInterval(timer);
-  }, [failed, playing]);
+  }, [failed, playing, count]);
 
   if (!valid || failed) {
-    return <p className="mt-2 text-sm text-muted">Live radar is unavailable right now. Try again shortly.</p>;
+    return <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-6 text-sm text-muted">Live radar is unavailable right now. Try again shortly.</div>;
   }
   return (
     <div className="mt-3">
-      <div ref={containerRef} className="h-72 w-full overflow-hidden rounded-lg border border-line" style={{ background: "#e8eef0" }} />
-      <div className="mt-2 flex items-center justify-between text-[11px] text-muted">
-        <button onClick={() => setPlaying((p) => !p)} className="rounded-md border border-line px-2 py-0.5 hover:bg-black/5">
+      <div ref={containerRef} className="w-full overflow-hidden rounded-lg border border-white/10" style={{ height, background: "#0e2a1b" }} />
+      <div className="mt-2 flex items-center gap-3">
+        <button onClick={() => setPlaying((p) => !p)} className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-ink hover:bg-white/10">
           {playing ? "Pause" : "Play"}
         </button>
-        <span>Frame: {stamp || "…"}</span>
+        <input
+          type="range" min={0} max={Math.max(0, count - 1)} value={idx}
+          onChange={(e) => { setPlaying(false); setIdx(Number(e.target.value)); }}
+          className="h-1 flex-1 cursor-pointer accent-brand-400"
+          aria-label="Radar frame"
+        />
+        <span className="w-16 text-right text-[11px] tabular-nums text-muted">{stamp || "…"}</span>
       </div>
     </div>
   );

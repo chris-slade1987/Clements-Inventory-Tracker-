@@ -23,21 +23,22 @@ export function riskDotClass(risk: RiskLevel): string {
   return "bg-brand-500";
 }
 
-export type DayCard = { label: string; icon: string | null; hi: number | null; lo: number | null; pop: number };
+export type DayCard = { label: string; short: string; icon: string | null; hi: number | null; lo: number | null; pop: number };
 
-/** Collapse NWS day/night periods into up-to-5 day cards (hi/lo + rain%). */
+/** Collapse NWS day/night periods into up-to-5 day cards (hi/lo + rain% + condition). */
 export function fiveDay(daily: DayPoint[]): DayCard[] {
   const days: DayCard[] = [];
   let cur: DayCard | null = null;
   for (const p of daily) {
     if (p.isDaytime) {
-      cur = { label: p.name, icon: p.icon, hi: p.tempF, lo: null, pop: p.pop ?? 0 };
+      cur = { label: p.name, short: p.short, icon: p.icon, hi: p.tempF, lo: null, pop: p.pop ?? 0 };
       days.push(cur);
     } else if (cur && cur.lo == null) {
       cur.lo = p.tempF;
       cur.pop = Math.max(cur.pop, p.pop ?? 0);
+      if (!cur.short) cur.short = p.short;
     } else {
-      cur = { label: p.name, icon: p.icon, hi: null, lo: p.tempF, pop: p.pop ?? 0 };
+      cur = { label: p.name, short: p.short, icon: p.icon, hi: null, lo: p.tempF, pop: p.pop ?? 0 };
       days.push(cur);
     }
   }
