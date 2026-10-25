@@ -70,10 +70,12 @@ export default function WeatherRadarMap({ lat, lon, label }: { lat: number; lon:
     };
   }, [valid, lat, lon, label]);
 
-  // Animate the loop.
+  // Animate the loop — but skip ticks while the tab isn't visible, so a backgrounded
+  // page stops pulling radar tiles (saves the viewer's data; polite to the free feed).
   useEffect(() => {
     if (failed || !playing) return;
     const timer = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       const frames = framesRef.current;
       if (frames.length === 0 || !drawRef.current) return;
       idxRef.current = (idxRef.current + 1) % frames.length;
