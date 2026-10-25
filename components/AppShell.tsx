@@ -12,6 +12,7 @@ import {
   COPILOT_INSIGHTS_NAV_ITEM,
   USERS_ACCESS_NAV_ITEM,
   EMAIL_LOG_NAV_ITEM,
+  SYSTEM_MAP_NAV_ITEM,
   buildNavForMode,
   buildResources,
   homeMode,
@@ -265,7 +266,14 @@ export default function AppShell({
           // Training Center + Certifications now live in the Company center.
           : (pathname.startsWith("/management/training") || pathname.startsWith("/management/certifications"))
             ? "manager"
-          : (pathname.startsWith("/management") || pathname.startsWith("/executive"))
+          // The consolidated Executive dashboard (`/executive`, tabbed) is the
+          // Executive center for admins / senior leadership; for everyone else who
+          // can reach it (branch managers' Overview via the Company-KPIs redirect,
+          // the Sales Director) it's their Company KPIs — show the Company (manager)
+          // center, mirroring how the former `/management` operating view behaved.
+          : pathname.startsWith("/executive")
+            ? (isAdmin || isSeniorLeadership ? "management" : "manager")
+          : pathname.startsWith("/management")
             ? "management"
           // The Sales Team hub lives in the My Branch / Company center (company-wide
           // for admins, own-branch read-only for managers). The Sales Director has a
@@ -320,6 +328,9 @@ export default function AppShell({
     ...resources,
     ...(canManageAccessRights ? [ACCESS_RIGHTS_NAV_ITEM, CONNECTIONS_NAV_ITEM, COPILOT_INSIGHTS_NAV_ITEM] : []),
     ...(isAdmin ? [USERS_ACCESS_NAV_ITEM, EMAIL_LOG_NAV_ITEM] : []),
+    // System Map — admin utility relocated out of the Executive nav into Settings
+    // & Admin (nav/IA refactor P2). Admin + senior leadership.
+    ...(isAdmin || isSeniorLeadership ? [SYSTEM_MAP_NAV_ITEM] : []),
   ];
   const needMore = items.length > MAX_PRIMARY || mobileExtras.length > 0;
   const primaryItems = needMore ? items.slice(0, MAX_PRIMARY) : items;
@@ -530,6 +541,14 @@ export default function AppShell({
                       {EMAIL_LOG_NAV_ITEM.label}
                     </Link>
                   </>
+                ) : null}
+                {/* System Map — admin utility relocated here from the Executive nav
+                    (nav/IA refactor P2). Admin + senior leadership. */}
+                {isAdmin || isSeniorLeadership ? (
+                  <Link href={SYSTEM_MAP_NAV_ITEM.href} onClick={closePanel} aria-current={isActive(pathname, SYSTEM_MAP_NAV_ITEM.href) ? "page" : undefined} className={navClass(isActive(pathname, SYSTEM_MAP_NAV_ITEM.href))}>
+                    <Icon path={SYSTEM_MAP_NAV_ITEM.icon} className="h-5 w-5 shrink-0" />
+                    {SYSTEM_MAP_NAV_ITEM.label}
+                  </Link>
                 ) : null}
                 <Link href="/help" onClick={closePanel} aria-current={isActive(pathname, "/help") ? "page" : undefined} className={navClass(isActive(pathname, "/help"))}>
                   <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="12" cy="12" r="9" /><path d={HELP} strokeLinecap="round" /></svg>

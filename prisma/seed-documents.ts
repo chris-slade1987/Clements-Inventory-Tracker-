@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 40 · Last updated October 24, 2026",
+    effective: "Version 41 · Last updated October 25, 2026",
+    // v41: nav/IA refactor — the four management/executive dashboards + Insights
+    // consolidated into ONE tabbed Executive dashboard; the Insights assistant
+    // folded into the docked Canopy Copilot. Reconciled the KPI-review / All-Hands
+    // passages (Executive dashboard tabs + Copilot).
     // v40: Weather Ops added — a new My Branch tool (and dashboard tile) that turns
     // the NWS/NHC forecast into a Green/Yellow/Red ops read for routing & service
     // completion, with a rules-computed risk level + an AI ops briefing. Managers see
@@ -194,7 +198,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 40,
+    version: 41,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

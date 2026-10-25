@@ -1,21 +1,10 @@
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/ui";
-import { getSessionUser, homePath } from "@/lib/auth";
-import { hasInsightsKey } from "@/lib/insights";
-import InsightsChat from "./InsightsChat";
 
-export const dynamic = "force-dynamic";
-export const metadata = { title: "Insights — CanopyOS" };
-
-export default async function InsightsPage() {
-  const user = await getSessionUser();
-  if (!user) redirect("/login");
-  if (!(user.role === "admin" || user.seniorLeadership)) redirect(homePath(user));
-
-  return (
-    <>
-      <PageHeader title="Insights" subtitle="Ask about the numbers — grounded in your management data" />
-      <InsightsChat configured={hasInsightsKey()} />
-    </>
-  );
+// The standalone Insights page is retired (nav/IA refactor P1): the docked Canopy
+// Copilot is the single AI entry point, available on every screen. This route is
+// kept as a redirect to the Executive dashboard so old bookmarks don't 404. The
+// (app) layout still gates this URL on the `insights` access item (admin + senior
+// leadership), preserving the former guard.
+export default function InsightsRedirect() {
+  redirect("/executive?tab=overview");
 }

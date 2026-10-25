@@ -95,19 +95,33 @@ const RULES: [RegExp, string][] = [
   [/^\/management\/certifications(\/|$)/, "certifications"],
 
   // --- Management & Executive ---
+  // The four MBR dashboards + Sales & Attrition + Insights are consolidated into the
+  // ONE tabbed Executive dashboard at `/executive` (nav/IA refactor P1); these old
+  // routes stay as redirects into the right tab. Each redirect SOURCE keeps its own
+  // access item here so the (app) layout still gates the URL by the old audience
+  // (e.g. only exec principals pass `/management/board` before it redirects). The
+  // destination `/executive` maps to the operating `management` item — the least-
+  // privileged tab (Overview) that everyone who could open the old `/management`
+  // Company KPIs can see; the deeper Branches / Financials / Sales tabs self-guard
+  // in-page (canViewExec / canManageSales), so the `executive`, `board`,
+  // `benchmarking` and `sales-attrition` items are enforced there, not by this map.
   [/^\/management\/board(\/|$)/, "board"],
   [/^\/management\/benchmarking(\/|$)/, "benchmarking"],
   [/^\/management\/insights(\/|$)/, "insights"],
   [/^\/management\/sales(\/|$)/, "sales-attrition"],
   [/^\/management\/scorecards(\/|$)/, "scorecards"],
   [/^\/management\/audits(\/|$)/, "audits"],
+  // Insurance is folded into the Compliance center as a tab (nav/IA refactor P2);
+  // `/management/insurance` redirects to `/management/compliance?tab=insurance`. The
+  // source keeps the `insurance` item (admin / senior / HR) and the compliance page
+  // admits HR to the Insurance tab (see DEFAULT_GRANTS `hr.compliance`).
   [/^\/management\/compliance(\/|$)/, "compliance"],
   [/^\/management\/insurance(\/|$)/, "insurance"],
   [/^\/management\/documents(\/|$)/, "documents"],
   [/^\/management\/intake(\/|$)/, "documents"],
   [/^\/management\/system-map(\/|$)/, "system-map"],
   [/^\/management\/upload(\/|$)/, "upload-mbr"],
-  [/^\/executive(\/|$)/, "executive"],
+  [/^\/executive(\/|$)/, "management"],
   [/^\/management(\/|$)/, "management"],
   [/^\/sales(\/|$)/, "sales-team"],
   [/^\/field-ops(\/|$)/, "field-ops"],

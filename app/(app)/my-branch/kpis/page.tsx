@@ -14,6 +14,6 @@ export default async function MyBranchKpisRedirect({
     const v = sp[k];
     if (v) qs.set(k, v);
   }
-  const q = qs.toString();
-  redirect(`/management${q ? `?${q}` : ""}`);
+  qs.set("tab", "overview");
+  redirect(`/executive?${qs.toString()}`);
 }
