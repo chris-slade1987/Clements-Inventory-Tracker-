@@ -3772,3 +3772,78 @@ model FertBlackout {
   @@index([branch])
   @@map("fert_blackouts")
 }
+
+// ============================================================================
+// Branch Command — technician production & route-integrity (Phase 2). The monthly
+// warehouse: each month the 6 PestPac reports parse + compute into a durable per-route
+// record (RouteMonth) so the AI can spot trends across months. Left-behind jobs are
+// stored for drill-down + the forced weekly gameplan sign-off. Branch is a slug.
+// See docs/BRANCH-COMMAND-REPORTS.md and lib/branch-production.ts.
+// ============================================================================
+
+model RouteMonth {
+  id                    String   @id @default(cuid())
+  branch                String   // "vero" | "stuart" | "orlando" | "naples"
+  periodKey             String   @map("period_key") // "YYYY-MM"
+  route                 String   // PestPac route / tech number
+  techName              String?  @map("tech_name")
+  scheduledCount        Int      @default(0) @map("scheduled_count")
+  scheduledDollars      Float    @default(0) @map("scheduled_dollars")
+  completedCount        Int      @default(0) @map("completed_count")
+  completedDollars      Float    @default(0) @map("completed_dollars")
+  completionPct         Float    @default(0) @map("completion_pct")
+  expectedPct           Float    @default(0) @map("expected_pct")
+  paceDeltaPct          Float    @default(0) @map("pace_delta_pct")
+  status                String   @default("on_pace") // ahead|on_pace|behind|critical
+  remainingCount        Int      @default(0) @map("remaining_count")
+  leftBehindCount       Int      @default(0) @map("left_behind_count")
+  leftBehindDollars     Float    @default(0) @map("left_behind_dollars")
+  rescheduledCount      Int      @default(0) @map("rescheduled_count")
+  projectedPct          Float    @default(0) @map("projected_pct")
+  callbacks             Int      @default(0)
+  cancellations         Int      @default(0)
+  cancellationDollars   Float    @default(0) @map("cancellation_dollars")
+  newStarts             Int      @default(0) @map("new_starts")
+  newStartDollars       Float    @default(0) @map("new_start_dollars")
+  netRouteChange        Int      @default(0) @map("net_route_change")
+  netRouteChangeDollars Float    @default(0) @map("net_route_change_dollars")
+  computedAt            DateTime @default(now()) @map("computed_at")
+
+  @@unique([branch, periodKey, route])
+  @@index([branch, periodKey])
+  @@map("route_months")
+}
+
+model LeftBehindJob {
+  id            String    @id @default(cuid())
+  branch        String
+  periodKey     String    @map("period_key")
+  route         String
+  account       String
+  customer      String?
+  service       String?
+  scheduledDate DateTime? @map("scheduled_date")
+  dollars       Float     @default(0)
+  source        String    @default("unserviced") // "unserviced" | "schedule_diff"
+  status        String    @default("open") // "open" | "addressed"
+  managerNote   String?   @map("manager_note")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([branch, periodKey, route])
+  @@map("left_behind_jobs")
+}
+
+model ProductionReportUpload {
+  id             String   @id @default(cuid())
+  branch         String?  // null = company-wide file (covers all branches)
+  periodKey      String   @map("period_key")
+  reportType     String   @map("report_type") // schedule|production|appointments|unserviced|gainloss|callback
+  fileName       String   @map("file_name")
+  rowCount       Int      @default(0) @map("row_count")
+  uploadedById   String?  @map("uploaded_by_id")
+  uploadedByName String?  @map("uploaded_by_name")
+  uploadedAt     DateTime @default(now()) @map("uploaded_at")
+
+  @@index([periodKey, reportType])
+  @@map("production_report_uploads")
+}

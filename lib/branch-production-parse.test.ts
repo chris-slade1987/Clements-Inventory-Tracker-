@@ -2,9 +2,19 @@
 // Run: npx tsx --test lib/branch-production-parse.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseProductionReport, parseAppointmentList, parseUnservicedReport, parseGainLossReport, parseCallbackReport } from "./branch-production-parse";
+import { parseProductionReport, parseAppointmentList, parseUnservicedReport, parseGainLossReport, parseCallbackReport, detectReportType } from "./branch-production-parse";
 
 const T = (rows: string[][]) => rows.map((r) => r.join("\t")).join("\n");
+
+test("detectReportType identifies each PestPac report by header", () => {
+  assert.equal(detectReportType("Technician Schedule Report\n..."), "schedule");
+  assert.equal(detectReportType("x\nTechnician Production Report\n"), "production");
+  assert.equal(detectReportType("||Appointment List||"), "appointments");
+  assert.equal(detectReportType("||Uncommitted Orders Report||"), "unserviced");
+  assert.equal(detectReportType("||Gain & Loss Report||"), "gainloss");
+  assert.equal(detectReportType("Call Back Report"), "callback");
+  assert.equal(detectReportType("Some Other Report"), "unknown");
+});
 
 test("parseProductionReport pulls account/date/service/$", () => {
   const text = T([

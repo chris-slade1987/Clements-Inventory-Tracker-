@@ -3,6 +3,20 @@
 // rows that feed lib/branch-production.ts. Join key everywhere is the PestPac account #.
 // See docs/BRANCH-COMMAND-REPORTS.md.
 
+export type ReportType = "schedule" | "production" | "appointments" | "unserviced" | "gainloss" | "callback" | "unknown";
+
+/** Auto-detect which PestPac report a file is, from its header title (for multi-file drop). */
+export function detectReportType(text: string): ReportType {
+  const head = text.slice(0, 600).toLowerCase();
+  if (head.includes("technician schedule report")) return "schedule";
+  if (head.includes("technician production report")) return "production";
+  if (head.includes("appointment list")) return "appointments";
+  if (head.includes("uncommitted orders report")) return "unserviced";
+  if (head.includes("gain & loss report") || head.includes("gain and loss report")) return "gainloss";
+  if (head.includes("call back report") || head.includes("callback report")) return "callback";
+  return "unknown";
+}
+
 const isoDate = (s: string): string => (s || "").trim().slice(0, 10).replace(/\//g, "-");
 const money = (v: string): number => Number(String(v ?? "").replace(/[^0-9.\-]/g, "")) || 0;
 const int = (v: string): number => { const n = parseInt(String(v ?? "").replace(/[^0-9\-]/g, ""), 10); return Number.isFinite(n) ? n : 0; };
