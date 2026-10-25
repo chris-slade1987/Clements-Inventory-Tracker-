@@ -331,10 +331,14 @@ export default async function MyBranchPage({
               dueLabel: endOfMonthLabel(now),
             },
             {
+              // QC has no completion feed yet, so it must NOT render as an overdue SLA
+              // task (a permanently-red row erodes trust in the whole list). Shown as a
+              // neutral "not yet tracked" item until a QC signal exists.
               label: "Quality control reports",
               href: "/my-branch/qc",
               done: false,
-              status: "Not logged yet",
+              tracked: false,
+              status: "Not yet tracked",
               cadence: "Monthly" as const,
               due: endOfMonth(now),
               dueLabel: endOfMonthLabel(now),
@@ -441,37 +445,44 @@ function daysUntilCal(due: Date, now: Date): number {
 }
 
 function ManagerChecklistRow({
-  label, href, done, status, cadence, due, dueLabel, now,
+  label, href, done, status, cadence, due, dueLabel, now, tracked = true,
 }: {
   label: string; href: string; done: boolean; status: string;
-  cadence: "Weekly" | "Monthly"; due: Date; dueLabel: string; now: Date;
+  cadence: "Weekly" | "Monthly"; due: Date; dueLabel: string; now: Date; tracked?: boolean;
 }) {
   const n = daysUntilCal(due, now);
-  const overdue = n < 0;
+  const overdue = tracked && n < 0;
   // Urgency escalates the whole row once it's within a day of due (or overdue).
-  const urgent = !done && n <= 1;
-  const countdown = done
+  // An untracked item (no completion feed yet) is never urgent/overdue.
+  const urgent = tracked && !done && n <= 1;
+  const countdown = !tracked || done
     ? null
     : overdue
       ? `Overdue by ${-n} day${n === -1 ? "" : "s"}`
       : n === 0 ? "Due today" : n === 1 ? "Due tomorrow" : `Due in ${n} days`;
+  // Neutral styling when untracked: never red, never an alert icon.
+  const labelColor = !tracked ? "text-ink" : done ? "text-ink" : "text-red-600";
+  const statusColor = !tracked ? "text-muted" : done ? "text-brand-600" : "text-red-600";
+  const iconWrap = !tracked ? "bg-black/[0.05] text-muted" : done ? "bg-brand-100 text-brand-700" : urgent ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700";
   return (
     <li>
       <Link href={href} className={`flex items-center gap-3 px-4 py-3.5 ${urgent ? "bg-red-50 hover:bg-red-100" : "hover:bg-black/[0.02]"}`}>
-        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${done ? "bg-brand-100 text-brand-700" : urgent ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-          {done ? (
+        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${iconWrap}`}>
+          {!tracked ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /></svg>
+          ) : done ? (
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
           ) : (
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v5" /><path d="M12 16.5v.5" /></svg>
           )}
         </span>
         <span className="flex-1 min-w-0">
-          <span className={`block text-sm font-medium ${done ? "text-ink" : "text-red-600"}`}>{label}</span>
-          <span className={`block text-xs ${done ? "text-brand-600" : "text-red-600"}`}>{status}</span>
+          <span className={`block text-sm font-medium ${labelColor}`}>{label}</span>
+          <span className={`block text-xs ${statusColor}`}>{status}</span>
         </span>
         <span className="shrink-0 text-right">
           <span className="block"><FreqBadge>{cadence}</FreqBadge></span>
-          <span className="mt-1 block text-[11px] text-muted">Due by {dueLabel}</span>
+          {tracked ? <span className="mt-1 block text-[11px] text-muted">Due by {dueLabel}</span> : <span className="mt-1 block text-[11px] text-muted">Not yet tracked</span>}
           {countdown ? <span className={`block text-[11px] font-medium ${urgent ? "text-red-600" : "text-muted"}`}>{countdown}</span> : null}
         </span>
       </Link>
