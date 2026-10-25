@@ -184,6 +184,24 @@ export async function BranchesPanel({
           selected branch. Tailored to exactly what's on screen. */}
       <KpiSummaryButton scope={isCompany ? "company" : scope} p={periodKey} basis={basis} label={isCompany ? "AI company summary" : "AI branch summary"} />
 
+      {/* Lead with the cross-branch ranking — "who's behind" first; drill into any
+          branch's P&L from the chips here or the production cards below. */}
+      {benchmarks && forecasts && book ? (
+        <section className="mt-4">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
+            <h2 className="text-sm font-medium text-ink">Cross-branch benchmarking league · {benchmarks.periodLabel}</h2>
+            <span className="ml-auto flex flex-wrap items-center gap-1">
+              <span className="mr-1 text-[11px] text-muted">Drill into:</span>
+              {BRANCHES.map((b) => (
+                <Link key={b.key} href={branchLink(b.key)} className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${scope === b.key ? "border-brand-500 bg-brand-50 text-brand-700" : "border-line text-muted hover:bg-black/5"}`}>{b.label}</Link>
+              ))}
+            </span>
+          </div>
+          <BenchmarkingClient benchmarks={benchmarks} forecasts={forecasts} book={book} />
+        </section>
+      ) : null}
+
       {/* Branch-locked managers default to their own branch; a toggle reveals the
           company / peer-branch comparison view. Admins & exec always see the selector. */}
       {locked && user.branch ? (
@@ -419,16 +437,6 @@ export async function BranchesPanel({
         ) : null}
       </div>
 
-      {/* Cross-branch benchmarking league + year-end pacing (former Branch Benchmarking) */}
-      {benchmarks && forecasts && book ? (
-        <section className="mt-8">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="inline-block h-4 w-1 rounded bg-emerald-grad" />
-            <h2 className="text-sm font-medium text-ink">Cross-branch benchmarking league · {benchmarks.periodLabel}</h2>
-          </div>
-          <BenchmarkingClient benchmarks={benchmarks} forecasts={forecasts} book={book} />
-        </section>
-      ) : null}
     </>
   );
 }
