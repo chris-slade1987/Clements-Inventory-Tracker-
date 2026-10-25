@@ -28,7 +28,7 @@ type Tech = {
   status: string; reviewed: boolean; managerNote: string | null;
 };
 type Finding = { id: string; domain: string; severity: string; title: string; detail: string; question: string | null; techName: string | null; requiresResponse: boolean; managerResponse: string | null; status: string };
-type Gate = { openFindings: number; unreviewedTechs: number; uncheckedItems: number; canSign: boolean };
+type Gate = { openFindings: number; unreviewedTechs: number; uncheckedItems: number; openLeftBehind?: number; canSign: boolean };
 
 type Data = {
   branch: string;
@@ -437,6 +437,7 @@ function SignBar({
   if (g.openFindings) blockers.push(`${g.openFindings} flag${g.openFindings === 1 ? "" : "s"} to explain`);
   if (g.unreviewedTechs) blockers.push(`${g.unreviewedTechs} technician${g.unreviewedTechs === 1 ? "" : "s"} to review`);
   if (g.uncheckedItems) blockers.push(`${g.uncheckedItems} item${g.uncheckedItems === 1 ? "" : "s"} to check off`);
+  if (g.openLeftBehind) blockers.push(`${g.openLeftBehind} job${g.openLeftBehind === 1 ? "" : "s"} left behind to address`);
 
   return (
     <Card className="p-5 copilot-safe-actions">

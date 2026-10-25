@@ -177,6 +177,19 @@ export async function listProductionPeriods(branch: string): Promise<string[]> {
   return rows.map((r) => r.periodKey);
 }
 
+/** Cross-branch production rollup (latest loaded month per branch) — for leadership. */
+export async function getProductionRollup(branches: string[]): Promise<{ branch: string; periodKey: string | null; completionPct: number; leftBehind: number; leftBehindDollars: number; remaining: number; callbacks: number; netChangeDollars: number; routes: number }[]> {
+  const out = [];
+  for (const branch of branches) {
+    const periods = await listProductionPeriods(branch);
+    const pk = periods[0] ?? null;
+    if (!pk) { out.push({ branch, periodKey: null, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChangeDollars: 0, routes: 0 }); continue; }
+    const m = await getBranchProductionMonth(branch, pk);
+    out.push({ branch, periodKey: pk, completionPct: m.totals.completionPct, leftBehind: m.totals.leftBehind, leftBehindDollars: m.totals.leftBehindDollars, remaining: m.totals.remaining, callbacks: m.totals.callbacks, netChangeDollars: m.totals.netChangeDollars, routes: m.routes.length });
+  }
+  return out;
+}
+
 /** Left-behind jobs for a branch/period (optionally one route) — the drill-down + gameplan list. */
 export async function getLeftBehindJobs(branch: string, periodKey: string, route?: string) {
   const rows = await prisma.leftBehindJob.findMany({ where: { branch, periodKey, ...(route ? { route } : {}) }, orderBy: [{ dollars: "desc" }, { scheduledDate: "asc" }] }).catch(() => []);

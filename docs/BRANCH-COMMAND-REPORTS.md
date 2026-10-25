@@ -102,6 +102,24 @@ Oct reconciliation (through the 25th): schedule 5,862 stops / $674.6K · product
 appointments 1,106 open ahead · unserviced 505 → **484 truly left behind ≈ $86.7K** (matches the
 schedule-diff estimate of 503) · gain/loss net **−$31.8K** (110 starts $69K vs 107 cancels $101K).
 
+## Where it lives + the forced weekly gameplan (Stage B)
+
+- **Branch Command** gets a **"Production & Completion"** panel (`ProductionCompletion.tsx`):
+  one multi-file drop (auto-detect), a totals strip, a per-route table (completion · pace
+  chip · left-behind · callbacks · projection · route net), and the **Jobs-Left-Behind**
+  drill-down where each job is marked addressed with a plan. Upload API:
+  `/api/branch-command/production` (preview/apply/addressJob; manager+admin).
+- **Forced sign-off gate:** `getBranchCommand`'s gate adds `openLeftBehind` (open left-behind
+  jobs for the branch's latest loaded month); **the week cannot be signed until every
+  left-behind job is addressed** — the forced weekly gameplan. Enforced server-side in the
+  `sign` action (it re-checks `gate.canSign`).
+- **My Branch glance:** a compact "Route completion" card (completion % · jobs left behind ·
+  remaining · callbacks) that deep-links into Branch Command.
+- **Leadership rollup:** non-branch-locked viewers see a "Completion rollup · all branches"
+  card on Branch Command (per-branch completion % · left-behind · callbacks · net value).
+- **Trend + AI route-intelligence:** lights up once ≥2 months are loaded (reads `RouteMonth`
+  across periods).
+
 ## Build order (Phase 2)
 1. Upload UI on Branch Command (reuse the Routing Approval confirm flow).
 2. Parsers per report (pin to a real sample export of each — same way the routing

@@ -4,7 +4,7 @@ import { requireUser, homePath, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
 import { PageHeader } from "@/components/ui";
 import { getBranchCommand, BRANCH_KEYS, weekPeriodLabel } from "@/lib/branch-command";
-import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs } from "@/lib/branch-production-ingest";
+import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs, getProductionRollup } from "@/lib/branch-production-ingest";
 import BranchCommandBoard from "./BranchCommandBoard";
 import ProductionCompletion from "./ProductionCompletion";
 
@@ -34,6 +34,8 @@ export default async function BranchCommandPage({
   const prod = prodPeriod ? await getBranchProductionMonth(branch, prodPeriod) : null;
   const leftBehind = prodPeriod ? await getLeftBehindJobs(branch, prodPeriod) : [];
   const canUploadProd = user.role === "admin" || user.role === "manager";
+  // Cross-branch production rollup for leadership (non-branch-locked viewers).
+  const prodRollup = !locked ? await getProductionRollup([...BRANCH_KEYS]) : null;
 
   // Serialize dates for the client component.
   const payload = {
@@ -97,6 +99,28 @@ export default async function BranchCommandPage({
           ) : null
         }
       />
+      {prodRollup && prodRollup.some((r) => r.periodKey) && (
+        <div className="rounded-xl border border-line bg-surface p-4">
+          <div className="text-[11px] uppercase tracking-wide text-muted">Completion rollup · all branches</div>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {prodRollup.map((r) => (
+              <Link key={r.branch} href={`/branch-command?branch=${r.branch}`} className={`rounded-lg border p-3 hover:bg-black/[0.02] ${r.branch === branch ? "border-brand-500" : "border-line"}`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-ink">{branchLabel(r.branch)}</span>
+                  <span className="text-lg font-light tabular-nums text-ink">{r.periodKey ? `${r.completionPct}%` : "—"}</span>
+                </div>
+                {r.periodKey ? (
+                  <div className="mt-1 text-[11px] text-muted">
+                    <span className={r.leftBehind > 0 ? "text-red-600" : ""}>{r.leftBehind} left behind</span> · {r.callbacks} callbacks
+                    {r.netChangeDollars !== 0 && <> · <span className={r.netChangeDollars < 0 ? "text-red-600" : "text-brand-700"}>{r.netChangeDollars < 0 ? "-" : "+"}${Math.abs(Math.round(r.netChangeDollars)).toLocaleString()}</span></>}
+                  </div>
+                ) : <div className="mt-1 text-[11px] text-muted">No month loaded</div>}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <BranchCommandBoard data={payload} />
 
       <ProductionCompletion

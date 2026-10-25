@@ -235,12 +235,23 @@ export async function getBranchCommand(branch: string, date: Date = new Date()) 
   const unreviewedTechs = techWeeks.filter((t) => !t.reviewed);
   const allItemsChecked = COMMAND_ITEMS.every((it) => checkedSet.has(it.id));
 
+  // Jobs left behind (from the latest loaded production month) must each be addressed —
+  // confirmed rescheduled or a plan noted — before the week can be signed. This is the
+  // forced weekly gameplan: no jobs quietly left behind. (Zero when nothing is loaded.)
+  const prodPeriodRow = await prisma.routeMonth
+    .findFirst({ where: { branch }, orderBy: { periodKey: "desc" }, select: { periodKey: true } })
+    .catch(() => null);
+  const openLeftBehind = prodPeriodRow
+    ? await prisma.leftBehindJob.count({ where: { branch, periodKey: prodPeriodRow.periodKey, status: "open" } }).catch(() => 0)
+    : 0;
+
   const gate = {
     openFindings: openFindings.length,
     unreviewedTechs: unreviewedTechs.length,
     uncheckedItems: COMMAND_ITEMS.length - checkedSet.size,
+    openLeftBehind,
     canSign:
-      bw.status !== "signed" && openFindings.length === 0 && unreviewedTechs.length === 0 && allItemsChecked,
+      bw.status !== "signed" && openFindings.length === 0 && unreviewedTechs.length === 0 && allItemsChecked && openLeftBehind === 0,
   };
 
   return { branchWeek: bw, scoreboard, techWeeks, findings, itemResults, gate };

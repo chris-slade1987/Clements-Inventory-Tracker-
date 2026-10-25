@@ -27,6 +27,7 @@ import MyBranchViewToggle from "./MyBranchViewToggle";
 import { AchievementBar, ProgressRing, encouragement } from "@/components/motivation";
 import AskCanopy from "@/components/AskCanopy";
 import WeatherTile from "@/components/WeatherTile";
+import { listProductionPeriods, getBranchProductionMonth } from "@/lib/branch-production-ingest";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,10 @@ export default async function MyBranchPage({
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
+
+  // Route-completion glance (latest loaded production month) → deep-links to Branch Command.
+  const prodPeriods = branch ? await listProductionPeriods(branch) : [];
+  const prodGlance = branch && prodPeriods[0] ? await getBranchProductionMonth(branch, prodPeriods[0]) : null;
 
   const now = new Date();
   const year = now.getFullYear();
@@ -154,6 +159,21 @@ export default async function MyBranchPage({
           center. Branch-locked managers see their territory; admins see all four.
           Loads from the scoped /api/weather so it never blocks the dashboard render. */}
       <WeatherTile canSeeAll={!locked} />
+
+      {prodGlance && prodGlance.routes.length > 0 ? (
+        <Link href="/branch-command" className="mb-5 block rounded-xl border border-line bg-surface p-4 hover:shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[11px] uppercase tracking-wide text-muted">Route completion · {prodGlance.periodKey}</div>
+            <span className="text-xs text-brand-600">Review in Branch Command →</span>
+          </div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-6 gap-y-1">
+            <span className="text-2xl font-light tabular-nums text-ink">{prodGlance.totals.completionPct}%<span className="ml-1 text-xs text-muted">complete</span></span>
+            <span className={`text-lg font-light tabular-nums ${prodGlance.totals.leftBehind > 0 ? "text-red-600" : "text-brand-600"}`}>{prodGlance.totals.leftBehind}<span className="ml-1 text-xs text-muted">jobs left behind (${Math.round(prodGlance.totals.leftBehindDollars).toLocaleString()})</span></span>
+            <span className="text-lg font-light tabular-nums text-ink">{prodGlance.totals.remaining}<span className="ml-1 text-xs text-muted">remaining</span></span>
+            {prodGlance.totals.callbacks > 0 && <span className="text-lg font-light tabular-nums text-amber-600">{prodGlance.totals.callbacks}<span className="ml-1 text-xs text-muted">callbacks</span></span>}
+          </div>
+        </Link>
+      ) : null}
 
       <BulletinBanner />
 
