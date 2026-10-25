@@ -2,11 +2,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser, homePath, branchLocked } from "@/lib/auth";
 import { branchLabel } from "@/lib/management";
-import { PageHeader } from "@/components/ui";
 import { getBranchCommand, BRANCH_KEYS, weekPeriodLabel } from "@/lib/branch-command";
 import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs, getProductionRollup } from "@/lib/branch-production-ingest";
+import MyBranchViewToggle from "../my-branch/MyBranchViewToggle";
+import BranchCommandHero from "./BranchCommandHero";
 import BranchCommandBoard from "./BranchCommandBoard";
 import ProductionCompletion from "./ProductionCompletion";
+
+function monthLabelOf(pk: string | null): string | null {
+  if (!pk) return null;
+  const [y, m] = pk.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+}
 
 // Branch Command — the branch manager's weekly cockpit. Managers see their own
 // branch; admins/leadership can switch branches. See docs/BRANCH-COMMAND.md.
@@ -76,32 +83,32 @@ export default async function BranchCommandPage({
     signedAt: data.branchWeek.signedAt ? data.branchWeek.signedAt.toISOString() : null,
   };
 
+  const heroTotals = prod?.totals ?? { scheduled: 0, completed: 0, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChange: 0, netChangeDollars: 0 };
+
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Branch Command"
-        subtitle={`${branchLabel(branch)} · ${payload.periodLabel} — review the week, respond to every flag, then sign.`}
-        actions={
-          !locked ? (
-            <div className="flex flex-wrap gap-1.5">
-              {BRANCH_KEYS.map((b) => (
-                <Link
-                  key={b}
-                  href={`/branch-command?branch=${b}`}
-                  className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${
-                    b === branch ? "border-brand-500 bg-brand-50 text-brand-700" : "border-line text-muted hover:bg-black/5"
-                  }`}
-                >
-                  {branchLabel(b)}
-                </Link>
-              ))}
-            </div>
-          ) : null
-        }
+      <MyBranchViewToggle view="command" branchQuery={branch ? `?branch=${branch}` : ""} />
+
+      <BranchCommandHero
+        branch={branch}
+        periodLabel={payload.periodLabel}
+        monthLabel={monthLabelOf(prodPeriod)}
+        hasProd={!!prod && prod.routes.length > 0}
+        totals={heroTotals}
+        status={payload.status}
+        gate={payload.gate}
+        signedName={payload.signedName}
+        signedAt={payload.signedAt}
+        locked={locked}
+        branches={BRANCH_KEYS}
       />
+
       {prodRollup && prodRollup.some((r) => r.periodKey) && (
         <div className="rounded-xl border border-line bg-surface p-4">
-          <div className="text-[11px] uppercase tracking-wide text-muted">Completion rollup · all branches</div>
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-wide text-muted">Completion rollup · all branches</div>
+            <span className="text-[11px] text-muted">latest loaded month</span>
+          </div>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {prodRollup.map((r) => (
               <Link key={r.branch} href={`/branch-command?branch=${r.branch}`} className={`rounded-lg border p-3 hover:bg-black/[0.02] ${r.branch === branch ? "border-brand-500" : "border-line"}`}>
@@ -121,22 +128,24 @@ export default async function BranchCommandPage({
         </div>
       )}
 
-      <BranchCommandBoard data={payload} />
-
-      <ProductionCompletion
-        branch={branch}
-        periodKey={prod?.periodKey ?? null}
-        routes={(prod?.routes ?? []).map((r) => ({
+      <div id="route-completion" className="scroll-mt-4">
+        <ProductionCompletion
+          branch={branch}
+          periodKey={prod?.periodKey ?? null}
+          routes={(prod?.routes ?? []).map((r) => ({
           route: r.route, techName: r.techName, scheduledCount: r.scheduledCount, completedCount: r.completedCount,
           completionPct: r.completionPct, expectedPct: r.expectedPct, status: r.status, leftBehindCount: r.leftBehindCount,
           leftBehindDollars: r.leftBehindDollars, remainingCount: r.remainingCount, projectedPct: r.projectedPct,
           callbacks: r.callbacks, netRouteChange: r.netRouteChange, netRouteChangeDollars: r.netRouteChangeDollars,
         }))}
-        totals={prod?.totals ?? { scheduled: 0, completed: 0, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChange: 0, netChangeDollars: 0 }}
-        leftBehind={leftBehind}
-        uploads={prod?.uploads ?? []}
-        canUpload={canUploadProd}
-      />
+          totals={prod?.totals ?? { scheduled: 0, completed: 0, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChange: 0, netChangeDollars: 0 }}
+          leftBehind={leftBehind}
+          uploads={prod?.uploads ?? []}
+          canUpload={canUploadProd}
+        />
+      </div>
+
+      <BranchCommandBoard data={payload} />
     </div>
   );
 }

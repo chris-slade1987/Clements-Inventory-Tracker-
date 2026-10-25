@@ -151,7 +151,7 @@ export default function BranchCommandBoard({ data }: { data: Data }) {
       </div>
 
       {/* AI findings — forced feedback */}
-      <Card className="p-5">
+      <Card id="flags" className="scroll-mt-4 p-5">
         <h3 className="text-lg font-light text-ink">Flags to explain</h3>
         <p className="mt-0.5 text-xs text-muted">
           Each flagged item needs a written explanation before you can sign. Your answers help Canopy learn your branch.
@@ -440,7 +440,7 @@ function SignBar({
   if (g.openLeftBehind) blockers.push(`${g.openLeftBehind} job${g.openLeftBehind === 1 ? "" : "s"} left behind to address`);
 
   return (
-    <Card className="p-5 copilot-safe-actions">
+    <Card id="sign" className="scroll-mt-4 p-5 copilot-safe-actions">
       <h3 className="text-lg font-light text-ink">Sign the week</h3>
       {blockers.length ? (
         <p className="mt-1 text-sm text-muted">

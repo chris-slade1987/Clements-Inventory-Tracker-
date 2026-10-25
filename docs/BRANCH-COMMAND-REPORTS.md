@@ -104,7 +104,18 @@ schedule-diff estimate of 503) · gain/loss net **−$31.8K** (110 starts $69K v
 
 ## Where it lives + the forced weekly gameplan (Stage B)
 
-- **Branch Command** gets a **"Production & Completion"** panel (`ProductionCompletion.tsx`):
+- **Reachability (the toggle).** Branch Command is now the 4th tab on the shared manager
+  toggle — **To-dos · KPIs · Routes · Command** (`MyBranchViewToggle`, rendered on My Branch,
+  Routing Approval, and Branch Command). The route-completion data lives in the **Command**
+  tab, so a manager reaches it from the same toggle as the daily surfaces instead of hunting
+  for the nav link.
+- **Command deck hero** (`BranchCommandHero.tsx`): a forest command band (brand chrome/content
+  duality, same treatment as the Weather Ops deck) at the top of Branch Command. It puts the
+  week's **completion %, jobs left behind ($), remaining, callbacks, route net**, the sign-off
+  lamp, the branch switcher (leadership), and quick-jumps (Route completion ↓ · Flags ↓ · Sign ↓
+  · Routing Approval →) front and center the moment a manager lands. Route completion is rendered
+  first in the body (`#route-completion`), then the scoreboard/flags/tech review/sign-off.
+- **Branch Command** has a **"Production & Completion"** panel (`ProductionCompletion.tsx`):
   one multi-file drop (auto-detect), a totals strip, a per-route table (completion · pace
   chip · left-behind · callbacks · projection · route net), and the **Jobs-Left-Behind**
   drill-down where each job is marked addressed with a plan. Upload API:

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
+import { rampColor } from "@/components/motivation";
 
 // Branch Command — Production & Completion. Managers upload the six PestPac exports in
 // one drop; Canopy compares them to the monthly schedule and shows per-route completion,
@@ -77,7 +78,14 @@ export default function ProductionCompletion({
                   <tr key={r.route} className={`border-t border-line ${routeFilter === r.route ? "bg-brand-50/50" : ""}`}>
                     <td className="px-3 py-2"><span className="font-medium">{r.route}</span> <span className="text-xs text-muted">{r.techName}</span></td>
                     <td className="px-3 py-2 text-right tabular-nums">{r.completedCount}/{r.scheduledCount}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.completionPct}%</td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-black/[0.06]" aria-hidden>
+                          <div className="h-full rounded-full" style={{ width: `${Math.min(100, r.completionPct)}%`, backgroundColor: rampColor(r.completionPct) }} />
+                        </div>
+                        <span className="w-10 text-right tabular-nums">{r.completionPct}%</span>
+                      </div>
+                    </td>
                     <td className="px-3 py-2 text-center"><span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS[r.status] ?? STATUS.on_pace}`}>{STATUS_LABEL[r.status] ?? r.status}</span></td>
                     <td className="px-3 py-2 text-right">
                       {r.leftBehindCount > 0 ? (
