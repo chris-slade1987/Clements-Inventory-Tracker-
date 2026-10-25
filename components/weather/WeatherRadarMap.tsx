@@ -12,7 +12,18 @@ type LMap = import("leaflet").Map;
 
 type Frame = { time: number; path: string };
 
-export default function WeatherRadarMap({ lat, lon, label }: { lat: number; lon: number; label: string }) {
+export type Office = { label: string; lat: number; lon: number };
+
+// A teardrop pin badged with the Clements mark — used to plot branch offices on the
+// radar, the way a store locator drops branded markers on Google Maps.
+function officeIconHtml(): string {
+  return `<div style="position:relative;width:34px;height:40px;transform:translate(-1px,-2px)">
+    <div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#fff;border:2px solid #2e6f47;box-shadow:0 2px 5px rgba(0,0,0,.35);position:absolute;left:2px;top:0"></div>
+    <img src="/clements-mark.svg" alt="" style="width:18px;height:18px;position:absolute;left:8px;top:5px"/>
+  </div>`;
+}
+
+export default function WeatherRadarMap({ lat, lon, label, offices = [] }: { lat: number; lon: number; label: string; offices?: Office[] }) {
   const valid = Number.isFinite(lat) && Number.isFinite(lon);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LMap | null>(null);
@@ -36,9 +47,14 @@ export default function WeatherRadarMap({ lat, lon, label }: { lat: number; lon:
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap · radar &copy; RainViewer",
         }).addTo(map);
-        L.circleMarker([lat, lon], { radius: 6, color: "#2e6f47", weight: 2, fillColor: "#2e6f47", fillOpacity: 0.6 })
-          .addTo(map)
-          .bindTooltip(label, { direction: "top" });
+        // Branded office markers (store-locator style). Fall back to the center point
+        // when no offices were passed, so the territory is always marked.
+        const pins: Office[] = offices.length > 0 ? offices : [{ label, lat, lon }];
+        const icon = L.divIcon({ className: "", html: officeIconHtml(), iconSize: [34, 40], iconAnchor: [17, 38], tooltipAnchor: [0, -34] });
+        for (const o of pins) {
+          if (!Number.isFinite(o.lat) || !Number.isFinite(o.lon)) continue;
+          L.marker([o.lat, o.lon], { icon }).addTo(map).bindTooltip(`Clements · ${o.label}`, { direction: "top" });
+        }
         mapRef.current = map;
 
         const res = await fetch("https://api.rainviewer.com/public/weather-maps.json", { cache: "no-store" });
@@ -68,6 +84,8 @@ export default function WeatherRadarMap({ lat, lon, label }: { lat: number; lon:
       mapRef.current = null;
       drawRef.current = null;
     };
+    // offices change in lockstep with the territory's lat/lon/label (already deps).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valid, lat, lon, label]);
 
   // Animate the loop — but skip ticks while the tab isn't visible, so a backgrounded

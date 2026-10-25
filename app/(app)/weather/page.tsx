@@ -241,7 +241,12 @@ function TerritoryDetail({ t }: { t: TerritoryView }) {
           <span className="text-[11px] text-muted">Live radar loop</span>
         </div>
         {center ? (
-          <WeatherRadarMap lat={center.lat} lon={center.lon} label={t.label} />
+          <WeatherRadarMap
+            lat={center.lat}
+            lon={center.lon}
+            label={t.label}
+            offices={t.locations.filter((l) => Number.isFinite(l.lat) && Number.isFinite(l.lon)).map((l) => ({ label: l.name, lat: l.lat, lon: l.lon }))}
+          />
         ) : (
           <p className="mt-2 text-sm text-muted">Radar loads once a forecast point is set for this territory.</p>
         )}

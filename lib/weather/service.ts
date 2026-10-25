@@ -219,9 +219,16 @@ function mergeFlags(all: Flag[]): Flag[] {
   return [...byCode.values()];
 }
 
+// Cost guardrail: at most ONE AI briefing per territory per hour, no matter how much
+// the weather churns. The deterministic risk/flags (the badge) always stay current —
+// only the AI prose is rate-limited. Exception: an escalation INTO a red day always
+// regenerates immediately (red is rare + safety-critical), so a dangerous day never
+// shows a stale "all clear" headline. Keeps Anthropic spend bounded + predictable.
+const MIN_BRIEFING_INTERVAL_MS = 60 * 60 * 1000;
+
 /**
- * Regenerate the AI briefing only when the risk level or flag set differs from the
- * latest stored briefing for this branch+day (saves tokens). Otherwise reuse it.
+ * Regenerate the AI briefing only when the risk/flag set changes AND the last briefing
+ * is at least an hour old (the cost cap) — or on an escalation to red. Otherwise reuse.
  */
 async function resolveBriefing(
   branch: string, date: string, risk: RiskLevel, flags: Flag[], hourly: HourPoint[], daily: DayPoint[], alerts: WxAlert[]
@@ -230,8 +237,13 @@ async function resolveBriefing(
   const latest = await prisma.weatherBriefing
     .findFirst({ where: { branch, forDate: date }, orderBy: { generatedAt: "desc" } })
     .catch(() => null);
-  if (latest && latest.riskLevel === risk && parseJson<string[]>(latest.flags, []).join(",") === flagKey) {
-    return { content: parseJson<BriefingContent | null>(latest.content, null), model: latest.model };
+  if (latest) {
+    const reuse = () => ({ content: parseJson<BriefingContent | null>(latest.content, null), model: latest.model });
+    const sameState = latest.riskLevel === risk && parseJson<string[]>(latest.flags, []).join(",") === flagKey;
+    const ageMs = Date.now() - latest.generatedAt.getTime();
+    const escalatedToRed = risk === "red" && latest.riskLevel !== "red";
+    // Unchanged → reuse. Changed but within the hourly cap (and not a red escalation) → reuse.
+    if (sameState || (ageMs < MIN_BRIEFING_INTERVAL_MS && !escalatedToRed)) return reuse();
   }
   const { content, model } = await generateBriefing({ territory: branchLabel(branch), date, risk, flags, hourly, daily, alerts });
   await prisma.weatherBriefing
