@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   EMPLOYEE_HUB_NAV_ITEM,
   GROUNDWORK_NAV_ITEM,
@@ -181,6 +181,7 @@ export default function AppShell({
   branch?: string | null;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [moreOpen, setMoreOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<Mode | "menu" | null>(null); // desktop/tablet launcher
   const [denied, setDenied] = useState<string | null>(null);
@@ -314,9 +315,19 @@ export default function AppShell({
     .map((c) => (c.m === "manager" && isAdmin ? { ...c, label: "Company", short: "Company" } : c));
 
   // Most-specific match wins so e.g. /management/sales lights Sales, not Overview.
+  // Query-aware: a nav href carrying ?tab= (the consolidated Executive dashboard, used
+  // by the board-observer / sales-director fixed navs) matches only when the current
+  // tab matches — so those items actually highlight. A plain-path href matches on path.
+  const currentTab = searchParams.get("tab");
+  const hrefMatches = (h: string) => {
+    const [p, q] = h.split("?");
+    if (!(pathname === p || pathname.startsWith(p + "/"))) return false;
+    const want = q ? new URLSearchParams(q).get("tab") : null;
+    return !want || (currentTab ?? "overview") === want;
+  };
   const activeHref = [...items, ...resources]
     .map((i) => i.href)
-    .filter((h) => pathname === h || pathname.startsWith(h + "/"))
+    .filter(hrefMatches)
     .sort((a, b) => b.length - a.length)[0];
 
   // Mobile bottom bar: show only the CURRENT module's primary actions (first few),
