@@ -150,6 +150,33 @@ export default async function MyBranchPage({
     openAttention: attention.length,
   });
 
+  // ---- Unified "What needs you" worklist -------------------------------------
+  // One SLA-sorted list that merges the recurring compliance cadence with the
+  // event-driven attention items, so a manager reads one prioritized queue instead
+  // of synthesizing across two cards. Overdue/urgent float to the top; done and
+  // not-yet-tracked settle to the bottom. (PTO approvals, new-hire reviews and audit
+  // follow-ups stay as their own queues below — they're distinct, not cadence/alerts.)
+  type CadenceRow = {
+    label: string; href: string; done: boolean; status: string;
+    cadence: "Weekly" | "Monthly"; due: Date; dueLabel: string; tracked?: boolean;
+  };
+  const cadence: CadenceRow[] = [
+    { label: "Branch Command (weekly review)", href: `/branch-command?branch=${scBranch}`, done: bwSummary.signed, status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed", cadence: "Weekly", due: fridayEndOf(now), dueLabel: fridayLabel(now) },
+    { label: "Routing Approval", href: `/routing-approval?branch=${scBranch}`, done: routingSummary.signed, status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : `${routingSummary.approved}/${routingSummary.techs} techs approved`, cadence: "Monthly", due: routingDue, dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)` },
+    { label: "Vehicle Inspections", href: "/my-branch/inspections", done: insp.pending === 0, status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
+    { label: "Warehouse safety inspection", href: "/my-branch/warehouse", done: warehouse.done, status: warehouse.done ? "Logged this month" : "Not logged yet", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
+    // QC has no completion feed yet, so it renders neutral (never a permanent red SLA).
+    { label: "Quality control reports", href: "/my-branch/qc", done: false, tracked: false, status: "Not yet tracked", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
+    { label: "Onboarding / CEU training", href: "/my-branch/training", done: totalTraining === 0 || trainingDone, status: totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`, cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
+  ];
+  const cadScore = (r: CadenceRow) => (r.done ? 1000 : r.tracked === false ? 900 : daysUntilCal(r.due, now));
+  const attnScore = (a: AttentionItem) => (a.severity === "critical" ? -50 : a.severity === "warning" ? 5 : 15);
+  const worklist: ({ sort: number } & ({ k: "cadence"; row: CadenceRow } | { k: "attn"; a: AttentionItem }))[] = [
+    ...cadence.map((row) => ({ sort: cadScore(row), k: "cadence" as const, row })),
+    ...attention.map((a) => ({ sort: attnScore(a), k: "attn" as const, a })),
+  ].sort((x, y) => x.sort - y.sort);
+  const openWork = worklist.filter((it) => (it.k === "cadence" ? !it.row.done && it.row.tracked !== false : true)).length;
+
   return (
     <>
       <PageHeader
@@ -272,112 +299,37 @@ export default async function MyBranchPage({
         <Tile label={`Q${quarter} scorecard`} value={`${scScore}%`} sub={`${scScored}/${SCORECARD_METRICS.length} scored`} href={`/my-branch/scorecard?branch=${scBranch}&year=${year}&quarter=${quarter}`} />
       </div>
 
-      {/* Manager Checklist — every recurring compliance cadence in ONE place, each
-          flagged Weekly/Monthly with its due date + a live countdown. Anything
-          outstanding is red; anything due within a day turns the row light-red. */}
+      {/* What needs you — the recurring compliance cadence AND the event-driven
+          attention items, merged into ONE SLA-sorted queue (overdue/urgent first;
+          done and not-yet-tracked settle to the bottom). Each attention item keeps
+          its own Discuss/Clear actions. Replaces the former separate Manager
+          Checklist + Needs-attention cards. */}
       <Card className="p-0 overflow-hidden mb-5" data-testid="manager-checklist">
         <div className="px-4 py-3 border-b border-line flex items-start justify-between gap-2">
           <div>
-            <div className="text-sm font-medium text-ink">Manager Checklist</div>
-            <p className="text-xs text-muted mt-0.5">Every recurring duty in one place — stay ahead of each due date. Outstanding items are flagged in red.</p>
+            <div className="text-sm font-medium text-ink">What needs you</div>
+            <p className="text-xs text-muted mt-0.5">
+              {openWork > 0 ? `${openWork} item${openWork === 1 ? "" : "s"} need action — most urgent first.` : "You're all caught up — nothing outstanding."}
+            </p>
           </div>
-          <AskCanopy
-            task="Help me complete my Branch Command weekly review"
-            label="Ask Canopy"
-            context={`${scopeLabel} — ${MONTHS[month]} ${year} manager checklist`}
-            className="shrink-0"
-          />
+          <div className="flex shrink-0 items-center gap-3">
+            <RemindersCard mode="button" employees={employeeOpts} vehicles={vehicleOpts} />
+            <AskCanopy
+              task="Help me complete my Branch Command weekly review"
+              label="Ask Canopy"
+              context={`${scopeLabel} — ${MONTHS[month]} ${year} manager worklist`}
+            />
+          </div>
         </div>
         <ul className="divide-y divide-line">
-          {[
-            {
-              label: "Branch Command (weekly review)",
-              href: `/branch-command?branch=${scBranch}`,
-              done: bwSummary.signed,
-              status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed",
-              cadence: "Weekly" as const,
-              due: fridayEndOf(now),
-              dueLabel: fridayLabel(now),
-            },
-            {
-              label: "Routing Approval",
-              href: `/routing-approval?branch=${scBranch}`,
-              done: routingSummary.signed,
-              status: !routingSummary.loaded
-                ? "Routing not loaded yet"
-                : routingSummary.signed
-                  ? "Signed off"
-                  : `${routingSummary.approved}/${routingSummary.techs} techs approved`,
-              cadence: "Monthly" as const,
-              due: routingDue,
-              dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)`,
-            },
-            {
-              label: "Vehicle Inspections",
-              href: "/my-branch/inspections",
-              done: insp.pending === 0,
-              status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned",
-              cadence: "Monthly" as const,
-              due: endOfMonth(now),
-              dueLabel: endOfMonthLabel(now),
-            },
-            {
-              label: "Warehouse safety inspection",
-              href: "/my-branch/warehouse",
-              done: warehouse.done,
-              status: warehouse.done ? "Logged this month" : "Not logged yet",
-              cadence: "Monthly" as const,
-              due: endOfMonth(now),
-              dueLabel: endOfMonthLabel(now),
-            },
-            {
-              // QC has no completion feed yet, so it must NOT render as an overdue SLA
-              // task (a permanently-red row erodes trust in the whole list). Shown as a
-              // neutral "not yet tracked" item until a QC signal exists.
-              label: "Quality control reports",
-              href: "/my-branch/qc",
-              done: false,
-              tracked: false,
-              status: "Not yet tracked",
-              cadence: "Monthly" as const,
-              due: endOfMonth(now),
-              dueLabel: endOfMonthLabel(now),
-            },
-            {
-              label: "Onboarding / CEU training",
-              href: "/my-branch/training",
-              done: totalTraining === 0 || trainingDone,
-              status: totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`,
-              cadence: "Monthly" as const,
-              due: endOfMonth(now),
-              dueLabel: endOfMonthLabel(now),
-            },
-          ].map((row) => (
-            <ManagerChecklistRow key={row.label} {...row} now={now} />
-          ))}
+          {worklist.map((it, i) =>
+            it.k === "cadence" ? (
+              <ManagerChecklistRow key={`c-${it.row.label}`} {...it.row} now={now} />
+            ) : (
+              <ReminderRow key={`a-${i}`} r={it.a} showBranch={branch === null} />
+            ),
+          )}
         </ul>
-      </Card>
-
-      {/* Needs attention — event-driven items only (fleet maintenance,
-          registrations, custom reminders). Inspections live in the checklist;
-          audit items have their own card below, so nothing repeats. */}
-      <Card className="p-0 overflow-hidden mb-5">
-        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
-          <div className="text-sm font-medium text-ink">Needs attention</div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted">{attention.length} item{attention.length === 1 ? "" : "s"}</span>
-            <RemindersCard mode="button" employees={employeeOpts} vehicles={vehicleOpts} />
-          </div>
-        </div>
-        {attention.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">Nothing outstanding — you&rsquo;re all caught up.</p>
-        ) : (
-          <ul className="divide-y divide-line">
-            {attention.slice(0, 12).map((r, i) => (
-              <ReminderRow key={i} r={r} showBranch={branch === null} />
-            ))}
-          </ul>
-        )}
       </Card>
 
       {/* New-hire reviews this manager is conducting */}
