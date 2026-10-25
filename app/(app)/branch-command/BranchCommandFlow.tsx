@@ -1,29 +1,30 @@
 import Link from "next/link";
 
-// Branch Command — "Your weekly flow". Makes the manager's responsibilities and
-// their order explicit: review THIS month's completion → address jobs left behind →
-// sign the week → approve NEXT month's routing once it's posted. Each step shows its
-// live state so a manager always knows what's done and what's next. Server component.
+// Branch Command — "Your weekly flow". The guided playbook that makes the manager's
+// responsibilities and their order explicit and drives them down the page: review THIS
+// month's completion → address jobs left behind → sign the week → approve NEXT month's
+// routing once it's posted. A live progress meter shows exactly what's left before the
+// week can be signed, and every step jumps to the section where the work happens.
+// Server component.
 
 type StepState = "done" | "now" | "todo" | "muted";
+type Count = { done: number; total: number };
 
 export default function BranchCommandFlow({
-  branch, monthLabel, hasProd, gate, signed, routing,
+  branch, monthLabel, hasProd, gate, progress, signed, routing,
 }: {
   branch: string;
   monthLabel: string | null;
   hasProd: boolean;
   gate: { openFindings: number; unreviewedTechs: number; uncheckedItems: number; openLeftBehind?: number; canSign: boolean };
+  progress: { checkoffs: Count; techs: Count; flags: Count; jobs: Count };
   signed: boolean;
   routing: { loaded: boolean; signed: boolean; periodLabel: string; approved: number; techs: number; href: string };
 }) {
   const openLeftBehind = gate.openLeftBehind ?? 0;
-  // Routing step state: not posted → muted; posted + unsigned → now (actionable);
-  // signed → done.
   const routingState: StepState = !routing.loaded ? "muted" : routing.signed ? "done" : "now";
 
-  // Sign step reflects the WHOLE gate (flags, tech review, checkoffs AND left-behind),
-  // so it never reads "ready" while the sign button is still blocked.
+  // Sign step reflects the WHOLE gate (flags, tech review, checkoffs AND left-behind).
   const signBlockers: string[] = [];
   if (gate.openFindings) signBlockers.push(`${gate.openFindings} flag${gate.openFindings === 1 ? "" : "s"}`);
   if (gate.unreviewedTechs) signBlockers.push(`${gate.unreviewedTechs} tech${gate.unreviewedTechs === 1 ? "" : "s"}`);
@@ -42,18 +43,21 @@ export default function BranchCommandFlow({
       label: `Review ${monthLabel ?? "this month"}'s completion`,
       detail: hasProd ? "Route completion, pacing & callbacks below" : "Upload this month's reports to begin",
       state: hasProd ? "done" : "now",
+      cta: hasProd ? { label: "Review completion ↓", href: "#route-completion" } : undefined,
     },
     {
       n: 2,
       label: "Address jobs left behind",
       detail: openLeftBehind > 0 ? `${openLeftBehind} still open — plan or reschedule each` : "All addressed",
       state: !hasProd ? "muted" : openLeftBehind > 0 ? "now" : "done",
+      cta: openLeftBehind > 0 ? { label: "Address jobs ↓", href: "#route-completion" } : undefined,
     },
     {
       n: 3,
       label: "Sign the week",
       detail: signDetail,
       state: signState,
+      cta: signed ? undefined : { label: gate.canSign ? "Sign the week ↓" : "Go to sign-off ↓", href: "#sign" },
     },
     {
       n: 4,
@@ -77,13 +81,23 @@ export default function BranchCommandFlow({
 
   return (
     <div className="rounded-xl border border-line bg-surface p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-[11px] uppercase tracking-wide text-muted">Your weekly flow</div>
-        <div className="text-[11px] text-muted">Current month → next month’s routing</div>
+        {hasProd && !signed ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Meter label="Checkoffs" c={progress.checkoffs} />
+            <Meter label="Techs" c={progress.techs} />
+            <Meter label="Flags" c={progress.flags} />
+            <Meter label="Jobs" c={progress.jobs} />
+          </div>
+        ) : (
+          <div className="text-[11px] text-muted">Current month → next month’s routing</div>
+        )}
       </div>
       <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s) => {
           const t = tone[s.state];
+          const isHash = s.cta?.href.startsWith("#");
           return (
             <li key={s.n} className={`relative rounded-lg border ${t.ring} p-3`}>
               <div className="flex items-center gap-2">
@@ -96,12 +110,34 @@ export default function BranchCommandFlow({
               </div>
               <p className="mt-1.5 text-xs text-muted">{s.detail}</p>
               {s.cta ? (
-                <Link href={s.cta.href} className="mt-2 inline-block text-xs font-medium text-brand-700 hover:underline">{s.cta.label}</Link>
+                isHash ? (
+                  <a href={s.cta.href} className="mt-2 inline-block text-xs font-medium text-brand-700 hover:underline">{s.cta.label}</a>
+                ) : (
+                  <Link href={s.cta.href} className="mt-2 inline-block text-xs font-medium text-brand-700 hover:underline">{s.cta.label}</Link>
+                )
               ) : null}
             </li>
           );
         })}
       </ol>
     </div>
+  );
+}
+
+// A compact done/total chip — green when complete, amber while work remains.
+function Meter({ label, c }: { label: string; c: Count }) {
+  if (c.total === 0) return null;
+  const done = c.done >= c.total;
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium tabular-nums"
+      style={
+        done
+          ? { color: "#1F7A45", backgroundColor: "rgba(31,122,69,.08)", borderColor: "rgba(31,122,69,.3)" }
+          : { color: "#8F6400", backgroundColor: "rgba(227,178,60,.12)", borderColor: "rgba(227,178,60,.4)" }
+      }
+    >
+      {label} {c.done}/{c.total}
+    </span>
   );
 }

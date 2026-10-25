@@ -109,6 +109,20 @@ export default async function BranchCommandPage({
 
   const heroTotals = prod?.totals ?? { scheduled: 0, completed: 0, completionPct: 0, leftBehind: 0, leftBehindDollars: 0, remaining: 0, callbacks: 0, netChange: 0, netChangeDollars: 0 };
 
+  // Live sign-progress for the guided playbook meter (done/total per blocker).
+  const progress = {
+    checkoffs: {
+      done: payload.scoreboard.reduce((a, d) => a + d.items.filter((i) => i.checked).length, 0),
+      total: payload.scoreboard.reduce((a, d) => a + d.items.length, 0),
+    },
+    techs: { done: payload.techWeeks.filter((t) => t.reviewed).length, total: payload.techWeeks.length },
+    flags: {
+      done: payload.findings.filter((f) => f.requiresResponse && f.status !== "open").length,
+      total: payload.findings.filter((f) => f.requiresResponse).length,
+    },
+    jobs: { done: leftBehind.filter((j) => j.status === "addressed").length, total: leftBehind.length },
+  };
+
   return (
     <div className="space-y-5">
       <MyBranchViewToggle view="command" branchQuery={branch ? `?branch=${branch}` : ""} />
@@ -133,6 +147,7 @@ export default async function BranchCommandPage({
         monthLabel={monthLabelOf(prodPeriod)}
         hasProd={!!prod && prod.routes.length > 0}
         gate={payload.gate}
+        progress={progress}
         signed={payload.status === "signed"}
         routing={{
           loaded: routing.loaded,
