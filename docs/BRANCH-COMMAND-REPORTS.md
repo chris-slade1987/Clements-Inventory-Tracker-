@@ -91,13 +91,16 @@ the join key). Weekly actuals are matched against it by account #:
 Pure + unit-tested (`lib/branch-production.test.ts`). Parsers map each PestPac report into
 its normalized input shape; the engine never touches Prisma or a file format.
 
-### Reports this adds to the weekly set (need real samples to pin parsers)
-- **Technician Production Report** (what's completed, by account/tech) → completion + per-tech.
-- **Underserviced Report** (outstanding + past-due) → jobs left behind.
-- **Cancellation Report** (by route) → `cancellations_count`, route size.
-- **New Start Report** (accounts added/moved to a route) → route growth/decline.
-The **monthly Technician Schedule Report** is the baseline (reuses the routing parser;
-October verified: 35 techs / 5,862 stops / all account-keyed).
+### Reports this adds to the weekly set (parsers pinned to real Oct exports — `lib/branch-production-parse.ts`)
+- **Technician Production Report** → `parseProductionReport` (Location=account · Work Date · Service · Amount). Completion + per-tech.
+- **Appointment List** (open appts ahead) → `parseAppointmentList` (4-line records). Remaining workload + reschedules — a past-due job on the board ahead is NOT left behind.
+- **Unserviced / Uncommitted Orders** → `parseUnservicedReport` (authoritative outstanding; past-due = left behind).
+- **Gain & Loss Report** → `parseGainLossReport` (gains = new starts, losses = cancellations, net $). One file = route growth/decline; replaces separate cancellation + new-start reports. **Not "sales."**
+- The **monthly Technician Schedule Report** is the baseline (reuses the routing parser).
+
+Oct reconciliation (through the 25th): schedule 5,862 stops / $674.6K · production 4,946 rows ·
+appointments 1,106 open ahead · unserviced 505 → **484 truly left behind ≈ $86.7K** (matches the
+schedule-diff estimate of 503) · gain/loss net **−$31.8K** (110 starts $69K vs 107 cancels $101K).
 
 ## Build order (Phase 2)
 1. Upload UI on Branch Command (reuse the Routing Approval confirm flow).
