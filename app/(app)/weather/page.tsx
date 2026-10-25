@@ -307,11 +307,35 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
   const heavyRain = t.flags.some((f) => f.code === "HEAVY_RAIN");
   const pests = pestPressure({ month, tempF: pTemp, humidity: t.current?.humidity ?? null, rainActive, dry, heavyRain });
 
+  const elevatedPests = pests.filter((p) => p.level === "elevated");
   return (
     <div className="space-y-4">
+      {/* Pest & agronomic pressure — the headline "what the weather means", up top + loud */}
+      <Panel code="01" title="Pest & agronomic pressure" className={elevatedPests.length ? "ring-1 ring-amber-400/40" : ""} right={
+        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] ${elevatedPests.length ? "border-amber-400/50 bg-amber-400/15 text-amber-200" : "border-white/10 bg-white/5 text-muted"}`}>
+          {elevatedPests.length} elevated
+        </span>
+      }>
+        {pests.length === 0 ? (
+          <p className="text-sm text-muted">No weather-driven pest or turf-disease pressure flagged for today. Normal service focus.</p>
+        ) : (
+          <>
+            {elevatedPests.length > 0 && (
+              <p className="mb-3 text-sm text-ink/90">
+                Today&apos;s weather favors <span className="font-medium text-amber-200">{elevatedPests.map((p) => p.title).join(", ")}</span>. Steer scouting + service and set customer expectations.
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+              {pests.map((p) => <PressureRow key={p.key} p={p} />)}
+            </div>
+            <p className="mt-3 text-[11px] text-muted">Weather + seasonal likelihood for the Treasure Coast — scout to confirm before treating. Ask Canopy for product/treatment specifics.</p>
+          </>
+        )}
+      </Panel>
+
       {/* Brief + advisories */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel code="01" title={`Ops brief · ${t.label}`} className="lg:col-span-2" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{t.briefingModel === "fallback" ? "Rules" : "Canopy AI"}</span>}>
+        <Panel code="02" title={`Ops brief · ${t.label}`} className="lg:col-span-2" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{t.briefingModel === "fallback" ? "Rules" : "Canopy AI"}</span>}>
           <h2 className="text-xl font-light tracking-tight text-ink">{b?.headline ?? "Forecast ready"}</h2>
           {b?.summary && <p className="mt-2 text-sm leading-relaxed text-ink/90">{b.summary}</p>}
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -324,7 +348,7 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
           </div>
         </Panel>
 
-        <Panel code="02" title="Advisories">
+        <Panel code="03" title="Advisories">
           {af.length === 0 && !blackout ? (
             <p className="text-sm text-muted">No ops advisories today. Normal scheduling.</p>
           ) : (
@@ -345,20 +369,6 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
           )}
         </Panel>
       </div>
-
-      {/* Pest & agronomic pressure — weather + season → service focus */}
-      <Panel code="03" title="Pest & agronomic pressure" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{pests.filter((p) => p.level === "elevated").length} elevated</span>}>
-        {pests.length === 0 ? (
-          <p className="text-sm text-muted">No weather-driven pest or turf-disease pressure flagged for today. Normal service focus.</p>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-              {pests.map((p) => <PressureRow key={p.key} p={p} />)}
-            </div>
-            <p className="mt-3 text-[11px] text-muted">Weather + seasonal likelihood for the Treasure Coast — scout to confirm before treating. Ask Canopy for product/treatment specifics.</p>
-          </>
-        )}
-      </Panel>
 
       {/* Radar scope — big, full width */}
       <Panel code="04" title={`Radar scope${radarStation ? ` · NWS ${radarStation}` : ""}`} right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Live loop</span>}>

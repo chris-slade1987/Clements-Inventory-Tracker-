@@ -142,9 +142,9 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
   // chart, who own day-to-day call-out/write-up/accident logging).
   sales_director: {
     "sales-team": "edit", "sales-attrition": "view", management: "view",
-    people: "view", "people-profile": "edit", ...SELF_BASIC,
+    people: "view", "people-profile": "edit", weather: true, ...SELF_BASIC,
   },
-  service_advisor: { "me-sales": "edit", ...SELF_BASIC },
+  service_advisor: { "me-sales": "edit", weather: true, ...SELF_BASIC },
   board: { board: "view", management: "view", executive: "view", benchmarking: true, "sales-attrition": "view", compliance: "view", bulletin: true, account: true, groundwork: true, "org-chart": true, "ask-canopy": true },
   employee: { ...SELF_BASIC },
 };

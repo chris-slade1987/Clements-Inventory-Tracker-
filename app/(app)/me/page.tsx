@@ -11,6 +11,8 @@ import { unreadCount } from "@/lib/threads";
 import { prisma } from "@/lib/prisma";
 import { ensureSelfEmployeeLink } from "@/lib/self-link";
 import BulletinBanner from "@/components/BulletinBanner";
+import WeatherTile from "@/components/WeatherTile";
+import { userCanAccess } from "@/lib/access";
 import Glyph from "@/components/Glyph";
 import RhythmRibbon from "@/components/RhythmRibbon";
 import { buildEmployeeRhythm } from "@/lib/rhythm";
@@ -83,6 +85,9 @@ function HubGrid({ ptoLabel, trainingLabel, inboxUnread }: { ptoLabel?: string; 
 
 export default async function MyWorkPage() {
   const user = await requireUser();
+  // CSRs (service advisors) and anyone granted `weather` get the combined weather +
+  // pest-pressure brief on their hub too (techs without the grant don't see it).
+  const canWeather = await userCanAccess(user, "weather").catch(() => false);
   const employeeId = user.employeeId ?? (await ensureSelfEmployeeLink(user));
   const inboxUnread = await unreadCount(user.id).catch(() => 0);
   if (!employeeId) {
@@ -137,6 +142,8 @@ export default async function MyWorkPage() {
   return (
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} subtitle="Your Employee Hub" />
+
+      {canWeather && <WeatherTile canSeeAll={false} />}
 
       <BulletinBanner />
 

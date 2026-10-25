@@ -753,6 +753,11 @@ export function buildNavForMode(mode: Mode, p: NavPrincipal): NavItem[] {
       const at = homeIdx === -1 ? 0 : homeIdx + 1;
       list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
     }
+    // CSRs / service advisors also get Weather Ops in their nav (grant-gated by
+    // navAllowed below, so only employees with the `weather` grant actually see it).
+    if (p.isServiceAdvisor && mode === "employee" && !list.some((i) => i.href === WEATHER_NAV_ITEM.href)) {
+      list = [...list, WEATHER_NAV_ITEM];
+    }
     items = list;
   }
   // Director of Field Ops: a "Field Ops" home link at the top of every center.

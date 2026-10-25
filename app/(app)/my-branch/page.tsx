@@ -150,14 +150,14 @@ export default async function MyBranchPage({
 
       <MyBranchViewToggle view="todos" branchQuery={branch ? `?branch=${branch}` : ""} />
 
+      {/* Weather Ops — today's conditions + what it means for pest pressure, front and
+          center. Branch-locked managers see their territory; admins see all four.
+          Loads from the scoped /api/weather so it never blocks the dashboard render. */}
+      <WeatherTile canSeeAll={!locked} />
+
       <BulletinBanner />
 
       <RhythmRibbon segments={rhythm} />
-
-      {/* Weather Ops — what the forecast means for routing & service completion.
-          Branch-locked managers see their territory; admins see all four. Loads from
-          the scoped /api/weather so it never blocks the dashboard render. */}
-      <WeatherTile canSeeAll={!locked} />
 
       {/* Momentum — this period's compliance at a glance, on the encouragement
           ramp (motivation kit). Built from data already on the page; nothing is
