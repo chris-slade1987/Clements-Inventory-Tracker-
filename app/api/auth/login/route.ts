@@ -1,7 +1,7 @@
 import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createSession, verifyPassword, PASSWORD_POLICY_ENFORCED } from "@/lib/auth";
+import { createSession, verifyPassword, PASSWORD_POLICY_ENFORCED, homePath } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { appUrl, BRAND } from "@/lib/app-url";
 
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email }, include: { employee: { select: { role: true } } } });
     // Same message whether the email is unknown or the password is wrong.
     if (!user || !user.active || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json(
@@ -56,12 +56,18 @@ export async function POST(req: Request) {
     }
 
     await createSession(user.id);
-    // Board observers → the executive views; employees → their work home; branch
-    // managers → their branch; admins → dashboard.
-    const redirect =
-      user.boardObserver && user.role !== "admin"
-        ? "/management/board"
-        : user.role === "employee" ? "/me" : user.role !== "admin" && user.branch ? "/my-branch" : "/dashboard";
+    // Land everyone via the single source of truth (homePath): My Branch by default,
+    // with the role exceptions (board → exec, Sales Director → /sales, HR → /hr, field
+    // ops → /field-ops, technicians → /me/route, other employees → /me).
+    const redirect = homePath({
+      id: user.id, name: user.name, email: user.email, role: user.role,
+      warehouseId: user.warehouseId, warehouseName: null, branch: user.branch,
+      employeeId: user.employeeId, employeeRole: user.employee?.role ?? null,
+      accessLevel: user.accessLevel, canPostBulletin: user.canPostBulletin,
+      seniorLeadership: user.seniorLeadership, hrAccess: user.hrAccess,
+      boardObserver: user.boardObserver, mustChangePassword: user.mustChangePassword,
+      firstLoginAt: user.firstLoginAt,
+    });
     return NextResponse.json({ ok: true, redirect });
   } catch (e) {
     // Log the underlying cause server-side (DB unreachable / not migrated) for
