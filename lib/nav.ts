@@ -124,8 +124,8 @@ export const BRANCH_COMMAND_NAV_ITEM: NavItem = {
 // (first week of the month). A My Branch (manager) responsibility. Map-pin glyph.
 export const ROUTING_NAV_ITEM: NavItem = {
   href: "/routing-approval",
-  label: "Routing Approval",
-  shortLabel: "Routing",
+  label: "Routes",
+  shortLabel: "Routes",
   icon: "M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11zM12 12a2 2 0 100-4 2 2 0 000 4z",
 };
 

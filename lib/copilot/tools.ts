@@ -588,7 +588,7 @@ const getRouting: CopilotTool = {
       totals: { stops: t.totalStops, days: t.totalDays, production: Math.round(t.totalDollars), avgStopsPerDay: t.avgStopsPerDay, estMiles: t.estMiles, estFuelUsd: Math.round((t.estMiles ?? 0) / 18 * 3.45) },
       dailyStopCounts: t.loads,
       flags: t.findings.filter((f) => f.severity !== "info").map((f) => ({ severity: f.severity, title: f.title, detail: f.detail })),
-      note: "Mileage/fuel are modeled estimates. The manager approves + signs routing in Routing Approval.",
+      note: "Mileage/fuel are modeled estimates. The manager approves + signs routing in Routes.",
     };
   },
 };
@@ -597,7 +597,7 @@ const proposeRouteRebalance: CopilotTool = {
   schema: {
     name: "propose_route_rebalance",
     description:
-      "Propose a more balanced month for a route by moving stops from its heaviest days to its lightest, OPTIONALLY keeping named customers on their current day. Returns the specific proposed moves and the before/after balance + heaviest-day. Use when the manager asks to rework, rebalance, or even out a route (e.g. 'rebalance route 26 but keep the Smith account on Tuesday'). This is a PROPOSAL only — the manager reviews it in Routing Approval and exports the change set to PestPac; nothing is written.",
+      "Propose a more balanced month for a route by moving stops from its heaviest days to its lightest, OPTIONALLY keeping named customers on their current day. Returns the specific proposed moves and the before/after balance + heaviest-day. Use when the manager asks to rework, rebalance, or even out a route (e.g. 'rebalance route 26 but keep the Smith account on Tuesday'). This is a PROPOSAL only — the manager reviews it in Routes and exports the change set to PestPac; nothing is written.",
     input_schema: {
       type: "object",
       properties: {
@@ -628,7 +628,7 @@ const proposeRouteRebalance: CopilotTool = {
       balance: `${result.balanceBefore} → ${result.balanceAfter}`,
       heaviestDay: `${result.maxBefore} → ${result.maxAfter} stops`,
       moves: result.moves.slice(0, 40),
-      note: result.moves.length ? "Proposal only. The manager opens Routing Approval, locks jobs as needed, and exports the change set to PestPac." : "Already well balanced — no moves needed.",
+      note: result.moves.length ? "Proposal only. The manager opens Routes, locks jobs as needed, and exports the change set to PestPac." : "Already well balanced — no moves needed.",
     };
   },
 };

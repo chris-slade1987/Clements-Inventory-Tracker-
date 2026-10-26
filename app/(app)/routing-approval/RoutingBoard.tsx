@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import AskCanopy from "@/components/AskCanopy";
-import RouteLeafletMap from "./RouteLeafletMap";
+import RouteLeafletMap, { type MapGroup } from "./RouteLeafletMap";
 
 const MPG = 18, GAS = 3.45;
 const SC: Record<string, string> = { good: "#1F7A45", warn: "#E3B23C", alarm: "#DC2626", info: "#5c6b62" };
@@ -42,12 +42,79 @@ function dayMetrics(day: Day | null): { miles: number; driveMin: number; fuel: n
   const stops = day?.stops ?? [];
   const value = stops.reduce((s, x) => s + x.amt, 0);
   const pts = stops.filter((s): s is Stop & { lat: number; lng: number } => s.lat != null && s.lng != null);
-  let miles = 0;
-  for (let i = 1; i < pts.length; i++) miles += haversineMiles(pts[i - 1], pts[i]);
-  miles *= ROAD_FACTOR;
+  const miles = routeMiles(pts);
   const driveMin = miles > 0 ? (miles / AVG_MPH) * 60 : 0;
   return { miles, driveMin, fuel: (miles / MPG) * GAS, value, located: pts.length, total: stops.length };
 }
+
+// Road-adjusted miles along an ordered list of geocoded points.
+function routeMiles(pts: { lat: number; lng: number }[]): number {
+  let m = 0;
+  for (let i = 1; i < pts.length; i++) m += haversineMiles(pts[i - 1], pts[i]);
+  return m * ROAD_FACTOR;
+}
+function metricsFor(stops: Stop[]): { miles: number; driveMin: number; fuel: number } {
+  const pts = stops.filter((s): s is Stop & { lat: number; lng: number } => s.lat != null && s.lng != null);
+  const miles = routeMiles(pts);
+  return { miles, driveMin: (miles / AVG_MPH) * 60, fuel: (miles / MPG) * GAS };
+}
+
+// Reorder one day's stops to cut drive distance: nearest-neighbor seed + 2-opt,
+// keeping locked stops pinned at their current position. Non-geocoded stops keep
+// their relative order at the end. Returns stops with seq renumbered 1..n.
+function optimizeOrder(stops: Stop[], isLocked: (seq: number) => boolean): Stop[] {
+  const geo = stops.filter((s): s is Stop & { lat: number; lng: number } => s.lat != null && s.lng != null);
+  const noGeo = stops.filter((s) => s.lat == null || s.lng == null);
+  if (geo.length < 3) return stops;
+  const n = geo.length;
+  const result: (typeof geo[number] | null)[] = new Array(n).fill(null);
+  const pinnedIdx = new Set<number>();
+  geo.forEach((s, i) => { if (isLocked(s.seq)) { result[i] = s; pinnedIdx.add(i); } });
+  const remaining = new Set(geo.filter((s) => !isLocked(s.seq)));
+  let prev: (typeof geo[number]) | null = null;
+  for (let i = 0; i < n; i++) {
+    if (result[i]) { prev = result[i]; continue; }
+    let best: (typeof geo[number]) | null = null, bestD = Infinity;
+    for (const c of remaining) { const d = prev ? haversineMiles(prev, c) : 0; if (best === null || d < bestD) { best = c; bestD = d; } }
+    if (!best) break;
+    result[i] = best; remaining.delete(best); prev = best;
+  }
+  let ordered = result.filter(Boolean) as (typeof geo[number])[];
+  // 2-opt only when nothing is pinned (keeps pinned positions exact otherwise).
+  if (!pinnedIdx.size) ordered = twoOpt(ordered);
+  return [...ordered, ...noGeo].map((s, i) => ({ ...s, seq: i + 1 }));
+}
+function twoOpt<T extends { lat: number; lng: number }>(route: T[]): T[] {
+  const r = [...route];
+  let improved = true, guard = 0;
+  const d = (a: T, b: T) => haversineMiles(a, b);
+  while (improved && guard++ < 60) {
+    improved = false;
+    for (let i = 0; i < r.length - 1; i++) {
+      for (let k = i + 1; k < r.length; k++) {
+        const a = r[i - 1], b = r[i], c = r[k], e = r[k + 1];
+        const before = (a ? d(a, b) : 0) + (e ? d(c, e) : 0);
+        const after = (a ? d(a, c) : 0) + (e ? d(b, e) : 0);
+        if (after + 1e-9 < before) { r.splice(i, k - i + 1, ...r.slice(i, k + 1).reverse()); improved = true; }
+      }
+    }
+  }
+  return r;
+}
+
+// The Mon–Sun week (as present in the loaded month) that contains `date`.
+function weekDaysOf(days: Day[], date: string): Day[] {
+  if (!date) return [];
+  const [y, m, d] = date.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  const monday = new Date(dt); monday.setUTCDate(dt.getUTCDate() - ((dt.getUTCDay() + 6) % 7));
+  const sunday = new Date(monday); sunday.setUTCDate(monday.getUTCDate() + 6);
+  const lo = monday.toISOString().slice(0, 10), hi = sunday.toISOString().slice(0, 10);
+  return days.filter((x) => x.date >= lo && x.date <= hi && x.stops.length > 0).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// Distinct per-day colors for the week view (brand green first, then a readable spread).
+const DAY_PALETTE = ["#1F7A45", "#2563EB", "#D97706", "#DB2777", "#7C3AED", "#0891B2", "#DC2626"];
 
 export default function RoutingBoard({ data, canUpload, periodKey }: { data: Data; canUpload: boolean; periodKey: string }) {
   const router = useRouter();
@@ -217,6 +284,12 @@ function FocusCard(props: FocusProps) {
   const loading = !days;
   // Stats under the map/account order: default to the clicked day, toggle to monthly avg.
   const [statsView, setStatsView] = useState<"day" | "month">("day");
+  // Rework scope + the optimizer's "after" stops that the map should display.
+  const [scope, setScope] = useState<"day" | "week" | "month">("day");
+  const [dayAfter, setDayAfter] = useState<Stop[] | null>(null);
+  const [weekAfter, setWeekAfter] = useState<Record<string, Stop[]> | null>(null);
+  // Clear any optimizer preview when the manager switches day or technician.
+  useEffect(() => { setDayAfter(null); setWeekAfter(null); }, [selDate, sel.id]);
   const sizes = sel.loads;
   const m = {
     avg: sel.avgStopsPerDay ?? 0, median: median(sizes), balance: balanceOf(sizes),
@@ -228,6 +301,19 @@ function FocusCard(props: FocusProps) {
     if (selDate) { const d = days.find((x) => x.date === selDate); if (d) return d; }
     return days.reduce((a, b) => (b.stops.length > a.stops.length ? b : a), days[0]);
   }, [days, selDate]);
+
+  // The week (as loaded) containing the selected day — used by the Week scope.
+  const weekDays = useMemo(() => (days && curDay ? weekDaysOf(days, curDay.date) : []), [days, curDay]);
+
+  // What the map draws: the week (color-coded per day) under Week scope, otherwise
+  // the selected day (green) — showing the optimizer's proposed order when present.
+  const mapGroups: MapGroup[] = useMemo(() => {
+    if (scope === "week" && weekDays.length) {
+      return weekDays.map((d, i) => ({ key: d.date, label: dayLabel(d.date), color: DAY_PALETTE[i % DAY_PALETTE.length], stops: weekAfter?.[d.date] ?? d.stops }));
+    }
+    const stops = (scope === "day" ? dayAfter : null) ?? curDay?.stops ?? [];
+    return curDay ? [{ key: curDay.date, label: dayLabel(curDay.date), color: "#1F7A45", stops }] : [];
+  }, [scope, weekDays, weekAfter, dayAfter, curDay]);
 
   // Daily stats for the clicked day (miles/drive/fuel need geocoded stops; value is exact).
   const dm = dayMetrics(curDay);
@@ -264,7 +350,7 @@ function FocusCard(props: FocusProps) {
             variant="button"
             label="Ask Canopy about this route"
             task={`Help me review and improve route ${sel.routeNo} (${sel.name})'s monthly routing. What stands out, and how could the days be balanced or made more efficient? I can lock jobs that must stay.`}
-            context={`Routing Approval · ${sel.name} (route ${sel.routeNo}, ${sel.kind}) · ${sel.totalStops} stops over ${sel.totalDays} days · avg ${sel.avgStopsPerDay}/day · daily loads [${sel.loads.join(", ")}] · status ${sel.status}`}
+            context={`Routes · ${sel.name} (route ${sel.routeNo}, ${sel.kind}) · ${sel.totalStops} stops over ${sel.totalDays} days · avg ${sel.avgStopsPerDay}/day · daily loads [${sel.loads.join(", ")}] · status ${sel.status}`}
           />
         </span>
       </div>
@@ -276,14 +362,22 @@ function FocusCard(props: FocusProps) {
           <DayBars days={days!} curDate={curDay?.date} onPick={setSelDate} />
           <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-1 text-sm font-medium text-ink">{curDay ? dayLabel(curDay.date) : ""} <span className="text-xs font-normal text-muted">· {curDay?.stops.length} stops · {money(curDay?.stops.reduce((s, x) => s + x.amt, 0) ?? 0)}</span></div>
-              <RouteLeafletMap stops={curDay?.stops ?? []} branch={branch} canLocate={!signed} onLocate={onLocate} locating={locating} />
+              <div className="mb-1 text-sm font-medium text-ink">
+                {scope === "week"
+                  ? <>Week of {curDay ? dayLabel(weekDays[0]?.date ?? curDay.date) : ""} <span className="text-xs font-normal text-muted">· {weekDays.length} days · color-coded</span></>
+                  : <>{curDay ? dayLabel(curDay.date) : ""} <span className="text-xs font-normal text-muted">· {curDay?.stops.length} stops · {money(curDay?.stops.reduce((s, x) => s + x.amt, 0) ?? 0)}{dayAfter ? " · optimized order" : ""}</span></>}
+              </div>
+              <RouteLeafletMap groups={mapGroups} branch={branch} canLocate={!signed} onLocate={onLocate} locating={locating} />
             </div>
             <div>
               <StopList sel={sel} day={curDay} locks={locks} setLocks={setLocks} signed={signed} setProposal={setProposal} />
             </div>
           </div>
-          <Optimize sel={sel} days={days!} locks={locks} setLocks={setLocks} periodKey={periodKey} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} />
+          <Rework
+            sel={sel} days={days!} curDay={curDay} weekDays={weekDays} locks={locks} setLocks={setLocks} periodKey={periodKey}
+            scope={scope} setScope={setScope} setDayAfter={setDayAfter} setWeekAfter={setWeekAfter}
+            proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed}
+          />
         </>
       )}
 
@@ -426,13 +520,125 @@ function downloadChangeSet(sel: Tech, periodKey: string, proposal: Proposal, set
   setChangeset(`Downloaded ${proposal.moves.length} proposed move${proposal.moves.length === 1 ? "" : "s"} for route ${sel.routeNo} (${sel.name}) — review in Excel, then apply the date changes in PestPac. Nothing in Canopy changed.`);
 }
 
-function Optimize({ sel, days, locks, setLocks, periodKey, proposal, setProposal, changeset, setChangeset }: { sel: Tech; days: Day[]; locks: Set<string>; setLocks: (s: Set<string>) => void; periodKey: string; proposal: Proposal | null; setProposal: (p: Proposal | null) => void; changeset: string | null; setChangeset: (s: string | null) => void }) {
+// Export a day's optimized stop ORDER as a PestPac-ready sequence change set (.csv).
+function downloadDayOrder(sel: Tech, date: string, after: Stop[], setNote: (s: string | null) => void) {
+  const esc = (v: string | number) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const header = ["Account", "Customer", "Service", "New Stop #", "Address", "City", "Amount"];
+  const rows = after.map((s) => [s.account, s.customer, s.svc, s.seq, s.addr, s.city, s.amt.toFixed(2)].map(esc).join(","));
+  const csv = "﻿" + [header.join(","), ...rows].join("\r\n") + "\r\n";
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `canopy-day-order_route-${sel.routeNo}_${date}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setNote(`Downloaded the new stop order for ${date}. Apply the sequence in PestPac — nothing in Canopy changed.`);
+}
+
+function DeltaTile({ label, before, after, lowerBetter = true }: { label: string; before: string; after: string; lowerBetter?: boolean }) {
+  return (
+    <div className="rounded-lg border border-line px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-muted">{label}</div>
+      <div className="mt-0.5 flex items-baseline gap-1.5 text-sm tabular-nums">
+        <span className="text-muted">{before}</span><span className="text-muted">→</span><span className="font-medium text-ink">{after}</span>
+      </div>
+    </div>
+  );
+}
+const pctSaved = (b: number, a: number) => (b > 0 ? Math.round(((b - a) / b) * 100) : 0);
+
+type Metrics = { miles: number; driveMin: number; fuel: number };
+type DayRes = { before: Metrics; after: Metrics; stops: Stop[] };
+type WeekRow = { date: string; beforeStops: number; afterStops: number; before: Metrics; after: Metrics };
+type WeekRes = { rows: WeekRow[]; moves: Move[]; milesBefore: number; milesAfter: number; driveBefore: number; driveAfter: number; balBefore: number; balAfter: number };
+
+type ReworkProps = {
+  sel: Tech; days: Day[]; curDay: Day | null; weekDays: Day[]; locks: Set<string>; setLocks: (s: Set<string>) => void; periodKey: string;
+  scope: "day" | "week" | "month"; setScope: (s: "day" | "week" | "month") => void;
+  setDayAfter: (s: Stop[] | null) => void; setWeekAfter: (m: Record<string, Stop[]> | null) => void;
+  proposal: Proposal | null; setProposal: (p: Proposal | null) => void; changeset: string | null; setChangeset: (s: string | null) => void; signed: boolean;
+};
+
+// Scoped "Rework" — pick WHAT to rework (one day's stop order · a whole week ·
+// the month), let Canopy optimize it, and see the before→after efficiency gain.
+function Rework(props: ReworkProps) {
+  const { sel, days, curDay, weekDays, locks, setLocks, periodKey, scope, setScope, setDayAfter, setWeekAfter, proposal, setProposal, changeset, setChangeset } = props;
+  const [dayRes, setDayRes] = useState<DayRes | null>(null);
+  const [weekRes, setWeekRes] = useState<WeekRes | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const fmtD = (ds: string) => { const [y, m, d] = ds.split("-").map(Number); return DOW[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + " " + m + "/" + d; };
+  const isLockedOn = (date: string) => (seq: number) => locks.has(`${sel.routeNo}|${date}|${seq}`);
   const nloc = [...locks].filter((k) => k.startsWith(sel.routeNo + "|")).length;
-  const run = () => {
+
+  const pick = (s: "day" | "week" | "month") => { setScope(s); setNote(null); };
+  const clearAll = () => { setDayRes(null); setWeekRes(null); setProposal(null); setChangeset(null); setNote(null); setDayAfter(null); setWeekAfter(null); };
+
+  function runDay() {
+    if (!curDay) return;
+    const after = optimizeOrder(curDay.stops, isLockedOn(curDay.date));
+    setDayRes({ before: metricsFor(curDay.stops), after: metricsFor(after), stops: after });
+    setDayAfter(after); setWeekAfter(null); setProposal(null); setChangeset(null); setNote(null);
+  }
+
+  function runWeek() {
+    const work = weekDays.filter((d) => d.stops.length > 0);
+    if (work.length < 2) { setWeekRes({ rows: [], moves: [], milesBefore: 0, milesAfter: 0, driveBefore: 0, driveAfter: 0, balBefore: 0, balAfter: 0 }); return; }
+    const D = work.length;
+    const beforeByDate: Record<string, Stop[]> = Object.fromEntries(work.map((d) => [d.date, d.stops.map((s) => ({ ...s }))]));
+
+    // Re-cluster the week GEOGRAPHICALLY: pool the movable, located stops and split
+    // them into equal, geographically-compact groups (one per working day) so each
+    // day covers a tight area — that cuts cross-town travel AND evens the day counts.
+    // Locked jobs and not-yet-geocoded stops stay on their original day.
+    type Tagged = Stop & { origDate: string };
+    const movable: Tagged[] = [];
+    const pinnedByDate: Record<string, Stop[]> = {};
+    for (const d of work) {
+      pinnedByDate[d.date] = [];
+      for (const s of d.stops) {
+        const locked = locks.has(`${sel.routeNo}|${d.date}|${s.seq}`);
+        if (s.lat != null && s.lng != null && !locked) movable.push({ ...s, origDate: d.date });
+        else pinnedByDate[d.date].push({ ...s });
+      }
+    }
+    // Sort by longitude (tie-break latitude) → contiguous chunks are compact bands.
+    movable.sort((a, b) => (a.lng! - b.lng!) || (a.lat! - b.lat!));
+    // Even day counts: each day's movable share = target − stops it already keeps,
+    // so totals land ~equal even when some stops stayed pinned (locked/not geocoded).
+    const totalAll = work.reduce((s, d) => s + d.stops.length, 0);
+    const target = Math.round(totalAll / D);
+    const caps = work.map((d) => Math.max(0, target - pinnedByDate[d.date].length));
+    let extra = movable.length - caps.reduce((a, b) => a + b, 0);
+    const byLoad = work.map((_, i) => i).sort((a, b) => (pinnedByDate[work[a].date].length + caps[a]) - (pinnedByDate[work[b].date].length + caps[b]));
+    for (let k = 0; extra > 0; k++, extra--) caps[byLoad[k % D]]++;
+    const moves: Move[] = [];
+    const afterByDate: Record<string, Stop[]> = {};
+    let idx = 0;
+    work.forEach((d, i) => {
+      const chunk = movable.slice(idx, idx + caps[i]); idx += caps[i];
+      for (const s of chunk) if (s.origDate !== d.date) moves.push({ account: s.account, customer: s.customer, addr: s.addr, city: s.city, amt: s.amt, svc: s.svc, from: s.origDate, to: d.date });
+      const combined: Stop[] = [...pinnedByDate[d.date], ...chunk.map(({ origDate: _o, ...rest }) => rest as Stop)];
+      afterByDate[d.date] = optimizeOrder(combined, isLockedOn(d.date));
+    });
+
+    const rows: WeekRow[] = work.map((d) => ({
+      date: d.date, beforeStops: beforeByDate[d.date].length, afterStops: afterByDate[d.date].length,
+      before: metricsFor(beforeByDate[d.date]), after: metricsFor(afterByDate[d.date]),
+    }));
+    const sum = (f: (r: WeekRow) => number) => rows.reduce((s, r) => s + f(r), 0);
+    setWeekRes({
+      rows, moves,
+      milesBefore: sum((r) => r.before.miles), milesAfter: sum((r) => r.after.miles),
+      driveBefore: sum((r) => r.before.driveMin), driveAfter: sum((r) => r.after.driveMin),
+      balBefore: balanceOf(rows.map((r) => r.beforeStops)), balAfter: balanceOf(rows.map((r) => r.afterStops)),
+    });
+    setWeekAfter(afterByDate); setDayAfter(null); setProposal(null); setChangeset(null); setNote(null);
+  }
+
+  function runMonth() {
     const work = days.map((d) => ({ date: d.date, stops: d.stops.map((s) => ({ ...s })) })).filter((d) => d.stops.length > 0);
     if (work.length < 2) { setProposal({ moves: [], balBefore: 0, balAfter: 0, maxBefore: 0, maxAfter: 0 }); return; }
-    const size = (d: { stops: unknown[] }) => d.stops.length;
+    const size = (d: { stops: Stop[] }) => d.stops.length;
     const sizesBefore = work.map(size);
     const moves: Move[] = [];
     let guard = 0;
@@ -446,46 +652,137 @@ function Optimize({ sel, days, locks, setLocks, periodKey, proposal, setProposal
       moves.push({ account: cand.account, customer: cand.customer, addr: cand.addr, city: cand.city, amt: cand.amt, svc: cand.svc, from: donor.date, to: recip.date });
       if (moves.length >= 60) break;
     }
-    const sizesAfter = work.map(size);
-    setProposal({ moves, balBefore: balanceOf(sizesBefore), balAfter: balanceOf(sizesAfter), maxBefore: Math.max(...sizesBefore), maxAfter: Math.max(...sizesAfter) });
-    setChangeset(null);
-  };
+    setProposal({ moves, balBefore: balanceOf(sizesBefore), balAfter: balanceOf(work.map(size)), maxBefore: Math.max(...sizesBefore), maxAfter: Math.max(...work.map(size)) });
+    setDayAfter(null); setWeekAfter(null); setChangeset(null); setNote(null);
+  }
+
+  const SCOPES: [typeof scope, string][] = [["day", "This day's order"], ["week", "This week"], ["month", "The month"]];
+
   return (
     <div className="mt-5 border-t border-line pt-4">
-      <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">Optimize &amp; propose</div>
-      <p className="mt-0.5 text-xs text-muted">Lock the jobs that can&apos;t move (a customer&apos;s required day/time), then let Canopy rebalance the rest into a PestPac-ready change set.</p>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button onClick={run} className={btn.secondary}>Rebalance {sel.name}&apos;s month</button>
-        <AskCanopy
-          variant="button"
-          label="Ask Canopy to rework it a specific way"
-          task={`Rework route ${sel.routeNo} (${sel.name})'s routing to my needs. Tell me what you'd change and why, then help me build a change set for PestPac. For example I might need a customer kept on a specific day, two techs' territories swapped, or a lighter Friday.`}
-          context={`Route ${sel.routeNo} ${sel.name} · daily loads [${sel.loads.join(", ")}] · ${nloc} job(s) locked`}
-        />
-        <span className="text-xs text-muted">{nloc} job{nloc === 1 ? "" : "s"} locked.</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">Rework &amp; optimize</div>
+        <div className="flex gap-0.5 rounded-lg bg-black/[0.06] p-0.5 text-xs">
+          {SCOPES.map(([k, lbl]) => (
+            <button key={k} onClick={() => pick(k)} className={`rounded-md px-2.5 py-1 ${scope === k ? "bg-surface font-medium text-ink shadow-sm" : "text-muted hover:text-ink"}`}>{lbl}</button>
+          ))}
+        </div>
       </div>
-      {proposal && proposal.moves.length === 0 && <p className="mt-2 text-sm text-muted">{sel.name}&apos;s month is already well balanced — no moves proposed.</p>}
-      {proposal && proposal.moves.length > 0 && (
+      <p className="mt-1 text-xs text-muted">Lock the jobs that can&apos;t move (a customer&apos;s required day/time), then let Canopy optimize. Every result is a draft — your loaded routing never changes until you upload a new schedule. {nloc > 0 ? `${nloc} job${nloc === 1 ? "" : "s"} locked.` : ""}</p>
+
+      {/* DAY — reorder one day's stops for the shortest drive */}
+      {scope === "day" && (
         <div className="mt-3">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[["Proposed moves", String(proposal.moves.length), false], ["Heaviest day", `${proposal.maxBefore} → ${proposal.maxAfter}`, false], ["Balance", `${proposal.balBefore} → ${proposal.balAfter}`, false]].map((a) => (
-              <div key={a[0] as string} className="rounded-lg border border-line px-3 py-2"><div className="text-[10px] uppercase tracking-wide text-muted">{a[0]}</div><div className="mt-0.5 text-base font-light tabular-nums">{a[1]}</div></div>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={runDay} disabled={!curDay || dayMetrics(curDay).located < 3} className={btn.secondary}>Optimize {curDay ? dayLabel(curDay.date) : "the day"}&apos;s stop order</button>
+            <AskCanopy variant="button" label="Ask Canopy to move a specific job"
+              task={`On route ${sel.routeNo} (${sel.name}), help me rework ${curDay ? dayLabel(curDay.date) : "this day"}. I may want to move one job to another day, or set a specific stop order. Walk me through it and build a PestPac change set.`}
+              context={`Route ${sel.routeNo} ${sel.name} · ${curDay ? dayLabel(curDay.date) : ""} · ${curDay?.stops.length ?? 0} stops · ${nloc} locked`} />
           </div>
-          <div className="mt-3 max-h-60 overflow-y-auto rounded-lg border border-line p-2">
-            {proposal.moves.slice(0, 14).map((mv: Move, i: number) => (
-              <div key={i} className="flex flex-wrap items-center gap-2 py-0.5 text-xs"><span className="rounded-full border border-line px-2 py-0.5 text-muted">{fmtD(mv.from)} → {fmtD(mv.to)}</span><span className="flex-1 min-w-0">{mv.addr}, {mv.city}</span><span className="text-muted tabular-nums">{money(mv.amt)} · {mv.svc}</span></div>
-            ))}
-            {proposal.moves.length > 14 && <div className="mt-1 text-xs text-muted">+ {proposal.moves.length - 14} more moves</div>}
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button className={btn.primary} onClick={() => downloadChangeSet(sel, periodKey, proposal, setChangeset)}>Download PestPac change set (.csv)</button>
-            <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted hover:bg-black/5" onClick={() => { setProposal(null); setChangeset(null); setLocks(new Set()); }}>Revert to original</button>
-          </div>
-          <p className="mt-2 text-[11px] text-muted">Rebalancing is a working draft — it never changes your loaded routing. Canopy only overwrites data when you upload a new schedule. Revert to original clears this draft and every lock; your loaded month is untouched.</p>
-          {changeset && <p className="mt-2 text-xs text-brand-700">{changeset}</p>}
+          {curDay && dayMetrics(curDay).located < 3 && <p className="mt-2 text-xs text-muted">Need at least 3 located stops to reorder — use <span className="text-ink">Locate stops</span> on the map.</p>}
+          {dayRes && (
+            <div className="mt-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <DeltaTile label="Miles" before={dayRes.before.miles.toFixed(1)} after={dayRes.after.miles.toFixed(1)} />
+                <DeltaTile label="Drive time" before={fmtDur(dayRes.before.driveMin)} after={fmtDur(dayRes.after.driveMin)} />
+                <DeltaTile label="Est. fuel" before={money(dayRes.before.fuel)} after={money(dayRes.after.fuel)} />
+              </div>
+              <p className="mt-2 text-sm" style={{ color: dayRes.after.miles < dayRes.before.miles ? SC.good : undefined }}>
+                {dayRes.after.miles < dayRes.before.miles
+                  ? `Reordering cuts ~${(dayRes.before.miles - dayRes.after.miles).toFixed(1)} mi (${pctSaved(dayRes.before.miles, dayRes.after.miles)}%) and ~${fmtDur(dayRes.before.driveMin - dayRes.after.driveMin)} of drive time. The map shows the new order — press Play to watch it.`
+                  : `This day is already close to optimal — no meaningful savings from reordering.`}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {dayRes.after.miles < dayRes.before.miles && curDay && <button className={btn.primary} onClick={() => downloadDayOrder(sel, curDay.date, dayRes.stops, setNote)}>Download new stop order (.csv)</button>}
+                <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted hover:bg-black/5" onClick={clearAll}>Revert to original</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* WEEK — balance across days + reorder each; color-coded on the map */}
+      {scope === "week" && (
+        <div className="mt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={runWeek} disabled={weekDays.length < 2} className={btn.secondary}>Balance &amp; reorder this week</button>
+            <AskCanopy variant="button" label="Ask Canopy to rework the week"
+              task={`Rework route ${sel.routeNo} (${sel.name})'s week (${weekDays.map((d) => dayLabel(d.date)).join(", ")}). Even out the days, tighten each day's drive, and tell me how much more efficient it is. Keep any job I lock on its day.`}
+              context={`Route ${sel.routeNo} ${sel.name} · week days [${weekDays.map((d) => `${dayLabel(d.date)}:${d.stops.length}`).join(", ")}] · ${nloc} locked`} />
+          </div>
+          {weekDays.length < 2 && <p className="mt-2 text-xs text-muted">Pick a day that falls in a week with at least two working days.</p>}
+          {weekRes && weekRes.rows.length > 0 && (
+            <div className="mt-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <DeltaTile label="Total miles" before={weekRes.milesBefore.toFixed(0)} after={weekRes.milesAfter.toFixed(0)} />
+                <DeltaTile label="Total drive" before={fmtDur(weekRes.driveBefore)} after={fmtDur(weekRes.driveAfter)} />
+                <DeltaTile label="Day balance" before={String(weekRes.balBefore)} after={String(weekRes.balAfter)} />
+                <DeltaTile label="Moves" before="—" after={String(weekRes.moves.length)} />
+              </div>
+              <p className="mt-2 text-sm" style={{ color: weekRes.milesAfter < weekRes.milesBefore ? SC.good : undefined }}>
+                {weekRes.milesAfter < weekRes.milesBefore
+                  ? `Across the week that's ~${(weekRes.milesBefore - weekRes.milesAfter).toFixed(0)} fewer miles (${pctSaved(weekRes.milesBefore, weekRes.milesAfter)}%) and ~${fmtDur(weekRes.driveBefore - weekRes.driveAfter)} less drive time. Each day is color-coded on the map.`
+                  : `The week is already efficient — little to gain from reworking it.`}
+              </p>
+              <div className="mt-3 overflow-x-auto rounded-lg border border-line">
+                <table className="w-full min-w-[460px] text-xs">
+                  <thead><tr className="text-[10px] uppercase tracking-wide text-muted">{["Day", "Stops", "Miles", "Drive"].map((h, i) => <th key={h} className={`border-b border-line px-2 py-1.5 ${i ? "text-right" : "text-left"}`}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {weekRes.rows.map((r) => (
+                      <tr key={r.date} className="border-b border-line last:border-0">
+                        <td className="px-2 py-1.5">{fmtD(r.date)}</td>
+                        <td className="px-2 py-1.5 text-right tabular-nums">{r.beforeStops === r.afterStops ? r.afterStops : `${r.beforeStops} → ${r.afterStops}`}</td>
+                        <td className="px-2 py-1.5 text-right tabular-nums">{r.before.miles.toFixed(0)} → {r.after.miles.toFixed(0)}</td>
+                        <td className="px-2 py-1.5 text-right tabular-nums">{fmtDur(r.before.driveMin)} → {fmtDur(r.after.driveMin)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {weekRes.moves.length > 0 && <button className={btn.primary} onClick={() => downloadChangeSet(sel, periodKey, { moves: weekRes.moves, balBefore: weekRes.balBefore, balAfter: weekRes.balAfter, maxBefore: 0, maxAfter: 0 }, setNote)}>Download PestPac change set (.csv)</button>}
+                <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted hover:bg-black/5" onClick={clearAll}>Revert to original</button>
+              </div>
+            </div>
+          )}
+          {weekRes && weekRes.rows.length === 0 && <p className="mt-2 text-sm text-muted">Not enough working days this week to rework.</p>}
+        </div>
+      )}
+
+      {/* MONTH — even out the whole month (existing rebalance) */}
+      {scope === "month" && (
+        <div className="mt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={runMonth} className={btn.secondary}>Rebalance {sel.name}&apos;s month</button>
+            <AskCanopy variant="button" label="Ask Canopy to rework it a specific way"
+              task={`Rework route ${sel.routeNo} (${sel.name})'s routing to my needs. Tell me what you'd change and why, then help me build a change set for PestPac. For example I might need a customer kept on a specific day, two techs' territories swapped, or a lighter Friday.`}
+              context={`Route ${sel.routeNo} ${sel.name} · daily loads [${sel.loads.join(", ")}] · ${nloc} job(s) locked`} />
+          </div>
+          {proposal && proposal.moves.length === 0 && <p className="mt-2 text-sm text-muted">{sel.name}&apos;s month is already well balanced — no moves proposed.</p>}
+          {proposal && proposal.moves.length > 0 && (
+            <div className="mt-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <DeltaTile label="Heaviest day" before={String(proposal.maxBefore)} after={String(proposal.maxAfter)} />
+                <DeltaTile label="Balance" before={String(proposal.balBefore)} after={String(proposal.balAfter)} lowerBetter={false} />
+                <div className="rounded-lg border border-line px-3 py-2"><div className="text-[10px] uppercase tracking-wide text-muted">Proposed moves</div><div className="mt-0.5 text-base font-light tabular-nums">{proposal.moves.length}</div></div>
+              </div>
+              <div className="mt-3 max-h-60 overflow-y-auto rounded-lg border border-line p-2">
+                {proposal.moves.slice(0, 14).map((mv: Move, i: number) => (
+                  <div key={i} className="flex flex-wrap items-center gap-2 py-0.5 text-xs"><span className="rounded-full border border-line px-2 py-0.5 text-muted">{fmtD(mv.from)} → {fmtD(mv.to)}</span><span className="flex-1 min-w-0">{mv.addr}, {mv.city}</span><span className="text-muted tabular-nums">{money(mv.amt)} · {mv.svc}</span></div>
+                ))}
+                {proposal.moves.length > 14 && <div className="mt-1 text-xs text-muted">+ {proposal.moves.length - 14} more moves</div>}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className={btn.primary} onClick={() => downloadChangeSet(sel, periodKey, proposal, setNote)}>Download PestPac change set (.csv)</button>
+                <button className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted hover:bg-black/5" onClick={() => { clearAll(); setLocks(new Set()); }}>Revert to original</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {note && <p className="mt-2 text-xs text-brand-700">{note}</p>}
+      {changeset && <p className="mt-2 text-xs text-brand-700">{changeset}</p>}
     </div>
   );
 }

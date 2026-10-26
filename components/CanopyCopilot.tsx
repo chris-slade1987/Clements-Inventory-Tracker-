@@ -324,14 +324,14 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
 
       {/* Docked panel (desktop) / full-screen sheet (mobile) */}
       {open ? (
-        <div className="fixed inset-0 z-50 md:inset-auto md:top-0 md:right-0 md:h-full md:w-[420px]" role="complementary" aria-label="Canopy Copilot">
+        <div className="fixed inset-0 z-50 md:inset-auto md:top-0 md:right-0 md:h-full md:w-[480px]" role="complementary" aria-label="Canopy Copilot">
           {/* Backdrop — phones only (the docked desktop panel coexists with the page). */}
           <div className="absolute inset-0 bg-black/40 md:hidden" onClick={close} aria-hidden="true" />
 
           <div
             ref={panelRef}
             tabIndex={-1}
-            className="surface-light absolute inset-0 md:inset-auto md:h-full md:w-[420px] flex flex-col overflow-hidden border-line bg-white shadow-2xl shadow-emerald-900/30 outline-none md:border-l motion-safe:animate-[canopy-slide_180ms_ease-out]"
+            className="surface-light absolute inset-0 md:inset-auto md:h-full md:w-[480px] flex flex-col overflow-hidden border-line bg-white shadow-2xl shadow-emerald-900/30 outline-none md:border-l motion-safe:animate-[canopy-slide_180ms_ease-out]"
           >
             {/* Header (forest chrome) */}
             <div className="flex items-center gap-2.5 bg-forest-grad px-4 py-3">
@@ -558,10 +558,10 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
                     send(input);
                   }
                 }}
-                rows={1}
+                rows={3}
                 placeholder="Ask about a workflow, policy, or your numbers…"
                 aria-label="Ask Canopy Copilot"
-                className="max-h-28 flex-1 resize-none rounded-xl border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+                className="max-h-48 min-h-[68px] flex-1 resize-y rounded-xl border border-line bg-white px-3 py-2 text-sm leading-relaxed text-ink outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
               />
               <button
                 type="submit"

@@ -153,7 +153,7 @@ textarea:focus-visible {
    so the mobile full-screen sheet is unaffected. */
 .app-canvas { transition: padding-right 180ms ease; }
 @media (min-width: 768px) {
-  html[data-copilot-open="1"] .app-canvas { padding-right: 420px; }
+  html[data-copilot-open="1"] .app-canvas { padding-right: 480px; }
 }
 /* Canopy Copilot collapsed launcher (mobile): a compact icon bubble floats at the
    bottom-right above the bottom nav. Reserve clearance site-wide so primary

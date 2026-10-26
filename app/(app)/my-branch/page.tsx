@@ -162,7 +162,7 @@ export default async function MyBranchPage({
   };
   const cadence: CadenceRow[] = [
     { label: "Branch Command (weekly review)", href: `/branch-command?branch=${scBranch}`, done: bwSummary.signed, status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed", cadence: "Weekly", due: fridayEndOf(now), dueLabel: fridayLabel(now) },
-    { label: "Routing Approval", href: `/routing-approval?branch=${scBranch}`, done: routingSummary.signed, status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : `${routingSummary.approved}/${routingSummary.techs} techs approved`, cadence: "Monthly", due: routingDue, dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)` },
+    { label: "Routes (monthly sign-off)", href: `/routing-approval?branch=${scBranch}`, done: routingSummary.signed, status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : `${routingSummary.approved}/${routingSummary.techs} techs approved`, cadence: "Monthly", due: routingDue, dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)` },
     { label: "Vehicle Inspections", href: "/my-branch/inspections", done: insp.pending === 0, status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
     { label: "Warehouse safety inspection", href: "/my-branch/warehouse", done: warehouse.done, status: warehouse.done ? "Logged this month" : "Not logged yet", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
     // QC has no completion feed yet, so it renders neutral (never a permanent red SLA).
@@ -271,7 +271,7 @@ export default async function MyBranchPage({
       {branchMisses.length > 0 ? (
         <div className="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3" data-testid="miss-banner">
           <div className="text-sm font-semibold text-red-700">
-            {branchMisses.length} missed oversight item{branchMisses.length === 1 ? "" : "s"} on record (weekly Branch Command / monthly Routing Approval).
+            {branchMisses.length} missed oversight item{branchMisses.length === 1 ? "" : "s"} on record (weekly Branch Command / monthly Routes sign-off).
           </div>
           <div className="text-xs text-red-600 mt-0.5">
             Only HR or the CEO can clear these. {branchMisses.slice(0, 3).map((m) => m.periodLabel).join(", ")}

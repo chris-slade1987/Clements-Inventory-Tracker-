@@ -42,7 +42,7 @@ export const MODULES: AccessModule[] = [
     { id: "warehouse", name: "Warehouse Inspection", ve: true }, { id: "qc", name: "Quality Control", ve: true }, { id: "branch-hub", name: "Branch Hub / Documents" },
     { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" },
     { id: "branch-command", name: "Branch Command", ve: true, note: "Weekly branch cockpit — fed scoreboard + AI forced-feedback + attested weekly sign-off. Edit = respond / sign." },
-    { id: "routing-approval", name: "Routing Approval", ve: true, note: "Monthly routing review — map + per-tech sign-off + AI optimize/change-set. Edit = approve / sign. Upload is admin-only." },
+    { id: "routing-approval", name: "Routes", ve: true, note: "Monthly routing review (\"Routes\", `/routing-approval`) — map + per-tech sign-off + scoped optimizer (stop / day order / week / month) with before→after efficiency + PestPac change-set export. Edit = approve / sign. Upload is admin-only." },
     { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" },
     { id: "weather", name: "Weather Ops", note: "Forecast → routing/service impact: current + risk + AI ops briefing + 5-day + radar. Managers see their territory; admins all. Read-only page (config is weather-settings)." } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [

@@ -104,7 +104,7 @@ export function buildBranchRhythm(i: BranchRhythmInput): RhythmSegment[] {
   const month: RhythmItem[] = [];
   if (i.routing)
     month.push({
-      key: "b_routing", label: "Routing approval", href: i.routing.href,
+      key: "b_routing", label: "Routes", href: i.routing.href,
       meta: i.routing.signed ? "Signed" : i.routing.loaded ? (i.routing.overdue ? "Overdue" : "Review") : "Not loaded",
       status: i.routing.signed ? "done" : i.routing.loaded ? (i.routing.overdue ? "overdue" : "due") : "info",
     });

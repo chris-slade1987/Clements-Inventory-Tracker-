@@ -39,7 +39,7 @@ export default async function RoutingApprovalPage({ searchParams }: { searchPara
     <div className="space-y-5">
       <MyBranchViewToggle view="routes" branchQuery={branch ? `?branch=${branch}` : ""} />
       <PageHeader
-        title="Routing Approval"
+        title="Routes"
         subtitle={`${branchLabel(branch)} · ${periodLabel(periodKey)} — review each technician's routing, then sign.`}
         actions={
           !locked ? (

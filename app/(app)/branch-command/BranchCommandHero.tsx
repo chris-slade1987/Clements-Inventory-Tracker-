@@ -149,7 +149,7 @@ export default function BranchCommandHero({
           <a href="#route-completion" className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/5">Route completion ↓</a>
           <a href="#flags" className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/5">Flags to explain ↓</a>
           <a href="#sign" className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/5">Sign the week ↓</a>
-          <Link href={`/routing-approval?branch=${branch}`} className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/5">Routing Approval →</Link>
+          <Link href={`/routing-approval?branch=${branch}`} className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/5">Routes →</Link>
         </div>
       </div>
     </section>
