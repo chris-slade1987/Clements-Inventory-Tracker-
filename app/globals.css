@@ -155,6 +155,19 @@ textarea:focus-visible {
 @media (min-width: 768px) {
   html[data-copilot-open="1"] .app-canvas { padding-right: 480px; }
 }
+
+/* Global print / "Save as PDF": strip the app chrome (top bar, nav, Copilot) and
+   let the page content fill the sheet, so any completed form prints cleanly via the
+   browser's Print → Save as PDF. Page-level controls opt out with `print:hidden`
+   (Tailwind) or `.no-print`; cards avoid breaking across pages. */
+@media print {
+  header, [aria-label="Canopy Copilot"], .no-print { display: none !important; }
+  html[data-copilot-open="1"] .app-canvas { padding-right: 0 !important; }
+  .app-canvas, .app-main { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+  html, body { background: #fff !important; }
+  .rounded-2xl, .rounded-xl, .rounded-lg, table, tr { break-inside: avoid; }
+  a[href]::after { content: "" !important; }
+}
 /* Canopy Copilot collapsed launcher (mobile): a compact icon bubble floats at the
    bottom-right above the bottom nav. Reserve clearance site-wide so primary
    Submit/Save actions never sit under it. Phone-only — desktop uses the docked

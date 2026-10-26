@@ -731,7 +731,7 @@ export default function AppShell({
 
       {/* Mobile bottom nav — current module's primary actions + a More button. */}
       <nav
-        className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid"
+        className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-forest-grad border-t border-white/10 grid print:hidden"
         style={{ gridTemplateColumns: `repeat(${bottomCols}, minmax(0, 1fr))` }}
       >
         {primaryItems.map((item) => {

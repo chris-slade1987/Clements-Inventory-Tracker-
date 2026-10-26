@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui";
+import PrintButton from "@/components/PrintButton";
 import ResendReportButton from "./ResendReportButton";
 import {
   CONDITION_ITEMS,
@@ -154,6 +155,7 @@ export default function InspectionReport({
             Edit inspection
           </Link>
           <ResendReportButton inspectionId={i.id} />
+          <PrintButton />
         </div>
       ) : null}
     </Card>

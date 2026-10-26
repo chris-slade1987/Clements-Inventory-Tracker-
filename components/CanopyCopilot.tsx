@@ -308,7 +308,7 @@ export default function CanopyCopilot({ user }: { user: CopilotUser }) {
           // on top of a primary Submit/Save action (sticky bars reserve right-side
           // clearance via .copilot-safe-actions; scroll content clears it via the
           // global bottom padding on .app-main). Desktop keeps the labeled pill.
-          className="group fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center justify-center gap-0 md:gap-2 rounded-full bg-emerald-grad p-3 md:px-4 md:py-3 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 hover:brightness-105 hover:-translate-y-0.5 transition-[filter,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3d20]"
+          className="group fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center justify-center gap-0 md:gap-2 rounded-full bg-emerald-grad p-3 md:px-4 md:py-3 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 hover:brightness-105 hover:-translate-y-0.5 transition-[filter,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3d20] print:hidden"
         >
           <span className="relative flex h-5 w-5 items-center justify-center">
             <span

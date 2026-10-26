@@ -2,7 +2,7 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked, isFieldOpsDirector, isSuperAdmin } from "@/lib/auth";
-import { scoreWarehouse, criticalFailures, photoPromptLabel, type Checks, type NeedInput } from "@/lib/warehouse";
+import { scoreWarehouse, criticalFailures, photoPromptLabel, mondayOf, type Checks, type NeedInput } from "@/lib/warehouse";
 import { branchLabel } from "@/lib/management";
 import { saveUpload } from "@/lib/storage";
 import { sendEmail } from "@/lib/email";
@@ -44,6 +44,14 @@ export async function POST(req: Request) {
     if (branchLocked(user) && user.branch !== branch)
       return NextResponse.json({ error: "That branch is not yours." }, { status: 403 });
 
+    // Weekly emergency-equipment check (eyewash activation, etc.) — one per branch per week.
+    if (action === "weeklyCheck") {
+      const weekStart = mondayOf(new Date());
+      const payload = { branch, weekStart, date: new Date(), checks: JSON.stringify(body?.checks ?? {}), note: str(body?.note), inspectorName: str(body?.inspectorName) ?? user.name };
+      await prisma.weeklyEquipmentCheck.upsert({ where: { branch_weekStart: { branch, weekStart } }, create: payload, update: { checks: payload.checks, note: payload.note, date: payload.date, inspectorName: payload.inspectorName } });
+      return NextResponse.json({ ok: true });
+    }
+
     const when = date(body?.date) ?? new Date();
     const year = int(body?.year) ?? when.getFullYear();
     const month = int(body?.month) ?? when.getMonth() + 1;
@@ -51,12 +59,16 @@ export async function POST(req: Request) {
     const { score, maxScore, scorePct, grade } = scoreWarehouse(checks);
     const inspectorName = str(body?.inspectorName) ?? user.name;
 
+    const signName = str(body?.inspectorSignedName);
     const data = {
       branch, year, month, date: when, inspectorName,
       checks: JSON.stringify(checks),
       comments: JSON.stringify(body?.comments ?? {}),
       notes: str(body?.notes),
       score, maxScore, scorePct, grade,
+      // Only stamp the signature when one is provided, so a later edit without
+      // re-signing never wipes the attestation already on file.
+      ...(signName ? { inspectorSignedName: signName, inspectorSignedAt: new Date() } : {}),
     };
     const saved = await prisma.warehouseInspection.upsert({
       where: { branch_year_month: { branch, year, month } },

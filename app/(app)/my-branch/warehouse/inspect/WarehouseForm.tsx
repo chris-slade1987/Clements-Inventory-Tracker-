@@ -13,6 +13,8 @@ type Prefill = {
   checks: Record<string, CheckVal>; comments: Record<string, string>; notes: string;
   needs: Record<string, string>; // itemKey -> request
   photos: Record<string, { url: string; caption: string }>; // promptKey -> saved photo
+  inspectorSignedName: string;
+  repeats: string[]; // item keys that also failed the prior inspection
 };
 
 function gradeColor(g: string) {
@@ -40,10 +42,13 @@ export default function WarehouseForm({
     for (const [k, v] of Object.entries(prefill.photos ?? {})) o[k] = { url: v.url, caption: v.caption };
     return o;
   });
+  const [sigName, setSigName] = useState(prefill.inspectorSignedName || prefill.inspectorName);
+  const [certified, setCertified] = useState(!!prefill.inspectorSignedName);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  const repeats = new Set(prefill.repeats ?? []);
   const live = useMemo(() => scoreWarehouse(checks), [checks]);
   const critFails = WAREHOUSE_ITEMS.filter((it) => it.critical && checks[it.key] === false);
   const answered = WAREHOUSE_ITEMS.filter((it) => checks[it.key] != null).length;
@@ -76,7 +81,7 @@ export default function WarehouseForm({
     const needsPayload = needList.map(([itemKey, request]) => ({ itemKey, label: labelFor(itemKey), request }));
     const res = await fetch("/api/fleet/warehouse", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ branch, year, month, date, inspectorName, checks, comments, notes, needs: needsPayload, photos: photoPayload, removePhotoPromptKeys }),
+      body: JSON.stringify({ branch, year, month, date, inspectorName, checks, comments, notes, needs: needsPayload, photos: photoPayload, removePhotoPromptKeys, inspectorSignedName: certified && sigName.trim() ? sigName.trim() : undefined }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -125,6 +130,7 @@ export default function WarehouseForm({
                   <div className="flex-1 text-sm text-ink">
                     {it.label}
                     {it.critical ? <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 align-middle">critical</span> : null}
+                    {repeats.has(it.key) ? <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 align-middle" title="Also failed the prior inspection">repeat</span> : null}
                   </div>
                   <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
                     <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
@@ -194,6 +200,19 @@ export default function WarehouseForm({
         </label>
       </Card>
 
+      {/* Inspector attestation / e-signature */}
+      <Card className="p-4">
+        <div className="text-sm font-medium text-ink">Inspector attestation</div>
+        <p className="mt-0.5 text-xs text-muted">Your typed name is your signature on this safety record (FL 482 / FDACS / OSHA).</p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <input value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Type your full name" className="flex-1 rounded-lg border border-line px-3 py-2 text-sm" />
+        </div>
+        <label className="mt-2 flex items-start gap-2 text-xs text-ink">
+          <input type="checkbox" checked={certified} onChange={(e) => setCertified(e.target.checked)} className="mt-0.5" />
+          I certify this inspection was completed accurately and the conditions recorded are true as of the inspection date.
+        </label>
+      </Card>
+
       {needList.length > 0 ? (
         <Card className="p-3 ring-1 ring-amber-300 bg-amber-50">
           <div className="text-sm font-medium text-amber-900">{needList.length} escalation{needList.length === 1 ? "" : "s"} will be sent to the Director of Field Ops + super admins on save:</div>
@@ -214,7 +233,7 @@ export default function WarehouseForm({
               <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{needList.length ? <span className="ml-2 text-amber-700 font-medium">· {needList.length} escalation{needList.length === 1 ? "" : "s"}</span> : null}</div>
             </div>
           </div>
-          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : isEdit ? "Update inspection" : "Save inspection"}</button>
+          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : certified && sigName.trim() ? "Save & sign inspection" : isEdit ? "Update inspection" : "Save inspection"}</button>
         </div>
       </div>
     </div>

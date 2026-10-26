@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader, Card } from "@/components/ui";
+import PrintButton from "@/components/PrintButton";
 import { requireUser, homePath } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { REVIEW_LABEL, STATUS_LABEL, parseResponses, reviewById, getReviewForm, templateForEmployee } from "@/lib/review";
@@ -33,8 +34,9 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
 
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-2 flex items-center justify-between gap-2 print:hidden">
         <Link href={hr ? "/management/people/reviews" : isSubjectEmployee ? "/me" : "/my-branch"} className="text-xs font-medium text-brand-700 hover:underline">← Back</Link>
+        <PrintButton />
       </div>
       <PageHeader
         title={`${review.employee.name} — ${label}`}

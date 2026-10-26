@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
+import PrintButton from "@/components/PrintButton";
 import { requireUser, branchLocked, canResetPasswords, canEditAccessLevels, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { reviewsForEmployee, REVIEW_LABEL, STATUS_LABEL } from "@/lib/review";
@@ -133,8 +134,9 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
 
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-2 flex items-center justify-between gap-2 print:hidden">
         <Link href="/management/people" className="text-xs font-medium text-brand-300 hover:underline">← People / HR</Link>
+        <PrintButton label="Print / Save PDF (personnel file)" />
       </div>
       <PageHeader
         title={e.name}

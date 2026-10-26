@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 43 · Last updated October 26, 2026",
+    effective: "Version 44 · Last updated October 26, 2026",
+    // v44: Warehouse inspection — inspector e-signature attestation, repeat-finding
+    // flags, a weekly emergency-equipment (eyewash) check, and a printable/Save-PDF
+    // report. Plus Print / Save-PDF is now available on completed forms site-wide.
     // v43: Warehouse safety inspection upgraded — Yes/No/N/A (N/A excluded from the
     // score), a guided compliance-photo set, and an "Escalate to leadership" path on
     // any failed item that emails the Director of Field Ops + super admins and tracks
@@ -207,7 +210,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 43,
+    version: 44,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

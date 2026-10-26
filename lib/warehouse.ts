@@ -101,6 +101,44 @@ export async function openWarehouseNeeds(branch?: string) {
   });
 }
 
+// --- Weekly emergency-equipment check (OSHA weekly eyewash activation, etc.) ---
+export const WEEKLY_EQUIPMENT_ITEMS = [
+  { key: "eyewash", label: "Eyewash station activated / flushed" },
+  { key: "spill_kit", label: "Spill kit stocked" },
+  { key: "exits", label: "Exits & aisles clear" },
+  { key: "extinguishers", label: "Fire extinguishers in place & charged" },
+] as const;
+
+/** ISO date (YYYY-MM-DD) of the Monday of the week containing `d` (UTC). */
+export function mondayOf(d: Date): string {
+  const u = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  u.setUTCDate(u.getUTCDate() - ((u.getUTCDay() + 6) % 7));
+  return u.toISOString().slice(0, 10);
+}
+
+export async function weeklyCheckStatus(branch: string, ref = new Date()) {
+  const weekStart = mondayOf(ref);
+  const check = await prisma.weeklyEquipmentCheck.findUnique({ where: { branch_weekStart: { branch, weekStart } } });
+  return { weekStart, check, done: !!check };
+}
+
+/** The most recent inspection BEFORE (year, month) at a branch — for repeat-finding detection. */
+export async function priorInspection(branch: string, year: number, month: number) {
+  return prisma.warehouseInspection.findFirst({
+    where: { branch, OR: [{ year: { lt: year } }, { year, month: { lt: month } }] },
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+    include: { needs: true },
+  });
+}
+
+/** Item keys that failed this month AND the prior inspection (chronic findings). */
+export function repeatFailures(current: Checks, prior: Checks | null): Set<string> {
+  const out = new Set<string>();
+  if (!prior) return out;
+  for (const it of WAREHOUSE_ITEMS) if (current[it.key] === false && prior[it.key] === false) out.add(it.key);
+  return out;
+}
+
 export function parseJson<T>(s: string | null | undefined, fallback: T): T {
   if (!s) return fallback;
   try { return JSON.parse(s) as T; } catch { return fallback; }

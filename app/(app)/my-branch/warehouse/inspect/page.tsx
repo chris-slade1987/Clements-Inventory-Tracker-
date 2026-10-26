@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { parseJson } from "@/lib/warehouse";
+import { parseJson, priorInspection, repeatFailures, type Checks } from "@/lib/warehouse";
 import WarehouseForm from "./WarehouseForm";
 
 export const dynamic = "force-dynamic";
@@ -35,14 +35,20 @@ export default async function WarehouseInspectPage({
   const photos: Record<string, { url: string; caption: string }> = {};
   for (const p of existing?.photos ?? []) photos[p.promptKey] = { url: p.photoUrl, caption: p.caption ?? "" };
 
+  const curChecks = parseJson<Checks>(existing?.checks, {});
+  const prior = await priorInspection(branch, year, month);
+  const repeats = [...repeatFailures(curChecks, prior ? parseJson<Checks>(prior.checks, {}) : null)];
+
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
     inspectorName: existing?.inspectorName ?? user.name,
-    checks: parseJson<Record<string, boolean | "na">>(existing?.checks, {}),
+    checks: curChecks,
     comments: parseJson<Record<string, string>>(existing?.comments, {}),
     notes: existing?.notes ?? "",
     needs,
     photos,
+    inspectorSignedName: existing?.inspectorSignedName ?? "",
+    repeats,
   };
 
   return (

@@ -3,8 +3,9 @@ import { Card, PageHeader, btn } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked, isFieldOpsDirector } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
-import { warehouseStatus, warehouseHistory, openWarehouseNeeds } from "@/lib/warehouse";
+import { warehouseStatus, warehouseHistory, openWarehouseNeeds, weeklyCheckStatus, parseJson } from "@/lib/warehouse";
 import WarehouseNeeds from "./WarehouseNeeds";
+import WeeklyCheck from "./WeeklyCheck";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function WarehousePage({
   const history = await warehouseHistory(branch ?? undefined);
   const needs = await openWarehouseNeeds(branch ?? undefined);
   const canResolve = user.role === "admin" || isFieldOpsDirector(user);
+  const weekly = await weeklyCheckStatus(effBranch);
 
   return (
     <>
@@ -47,6 +49,14 @@ export default async function WarehousePage({
           ))}
         </div>
       ) : null}
+
+      <WeeklyCheck
+        branch={effBranch}
+        weekStart={weekly.weekStart}
+        done={weekly.done}
+        prefill={weekly.check ? { checks: parseJson<Record<string, boolean>>(weekly.check.checks, {}), note: weekly.check.note ?? "" } : null}
+        canLog={canInspect}
+      />
 
       <WarehouseNeeds needs={needs.map((n) => ({ id: n.id, branch: n.branch, year: n.year, month: n.month, label: n.label, request: n.request, raisedByName: n.raisedByName, createdAt: n.createdAt.toISOString() }))} canResolve={canResolve} />
 
@@ -90,7 +100,7 @@ export default async function WarehousePage({
                 {history.map((h) => (
                   <tr key={h.id} className="border-b border-line last:border-0">
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <Link href={`/my-branch/warehouse/inspect?branch=${h.branch}&year=${h.year}&month=${h.month}`} className="text-brand-700 hover:underline">{MONTH_ABBR[h.month]} {h.year}</Link>
+                      <Link href={`/my-branch/warehouse/${h.id}`} className="text-brand-700 hover:underline">{MONTH_ABBR[h.month]} {h.year}</Link>
                     </td>
                     <td className="px-3 py-2 text-muted">{branchLabel(h.branch)}</td>
                     <td className="px-3 py-2 text-muted">{dateShort(h.date)}</td>

@@ -1984,6 +1984,10 @@ model WarehouseInspection {
   scorePct Float  @default(0) @map("score_pct")
   grade    String @default("")
 
+  // Inspector e-signature (typed-name attestation, E-SIGN/UETA for in-person).
+  inspectorSignedName String?   @map("inspector_signed_name")
+  inspectorSignedAt   DateTime? @map("inspector_signed_at")
+
   createdAt DateTime @default(now()) @map("created_at")
 
   photos WarehouseInspectionPhoto[]
@@ -2036,6 +2040,24 @@ model WarehouseNeed {
   @@index([branch, status])
   @@index([inspectionId])
   @@map("warehouse_needs")
+}
+
+// Weekly emergency-equipment check (OSHA expects eyewash stations activated
+// weekly). A lightweight per-branch, per-week tick separate from the monthly
+// inspection: eyewash flushed, spill kit stocked, exits/extinguishers clear.
+model WeeklyEquipmentCheck {
+  id            String   @id @default(cuid())
+  branch        String
+  weekStart     String   @map("week_start") // YYYY-MM-DD Monday of the week
+  date          DateTime
+  checks        String   @default("{}") // {eyewash:true, spill_kit:true, exits:true, extinguishers:true}
+  note          String?
+  inspectorName String?  @map("inspector_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([branch, weekStart])
+  @@index([branch, weekStart])
+  @@map("weekly_equipment_checks")
 }
 
 // Pre-visit prep checklist for a branch/quarter (Director of Field Ops).

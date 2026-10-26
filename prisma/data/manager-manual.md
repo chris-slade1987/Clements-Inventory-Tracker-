@@ -1331,6 +1331,14 @@ Complete it at **My Branch → Warehouse Inspection** (`/my-branch/warehouse` �
 
 **Escalate what you can't fix yourself.** When something is out of the branch's hands — you need a new lock on the chemical room, an updated first-aid kit, a repair — mark the item **No**, then check **"Escalate to leadership — resource or repair needed"** and say what's needed. On save, every escalation is highlighted on the report and sent automatically to the **Director of Field Operations and the super-admin team** (and tracked as **open** on the Warehouse page until leadership marks it **resolved**). This is the right way to raise a compliance gap you can't close on your own — don't just leave it unaddressed.
 
+**Sign it.** Finish with the **Inspector attestation** — type your name to certify the inspection is accurate as of the date. Your signature is stored on the record (FL 482 / FDACS / OSHA).
+
+**Repeat findings are flagged.** If an item fails two inspections in a row it's marked **repeat** on the form and report, so chronic issues get attention instead of resetting each month.
+
+**Weekly emergency-equipment check.** Separate from the monthly inspection, the Warehouse page has a quick **weekly** check — OSHA expects the **eyewash station to be activated/flushed weekly**. Confirm eyewash, spill kit, exits, and extinguishers each week with **Log this week**.
+
+**Print or save a PDF.** Open any completed inspection from the **History** list to see the read-only report, then use **Print / Save PDF** to print it or save a PDF for FDACS/OSHA or your files.
+
 The inspector and date are captured automatically from your sign-in; there is no paper form to sign — your submission is the attested record. The form is scored and letter-graded, a **critical failure raises an alert to leadership automatically**, and the result feeds the branch's quarterly scorecard.
 
 ## Disciplinary / Termination
