@@ -4,7 +4,7 @@ import { Card, PageHeader, EmptyState, btn } from "@/components/ui";
 import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
-import { listAudits } from "@/lib/audit";
+import { listAudits, normStatus } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -72,10 +72,12 @@ export default async function AuditsPage({
               <tbody>
                 {audits.map((a) => {
                   const openFu = a.followUps.filter((f) => f.status === "open").length;
+                  const st = normStatus(a.status);
+                  const href = st === "signed" ? `/management/audits/${a.id}` : `/management/audits/edit?branch=${a.branch}&year=${a.year}&quarter=${a.quarter}`;
                   return (
                     <tr key={a.id} className="border-b border-line last:border-0">
                       <td className="px-4 py-2 font-medium">
-                        <Link href={`/management/audits/edit?branch=${a.branch}&year=${a.year}&quarter=${a.quarter}`} className="text-brand-700 hover:underline">Q{a.quarter} {a.year}</Link>
+                        <Link href={href} className="text-brand-700 hover:underline">Q{a.quarter} {a.year}</Link>
                       </td>
                       <td className="px-3 py-2 text-muted">{branchLabel(a.branch)}</td>
                       <td className="px-3 py-2 text-muted">{dateShort(a.visitDate)}</td>
@@ -84,9 +86,11 @@ export default async function AuditsPage({
                       <td className="px-3 py-2 text-right tabular-nums">{openFu > 0 ? <span className="text-amber-600 font-medium">{openFu} open</span> : a.followUps.length}</td>
                       <td className="px-3 py-2 text-center"><span className={scoreChip(a.scorePct)}>{a.scorePct}%</span></td>
                       <td className="px-4 py-2 text-center">
-                        {a.status === "submitted"
-                          ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Submitted</span>
-                          : <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Draft</span>}
+                        {st === "signed"
+                          ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700">Signed &amp; filed</span>
+                          : st === "pending_manager"
+                          ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Awaiting manager</span>
+                          : <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">Draft</span>}
                       </td>
                     </tr>
                   );

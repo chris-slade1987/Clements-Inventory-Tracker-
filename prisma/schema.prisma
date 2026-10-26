@@ -1875,7 +1875,10 @@ model BranchAudit {
   quarter     Int // 1-4
   visitDate   DateTime @map("visit_date")
   auditorName String?  @map("auditor_name")
-  status      String   @default("draft") // "draft" | "submitted"
+  // "draft" (being filled) | "pending_manager" (auditor signed, awaiting the
+  // branch manager's signature) | "signed" (both signed + filed). Legacy
+  // "submitted" rows (pre-signature flow) are treated as pending_manager.
+  status      String   @default("draft")
 
   // Section scores stored as JSON keyed by item.
   facility  String @default("{}") // A + B: 1-3 ratings; C: yes/no
@@ -1893,11 +1896,28 @@ model BranchAudit {
   submittedAt DateTime? @map("submitted_at")
   createdAt   DateTime  @default(now()) @map("created_at")
 
+  // Dual e-signature + filing. The auditor (Director of Field Ops) signs to send
+  // it to the branch manager; the manager signs via a tokenized link (no login),
+  // which files the signed form to the branch hub + both profiles. employeeId
+  // columns link the signed form to the people profiles (plain ids, no FK).
+  auditorEmployeeId String?   @map("auditor_employee_id")
+  auditorSignedName String?   @map("auditor_signed_name")
+  auditorSignedAt   DateTime? @map("auditor_signed_at")
+  managerEmployeeId String?   @map("manager_employee_id")
+  managerName       String?   @map("manager_name")
+  managerSignToken  String?   @unique @map("manager_sign_token")
+  managerSignedName String?   @map("manager_signed_name")
+  managerSignedTitle String?  @map("manager_signed_title")
+  managerSignedAt   DateTime? @map("manager_signed_at")
+  filedAt           DateTime? @map("filed_at")
+
   rideAlongs AuditRideAlong[]
   followUps  AuditFollowUp[]
 
   @@unique([branch, year, quarter])
   @@index([branch])
+  @@index([managerEmployeeId])
+  @@index([auditorEmployeeId])
   @@map("branch_audits")
 }
 

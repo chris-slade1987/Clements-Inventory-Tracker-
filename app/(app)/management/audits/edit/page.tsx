@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -27,6 +28,8 @@ export default async function AuditEditPage({
     where: { branch_year_quarter: { branch, year, quarter } },
     include: { rideAlongs: true, followUps: { orderBy: { createdAt: "asc" } } },
   });
+  // A signed + filed audit is read-only — send to the printable view (reopen there).
+  if (existing?.status === "signed") redirect(`/management/audits/${existing.id}`);
   const employees = (await listEmployees(branch)).map((e) => ({ id: e.id, name: e.name }));
 
   const prefill = {
@@ -40,6 +43,8 @@ export default async function AuditEditPage({
     suggestions: existing?.suggestions ?? "",
     nextQuarterPlan: existing?.nextQuarterPlan ?? "",
     status: existing?.status ?? "draft",
+    managerName: existing?.managerName ?? "",
+    managerSignedName: existing?.managerSignedName ?? "",
     rideAlongs: (existing?.rideAlongs ?? []).map((r) => ({
       employeeId: r.employeeId ?? "",
       technicianName: r.technicianName ?? "",

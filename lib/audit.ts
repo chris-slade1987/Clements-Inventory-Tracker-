@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { branchLabel } from "@/lib/management";
 
 // Director of Field Ops quarterly branch audit. Mirrors the paper form:
 // ride-along technician evaluations, a facility inspection, and personnel &
@@ -136,3 +137,68 @@ export async function openFollowUps(branch?: string) {
     include: { audit: { select: { year: true, quarter: true, branch: true } } },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Signature + filing. The paper audit was signed by the Director of Field Ops
+// and handed to the branch manager; the digital version mirrors that with two
+// e-signatures. Graham (or a super admin) signs to send it to the branch
+// manager, who signs via a tokenized no-login link. The second signature files
+// the completed form to the branch hub and to BOTH profiles, and credits the
+// auditor for the quarterly responsibility.
+// ---------------------------------------------------------------------------
+
+export type AuditStatus = "draft" | "pending_manager" | "signed";
+
+/** Normalize legacy "submitted" rows (pre-signature flow) to pending_manager. */
+export function normStatus(s: string | null | undefined): AuditStatus {
+  if (s === "signed") return "signed";
+  if (s === "pending_manager" || s === "submitted") return "pending_manager";
+  return "draft";
+}
+
+export function auditStatusLabel(s: string | null | undefined): string {
+  const n = normStatus(s);
+  return n === "signed" ? "Signed & filed" : n === "pending_manager" ? "Awaiting manager" : "Draft";
+}
+
+export function auditTitle(a: { branch: string; year: number; quarter: number }): string {
+  return `Q${a.quarter} ${a.year} Branch Audit — ${branchLabel(a.branch)}`;
+}
+
+/** The branch's manager Employee profile (active "Manager" at that branch). */
+export async function managerEmployeeForBranch(branch: string) {
+  return prisma.employee.findFirst({
+    where: { branch, status: "active", role: { contains: "Manager" } },
+    orderBy: { hireDate: "asc" },
+    select: { id: true, name: true, branch: true },
+  });
+}
+
+/** The Director of Field Ops Employee profile (Graham), by email then name. */
+export async function fieldOpsEmployee() {
+  const email = (process.env.FIELD_OPS_EMAIL || "gfoster@clementspestcontrol.com").toLowerCase();
+  return (
+    (await prisma.employee.findFirst({ where: { email: { equals: email } }, select: { id: true, name: true } })) ??
+    (await prisma.employee.findFirst({ where: { name: { contains: "Graham Foster" } }, select: { id: true, name: true } }))
+  );
+}
+
+/** Audits filed to a person's profile — as the branch manager who signed, or as
+ *  the Director of Field Ops who conducted them. Signed only. */
+export async function auditsForEmployee(employeeId: string) {
+  return prisma.branchAudit.findMany({
+    where: { status: "signed", OR: [{ managerEmployeeId: employeeId }, { auditorEmployeeId: employeeId }] },
+    orderBy: [{ year: "desc" }, { quarter: "desc" }],
+    select: { id: true, branch: true, year: true, quarter: true, scorePct: true, visitDate: true, managerEmployeeId: true, auditorEmployeeId: true, filedAt: true },
+  });
+}
+
+/** Signed audits for a branch — surfaced in the Branch Hub. */
+export async function signedAuditsForBranch(branch: string) {
+  return prisma.branchAudit.findMany({
+    where: { branch, status: "signed" },
+    orderBy: [{ year: "desc" }, { quarter: "desc" }],
+    select: { id: true, year: true, quarter: true, scorePct: true, visitDate: true, auditorName: true, managerSignedName: true, filedAt: true },
+  });
+}
+

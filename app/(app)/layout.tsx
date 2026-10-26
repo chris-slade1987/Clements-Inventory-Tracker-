@@ -12,6 +12,7 @@ import { ensureMbrLoaded } from "@/lib/mbr-ensure";
 import { ensureUserWarehouses } from "@/lib/inventory-scope";
 import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 import { ensureProductionSeed } from "@/lib/seed-production";
+import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -40,6 +41,10 @@ export default async function AppGroupLayout({
   // Carry the October route-completion month (Branch Command) into a fresh production
   // DB so it shows without a manual re-upload. Idempotent (skips once present), non-fatal.
   await ensureProductionSeed();
+
+  // Load Graham's paper Q4 2026 Orlando branch audit as an editable draft so he
+  // can open, sign, and route it to the branch manager. Idempotent, non-fatal.
+  await ensureOrlandoQ4AuditDraft();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

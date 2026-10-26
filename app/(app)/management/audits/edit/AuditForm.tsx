@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
+import { branchLabel } from "@/lib/management";
 import {
   SERVICE_TYPES, SCALE_5, SCALE_3, RIDE_ALONG_RATINGS,
   FACILITY_SAFETY, FACILITY_CLEAN, EQUIPMENT_YESNO, PERSONNEL_YESNO, scoreAudit,
@@ -20,6 +21,7 @@ type Prefill = {
   visitDate: string; auditorName: string;
   facility: Record<string, unknown>; personnel: Record<string, unknown>; ratings: Record<string, unknown>;
   facilityIssues: string; concerns: string; suggestions: string; nextQuarterPlan: string; status: string;
+  managerName: string; managerSignedName: string;
   rideAlongs: Ride[]; followUps: FollowUp[];
 };
 
@@ -43,13 +45,18 @@ export default function AuditForm({
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sigName, setSigName] = useState(prefill.auditorName);
+  const [showSign, setShowSign] = useState(false);
 
   const live = useMemo(() => scoreAudit(facility, personnel, ratings), [facility, personnel, ratings]);
+  const pending = prefill.status === "pending_manager" || prefill.status === "submitted";
 
-  async function submit(action: "save" | "submit") {
+  async function submit(action: "save" | "sign") {
+    if (action === "sign" && !sigName.trim()) return setError("Type your name to sign before sending to the manager.");
     setBusy(action); setError(null); setMsg(null);
     const payload = {
       action, branch, year, quarter, visitDate, auditorName,
+      auditorSignedName: sigName,
       facility, personnel, ratings, ...text,
       rideAlongs: rides.filter((r) => r.technicianName || r.serviceType),
       followUps: followUps.filter((f) => f.description.trim()),
@@ -58,12 +65,18 @@ export default function AuditForm({
     const data = await res.json().catch(() => ({}));
     setBusy(null);
     if (!res.ok) return setError(data.error ?? "Save failed.");
-    if (action === "submit") { router.push("/management/audits"); router.refresh(); }
+    if (action === "sign") { router.push("/management/audits"); router.refresh(); }
     else { setMsg(`Draft saved · ${data.scorePct}%`); router.refresh(); }
   }
 
   return (
     <div className="space-y-4 max-w-3xl pb-28">
+      {pending ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span className="font-medium">Signed &amp; sent to the branch manager.</span> {prefill.managerName || "The branch manager"} has been emailed a link to review and sign.
+          {prefill.managerSignedName ? " Signed." : " Awaiting their signature."} Editing here will require them to re-sign.
+        </div>
+      ) : null}
       <Card className="p-4 grid gap-3 sm:grid-cols-2">
         <label className="block text-sm font-medium">Director of Field Ops
           <input value={auditorName} onChange={(e) => setAuditorName(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm" />
@@ -156,18 +169,33 @@ export default function AuditForm({
       <Card className="p-4"><TA label="Technicians for next ride-along & areas of focus" v={text.nextQuarterPlan} on={(v) => setText({ ...text, nextQuarterPlan: v })} /></Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {!emailConfigured ? <p className="text-[11px] text-amber-600">Email provider not configured — the manager copy on submit is logged only until RESEND_API_KEY is set.</p> : null}
+      {!emailConfigured ? <p className="text-[11px] text-amber-600">Email provider not configured — the manager&rsquo;s sign link is logged only until RESEND_API_KEY is set.</p> : null}
 
       {/* Sticky score / actions */}
       <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
-          <div className="text-sm">
-            <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
-            <div className="text-xs text-muted">Branch compliance score{msg ? ` · ${msg}` : ""}</div>
-          </div>
-          <div className="ml-auto flex gap-2">
-            <button onClick={() => submit("save")} disabled={!!busy} className={btn.secondary}>{busy === "save" ? "Saving…" : "Save draft"}</button>
-            <button onClick={() => submit("submit")} disabled={!!busy} className={btn.primary}>{busy === "submit" ? "Submitting…" : "Submit & email manager"}</button>
+        <div className="max-w-3xl mx-auto">
+          {showSign ? (
+            <div className="mb-3 rounded-xl border border-line bg-surface p-3">
+              <div className="text-sm font-medium text-ink">Sign as Director of Field Ops</div>
+              <p className="mt-0.5 text-xs text-muted">Your typed name is your e-signature. Signing sends {branchLabel(branch)}&rsquo;s manager a link to review &amp; sign; their signature files the audit to the Branch Hub and both profiles.</p>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Type your full name to sign" className="flex-1 rounded-lg border border-line px-3 py-2 text-sm" />
+                <div className="flex gap-2">
+                  <button onClick={() => setShowSign(false)} disabled={!!busy} className={btn.secondary}>Cancel</button>
+                  <button onClick={() => submit("sign")} disabled={!!busy} className={btn.primary}>{busy === "sign" ? "Signing…" : "Sign & send to manager"}</button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          <div className="flex items-center gap-4">
+            <div className="text-sm">
+              <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
+              <div className="text-xs text-muted">Branch compliance score{msg ? ` · ${msg}` : ""}</div>
+            </div>
+            <div className="ml-auto flex gap-2">
+              <button onClick={() => submit("save")} disabled={!!busy} className={btn.secondary}>{busy === "save" ? "Saving…" : "Save draft"}</button>
+              <button onClick={() => setShowSign((s) => !s)} disabled={!!busy} className={btn.primary}>{pending ? "Re-sign & resend" : "Sign & send to manager"}</button>
+            </div>
           </div>
         </div>
       </div>

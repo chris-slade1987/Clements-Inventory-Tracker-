@@ -169,6 +169,26 @@ export default async function MyBranchPage({
     { label: "Quality control reports", href: "/my-branch/qc", done: false, tracked: false, status: "Not yet tracked", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
     { label: "Onboarding / CEU training", href: "/my-branch/training", done: totalTraining === 0 || trainingDone, status: totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`, cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
   ];
+  // Quarterly branch audit — surfaces only once the Director of Field Ops has
+  // routed one to this branch for the current quarter. The manager signs via the
+  // tokenized link; a signed one links to the filed form.
+  const auditRow = scBranch
+    ? await prisma.branchAudit.findFirst({
+        where: { branch: scBranch, year, quarter, status: { in: ["pending_manager", "submitted", "signed"] } },
+        select: { id: true, status: true, managerSignToken: true, managerSignedName: true },
+      })
+    : null;
+  if (auditRow) {
+    const signed = auditRow.status === "signed";
+    cadence.push({
+      label: "Quarterly branch audit (sign-off)",
+      href: signed || !auditRow.managerSignToken ? `/management/audits/${auditRow.id}` : `/audit-sign/${auditRow.managerSignToken}`,
+      done: signed,
+      status: signed ? `Signed by ${auditRow.managerSignedName ?? "manager"}` : "Awaiting manager signature",
+      cadence: "Monthly", due: endOfMonth(now), dueLabel: "Director of Field Ops visit",
+    });
+  }
+
   const cadScore = (r: CadenceRow) => (r.done ? 1000 : r.tracked === false ? 900 : daysUntilCal(r.due, now));
   const attnScore = (a: AttentionItem) => (a.severity === "critical" ? -50 : a.severity === "warning" ? 5 : 15);
   const worklist: ({ sort: number } & ({ k: "cadence"; row: CadenceRow } | { k: "attn"; a: AttentionItem }))[] = [

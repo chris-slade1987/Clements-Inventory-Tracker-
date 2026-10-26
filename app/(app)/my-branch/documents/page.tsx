@@ -10,6 +10,7 @@ import {
 import { AddDocButton, AddContactButton, EditDocButton, DeleteX, RepairButton } from "./BranchHubClient";
 import { listArchivedReviews } from "@/lib/scorecard";
 import { listQcInspections, qcTypeShort } from "@/lib/qc";
+import { signedAuditsForBranch } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Branch Hub — CanopyOS" };
@@ -24,10 +25,11 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
   const branch = scopedBranch(user, requested) ?? BRANCHES[0].key;
   const locked = branchLocked(user);
 
-  const [docGroups, contactGroups, operators, employees, archivedScorecards, qcInspections] = await Promise.all([
+  const [docGroups, contactGroups, operators, employees, archivedScorecards, qcInspections, branchAudits] = await Promise.all([
     branchDocuments(branch), branchContacts(branch), certifiedOperators(branch), listEmployees(),
     listArchivedReviews([branch]),
     listQcInspections(branch, 12),
+    signedAuditsForBranch(branch),
   ]);
 
   const docCats = BRANCH_DOC_CATEGORIES.map((c) => ({ key: c.key as string, label: c.label }));
@@ -70,6 +72,31 @@ export default async function BranchHubPage({ searchParams }: { searchParams: Pr
                 {r.managerName ? <span className="text-xs text-muted">{r.managerName}</span> : null}
                 {r.archivedAt ? <span className="text-[11px] text-muted">archived {fmt(r.archivedAt.toISOString())}</span> : null}
                 <Link href={`/my-branch/scorecard?branch=${branch}&year=${r.year}&quarter=${r.quarter}`} className="ml-auto text-xs font-medium text-brand-700 hover:underline">View →</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      {/* Quarterly branch audits — Director of Field Ops visits, signed by both
+          the director and the branch manager. Read-only; opens the signed form. */}
+      <Card className="p-4 mb-5">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-ink">Quarterly branch audits</div>
+          <span className="text-[11px] text-muted">Director of Field Ops — signed &amp; filed</span>
+        </div>
+        {branchAudits.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">No signed branch audits on file for {branchLabel(branch)} yet.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-line">
+            {branchAudits.map((a) => (
+              <li key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 py-2 text-sm">
+                <span className="font-medium text-ink">Q{a.quarter} {a.year}</span>
+                <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">{a.scorePct}%</span>
+                {a.auditorName ? <span className="text-xs text-muted">by {a.auditorName}</span> : null}
+                {a.managerSignedName ? <span className="text-[11px] text-muted">signed {a.managerSignedName}</span> : null}
+                {a.filedAt ? <span className="text-[11px] text-muted">filed {fmt(a.filedAt.toISOString())}</span> : null}
+                <Link href={`/management/audits/${a.id}`} className="ml-auto text-xs font-medium text-brand-700 hover:underline">View →</Link>
               </li>
             ))}
           </ul>

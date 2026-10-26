@@ -2,7 +2,8 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
-import { scoreAudit, type Facility, type YesNo, type Ratings5 } from "@/lib/audit";
+import { scoreAudit, auditTitle, managerEmployeeForBranch, fieldOpsEmployee, type Facility, type YesNo, type Ratings5 } from "@/lib/audit";
+import { newSignToken } from "@/lib/audit-finalize";
 import { branchLabel } from "@/lib/management";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import { sendEmail } from "@/lib/email";
@@ -13,6 +14,16 @@ export const maxDuration = 20;
 const str = (v: unknown) => { const s = typeof v === "string" ? v.trim() : ""; return s === "" ? null : s; };
 const int = (v: unknown) => { const n = parseInt(String(v ?? "").replace(/[^0-9-]/g, ""), 10); return Number.isFinite(n) ? n : null; };
 const date = (v: unknown) => { if (!v) return null; const d = new Date(String(v)); return isNaN(d.getTime()) ? null : d; };
+
+// Absolute origin for the emailed manager sign link (prefers APP_URL, falls back
+// to the live request host so the link is never a broken relative path).
+function reqBase(req: Request): string {
+  const env = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (env) return env.replace(/\/$/, "");
+  const host = req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  return host ? `${proto}://${host}` : "";
+}
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -44,6 +55,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // Reopen a signed/pending audit for correction — clears the manager signature
+    // + token so it can be re-signed (the filed profile copies are overwritten on
+    // the next finalize). The auditor signature is kept.
+    if (action === "reopen") {
+      const id = str(body?.id);
+      if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+      await prisma.branchAudit.update({
+        where: { id },
+        data: { status: "draft", managerSignToken: null, managerSignedName: null, managerSignedTitle: null, managerSignedAt: null, filedAt: null },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     if (action === "precheck") {
       const branch = str(body?.branch);
       const year = int(body?.year);
@@ -59,7 +83,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // save / submit
+    // save / sign — "sign" captures the auditor's (Director of Field Ops)
+    // signature and routes the audit to the branch manager for theirs.
     const branch = str(body?.branch);
     if (!branch) return NextResponse.json({ error: "Select a branch." }, { status: 400 });
     const visit = date(body?.visitDate) ?? new Date();
@@ -69,15 +94,22 @@ export async function POST(req: Request) {
     const personnel: YesNo = (body?.personnel ?? {}) as YesNo;
     const ratings: Ratings5 = (body?.ratings ?? {}) as Ratings5;
     const { score, maxScore, scorePct } = scoreAudit(facility, personnel, ratings);
-    const submit = action === "submit";
+    // "submit" kept as a back-compat alias for the pre-signature flow.
+    const sign = action === "sign" || action === "submit";
+
+    const existing = await prisma.branchAudit.findUnique({ where: { branch_year_quarter: { branch, year, quarter } } });
+    if (existing && existing.status === "signed")
+      return NextResponse.json({ error: "This audit is already signed and filed. Reopen it from the audit to make changes." }, { status: 409 });
+
+    const auditorName = str(body?.auditorName) ?? user.name;
 
     const data = {
       branch,
       year,
       quarter,
       visitDate: visit,
-      auditorName: str(body?.auditorName) ?? user.name,
-      status: submit ? "submitted" : "draft",
+      auditorName,
+      status: sign ? "pending_manager" : "draft",
       facility: JSON.stringify(facility),
       personnel: JSON.stringify(personnel),
       ratings: JSON.stringify(ratings),
@@ -88,7 +120,7 @@ export async function POST(req: Request) {
       score,
       maxScore,
       scorePct,
-      submittedAt: submit ? new Date() : null,
+      submittedAt: sign ? new Date() : null,
     };
 
     const audit = await prisma.branchAudit.upsert({
@@ -136,21 +168,40 @@ export async function POST(req: Request) {
       });
     }
 
-    // On submit, email the branch manager a copy + the action items.
+    // On sign: capture the auditor's signature, resolve + link both profiles,
+    // mint the manager's sign token, and email the branch manager a link to
+    // review, acknowledge and sign (which files the completed form).
     let emailStatus: string | null = null;
-    if (submit) {
-      const mgr = await prisma.user.findFirst({ where: { role: "manager", branch } });
+    if (sign) {
+      const [mgrEmp, auditorEmp] = await Promise.all([managerEmployeeForBranch(branch), fieldOpsEmployee()]);
+      const mgrUser = await prisma.user.findFirst({ where: { role: "manager", branch } });
+      const token = existing?.managerSignToken ?? newSignToken();
+      await prisma.branchAudit.update({
+        where: { id: audit.id },
+        data: {
+          auditorName,
+          auditorEmployeeId: auditorEmp?.id ?? null,
+          auditorSignedName: str(body?.auditorSignedName) ?? auditorName,
+          auditorSignedAt: existing?.auditorSignedAt ?? new Date(),
+          managerEmployeeId: mgrEmp?.id ?? null,
+          managerName: mgrEmp?.name ?? mgrUser?.name ?? null,
+          managerSignToken: token,
+        },
+      });
+
+      const label = branchLabel(branch);
+      const base = reqBase(req);
+      const link = `${base}/audit-sign/${token}`;
       const savedFollowUps = await prisma.auditFollowUp.findMany({ where: { auditId: audit.id } });
       const fuList = savedFollowUps.map((f) => `• ${f.description}${f.dueDate ? ` (due ${f.dueDate.toLocaleDateString()})` : ""}`).join("\n");
-      const label = branchLabel(branch);
       const res = await sendEmail({
-        to: mgr?.email,
-        subject: `Q${quarter} ${year} Branch Audit — ${label} (${scorePct}%)`,
-        kind: "audit_report",
+        to: mgrUser?.email,
+        subject: `Action needed — sign your ${auditTitle({ branch, year, quarter })} (${scorePct}%)`,
+        kind: "audit_manager_sign",
         relatedType: "branch_audit",
         relatedId: audit.id,
-        text: `The Q${quarter} ${year} field-operations audit for ${label} has been completed by ${data.auditorName}.\n\nBranch score: ${score}/${maxScore} (${scorePct}%).\n${fuList ? `\nAction items before next visit:\n${fuList}\n` : ""}\nThese action items now appear on your manager dashboard with their deadlines.\n\n— CanopyOS`,
-        html: `<p>The <strong>Q${quarter} ${year}</strong> field-operations audit for <strong>${label}</strong> was completed by ${data.auditorName}.</p><p style="font-size:18px"><strong>Branch score: ${score}/${maxScore} (${scorePct}%)</strong></p>${fuList ? `<p><strong>Action items before next visit:</strong></p><ul>${savedFollowUps.map((f) => `<li>${f.description}${f.dueDate ? ` <em>(due ${f.dueDate.toLocaleDateString()})</em>` : ""}</li>`).join("")}</ul>` : ""}<p>These action items now appear on your manager dashboard with their deadlines.</p><p>— CanopyOS</p>`,
+        text: `The Q${quarter} ${year} field-operations audit for ${label} was completed and signed by ${auditorName}.\n\nBranch compliance score: ${score}/${maxScore} (${scorePct}%).\n${fuList ? `\nAction items before next visit:\n${fuList}\n` : ""}\nPlease review and sign to acknowledge:\n${link}\n\nYour signature files the completed audit to the Branch Hub and your profile. The action items already appear on your dashboard with their deadlines.\n\n— CanopyOS`,
+        html: `<p>The <strong>Q${quarter} ${year}</strong> field-operations audit for <strong>${label}</strong> was completed and signed by ${auditorName}.</p><p style="font-size:18px"><strong>Branch compliance score: ${score}/${maxScore} (${scorePct}%)</strong></p>${fuList ? `<p><strong>Action items before next visit:</strong></p><ul>${savedFollowUps.map((f) => `<li>${f.description}${f.dueDate ? ` <em>(due ${f.dueDate.toLocaleDateString()})</em>` : ""}</li>`).join("")}</ul>` : ""}<p><a href="${link}" style="display:inline-block;background:#2e6f47;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Review &amp; sign the audit →</a></p><p>Your signature files the completed audit to the Branch Hub and your profile. The action items already appear on your dashboard with their deadlines.</p><p>— CanopyOS</p>`,
       });
       emailStatus = res.status;
     }

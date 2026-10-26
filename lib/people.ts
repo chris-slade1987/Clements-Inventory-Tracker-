@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { gradeLetter } from "@/lib/inspection";
+import { auditsForEmployee } from "@/lib/audit";
 
 // Personnel / HR queries. Employees are the people that inspections and (later)
 // annual reviews tag to, so scores accrue to a profile over time.
@@ -85,6 +86,10 @@ export async function employeeDetail(id: string) {
   ]);
   const assigned = vehicles.filter((v) => matchEmployeeByName(v.assignedTo, [employee]) === employee.id);
 
+  // Signed quarterly branch audits filed to this profile — either as the branch
+  // manager who acknowledged it, or as the Director of Field Ops who conducted it.
+  const branchAudits = await auditsForEmployee(id);
+
   const pcts = inspections.map((i) => i.scorePct);
   const avgPct = pcts.length ? Math.round((pcts.reduce((s, n) => s + n, 0) / pcts.length) * 10) / 10 : null;
 
@@ -95,6 +100,7 @@ export async function employeeDetail(id: string) {
     training,
     records,
     assigned,
+    branchAudits,
     avgPct,
     grade: avgPct == null ? null : gradeLetter(avgPct),
   };

@@ -142,7 +142,7 @@ Operational:
 - Warehouse Safety Inspection & logging (see form)
 - Review monthly tech training lessons
 - Ensure technicians are using approved products and techniques
-- Prep for Dir of Field Ops onsite visit
+- Prep for Dir of Field Ops onsite visit. **Portal (v1):** the quarterly branch audit is now completed in the portal by the Director of Field Operations (ride-along evaluations, facility inspection, personnel & training checks, and action items). After the visit the Director signs the audit and it is routed to you for signature — you'll get an email with a sign link and a **"Quarterly branch audit (sign-off)"** item on your **My Branch** worklist. Review the completed form and sign to acknowledge (receipt and discussion, not necessarily agreement). Your signature files the signed audit to the **Branch Hub → Quarterly branch audits** and to your employee profile; the action items also appear on your dashboard with their due dates.
 
 KPI Review:
 

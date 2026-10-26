@@ -53,7 +53,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
   if (scope && !scope.has(id)) notFound();
   const detail = await employeeDetail(id);
   if (!detail) notFound();
-  const { employee: e, inspections, rideAlongs, training, records, assigned, avgPct, grade } = detail;
+  const { employee: e, inspections, rideAlongs, training, records, assigned, branchAudits, avgPct, grade } = detail;
   const login = await prisma.user.findFirst({ where: { employeeId: e.id }, select: { id: true, accessLevel: true, email: true } });
   // Reporting line — supervisor + direct reports (reflects org-chart moves).
   const supervisor = e.reportsToId
@@ -374,6 +374,28 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
               </tbody>
             </table>
           </div>
+        </Card>
+      ) : null}
+
+      {/* Quarterly branch audits — filed here when this person is the branch
+          manager who signed, or the Director of Field Ops who conducted them. */}
+      {branchAudits.length > 0 ? (
+        <Card className="p-0 overflow-hidden mb-5">
+          <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Quarterly branch audits</div>
+          <ul className="divide-y divide-line">
+            {branchAudits.map((a) => {
+              const asAuditor = a.auditorEmployeeId === e.id;
+              return (
+                <li key={a.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                  <div>
+                    <Link href={`/management/audits/${a.id}`} className="text-sm font-medium text-brand-700 hover:underline">Q{a.quarter} {a.year} · {branchLabel(a.branch)}</Link>
+                    <div className="text-xs text-muted">{asAuditor ? "Conducted (Director of Field Ops)" : "Acknowledged (branch manager)"} · filed {a.filedAt ? dateShort(a.filedAt) : "—"}</div>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">{a.scorePct}%</span>
+                </li>
+              );
+            })}
+          </ul>
         </Card>
       ) : null}
 
