@@ -644,7 +644,9 @@ export default function AppShell({
             ? "max-w-none md:px-6" // org chart stretches to the screen edge for a wider view
             : pathname.startsWith("/weather")
               ? "max-w-[1800px] md:px-6" // weather command deck uses the wide screen
-              : "max-w-5xl md:px-8"
+              // Global default: use more of a wide screen (was a narrow max-w-5xl), with
+              // side gutters that grow responsively so large monitors don't feel cramped.
+              : "max-w-[1600px] md:px-8 xl:px-12 2xl:px-20"
         }`}>
           {denied ? (
             <div
