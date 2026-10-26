@@ -7,6 +7,7 @@ import type { RiskLevel } from "@/lib/weather/types";
 import CommandClock from "@/components/weather/CommandClock";
 import WeatherRadarMap from "@/components/weather/WeatherRadarMap";
 import WeatherGlyph, { glyphFor } from "@/components/weather/WeatherGlyph";
+import FiveDayOutlook from "@/components/weather/FiveDayOutlook";
 import Gauge from "@/components/weather/Gauge";
 import { pestPressure, pressureDomainLabel, type PressureCard } from "@/lib/weather/pests";
 
@@ -79,7 +80,10 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
     selected = await getTerritory(user.branch, { withBriefing: true });
   } else {
     all = await getAllTerritories({ withBriefing: false });
-    selected = requested ? await getTerritory(requested, { withBriefing: true }) : null;
+    // Default the board to the user's assigned branch (or HQ/first branch for a no-branch
+    // admin) so a station is always open — never a blank "awaiting selection".
+    const effBranch = requested ?? user.branch ?? BRANCHES[0].key;
+    selected = await getTerritory(effBranch, { withBriefing: true });
   }
 
   const worst = all.length ? all.reduce<RiskLevel>((a, t) => (rank(t.risk) > rank(a) ? t.risk : a), "green") : selected?.risk ?? "green";
@@ -106,7 +110,7 @@ export default async function WeatherPage({ searchParams }: { searchParams: Prom
         <div>
           <div className="mb-2 text-[11px] uppercase tracking-[0.18em] text-muted">Station board</div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {all.map((t) => <StationTile key={t.branch} t={t} selected={requested === t.branch} />)}
+            {all.map((t) => <StationTile key={t.branch} t={t} selected={selected?.branch === t.branch} />)}
           </div>
         </div>
       )}
@@ -168,11 +172,14 @@ function Deck({
 function Ticker({ items }: { items: string[] }) {
   const line = items.length ? items : ["All stations nominal — no active advisories"];
   const run = [...line, ...line]; // duplicated for a seamless loop
+  // Keep a steady, readable pace regardless of how many advisories there are: ~11s per
+  // item (longer lists scroll proportionally longer, not faster). Hover pauses it.
+  const durationS = Math.max(45, line.length * 11);
   return (
     <div className="wx-ticker-wrap relative overflow-hidden rounded-lg border border-white/10 bg-black/20">
       <div className="flex items-center gap-2 border-b border-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-brand-300">Advisory feed</div>
       <div className="whitespace-nowrap py-1.5">
-        <div className="wx-ticker-track inline-block">
+        <div className="wx-ticker-track inline-block" style={{ animationDuration: `${durationS}s` }}>
           {run.map((s, i) => (
             <span key={i} className="mx-6 text-[12px] tracking-wide text-ink/90">
               <span className="mr-1.5 text-brand-300">▸</span>{s}
@@ -233,30 +240,42 @@ function NetworkReadout({ all, worst }: { all: TerritoryView[]; worst: RiskLevel
 
 function StationTile({ t, selected }: { t: TerritoryView; selected: boolean }) {
   const af = activeFlags(t);
+  // Selected tile flips to a WHITE card: `surface-light` re-scopes text-ink/text-muted/
+  // border-line to dark-on-light, and the brand/alert accents darken to stay readable.
+  const accent = selected ? "text-brand-700" : "text-brand-300";
+  const amber = selected ? "text-amber-600" : "text-amber-300";
+  const red = selected ? "text-red-600" : "text-red-300";
   return (
-    <Link href={`/weather?branch=${t.branch}`} className={`relative rounded-xl border bg-white/[0.03] p-4 transition hover:bg-white/[0.06] ${selected ? "border-brand-400 ring-1 ring-brand-400/60" : "border-white/10"}`}>
-      <Brackets />
+    <Link
+      href={`/weather?branch=${t.branch}`}
+      className={`relative rounded-xl border p-4 transition ${
+        selected
+          ? "surface-light border-line bg-white shadow-[0_12px_34px_-14px_rgba(0,0,0,.55)]"
+          : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+      }`}
+    >
+      {!selected && <Brackets />}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-ink">{t.label}</span>
         <Lamp risk={t.risk} />
       </div>
       <div className="mt-2 flex items-baseline gap-2">
         <span className="text-3xl font-light tabular-nums text-ink">{t.current?.tempF != null ? `${t.current.tempF}°` : "—"}</span>
-        <WeatherGlyph kind={glyphFor(t.current?.short ?? "")} className="h-6 w-6 text-brand-300" />
+        <WeatherGlyph kind={glyphFor(t.current?.short ?? "")} className={`h-6 w-6 ${accent}`} />
       </div>
       <div className="mt-0.5 truncate text-xs text-muted">{t.current?.short ?? "No data"}</div>
-      <div className="mt-2 grid grid-cols-3 gap-1 border-t border-white/10 pt-2 text-center">
+      <div className="mt-2 grid grid-cols-3 gap-1 border-t border-line pt-2 text-center">
         <Mini label="Wind" value={t.current?.windMph != null ? `${t.current.windMph}` : "—"} />
         <Mini label="Rain" value={t.current?.pop != null ? `${t.current.pop}%` : "—"} />
         <Mini label="Hum" value={t.current?.humidity != null ? `${t.current.humidity}%` : "—"} />
       </div>
       <div className="mt-2 flex items-center justify-between text-[11px]">
-        <span className={af.length ? "text-amber-300" : "text-muted"}>{af.length} advisor{af.length === 1 ? "y" : "ies"}</span>
-        {t.alerts.length > 0 && <span className="font-medium text-red-300">{t.alerts.length} alert{t.alerts.length > 1 ? "s" : ""}</span>}
+        <span className={af.length ? amber : "text-muted"}>{af.length} advisor{af.length === 1 ? "y" : "ies"}</span>
+        {t.alerts.length > 0 && <span className={`font-medium ${red}`}>{t.alerts.length} alert{t.alerts.length > 1 ? "s" : ""}</span>}
       </div>
-      <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
+      <div className="mt-2 flex items-center justify-between border-t border-line pt-2">
         <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted">
-          <Sparkline values={fiveDay(t.daily).map((d) => d.hi).filter((n): n is number => n != null)} className="h-4 w-16 text-brand-300" />
+          <Sparkline values={fiveDay(t.daily).map((d) => d.hi).filter((n): n is number => n != null)} className={`h-4 w-16 ${accent}`} />
           5-day
         </span>
         <span className="text-[10px] text-muted">{t.stale ? "stale · " : ""}upd {updatedAgo(t.updatedAt)}</span>
@@ -379,18 +398,9 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
         )}
       </Panel>
 
-      {/* 5-day outlook — below the radar, with line-art glyphs */}
-      <Panel code="05" title="5-day outlook">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {strip.map((d, i) => (
-            <div key={i} className="flex flex-col items-center rounded-lg border border-white/10 bg-white/[0.02] px-2 py-3 text-center">
-              <div className="truncate text-xs font-medium text-ink" title={d.label}>{shortDay(d.label)}</div>
-              <WeatherGlyph kind={glyphFor(d.short)} className="my-2 h-9 w-9 text-brand-300" />
-              <div className="text-sm tabular-nums text-ink"><span className="font-medium">{d.hi != null ? `${d.hi}°` : "—"}</span>{d.lo != null && <span className="text-muted"> / {d.lo}°</span>}</div>
-              <div className="mt-0.5 text-[11px] text-brand-300">{d.pop}% rain</div>
-            </div>
-          ))}
-        </div>
+      {/* 5-day outlook — below the radar; click a day to expand its hourly detail + summary */}
+      <Panel code="05" title="5-day outlook" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Tap a day</span>}>
+        <FiveDayOutlook hourly={t.hourly} today={date} />
       </Panel>
 
       {/* Ops timeline */}
@@ -471,10 +481,4 @@ function Info({ label, value }: { label: string; value: string }) {
       <div className="mt-0.5 text-sm text-ink/90">{value}</div>
     </div>
   );
-}
-function shortDay(name: string): string {
-  if (/^today$/i.test(name)) return "Today";
-  if (/^tonight$/i.test(name)) return "Tonight";
-  const m = name.match(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)/i);
-  return m ? m[1].slice(0, 3) : name;
 }

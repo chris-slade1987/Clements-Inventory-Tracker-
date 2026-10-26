@@ -249,7 +249,7 @@ input[type="date"].date-clean::-webkit-calendar-picker-indicator {
 }
 /* Advisory ticker — a slow, seamless marquee (content duplicated, translate -50%). */
 @keyframes wx-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.wx-ticker-track { animation: wx-ticker 36s linear infinite; }
+.wx-ticker-track { animation: wx-ticker 72s linear infinite; }
 .wx-ticker-wrap:hover .wx-ticker-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .wx-lamp-live, .wx-now { animation: none !important; }
