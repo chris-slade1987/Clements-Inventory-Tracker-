@@ -51,6 +51,9 @@ export type SessionUser = {
   warehouseName: string | null;
   branch: string | null;
   employeeId: string | null;
+  /** The personnel-profile role/title (e.g. "Technician", "Manager", "Sales Advisor") —
+   *  distinct from the login `role`. Used to route technicians to their route home. */
+  employeeRole: string | null;
   accessLevel: string | null;
   canPostBulletin: boolean;
   seniorLeadership: boolean;
@@ -129,6 +132,11 @@ export function isServiceAdvisor(user: Pick<SessionUser, "accessLevel">): boolea
   return user.accessLevel === "sales";
 }
 
+/** A field technician (by personnel title), routed to their own route/tech home. */
+export function isTechnician(user: Pick<SessionUser, "role" | "employeeRole">): boolean {
+  return user.role === "employee" && /technician/i.test(user.employeeRole ?? "");
+}
+
 /** The Director of Field Operations (Graham Foster) — identified by email so the
  *  role can move without a schema change. Overridable via FIELD_OPS_EMAIL. Lands
  *  on the Field Ops command center and gets cross-branch operational oversight. */
@@ -165,8 +173,9 @@ export function homePath(user: SessionUser): string {
   // The Director of Field Operations lands on the Field Ops command center
   // (even though he's a full admin — his day-to-day home is field oversight).
   if (isFieldOpsDirector(user)) return "/field-ops";
-  // TODO(technicians): route field technicians to a dedicated route/tech dashboard
-  // once its target + identification are confirmed. For now they use the employee hub.
+  // Field technicians land on their route/tech home (their route completion, production,
+  // callbacks + the accounts they still owe); other employees get the Employee Hub.
+  if (isTechnician(user)) return "/me/route";
   if (user.role === "employee") return "/me";
   // Everyone else — admins, senior leadership, and branch managers — lands on the
   // Company → My Dashboard home (`/my-branch`): their branch (or company-wide for a
@@ -182,7 +191,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
   const session = await prisma.session.findUnique({
     where: { token },
-    include: { user: { include: { warehouse: true } } },
+    include: { user: { include: { warehouse: true, employee: { select: { role: true } } } } },
   });
   if (!session || session.expiresAt < new Date() || !session.user.active) {
     return null;
@@ -198,6 +207,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     warehouseName: u.warehouse?.name ?? null,
     branch: u.branch,
     employeeId: u.employeeId,
+    employeeRole: u.employee?.role ?? null,
     accessLevel: u.accessLevel,
     canPostBulletin: u.canPostBulletin,
     seniorLeadership: u.seniorLeadership,

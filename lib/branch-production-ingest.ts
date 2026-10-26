@@ -190,6 +190,32 @@ export async function getProductionRollup(branches: string[]): Promise<{ branch:
   return out;
 }
 
+/** A single technician's route-completion view for the current (or given) month, matched
+ *  by name against the loaded production data. Returns null when no route matches — the
+ *  page shows a friendly "ask your manager to link your route" empty state. */
+export async function getTechRouteView(techName: string, periodKey?: string) {
+  const first = (techName || "").trim().split(/\s+/)[0]?.toUpperCase() ?? "";
+  if (!first) return null;
+  const currentMonthKey = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit" }).format(new Date()).slice(0, 7);
+  const periods = await prisma.routeMonth.findMany({ distinct: ["periodKey"], select: { periodKey: true }, orderBy: { periodKey: "desc" } }).catch(() => []);
+  const pk = periodKey ?? (periods.some((p) => p.periodKey === currentMonthKey) ? currentMonthKey : periods[0]?.periodKey);
+  if (!pk) return null;
+  const rows = await prisma.routeMonth.findMany({ where: { periodKey: pk } }).catch(() => []);
+  // PestPac tech labels are short first-name tokens (e.g. "LOGAN", "CHRIS T"), so match on
+  // the login's first name. Exact-ish prefix; first match wins.
+  const match = rows.find((r) => (r.techName || "").toUpperCase().startsWith(first));
+  if (!match) return null;
+  const leftBehind = await getLeftBehindJobs(match.branch, pk, match.route);
+  return {
+    periodKey: pk, branch: match.branch, route: match.route, techName: match.techName,
+    completionPct: match.completionPct, status: match.status, projectedPct: match.projectedPct,
+    scheduledCount: match.scheduledCount, completedCount: match.completedCount, remainingCount: match.remainingCount,
+    scheduledDollars: match.scheduledDollars, completedDollars: match.completedDollars,
+    leftBehindCount: match.leftBehindCount, leftBehindDollars: match.leftBehindDollars, callbacks: match.callbacks,
+    leftBehind,
+  };
+}
+
 /** Left-behind jobs for a branch/period (optionally one route) — the drill-down + gameplan list. */
 export async function getLeftBehindJobs(branch: string, periodKey: string, route?: string) {
   const rows = await prisma.leftBehindJob.findMany({ where: { branch, periodKey, ...(route ? { route } : {}) }, orderBy: [{ dollars: "desc" }, { scheduledDate: "asc" }] }).catch(() => []);
