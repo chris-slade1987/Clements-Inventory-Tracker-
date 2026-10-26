@@ -77,6 +77,7 @@ export default function ProductEditor({
   // When a scanned code is already on a DIFFERENT product, hold the conflict so the
   // manager can choose to move (reassign) it here instead of hitting a dead end.
   const [conflict, setConflict] = useState<{ code: string; symbology: string | null; other: { id: string; name: string } | null } | null>(null);
+  const [mergeArmed, setMergeArmed] = useState(false);
 
   const subOptions = form.division && (SUBDIVISIONS as Record<string, string[]>)[form.division]
     ? (SUBDIVISIONS as Record<string, string[]>)[form.division]
@@ -117,6 +118,7 @@ export default function ProductEditor({
       // surface the conflict so they can move it here (or open the other product).
       if (!opts?.reassign && (res.status === 409 || (data && data.alreadyLinked && !data.sameProduct))) {
         setConflict({ code: trimmed, symbology: symbology ?? null, other: data.linkedTo ?? null });
+        setMergeArmed(false);
         return;
       }
       if (!res.ok) { setBcError(data.error ?? "Could not link barcode."); return; }
@@ -130,6 +132,36 @@ export default function ProductEditor({
       }
       setConflict(null);
       setManualCode("");
+      router.refresh();
+    } catch {
+      setBcBusy(false);
+      setBcError("Network error. Try again.");
+    }
+  }
+
+  // The two entries are actually the SAME product — merge the conflicting product
+  // INTO the one being edited (this survives): repoints its stock history, barcodes
+  // and photos here and deactivates it. Super-admin-only (so is this screen).
+  async function mergeOther() {
+    if (!conflict?.other) return;
+    setBcBusy(true);
+    setBcError(null);
+    try {
+      const res = await fetch("/api/products/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "merge", id: conflict.other.id, targetId: product.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setBcBusy(false);
+      if (!res.ok) { setBcError(data.error ?? "Could not merge the products."); return; }
+      const mergedName = conflict.other.name;
+      setConflict(null);
+      setMergeArmed(false);
+      setManualCode("");
+      bcFlash(`Merged “${mergedName}” into this product — its stock, barcodes and photos now live here.`);
+      // Reload on the read-only view so the consolidated result (all barcodes + on-hand) shows.
+      router.push(`/manage/products/${product.id}`);
       router.refresh();
     } catch {
       setBcBusy(false);
@@ -284,13 +316,36 @@ export default function ProductEditor({
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <button type="button" disabled={bcBusy} onClick={() => linkCode(conflict.code, conflict.symbology, { reassign: true })} className={btn.primary}>
-                {bcBusy ? "Moving…" : "Move barcode to this product"}
+                {bcBusy && !mergeArmed ? "Moving…" : "Move barcode to this product"}
               </button>
               {conflict.other ? (
                 <Link href={`/manage/products/${conflict.other.id}/edit`} className={btn.secondary}>Open {conflict.other.name}</Link>
               ) : null}
-              <button type="button" onClick={() => setConflict(null)} className="text-xs font-medium text-muted hover:text-ink">Cancel</button>
+              <button type="button" onClick={() => { setConflict(null); setMergeArmed(false); }} className="text-xs font-medium text-muted hover:text-ink">Cancel</button>
             </div>
+
+            {/* Same-product? Offer a destructive merge (combines the two records). */}
+            {conflict.other ? (
+              <div className="mt-3 border-t border-amber-200 pt-2">
+                {!mergeArmed ? (
+                  <button type="button" onClick={() => setMergeArmed(true)} className="text-xs font-medium text-amber-800 underline hover:text-amber-900">
+                    These are the same product — merge them instead
+                  </button>
+                ) : (
+                  <div className="rounded-md border border-red-300 bg-red-50 p-2.5">
+                    <p className="text-xs text-ink">
+                      Merge <span className="font-medium">{conflict.other.name}</span> into <span className="font-medium">{product.name}</span>? The other product&apos;s stock history, barcodes and photos move here and it is deactivated. Use this <span className="font-medium">only</span> if they are truly the same product — not for different items that share a name.
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button type="button" disabled={bcBusy} onClick={mergeOther} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50">
+                        {bcBusy ? "Merging…" : "Merge into this product"}
+                      </button>
+                      <button type="button" onClick={() => setMergeArmed(false)} className="text-xs font-medium text-muted hover:text-ink">Back</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
