@@ -70,7 +70,7 @@ export default function AuditForm({
   }
 
   return (
-    <div className="space-y-4 max-w-3xl pb-28">
+    <div className="space-y-4 max-w-5xl pb-28">
       {pending ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <span className="font-medium">Signed &amp; sent to the branch manager.</span> {prefill.managerName || "The branch manager"} has been emailed a link to review and sign.
@@ -148,8 +148,8 @@ export default function AuditForm({
       {/* 4. Notes & follow-ups */}
       <SectionTitle n="4" title="Notes & follow-ups" />
       <Card className="p-4 space-y-3">
-        <TA label="Branch-specific concerns / issues identified" v={text.concerns} on={(v) => setText({ ...text, concerns: v })} />
-        <TA label="Suggestions for team engagement & inclusion" v={text.suggestions} on={(v) => setText({ ...text, suggestions: v })} />
+        <TA label="Branch-specific concerns / issues identified" v={text.concerns} on={(v) => setText({ ...text, concerns: v })} rows={5} minH={130} />
+        <TA label="Suggestions for team engagement & inclusion" v={text.suggestions} on={(v) => setText({ ...text, suggestions: v })} rows={5} minH={130} />
         <div>
           <div className="text-sm font-medium text-ink mb-1">Action items for branch manager before next visit</div>
           <p className="text-xs text-muted mb-2">Each becomes a dated reminder on the manager&rsquo;s dashboard.</p>
@@ -166,14 +166,14 @@ export default function AuditForm({
 
       {/* 5. Next quarter */}
       <SectionTitle n="5" title="Pre-visit planning for next quarter" />
-      <Card className="p-4"><TA label="Technicians for next ride-along & areas of focus" v={text.nextQuarterPlan} on={(v) => setText({ ...text, nextQuarterPlan: v })} /></Card>
+      <Card className="p-4"><TA label="Technicians for next ride-along & areas of focus" v={text.nextQuarterPlan} on={(v) => setText({ ...text, nextQuarterPlan: v })} rows={5} minH={130} /></Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       {!emailConfigured ? <p className="text-[11px] text-amber-600">Email provider not configured — the manager&rsquo;s sign link is logged only until RESEND_API_KEY is set.</p> : null}
 
       {/* Sticky score / actions */}
       <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {showSign ? (
             <div className="mb-3 rounded-xl border border-line bg-surface p-3">
               <div className="text-sm font-medium text-ink">Sign as Director of Field Ops</div>
@@ -243,6 +243,6 @@ function RowYesNo({ label, value, onChange }: { label: string; value: boolean | 
     </div>
   );
 }
-function TA({ label, v, on }: { label: string; v: string; on: (v: string) => void }) {
-  return <label className="block text-xs text-muted">{label}<textarea value={v} onChange={(e) => on(e.target.value)} rows={2} className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm text-ink" /></label>;
+function TA({ label, v, on, rows = 4, minH = 96 }: { label: string; v: string; on: (v: string) => void; rows?: number; minH?: number }) {
+  return <label className="block text-xs text-muted">{label}<textarea value={v} onChange={(e) => on(e.target.value)} rows={rows} style={{ minHeight: minH }} className="mt-0.5 w-full resize-y rounded-lg border border-line px-2.5 py-2 text-sm leading-relaxed text-ink" /></label>;
 }
