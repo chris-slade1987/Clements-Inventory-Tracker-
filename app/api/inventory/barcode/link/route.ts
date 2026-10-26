@@ -21,12 +21,36 @@ export async function POST(req: Request) {
   const code = String(body?.code ?? "").trim();
   const productId = String(body?.productId ?? "").trim();
   const symbology = body?.symbology == null ? null : String(body.symbology).trim() || null;
+  // When the code is already on a DIFFERENT product, reassign=true moves it to
+  // this product (the "override" the manager picks from the conflict prompt).
+  const reassign = body?.reassign === true;
   if (!code || !productId) {
     return NextResponse.json({ error: "code and productId are required." }, { status: 400 });
   }
 
   const product = await prisma.product.findUnique({ where: { id: productId }, select: { id: true, name: true } });
   if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+  // Resolve a conflict up front so we can offer / apply a reassignment.
+  const existing = await prisma.productBarcode.findUnique({ where: { code }, include: { product: { select: { id: true, name: true } } } });
+  if (existing) {
+    if (existing.productId === productId) {
+      return NextResponse.json({ ok: true, alreadyLinked: true, sameProduct: true, barcode: { id: existing.id, code: existing.code, productId: existing.productId } });
+    }
+    if (!reassign) {
+      return NextResponse.json(
+        { ok: false, alreadyLinked: true, sameProduct: false, barcode: { id: existing.id, code: existing.code, productId: existing.productId }, linkedTo: existing.product ? { id: existing.product.id, name: existing.product.name } : null },
+        { status: 409 },
+      );
+    }
+    // Override: move the existing barcode row onto this product (keeps check-out
+    // history intact — the mapping just points somewhere new from now on).
+    const moved = await prisma.productBarcode.update({
+      where: { id: existing.id },
+      data: { productId, normalizedCode: normalizeBarcode(code) || null, symbology, createdByUserId: user.id },
+    });
+    return NextResponse.json({ ok: true, reassigned: true, reassignedFrom: existing.product ? { id: existing.product.id, name: existing.product.name } : null, barcode: { id: moved.id, code: moved.code, productId: moved.productId } });
+  }
 
   try {
     const bc = await prisma.productBarcode.create({

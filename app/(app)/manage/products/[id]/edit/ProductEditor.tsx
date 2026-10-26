@@ -74,6 +74,9 @@ export default function ProductEditor({
   const [bcBusy, setBcBusy] = useState(false);
   const [bcError, setBcError] = useState<string | null>(null);
   const [bcNote, setBcNote] = useState<string | null>(null);
+  // When a scanned code is already on a DIFFERENT product, hold the conflict so the
+  // manager can choose to move (reassign) it here instead of hitting a dead end.
+  const [conflict, setConflict] = useState<{ code: string; symbology: string | null; other: { id: string; name: string } | null } | null>(null);
 
   const subOptions = form.division && (SUBDIVISIONS as Record<string, string[]>)[form.division]
     ? (SUBDIVISIONS as Record<string, string[]>)[form.division]
@@ -96,21 +99,24 @@ export default function ProductEditor({
     router.refresh();
   }
 
-  async function linkCode(code: string, symbology?: string | null) {
+  async function linkCode(code: string, symbology?: string | null, opts?: { reassign?: boolean }) {
     const trimmed = code.trim();
     if (!trimmed) { setBcError("Enter a barcode to link."); return; }
     setBcBusy(true);
     setBcError(null);
+    if (!opts?.reassign) setConflict(null);
     try {
       const res = await fetch("/api/inventory/barcode/link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: trimmed, productId: product.id, symbology: symbology ?? null }),
+        body: JSON.stringify({ code: trimmed, productId: product.id, symbology: symbology ?? null, reassign: opts?.reassign === true }),
       });
       const data = await res.json().catch(() => ({}));
       setBcBusy(false);
-      if (res.status === 409 || (data && data.alreadyLinked && !data.sameProduct)) {
-        setBcError(`That barcode is already linked to ${data.linkedTo?.name ?? "another product"}.`);
+      // Already on a different product and the manager hasn't chosen override yet —
+      // surface the conflict so they can move it here (or open the other product).
+      if (!opts?.reassign && (res.status === 409 || (data && data.alreadyLinked && !data.sameProduct))) {
+        setConflict({ code: trimmed, symbology: symbology ?? null, other: data.linkedTo ?? null });
         return;
       }
       if (!res.ok) { setBcError(data.error ?? "Could not link barcode."); return; }
@@ -118,10 +124,11 @@ export default function ProductEditor({
         bcFlash("Already linked to this product.");
       } else if (data.barcode) {
         setBarcodes((prev) => prev.some((b) => b.code === data.barcode.code)
-          ? prev
+          ? prev.map((b) => (b.code === data.barcode.code ? { id: data.barcode.id, code: data.barcode.code, symbology: symbology ?? b.symbology } : b))
           : [...prev, { id: data.barcode.id, code: data.barcode.code, symbology: symbology ?? null }]);
-        bcFlash(`Linked ${trimmed}.`);
+        bcFlash(data.reassigned ? `Moved ${trimmed} here${data.reassignedFrom ? ` from ${data.reassignedFrom.name}` : ""}.` : `Linked ${trimmed}.`);
       }
+      setConflict(null);
       setManualCode("");
       router.refresh();
     } catch {
@@ -264,6 +271,28 @@ export default function ProductEditor({
 
         {bcNote ? <p className="mt-2 text-sm text-brand-700">{bcNote}</p> : null}
         {bcError ? <p className="mt-2 text-sm text-red-600" role="alert">{bcError}</p> : null}
+
+        {conflict ? (
+          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3" role="alert">
+            <p className="text-sm text-ink">
+              Barcode <span className="font-mono font-medium">{conflict.code}</span> is already linked to{" "}
+              <span className="font-medium">{conflict.other?.name ?? "another product"}</span>.
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              If the barcode really belongs to <span className="text-ink">{product.name}</span>, move it here — it comes off{" "}
+              {conflict.other?.name ?? "the other product"} and resolves to this product at check-out from now on. Past check-out history isn&apos;t changed.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button type="button" disabled={bcBusy} onClick={() => linkCode(conflict.code, conflict.symbology, { reassign: true })} className={btn.primary}>
+                {bcBusy ? "Moving…" : "Move barcode to this product"}
+              </button>
+              {conflict.other ? (
+                <Link href={`/manage/products/${conflict.other.id}/edit`} className={btn.secondary}>Open {conflict.other.name}</Link>
+              ) : null}
+              <button type="button" onClick={() => setConflict(null)} className="text-xs font-medium text-muted hover:text-ink">Cancel</button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-3">
           <div className="text-xs font-medium text-muted">Linked barcodes</div>
