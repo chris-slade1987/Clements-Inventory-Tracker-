@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 42 · Last updated October 26, 2026",
+    effective: "Version 43 · Last updated October 26, 2026",
+    // v43: Warehouse safety inspection upgraded — Yes/No/N/A (N/A excluded from the
+    // score), a guided compliance-photo set, and an "Escalate to leadership" path on
+    // any failed item that emails the Director of Field Ops + super admins and tracks
+    // the need open→resolved. Reconciled the Warehouse Safety section. Re-prompts.
     // v42: Quarterly branch audit is now a two-signature portal workflow — the
     // Director of Field Ops signs and routes it to the branch manager, who reviews
     // and signs; the signed form files to the Branch Hub + the manager's profile.
@@ -203,7 +207,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 42,
+    version: 43,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Card, PageHeader, btn } from "@/components/ui";
-import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked, isFieldOpsDirector } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
-import { warehouseStatus, warehouseHistory } from "@/lib/warehouse";
+import { warehouseStatus, warehouseHistory, openWarehouseNeeds } from "@/lib/warehouse";
+import WarehouseNeeds from "./WarehouseNeeds";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,8 @@ export default async function WarehousePage({
   const effBranch = branch ?? BRANCHES[0].key;
   const status = await warehouseStatus(year, month, effBranch);
   const history = await warehouseHistory(branch ?? undefined);
+  const needs = await openWarehouseNeeds(branch ?? undefined);
+  const canResolve = user.role === "admin" || isFieldOpsDirector(user);
 
   return (
     <>
@@ -44,6 +47,8 @@ export default async function WarehousePage({
           ))}
         </div>
       ) : null}
+
+      <WarehouseNeeds needs={needs.map((n) => ({ id: n.id, branch: n.branch, year: n.year, month: n.month, label: n.label, request: n.request, raisedByName: n.raisedByName, createdAt: n.createdAt.toISOString() }))} canResolve={canResolve} />
 
       <Card className="p-4 mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>

@@ -1986,9 +1986,56 @@ model WarehouseInspection {
 
   createdAt DateTime @default(now()) @map("created_at")
 
+  photos WarehouseInspectionPhoto[]
+  needs  WarehouseNeed[]
+
   @@unique([branch, year, month])
   @@index([branch, year, month])
   @@map("warehouse_inspections")
+}
+
+// Guided compliance photo tied to a warehouse inspection (one per prompt key —
+// e.g. chemical-storage door, SDS binder, spill kit, extinguisher tag).
+model WarehouseInspectionPhoto {
+  id           String   @id @default(cuid())
+  inspectionId String   @map("inspection_id")
+  promptKey    String   @map("prompt_key")
+  label        String?
+  photoUrl     String   @map("photo_url")
+  caption      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  inspection WarehouseInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@unique([inspectionId, promptKey])
+  @@index([inspectionId])
+  @@map("warehouse_inspection_photos")
+}
+
+// A supply/facility NEED raised during a warehouse inspection — an out-of-the-
+// manager's-control deficiency ("need a new chem-room lock", "first-aid kit
+// restock"). Highlighted on the report and escalated to the Director of Field
+// Ops + super admins. Tracked open → resolved so leadership closes the loop.
+model WarehouseNeed {
+  id             String    @id @default(cuid())
+  inspectionId   String    @map("inspection_id")
+  branch         String
+  year           Int
+  month          Int
+  itemKey        String?   @map("item_key") // the failed checklist item, if tied to one
+  label          String? // the checklist item's label (snapshot)
+  request        String // what the inspector needs
+  status         String    @default("open") // "open" | "resolved"
+  raisedByName   String?   @map("raised_by_name")
+  resolvedByName String?   @map("resolved_by_name")
+  resolvedAt     DateTime? @map("resolved_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  inspection WarehouseInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([branch, status])
+  @@index([inspectionId])
+  @@map("warehouse_needs")
 }
 
 // Pre-visit prep checklist for a branch/quarter (Director of Field Ops).

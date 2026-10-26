@@ -25,14 +25,24 @@ export default async function WarehouseInspectPage({
   const year = Number(sp.year) || now.getFullYear();
   const month = Number(sp.month) || now.getMonth() + 1;
 
-  const existing = await prisma.warehouseInspection.findUnique({ where: { branch_year_month: { branch, year, month } } });
+  const existing = await prisma.warehouseInspection.findUnique({
+    where: { branch_year_month: { branch, year, month } },
+    include: { photos: true, needs: true },
+  });
+
+  const needs: Record<string, string> = {};
+  for (const n of existing?.needs ?? []) if (n.itemKey) needs[n.itemKey] = n.request;
+  const photos: Record<string, { url: string; caption: string }> = {};
+  for (const p of existing?.photos ?? []) photos[p.promptKey] = { url: p.photoUrl, caption: p.caption ?? "" };
 
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
     inspectorName: existing?.inspectorName ?? user.name,
-    checks: parseJson<Record<string, boolean>>(existing?.checks, {}),
+    checks: parseJson<Record<string, boolean | "na">>(existing?.checks, {}),
     comments: parseJson<Record<string, string>>(existing?.comments, {}),
     notes: existing?.notes ?? "",
+    needs,
+    photos,
   };
 
   return (
