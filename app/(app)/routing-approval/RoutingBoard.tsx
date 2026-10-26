@@ -26,6 +26,29 @@ const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.lengt
 const std = (a: number[]) => { const m = mean(a); return Math.sqrt(mean(a.map((x) => (x - m) ** 2))); };
 const balanceOf = (a: number[]) => { const m = mean(a); return m ? Math.max(0, Math.min(100, Math.round((1 - std(a) / m) * 100))) : 0; };
 
+// Great-circle miles between two geocoded points.
+function haversineMiles(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const R = 3958.8, toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const AVG_MPH = 30, ROAD_FACTOR = 1.3; // local pest routes: straight-line × road factor, ~30 mph door-to-door
+function fmtDur(min: number) { const h = Math.floor(min / 60), m = Math.round(min % 60); return h ? `${h}h ${m}m` : `${m}m`; }
+
+// Per-DAY estimates from a day's stops (in route order). Miles/drive/fuel need geocoded
+// stops; value is always exact. `located`/`total` tell the UI how complete the geo is.
+function dayMetrics(day: Day | null): { miles: number; driveMin: number; fuel: number; value: number; located: number; total: number } {
+  const stops = day?.stops ?? [];
+  const value = stops.reduce((s, x) => s + x.amt, 0);
+  const pts = stops.filter((s): s is Stop & { lat: number; lng: number } => s.lat != null && s.lng != null);
+  let miles = 0;
+  for (let i = 1; i < pts.length; i++) miles += haversineMiles(pts[i - 1], pts[i]);
+  miles *= ROAD_FACTOR;
+  const driveMin = miles > 0 ? (miles / AVG_MPH) * 60 : 0;
+  return { miles, driveMin, fuel: (miles / MPG) * GAS, value, located: pts.length, total: stops.length };
+}
+
 export default function RoutingBoard({ data, canUpload, periodKey }: { data: Data; canUpload: boolean; periodKey: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
@@ -192,6 +215,8 @@ type FocusProps = {
 function FocusCard(props: FocusProps) {
   const { sel, days, selDate, setSelDate, periodKey, locks, setLocks, proposal, setProposal, changeset, setChangeset, signed, busy, post, onLocate, locating, branch } = props;
   const loading = !days;
+  // Stats under the map/account order: default to the clicked day, toggle to monthly avg.
+  const [statsView, setStatsView] = useState<"day" | "month">("day");
   const sizes = sel.loads;
   const m = {
     avg: sel.avgStopsPerDay ?? 0, median: median(sizes), balance: balanceOf(sizes),
@@ -203,6 +228,17 @@ function FocusCard(props: FocusProps) {
     if (selDate) { const d = days.find((x) => x.date === selDate); if (d) return d; }
     return days.reduce((a, b) => (b.stops.length > a.stops.length ? b : a), days[0]);
   }, [days, selDate]);
+
+  // Daily stats for the clicked day (miles/drive/fuel need geocoded stops; value is exact).
+  const dm = dayMetrics(curDay);
+  const geoNote = dm.total > 0 && dm.located < dm.total ? `${dm.located}/${dm.total} located` : "stop 1 → last";
+  const haveGeo = dm.located >= 2;
+  const dailyTiles: [string, string, string, boolean][] = [
+    ["Product value", money(dm.value), `${dm.total} stop${dm.total === 1 ? "" : "s"}`, false],
+    ["Miles (est)", haveGeo ? dm.miles.toFixed(1) : "—", haveGeo ? geoNote : "locate stops", true],
+    ["Drive time (est)", haveGeo ? fmtDur(dm.driveMin) : "—", "stop 1 → last", true],
+    ["Est. fuel", haveGeo ? money(dm.fuel) : "—", `@ $${GAS}/gal`, true],
+  ];
 
   // Monthly summary tiles (bottom of the focus). Green = modeled estimate.
   const summary: [string, string, string, boolean][] = [
@@ -251,11 +287,19 @@ function FocusCard(props: FocusProps) {
         </>
       )}
 
-      {/* Monthly summary (bottom) + flags with AI drill-in */}
+      {/* Stats (bottom): daily for the clicked day by default, toggle to monthly avg. */}
       <div className="mt-6 border-t border-line pt-4">
-        <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">Monthly summary — {sel.name}</div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[11px] uppercase tracking-wide text-brand-600 font-medium">
+            {statsView === "day" ? `Day stats — ${curDay ? dayLabel(curDay.date) : "—"}` : `Monthly summary — ${sel.name}`}
+          </div>
+          <div className="flex gap-0.5 rounded-lg bg-black/[0.06] p-0.5 text-xs">
+            <button onClick={() => setStatsView("day")} className={`rounded-md px-2.5 py-1 ${statsView === "day" ? "bg-surface font-medium text-ink shadow-sm" : "text-muted hover:text-ink"}`}>This day</button>
+            <button onClick={() => setStatsView("month")} className={`rounded-md px-2.5 py-1 ${statsView === "month" ? "bg-surface font-medium text-ink shadow-sm" : "text-muted hover:text-ink"}`}>Monthly avg</button>
+          </div>
+        </div>
         <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {summary.map((a) => (
+          {(statsView === "day" ? dailyTiles : summary).map((a) => (
             <div key={a[0]} className="rounded-lg border border-line bg-black/[0.015] px-3 py-2">
               <div className="text-[10px] uppercase tracking-wide text-muted">{a[0]}</div>
               <div className="mt-0.5 text-lg font-light tabular-nums" style={{ color: a[3] ? SC.good : a[0] === "Biggest day" && m.max >= 30 ? SC.alarm : undefined }}>{a[1]}</div>
@@ -263,6 +307,9 @@ function FocusCard(props: FocusProps) {
             </div>
           ))}
         </div>
+        {statsView === "day" && !haveGeo && dm.total > 0 ? (
+          <p className="mt-2 text-[11px] text-muted">Miles, drive time and fuel need geocoded stops — use <span className="text-ink">Locate stops</span> on the map to fill them in.</p>
+        ) : null}
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="text-[11px] uppercase tracking-wide text-muted">Flags {sel.findings.filter((f) => f.severity !== "good" && f.severity !== "info").length ? `· ${sel.findings.filter((f) => f.severity !== "good" && f.severity !== "info").length} to address` : "· none critical"}</div>
         </div>
