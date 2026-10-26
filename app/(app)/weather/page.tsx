@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { BRANCHES } from "@/lib/management";
 import { getTerritory, getAllTerritories, getScheduledStops, todayET, type TerritoryView } from "@/lib/weather/service";
-import { fiveDay, hourLabel, updatedAgo } from "@/lib/weather/ui";
+import { fiveDay, hourLabel, updatedAgo, dayParts, type DayPart } from "@/lib/weather/ui";
 import type { RiskLevel } from "@/lib/weather/types";
 import CommandClock from "@/components/weather/CommandClock";
 import WeatherRadarMap from "@/components/weather/WeatherRadarMap";
@@ -247,7 +247,7 @@ function StationTile({ t, selected }: { t: TerritoryView; selected: boolean }) {
   const red = selected ? "text-red-600" : "text-red-300";
   return (
     <Link
-      href={`/weather?branch=${t.branch}`}
+      href={`/weather?branch=${t.branch}#station-detail`}
       className={`relative rounded-xl border p-4 transition ${
         selected
           ? "surface-light border-line bg-white shadow-[0_12px_34px_-14px_rgba(0,0,0,.55)]"
@@ -327,36 +327,20 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
   const pests = pestPressure({ month, tempF: pTemp, humidity: t.current?.humidity ?? null, rainActive, dry, heavyRain });
 
   const elevatedPests = pests.filter((p) => p.level === "elevated");
+  const parts = dayParts(timeline);
   return (
-    <div className="space-y-4">
-      {/* Pest & agronomic pressure — the headline "what the weather means", up top + loud */}
-      <Panel code="01" title="Pest & agronomic pressure" className={elevatedPests.length ? "ring-1 ring-amber-400/40" : ""} right={
-        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] ${elevatedPests.length ? "border-amber-400/50 bg-amber-400/15 text-amber-200" : "border-white/10 bg-white/5 text-muted"}`}>
-          {elevatedPests.length} elevated
-        </span>
-      }>
-        {pests.length === 0 ? (
-          <p className="text-sm text-muted">No weather-driven pest or turf-disease pressure flagged for today. Normal service focus.</p>
-        ) : (
-          <>
-            {elevatedPests.length > 0 && (
-              <p className="mb-3 text-sm text-ink/90">
-                Today&apos;s weather favors <span className="font-medium text-amber-200">{elevatedPests.map((p) => p.title).join(", ")}</span>. Steer scouting + service and set customer expectations.
-              </p>
-            )}
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-              {pests.map((p) => <PressureRow key={p.key} p={p} />)}
-            </div>
-            <p className="mt-3 text-[11px] text-muted">Weather + seasonal likelihood for the Treasure Coast — scout to confirm before treating. Ask Canopy for product/treatment specifics.</p>
-          </>
-        )}
-      </Panel>
-
-      {/* Brief + advisories */}
+    <div id="station-detail" className="scroll-mt-4 space-y-4">
+      {/* Brief + advisories — up top now (pest pressure moved toward the bottom) */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel code="02" title={`Ops brief · ${t.label}`} className="lg:col-span-2" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{t.briefingModel === "fallback" ? "Rules" : "Canopy AI"}</span>}>
+        <Panel code="01" title={`Ops brief · ${t.label}`} className="lg:col-span-2" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">{t.briefingModel === "fallback" ? "Rules" : "Canopy AI"}</span>}>
           <h2 className="text-xl font-light tracking-tight text-ink">{b?.headline ?? "Forecast ready"}</h2>
           {b?.summary && <p className="mt-2 text-sm leading-relaxed text-ink/90">{b.summary}</p>}
+          {parts.length > 0 && (
+            <div className="mt-3">
+              <div className="mb-1 text-[10px] uppercase tracking-[0.14em] text-muted">Today — morning · midday · afternoon</div>
+              <DayRundown parts={parts} />
+            </div>
+          )}
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {b?.bestWorkWindow && <Info label="Best work window" value={b.bestWorkWindow} />}
             {b?.crewSafety && <Info label="Crew safety" value={b.crewSafety} />}
@@ -367,7 +351,7 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
           </div>
         </Panel>
 
-        <Panel code="03" title="Advisories">
+        <Panel code="02" title="Advisories">
           {af.length === 0 && !blackout ? (
             <p className="text-sm text-muted">No ops advisories today. Normal scheduling.</p>
           ) : (
@@ -388,6 +372,13 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
           )}
         </Panel>
       </div>
+
+      {/* Today's rundown — morning · midday · afternoon, directly above the radar */}
+      {parts.length > 0 && (
+        <Panel code="03" title="Today's rundown" right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">6a–8p</span>}>
+          <DayRundown parts={parts} />
+        </Panel>
+      )}
 
       {/* Radar scope — big, full width */}
       <Panel code="04" title={`Radar scope${radarStation ? ` · NWS ${radarStation}` : ""}`} right={<span className="text-[10px] uppercase tracking-[0.14em] text-muted">Live loop</span>}>
@@ -436,9 +427,33 @@ function Detail({ t, stops }: { t: TerritoryView; stops: { lat: number; lng: num
         </Panel>
       )}
 
+      {/* Pest & agronomic pressure — what the weather means for pests/turf (moved toward
+          the bottom per COO preference; still here, just below the forecast). */}
+      <Panel code="07" title="Pest & agronomic pressure" className={elevatedPests.length ? "ring-1 ring-amber-400/40" : ""} right={
+        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] ${elevatedPests.length ? "border-amber-400/50 bg-amber-400/15 text-amber-200" : "border-white/10 bg-white/5 text-muted"}`}>
+          {elevatedPests.length} elevated
+        </span>
+      }>
+        {pests.length === 0 ? (
+          <p className="text-sm text-muted">No weather-driven pest or turf-disease pressure flagged for today. Normal service focus.</p>
+        ) : (
+          <>
+            {elevatedPests.length > 0 && (
+              <p className="mb-3 text-sm text-ink/90">
+                Today&apos;s weather favors <span className="font-medium text-amber-200">{elevatedPests.map((p) => p.title).join(", ")}</span>. Steer scouting + service and set customer expectations.
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+              {pests.map((p) => <PressureRow key={p.key} p={p} />)}
+            </div>
+            <p className="mt-3 text-[11px] text-muted">Weather + seasonal likelihood for the Treasure Coast — scout to confirm before treating. Ask Canopy for product/treatment specifics.</p>
+          </>
+        )}
+      </Panel>
+
       {/* Alerts */}
       {t.alerts.length > 0 && (
-        <Panel code="07" title="Active NWS alerts" right={<span className="text-[10px] uppercase tracking-[0.14em] text-red-300">{t.alerts.length} active</span>}>
+        <Panel code="08" title="Active NWS alerts" right={<span className="text-[10px] uppercase tracking-[0.14em] text-red-300">{t.alerts.length} active</span>}>
           <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {t.alerts.map((a, i) => (
               <li key={i} className="rounded-lg border border-red-400/40 bg-red-500/10 p-3">
@@ -470,6 +485,24 @@ function PressureRow({ p }: { p: PressureCard }) {
       </div>
       <p className="mt-1 text-xs text-muted">{p.driver}</p>
       <p className="mt-1.5 text-xs text-ink/90"><span className="text-brand-300">▸</span> {p.rec}</p>
+    </div>
+  );
+}
+
+function DayRundown({ parts }: { parts: DayPart[] }) {
+  if (!parts.length) return null;
+  return (
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      {parts.map((p) => (
+        <div key={p.label} className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5">
+          <div className="text-[10px] uppercase tracking-[0.14em] text-brand-300">{p.label}</div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-lg font-light tabular-nums text-ink">{p.temp}</span>
+            <span className={`text-[11px] ${p.pop >= 60 ? "text-sky-300" : p.pop >= 30 ? "text-brand-300" : "text-muted"}`}>{p.rain}</span>
+          </div>
+          <div className="truncate text-xs text-muted" title={p.sky}>{p.sky}</div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 // /weather page, and settings. No server-only, no JSX, so client components import
 // it freely. Color tokens follow the portal (brand green = good, amber = caution,
 // red = stop). See docs/WEATHER-OPS.md.
-import type { DayPoint, RiskLevel } from "./types";
+import type { DayPoint, HourPoint, RiskLevel } from "./types";
 
 export function riskLabel(risk: RiskLevel): string {
   return risk === "red" ? "Red — high risk" : risk === "yellow" ? "Yellow — caution" : "Green — clear";
@@ -24,6 +24,26 @@ export function riskDotClass(risk: RiskLevel): string {
 }
 
 export type DayCard = { label: string; short: string; icon: string | null; hi: number | null; lo: number | null; pop: number };
+
+/** A day split into Morning / Midday / Afternoon rundowns from the hourly feed. */
+export type DayPart = { label: string; temp: string; rain: string; sky: string; pop: number };
+export function dayParts(hours: HourPoint[]): DayPart[] {
+  const seg = (lo: number, hi: number) => hours.filter((h) => { const x = Number(h.time.slice(11, 13)); return x >= lo && x <= hi; });
+  const build = (label: string, hrs: HourPoint[]): DayPart | null => {
+    if (!hrs.length) return null;
+    const temps = hrs.map((h) => h.tempF).filter((n): n is number => n != null);
+    const tmin = temps.length ? Math.min(...temps) : null;
+    const tmax = temps.length ? Math.max(...temps) : null;
+    const pop = Math.max(0, ...hrs.map((h) => h.pop));
+    const temp = tmin != null ? (tmin === tmax ? `${tmax}°` : `${tmin}–${tmax}°`) : "—";
+    const rain = pop >= 60 ? `likely rain ${pop}%` : pop >= 30 ? `${pop}% rain` : "mostly dry";
+    const counts = new Map<string, number>();
+    for (const h of hrs) counts.set(h.short, (counts.get(h.short) || 0) + 1);
+    const sky = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+    return { label, temp, rain, sky, pop };
+  };
+  return [build("Morning", seg(6, 11)), build("Midday", seg(12, 15)), build("Afternoon", seg(16, 20))].filter((x): x is DayPart => !!x);
+}
 
 /** Collapse NWS day/night periods into up-to-5 day cards (hi/lo + rain% + condition). */
 export function fiveDay(daily: DayPoint[]): DayCard[] {

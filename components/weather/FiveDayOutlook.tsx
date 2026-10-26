@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WeatherGlyph, { glyphFor } from "./WeatherGlyph";
+import { dayParts } from "@/lib/weather/ui";
 import type { HourPoint } from "@/lib/weather/types";
 
 // Weather Ops — 5-day outlook with click-to-expand days. Each day tile shows hi/lo + rain;
@@ -76,6 +77,13 @@ export default function FiveDayOutlook({ hourly, today }: { hourly: HourPoint[];
   const days = buildDays(hourly);
   const [sel, setSel] = useState<string | null>(null);
   const selDay = days.find((d) => d.date === sel) ?? null;
+  const detailRef = useRef<HTMLDivElement | null>(null);
+
+  // Click feedback: when a day opens, slide its detail into view so the user
+  // sees a reaction instead of hunting for what expanded below the fold.
+  useEffect(() => {
+    if (sel && detailRef.current) detailRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [sel]);
 
   if (days.length === 0) return <p className="text-sm text-muted">Hourly outlook unavailable right now.</p>;
 
@@ -106,20 +114,41 @@ export default function FiveDayOutlook({ hourly, today }: { hourly: HourPoint[];
       </div>
 
       {selDay && (
-        <div className="mt-3 rounded-lg border border-white/10 bg-black/20 p-3">
+        <div ref={detailRef} className="mt-3 scroll-mt-4 rounded-lg border border-white/10 bg-black/20 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm font-medium text-ink">{dayLabel(selDay.date, today)} · hourly detail</div>
             <div className="text-[11px] tabular-nums text-muted">{selDay.hi != null ? `${selDay.hi}°` : "—"}{selDay.lo != null ? ` / ${selDay.lo}°` : ""} · {selDay.pop}% rain · {selDay.peakWind} mph</div>
           </div>
           <p className="mt-1.5 text-sm text-ink/90">{summarize(selDay)}</p>
+
+          {/* Morning / Midday / Afternoon rundown for the selected day. */}
+          {(() => {
+            const parts = dayParts(selDay.hrs);
+            if (!parts.length) return null;
+            return (
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {parts.map((p) => (
+                  <div key={p.label} className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-brand-300">{p.label}</div>
+                    <div className="mt-0.5 flex items-baseline gap-2">
+                      <span className="text-sm font-light tabular-nums text-ink">{p.temp}</span>
+                      <span className={`text-[11px] ${p.pop >= 60 ? "text-sky-300" : p.pop >= 30 ? "text-brand-300" : "text-muted"}`}>{p.rain}</span>
+                    </div>
+                    <div className="truncate text-xs text-muted" title={p.sky}>{p.sky}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
           <div className="mt-3 overflow-x-auto">
-            <div className="flex gap-1.5" style={{ minWidth: selDay.hrs.filter((h) => { const hr = Number(h.time.slice(11, 13)); return hr >= 6 && hr <= 20; }).length * 58 }}>
+            <div className="flex gap-1.5">
               {selDay.hrs
                 .filter((h) => { const hr = Number(h.time.slice(11, 13)); return hr >= 6 && hr <= 20; })
                 .map((h) => {
                   const wet = h.pop >= 50;
                   return (
-                    <div key={h.time} className={`w-[52px] shrink-0 rounded-lg border px-1 py-2 text-center ${wet ? "border-sky-400/40 bg-sky-500/15" : "border-white/10 bg-white/[0.02]"}`}>
+                    <div key={h.time} className={`flex-1 min-w-[46px] rounded-lg border px-1 py-2 text-center ${wet ? "border-sky-400/40 bg-sky-500/15" : "border-white/10 bg-white/[0.02]"}`}>
                       <div className="text-[10px] text-muted">{hourLabel(h.time)}</div>
                       <WeatherGlyph kind={glyphFor(h.short)} className="mx-auto my-0.5 h-4 w-4 text-brand-300" />
                       <div className="text-sm font-light tabular-nums text-ink">{h.tempF != null ? `${h.tempF}°` : "—"}</div>

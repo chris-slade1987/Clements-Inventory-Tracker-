@@ -13,6 +13,10 @@ type LMap = import("leaflet").Map;
 type Frame = { time: number; path: string };
 export type Office = { label: string; lat: number; lon: number };
 
+// Transparent 1×1 PNG — shown instead of RainViewer's gray "Zoom Level Not Supported"
+// placeholder for any tile it doesn't serve (edges/ocean), so the basemap shows through.
+const TRANSPARENT_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+
 function officeIconHtml(): string {
   return `<div style="position:relative;width:34px;height:40px;transform:translate(-1px,-2px)">
     <div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#fff;border:2px solid #2e6f47;box-shadow:0 2px 6px rgba(0,0,0,.45);position:absolute;left:2px;top:0"></div>
@@ -20,7 +24,7 @@ function officeIconHtml(): string {
   </div>`;
 }
 
-export default function WeatherRadarMap({ lat, lon, label, offices = [], stops = [], height = 480, zoom = 10 }: { lat: number; lon: number; label: string; offices?: Office[]; stops?: { lat: number; lng: number }[]; height?: number; zoom?: number }) {
+export default function WeatherRadarMap({ lat, lon, label, offices = [], stops = [], height = 480, zoom = 8 }: { lat: number; lon: number; label: string; offices?: Office[]; stops?: { lat: number; lng: number }[]; height?: number; zoom?: number }) {
   const valid = Number.isFinite(lat) && Number.isFinite(lon);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LMap | null>(null);
@@ -63,16 +67,6 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [], stops =
         }
         mapRef.current = map;
 
-        // Frame the whole territory (office(s) + scheduled stops) so street names and the
-        // service area are readable, instead of a fixed zoom that's often too tight. This
-        // also forces a tile re-render so radar fills in without a manual zoom.
-        try {
-          const pts: [number, number][] = [];
-          for (const o of pins) if (Number.isFinite(o.lat) && Number.isFinite(o.lon)) pts.push([o.lat, o.lon]);
-          for (const s of stops) if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) pts.push([s.lat, s.lng]);
-          if (pts.length >= 2) map.fitBounds(L.latLngBounds(pts).pad(0.15), { maxZoom: 12 });
-        } catch { /* keep the setView above */ }
-
         // The panel often sizes AFTER the map inits (fonts/layout), leaving Leaflet
         // with the wrong dimensions so tiles don't fill until you interact. Recompute
         // once on the next frame and whenever the container resizes.
@@ -95,7 +89,7 @@ export default function WeatherRadarMap({ lat, lon, label, offices = [], stops =
           // maxNativeZoom keeps tiles loading at high map zoom (RainViewer upscales).
           const url = `${data.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`;
           if (radar) radar.setUrl(url);
-          else radar = L.tileLayer(url, { opacity: 0.62, maxZoom: 19, maxNativeZoom: 10 }).addTo(map);
+          else radar = L.tileLayer(url, { opacity: 0.62, maxZoom: 19, maxNativeZoom: 10, errorTileUrl: TRANSPARENT_PNG }).addTo(map);
           setStamp(new Date(f.time * 1000).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }));
         };
         const start = Math.max(0, (data.radar?.past?.length ?? 1) - 1); // "now"
