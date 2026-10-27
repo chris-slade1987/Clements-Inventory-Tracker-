@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     const needKey = `warehouse_need:${branch}:${period}`;
     let emailStatus: string | null = null;
     if (needsIn.length > 0) {
-      const msg = `${branchLabel(branch)} warehouse: ${needsIn.length} item${needsIn.length === 1 ? "" : "s"} flagged for leadership action — ${needsIn.map((n) => n.request).join("; ")}.`;
+      const msg = `${branchLabel(branch)} warehouse: ${needsIn.length} item${needsIn.length === 1 ? "" : "s"} flagged for super admins — ${needsIn.map((n) => n.request).join("; ")}.`;
       await prisma.alert.upsert({ where: { dedupeKey: needKey }, create: { dedupeKey: needKey, type: "warehouse_need", message: msg, severity: "warning", status: "open" }, update: { message: msg, severity: "warning" } });
 
       // Escalate to the Director of Field Ops + super admins (email).
@@ -131,9 +131,9 @@ export async function POST(req: Request) {
         kind: "warehouse_need",
         relatedType: "warehouse_inspection",
         relatedId: saved.id,
-        subject: `${label} warehouse — ${needsIn.length} escalation${needsIn.length === 1 ? "" : "s"} requiring leadership action (${inspectorName})`,
-        text: `During the ${new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" })} warehouse safety inspection at ${label}, ${inspectorName} escalated ${needsIn.length} item${needsIn.length === 1 ? "" : "s"} requiring leadership action (a resource or repair the branch can't resolve on its own):\n\n${list}\n\nThese are highlighted on the inspection report and tracked as open until resolved.\n\n— CanopyOS`,
-        html: `<p>During the <strong>${new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" })}</strong> warehouse safety inspection at <strong>${label}</strong>, ${inspectorName} escalated <strong>${needsIn.length}</strong> item${needsIn.length === 1 ? "" : "s"} requiring leadership action (a resource or repair the branch can't resolve on its own):</p><ul>${needsIn.map((n) => `<li>${n.label ? `<strong>${n.label}:</strong> ` : ""}${n.request}</li>`).join("")}</ul><p>These are highlighted on the inspection report and tracked as open until resolved.</p><p>— CanopyOS</p>`,
+        subject: `${label} warehouse — ${needsIn.length} alert${needsIn.length === 1 ? "" : "s"} need a super admin (${inspectorName})`,
+        text: `During the ${new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" })} warehouse safety inspection at ${label}, ${inspectorName} raised ${needsIn.length} alert${needsIn.length === 1 ? "" : "s"} for the super admins — a failed item the branch needs help with (e.g. a missing fire extinguisher, a broken lock):\n\n${list}\n\nThese are highlighted on the inspection report and tracked as open until a super admin resolves them.\n\n— CanopyOS`,
+        html: `<p>During the <strong>${new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" })}</strong> warehouse safety inspection at <strong>${label}</strong>, ${inspectorName} raised <strong>${needsIn.length}</strong> alert${needsIn.length === 1 ? "" : "s"} for the super admins — a failed item the branch needs help with (e.g. a missing fire extinguisher, a broken lock):</p><ul>${needsIn.map((n) => `<li>${n.label ? `<strong>${n.label}:</strong> ` : ""}${n.request}</li>`).join("")}</ul><p>These are highlighted on the inspection report and tracked as open until a super admin resolves them.</p><p>— CanopyOS</p>`,
       });
       emailStatus = res.status;
     } else {

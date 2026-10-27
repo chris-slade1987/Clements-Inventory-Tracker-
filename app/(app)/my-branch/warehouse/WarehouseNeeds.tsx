@@ -24,7 +24,7 @@ export default function WarehouseNeeds({ needs, canResolve }: { needs: Need[]; c
   return (
     <Card className="p-4 mb-5 ring-1 ring-amber-300">
       <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-ink">Open escalations — leadership action needed</div>
+        <div className="text-sm font-medium text-ink">Open alerts — needs a super admin</div>
         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">{needs.length}</span>
       </div>
       <ul className="mt-2 divide-y divide-line">

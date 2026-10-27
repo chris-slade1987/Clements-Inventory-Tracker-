@@ -32,11 +32,15 @@ export default function WarehouseForm({
   const [date, setDate] = useState(prefill.date);
   const [inspectorName, setInspectorName] = useState(prefill.inspectorName);
   const [checks, setChecks] = useState<Checks>(prefill.checks ?? {});
-  const [comments, setComments] = useState<Record<string, string>>(prefill.comments ?? {});
+  // Per-item note (shown when the answer is No). Seed from any prior alert text.
+  const [comments, setComments] = useState<Record<string, string>>(() => {
+    const c = { ...(prefill.comments ?? {}) };
+    for (const [k, v] of Object.entries(prefill.needs ?? {})) if (!c[k]?.trim() && v?.trim()) c[k] = v;
+    return c;
+  });
   const [notes, setNotes] = useState(prefill.notes);
-  // Needs: itemKey -> "what I need" text; open set reveals the field for an item.
-  const [needs, setNeeds] = useState<Record<string, string>>(prefill.needs ?? {});
-  const [needOpen, setNeedOpen] = useState<Set<string>>(new Set(Object.keys(prefill.needs ?? {})));
+  // "Create alert" set — failed items the inspector flags to notify the super admins.
+  const [alertOn, setAlertOn] = useState<Set<string>>(new Set(Object.keys(prefill.needs ?? {})));
   const [photos, setPhotos] = useState<Record<string, PhotoState>>(() => {
     const o: Record<string, PhotoState> = {};
     for (const [k, v] of Object.entries(prefill.photos ?? {})) o[k] = { url: v.url, caption: v.caption };
@@ -53,13 +57,13 @@ export default function WarehouseForm({
   const critFails = WAREHOUSE_ITEMS.filter((it) => it.critical && checks[it.key] === false);
   const answered = WAREHOUSE_ITEMS.filter((it) => checks[it.key] != null).length;
   const labelFor = (key: string) => WAREHOUSE_ITEMS.find((i) => i.key === key)?.label ?? null;
-  const needList = Object.entries(needs).filter(([, v]) => v.trim());
+  const alertKeys = [...alertOn];
   const photoCount = Object.values(photos).filter((p) => p.url || p.dataUrl).length;
   const requiredShot = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required).length;
   const requiredDone = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required && (photos[p.key]?.url || photos[p.key]?.dataUrl)).length;
 
-  function toggleNeed(key: string) {
-    setNeedOpen((s) => { const n = new Set(s); if (n.has(key)) { n.delete(key); setNeeds((m) => { const c = { ...m }; delete c[key]; return c; }); } else n.add(key); return n; });
+  function toggleAlert(key: string) {
+    setAlertOn((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n; });
   }
 
   async function onPhoto(key: string, file: File) {
@@ -78,7 +82,7 @@ export default function WarehouseForm({
     // cleared go in removePhotoPromptKeys so the server deletes them.
     const photoPayload = Object.entries(photos).filter(([, p]) => p.dataUrl).map(([promptKey, p]) => ({ promptKey, dataUrl: p.dataUrl, caption: p.caption }));
     const removePhotoPromptKeys = Object.keys(prefill.photos ?? {}).filter((k) => !photos[k]);
-    const needsPayload = needList.map(([itemKey, request]) => ({ itemKey, label: labelFor(itemKey), request }));
+    const needsPayload = alertKeys.map((itemKey) => ({ itemKey, label: labelFor(itemKey), request: comments[itemKey]?.trim() || labelFor(itemKey) || "Attention needed" }));
     const res = await fetch("/api/fleet/warehouse", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ branch, year, month, date, inspectorName, checks, comments, notes, needs: needsPayload, photos: photoPayload, removePhotoPromptKeys, inspectorSignedName: certified && sigName.trim() ? sigName.trim() : undefined }),
@@ -97,7 +101,7 @@ export default function WarehouseForm({
           <h2 className="text-lg font-semibold">Inspection saved</h2>
         </div>
         <p className="mt-2 text-sm text-muted">Grade <span className="font-semibold text-ink">{live.grade}</span> ({live.score}/{live.maxScore}, {live.scorePct}%).{critFails.length ? ` ${critFails.length} critical item flagged.` : ""}</p>
-        {needList.length > 0 ? <p className="mt-1 text-sm text-amber-700">{needList.length} escalation{needList.length === 1 ? "" : "s"} sent to the Director of Field Ops + super admins.</p> : null}
+        {alertKeys.length > 0 ? <p className="mt-1 text-sm text-amber-700">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} sent to the super admins.</p> : null}
         <div className="mt-5 flex gap-2">
           <button onClick={() => router.push("/my-branch/warehouse")} className={btn.primary}>Back to warehouse</button>
           <button onClick={() => setDone(false)} className={btn.secondary}>Keep editing</button>
@@ -123,7 +127,7 @@ export default function WarehouseForm({
           {sec.items.map((it) => {
             const val = checks[it.key];
             const isNo = val === false;
-            const flagged = needOpen.has(it.key);
+            const flagged = alertOn.has(it.key);
             return (
               <Card key={it.key} className={`p-3 ${it.critical && isNo ? "ring-1 ring-red-300" : ""}`}>
                 <div className="flex items-center gap-3">
@@ -133,21 +137,18 @@ export default function WarehouseForm({
                     {repeats.has(it.key) ? <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 align-middle" title="Also failed the prior inspection">repeat</span> : null}
                   </div>
                   <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))} className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: "na" }))} className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors ${val === "na" ? "bg-slate-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>N/A</button>
+                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
+                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
                   </div>
                 </div>
                 {isNo ? (
                   <div className="mt-2 space-y-2">
-                    <input value={comments[it.key] ?? ""} onChange={(e) => setComments((s) => ({ ...s, [it.key]: e.target.value }))} placeholder="Corrective action you're taking" className="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm" />
+                    <textarea value={comments[it.key] ?? ""} onChange={(e) => setComments((s) => ({ ...s, [it.key]: e.target.value }))} rows={2} placeholder="Notes — what's wrong, what's needed, or corrective action (e.g. missing fire extinguisher — need a replacement)" className="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm" />
                     <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
-                      <input type="checkbox" checked={flagged} onChange={() => toggleNeed(it.key)} />
-                      Escalate to leadership — resource or repair needed
+                      <input type="checkbox" checked={flagged} onChange={() => toggleAlert(it.key)} />
+                      Create alert — notify all super admins
                     </label>
-                    {flagged ? (
-                      <input value={needs[it.key] ?? ""} onChange={(e) => setNeeds((s) => ({ ...s, [it.key]: e.target.value }))} placeholder="What's needed? e.g. new chem-room lock, restock first-aid kit" className="w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm" />
-                    ) : null}
+                    {flagged ? <p className="text-[11px] text-red-700">This note will be sent to the super admins as an alert on save.</p> : null}
                   </div>
                 ) : null}
               </Card>
@@ -213,11 +214,11 @@ export default function WarehouseForm({
         </label>
       </Card>
 
-      {needList.length > 0 ? (
+      {alertKeys.length > 0 ? (
         <Card className="p-3 ring-1 ring-amber-300 bg-amber-50">
-          <div className="text-sm font-medium text-amber-900">{needList.length} escalation{needList.length === 1 ? "" : "s"} will be sent to the Director of Field Ops + super admins on save:</div>
+          <div className="text-sm font-medium text-amber-900">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} will be sent to all super admins on save:</div>
           <ul className="mt-1 list-disc pl-5 text-sm text-ink">
-            {needList.map(([k, v]) => <li key={k}>{labelFor(k) ? <span className="text-muted">{labelFor(k)}: </span> : null}{v}</li>)}
+            {alertKeys.map((k) => <li key={k}>{labelFor(k) ? <span className="text-muted">{labelFor(k)}: </span> : null}{comments[k]?.trim() || "Needs attention"}</li>)}
           </ul>
         </Card>
       ) : null}
@@ -230,7 +231,7 @@ export default function WarehouseForm({
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">
               <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
-              <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{needList.length ? <span className="ml-2 text-amber-700 font-medium">· {needList.length} escalation{needList.length === 1 ? "" : "s"}</span> : null}</div>
+              <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{alertKeys.length ? <span className="ml-2 text-amber-700 font-medium">· {alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"}</span> : null}</div>
             </div>
           </div>
           <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : certified && sigName.trim() ? "Save & sign inspection" : isEdit ? "Update inspection" : "Save inspection"}</button>
