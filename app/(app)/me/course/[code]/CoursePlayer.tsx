@@ -26,7 +26,6 @@ export default function CoursePlayer({
 }) {
   const router = useRouter();
   const [stage, setStage] = useState<"view" | "confirm" | "done">(alreadyComplete ? "done" : "view");
-  const [score, setScore] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [awarded, setAwarded] = useState<string[]>([]);
@@ -38,7 +37,7 @@ export default function CoursePlayer({
       const res = await fetch("/api/me/course-complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseCode, score: score.trim() || null }),
+        body: JSON.stringify({ courseCode }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || "Could not record completion.");
@@ -108,20 +107,7 @@ export default function CoursePlayer({
       ) : (
         <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-4">
           <div className="text-sm font-medium text-ink">Record completion of {courseName}?</div>
-          <p className="mt-0.5 text-[13px] text-muted">This marks the course complete on your training record. If a module has no other courses left, it&rsquo;ll finish and check your certification.</p>
-          <label className="mt-3 block text-[13px]">
-            <span className="text-muted">Your quiz score (optional)</span>
-            <div className="mt-1 flex items-center gap-2">
-              <input
-                value={score}
-                onChange={(e) => setScore(e.target.value)}
-                inputMode="numeric"
-                placeholder="e.g. 90"
-                className="w-28 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              />
-              <span className="text-sm text-muted">%</span>
-            </div>
-          </label>
+          <p className="mt-0.5 text-[13px] text-muted">This marks the course complete on your training record. If a module has no other courses left, it&rsquo;ll finish and check your certification. A grade, if this course is graded, is recorded by your trainer — not here.</p>
           {error ? <p className="mt-2 text-[13px] text-red-600">{error}</p> : null}
           <div className="mt-3 flex items-center gap-2">
             <button type="button" onClick={record} disabled={busy} className={`${btn.primary}`}>{busy ? "Recording…" : "Confirm & record"}</button>

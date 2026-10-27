@@ -22,9 +22,10 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => null);
     const courseCode = typeof body?.courseCode === "string" ? body.courseCode.toUpperCase() : "";
     if (!courseCode) throw new HttpError("Missing course.");
-    const scoreRaw = body?.score;
-    const score = scoreRaw === null || scoreRaw === undefined || scoreRaw === "" ? null : Number(scoreRaw);
-    if (score !== null && (!Number.isFinite(score) || score < 0 || score > 100)) throw new HttpError("Score must be 0–100.");
+    // Employees record COMPLETION (honor-based), never their own GRADE. Any score on
+    // the training record is entered by a trainer/admin via the management progress
+    // route — so a self-reported score is ignored here, even if a client sends one.
+    const score = null;
 
     const course = await prisma.certCourse.findUnique({ where: { code: courseCode }, select: { id: true, courseType: true } });
     if (!course) throw new HttpError("Unknown course.");
