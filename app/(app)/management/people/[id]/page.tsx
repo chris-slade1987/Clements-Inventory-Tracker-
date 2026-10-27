@@ -413,6 +413,7 @@ export default async function EmployeePage({ params }: { params: Promise<{ id: s
                 <div className="flex items-center gap-2">
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${RECORD_STYLE[r.type] ?? "bg-slate-100 text-slate-600"}`}>{RECORD_LABEL[r.type] ?? r.type}{r.category ? ` · ${r.category}` : ""}</span>
                   <span className="text-xs text-muted">{dateShort(r.createdAt)} · filed by {r.authorName ?? "—"}</span>
+                  <Link href={`/management/people/${e.id}/record/${r.id}`} className="ml-auto shrink-0 text-xs font-medium text-brand-700 hover:underline">Print / PDF →</Link>
                 </div>
                 {r.title ? <div className="mt-1 text-sm font-medium text-ink">{r.title}</div> : null}
                 {r.body ? <div className="mt-0.5 text-sm text-muted whitespace-pre-line">{r.body}</div> : null}
