@@ -101,7 +101,7 @@ export default function WarehouseForm({
           <h2 className="text-lg font-semibold">Inspection saved</h2>
         </div>
         <p className="mt-2 text-sm text-muted">Grade <span className="font-semibold text-ink">{live.grade}</span> ({live.score}/{live.maxScore}, {live.scorePct}%).{critFails.length ? ` ${critFails.length} critical item flagged.` : ""}</p>
-        {alertKeys.length > 0 ? <p className="mt-1 text-sm text-amber-700">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} sent to the super admins.</p> : null}
+        {alertKeys.length > 0 ? <p className="mt-1 text-sm text-amber-700">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} sent to the supervisor.</p> : null}
         <div className="mt-5 flex gap-2">
           <button onClick={() => router.push("/my-branch/warehouse")} className={btn.primary}>Back to warehouse</button>
           <button onClick={() => setDone(false)} className={btn.secondary}>Keep editing</button>
@@ -146,9 +146,9 @@ export default function WarehouseForm({
                     <textarea value={comments[it.key] ?? ""} onChange={(e) => setComments((s) => ({ ...s, [it.key]: e.target.value }))} rows={2} placeholder="Notes — what's wrong, what's needed, or corrective action (e.g. missing fire extinguisher — need a replacement)" className="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm" />
                     <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
                       <input type="checkbox" checked={flagged} onChange={() => toggleAlert(it.key)} />
-                      Create alert — notify all super admins
+                      Create alert — notify supervisor
                     </label>
-                    {flagged ? <p className="text-[11px] text-red-700">This note will be sent to the super admins as an alert on save.</p> : null}
+                    {flagged ? <p className="text-[11px] text-red-700">This note will be sent to the supervisor as an alert on save.</p> : null}
                   </div>
                 ) : null}
               </Card>
@@ -216,7 +216,7 @@ export default function WarehouseForm({
 
       {alertKeys.length > 0 ? (
         <Card className="p-3 ring-1 ring-amber-300 bg-amber-50">
-          <div className="text-sm font-medium text-amber-900">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} will be sent to all super admins on save:</div>
+          <div className="text-sm font-medium text-amber-900">{alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"} will be sent to the supervisor on save:</div>
           <ul className="mt-1 list-disc pl-5 text-sm text-ink">
             {alertKeys.map((k) => <li key={k}>{labelFor(k) ? <span className="text-muted">{labelFor(k)}: </span> : null}{comments[k]?.trim() || "Needs attention"}</li>)}
           </ul>

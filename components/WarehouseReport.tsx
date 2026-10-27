@@ -46,7 +46,7 @@ export default function WarehouseReport({ inspection, repeats }: { inspection: I
 
       {openNeeds.length > 0 ? (
         <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3">
-          <div className="text-sm font-semibold text-amber-900">{openNeeds.length} alert{openNeeds.length === 1 ? "" : "s"} for super admins</div>
+          <div className="text-sm font-semibold text-amber-900">{openNeeds.length} alert{openNeeds.length === 1 ? "" : "s"} for the supervisor</div>
           <ul className="mt-1 list-disc pl-5 text-sm text-slate-800">
             {openNeeds.map((n) => <li key={n.id}>{n.label ? <span className="text-slate-500">{n.label}: </span> : null}{n.request}{n.status === "resolved" ? <span className="ml-2 text-xs font-medium text-emerald-700">resolved</span> : <span className="ml-2 text-xs font-medium text-amber-700">open</span>}</li>)}
           </ul>
