@@ -23,14 +23,34 @@ const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const STATUS: Record<string, string> = { ahead: "text-brand-700 bg-brand-50 border-brand-200", on_pace: "text-brand-700 bg-brand-50 border-brand-200", behind: "text-amber-700 bg-amber-50 border-amber-200", critical: "text-red-700 bg-red-50 border-red-200" };
 const STATUS_LABEL: Record<string, string> = { ahead: "Ahead", on_pace: "On pace", behind: "Behind", critical: "Critical" };
 
+function IconChevron({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6}><path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+function IconCheck({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
 export default function ProductionCompletion({
   branch, periodKey, routes, totals, leftBehind, uploads, canUpload,
 }: {
   branch: string; periodKey: string | null; routes: RouteRow[]; totals: Totals;
   leftBehind: LeftBehindJob[]; uploads: { type: string; fileName: string; rows: number }[]; canUpload: boolean;
 }) {
-  const [routeFilter, setRouteFilter] = useState<string | null>(null);
-  const shown = routeFilter ? leftBehind.filter((j) => j.route === routeFilter) : leftBehind;
+  // Group left-behind jobs by route for a collapsible, per-route gameplan (one or all routes).
+  const techByRoute = new Map(routes.map((r) => [r.route, r.techName] as const));
+  const groups = (() => {
+    const m = new Map<string, LeftBehindJob[]>();
+    for (const j of leftBehind) { const a = m.get(j.route) ?? []; a.push(j); m.set(j.route, a); }
+    return [...m.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+      .map(([route, jobs]) => ({ route, techName: techByRoute.get(route) ?? null, jobs, open: jobs.filter((j) => j.status !== "addressed").length, dollars: jobs.reduce((s, j) => s + j.dollars, 0) }));
+  })();
+  // Default: open the routes that still have unaddressed jobs.
+  const [openRoutes, setOpenRoutes] = useState<Set<string>>(() => new Set(leftBehind.filter((j) => j.status !== "addressed").map((j) => j.route)));
+  const toggleRoute = (r: string) => setOpenRoutes((s) => { const n = new Set(s); if (n.has(r)) n.delete(r); else n.add(r); return n; });
+  const allOpen = groups.length > 0 && groups.every((g) => openRoutes.has(g.route));
+  const setAllRoutes = (open: boolean) => setOpenRoutes(open ? new Set(groups.map((g) => g.route)) : new Set());
+  const focusRoute = (r: string) => { setOpenRoutes(new Set([r])); requestAnimationFrame(() => setTimeout(() => document.getElementById(`lb-${r}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100)); };
 
   return (
     <Card className="p-0 overflow-hidden">
@@ -66,7 +86,7 @@ export default function ProductionCompletion({
               </thead>
               <tbody>
                 {routes.map((r) => (
-                  <tr key={r.route} className={`border-t border-line ${routeFilter === r.route ? "bg-brand-50/50" : ""}`}>
+                  <tr key={r.route} className={`border-t border-line ${openRoutes.has(r.route) && r.leftBehindCount > 0 ? "bg-brand-50/50" : ""}`}>
                     <td className="px-3 py-2"><span className="font-medium">{r.route}</span> <span className="text-xs text-muted">{r.techName}</span></td>
                     <td className="px-3 py-2 text-right tabular-nums font-medium">{money(r.scheduledDollars)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{r.completedCount}/{r.scheduledCount}</td>
@@ -81,7 +101,7 @@ export default function ProductionCompletion({
                     <td className="px-3 py-2 text-center"><span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS[r.status] ?? STATUS.on_pace}`}>{STATUS_LABEL[r.status] ?? r.status}</span></td>
                     <td className="px-3 py-2 text-right">
                       {r.leftBehindCount > 0 ? (
-                        <button onClick={() => setRouteFilter(routeFilter === r.route ? null : r.route)} className="font-medium text-red-600 hover:underline tabular-nums">{r.leftBehindCount} · {money(r.leftBehindDollars)}</button>
+                        <button onClick={() => focusRoute(r.route)} className="font-medium text-red-600 hover:underline tabular-nums">{r.leftBehindCount} · {money(r.leftBehindDollars)}</button>
                       ) : <span className="text-muted">0</span>}
                     </td>
                     <td className={`px-3 py-2 text-right tabular-nums ${r.callbacks > 0 ? "text-amber-700" : "text-muted"}`}>{r.callbacks}</td>
@@ -93,15 +113,38 @@ export default function ProductionCompletion({
             </table>
           </div>
 
-          {/* Left-behind gameplan */}
-          <div className="border-t border-line px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-ink">Jobs left behind {routeFilter ? `· route ${routeFilter}` : ""} <span className="text-xs font-normal text-muted">({shown.length})</span></div>
-              {routeFilter && <button onClick={() => setRouteFilter(null)} className="text-xs text-brand-600 hover:underline">Show all</button>}
+          {/* Left-behind gameplan — grouped by route, collapsible (one or all) */}
+          <div id="leftbehind" className="scroll-mt-4 border-t border-line px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-sm font-medium text-ink">Jobs left behind <span className="text-xs font-normal text-muted">({leftBehind.length} across {groups.length} route{groups.length === 1 ? "" : "s"})</span></div>
+                <p className="mt-0.5 text-[11px] text-muted">Past-due, not completed, and not on the board ahead. Address each: confirm it&apos;s rescheduled or note the plan.</p>
+              </div>
+              {groups.length > 0 && <button onClick={() => setAllRoutes(!allOpen)} className="text-xs font-medium text-brand-600 hover:underline">{allOpen ? "Collapse all" : "Expand all"}</button>}
             </div>
-            <p className="mt-0.5 text-[11px] text-muted">Past-due, not completed, and not on the board ahead. Address each: confirm it&apos;s rescheduled or note the plan.</p>
-            <div className="mt-2 max-h-[420px] space-y-1.5 overflow-y-auto">
-              {shown.length === 0 ? <p className="py-3 text-sm text-muted">Nothing left behind here — nice.</p> : shown.map((j) => <JobRow key={j.id} job={j} branch={branch} />)}
+            <div className="mt-2 space-y-2">
+              {groups.length === 0 ? (
+                <p className="py-3 text-sm text-muted">Nothing left behind — nice work.</p>
+              ) : groups.map((g) => {
+                const isOpen = openRoutes.has(g.route);
+                const addressed = g.jobs.length - g.open;
+                const done = g.open === 0;
+                return (
+                  <div key={g.route} id={`lb-${g.route}`} className="scroll-mt-4 overflow-hidden rounded-lg border border-line">
+                    <button onClick={() => toggleRoute(g.route)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-black/[0.02]">
+                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white ${done ? "bg-brand-500" : "bg-red-500"}`}>
+                        {done ? <IconCheck className="h-3.5 w-3.5" /> : g.open}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-ink">Route {g.route}{g.techName ? ` · ${g.techName}` : ""}</span>
+                        <span className="block text-[11px] text-muted">{g.jobs.length} left behind · {money(g.dollars)} · <span className={done ? "text-brand-700" : "text-amber-700"}>{addressed}/{g.jobs.length} addressed</span></span>
+                      </span>
+                      <IconChevron className={`h-4 w-4 shrink-0 text-muted transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {isOpen ? <div className="space-y-1.5 border-t border-line px-3 py-2.5">{g.jobs.map((j) => <JobRow key={j.id} job={j} branch={branch} />)}</div> : null}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

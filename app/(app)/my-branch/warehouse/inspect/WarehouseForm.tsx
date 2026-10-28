@@ -107,9 +107,42 @@ export default function WarehouseForm({
   const alertKeys = [...alertOn];
   const photoLabelFor = (key: string) => WAREHOUSE_PHOTO_PROMPTS.find((p) => p.key === key)?.label ?? key;
   const photoCount = Object.values(photos).filter((p) => p.url || p.dataUrl).length;
-  const requiredShot = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required).length;
-  // A required photo is "done" when there's a photo OR it's marked not available.
-  const requiredDone = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required && (photos[p.key]?.url || photos[p.key]?.dataUrl || photos[p.key]?.notAvailable)).length;
+  // Every photo prompt is required: it must have a photo OR be marked not available.
+  const photoTotal = WAREHOUSE_PHOTO_PROMPTS.length;
+  const photoResolved = WAREHOUSE_PHOTO_PROMPTS.filter((p) => photos[p.key]?.url || photos[p.key]?.dataUrl || photos[p.key]?.notAvailable).length;
+
+  // --- Completion gate: everything is required. Build the list of what's still
+  //     missing so we can both block Save and guide the manager to each gap. ---
+  const [attempted, setAttempted] = useState(false);
+  type Issue = { id: string; section?: string; text: string };
+  const issues: Issue[] = useMemo(() => {
+    const out: Issue[] = [];
+    if (!inspectorName.trim()) out.push({ id: "insp-card", text: "Enter the inspector's name" });
+    if (!date) out.push({ id: "insp-card", text: "Choose the inspection date" });
+    for (const sec of WAREHOUSE_SECTIONS) {
+      for (const it of sec.items) {
+        const v = checks[it.key];
+        if (v == null) out.push({ id: `item-${it.key}`, section: sec.section, text: `Answer “${it.label}”` });
+        else if (v === false && !(comments[it.key] ?? "").trim()) out.push({ id: `item-${it.key}`, section: sec.section, text: `Add a note for “${it.label}” (marked No)` });
+      }
+    }
+    for (const p of WAREHOUSE_PHOTO_PROMPTS) {
+      const ph = photos[p.key];
+      const hasPhoto = !!(ph?.dataUrl || ph?.url);
+      if (!hasPhoto && !ph?.notAvailable) out.push({ id: `photo-${p.key}`, text: `Add a photo for “${p.label}” — or mark it not available` });
+      else if (ph?.notAvailable && !(ph.reason ?? "").trim()) out.push({ id: `photo-${p.key}`, text: `Say why “${p.label}” isn't available` });
+    }
+    if (!certified) out.push({ id: "sign-card", text: "Check the attestation box" });
+    if (!sigName.trim()) out.push({ id: "sign-card", text: "Type your name to sign" });
+    return out;
+  }, [inspectorName, date, checks, comments, photos, certified, sigName]);
+  const issueIds = new Set(issues.map((i) => i.id));
+
+  // Jump to a gap (expanding its section first if collapsed).
+  function jumpTo(it: Issue) {
+    if (it.section) openOnly([it.section]);
+    requestAnimationFrame(() => setTimeout(() => document.getElementById(it.id)?.scrollIntoView({ behavior: "smooth", block: "center" }), 60));
+  }
 
   function toggleAlert(key: string) {
     setAlertOn((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n; });
@@ -157,6 +190,14 @@ export default function WarehouseForm({
   }
 
   async function save() {
+    // Everything is required — if anything's missing, guide instead of saving.
+    if (issues.length > 0) {
+      setAttempted(true); setError(null);
+      const secWithIssues = issues.filter((i) => i.section).map((i) => i.section!);
+      setCollapsed((s) => { const n = new Set(s); for (const sec of secWithIssues) n.delete(sec); return n; });
+      requestAnimationFrame(() => setTimeout(() => document.getElementById("issues-panel")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80));
+      return;
+    }
     setBusy(true); setError(null);
     // New/replaced photos carry a dataUrl; prompts that HAD a saved photo but were
     // cleared go in removePhotoPromptKeys so the server deletes them.
@@ -199,7 +240,7 @@ export default function WarehouseForm({
 
   return (
     <div className="space-y-4 max-w-3xl pb-28">
-      <Card className="p-4 grid gap-3 sm:grid-cols-2">
+      <Card id="insp-card" className={`p-4 grid gap-3 sm:grid-cols-2 scroll-mt-4 ${attempted && issueIds.has("insp-card") ? "ring-2 ring-amber-400" : ""}`}>
         <label className="block text-sm font-medium">Inspector
           <input value={inspectorName} onChange={(e) => setInspectorName(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm" />
         </label>
@@ -267,7 +308,7 @@ export default function WarehouseForm({
                   const isNo = val === false;
                   const flagged = alertOn.has(it.key);
                   return (
-                    <div key={it.key} className={`rounded-xl p-3 ${isNo ? "bg-red-50/60 ring-1 ring-red-200" : val === true ? "bg-emerald-50/40" : "bg-black/[0.015]"}`}>
+                    <div key={it.key} id={`item-${it.key}`} className={`scroll-mt-20 rounded-xl p-3 ${attempted && issueIds.has(`item-${it.key}`) ? "ring-2 ring-amber-400" : isNo ? "bg-red-50/60 ring-1 ring-red-200" : val === true ? "bg-emerald-50/40" : "bg-black/[0.015]"}`}>
                       <div className="flex items-center gap-3">
                         <div className="flex-1 text-sm text-ink">
                           {it.label}
@@ -305,20 +346,20 @@ export default function WarehouseForm({
       {/* Guided compliance photos */}
       <div className="space-y-2">
         <div className="flex items-center justify-between pt-1">
-          <div className="text-sm font-semibold text-ink">Compliance photos</div>
-          <span className="text-[11px] text-muted">{requiredDone}/{requiredShot} required · {photoCount} total</span>
+          <div className="text-sm font-semibold text-ink">Compliance photos <span className="text-[11px] font-normal text-brand-600">all required</span></div>
+          <span className={`text-[11px] ${photoResolved === photoTotal ? "text-emerald-700" : "text-muted"}`}>{photoResolved}/{photoTotal} done · {photoCount} photo{photoCount === 1 ? "" : "s"}</span>
         </div>
-        <p className="text-xs text-muted">Capture each so the record shows the branch was actually checked. Can&apos;t take one? Use <span className="font-medium text-amber-800">Not available</span> and say why.</p>
+        <p className="text-xs text-muted">Every photo is required. Capture each so the record shows the branch was actually checked. Can&apos;t take one? Use <span className="font-medium text-amber-800">Not available</span> and say why.</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {WAREHOUSE_PHOTO_PROMPTS.map((p) => {
             const ph = photos[p.key];
             const src = ph?.dataUrl || ph?.url;
             const na = !!ph?.notAvailable;
             return (
-              <Card key={p.key} className="p-3">
+              <Card key={p.key} id={`photo-${p.key}`} className={`scroll-mt-20 p-3 ${attempted && issueIds.has(`photo-${p.key}`) ? "ring-2 ring-amber-400" : ""}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-ink">{p.label}{p.required ? <span className="ml-1 text-[10px] text-brand-600">required</span> : null}</div>
+                    <div className="text-sm font-medium text-ink">{p.label}</div>
                     <div className="text-xs text-muted">{p.hint}</div>
                   </div>
                   {src || na ? <button onClick={() => removePhoto(p.key)} className="shrink-0 text-xs font-medium text-red-600 hover:underline">{na ? "Undo" : "Remove"}</button> : null}
@@ -365,8 +406,8 @@ export default function WarehouseForm({
       </Card>
 
       {/* Inspector attestation / e-signature */}
-      <Card className="p-4">
-        <div className="text-sm font-medium text-ink">Inspector attestation</div>
+      <Card id="sign-card" className={`p-4 scroll-mt-4 ${attempted && issueIds.has("sign-card") ? "ring-2 ring-amber-400" : ""}`}>
+        <div className="text-sm font-medium text-ink">Inspector attestation <span className="text-[11px] font-normal text-brand-600">required</span></div>
         <p className="mt-0.5 text-xs text-muted">Your typed name is your signature on this safety record (FL 482 / FDACS / OSHA).</p>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
           <input value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Type your full name" className="flex-1 rounded-lg border border-line px-3 py-2 text-sm" />
@@ -386,6 +427,26 @@ export default function WarehouseForm({
         </Card>
       ) : null}
 
+      {attempted && issues.length > 0 ? (
+        <Card id="issues-panel" className="scroll-mt-4 p-4 ring-1 ring-amber-300 bg-amber-50">
+          <div className="flex items-center gap-2 text-amber-900">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <div className="text-sm font-semibold">Finish {issues.length} item{issues.length === 1 ? "" : "s"} before you can save</div>
+          </div>
+          <p className="mt-0.5 text-xs text-amber-800">Everything on this inspection is required. Tap an item to jump to it.</p>
+          <ul className="mt-2 space-y-1">
+            {issues.map((it, i) => (
+              <li key={i}>
+                <button type="button" onClick={() => jumpTo(it)} className="flex w-full items-start gap-2 text-left text-sm text-amber-900 hover:underline">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                  <span>{it.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
@@ -394,10 +455,10 @@ export default function WarehouseForm({
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">
               <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
-              <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{alertKeys.length ? <span className="ml-2 text-amber-700 font-medium">· {alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"}</span> : null}</div>
+              <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{alertKeys.length ? <span className="ml-2 text-amber-700 font-medium">· {alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"}</span> : null}{issues.length ? <span className="ml-2 text-amber-700 font-medium">· {issues.length} to finish</span> : <span className="ml-2 text-emerald-700 font-medium">· ready to sign</span>}</div>
             </div>
           </div>
-          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : certified && sigName.trim() ? "Save & sign inspection" : isEdit ? "Update inspection" : "Save inspection"}</button>
+          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : isEdit ? "Update & sign inspection" : "Save & sign inspection"}</button>
         </div>
       </div>
     </div>

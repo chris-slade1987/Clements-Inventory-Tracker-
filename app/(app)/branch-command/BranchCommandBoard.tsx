@@ -12,8 +12,6 @@ const STATUS_COLOR: Record<Status, string> = {
   alarm: "#DC2626",
   info: "#5C6B62",
 };
-const STATUS_LABEL: Record<Status, string> = { good: "On track", warn: "Watch", alarm: "Action needed", info: "No data" };
-
 // Statuses arrive from the server as plain strings (Prisma columns); coerce safely.
 const st = (s: string | null | undefined): Status => (s && s in STATUS_COLOR ? (s as Status) : "info");
 
@@ -49,19 +47,6 @@ function fmt(m: { value: number | null; displayValue: string | null; unit: strin
   if (m.unit === "%") return `${Math.round(m.value)}%`;
   if (m.unit === "per_day") return m.value.toFixed(1);
   return m.value.toLocaleString();
-}
-
-function Chip({ status }: { status: Status }) {
-  const c = STATUS_COLOR[status];
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-      style={{ color: c, backgroundColor: `${c}1A`, border: `1px solid ${c}40` }}
-    >
-      <span aria-hidden className="h-2 w-2 rounded-full" style={{ backgroundColor: c }} />
-      {STATUS_LABEL[status]}
-    </span>
-  );
 }
 
 export default function BranchCommandBoard({ data }: { data: Data }) {
@@ -108,47 +93,34 @@ export default function BranchCommandBoard({ data }: { data: Data }) {
 
       {err ? <p className="text-sm text-red-700">{err}</p> : null}
 
-      {/* Scoreboard */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {data.scoreboard.map((d) => (
-          <Card key={d.key} className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h3 className="text-lg font-light text-ink">{d.label}</h3>
-                <p className="mt-0.5 text-xs text-muted">{d.blurb}</p>
+      {/* Weekly sign-off — attestation checklist. Each area is a statement the
+          manager confirms, with live numbers shown inline only where we have them. */}
+      {(() => {
+        const items = data.scoreboard.flatMap((d) => d.items);
+        const confirmed = items.filter((i) => i.checked).length;
+        return (
+          <Card className="p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-light text-ink">Weekly sign-off</h3>
+                <p className="mt-0.5 text-xs text-muted">Confirm each area once you&apos;ve personally reviewed it. These attestations are required before you can sign the week.</p>
               </div>
-              <Chip status={st(d.status)} />
+              <div className="shrink-0 text-right">
+                <div className="text-sm font-semibold tabular-nums text-ink">{confirmed}/{items.length}</div>
+                <div className="text-[11px] text-muted">confirmed</div>
+              </div>
             </div>
-
-            {d.metrics.length ? (
-              <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
-                {d.metrics.map((m) => (
-                  <MetricCell key={m.key} branch={data.branch} metric={m} signed={signed} onSaved={() => router.refresh()} />
-                ))}
-              </dl>
-            ) : d.key === "technician" ? (
-              <p className="mt-4 text-xs text-muted">Reviewed per technician below.</p>
-            ) : null}
-
-            {d.items.length ? (
-              <ul className="mt-4 space-y-2 border-t border-line pt-3">
-                {d.items.map((it) => (
-                  <li key={it.id} className="flex items-start gap-2">
-                    <input
-                      type="checkbox"
-                      checked={it.checked}
-                      disabled={signed || busy !== null}
-                      onChange={(e) => post({ action: "check", itemId: it.id, checked: e.target.checked }, `chk-${it.id}`)}
-                      className="mt-0.5 h-4 w-4 shrink-0 accent-[#1F7A45]"
-                    />
-                    <span className={`text-sm ${it.checked ? "text-ink" : "text-muted"}`}>{it.label}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/[0.06]">
+              <div className="h-full rounded-full transition-all" style={{ width: `${items.length ? (confirmed / items.length) * 100 : 0}%`, backgroundColor: confirmed === items.length ? STATUS_COLOR.good : "#8FB8A0" }} />
+            </div>
+            <div className="mt-4 space-y-3">
+              {data.scoreboard.map((d) => (
+                <DomainAttestation key={d.key} branch={data.branch} domain={d} signed={signed} busy={busy} post={post} onSaved={() => router.refresh()} />
+              ))}
+            </div>
           </Card>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* AI findings — forced feedback */}
       <Card id="flags" className="scroll-mt-4 p-5">
@@ -189,6 +161,90 @@ export default function BranchCommandBoard({ data }: { data: Data }) {
 
       {/* Sign-off */}
       <SignBar data={data} signed={signed} busy={busy} post={post} />
+    </div>
+  );
+}
+
+function DomainAttestation({
+  branch,
+  domain: d,
+  signed,
+  busy,
+  post,
+  onSaved,
+}: {
+  branch: string;
+  domain: Domain;
+  signed: boolean;
+  busy: string | null;
+  post: (p: Record<string, unknown>, tag: string) => Promise<boolean>;
+  onSaved: () => void;
+}) {
+  const [showNums, setShowNums] = useState(false);
+  const live = d.metrics.filter((m) => m.value != null || m.displayValue);
+  const confirmedCount = d.items.filter((i) => i.checked).length;
+  const allConfirmed = d.items.length > 0 && confirmedCount === d.items.length;
+  const s = st(d.status);
+  const dotColor = allConfirmed ? STATUS_COLOR.good : s === "alarm" ? STATUS_COLOR.alarm : s === "warn" ? STATUS_COLOR.warn : "#CBD5E1";
+
+  return (
+    <div className={`rounded-xl border p-4 ${allConfirmed ? "border-[#1F7A45]/40 bg-[#1F7A45]/[0.04]" : s === "alarm" ? "border-red-200" : "border-line"}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: dotColor }} />
+            <h4 className="text-sm font-semibold text-ink">{d.label}</h4>
+          </div>
+          <p className="mt-0.5 text-xs text-muted">{d.blurb}</p>
+        </div>
+        <span className="shrink-0 text-xs font-medium tabular-nums" style={{ color: allConfirmed ? STATUS_COLOR.good : "#5C6B62" }}>{confirmedCount}/{d.items.length}</span>
+      </div>
+
+      {/* Live numbers as evidence — only where we actually have them */}
+      {live.length ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {live.map((m) => {
+            const c = STATUS_COLOR[st(m.status)];
+            return (
+              <span key={m.key} className="rounded-full px-2 py-0.5 text-[11px]" style={{ color: c, backgroundColor: `${c}14`, border: `1px solid ${c}33` }}>
+                {m.label}: {fmt(m)}{m.target != null ? ` / ${m.unit === "$" ? `$${m.target.toLocaleString()}` : m.target}${m.unit === "%" ? "%" : ""}` : ""}
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* The attestation(s) — each a clear confirm action */}
+      <div className="mt-3 space-y-2">
+        {d.items.map((it) => (
+          <div key={it.id} className={`flex items-start gap-3 rounded-lg border p-2.5 ${it.checked ? "border-[#1F7A45]/40 bg-white" : "border-line bg-black/[0.015]"}`}>
+            <span className="flex-1 text-sm text-ink">{it.label}</span>
+            <button
+              type="button"
+              disabled={signed || busy !== null}
+              onClick={() => post({ action: "check", itemId: it.id, checked: !it.checked }, `chk-${it.id}`)}
+              className={`inline-flex shrink-0 items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${it.checked ? "border-[#1F7A45] bg-[#1F7A45] text-white" : "border-[#1F7A45] bg-white text-[#1F7A45] hover:bg-[#1F7A45]/10"}`}
+            >
+              {it.checked ? (
+                <><svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2}><path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" /></svg> Confirmed</>
+              ) : "Confirm"}
+            </button>
+          </div>
+        ))}
+        {d.items.length === 0 ? <p className="text-xs text-muted">Reviewed per technician below.</p> : null}
+      </div>
+
+      {/* Optional supporting numbers (kept, but demoted) */}
+      {!signed && d.metrics.length ? (
+        <div className="mt-2">
+          <button type="button" onClick={() => setShowNums((v) => !v)} className="text-[11px] text-muted underline hover:text-ink">{showNums ? "Hide numbers" : "Add / edit supporting numbers (optional)"}</button>
+          {showNums ? (
+            <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-3">
+              {d.metrics.map((m) => <MetricCell key={m.key} branch={branch} metric={m} signed={signed} onSaved={onSaved} />)}
+            </dl>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
