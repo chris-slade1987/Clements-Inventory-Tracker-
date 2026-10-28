@@ -44,7 +44,7 @@ export default async function WarehouseReportPage({ params }: { params: Promise<
             checks: inspection.checks, comments: inspection.comments, notes: inspection.notes,
             inspectorSignedName: inspection.inspectorSignedName, inspectorSignedAt: inspection.inspectorSignedAt,
             needs: inspection.needs.map((n) => ({ id: n.id, itemKey: n.itemKey, label: n.label, request: n.request, status: n.status })),
-            photos: inspection.photos.map((p) => ({ promptKey: p.promptKey, label: p.label, photoUrl: p.photoUrl, caption: p.caption })),
+            photos: inspection.photos.map((p) => ({ promptKey: p.promptKey, label: p.label, photoUrl: p.photoUrl, caption: p.caption, notAvailable: p.notAvailable })),
           }}
           repeats={repeats}
         />

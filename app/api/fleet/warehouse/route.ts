@@ -76,18 +76,28 @@ export async function POST(req: Request) {
       update: data,
     });
 
-    // --- Guided photos: upsert each provided prompt photo; remove any flagged. ---
+    // --- Guided photos: upsert each provided prompt photo (or "not available"
+    //     with a reason); remove any flagged. ---
     const photos = Array.isArray(body?.photos) ? body.photos : [];
     for (const p of photos) {
       const promptKey = str(p?.promptKey);
+      if (!promptKey) continue;
+      if (p?.notAvailable === true) {
+        await prisma.warehouseInspectionPhoto.upsert({
+          where: { inspectionId_promptKey: { inspectionId: saved.id, promptKey } },
+          create: { inspectionId: saved.id, promptKey, label: photoPromptLabel(promptKey), photoUrl: "", notAvailable: true, caption: str(p?.caption) },
+          update: { photoUrl: "", notAvailable: true, caption: str(p?.caption) },
+        });
+        continue;
+      }
       const decoded = decodeDataUrl(p?.dataUrl);
-      if (!promptKey || !decoded) continue;
+      if (!decoded) continue;
       const url = await saveUpload(decoded.buf, `warehouse-${branch}-${year}${String(month).padStart(2, "0")}-${promptKey}.jpg`, decoded.ct, "warehouse");
       if (!url) continue;
       await prisma.warehouseInspectionPhoto.upsert({
         where: { inspectionId_promptKey: { inspectionId: saved.id, promptKey } },
-        create: { inspectionId: saved.id, promptKey, label: photoPromptLabel(promptKey), photoUrl: url, caption: str(p?.caption) },
-        update: { photoUrl: url, caption: str(p?.caption) },
+        create: { inspectionId: saved.id, promptKey, label: photoPromptLabel(promptKey), photoUrl: url, notAvailable: false, caption: str(p?.caption) },
+        update: { photoUrl: url, notAvailable: false, caption: str(p?.caption) },
       });
     }
     const removeKeys: string[] = Array.isArray(body?.removePhotoPromptKeys) ? body.removePhotoPromptKeys.filter((k: unknown) => typeof k === "string") : [];

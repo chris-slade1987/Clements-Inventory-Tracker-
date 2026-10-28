@@ -7,12 +7,13 @@ import DateInput from "@/components/DateInput";
 import { fileToJpegDataUrl } from "@/lib/client-image";
 import { WAREHOUSE_SECTIONS, WAREHOUSE_PHOTO_PROMPTS, scoreWarehouse, WAREHOUSE_ITEMS, type Checks, type CheckVal } from "@/lib/warehouse";
 
-type PhotoState = { url?: string; dataUrl?: string; caption: string };
+type PhotoState = { url?: string; dataUrl?: string; caption: string; notAvailable?: boolean; reason?: string };
 type Prefill = {
   date: string; inspectorName: string;
   checks: Record<string, CheckVal>; comments: Record<string, string>; notes: string;
   needs: Record<string, string>; // itemKey -> request
-  photos: Record<string, { url: string; caption: string }>; // promptKey -> saved photo
+  photos: Record<string, { url: string; caption: string; notAvailable: boolean }>; // promptKey -> saved photo / N-A
+  naAlert: string[]; // promptKeys whose "not available" was flagged to the supervisor
   inspectorSignedName: string;
   repeats: string[]; // item keys that also failed the prior inspection
 };
@@ -43,9 +44,11 @@ export default function WarehouseForm({
   const [alertOn, setAlertOn] = useState<Set<string>>(new Set(Object.keys(prefill.needs ?? {})));
   const [photos, setPhotos] = useState<Record<string, PhotoState>>(() => {
     const o: Record<string, PhotoState> = {};
-    for (const [k, v] of Object.entries(prefill.photos ?? {})) o[k] = { url: v.url, caption: v.caption };
+    for (const [k, v] of Object.entries(prefill.photos ?? {})) o[k] = v.notAvailable ? { notAvailable: true, reason: v.caption, caption: "" } : { url: v.url, caption: v.caption };
     return o;
   });
+  // "Not available" photo prompts flagged to alert the supervisor (mirrors the No flow).
+  const [naAlertOn, setNaAlertOn] = useState<Set<string>>(new Set(prefill.naAlert ?? []));
   const [sigName, setSigName] = useState(prefill.inspectorSignedName || prefill.inspectorName);
   const [certified, setCertified] = useState(!!prefill.inspectorSignedName);
   const [busy, setBusy] = useState(false);
@@ -58,31 +61,47 @@ export default function WarehouseForm({
   const answered = WAREHOUSE_ITEMS.filter((it) => checks[it.key] != null).length;
   const labelFor = (key: string) => WAREHOUSE_ITEMS.find((i) => i.key === key)?.label ?? null;
   const alertKeys = [...alertOn];
+  const photoLabelFor = (key: string) => WAREHOUSE_PHOTO_PROMPTS.find((p) => p.key === key)?.label ?? key;
   const photoCount = Object.values(photos).filter((p) => p.url || p.dataUrl).length;
   const requiredShot = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required).length;
-  const requiredDone = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required && (photos[p.key]?.url || photos[p.key]?.dataUrl)).length;
+  // A required photo is "done" when there's a photo OR it's marked not available.
+  const requiredDone = WAREHOUSE_PHOTO_PROMPTS.filter((p) => p.required && (photos[p.key]?.url || photos[p.key]?.dataUrl || photos[p.key]?.notAvailable)).length;
 
   function toggleAlert(key: string) {
     setAlertOn((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  }
+  function toggleNaAlert(key: string) {
+    setNaAlertOn((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  }
+  function markNotAvailable(key: string) {
+    setPhotos((s) => ({ ...s, [key]: { notAvailable: true, reason: s[key]?.reason ?? "", caption: "" } }));
   }
 
   async function onPhoto(key: string, file: File) {
     try {
       const dataUrl = await fileToJpegDataUrl(file, 1280, 0.8);
-      setPhotos((s) => ({ ...s, [key]: { ...(s[key] ?? { caption: "" }), dataUrl } }));
+      setPhotos((s) => ({ ...s, [key]: { ...(s[key] ?? { caption: "" }), notAvailable: false, dataUrl } }));
     } catch { setError("Couldn't read that image. Try again."); }
   }
   function removePhoto(key: string) {
     setPhotos((s) => { const n = { ...s }; delete n[key]; return n; });
+    setNaAlertOn((s) => { if (!s.has(key)) return s; const n = new Set(s); n.delete(key); return n; });
   }
 
   async function save() {
     setBusy(true); setError(null);
     // New/replaced photos carry a dataUrl; prompts that HAD a saved photo but were
     // cleared go in removePhotoPromptKeys so the server deletes them.
-    const photoPayload = Object.entries(photos).filter(([, p]) => p.dataUrl).map(([promptKey, p]) => ({ promptKey, dataUrl: p.dataUrl, caption: p.caption }));
+    const photoPayload = [
+      ...Object.entries(photos).filter(([, p]) => p.dataUrl).map(([promptKey, p]) => ({ promptKey, dataUrl: p.dataUrl, caption: p.caption })),
+      ...Object.entries(photos).filter(([, p]) => p.notAvailable).map(([promptKey, p]) => ({ promptKey, notAvailable: true, caption: p.reason ?? "" })),
+    ];
     const removePhotoPromptKeys = Object.keys(prefill.photos ?? {}).filter((k) => !photos[k]);
-    const needsPayload = alertKeys.map((itemKey) => ({ itemKey, label: labelFor(itemKey), request: comments[itemKey]?.trim() || labelFor(itemKey) || "Attention needed" }));
+    // Checklist "No" alerts + "photo not available" alerts — both notify the supervisor.
+    const needsPayload = [
+      ...alertKeys.map((itemKey) => ({ itemKey, label: labelFor(itemKey), request: comments[itemKey]?.trim() || labelFor(itemKey) || "Attention needed" })),
+      ...[...naAlertOn].filter((k) => photos[k]?.notAvailable).map((k) => ({ itemKey: `photo_${k}`, label: `Photo: ${photoLabelFor(k)}`, request: photos[k]?.reason?.trim() || `No ${photoLabelFor(k).toLowerCase()} available` })),
+    ];
     const res = await fetch("/api/fleet/warehouse", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ branch, year, month, date, inspectorName, checks, comments, notes, needs: needsPayload, photos: photoPayload, removePhotoPromptKeys, inspectorSignedName: certified && sigName.trim() ? sigName.trim() : undefined }),
@@ -168,6 +187,7 @@ export default function WarehouseForm({
           {WAREHOUSE_PHOTO_PROMPTS.map((p) => {
             const ph = photos[p.key];
             const src = ph?.dataUrl || ph?.url;
+            const na = !!ph?.notAvailable;
             return (
               <Card key={p.key} className="p-3">
                 <div className="flex items-start justify-between gap-2">
@@ -175,20 +195,34 @@ export default function WarehouseForm({
                     <div className="text-sm font-medium text-ink">{p.label}{p.required ? <span className="ml-1 text-[10px] text-brand-600">required</span> : null}</div>
                     <div className="text-xs text-muted">{p.hint}</div>
                   </div>
-                  {src ? <button onClick={() => removePhoto(p.key)} className="shrink-0 text-xs font-medium text-red-600 hover:underline">Remove</button> : null}
+                  {src || na ? <button onClick={() => removePhoto(p.key)} className="shrink-0 text-xs font-medium text-red-600 hover:underline">{na ? "Undo" : "Remove"}</button> : null}
                 </div>
-                {src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={src} alt={p.label} className="mt-2 h-36 w-full rounded-lg object-cover" />
+
+                {na ? (
+                  <div className="mt-2 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-2">
+                    <div className="text-xs font-medium text-amber-900">Marked not available</div>
+                    <textarea value={ph?.reason ?? ""} onChange={(e) => setPhotos((s) => ({ ...s, [p.key]: { ...(s[p.key] ?? { caption: "" }), notAvailable: true, reason: e.target.value } }))} rows={2} placeholder="Why isn't this available? e.g. no eyewash station on site" className="w-full rounded-lg border border-amber-300 px-2 py-1.5 text-xs" />
+                    <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
+                      <input type="checkbox" checked={naAlertOn.has(p.key)} onChange={() => toggleNaAlert(p.key)} />
+                      Create alert — notify supervisor
+                    </label>
+                    {naAlertOn.has(p.key) ? <p className="text-[11px] text-red-700">This will be sent to the supervisor as an alert on save.</p> : null}
+                  </div>
+                ) : src ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={p.label} className="mt-2 h-36 w-full rounded-lg object-cover" />
+                    <input value={ph?.caption ?? ""} onChange={(e) => setPhotos((s) => ({ ...s, [p.key]: { ...(s[p.key] ?? {}), caption: e.target.value } }))} placeholder="Caption (optional)" className="mt-2 w-full rounded-lg border border-line px-2 py-1.5 text-xs" />
+                  </>
                 ) : (
-                  <label className="mt-2 flex h-24 cursor-pointer items-center justify-center rounded-lg border border-dashed border-line text-xs font-medium text-brand-700 hover:bg-black/[0.02]">
-                    + Take / upload photo
-                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && onPhoto(p.key, e.target.files[0])} />
-                  </label>
+                  <>
+                    <label className="mt-2 flex h-24 cursor-pointer items-center justify-center rounded-lg border border-dashed border-line text-xs font-medium text-brand-700 hover:bg-black/[0.02]">
+                      + Take / upload photo
+                      <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && onPhoto(p.key, e.target.files[0])} />
+                    </label>
+                    <button type="button" onClick={() => markNotAvailable(p.key)} className="mt-1.5 text-xs font-medium text-muted hover:text-ink">Not available</button>
+                  </>
                 )}
-                {src ? (
-                  <input value={ph?.caption ?? ""} onChange={(e) => setPhotos((s) => ({ ...s, [p.key]: { ...(s[p.key] ?? {}), caption: e.target.value } }))} placeholder="Caption (optional)" className="mt-2 w-full rounded-lg border border-line px-2 py-1.5 text-xs" />
-                ) : null}
               </Card>
             );
           })}

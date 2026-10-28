@@ -2005,8 +2005,9 @@ model WarehouseInspectionPhoto {
   inspectionId String   @map("inspection_id")
   promptKey    String   @map("prompt_key")
   label        String?
-  photoUrl     String   @map("photo_url")
-  caption      String?
+  photoUrl     String   @default("") @map("photo_url") // empty when notAvailable
+  notAvailable Boolean  @default(false) @map("not_available") // no photo possible (e.g. no eyewash on site)
+  caption      String? // normal: caption; not-available: the reason
   createdAt    DateTime @default(now()) @map("created_at")
 
   inspection WarehouseInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)

@@ -31,9 +31,14 @@ export default async function WarehouseInspectPage({
   });
 
   const needs: Record<string, string> = {};
-  for (const n of existing?.needs ?? []) if (n.itemKey) needs[n.itemKey] = n.request;
-  const photos: Record<string, { url: string; caption: string }> = {};
-  for (const p of existing?.photos ?? []) photos[p.promptKey] = { url: p.photoUrl, caption: p.caption ?? "" };
+  const naAlert: string[] = [];
+  for (const n of existing?.needs ?? []) {
+    if (!n.itemKey) continue;
+    if (n.itemKey.startsWith("photo_")) naAlert.push(n.itemKey.slice("photo_".length));
+    else needs[n.itemKey] = n.request;
+  }
+  const photos: Record<string, { url: string; caption: string; notAvailable: boolean }> = {};
+  for (const p of existing?.photos ?? []) photos[p.promptKey] = { url: p.photoUrl, caption: p.caption ?? "", notAvailable: p.notAvailable };
 
   const curChecks = parseJson<Checks>(existing?.checks, {});
   const prior = await priorInspection(branch, year, month);
@@ -46,6 +51,7 @@ export default async function WarehouseInspectPage({
     comments: parseJson<Record<string, string>>(existing?.comments, {}),
     notes: existing?.notes ?? "",
     needs,
+    naAlert,
     photos,
     inspectorSignedName: existing?.inspectorSignedName ?? "",
     repeats,

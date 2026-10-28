@@ -5,7 +5,7 @@ import { branchLabel } from "@/lib/management";
 // the "report" handed to FDACS/OSHA or filed. Shared shape with the edit form.
 
 type Need = { id: string; itemKey: string | null; label: string | null; request: string; status: string };
-type Photo = { promptKey: string; label: string | null; photoUrl: string; caption: string | null };
+type Photo = { promptKey: string; label: string | null; photoUrl: string; caption: string | null; notAvailable: boolean };
 export type InspectionForReport = {
   id: string; branch: string; year: number; month: number; date: Date;
   inspectorName: string | null; score: number; maxScore: number; scorePct: number; grade: string;
@@ -85,13 +85,15 @@ export default function WarehouseReport({ inspection, repeats }: { inspection: I
             return (
               <div key={p.key} className="rounded-lg ring-1 ring-slate-200 p-2">
                 <div className="text-xs font-medium text-slate-700">{p.label}</div>
-                {ph ? (
+                {ph?.notAvailable ? (
+                  <div className="mt-1 grid h-32 place-items-center rounded bg-amber-50 px-2 text-center text-[11px] font-medium text-amber-800">Not available</div>
+                ) : ph && ph.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={ph.photoUrl} alt={p.label} className="mt-1 h-32 w-full rounded object-cover" />
                 ) : (
                   <div className="mt-1 grid h-32 place-items-center rounded bg-slate-50 text-[11px] text-slate-400">No photo</div>
                 )}
-                {ph?.caption ? <div className="mt-1 text-[11px] text-slate-500">{ph.caption}</div> : null}
+                {ph?.caption ? <div className="mt-1 text-[11px] text-slate-500">{ph.notAvailable ? `Reason: ${ph.caption}` : ph.caption}</div> : null}
               </div>
             );
           })}

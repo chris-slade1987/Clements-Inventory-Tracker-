@@ -16,7 +16,6 @@ export const WAREHOUSE_SECTIONS: WarehouseSection[] = [
     items: [
       { key: "pesticides_labeled", label: "All pesticides stored in original, labeled containers", critical: true },
       { key: "storage_locked_ventilated", label: "Chemical storage areas locked and ventilated", critical: true },
-      { key: "spill_containment", label: "Spill containment in place (e.g., secondary containment)", critical: true },
       { key: "storage_separated", label: "Pesticide storage separated from non-chemical items", critical: false },
       { key: "no_expired", label: "No expired/unusable products; segregated for proper disposal", critical: false },
       { key: "rup_records", label: "Restricted-use pesticide (RUP) records & application logs maintained", critical: true },
@@ -44,7 +43,6 @@ export const WAREHOUSE_SECTIONS: WarehouseSection[] = [
       { key: "eyewash", label: "Eyewash station (if required) operational and clean", critical: false },
       { key: "emergency_posted", label: "Emergency response / spill procedures & emergency numbers posted", critical: false },
       { key: "no_food_mix", label: "No food, drink or tobacco in mixing/storage areas; wash station available", critical: false },
-      { key: "app_records_retained", label: "Service / application records retained per FAC 5E-14", critical: false },
       { key: "warehouse_clean", label: "Warehouse clean, dry, and free of obstructions", critical: false },
       { key: "lighting_ventilation", label: "Lighting and ventilation adequate for safe operations", critical: false },
     ],
