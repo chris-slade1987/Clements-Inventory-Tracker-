@@ -32,6 +32,7 @@ export async function seedFleet(prisma: PrismaClient) {
       currentMileage: v.currentMileage,
       mileageAsOf: v.currentMileage != null ? new Date("2026-07-01T00:00:00.000Z") : null,
       statusNotes: v.statusNotes,
+      inspectExempt: v.inspectExempt ?? false,
     };
     const existing = await prisma.vehicle.findFirst({
       where: {
@@ -59,6 +60,9 @@ export async function seedFleet(prisma: PrismaClient) {
  * sheet for vehicles that already exist — so corrections like a plate
  * reconciled from Coast reach an already-populated database — without touching
  * mileage, disposition, service history, or anything edited inside the app.
+ * Also syncs `inspectExempt` (the sheet is the source of truth for which
+ * vehicles are owner-personal / pool units excluded from monthly inspections);
+ * there is no in-app editor for that flag, so syncing it can't clobber a user edit.
  */
 export async function syncFleetSpecs(prisma: PrismaClient) {
   let updated = 0;
@@ -72,12 +76,14 @@ export async function syncFleetSpecs(prisma: PrismaClient) {
       driverCard: v.driverCard,
       registrationRenewal: d(v.registrationRenewal),
       gps: v.gps,
+      inspectExempt: v.inspectExempt ?? false,
     };
     const changed =
       existing.plate !== next.plate ||
       existing.driverCard !== next.driverCard ||
       (existing.registrationRenewal?.getTime() ?? null) !== (next.registrationRenewal?.getTime() ?? null) ||
-      existing.gps !== next.gps;
+      existing.gps !== next.gps ||
+      existing.inspectExempt !== next.inspectExempt;
     if (changed) {
       await prisma.vehicle.update({ where: { id: existing.id }, data: next });
       updated++;

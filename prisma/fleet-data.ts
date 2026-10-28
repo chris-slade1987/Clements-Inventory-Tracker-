@@ -22,6 +22,9 @@ export type FleetSeed = {
   payoffDate: string | null;
   currentMileage: number | null;
   statusNotes: string | null;
+  // Force-EXCLUDE from the monthly inspection list (e.g. an owner's personal
+  // vehicle or a pool/spare unit the inspectable heuristic would otherwise pick up).
+  inspectExempt?: boolean;
 };
 
 export const FLEET_VEHICLES: FleetSeed[] = [
@@ -716,7 +719,8 @@ export const FLEET_VEHICLES: FleetSeed[] = [
     "monthlyPayment": null,
     "payoffDate": null,
     "currentMileage": null,
-    "statusNotes": null
+    "statusNotes": null,
+    "inspectExempt": true
   },
   {
     "unitNumber": "9",
