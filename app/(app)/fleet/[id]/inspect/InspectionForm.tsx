@@ -341,25 +341,38 @@ function SectionTitle({ n, title, hint }: { n: string; title: string; hint?: str
 // keeps reading it as a date; shows nothing picked until both are chosen.
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 function MonthYearSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  // Hold the two picks locally so a partial selection (month OR year, before the
+  // other is chosen) stays visible. The stored value only becomes a real date once
+  // BOTH are set — otherwise selecting one and emitting "" would wipe the dropdown.
   const [yStr, mStr] = (value ? value.slice(0, 7) : "").split("-");
-  const month = mStr ?? "";
-  const year = yStr ?? "";
+  const [month, setMonth] = useState(mStr ?? "");
+  const [year, setYear] = useState(yStr ?? "");
+
+  // Hydrate from the parent only when it carries a value (e.g. prefill / external
+  // change). Never clear a partial in-progress pick when the parent is still empty.
+  useEffect(() => {
+    if (!value) return;
+    const [y, m] = value.slice(0, 7).split("-");
+    setYear(y ?? "");
+    setMonth(m ?? "");
+  }, [value]);
+
   const nowY = new Date().getFullYear();
   const yearsSet = new Set<string>();
   for (let y = nowY - 1; y <= nowY + 4; y++) yearsSet.add(String(y));
   if (year) yearsSet.add(year); // keep an already-saved out-of-range year selectable
   const years = [...yearsSet].sort();
   const cls = "mt-1 w-full rounded-lg border border-line px-3 py-2.5 text-sm";
-  const emit = (m: string, y: string) => onChange(m && y ? `${y}-${m}-01` : "");
+  const update = (m: string, y: string) => { setMonth(m); setYear(y); onChange(m && y ? `${y}-${m}-01` : ""); };
   return (
     <div className="mt-1 grid grid-cols-2 gap-2">
-      <select aria-label="Oil change due month" className={cls} value={month} onChange={(e) => emit(e.target.value, year)}>
+      <select aria-label="Oil change due month" className={cls} value={month} onChange={(e) => update(e.target.value, year)}>
         <option value="">Month</option>
         {MONTH_NAMES.map((nm, i) => (
           <option key={nm} value={String(i + 1).padStart(2, "0")}>{nm}</option>
         ))}
       </select>
-      <select aria-label="Oil change due year" className={cls} value={year} onChange={(e) => emit(month, e.target.value)}>
+      <select aria-label="Oil change due year" className={cls} value={year} onChange={(e) => update(month, e.target.value)}>
         <option value="">Year</option>
         {years.map((y) => (
           <option key={y} value={y}>{y}</option>
