@@ -128,13 +128,13 @@ export default function ReviewForm({
 
       {/* Sticky save bar (reviewer/HR while editing) */}
       {canEdit ? (
-        <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-          <div className="max-w-3xl mx-auto flex items-center gap-4">
+        <div className="save-bar-fixed fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
+          <div className="save-bar-row max-w-3xl mx-auto">
             <div className="text-sm">
               <div className="font-semibold tabular-nums">{answered}/{totalItems} answered</div>
               <div className="text-xs text-muted capitalize">{status.replace(/_/g, " ")}</div>
             </div>
-            <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto inline-flex items-center gap-1.5`}>{busy ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save review"}</button>
+            <button onClick={save} disabled={busy} className={`${btn.primary} inline-flex items-center gap-1.5`}>{busy ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save review"}</button>
           </div>
         </div>
       ) : null}

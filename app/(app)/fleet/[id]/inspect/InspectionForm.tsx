@@ -298,8 +298,8 @@ export default function InspectionForm({
 
       {/* Sticky live score / save bar — offset to clear the mobile bottom nav
           (the app's bottom-20 md:bottom-4 floating pattern). */}
-      <div className="copilot-safe-actions fixed bottom-20 md:bottom-4 inset-x-0 sm:left-60 px-4 z-20">
-        <div className="max-w-3xl mx-auto flex items-center gap-4 rounded-xl border border-line bg-surface/95 backdrop-blur px-4 py-3 shadow-lg">
+      <div className="save-bar-fixed copilot-safe-actions fixed bottom-20 md:bottom-4 inset-x-0 sm:left-60 px-4 z-20">
+        <div className="save-bar-row max-w-3xl mx-auto rounded-xl border border-line bg-surface/95 backdrop-blur px-4 py-3 shadow-lg">
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">
@@ -311,7 +311,7 @@ export default function InspectionForm({
               </div>
             </div>
           </div>
-          <button onClick={save} disabled={!canSubmit} className={`${btn.primary} ml-auto`}>
+          <button onClick={save} disabled={!canSubmit} className={btn.primary}>
             {busy ? "Saving…" : isEdit ? "Update inspection" : "Save inspection"}
           </button>
         </div>

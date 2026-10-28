@@ -172,7 +172,7 @@ export default function AuditForm({
       {!emailConfigured ? <p className="text-[11px] text-amber-600">Email provider not configured — the manager&rsquo;s sign link is logged only until RESEND_API_KEY is set.</p> : null}
 
       {/* Sticky score / actions */}
-      <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
+      <div className="save-bar-fixed fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
         <div className="max-w-5xl mx-auto">
           {showSign ? (
             <div className="mb-3 rounded-xl border border-line bg-surface p-3">
@@ -187,12 +187,12 @@ export default function AuditForm({
               </div>
             </div>
           ) : null}
-          <div className="flex items-center gap-4">
+          <div className="save-bar-row">
             <div className="text-sm">
               <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
               <div className="text-xs text-muted">Branch compliance score{msg ? ` · ${msg}` : ""}</div>
             </div>
-            <div className="ml-auto flex gap-2">
+            <div className="flex gap-2">
               <button onClick={() => submit("save")} disabled={!!busy} className={btn.secondary}>{busy === "save" ? "Saving…" : "Save draft"}</button>
               <button onClick={() => setShowSign((s) => !s)} disabled={!!busy} className={btn.primary}>{pending ? "Re-sign & resend" : "Sign & send to manager"}</button>
             </div>

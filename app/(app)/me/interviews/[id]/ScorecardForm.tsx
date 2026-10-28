@@ -234,14 +234,16 @@ export default function ScorecardForm({
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       {!readOnly ? (
-        <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-          <div className="max-w-3xl mx-auto flex items-center gap-4">
+        <div className="save-bar-fixed fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
+          <div className="save-bar-row max-w-3xl mx-auto">
             <div className="text-sm">
               <div className="font-semibold tabular-nums">{ratedCount}/{template.competencies.length} rated</div>
               <div className="text-xs text-muted">All ratings, a recommendation & a summary are required to submit.</div>
             </div>
-            <button onClick={() => post("save")} disabled={busy !== null} className={`${btn.secondary} ml-auto inline-flex items-center gap-1.5`}>{busy === "save" ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save draft"}</button>
-            <button onClick={submit} disabled={busy !== null} className={btn.primary}>{busy === "submit" ? "Submitting…" : "Submit scorecard"}</button>
+            <div className="flex gap-2">
+              <button onClick={() => post("save")} disabled={busy !== null} className={`${btn.secondary} inline-flex items-center gap-1.5`}>{busy === "save" ? "Saving…" : saved ? (<><Glyph name="check" className="h-4 w-4" />Saved</>) : "Save draft"}</button>
+              <button onClick={submit} disabled={busy !== null} className={btn.primary}>{busy === "submit" ? "Submitting…" : "Submit scorecard"}</button>
+            </div>
           </div>
         </div>
       ) : null}

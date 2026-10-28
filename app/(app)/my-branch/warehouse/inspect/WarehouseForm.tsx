@@ -449,8 +449,8 @@ export default function WarehouseForm({
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-      <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
+      <div className="save-bar-fixed fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
+        <div className="save-bar-row max-w-3xl mx-auto">
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">
@@ -458,7 +458,7 @@ export default function WarehouseForm({
               <div className="text-xs text-muted">{answered}/{WAREHOUSE_ITEMS.length} answered{critFails.length ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}{alertKeys.length ? <span className="ml-2 text-amber-700 font-medium">· {alertKeys.length} alert{alertKeys.length === 1 ? "" : "s"}</span> : null}{issues.length ? <span className="ml-2 text-amber-700 font-medium">· {issues.length} to finish</span> : <span className="ml-2 text-emerald-700 font-medium">· ready to sign</span>}</div>
             </div>
           </div>
-          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : isEdit ? "Update & sign inspection" : "Save & sign inspection"}</button>
+          <button onClick={save} disabled={busy} className={btn.primary}>{busy ? "Saving…" : isEdit ? "Update & sign inspection" : "Save & sign inspection"}</button>
         </div>
       </div>
     </div>

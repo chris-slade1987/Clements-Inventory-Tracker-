@@ -56,10 +56,10 @@ export default function PrecheckClient({
         </label>
       </Card>
 
-      <div className="fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
+      <div className="save-bar-fixed fixed bottom-0 inset-x-0 sm:left-60 border-t border-line bg-surface/95 backdrop-blur px-4 py-3 z-20">
+        <div className="save-bar-row max-w-3xl mx-auto">
           <div className="text-sm"><span className="font-semibold tabular-nums">{done}/{all.length}</span> <span className="text-muted">complete · {pct}%</span>{msg ? <span className="ml-2 text-xs text-muted">{msg}</span> : null}</div>
-          <button onClick={save} disabled={busy} className={`${btn.primary} ml-auto`}>{busy ? "Saving…" : "Save checklist"}</button>
+          <button onClick={save} disabled={busy} className={btn.primary}>{busy ? "Saving…" : "Save checklist"}</button>
         </div>
       </div>
     </div>
