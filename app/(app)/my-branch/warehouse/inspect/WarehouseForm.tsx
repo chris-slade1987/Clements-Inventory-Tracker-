@@ -24,6 +24,20 @@ function gradeColor(g: string) {
   return "bg-red-100 text-red-700";
 }
 
+// Thin 1.6-stroke line icons (brand kit).
+function IconCheck({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+function IconX({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+function IconChevron({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6}><path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+function IconCamera({ className = "" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6}><path d="M3 9a2 2 0 0 1 2-2h2l1.4-2.1A1 1 0 0 1 9.2 4h5.6a1 1 0 0 1 .8.4L17 7h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" strokeLinecap="round" strokeLinejoin="round" /><circle cx="12" cy="13" r="3.2" /></svg>;
+}
+
 export default function WarehouseForm({
   branch, year, month, isEdit, prefill,
 }: {
@@ -56,9 +70,39 @@ export default function WarehouseForm({
   const [done, setDone] = useState(false);
 
   const repeats = new Set(prefill.repeats ?? []);
+
+  // Per-section stats computed from the current answers.
+  const sectionStats = (sectionItems: { key: string }[]) => {
+    let yes = 0, no = 0, answered = 0;
+    for (const it of sectionItems) {
+      const v = checks[it.key];
+      if (v === true) { yes++; answered++; }
+      else if (v === false) { no++; answered++; }
+    }
+    return { yes, no, answered, total: sectionItems.length, complete: answered === sectionItems.length, clean: answered === sectionItems.length && no === 0 };
+  };
+
+  // Collapsed sections. On first render: show the first unfinished section and
+  // fold the rest, so a fresh inspection reads as one guided step at a time.
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    const firstOpen = WAREHOUSE_SECTIONS.find((sec) => {
+      const s = sectionStats(sec.items);
+      return !s.complete || s.no > 0; // open the first incomplete section, or one with an issue
+    })?.section;
+    const set = new Set<string>();
+    for (const sec of WAREHOUSE_SECTIONS) if (sec.section !== firstOpen) set.add(sec.section);
+    return set;
+  });
+  const isCollapsed = (name: string) => collapsed.has(name);
+  const toggleSection = (name: string) => setCollapsed((s) => { const n = new Set(s); if (n.has(name)) n.delete(name); else n.add(name); return n; });
+  const collapse = (name: string) => setCollapsed((s) => new Set(s).add(name));
+  const openOnly = (names: string[]) => setCollapsed((s) => { const n = new Set(s); for (const nm of names) n.delete(nm); return n; });
+
   const live = useMemo(() => scoreWarehouse(checks), [checks]);
   const critFails = WAREHOUSE_ITEMS.filter((it) => it.critical && checks[it.key] === false);
   const answered = WAREHOUSE_ITEMS.filter((it) => checks[it.key] != null).length;
+  const pct = Math.round((answered / WAREHOUSE_ITEMS.length) * 100);
+  const noCount = WAREHOUSE_ITEMS.filter((it) => checks[it.key] === false).length;
   const labelFor = (key: string) => WAREHOUSE_ITEMS.find((i) => i.key === key)?.label ?? null;
   const alertKeys = [...alertOn];
   const photoLabelFor = (key: string) => WAREHOUSE_PHOTO_PROMPTS.find((p) => p.key === key)?.label ?? key;
@@ -75,6 +119,30 @@ export default function WarehouseForm({
   }
   function markNotAvailable(key: string) {
     setPhotos((s) => ({ ...s, [key]: { notAvailable: true, reason: s[key]?.reason ?? "", caption: "" } }));
+  }
+
+  // Set every item to Yes. Scope "all" fills the whole form; a section name fills
+  // just that section. The common case (everything passed) becomes one tap.
+  function markAllPassing(scope: "all" | string) {
+    setChecks((s) => {
+      const n = { ...s };
+      const items = scope === "all" ? WAREHOUSE_ITEMS : (WAREHOUSE_SECTIONS.find((x) => x.section === scope)?.items ?? []);
+      for (const it of items) n[it.key] = true;
+      return n;
+    });
+    if (scope === "all") {
+      setCollapsed(new Set(WAREHOUSE_SECTIONS.map((x) => x.section)));
+    } else {
+      // Collapse the finished section and open the next one still needing work.
+      collapse(scope);
+      const idx = WAREHOUSE_SECTIONS.findIndex((x) => x.section === scope);
+      const next = WAREHOUSE_SECTIONS.slice(idx + 1).find((x) => sectionStats(x.items).answered < x.items.length);
+      if (next) openOnly([next.section]);
+    }
+  }
+
+  function setAnswer(key: string, val: boolean) {
+    setChecks((s) => ({ ...s, [key]: val }));
   }
 
   async function onPhoto(key: string, file: File) {
@@ -116,7 +184,7 @@ export default function WarehouseForm({
     return (
       <Card className="p-5 max-w-md">
         <div className="flex items-center gap-2 text-brand-700">
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2}><path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <IconCheck className="h-6 w-6" />
           <h2 className="text-lg font-semibold">Inspection saved</h2>
         </div>
         <p className="mt-2 text-sm text-muted">Grade <span className="font-semibold text-ink">{live.grade}</span> ({live.score}/{live.maxScore}, {live.scorePct}%).{critFails.length ? ` ${critFails.length} critical item flagged.` : ""}</p>
@@ -140,41 +208,99 @@ export default function WarehouseForm({
         </label>
       </Card>
 
-      {WAREHOUSE_SECTIONS.map((sec) => (
-        <div key={sec.section} className="space-y-2">
-          <div className="text-sm font-semibold text-ink pt-1">{sec.section}</div>
-          {sec.items.map((it) => {
-            const val = checks[it.key];
-            const isNo = val === false;
-            const flagged = alertOn.has(it.key);
-            return (
-              <Card key={it.key} className={`p-3 ${it.critical && isNo ? "ring-1 ring-red-300" : ""}`}>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 text-sm text-ink">
-                    {it.label}
-                    {it.critical ? <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 align-middle">critical</span> : null}
-                    {repeats.has(it.key) ? <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 align-middle" title="Also failed the prior inspection">repeat</span> : null}
-                  </div>
-                  <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: true }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>Yes</button>
-                    <button onClick={() => setChecks((s) => ({ ...s, [it.key]: false }))} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>No</button>
-                  </div>
-                </div>
-                {isNo ? (
-                  <div className="mt-2 space-y-2">
-                    <textarea value={comments[it.key] ?? ""} onChange={(e) => setComments((s) => ({ ...s, [it.key]: e.target.value }))} rows={2} placeholder="Notes — what's wrong, what's needed, or corrective action (e.g. missing fire extinguisher — need a replacement)" className="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm" />
-                    <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
-                      <input type="checkbox" checked={flagged} onChange={() => toggleAlert(it.key)} />
-                      Create alert — notify supervisor
-                    </label>
-                    {flagged ? <p className="text-[11px] text-red-700">This note will be sent to the supervisor as an alert on save.</p> : null}
-                  </div>
-                ) : null}
-              </Card>
-            );
-          })}
+      {/* Quick-start + live progress. Most inspections pass, so lead with the one-tap path. */}
+      <Card className="p-4 bg-card-grad">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">Walk the warehouse, tap as you go</div>
+            <p className="mt-0.5 text-xs text-muted">Most items pass — tap <span className="font-medium text-ink">Mark all passing</span> to fill the checklist, then flip anything that failed to <span className="font-medium text-red-600">No</span> and add a note.</p>
+          </div>
+          <button onClick={() => markAllPassing("all")} className={`${btn.secondary} shrink-0`}>
+            <IconCheck className="h-4 w-4 text-emerald-600" /> Mark all passing
+          </button>
         </div>
-      ))}
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-ink">{answered} of {WAREHOUSE_ITEMS.length} answered</span>
+            <span className="text-muted">{pct}%{noCount ? <span className="ml-2 font-medium text-red-600">{noCount} flagged No</span> : null}</span>
+          </div>
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className={`h-full rounded-full transition-all ${answered === WAREHOUSE_ITEMS.length ? "bg-emerald-grad" : "bg-brand-400"}`} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </Card>
+
+      {WAREHOUSE_SECTIONS.map((sec, i) => {
+        const st = sectionStats(sec.items);
+        const open = !isCollapsed(sec.section);
+        // Header accent: red when something failed, emerald when all passed, slate otherwise.
+        const accent = st.no > 0 ? "border-l-red-400" : st.clean ? "border-l-emerald-400" : "border-l-slate-200";
+        const dot = st.no > 0 ? "bg-red-500" : st.clean ? "bg-emerald-500" : st.answered > 0 ? "bg-brand-400" : "bg-slate-300";
+        return (
+          <Card key={sec.section} className={`overflow-hidden border-l-4 ${accent} p-0`}>
+            <button type="button" onClick={() => toggleSection(sec.section)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-black/[0.015]">
+              <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white ${dot}`}>
+                {st.clean ? <IconCheck className="h-3.5 w-3.5" /> : st.no > 0 ? st.no : i + 1}
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-semibold text-ink">{sec.section}</span>
+                <span className="block text-xs text-muted">
+                  {st.answered}/{st.total} answered
+                  {st.no > 0 ? <span className="ml-2 font-medium text-red-600">{st.no} issue{st.no === 1 ? "" : "s"}</span> : st.clean ? <span className="ml-2 font-medium text-emerald-700">all clear</span> : null}
+                </span>
+              </span>
+              {!open && !st.complete ? (
+                <span onClick={(e) => { e.stopPropagation(); markAllPassing(sec.section); }} className={`${btn.secondary} hidden sm:inline-flex !px-3 !py-1.5 text-xs`} role="button">All passing</span>
+              ) : null}
+              <IconChevron className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`} />
+            </button>
+
+            {open ? (
+              <div className="space-y-2 border-t border-line px-3 py-3">
+                <div className="flex justify-end">
+                  <button type="button" onClick={() => markAllPassing(sec.section)} className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline">
+                    <IconCheck className="h-3.5 w-3.5" /> Mark all passing in this section
+                  </button>
+                </div>
+                {sec.items.map((it) => {
+                  const val = checks[it.key];
+                  const isNo = val === false;
+                  const flagged = alertOn.has(it.key);
+                  return (
+                    <div key={it.key} className={`rounded-xl p-3 ${isNo ? "bg-red-50/60 ring-1 ring-red-200" : val === true ? "bg-emerald-50/40" : "bg-black/[0.015]"}`}>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 text-sm text-ink">
+                          {it.label}
+                          {it.critical ? <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 align-middle">critical</span> : null}
+                          {repeats.has(it.key) ? <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 align-middle" title="Also failed the prior inspection">repeat</span> : null}
+                        </div>
+                        <div className="flex shrink-0 gap-1.5">
+                          <button onClick={() => setAnswer(it.key, true)} aria-pressed={val === true} className={`inline-flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${val === true ? "bg-emerald-grad text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
+                            <IconCheck className="h-4 w-4" /> Yes
+                          </button>
+                          <button onClick={() => setAnswer(it.key, false)} aria-pressed={val === false} className={`inline-flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${val === false ? "bg-red-500 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
+                            <IconX className="h-4 w-4" /> No
+                          </button>
+                        </div>
+                      </div>
+                      {isNo ? (
+                        <div className="mt-2.5 space-y-2">
+                          <textarea value={comments[it.key] ?? ""} onChange={(e) => setComments((s) => ({ ...s, [it.key]: e.target.value }))} rows={2} placeholder="What's wrong, what's needed, or corrective action (e.g. missing fire extinguisher — need a replacement)" className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm" />
+                          <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
+                            <input type="checkbox" checked={flagged} onChange={() => toggleAlert(it.key)} className="h-4 w-4" />
+                            Create alert — notify supervisor
+                          </label>
+                          {flagged ? <p className="text-[11px] text-red-700">This note will be sent to the supervisor as an alert on save.</p> : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </Card>
+        );
+      })}
 
       {/* Guided compliance photos */}
       <div className="space-y-2">
@@ -182,7 +308,7 @@ export default function WarehouseForm({
           <div className="text-sm font-semibold text-ink">Compliance photos</div>
           <span className="text-[11px] text-muted">{requiredDone}/{requiredShot} required · {photoCount} total</span>
         </div>
-        <p className="text-xs text-muted">Capture each so the record shows the branch was actually checked. Tap a tile to take or upload a photo.</p>
+        <p className="text-xs text-muted">Capture each so the record shows the branch was actually checked. Can&apos;t take one? Use <span className="font-medium text-amber-800">Not available</span> and say why.</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {WAREHOUSE_PHOTO_PROMPTS.map((p) => {
             const ph = photos[p.key];
@@ -200,10 +326,10 @@ export default function WarehouseForm({
 
                 {na ? (
                   <div className="mt-2 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-2">
-                    <div className="text-xs font-medium text-amber-900">Marked not available</div>
-                    <textarea value={ph?.reason ?? ""} onChange={(e) => setPhotos((s) => ({ ...s, [p.key]: { ...(s[p.key] ?? { caption: "" }), notAvailable: true, reason: e.target.value } }))} rows={2} placeholder="Why isn't this available? e.g. no eyewash station on site" className="w-full rounded-lg border border-amber-300 px-2 py-1.5 text-xs" />
+                    <div className="text-xs font-semibold text-amber-900">Marked not available</div>
+                    <textarea value={ph?.reason ?? ""} onChange={(e) => setPhotos((s) => ({ ...s, [p.key]: { ...(s[p.key] ?? { caption: "" }), notAvailable: true, reason: e.target.value } }))} rows={2} placeholder="Why isn't this available? e.g. no eyewash station on site" className="w-full rounded-lg border border-amber-300 bg-white px-2 py-1.5 text-xs" />
                     <label className="flex items-center gap-2 text-xs font-medium text-amber-800">
-                      <input type="checkbox" checked={naAlertOn.has(p.key)} onChange={() => toggleNaAlert(p.key)} />
+                      <input type="checkbox" checked={naAlertOn.has(p.key)} onChange={() => toggleNaAlert(p.key)} className="h-4 w-4" />
                       Create alert — notify supervisor
                     </label>
                     {naAlertOn.has(p.key) ? <p className="text-[11px] text-red-700">This will be sent to the supervisor as an alert on save.</p> : null}
@@ -216,11 +342,14 @@ export default function WarehouseForm({
                   </>
                 ) : (
                   <>
-                    <label className="mt-2 flex h-24 cursor-pointer items-center justify-center rounded-lg border border-dashed border-line text-xs font-medium text-brand-700 hover:bg-black/[0.02]">
-                      + Take / upload photo
+                    <label className="mt-2 flex h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-brand-300 text-xs font-medium text-brand-700 hover:bg-brand-50/50">
+                      <IconCamera className="h-5 w-5" />
+                      Take / upload photo
                       <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && onPhoto(p.key, e.target.files[0])} />
                     </label>
-                    <button type="button" onClick={() => markNotAvailable(p.key)} className="mt-1.5 text-xs font-medium text-muted hover:text-ink">Not available</button>
+                    <button type="button" onClick={() => markNotAvailable(p.key)} className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100">
+                      <IconX className="h-3.5 w-3.5" /> Not available — explain why
+                    </button>
                   </>
                 )}
               </Card>
@@ -243,7 +372,7 @@ export default function WarehouseForm({
           <input value={sigName} onChange={(e) => setSigName(e.target.value)} placeholder="Type your full name" className="flex-1 rounded-lg border border-line px-3 py-2 text-sm" />
         </div>
         <label className="mt-2 flex items-start gap-2 text-xs text-ink">
-          <input type="checkbox" checked={certified} onChange={(e) => setCertified(e.target.checked)} className="mt-0.5" />
+          <input type="checkbox" checked={certified} onChange={(e) => setCertified(e.target.checked)} className="mt-0.5 h-4 w-4" />
           I certify this inspection was completed accurately and the conditions recorded are true as of the inspection date.
         </label>
       </Card>
