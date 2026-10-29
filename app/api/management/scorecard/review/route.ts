@@ -49,6 +49,17 @@ export async function POST(req: Request) {
   const year = Number(body?.year);
   const quarter = Number(body?.quarter);
   const branch = String(body?.branch ?? "");
+
+  // ---- prepareQuarter (admin) — bulk-draft EVERY branch for the quarter -------
+  // No single branch; seeds each branch's draft Met/Not from the computed numbers.
+  if (action === "prepareQuarter") {
+    if (user.role !== "admin") return NextResponse.json({ error: "Admin only." }, { status: 403 });
+    if (!year || !quarter) return NextResponse.json({ error: "Missing year or quarter." }, { status: 400 });
+    const { prepareQuarter } = await import("@/lib/scorecard-prepare");
+    const results = await prepareQuarter(year, quarter);
+    return NextResponse.json({ ok: true, results });
+  }
+
   if (!action || !year || !quarter || !branch)
     return NextResponse.json({ error: "Missing action or period." }, { status: 400 });
 

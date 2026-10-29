@@ -50,6 +50,17 @@ export type ReviewSerialized = {
 
 export type ArchivedLite = { year: number; quarter: number; branch: string; branchLabel: string; score: number | null; archivedAt: string | null };
 
+// Result of the bulk "Prepare quarter" action (one per branch). Mirrors
+// lib/scorecard-prepare.ts PrepareBranchResult (redeclared here to avoid importing a
+// server-only module into the client).
+type PrepareBranchResult = {
+  branch: string; branchLabel: string;
+  status: "prepared" | "skipped_archived" | "skipped_published";
+  managerName: string | null;
+  filled: number; alreadySet: number; needsReview: number;
+  draftScore: number; projectedBonus: number;
+};
+
 export type SignInfo = {
   signUrl: string | null;
   managerEmail: string | null;
@@ -120,6 +131,23 @@ export default function ScorecardClient({
   });
   const [saving, setSaving] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
+  const [prepareResults, setPrepareResults] = useState<PrepareBranchResult[] | null>(null);
+
+  // Bulk "Prepare quarter" — draft every branch's card from the computed numbers so
+  // the reviewer starts from the system's Met/Not. Nothing is published/signed/paid.
+  async function prepareQuarterAll() {
+    if (!window.confirm(`Prepare Q${quarter} ${year} scorecards for all branches?\n\nThis drafts each branch's card and fills every metric's Met / Not-Met from the computed Q${quarter} numbers, so you can review, adjust, comment, and publish each one. It does NOT publish, sign, or pay anything. Metrics you've already marked — and any branch already published or filed — are left untouched.`)) return;
+    setSaving("prepare"); setBanner(null); setPrepareResults(null);
+    const res = await fetch("/api/management/scorecard/review", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "prepareQuarter", year, quarter }),
+    });
+    const d = await res.json().catch(() => ({}));
+    setSaving(null);
+    if (!res.ok) return setBanner(d.error ?? "Could not prepare the quarter.");
+    setPrepareResults((d.results ?? []) as PrepareBranchResult[]);
+    router.refresh();
+  }
 
   // Reset ALL local edits when the scorecard identity (branch/quarter/year)
   // changes — belt-and-suspenders on top of the per-identity remount key, so one
@@ -289,6 +317,11 @@ export default function ScorecardClient({
         <Selector label="Quarter" value={quarter} options={[1, 2, 3, 4].map((q) => ({ v: q, l: `Q${q}` }))} onChange={(v) => nav({ quarter: v })} />
         <Selector label="Branch" value={branch} options={branches.map((b) => ({ v: b.key, l: b.label }))} onChange={(v) => nav({ branch: v })} />
         <div className="ml-auto flex items-center gap-3">
+          {canEdit ? (
+            <button onClick={prepareQuarterAll} disabled={saving === "prepare"} className="rounded-lg bg-emerald-grad px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-black/10 hover:brightness-110 disabled:opacity-50" title="Draft every branch's scorecard for this quarter from the computed numbers">
+              {saving === "prepare" ? "Preparing…" : `Prepare Q${quarter} — all branches`}
+            </button>
+          ) : null}
           <button onClick={() => window.print()} className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-black/[0.03]">Print / PDF</button>
           <div className="text-right">
             <div className="text-xs uppercase tracking-wider text-muted">Composite score</div>
@@ -297,6 +330,43 @@ export default function ScorecardClient({
           </div>
         </div>
       </div>
+
+      {prepareResults ? (
+        <Card className="p-4 mb-4 print:hidden ring-1 ring-brand-200">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-ink">Q{quarter} {year} prepared — {prepareResults.filter((r) => r.status === "prepared").length} of {prepareResults.length} branches drafted</div>
+              <p className="mt-0.5 text-xs text-muted">Draft Met / Not-Met is filled from the computed numbers. Open each branch to review, add comments, and publish for signature. Nothing is published or paid yet.</p>
+            </div>
+            <button onClick={() => setPrepareResults(null)} className="shrink-0 text-xs text-muted hover:text-ink">Dismiss</button>
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {prepareResults.map((r) => {
+              const skipped = r.status !== "prepared";
+              return (
+                <button key={r.branch} onClick={() => nav({ branch: r.branch })} className={`rounded-lg border p-3 text-left transition-colors hover:bg-black/[0.02] ${r.branch === branch ? "border-brand-500" : "border-line"}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-ink">{r.branchLabel}</span>
+                    {skipped ? (
+                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">{r.status === "skipped_archived" ? "filed — skipped" : "published — skipped"}</span>
+                    ) : (
+                      <span className="text-sm font-semibold tabular-nums text-ink">{r.draftScore}% · ${r.projectedBonus.toLocaleString()}</span>
+                    )}
+                  </div>
+                  {skipped ? (
+                    <div className="mt-1 text-[11px] text-muted">Left untouched. Reopen it to re-prepare.</div>
+                  ) : (
+                    <div className="mt-1 text-[11px] text-muted">
+                      {r.managerName ? <span className="text-ink">{r.managerName}</span> : <span className="text-amber-700">no manager linked</span>}
+                      {" · "}{r.filled} filled{r.alreadySet ? ` · ${r.alreadySet} kept` : ""}{r.needsReview ? ` · ${r.needsReview} need review` : ""}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+      ) : null}
 
       {/* Momentum summary (motivation kit) — the weighted score as a ring, the
           bonus pool as attainment, and each measurable KPI as actual-vs-target.
