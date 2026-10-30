@@ -41,16 +41,23 @@ export async function ensureMbrLoaded(): Promise<void> {
       select: { id: true },
     });
     if (newestPeriod) {
-      // Sentinel = a branch-scoped P&L line (margin_pct). Gating on this (rather than
-      // just any branch month row) means that when a committed month gains NEW
-      // branch-level rows — e.g. the branch P&L detail: margin_pct / net_after_labor /
-      // stops / chemical_expense — the next boot backfills them instead of fast-pathing
-      // past the gap. Add-only, so nothing already loaded is touched.
-      const hasBranchPnl = await prisma.kpiValue.findFirst({
-        where: { periodId: newestPeriod.id, scope: { in: BRANCH_SCOPES }, kpiKey: "margin_pct" },
-        select: { id: true },
+      // "Already loaded?" check that AUTO-ADJUSTS to the committed data. Compare the
+      // DISTINCT branch-scoped kpi keys the newest month SHOULD have (straight from
+      // the JSON) against what the DB actually holds. When a committed month gains
+      // NEW branch keys in a later commit (e.g. first margin_pct/stops, then
+      // tech_wages/net_revenue), the DB is short one or more and we reconcile instead
+      // of fast-pathing past the gap. A single fixed sentinel key (the previous
+      // approach) silently missed keys added after it — the exact bug this replaces.
+      // Reconcile is add-only + idempotent, so at worst this runs one extra pass.
+      const wantKeys = [
+        ...new Set((newest.kpis as ParsedMbr[]).filter((k) => BRANCH_SCOPES.includes(k.scope)).map((k) => k.key)),
+      ];
+      const have = await prisma.kpiValue.findMany({
+        where: { periodId: newestPeriod.id, scope: { in: BRANCH_SCOPES }, kpiKey: { in: wantKeys } },
+        select: { kpiKey: true },
+        distinct: ["kpiKey"],
       });
-      if (hasBranchPnl) {
+      if (have.length >= wantKeys.length) {
         _ran = true;
         return;
       }
