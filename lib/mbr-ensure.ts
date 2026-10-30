@@ -41,11 +41,16 @@ export async function ensureMbrLoaded(): Promise<void> {
       select: { id: true },
     });
     if (newestPeriod) {
-      const hasBranchRows = await prisma.kpiValue.findFirst({
-        where: { periodId: newestPeriod.id, basis: "month", scope: { in: BRANCH_SCOPES } },
+      // Sentinel = a branch-scoped P&L line (margin_pct). Gating on this (rather than
+      // just any branch month row) means that when a committed month gains NEW
+      // branch-level rows — e.g. the branch P&L detail: margin_pct / net_after_labor /
+      // stops / chemical_expense — the next boot backfills them instead of fast-pathing
+      // past the gap. Add-only, so nothing already loaded is touched.
+      const hasBranchPnl = await prisma.kpiValue.findFirst({
+        where: { periodId: newestPeriod.id, scope: { in: BRANCH_SCOPES }, kpiKey: "margin_pct" },
         select: { id: true },
       });
-      if (hasBranchRows) {
+      if (hasBranchPnl) {
         _ran = true;
         return;
       }
