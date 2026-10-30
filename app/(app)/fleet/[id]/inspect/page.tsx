@@ -74,6 +74,16 @@ export default async function InspectPage({
   const vlabel = `${vehicle.unitNumber ? `#${vehicle.unitNumber} · ` : ""}${vehicle.name}`;
   const monthName = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long" });
 
+  // Where "← back" returns to. Opened from the Vehicle Inspections list
+  // (My Branch / Company center) → return to that list (preserving any branch
+  // filter) and keep the nav center there (AppShell reads ?src=branch too).
+  // Opened from the vehicle profile (default) → back to the profile.
+  const fromBranch = sp.src === "branch";
+  const backHref = fromBranch
+    ? `/my-branch/inspections${sp.branch ? `?branch=${sp.branch}` : ""}`
+    : `/fleet/${id}`;
+  const backLabel = fromBranch ? "Vehicle Inspections" : vlabel;
+
   // Read-only report view: clicked into from the inspections list when an inspection
   // exists. Editing stays on the form (?view omitted).
   if (existing && sp.view === "report") {
@@ -81,7 +91,7 @@ export default async function InspectPage({
     return (
       <>
         <div className="mb-2 flex items-center justify-between gap-3">
-          <Link href={`/fleet/${id}`} className="text-xs font-medium text-brand-700 hover:underline">← {vlabel}</Link>
+          <Link href={backHref} className="text-xs font-medium text-brand-700 hover:underline">← {backLabel}</Link>
           <PrintButton />
         </div>
         <PageHeader title="Vehicle Inspection Report" subtitle={[vlabel, vehicle.branch ? branchLabel(vehicle.branch) : null].filter(Boolean).join(" · ")} />
@@ -100,7 +110,7 @@ export default async function InspectPage({
   return (
     <>
       <div className="mb-2">
-        <Link href={`/fleet/${id}`} className="text-xs font-medium text-brand-700 hover:underline">← {vlabel}</Link>
+        <Link href={backHref} className="text-xs font-medium text-brand-700 hover:underline">← {backLabel}</Link>
       </div>
       <PageHeader
         title="Monthly Vehicle Inspection"

@@ -281,6 +281,12 @@ export default function AppShell({
           // fixed nav, so mode is cosmetic for them.
           : pathname.startsWith("/sales")
             ? "manager"
+          // A vehicle-inspection form/report opened FROM the Vehicle Inspections
+          // list (My Branch / Company center) carries ?src=branch — keep that
+          // originating center lit instead of bumping the nav to Fleet, so the
+          // report's "← back" returns to the list rather than the vehicle profile.
+          : (/^\/fleet\/[^/]+\/inspect/.test(pathname) && searchParams.get("src") === "branch")
+            ? "manager"
           : pathname.startsWith("/fleet")
             ? "fleet"
           : pathname.startsWith("/dashboard") ||
