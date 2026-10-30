@@ -69,10 +69,11 @@ export const SCORECARD_METRICS: ScorecardMetric[] = [
   { key: "stops", label: "Stops Completed", weight: 10, type: "auto", direction: "higher", kpi: "stops", unit: "count" },
   { key: "new_sales", label: "New Sales", weight: 15, type: "auto", direction: "higher", unit: "usd", quarterlyBranchKpi: "new_sales" },
   { key: "cancellations", label: "Cancellations", weight: 15, type: "auto", direction: "lower", unit: "usd", quarterlyBranchKpi: "cancellations" },
-  // Chemical is purchase-based per branch (MMR) but only company-wide in the
-  // model — a known gap the Q1 card itself flagged. Placeholder until branch
-  // chemical is wired; reviewer marks it manually.
-  { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 5, type: "placeholder", direction: "lower", unit: "pct", placeholderHint: "Per-branch chemical is purchase-based (MMR); the model carries chemical company-wide only — mark manually until branch chemical is wired." },
+  // Chemical cost % of branch net revenue. Branch chemical is now loaded from the
+  // Monthly Manager Report (purchase-based per branch); scored against a fixed 10%
+  // ceiling (COO policy — the MBR carries no per-branch chemical budget), lower is
+  // better. actual = chemical_expense ÷ net_revenue (both branch-scoped, YTD).
+  { key: "chemical_pct", label: "Chemical Cost % of Revenue", weight: 5, type: "auto", direction: "lower", kpi: "chemical_expense", ratioOf: "net_revenue", unit: "pct", fixedTarget: 10 },
   { key: "attrition_rate", label: "Attrition Rate (YTD)", weight: 10, type: "auto", direction: "lower", kpi: "attrition", unit: "pct", perQuarterTarget: 2.5, bookRate: true },
   // Field QC ride-behinds — auto-suggested Met/Not from real completion (goal
   // 20/month → 60/quarter; see lib/qc.ts). Weight 0 for now: it appears on the

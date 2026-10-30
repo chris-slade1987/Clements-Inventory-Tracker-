@@ -1613,6 +1613,90 @@
       "basis": "ytd",
       "actual": 50930,
       "budget": null
+    },
+    {
+      "key": "tech_wages",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 759881.16,
+      "budget": 751922.9
+    },
+    {
+      "key": "tech_wages",
+      "scope": "vero",
+      "basis": "month",
+      "actual": 97476.24,
+      "budget": null
+    },
+    {
+      "key": "net_revenue",
+      "scope": "vero",
+      "basis": "ytd",
+      "actual": 3153151,
+      "budget": null
+    },
+    {
+      "key": "tech_wages",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 197096.91,
+      "budget": 205624.25
+    },
+    {
+      "key": "tech_wages",
+      "scope": "stuart",
+      "basis": "month",
+      "actual": 22166.99,
+      "budget": null
+    },
+    {
+      "key": "net_revenue",
+      "scope": "stuart",
+      "basis": "ytd",
+      "actual": 889164,
+      "budget": null
+    },
+    {
+      "key": "tech_wages",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 224548.5,
+      "budget": 218405.79
+    },
+    {
+      "key": "tech_wages",
+      "scope": "orlando",
+      "basis": "month",
+      "actual": 27106.5,
+      "budget": null
+    },
+    {
+      "key": "net_revenue",
+      "scope": "orlando",
+      "basis": "ytd",
+      "actual": 1037909,
+      "budget": null
+    },
+    {
+      "key": "tech_wages",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 130745.6,
+      "budget": 94573.98
+    },
+    {
+      "key": "tech_wages",
+      "scope": "naples",
+      "basis": "month",
+      "actual": 11096.4,
+      "budget": null
+    },
+    {
+      "key": "net_revenue",
+      "scope": "naples",
+      "basis": "ytd",
+      "actual": 611946,
+      "budget": null
     }
   ],
   "lob": [
