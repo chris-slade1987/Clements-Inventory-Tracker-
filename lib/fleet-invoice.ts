@@ -4,6 +4,7 @@
 // belongs to (a shop statement often bills several trucks on one document).
 
 import { SERVICE_TYPES } from "@/lib/fleet";
+import { aiModel } from "@/lib/ai-model";
 
 export type MaintLine = {
   description: string;
@@ -159,7 +160,7 @@ export function maintReaderMode(): "claude" | "mock" {
 async function claudeParse(base64: string, mime: string): Promise<MaintInvoice> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
 
   const fileBlock: Block =
     mime === "application/pdf"

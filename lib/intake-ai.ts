@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { branchLabel } from "@/lib/management";
 import { INTAKE_DESTINATIONS, destinationLabel, suggestDestination, type DestinationKey, type IntakeAnalysis, type RouteParams, type Suggestion } from "@/lib/intake";
 
@@ -110,7 +111,7 @@ function destinationsBlock(): string {
 async function callClaude(analysis: IntakeAnalysis, vehicleLabel: string | null, history: ChatTurn[], userMessage: string): Promise<IntakeReply | null> {
   const apiKey = process.env.SALES_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
   const context = `File read:\n- kind: ${analysis.kind}\n- title: ${analysis.title}\n- summary: ${analysis.summary}\n- extracted: ${JSON.stringify(analysis.fields)}${vehicleLabel ? `\n- best vehicle match: ${vehicleLabel}` : ""}`;
   const convo: ChatTurn[] = [
     { role: "user", content: `${context}\n\n---\nManager: ${userMessage}` },

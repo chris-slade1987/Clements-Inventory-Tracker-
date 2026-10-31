@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { cell, branchLabel, type Cell, type Scope } from "@/lib/management";
 
 // AI KPI summary. Turns a loaded period's budget-vs-actual KPI map into a short,
@@ -17,7 +18,7 @@ const pct = (n: number | null) => (n == null ? "—" : `${n.toFixed(1)}%`);
 async function callClaude(system: string, prompt: string, maxTokens: number): Promise<string | null> {
   const apiKey = process.env.KPI_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

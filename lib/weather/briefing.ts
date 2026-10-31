@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import type { BriefingContent, DayPoint, Flag, HourPoint, RiskLevel, WxAlert } from "./types";
 import { localDate, localHour } from "./rules";
 
@@ -145,9 +146,15 @@ export function fallbackBriefing(args: BriefingArgs): BriefingContent {
 
 /** Generate the AI briefing; falls back deterministically on any failure. */
 export async function generateBriefing(args: BriefingArgs): Promise<{ content: BriefingContent; model: string }> {
+  // Cost guard: the ops brief is regenerated for all four branches on a schedule
+  // (cron) AND on page view, so an AI call here spends credits continuously even
+  // with no users. Default to the deterministic rules-based brief (identical
+  // structure, no API call) and only call the model when AI briefs are explicitly
+  // enabled. Flip WEATHER_AI_BRIEF=1 to turn the AI narrative back on.
+  if (process.env.WEATHER_AI_BRIEF !== "1") return { content: fallbackBriefing(args), model: "fallback" };
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return { content: fallbackBriefing(args), model: "fallback" };
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

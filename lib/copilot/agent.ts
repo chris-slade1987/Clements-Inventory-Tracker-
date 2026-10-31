@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import type { SessionUser } from "@/lib/auth";
 import { retrieve, type RetrievedChunk } from "@/lib/copilot/retrieve";
 import { buildSystemPrompt, type CopilotScreen } from "@/lib/copilot/system-prompt";
@@ -52,7 +53,7 @@ export type CopilotInput = {
 
 // ---- config -----------------------------------------------------------------
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+const MODEL = aiModel.smart();
 const MAX_TOOL_ITERATIONS = 5; // cap on tool-use round trips
 const RETRIEVE_K = 6;
 

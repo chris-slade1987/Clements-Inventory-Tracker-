@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { aiModel } from "@/lib/ai-model";
 
 // Insurance module: policy registry across all lines of business, renewal
 // tracking, annual cost per line (with sublines broken out), and a monthly
@@ -128,7 +129,7 @@ function extractJson(text: string): Record<string, unknown> {
 async function claudeAnalyze(base64: string, mime: string): Promise<InsuranceAnalysis> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-  const model = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest";
+  const model = aiModel.smart();
   const fileBlock: Block =
     mime === "application/pdf"
       ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64 } }

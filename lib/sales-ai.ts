@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { branchLabel } from "@/lib/management";
 import { diagnoseFunnel, projectClose, type AdvisorFunnel } from "@/lib/sales-funnel";
 import { heatMapFacts, sourceFacts, type HeatMap, type SourcePerformance } from "@/lib/sales-leads";
@@ -18,7 +19,7 @@ const pctOf = (n: number) => `${Math.round(n * 100)}%`;
 async function callClaude(system: string, prompt: string, maxTokens: number): Promise<string | null> {
   const apiKey = process.env.SALES_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

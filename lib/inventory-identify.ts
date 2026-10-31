@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 
@@ -165,7 +166,7 @@ export async function identifyProduct(
     return res;
   }
 
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), IDENTIFY_TIMEOUT_MS);
 
@@ -282,7 +283,7 @@ async function visionJson(
 ): Promise<Record<string, unknown> | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || base64s.length === 0) return null;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), IDENTIFY_TIMEOUT_MS);
   try {

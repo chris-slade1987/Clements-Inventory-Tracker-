@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { uomCode, UOM_CODES } from "@/lib/uom";
 
 // Conversational assistant for the Check-In review screen. The manager is
@@ -125,7 +126,7 @@ async function callClaude(
 ): Promise<CheckInChatResult | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
   const context = draftContext(draft, warehouses);
   const messages = [
     ...history.slice(-8).map((m) => ({ role: m.role, content: m.content })),

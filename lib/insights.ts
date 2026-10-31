@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import {
   BRANCHES,
   branchLabel,
@@ -269,7 +270,7 @@ export type InsightsMessage = { role: "user" | "assistant"; content: string };
 export async function runInsightsChat(messages: InsightsMessage[]): Promise<string> {
   const apiKey = process.env.INSIGHTS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("No Anthropic API key configured");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
 
   const snapshot = await buildInsightsContext();
 

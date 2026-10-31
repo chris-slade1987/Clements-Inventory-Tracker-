@@ -1,4 +1,5 @@
 import type { ParsedInvoice, ParsedLine } from "./types";
+import { aiModel } from "@/lib/ai-model";
 
 const EXTRACT_PROMPT = `You are reading a distributor invoice for a pest-control company. Extract the invoice into JSON with EXACTLY this shape and nothing else:
 
@@ -41,7 +42,7 @@ export async function claudeParse(
 ): Promise<ParsedInvoice> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
 
   const fileBlock: Block =
     mime === "application/pdf"

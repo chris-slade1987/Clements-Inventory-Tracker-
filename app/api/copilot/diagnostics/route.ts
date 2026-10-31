@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { canManageAccessRights } from "@/lib/access";
 import { hasCopilotKey, runCopilotAgent } from "@/lib/copilot/agent";
+import { aiModel } from "@/lib/ai-model";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -45,13 +46,19 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!canManageAccessRights(user)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart(); // the Copilot's tier — ping with the same model it uses
   const env = {
     hasCopilotKey: hasCopilotKey(),
     ANTHROPIC_API_KEY: mask(process.env.ANTHROPIC_API_KEY),
     INSIGHTS_ANTHROPIC_API_KEY: mask(process.env.INSIGHTS_ANTHROPIC_API_KEY),
-    ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || "(unset → default claude-opus-4-8)",
-    resolvedModel: model,
+    tiers: { cheap: aiModel.cheap(), smart: aiModel.smart() },
+    overrides: {
+      ANTHROPIC_MODEL_ALL: process.env.ANTHROPIC_MODEL_ALL ?? "(unset)",
+      ANTHROPIC_MODEL_CHEAP: process.env.ANTHROPIC_MODEL_CHEAP ?? "(unset)",
+      ANTHROPIC_MODEL_SMART: process.env.ANTHROPIC_MODEL_SMART ?? "(unset)",
+      ANTHROPIC_MODEL_legacy_ignored: process.env.ANTHROPIC_MODEL ?? "(unset)",
+    },
+    weatherAiBrief: process.env.WEATHER_AI_BRIEF === "1",
   };
 
   const ping = await rawPing(model);

@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { ROLE_LABELS, type TemplateKind } from "@/lib/hiring-templates";
 import { isResponseType, type ResponseType } from "@/lib/ats-config";
 
@@ -40,7 +41,7 @@ export async function draftHiringQuestions(input: {
 }): Promise<AiQuestionSuggestion[]> {
   const apiKey = process.env.INSIGHTS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("No Anthropic API key configured");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
 
   const roleLabel = input.role ? ROLE_LABELS[input.role] ?? input.role : "any role";
   const parts = [

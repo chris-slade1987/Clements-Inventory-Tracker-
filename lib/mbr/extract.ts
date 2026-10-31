@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { aiModel } from "@/lib/ai-model";
 
 // MBR (Monthly Board Report) ingestion. Upload the PDF each month → Claude reads
 // it (document vision, same path as the invoice reader) → preview → commit.
@@ -68,7 +69,7 @@ Rules:
 export async function claudeExtractMbr(base64: string, mime: string): Promise<ParsedMbr> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
 
   const fileBlock =
     mime === "application/pdf"

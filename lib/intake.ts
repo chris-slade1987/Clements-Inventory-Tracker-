@@ -1,4 +1,5 @@
 import "server-only";
+import { aiModel } from "@/lib/ai-model";
 import { prisma } from "@/lib/prisma";
 import { matchDocVehicle } from "@/lib/documents";
 import { readUpload } from "@/lib/storage";
@@ -78,7 +79,7 @@ type Block =
 async function claudeRead(base64: string, mime: string): Promise<IntakeAnalysis> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.smart();
   const fileBlock: Block =
     mime === "application/pdf"
       ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64 } }

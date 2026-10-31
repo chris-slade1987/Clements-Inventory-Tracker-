@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { aiModel } from "@/lib/ai-model";
 
 // The cost-savings agent. Runs alongside the anomaly agent on "run checks now".
 // It looks for opportunities to spend less on the same job and files them as
@@ -282,7 +283,7 @@ type Lead = { productId: string; alternative: string; manufacturer?: string; rat
 
 async function fetchMarketLeads(products: ProductStat[]): Promise<Lead[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY!;
-  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+  const model = aiModel.cheap();
   const list = products
     .map(
       (p) =>
