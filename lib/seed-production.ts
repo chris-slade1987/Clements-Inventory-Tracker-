@@ -15,13 +15,19 @@ import novSeed from "@/prisma/data/seed-production-2026-11.json";
 //
 // Months carried:
 //   2026-10 — full six-report ingest (real completion data).
-//   2026-11 — baseline plan from the Technician Schedule Report only (the month hasn't
-//             started, so everything is scheduled/forward-looking; completion is 0 until
-//             the live production reports are uploaded during/after November).
+//   2026-11 — baseline plan from the PestPac Appointment List (forward-looking; completion
+//             0 until the live production reports are uploaded during/after November).
 //
-// Idempotent PER MONTH: a period that already has rows (e.g. a manager later uploads the
-// live November reports) is skipped, so this never clobbers real data. Best-effort: any
-// error is swallowed so it can never block a page render.
+// REVISIONED PER MONTH. Each seed carries a `revision`; the Setting
+// `production_seed_rev:<periodKey>` records the revision last applied. On boot:
+//   - marker === seed.revision  → nothing to do (fast path).
+//   - otherwise                 → REPLACE the period (delete its three tables + reload)
+//                                 and stamp the marker to the new revision.
+// This lets a corrected seed (e.g. the Nov routing re-export → revision 2) actually land
+// in a prod DB that already holds the earlier revision — the old `if (existing>0) skip`
+// could never do that. A plain idempotent re-run is still a no-op (marker already matches),
+// so a live manager upload is only ever replaced by a DELIBERATE revision bump in the repo.
+// Best-effort: any error is swallowed so it can never block a page render.
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ProductionSeed = any;
@@ -34,13 +40,17 @@ export async function ensureProductionSeed(): Promise<void> {
   try {
     for (const seed of SEEDS) {
       try {
-        const existing = await prisma.routeMonth.count({ where: { periodKey: seed.periodKey } });
-        if (existing > 0) continue; // month already present — never overwrite real uploads
+        const rev = String(seed.revision ?? 1);
+        const markerKey = `production_seed_rev:${seed.periodKey}`;
+        const marker = await prisma.setting.findUnique({ where: { key: markerKey } });
+        if (marker?.value === rev) continue; // already at this revision — leave live data alone
 
-        // All-or-nothing per month: a partial seed (routes without their left-behind jobs)
-        // would let a manager sign a week with jobs silently dropped, so wrap the three
-        // inserts in one transaction.
+        // (Re)load this month: replace its rows, then stamp the revision. All-or-nothing so a
+        // partial seed can't let a manager sign a week with jobs silently dropped.
         await prisma.$transaction([
+          prisma.routeMonth.deleteMany({ where: { periodKey: seed.periodKey } }),
+          prisma.leftBehindJob.deleteMany({ where: { periodKey: seed.periodKey } }),
+          prisma.productionReportUpload.deleteMany({ where: { periodKey: seed.periodKey } }),
           prisma.routeMonth.createMany({
             data: (seed.routeMonth as ProductionSeed[]).map((r) => ({
               ...r,
@@ -61,6 +71,7 @@ export async function ensureProductionSeed(): Promise<void> {
               uploadedAt: r.uploadedAt ? new Date(r.uploadedAt) : undefined,
             })),
           }),
+          prisma.setting.upsert({ where: { key: markerKey }, update: { value: rev }, create: { key: markerKey, value: rev } }),
         ]);
       } catch {
         // best-effort per month; a failure on one month must not block the others
