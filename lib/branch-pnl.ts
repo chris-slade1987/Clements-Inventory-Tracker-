@@ -220,9 +220,20 @@ export async function buildDashboardPayload(
       ? { label: d.sub.label, unit: "pct" as const, series: dseries(d.sub.key, srcScope) }
       : null;
 
+    // Sparkline: the metric's recent monthly actuals (real posted months) so each
+    // tile shows its own trend, not just a point-in-time bar. Skipped for fuel
+    // (its branch value is modeled from Coast fuel, not a KpiValue monthly series).
+    const spark = d.fuel
+      ? undefined
+      : (await trend(d.key, srcScope as never, "month"))
+          .map((r) => r.actual)
+          .filter((v): v is number => v != null)
+          .slice(-10);
+
     metrics.push({
       key: d.key, label: d.label, group: d.group, unit: d.unit,
       higherIsBetter: d.hib, companyWide, pctOfRev, revDenom, series, sub,
+      spark: spark && spark.length >= 2 ? spark : undefined,
     });
   }
 

@@ -34,6 +34,7 @@ export type DMetric = {
   revDenom: "branch" | "company" | null;
   series: DSeries;
   sub?: { label: string; unit: "pct"; series: DSeries } | null;
+  spark?: number[]; // recent monthly actuals for the tile sparkline
 };
 
 export type MonthlyPt = { label: string; actual: number | null; target: number | null };
@@ -304,24 +305,48 @@ function Headline({ payload }: { payload: DashboardPayload }) {
 }
 
 // ---- Tile -----------------------------------------------------------------
+// Compact inline trend for a KPI card — recent monthly actuals, colored by whether
+// the metric is beating budget. No axes/labels (the card carries the numbers); a
+// hover title gives the raw series for the curious. Replaces the uniform "slider" look.
+function Sparkline({ data, favorable }: { data: number[]; favorable: boolean | null }) {
+  if (!data || data.length < 2) return null;
+  const W = 92, H = 28, pad = 3;
+  const min = Math.min(...data), max = Math.max(...data);
+  const span = max - min || 1;
+  const x = (i: number) => pad + (i / (data.length - 1)) * (W - pad * 2);
+  const y = (val: number) => H - pad - ((val - min) / span) * (H - pad * 2);
+  const pts = data.map((val, i) => `${x(i)},${y(val)}`).join(" ");
+  const color = favorable == null ? SAGE : favorable ? FAV : UNFAV;
+  const lastX = x(data.length - 1), lastY = y(data[data.length - 1]);
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0" role="img" aria-label="recent trend">
+      <polyline points={pts} fill="none" stroke={color} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" opacity={0.9} />
+      <circle cx={lastX} cy={lastY} r={2.4} fill={color} />
+    </svg>
+  );
+}
+
 function Tile({ m, basis, payload }: { m: DMetric; basis: DBasis; payload: DashboardPayload }) {
   const c = cellFor(m.series, basis);
   const { v, favorable } = variance(c, m.higherIsBetter);
 
+  // Refined bullet: a slim track, a solid actual fill colored by performance, and a
+  // crisp target notch — plus the attainment % read-out. One clean mark per card.
   let bar: React.ReactNode = null;
   if (c.actual != null && c.budget != null && c.budget !== 0) {
     const max = Math.max(Math.abs(c.actual), Math.abs(c.budget)) * 1.15 || 1;
     const aw = Math.min(100, (Math.abs(c.actual) / max) * 100);
     const bw = Math.min(100, (Math.abs(c.budget) / max) * 100);
+    const attain = Math.round((c.actual / c.budget) * 100);
     bar = (
-      <div className="flex flex-col gap-1.5">
-        <div className="relative h-2 rounded-full" style={{ background: MIST }}>
-          <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${aw}%`, background: favorable ? `linear-gradient(90deg, ${FAV}, ${SAGE})` : `linear-gradient(90deg, ${UNFAV}, #d9736e)` }} />
-          <div className="absolute -top-0.5 -bottom-0.5 w-0.5" style={{ left: `${bw}%`, background: INK, opacity: 0.55 }} />
+      <div className="mt-0.5 flex flex-col gap-1">
+        <div className="relative h-1.5 rounded-full" style={{ background: MIST }}>
+          <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${aw}%`, background: favorable ? FAV : UNFAV }} />
+          <div className="absolute -top-1 -bottom-1 w-[2px] rounded-full" style={{ left: `calc(${bw}% - 1px)`, background: INK, opacity: 0.6 }} title="budget" />
         </div>
         <div className="flex justify-between text-[10.5px] text-muted">
-          <span>actual {fmt(c.actual, m.unit)}</span>
-          <span>bdgt {fmt(c.budget, m.unit)}</span>
+          <span className="tabular-nums">{attain}% of budget</span>
+          <span>target {fmt(c.budget, m.unit)}</span>
         </div>
       </div>
     );
@@ -368,9 +393,14 @@ function Tile({ m, basis, payload }: { m: DMetric; basis: DBasis; payload: Dashb
         </div>
         {m.companyWide ? <CoTag /> : null}
       </div>
-      <div className="text-2xl font-light leading-none tabular-nums text-ink">{fmt(c.actual, m.unit)}</div>
-      <div className="text-[11.5px] text-muted">{c.budget == null ? "actual only" : `vs ${fmt(c.budget, m.unit)} budget`}</div>
-      <div>{v != null ? <Pill favorable={favorable}>{varText(v, m.unit, c.budget)}</Pill> : <Pill favorable={null}>no target</Pill>}</div>
+      <div className="flex items-end justify-between gap-2">
+        <div className="text-2xl font-light leading-none tabular-nums text-ink">{fmt(c.actual, m.unit)}</div>
+        {m.spark ? <Sparkline data={m.spark} favorable={favorable} /> : null}
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11.5px] text-muted">{c.budget == null ? "actual only" : `vs ${fmt(c.budget, m.unit)} budget`}</span>
+        {v != null ? <Pill favorable={favorable}>{varText(v, m.unit, c.budget)}</Pill> : <Pill favorable={null}>no target</Pill>}
+      </div>
       {bar}
       {pctRev}
       {m.sub ? (() => {
