@@ -12,6 +12,8 @@ import { currentPeriodKey } from "@/lib/sales";
 import { getProductionRollup } from "@/lib/branch-production-ingest";
 import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
+import { buildScorecardRows, weightedScore, bonusEarned, MANAGER_BONUS_TARGET, getScorecardReview } from "@/lib/scorecard";
+import ScorecardStrip, { type ScorecardStripData } from "@/components/ScorecardStrip";
 
 // Executive dashboard — OVERVIEW tab. The role-scoped operating budget-vs-actual-
 // vs-forecast dashboard over real MBR data (headline KPIs, pacing to budget, FY
@@ -74,6 +76,38 @@ export async function OverviewPanel({
         : "ytd";
   const basis: DBasis = basisParam === "month" ? "month" : basisParam === "cy_forecast" ? "fy" : "ytd";
 
+  // Scorecard front-and-center: the branch KPIs ARE the manager scorecard inputs
+  // (production, margin %, tech-wages %, stops, new sales, cancellations, chemical %,
+  // attrition rate), so lead the branch view with this quarter's weighted score,
+  // bonus, and each metric's Met/Not — sourced identically to the scorecard itself.
+  // Branch scope only (a company view has no single scorecard). Non-fatal.
+  let scorecard: ScorecardStripData | null = null;
+  if (!isCompany && branch) {
+    const q = Math.floor((period.month - 1) / 3) + 1;
+    try {
+      const [rows, review] = await Promise.all([
+        buildScorecardRows(period.year, q, branch),
+        getScorecardReview(period.year, q, branch),
+      ]);
+      const metState: Record<string, boolean | null> = {};
+      for (const r of rows) metState[r.key] = r.met ?? r.suggested ?? null;
+      const score = weightedScore(metState);
+      scorecard = {
+        year: period.year,
+        quarter: q,
+        branchLabel: scopeLabel,
+        score,
+        bonus: bonusEarned(score),
+        pool: MANAGER_BONUS_TARGET,
+        status: review?.status === "archived" ? "final" : "tracking",
+        metrics: rows.map((r) => ({ key: r.key, label: r.label, weight: r.weight, unit: r.unit, actual: r.actual, target: r.budgetTarget, met: metState[r.key], direction: r.direction })),
+        href: locked ? "/my-branch/scorecard" : `/management/scorecards?year=${period.year}&quarter=${q}&branch=${branch}`,
+      };
+    } catch {
+      scorecard = null;
+    }
+  }
+
   // Quarter view: the three KPIs with true monthly history, summed over the quarter.
   const quarterCells = quarterSel ? await scopeQuarterAll(scope, period.year, quarterSel) : null;
 
@@ -124,6 +158,8 @@ export async function OverviewPanel({
 
       <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
       {selector}
+
+      {scorecard ? <ScorecardStrip data={scorecard} /> : null}
 
       {prodRollup && prodRollup.some((r) => r.periodKey) ? (
         <div className="mb-4 rounded-xl border border-line bg-surface p-4">
