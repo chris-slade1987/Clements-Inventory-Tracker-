@@ -13,6 +13,7 @@ import { ensureUserWarehouses } from "@/lib/inventory-scope";
 import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 import { ensureProductionSeed } from "@/lib/seed-production";
 import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
+import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -45,6 +46,12 @@ export default async function AppGroupLayout({
   // Load Graham's paper Q4 2026 Orlando branch audit as an editable draft so he
   // can open, sign, and route it to the branch manager. Idempotent, non-fatal.
   await ensureOrlandoQ4AuditDraft();
+
+  // Apply the 2026-10-30 go-live physical-count on-hand baseline (the real
+  // starting point for route/technician inventory tracking). Full reset to the
+  // count sheet; idempotent (Setting marker), self-retries until the catalog +
+  // warehouses exist, non-fatal.
+  await ensureOnHandBaseline();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

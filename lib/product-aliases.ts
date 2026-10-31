@@ -130,6 +130,15 @@ export const PRODUCT_ALIASES: Record<string, string> = {
   "lesco 25-0-10 granular fert": "Lesco 25-0-10 Granular Fert",
   "lesco fertilizer 13-0-0": "Lesco Fertilizer 13-0-0",
   "pt wasp freeze": "PT wasp Freeze",
+
+  // --- Oct 30 2026 go-live physical-count sheet variants (confirmed by COO).
+  // The on-hand count sheet names four products differently than the approved
+  // catalog; these map each sheet row to its existing catalog product so the
+  // baseline updates the right SKU (never creates a new one).
+  "lesco fertilizer 25-0-10": "Lesco 25-0-10 Granular Fert",
+  "crosscheck 0.069% plus fertilizer (0-0-7)": "Crosscheck 0.069% Plus",
+  "pt alpine fleas and bedbug": "PT Alpine",
+  "nutra-tech 12-0-12": "Lesco Macron Soluble Fertilizer", // verify: only liquid-macro catalog SKU
 };
 
 /** Resolve a history material name to an approved product name, or null. */
