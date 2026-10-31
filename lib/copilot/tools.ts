@@ -145,7 +145,7 @@ const getBranchKpis: CopilotTool = {
   schema: {
     name: "get_branch_kpis",
     description:
-      "Get the caller's branch KPIs vs budget (production, new sales, cancellations, margin, tech wages, route contribution, etc.) for the latest Monthly Board Report period, month and YTD. Branch managers always get their own branch; executives/admins may pass a branch key (vero|stuart|orlando|naples) or 'company'. Never returns manager/individual compensation.",
+      "Get a branch's (or the company's) KPIs vs budget — production, new sales, cancellations, margin %, tech wages, route contribution, stops — for the latest Monthly Board Report period, BOTH month and YTD. This is the tool for ANY question about performance numbers, e.g. 'how is Stuart doing this year?', 'Stuart's YTD KPIs', 'what's our margin YTD?', 'are we over on tech wages?', 'production vs budget'. Call it rather than answering from the manual or sending the user to a dashboard. Branch managers always get their own branch; executives/admins may pass a branch key (vero|stuart|orlando|naples) or 'company'. Never returns manager/individual compensation.",
     input_schema: {
       type: "object",
       properties: {
