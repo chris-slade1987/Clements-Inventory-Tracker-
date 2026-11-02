@@ -3877,6 +3877,9 @@ model RouteMonth {
   periodKey             String   @map("period_key") // "YYYY-MM"
   route                 String   // PestPac route / tech number
   techName              String?  @map("tech_name")
+  // False when no technician whose number matches this route services it (pure
+  // coverage/spillover, e.g. route 04 run by tech 01) — sorted to the bottom.
+  techMatched           Boolean  @default(true) @map("tech_matched")
   scheduledCount        Int      @default(0) @map("scheduled_count")
   scheduledDollars      Float    @default(0) @map("scheduled_dollars")
   completedCount        Int      @default(0) @map("completed_count")

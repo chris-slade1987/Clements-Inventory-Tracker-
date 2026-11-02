@@ -151,7 +151,7 @@ export type RouteMonthView = Awaited<ReturnType<typeof getBranchProductionMonth>
 /** Read a branch's computed production month + totals + left-behind for the UI. */
 export async function getBranchProductionMonth(branch: string, periodKey: string) {
   const [routes, uploads] = await Promise.all([
-    prisma.routeMonth.findMany({ where: { branch, periodKey }, orderBy: [{ leftBehindCount: "desc" }, { route: "asc" }] }).catch(() => []),
+    prisma.routeMonth.findMany({ where: { branch, periodKey }, orderBy: [{ techMatched: "desc" }, { leftBehindCount: "desc" }, { route: "asc" }] }).catch(() => []),
     prisma.productionReportUpload.findMany({ where: { periodKey }, orderBy: { uploadedAt: "desc" } }).catch(() => []),
   ]);
   const totals = routes.reduce(
