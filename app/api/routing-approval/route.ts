@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
 import { ingestRoutingReport, previewRoutingReport } from "@/lib/routing-ingest";
+import { ingestAppointmentSchedule } from "@/lib/routing-appointments";
+import { previewAppointmentSchedule } from "@/lib/routing-appointments-parse";
 import { ensureRoutingMonth, getRoutingOverview, getTechDays, currentRoutingPeriod } from "@/lib/routing";
 import { geocodeRoutingMonth } from "@/lib/geocode";
 import { branchLabel } from "@/lib/management";
@@ -28,7 +30,9 @@ export async function POST(req: Request) {
       if (user.role !== "admin") return NextResponse.json({ error: "Only admins can load the monthly routing export." }, { status: 403 });
       const text = typeof body?.text === "string" ? body.text : "";
       if (!text.trim()) return NextResponse.json({ error: "Empty file." }, { status: 400 });
-      const r = await previewRoutingReport(text);
+      // The Appointment List (timed per-day schedule) and the Technician Schedule
+      // Report are both accepted; detect which from the header.
+      const r = /Appointment List/i.test(text) ? previewAppointmentSchedule(text) : await previewRoutingReport(text);
       return NextResponse.json(r, { status: r.ok ? 200 : 400 });
     }
 
@@ -37,7 +41,10 @@ export async function POST(req: Request) {
       if (user.role !== "admin") return NextResponse.json({ error: "Only admins can load the monthly routing export." }, { status: 403 });
       const text = typeof body?.text === "string" ? body.text : "";
       if (!text.trim()) return NextResponse.json({ error: "Empty file." }, { status: 400 });
-      const r = await ingestRoutingReport({ text, fileName: str(body?.fileName) ?? "routing.xls", uploadedById: user.id, uploadedByName: user.name ?? user.email });
+      const fileName = str(body?.fileName) ?? "routing.xls";
+      const r = /Appointment List/i.test(text)
+        ? await ingestAppointmentSchedule({ text, fileName, uploadedById: user.id, uploadedByName: user.name ?? user.email })
+        : await ingestRoutingReport({ text, fileName, uploadedById: user.id, uploadedByName: user.name ?? user.email });
       if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 });
       return NextResponse.json(r);
     }

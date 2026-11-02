@@ -14,6 +14,7 @@ import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 import { ensureProductionSeed } from "@/lib/seed-production";
 import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
+import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -52,6 +53,11 @@ export default async function AppGroupLayout({
   // count sheet; idempotent (Setting marker), self-retries until the catalog +
   // warehouses exist, non-fatal.
   await ensureOnHandBaseline();
+
+  // Load the committed PestPac Appointment List as the per-day timed route schedule
+  // (Routes view): times shown, floated appointments sorted to the end of each day.
+  // Idempotent (revisioned Setting marker), self-retries, non-fatal.
+  await ensureRoutingAppointments();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

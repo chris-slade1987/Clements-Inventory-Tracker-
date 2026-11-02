@@ -3686,7 +3686,9 @@ model RouteStop {
   routingMonthId String   @map("routing_month_id")
   techName       String   @map("tech_name")
   date           DateTime // service day
-  seq            Int // stop order within the day (1..x)
+  seq            Int // stop order within the day (1..x) — timed appts first (list order), floated last
+  time           String?  @map("appt_time") // "06:50 AM-06:55 AM" from the Appointment List; null = floated
+  floated        Boolean  @default(false) // no scheduled time — do it anywhere in the day; sorted to the end
   account        String? // PestPac account # — the key a PestPac re-route import matches on
   service        String?
   customer       String?

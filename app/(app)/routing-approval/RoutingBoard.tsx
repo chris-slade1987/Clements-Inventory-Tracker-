@@ -15,7 +15,7 @@ const money = (n: number) => "$" + Math.round(n).toLocaleString();
 
 type Finding = { id: string; severity: string; title: string; detail: string; question: string | null; requiresResponse: boolean; managerResponse: string | null; status: string };
 type Tech = { id: string; routeNo: string | null; name: string; kind: string; partnerRouteNo: string | null; totalDays: number; totalStops: number; totalDollars: number; avgStopsPerDay: number | null; estMiles: number | null; estDriveMinutes: number | null; status: string; approved: boolean; perStop: number; loads: number[]; findings: Finding[] };
-type Stop = { seq: number; account: string; svc: string; customer: string; addr: string; city: string; zip: string; lat: number | null; lng: number | null; amt: number };
+type Stop = { seq: number; time: string | null; floated: boolean; account: string; svc: string; customer: string; addr: string; city: string; zip: string; lat: number | null; lng: number | null; amt: number };
 type Day = { date: string; stops: Stop[] };
 type Move = { account: string; customer: string; addr: string; city: string; amt: number; svc: string; from: string; to: string };
 type Proposal = { moves: Move[]; balBefore: number; balAfter: number; maxBefore: number; maxAfter: number };
@@ -479,18 +479,19 @@ function StopList({ sel, day, locks, setLocks, signed, setProposal }: { sel: Tec
   return (
     <div className="max-h-[460px] overflow-y-auto rounded-xl border border-line">
       <table className="w-full min-w-[340px] text-sm">
-        <thead><tr className="text-[11px] uppercase tracking-wide text-muted"><th className="border-b border-line px-2 py-2 text-right">#</th><th className="border-b border-line px-2 py-2 text-left">Service</th><th className="border-b border-line px-2 py-2 text-left">Address</th><th className="border-b border-line px-2 py-2 text-right">$</th><th className="border-b border-line px-2 py-2">Lock</th></tr></thead>
+        <thead><tr className="text-[11px] uppercase tracking-wide text-muted"><th className="border-b border-line px-2 py-2 text-right">#</th><th className="border-b border-line px-2 py-2 text-left">Time</th><th className="border-b border-line px-2 py-2 text-left">Service · Customer</th><th className="border-b border-line px-2 py-2 text-left">Address</th><th className="border-b border-line px-2 py-2 text-right">$</th><th className="border-b border-line px-2 py-2">Lock</th></tr></thead>
         <tbody>
           {day.stops.map((s) => { const lk = locks.has(key(s.seq)); return (
-            <tr key={s.seq} className="border-b border-line last:border-0">
+            <tr key={s.seq} className={`border-b border-line last:border-0 ${s.floated ? "bg-black/[0.015]" : ""}`}>
               <td className="px-2 py-1.5 text-right tabular-nums">{s.seq}</td>
-              <td className="px-2 py-1.5">{s.svc}</td>
-              <td className="px-2 py-1.5">{s.addr}, {s.city} {s.zip}</td>
+              <td className="px-2 py-1.5 whitespace-nowrap">{s.floated ? <span className="rounded bg-black/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-muted">Floated</span> : <span className="tabular-nums text-ink">{(s.time ?? "").split("-")[0].trim()}</span>}</td>
+              <td className="px-2 py-1.5">{s.svc}{s.customer ? <span className="text-xs text-muted"> · {s.customer}</span> : null}</td>
+              <td className="px-2 py-1.5 text-muted">{s.addr}{s.city ? `, ${s.city}` : ""} {s.zip}</td>
               <td className="px-2 py-1.5 text-right tabular-nums">{money(s.amt)}</td>
               <td className="px-2 py-1.5"><button disabled={signed} onClick={() => toggle(s.seq)} className={`rounded-md border px-2 py-0.5 text-[11px] ${lk ? "border-brand-500 bg-brand-50 text-brand-700" : "border-line text-muted hover:bg-black/5"}`}>{lk ? "Locked" : "Lock"}</button></td>
             </tr>
           ); })}
-          <tr className="bg-brand-50 font-medium"><td className="px-2 py-1.5 text-right">—</td><td className="px-2 py-1.5">{day.stops.length} stops</td><td /><td className="px-2 py-1.5 text-right tabular-nums">{money(total)}</td><td /></tr>
+          <tr className="bg-brand-50 font-medium"><td className="px-2 py-1.5 text-right">—</td><td /><td className="px-2 py-1.5">{day.stops.length} stops</td><td /><td className="px-2 py-1.5 text-right tabular-nums">{money(total)}</td><td /></tr>
         </tbody>
       </table>
     </div>
