@@ -149,7 +149,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
     if (!sel) return;
     setLocating(true);
     try {
-      await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "geocode", branch: data.month.branch, periodKey }) });
+      await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "geocode", branch: data.month.branch, periodKey, techName: sel.name }) });
       setDaysByTech((p) => { const n = { ...p }; delete n[sel.name]; return n; });
     } catch { /* ignore */ } finally { setLocating(false); }
   }

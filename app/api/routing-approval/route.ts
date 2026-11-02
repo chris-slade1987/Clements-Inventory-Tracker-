@@ -5,7 +5,7 @@ import { ingestRoutingReport, previewRoutingReport } from "@/lib/routing-ingest"
 import { ingestAppointmentSchedule } from "@/lib/routing-appointments";
 import { previewAppointmentSchedule } from "@/lib/routing-appointments-parse";
 import { ensureRoutingMonth, getRoutingOverview, getTechDays, currentRoutingPeriod } from "@/lib/routing";
-import { geocodeRoutingMonth } from "@/lib/geocode";
+import { geocodeRoutingMonth, geocodeRoutingTech } from "@/lib/geocode";
 import { branchLabel } from "@/lib/management";
 
 export const runtime = "nodejs";
@@ -66,7 +66,13 @@ export async function POST(req: Request) {
 
     if (action === "geocode") {
       const month = await ensureRoutingMonth(branch, periodKey);
-      const n = await geocodeRoutingMonth(month.id, 60).catch(() => 0);
+      // Geocode the route the manager is viewing FIRST, generously, so one click
+      // fully plots that technician's stops (markers + the ordered path + Play).
+      // Then top up the rest of the month's backlog so repeated clicks drain it.
+      const techName = str(body?.techName);
+      let n = 0;
+      if (techName) n += await geocodeRoutingTech(month.id, techName, 600).catch(() => 0);
+      n += await geocodeRoutingMonth(month.id, 300).catch(() => 0);
       return NextResponse.json({ ok: true, geocoded: n });
     }
 

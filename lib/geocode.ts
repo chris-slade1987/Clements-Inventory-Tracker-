@@ -129,6 +129,34 @@ export async function geocodeBacklog(cap = 1200): Promise<{ months: number; geoc
   return { months: months.length, geocoded };
 }
 
+/** Fill missing coordinates for ONE technician's stops in a month, generously
+ *  bounded so a single "Locate stops" click fully plots the route the manager is
+ *  looking at (markers + the ordered path + Play). Cached addresses resolve for
+ *  free; only brand-new lookups count against the cap. Returns stops updated. */
+export async function geocodeRoutingTech(routingMonthId: string, techName: string, cap = 600): Promise<number> {
+  const stops = await prisma.routeStop
+    .findMany({ where: { routingMonthId, techName, lat: null }, select: { id: true, address: true, city: true, zip: true } })
+    .catch(() => []);
+  if (!stops.length) return 0;
+  const byQuery = new Map<string, string[]>();
+  for (const s of stops) {
+    const q = normalizeAddress(s.address || "", s.city || "", "FL", s.zip || "");
+    if (!q) continue;
+    if (!byQuery.has(q)) byQuery.set(q, []);
+    byQuery.get(q)!.push(s.id);
+  }
+  const geo = await geocodeMany([...byQuery.keys()], { max: cap });
+  let n = 0;
+  for (const [q, ids] of byQuery) {
+    const g = geo.get(q);
+    if (g) {
+      await prisma.routeStop.updateMany({ where: { id: { in: ids } }, data: { lat: g.lat, lng: g.lng } }).catch(() => {});
+      n += ids.length;
+    }
+  }
+  return n;
+}
+
 /** Fill missing coordinates for a routing month's stops, bounded per call so it
  *  can run on demand (page load / a job) without stalling. Returns how many stops
  *  were updated. Non-fatal. */
