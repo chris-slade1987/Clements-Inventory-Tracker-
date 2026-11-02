@@ -130,6 +130,11 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
   // Techs we've already auto-geocoded this session — so the map fills itself on
   // open without the manager hunting for "Locate stops", but never loops.
   const autoLocatedRef = useRef<Set<string>>(new Set());
+  // Smooth-scroll to the selected route's detail card when the manager picks a
+  // row, so the data/map that renders BELOW the roster isn't missed. Skipped on
+  // first mount so opening the page doesn't auto-jump past the table.
+  const focusRef = useRef<HTMLDivElement | null>(null);
+  const firstSelRef = useRef(true);
   const [signName, setSignName] = useState("");
   const signed = data.month.status === "signed";
   const sel = data.techs.find((t) => t.id === selId) || data.techs[0] || null;
@@ -182,6 +187,18 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel, daysByTech, locating]);
+
+  // When the manager selects a different route, bring its detail card into view.
+  useEffect(() => {
+    if (firstSelRef.current) { firstSelRef.current = false; return; }
+    const el = focusRef.current;
+    if (!el) return;
+    // Defer a frame so the card has rendered/expanded before we measure it.
+    requestAnimationFrame(() => {
+      const y = el.getBoundingClientRect().top + window.scrollY - 84; // clear the sticky nav
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    });
+  }, [selId]);
 
   if (!data.month.loaded) {
     return <UploadEmpty canUpload={canUpload} periodKey={periodKey} branch={data.month.branch} />;
@@ -257,7 +274,9 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
       </Card>
 
       {/* focus */}
-      {sel && <FocusCard sel={sel} days={days} selDate={selDate} setSelDate={setSelDate} periodKey={periodKey} locks={locks} setLocks={setLocks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed} busy={busy} post={post} onLocate={locateStops} locating={locating} branch={data.month.branch} />}
+      <div ref={focusRef}>
+        {sel && <FocusCard sel={sel} days={days} selDate={selDate} setSelDate={setSelDate} periodKey={periodKey} locks={locks} setLocks={setLocks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed} busy={busy} post={post} onLocate={locateStops} locating={locating} branch={data.month.branch} />}
+      </div>
 
       {/* sign-off */}
       {!signed && (

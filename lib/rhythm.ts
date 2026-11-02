@@ -75,7 +75,9 @@ function assemble(now: Date, byHorizon: Partial<Record<RhythmHorizon, RhythmItem
 export type BranchRhythmInput = {
   now: Date;
   quarter: number;
-  weeklyChecklistDone: boolean;
+  /** Weekly Branch Command sign-off state, or null to hide the weekly item
+   *  entirely (e.g. temporarily pulled for the November rollout). */
+  weeklyChecklistDone: boolean | null;
   weeklyChecklistHref: string;
   routing?: { loaded: boolean; signed: boolean; overdue: boolean; href: string } | null;
   inspections: { completed: number; total: number } | null;
@@ -96,7 +98,7 @@ export function buildBranchRhythm(i: BranchRhythmInput): RhythmSegment[] {
       ? { key: "b_today_attn", label: "Items need attention", href: "#needs-attention", meta: String(i.openAttention), status: "due" }
       : { key: "b_today_clear", label: "Nothing outstanding today", meta: "Clear", status: "done" },
   ];
-  const week: RhythmItem[] = [
+  const week: RhythmItem[] = i.weeklyChecklistDone === null ? [] : [
     {
       key: "b_weekly", label: "Branch Command (weekly review)", href: i.weeklyChecklistHref,
       meta: i.weeklyChecklistDone ? "Signed" : "Not signed",

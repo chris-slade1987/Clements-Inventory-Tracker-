@@ -12,8 +12,11 @@ import { reviewsForReviewer, REVIEW_LABEL } from "@/lib/review";
 import { listEmployees } from "@/lib/people";
 import { listVehicles } from "@/lib/fleet";
 import { inspectionStatus } from "@/lib/inspection";
-import { sweepMissedChecklists, openMisses, fridayLabel, endOfMonthLabel, fridayEndOf, endOfMonth } from "@/lib/checklists";
-import { getCurrentBranchWeekSummary } from "@/lib/branch-command";
+import { sweepMissedChecklists, openMisses, endOfMonthLabel, endOfMonth } from "@/lib/checklists";
+// NOTE: `fridayLabel` and `fridayEndOf` were used only by the temporarily-removed
+// Branch Command weekly to-do below — re-import them when restoring it next week.
+// NOTE: getCurrentBranchWeekSummary import removed with the temporary pull of the
+// Branch Command weekly to-do (COO, 2026-11-02) — restore it when re-adding, week of 11/9.
 import { getRoutingSummary, sweepMissedRouting, routingDueDate } from "@/lib/routing";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
@@ -102,7 +105,6 @@ export default async function MyBranchPage({
   const scBranch = branch ?? BRANCHES[0].key;
   const warehouse = await warehouseStatus(year, month, scBranch);
   // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
-  const bwSummary = await getCurrentBranchWeekSummary(scBranch, now);
   // Routing sign-off is pinned to the LIVE Eastern-Time month (not the grace month):
   // the "Complete {month} routing sign-off" to-do is a current-month item that shows
   // immediately even during the October grace window. Routing for month M is due by
@@ -151,7 +153,7 @@ export default async function MyBranchPage({
   // real signal — QC has no completion feed yet, so it's left out rather than
   // counted as always-incomplete).
   const duties: boolean[] = [
-    bwSummary.signed,
+    // Branch Command weekly review temporarily pulled (COO, 2026-11-02) — re-add week of 11/9.
     ...(insp.total > 0 ? [insp.pending === 0] : []),
     warehouse.done,
     ...(totalTraining > 0 ? [trainingDone] : []),
@@ -172,7 +174,7 @@ export default async function MyBranchPage({
   const rhythm = buildBranchRhythm({
     now,
     quarter,
-    weeklyChecklistDone: bwSummary.signed,
+    weeklyChecklistDone: null, // Branch Command weekly review temporarily hidden — re-add week of 11/9.
     weeklyChecklistHref: `/branch-command?branch=${scBranch}`,
     routing: routingSummary.exists
       ? { loaded: routingSummary.loaded, signed: routingSignoffDone, overdue: routingOverdue, href: `/routing-approval?branch=${scBranch}&period=${routingPeriodKey}&signoff=1` }
@@ -202,7 +204,9 @@ export default async function MyBranchPage({
   const monthlyDue = todo.isOctoberGrace ? new Date(Date.UTC(2026, 10, 6, 23, 59, 59)) : endOfMonth(now);
   const monthlyDueLabel = todo.isOctoberGrace ? "Fri, Nov 6" : endOfMonthLabel(now);
   const cadence: CadenceRow[] = [
-    { label: "Branch Command (weekly review)", href: `/branch-command?branch=${scBranch}`, done: bwSummary.signed, status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed", cadence: "Weekly", due: fridayEndOf(now), dueLabel: fridayLabel(now) },
+    // TEMPORARILY REMOVED (COO, 2026-11-02) — re-add during the November to-do update
+    // (week of 11/9). Restore this line and re-import `fridayEndOf`/`fridayLabel` above:
+    // { label: "Branch Command (weekly review)", href: `/branch-command?branch=${scBranch}`, done: bwSummary.signed, status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed", cadence: "Weekly", due: fridayEndOf(now), dueLabel: fridayLabel(now) },
     { label: `Complete ${routingMonthName} routing sign-off`, href: `/routing-approval?branch=${scBranch}&period=${routingPeriodKey}&signoff=1`, done: routingSignoffDone, status: routingSignoffStatus, cadence: "Monthly", due: routingDue, dueLabel: routingDue.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }) },
     { label: todo.isOctoberGrace ? "Vehicle Inspections (October)" : "Vehicle Inspections", href: "/my-branch/inspections", done: insp.pending === 0, status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned", cadence: "Monthly", due: monthlyDue, dueLabel: monthlyDueLabel },
     { label: todo.isOctoberGrace ? "Warehouse safety inspection (October)" : "Warehouse safety inspection", href: "/my-branch/warehouse", done: warehouse.done, status: warehouse.done ? "Logged this month" : "Not logged yet", cadence: "Monthly", due: monthlyDue, dueLabel: monthlyDueLabel },
