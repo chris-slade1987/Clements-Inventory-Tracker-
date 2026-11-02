@@ -3,6 +3,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps } from "@/lib/inspection";
+import { managerTodoPeriod } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,9 @@ export default async function InspectionsPage({
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  // Follow the manager to-do period so the outstanding October items stay visible
+  // through the COO's grace window (flips to November on Mon 11/9). See lib/date.ts.
+  const { year, month } = managerTodoPeriod();
 
   const [insp, grades, coverageGaps] = await Promise.all([
     inspectionStatus(year, month, branch ?? undefined),
@@ -81,7 +82,7 @@ export default async function InspectionsPage({
                       )}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <Link href={`/fleet/${r.id}/inspect?${r.inspection ? "view=report&" : ""}src=branch${requested ? `&branch=${requested}` : ""}`} className="text-xs font-medium text-brand-700 hover:underline">
+                      <Link href={`/fleet/${r.id}/inspect?${r.inspection ? "view=report&" : ""}src=branch&year=${year}&month=${month}${requested ? `&branch=${requested}` : ""}`} className="text-xs font-medium text-brand-700 hover:underline">
                         {r.inspection ? "View report" : "Start inspection"}
                       </Link>
                     </td>

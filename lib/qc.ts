@@ -106,10 +106,25 @@ export async function monthlyQcProgress(branch: string, key: string = monthKey()
 }
 
 /**
+ * Months where field QC is WAIVED and CREDITED toward the quarterly scorecard.
+ *
+ * October 2026 QC waived: field quality-control ride-behinds roll out in November
+ * 2026, so branch managers could NOT perform October checks. We credit each waived
+ * month its full monthly goal (20) toward the quarter's `done` — i.e. treat October
+ * as met — so managers aren't penalized on the quarterly scorecard/review for a
+ * process that didn't exist yet (COO directive, Nov 2026). This credit is applied
+ * at the SCORING layer only; we never fabricate QcInspection rows, so the audit
+ * trail stays honest (the Branch Hub archive still shows exactly what was done).
+ * Remove a month here if/when it is ever backfilled with real inspections.
+ */
+export const QC_CREDITED_MONTHS = new Set<string>(["2026-10"]);
+
+/**
  * Quarterly QC compliance for the scorecard: total inspections done this quarter
  * vs the expected 20/month × 3 months = 60. `complete` once the branch has met
  * the full quarter's goal. Mirrors the vehicle/warehouse/training compliance
- * helpers so the scorecard can auto-suggest Met/Not.
+ * helpers so the scorecard can auto-suggest Met/Not. Waived months (see
+ * QC_CREDITED_MONTHS) are credited their full goal toward `done`.
  */
 export async function quarterQcCompliance(year: number, quarter: number, branch: string) {
   const qMonths = QUARTER_MONTHS[quarter] ?? [];
@@ -121,10 +136,14 @@ export async function quarterQcCompliance(year: number, quarter: number, branch:
   });
   const ghp = rows.find((r) => r.type === "ghp")?._count._all ?? 0;
   const lo = rows.find((r) => r.type === "lo")?._count._all ?? 0;
-  const done = ghp + lo;
+  // Credit any waived month in this quarter its full monthly goal (see above).
+  const creditedMonths = keys.filter((k) => QC_CREDITED_MONTHS.has(k)).length;
+  const credited = creditedMonths * QC_MONTHLY_GOAL_PER_TYPE * 2;
+  const actual = ghp + lo;
+  const done = actual + credited;
   const expected = QC_MONTHLY_GOAL_PER_TYPE * 2 * qMonths.length; // 20 × 3 = 60
   const pct = expected > 0 ? Math.round((done / expected) * 1000) / 10 : 0;
-  return { ghp, lo, done, expected, months: qMonths.length, pct, complete: expected > 0 && done >= expected };
+  return { ghp, lo, actual, credited, done, expected, months: qMonths.length, pct, complete: expected > 0 && done >= expected };
 }
 
 // ---- Queries ---------------------------------------------------------------

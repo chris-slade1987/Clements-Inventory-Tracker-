@@ -80,7 +80,9 @@ export type BranchRhythmInput = {
   routing?: { loaded: boolean; signed: boolean; overdue: boolean; href: string } | null;
   inspections: { completed: number; total: number } | null;
   warehouseDone: boolean;
-  qcLogged: boolean;
+  /** QC ride-behinds this month, or null to hide the item (e.g. the Oct-2026 grace
+   *  window, before field QC rolled out in November). */
+  qc: { logged: boolean } | null;
   training: { done: number; total: number } | null;
   scorecard: { scored: number; of: number; pct: number };
   openAttention: number;
@@ -118,10 +120,11 @@ export function buildBranchRhythm(i: BranchRhythmInput): RhythmSegment[] {
     key: "b_wh", label: "Warehouse inspection", href: "/my-branch/warehouse",
     meta: i.warehouseDone ? "Logged" : "Not logged", status: i.warehouseDone ? "done" : "due",
   });
-  month.push({
-    key: "b_qc", label: "Quality control reports", href: "/my-branch/qc",
-    meta: i.qcLogged ? "Logged" : "Due", status: i.qcLogged ? "done" : "due",
-  });
+  if (i.qc)
+    month.push({
+      key: "b_qc", label: "Quality control reports", href: "/my-branch/qc",
+      meta: i.qc.logged ? "Logged" : "Due", status: i.qc.logged ? "done" : "due",
+    });
   if (i.training && i.training.total > 0)
     month.push({
       key: "b_train", label: "Onboarding / CEU training", href: "/my-branch/training",

@@ -4,6 +4,7 @@ import { requireUser, scopedBranch, branchLocked, isFieldOpsDirector } from "@/l
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import { warehouseStatus, warehouseHistory, openWarehouseNeeds, weeklyCheckStatus, parseJson } from "@/lib/warehouse";
+import { managerTodoPeriod } from "@/lib/date";
 import WarehouseNeeds from "./WarehouseNeeds";
 import WeeklyCheck from "./WeeklyCheck";
 
@@ -27,9 +28,10 @@ export default async function WarehousePage({
   const locked = branchLocked(user);
   const canInspect = user.role === "admin" || user.role === "manager";
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  // Follow the manager to-do period so an outstanding October inspection stays
+  // visible (and fileable) through the COO's grace window; flips to November on
+  // Mon 11/9. The "Start inspection" link below carries this year/month. See lib/date.ts.
+  const { year, month } = managerTodoPeriod();
 
   const effBranch = branch ?? BRANCHES[0].key;
   const status = await warehouseStatus(year, month, effBranch);

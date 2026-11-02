@@ -561,6 +561,9 @@ export async function buildScorecardRows(year: number, quarter: number, branch: 
     if (m.key === "quality_control") {
       suggested = qcComp.complete;
       detail = `${qcComp.done}/${qcComp.expected} QC inspections this quarter (${qcComp.ghp} GHP + ${qcComp.lo} L&O · ${qcComp.pct}%)`;
+      // October 2026 QC is credited (process rolls out November) — surface it so the
+      // Met/Not reads honestly and the credit is visible to the reviewer.
+      if (qcComp.credited > 0) detail += ` · includes ${qcComp.credited} credited (Oct 2026 waived — field QC rolls out November)`;
     }
     return {
       key: m.key,

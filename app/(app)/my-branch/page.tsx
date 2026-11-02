@@ -21,6 +21,7 @@ import ComposeThread from "@/components/ComposeThread";
 import ClearReminderButton from "@/components/ClearReminderButton";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
+import { monthlyQcProgress } from "@/lib/qc";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
 import FollowUps from "./FollowUps";
 import MyBranchViewToggle from "./MyBranchViewToggle";
@@ -28,6 +29,7 @@ import { AchievementBar, ProgressRing, encouragement } from "@/components/motiva
 import AskCanopy from "@/components/AskCanopy";
 import WeatherTile from "@/components/WeatherTile";
 import { listProductionPeriods, getBranchProductionMonth } from "@/lib/branch-production-ingest";
+import { managerTodoPeriod, etPeriodKey } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 
@@ -53,8 +55,14 @@ export default async function MyBranchPage({
   const prodGlance = branch && glancePeriod ? await getBranchProductionMonth(branch, glancePeriod) : null;
 
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  // Manager to-do period. During the COO's October-2026 grace window (through the
+  // weekend of Fri 11/6) this stays pinned to October so managers' OUTSTANDING
+  // October items (vehicle inspections, warehouse inspection, monthly duties) keep
+  // showing instead of being hidden behind November; it flips to the live ET month
+  // automatically on Mon 11/9. See `managerTodoPeriod` in lib/date.ts.
+  const todo = managerTodoPeriod(now);
+  const year = todo.year;
+  const month = todo.month;
   const quarter = Math.floor((month - 1) / 3) + 1;
 
   const [reminders, insp, openAlerts, followUps, myReviews, ptoPending] = await Promise.all([
@@ -95,9 +103,28 @@ export default async function MyBranchPage({
   const warehouse = await warehouseStatus(year, month, scBranch);
   // Weekly oversight sign-off now lives in Branch Command (a signed BranchWeek).
   const bwSummary = await getCurrentBranchWeekSummary(scBranch, now);
-  const routingSummary = await getRoutingSummary(scBranch);
-  const routingDue = routingDueDate(routingSummary.periodKey);
+  // Routing sign-off is pinned to the LIVE Eastern-Time month (not the grace month):
+  // the "Complete {month} routing sign-off" to-do is a current-month item that shows
+  // immediately even during the October grace window. Routing for month M is due by
+  // its first Friday (routingDueDate) — for November 2026 that's Fri 11/6.
+  const routingPeriodKey = etPeriodKey(now);
+  const [ry, rm] = routingPeriodKey.split("-").map(Number);
+  const routingMonthName = new Date(Date.UTC(ry, rm - 1, 1)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+  const routingSummary = await getRoutingSummary(scBranch, routingPeriodKey);
+  const routingDue = routingDueDate(routingPeriodKey);
   const routingOverdue = routingSummary.loaded && !routingSummary.signed && now.getTime() > routingDue.getTime();
+  // Done = this manager has approved ALL of their branch's routes for the month
+  // (the existing per-route RouteTechMonth.approved sign-off unit). A fully-signed
+  // month implies every route approved; all-approved-but-not-yet-signed also counts.
+  const routingSignoffDone =
+    routingSummary.signed || (routingSummary.loaded && routingSummary.techs > 0 && routingSummary.approved >= routingSummary.techs);
+  const routingSignoffStatus = !routingSummary.loaded
+    ? "Routing not loaded yet"
+    : routingSummary.signed
+      ? "Signed off for the month"
+      : routingSignoffDone
+        ? `All ${routingSummary.techs} routes approved`
+        : `${routingSummary.approved}/${routingSummary.techs} routes approved`;
   // Missed-oversight penalty: detect lazily (no cron), then surface open misses
   // for this branch as a red banner. Managers can see them but never clear them.
   await sweepMissedChecklists();
@@ -107,6 +134,14 @@ export default async function MyBranchPage({
   const openTraining = await prisma.trainingAssignment.count({ where: { status: { not: "completed" }, ...(branch ? { branch } : {}) } });
   const totalTraining = await prisma.trainingAssignment.count({ where: branch ? { branch } : undefined });
   const trainingDone = totalTraining > 0 && openTraining === 0;
+  // Field QC ride-behinds roll out November 2026. During the October grace window we
+  // omit QC entirely (managers couldn't do October checks — it's also credited on the
+  // scorecard; see QC_CREDITED_MONTHS in lib/qc.ts). From the Mon 11/9 flip onward it
+  // appears automatically as a REAL tracked monthly to-do for the live month (and is
+  // credited/waived for October). No manual step needed next week.
+  const qcProgress = todo.isOctoberGrace
+    ? null
+    : await monthlyQcProgress(scBranch, `${year}-${String(month).padStart(2, "0")}`);
   const saved = await savedResults(year, quarter, scBranch);
   const metState = Object.fromEntries(SCORECARD_METRICS.map((m) => [m.key, saved[m.key]?.met ?? null]));
   const scScore = weightedScore(metState);
@@ -140,11 +175,11 @@ export default async function MyBranchPage({
     weeklyChecklistDone: bwSummary.signed,
     weeklyChecklistHref: `/branch-command?branch=${scBranch}`,
     routing: routingSummary.exists
-      ? { loaded: routingSummary.loaded, signed: routingSummary.signed, overdue: routingOverdue, href: `/routing-approval?branch=${scBranch}` }
+      ? { loaded: routingSummary.loaded, signed: routingSignoffDone, overdue: routingOverdue, href: `/routing-approval?branch=${scBranch}&period=${routingPeriodKey}&signoff=1` }
       : null,
     inspections: insp.total > 0 ? { completed: insp.completed, total: insp.total } : null,
     warehouseDone: warehouse.done,
-    qcLogged: false,
+    qc: qcProgress ? { logged: qcProgress.complete } : null,
     training: totalTraining > 0 ? { done: totalTraining - openTraining, total: totalTraining } : null,
     scorecard: { scored: scScored, of: SCORECARD_METRICS.length, pct: scScore },
     openAttention: attention.length,
@@ -160,13 +195,35 @@ export default async function MyBranchPage({
     label: string; href: string; done: boolean; status: string;
     cadence: "Weekly" | "Monthly"; due: Date; dueLabel: string; tracked?: boolean;
   };
+  // During the October grace window the outstanding October items are due by end of
+  // Fri 11/6 (the COO's extended deadline), so surface that date instead of the live
+  // month-end — otherwise the countdown would understate urgency. Outside grace, the
+  // normal month-end applies.
+  const monthlyDue = todo.isOctoberGrace ? new Date(Date.UTC(2026, 10, 6, 23, 59, 59)) : endOfMonth(now);
+  const monthlyDueLabel = todo.isOctoberGrace ? "Fri, Nov 6" : endOfMonthLabel(now);
   const cadence: CadenceRow[] = [
     { label: "Branch Command (weekly review)", href: `/branch-command?branch=${scBranch}`, done: bwSummary.signed, status: bwSummary.signed ? `Signed by ${bwSummary.signedName ?? "manager"}` : "Not yet signed", cadence: "Weekly", due: fridayEndOf(now), dueLabel: fridayLabel(now) },
-    { label: "Routes (monthly sign-off)", href: `/routing-approval?branch=${scBranch}`, done: routingSummary.signed, status: !routingSummary.loaded ? "Routing not loaded yet" : routingSummary.signed ? "Signed off" : `${routingSummary.approved}/${routingSummary.techs} techs approved`, cadence: "Monthly", due: routingDue, dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (first week)` },
-    { label: "Vehicle Inspections", href: "/my-branch/inspections", done: insp.pending === 0, status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
-    { label: "Warehouse safety inspection", href: "/my-branch/warehouse", done: warehouse.done, status: warehouse.done ? "Logged this month" : "Not logged yet", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
-    // QC has no completion feed yet, so it renders neutral (never a permanent red SLA).
-    { label: "Quality control reports", href: "/my-branch/qc", done: false, tracked: false, status: "Not yet tracked", cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
+    { label: `Complete ${routingMonthName} routing sign-off`, href: `/routing-approval?branch=${scBranch}&period=${routingPeriodKey}&signoff=1`, done: routingSignoffDone, status: routingSignoffStatus, cadence: "Monthly", due: routingDue, dueLabel: `Due ${routingDue.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}` },
+    { label: todo.isOctoberGrace ? "Vehicle Inspections (October)" : "Vehicle Inspections", href: "/my-branch/inspections", done: insp.pending === 0, status: insp.total > 0 ? `${insp.completed}/${insp.total} completed` : "No vehicles assigned", cadence: "Monthly", due: monthlyDue, dueLabel: monthlyDueLabel },
+    { label: todo.isOctoberGrace ? "Warehouse safety inspection (October)" : "Warehouse safety inspection", href: "/my-branch/warehouse", done: warehouse.done, status: warehouse.done ? "Logged this month" : "Not logged yet", cadence: "Monthly", due: monthlyDue, dueLabel: monthlyDueLabel },
+    // Quality control ride-behinds roll out November 2026: omitted during the October
+    // grace window (qcProgress===null), then shown as a REAL tracked monthly to-do from
+    // the 11/9 flip (goal 10 GHP + 10 L&O per month). October is credited on the
+    // scorecard (see lib/qc.ts QC_CREDITED_MONTHS), so this doesn't penalize October.
+    ...(qcProgress
+      ? [{
+          label: "Quality control ride-behinds",
+          href: "/my-branch/qc",
+          done: qcProgress.complete,
+          tracked: true,
+          status: qcProgress.complete
+            ? `All ${qcProgress.goalTotal} complete`
+            : `${qcProgress.total}/${qcProgress.goalTotal} done · ${qcProgress.ghp}/${qcProgress.goalPerType} GHP, ${qcProgress.lo}/${qcProgress.goalPerType} L&O`,
+          cadence: "Monthly" as const,
+          due: endOfMonth(now),
+          dueLabel: endOfMonthLabel(now),
+        }]
+      : []),
     { label: "Onboarding / CEU training", href: "/my-branch/training", done: totalTraining === 0 || trainingDone, status: totalTraining === 0 ? "None assigned" : trainingDone ? "All current" : `${openTraining} outstanding`, cadence: "Monthly", due: endOfMonth(now), dueLabel: endOfMonthLabel(now) },
   ];
   // Quarterly branch audit — surfaces only once the Director of Field Ops has
@@ -203,6 +260,15 @@ export default async function MyBranchPage({
         title={`Welcome, ${user.name?.split(" ")[0] ?? "Manager"}`}
         subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
       />
+
+      {todo.isOctoberGrace ? (
+        <div className="mb-5 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
+          <div className="text-sm font-medium text-brand-800">Finishing October — grace period through Friday, Nov 6</div>
+          <div className="mt-0.5 text-xs text-brand-700">
+            Your checklist is still showing your outstanding October to-dos (vehicle inspections, warehouse inspection, and monthly duties) so you can wrap them up. It switches to November automatically on Monday, Nov 9. Your {routingMonthName} routing sign-off is listed below and is due Friday, Nov 6.
+          </div>
+        </div>
+      ) : null}
 
       <MyBranchViewToggle view="todos" branchQuery={branch ? `?branch=${branch}` : ""} />
 

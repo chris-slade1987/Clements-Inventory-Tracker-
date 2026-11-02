@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { requireUser, homePath, branchLocked } from "@/lib/auth";
 import { branchLabel, BRANCHES } from "@/lib/management";
 import { PageHeader } from "@/components/ui";
-import { getRoutingOverview, currentRoutingPeriod, listRoutingPeriods } from "@/lib/routing";
+import { getRoutingOverview, currentRoutingPeriod, listRoutingPeriods, routingDueDate } from "@/lib/routing";
 import RoutingBoard from "./RoutingBoard";
+import SignoffModal from "./SignoffModal";
 import MyBranchViewToggle from "../my-branch/MyBranchViewToggle";
 
 // Routing Approval — monthly proactive routing review + per-technician sign-off.
@@ -18,7 +19,7 @@ function periodLabel(pk: string): string {
   return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-export default async function RoutingApprovalPage({ searchParams }: { searchParams: Promise<{ branch?: string; period?: string }> }) {
+export default async function RoutingApprovalPage({ searchParams }: { searchParams: Promise<{ branch?: string; period?: string; signoff?: string }> }) {
   const user = await requireUser();
   if (user.role !== "admin" && user.role !== "manager") redirect(homePath(user));
   const sp = await searchParams;
@@ -35,8 +36,17 @@ export default async function RoutingApprovalPage({ searchParams }: { searchPara
 
   const data = await getRoutingOverview(branch, periodKey);
 
+  // Reached from the manager "Complete {month} routing sign-off" to-do → pop the
+  // responsibility modal (deadline = first Friday of the period, e.g. Fri 11/6).
+  const signoffDeadline = routingDueDate(periodKey).toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric", timeZone: "UTC",
+  });
+
   return (
     <div className="space-y-5">
+      {sp.signoff === "1" ? (
+        <SignoffModal open monthLabel={periodLabel(periodKey)} deadlineLabel={signoffDeadline} />
+      ) : null}
       <MyBranchViewToggle view="routes" branchQuery={branch ? `?branch=${branch}` : ""} />
       <PageHeader
         title="Routes"

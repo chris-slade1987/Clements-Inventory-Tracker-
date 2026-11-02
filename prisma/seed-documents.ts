@@ -45,7 +45,11 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 44 · Last updated October 26, 2026",
+    effective: "Version 45 · Last updated November 2, 2026",
+    // v45: Monthly Responsibilities — documented the monthly **routing sign-off** as a
+    // named manager duty: from My Branch → Routes (also the "Complete [month] routing
+    // sign-off" dashboard item), review and approve every route for the month, due by
+    // the first Friday. Reconciled §3 Monthly Responsibilities. Re-prompts acknowledgers.
     // v44: Warehouse inspection — inspector e-signature attestation, repeat-finding
     // flags, a weekly emergency-equipment (eyewash) check, and a printable/Save-PDF
     // report. Plus Print / Save-PDF is now available on completed forms site-wide.
@@ -210,7 +214,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 44,
+    version: 45,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
