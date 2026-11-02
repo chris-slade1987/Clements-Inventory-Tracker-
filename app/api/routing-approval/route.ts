@@ -66,13 +66,15 @@ export async function POST(req: Request) {
 
     if (action === "geocode") {
       const month = await ensureRoutingMonth(branch, periodKey);
-      // Geocode the route the manager is viewing FIRST, generously, so one click
-      // fully plots that technician's stops (markers + the ordered path + Play).
-      // Then top up the rest of the month's backlog so repeated clicks drain it.
+      // Geocode the route the manager is viewing — generously and on its own, so
+      // the map fills fast with EVERY stop (markers + ordered path + Play) the
+      // moment the route opens. Cache-first, so it's effectively free after the
+      // first pass. With no tech (e.g. a page-level sweep) fall back to a bounded
+      // month pass; the daily cron drains the wider backlog across all techs.
       const techName = str(body?.techName);
-      let n = 0;
-      if (techName) n += await geocodeRoutingTech(month.id, techName, 600).catch(() => 0);
-      n += await geocodeRoutingMonth(month.id, 300).catch(() => 0);
+      const n = techName
+        ? await geocodeRoutingTech(month.id, techName, 1000).catch(() => 0)
+        : await geocodeRoutingMonth(month.id, 300).catch(() => 0);
       return NextResponse.json({ ok: true, geocoded: n });
     }
 

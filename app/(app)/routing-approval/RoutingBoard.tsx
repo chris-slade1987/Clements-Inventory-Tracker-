@@ -127,6 +127,9 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [changeset, setChangeset] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  // Techs we've already auto-geocoded this session — so the map fills itself on
+  // open without the manager hunting for "Locate stops", but never loops.
+  const autoLocatedRef = useRef<Set<string>>(new Set());
   const [signName, setSignName] = useState("");
   const signed = data.month.status === "signed";
   const sel = data.techs.find((t) => t.id === selId) || data.techs[0] || null;
@@ -162,6 +165,23 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
       .then((r) => r.json()).then((j) => { if (live && j.days) setDaysByTech((p) => ({ ...p, [sel.name]: j.days })); }).catch(() => {});
     return () => { live = false; };
   }, [sel, daysByTech, data.month.branch, periodKey]);
+
+  // Auto-fill the map: as soon as a tech's days load, if ANY stop is missing
+  // coordinates, geocode that whole route once (cache-first, so it's fast and
+  // free after the first pass). This is why every stop shows without clicking —
+  // the manual "Locate stops" button stays as a re-try. Guarded so it fires at
+  // most once per tech per session and can never loop when geocoding is a no-op.
+  useEffect(() => {
+    if (!sel || locating) return;
+    const d = daysByTech[sel.name];
+    if (!d) return;
+    const anyMissing = d.some((day) => day.stops.some((s) => s.lat == null || s.lng == null));
+    if (anyMissing && !autoLocatedRef.current.has(sel.name)) {
+      autoLocatedRef.current.add(sel.name);
+      void locateStops();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sel, daysByTech, locating]);
 
   if (!data.month.loaded) {
     return <UploadEmpty canUpload={canUpload} periodKey={periodKey} branch={data.month.branch} />;
