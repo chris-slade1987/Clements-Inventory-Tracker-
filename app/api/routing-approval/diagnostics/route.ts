@@ -2,18 +2,26 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { canManageAccessRights } from "@/lib/access";
-import { geocodeProvider, geocodeBacklogCount, geocodeOne } from "@/lib/geocode";
+import { geocodeProvider, geocodeBacklogCount, geocodeOne, geocodeBacklog } from "@/lib/geocode";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 // Routing map / geocoding diagnostics (super-admin only). Explains why stops aren't
 // plotting without exposing secrets: which provider is configured, whether a live
 // test geocode resolves, and how many routing stops still lack coordinates.
-export async function GET() {
+//
+// Add ?run=1 to also FILL the backlog in this request (bounded): cached addresses
+// resolve instantly, new ones via the provider (Google, concurrent). Hit it a few
+// times until missingCoords hits 0 — or just let the daily cron drain it.
+export async function GET(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!canManageAccessRights(user)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const run = new URL(req.url).searchParams.get("run") === "1";
+  let filled: { months: number; geocoded: number } | undefined;
+  if (run) filled = await geocodeBacklog(3000).catch(() => undefined);
 
   const prov = geocodeProvider();
 
