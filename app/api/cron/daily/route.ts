@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals, remindAdvisorGoalSheets, remindSalesFocusFollowUps } from "@/lib/jobs";
 import { runNudges } from "@/lib/nudges";
 import { reindexKnowledge } from "@/lib/copilot/ingest";
+import { geocodeBacklog } from "@/lib/geocode";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -39,6 +40,10 @@ async function run(req: Request) {
     // any manual/handbook/SOP/checklist change is picked up without a deploy.
     // Best-effort — allSettled below means a failure here can't abort the batch.
     copilotReindex: reindexKnowledge,
+    // Routing map: fill missing stop coordinates from the geocode backlog (bounded).
+    // No-op until a geocoding provider (Google key) is configured; then it clears
+    // the backlog over successive runs, cache shared across months.
+    geocodeRouting: () => geocodeBacklog(1200),
   } as const;
   const names = Object.keys(jobs) as (keyof typeof jobs)[];
   const settled = await Promise.allSettled(names.map((n) => jobs[n]()));
