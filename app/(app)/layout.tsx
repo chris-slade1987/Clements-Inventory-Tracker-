@@ -14,6 +14,7 @@ import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 import { ensureProductionSeed } from "@/lib/seed-production";
 import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
+import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
@@ -53,6 +54,10 @@ export default async function AppGroupLayout({
   // count sheet; idempotent (Setting marker), self-retries until the catalog +
   // warehouses exist, non-fatal.
   await ensureOnHandBaseline();
+
+  // Force-sync the Fleet registry from the reconciled master sheet (fixes the fields
+  // a bad in-app upload scrambled, and adds units 43–48). Revisioned, once, non-fatal.
+  await ensureFleetMaster();
 
   // Load the committed PestPac Appointment List as the per-day timed route schedule
   // (Routes view): times shown, floated appointments sorted to the end of each day.
