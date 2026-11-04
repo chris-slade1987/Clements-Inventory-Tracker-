@@ -88,9 +88,9 @@ const POSTS = [
 const EVENTS = [
   { title: "Labor Day — Close Early", kind: "early_release", date: "2026-09-04", timeLabel: "Closing 1:00 PM" },
   { title: "Labor Day — Closed", kind: "closure", date: "2026-09-07" },
-  { title: "Thanksgiving — Close Early", kind: "early_release", date: "2026-11-25", timeLabel: "Closing 1:00 PM" },
+  { title: "Thanksgiving — Close Early", kind: "early_release", date: "2026-11-25", timeLabel: "Closing 3:00 PM" },
   { title: "Thanksgiving — Closed", kind: "closure", date: "2026-11-26", endDate: "2026-11-27" },
-  { title: "Christmas — Close Early", kind: "early_release", date: "2026-12-24", timeLabel: "Closing 1:00 PM" },
+  { title: "Christmas — Close Early", kind: "early_release", date: "2026-12-24", timeLabel: "Closing 3:00 PM" },
   { title: "Christmas — Closed", kind: "closure", date: "2026-12-25" },
   { title: "New Year's Day — Closed", kind: "holiday", date: "2027-01-01" },
 ];
