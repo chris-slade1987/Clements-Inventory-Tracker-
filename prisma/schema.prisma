@@ -1464,6 +1464,10 @@ model NewHireReview {
   completedAt  DateTime? @map("completed_at")
   createdAt    DateTime  @default(now()) @map("created_at")
 
+  // Bypass: HR / super-admin may dismiss a 30/60-day review when it isn't needed.
+  dismissedByName String?   @map("dismissed_by_name")
+  dismissedAt     DateTime? @map("dismissed_at")
+
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([employeeId, type])

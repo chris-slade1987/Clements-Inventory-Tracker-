@@ -957,6 +957,7 @@ export const STATUS_LABEL: Record<string, string> = {
   in_progress: "In progress",
   pending_approval: "Pending HR approval",
   completed: "Completed",
+  dismissed: "Dismissed",
 };
 
 export function dueFromStart(start: Date, type: string): Date {

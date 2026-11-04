@@ -250,6 +250,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, status });
     }
 
+    // ---- dismiss / undismiss (HR & admin only) — bypass a 30/60-day review ----
+    // Some new-hire reviews legitimately need to be skipped (e.g. the hire left,
+    // or a review isn't warranted). Dismissing drops it off every outstanding list
+    // and clears the standing "assign a reviewer" HR alert. Fully reversible.
+    if (action === "dismiss") {
+      if (!hr) return NextResponse.json({ error: "Only HR or an admin can dismiss a review." }, { status: 403 });
+      await prisma.newHireReview.update({
+        where: { id: review.id },
+        data: { status: "dismissed", dismissedByName: user.name ?? user.email, dismissedAt: new Date() },
+      });
+      await prisma.alert
+        .updateMany({ where: { dedupeKey: `review_due:${review.id}`, status: "open" }, data: { status: "dismissed" } })
+        .catch(() => {});
+      return NextResponse.json({ ok: true, status: "dismissed" });
+    }
+
+    if (action === "undismiss") {
+      if (!hr) return NextResponse.json({ error: "Only HR or an admin can restore a review." }, { status: 403 });
+      // Recompute the real status from what's on the review (mirrors reopen).
+      const hasResponses = review.responses && review.responses !== "{}";
+      let status = "due";
+      if (review.hrSignedAt) status = "completed";
+      else if (review.reviewerSignedAt && review.employeeSignedAt) status = "pending_approval";
+      else if (review.reviewerSignedAt || review.employeeSignedAt || hasResponses) status = "in_progress";
+      else status = review.reviewerUserId ? "sent" : "due";
+      await prisma.newHireReview.update({
+        where: { id: review.id },
+        data: { status, dismissedByName: null, dismissedAt: null },
+      });
+      // If it returns to an unassigned "due" state, restore the HR alert.
+      if (status === "due" && !review.reviewerUserId) {
+        await prisma.alert
+          .updateMany({ where: { dedupeKey: `review_due:${review.id}`, status: "dismissed" }, data: { status: "open" } })
+          .catch(() => {});
+      }
+      return NextResponse.json({ ok: true, status });
+    }
+
     return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return fail(e);

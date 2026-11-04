@@ -16,6 +16,7 @@ import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
 import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
+import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
@@ -59,6 +60,10 @@ export default async function AppGroupLayout({
   // Force-sync the Fleet registry from the reconciled master sheet (fixes the fields
   // a bad in-app upload scrambled, and adds units 43–48). Revisioned, once, non-fatal.
   await ensureFleetMaster();
+
+  // Resolve stale "Registration expiring/expired" Inbox notices left over from the
+  // pre-reconciliation (wrong) registration dates. Idempotent, once, non-fatal.
+  await ensureStaleRegistrationNudgesCleared();
 
   // Correct the Thanksgiving/Christmas early-release close times (1 PM -> 3 PM) on the
   // Company Calendar. Idempotent, date-scoped (leaves Labor Day's real 1 PM), non-fatal.

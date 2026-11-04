@@ -121,7 +121,7 @@ export default function ReviewForm({
             reviewId={reviewId} role="hr" statement={ACK.hr} defaultName="" onDone={() => router.refresh()} />
         </div>
 
-        {canReset ? <HrTools reviewId={reviewId} onDone={() => router.refresh()} /> : null}
+        {canReset ? <HrTools reviewId={reviewId} status={status} onDone={() => router.refresh()} /> : null}
       </Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -257,12 +257,13 @@ function SignRow({
   );
 }
 
-function HrTools({ reviewId, onDone }: { reviewId: string; onDone: () => void }) {
+function HrTools({ reviewId, status, onDone }: { reviewId: string; status: string; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dismissed = status === "dismissed";
 
-  async function act(action: "reopen" | "recreate", confirmMsg: string) {
-    if (!confirm(confirmMsg)) return;
+  async function act(action: "reopen" | "recreate" | "dismiss" | "undismiss", confirmMsg?: string) {
+    if (confirmMsg && !confirm(confirmMsg)) return;
     setBusy(true); setError(null);
     const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, reviewId }) });
     setBusy(false);
@@ -273,12 +274,21 @@ function HrTools({ reviewId, onDone }: { reviewId: string; onDone: () => void })
   return (
     <div className="mt-4 border-t border-line pt-3">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1.5">HR tools</div>
-      <div className="flex flex-wrap items-center gap-3">
-        <button onClick={() => act("reopen", "Reopen this review for editing? All signatures are cleared but the answers are kept.")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Reopen &amp; clear signatures</button>
-        <span className="text-muted">·</span>
-        <button onClick={() => act("recreate", "Recreate this review from scratch? All answers AND signatures are cleared — this can't be undone.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Recreate (clear all answers)</button>
-      </div>
-      <p className="mt-1 text-[11px] text-muted">Reopen keeps the answers and returns the review to editable. Recreate wipes it back to a blank form.</p>
+      {dismissed ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-muted">Dismissed — bypassed, off the outstanding list</span>
+          <button onClick={() => act("undismiss")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Restore review</button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={() => act("reopen", "Reopen this review for editing? All signatures are cleared but the answers are kept.")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Reopen &amp; clear signatures</button>
+          <span className="text-muted">·</span>
+          <button onClick={() => act("recreate", "Recreate this review from scratch? All answers AND signatures are cleared — this can't be undone.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Recreate (clear all answers)</button>
+          <span className="text-muted">·</span>
+          <button onClick={() => act("dismiss", "Dismiss this review? It will be bypassed and drop off the outstanding list. You can restore it later.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Dismiss review</button>
+        </div>
+      )}
+      <p className="mt-1 text-[11px] text-muted">{dismissed ? "This review is bypassed. Restore it to put it back on the outstanding list." : "Reopen keeps the answers and returns the review to editable. Recreate wipes it to a blank form. Dismiss bypasses a review that isn't needed."}</p>
       {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
     </div>
   );
