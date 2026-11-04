@@ -21,6 +21,13 @@ import baseline from "@/prisma/data/inventory-counts/2026-10-30.json";
 // Idempotent (Setting marker), non-fatal, add-only to the movement ledger.
 
 const MARKER = "onhand_baseline_2026-10-30";
+// Revisioned: a bumped REVISION re-applies the full reset to the sheet with the
+// CURRENT catalog + aliases. v2 re-runs because the first pass could have applied
+// before the confirmed product aliases/catalog were in place, leaving aliased
+// rows (e.g. Orlando's 254x LESCO 25-0-10) unmatched and therefore unset. The
+// reset is self-correcting (delta = sheet target - current on-hand), so re-running
+// never double-counts — it only moves each product to the 10/30 counted figure.
+const REVISION = "2026-10-30.v2";
 const COUNT_AT = new Date("2026-10-30T12:00:00Z");
 const REASON = "Go-live on-hand baseline 10/30/2026";
 
@@ -47,7 +54,7 @@ export async function ensureOnHandBaseline(): Promise<void> {
   if (_ran) return;
   try {
     const marker = await prisma.setting.findUnique({ where: { key: MARKER } });
-    if (marker) {
+    if (marker?.value === REVISION) {
       _ran = true;
       return;
     }
@@ -69,7 +76,7 @@ export async function applyOnHandBaseline(): Promise<BaselineResult> {
   const empty: BaselineResult = { applied: false, adjustments: 0, set: 0, zeroed: 0, unmatched: [] };
 
   const existing = await prisma.setting.findUnique({ where: { key: MARKER } });
-  if (existing) return { ...empty, reason: "already applied" };
+  if (existing?.value === REVISION) return { ...empty, reason: "already applied (current revision)" };
 
   // Need the catalog seeded first; bail (without marking) so we retry later.
   const products = await prisma.product.findMany({ select: { id: true, name: true, approved: true } });
@@ -165,8 +172,8 @@ export async function applyOnHandBaseline(): Promise<BaselineResult> {
 
   await prisma.setting.upsert({
     where: { key: MARKER },
-    update: { value: new Date().toISOString() },
-    create: { key: MARKER, value: new Date().toISOString() },
+    update: { value: REVISION },
+    create: { key: MARKER, value: REVISION },
   });
 
   return { applied: true, adjustments, set, zeroed, unmatched: [...unmatched] };
