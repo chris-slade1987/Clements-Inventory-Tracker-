@@ -13,6 +13,7 @@ import { ensureUserWarehouses } from "@/lib/inventory-scope";
 import { ensureWeatherLoaded } from "@/lib/weather-ensure";
 import { ensureProductionSeed } from "@/lib/seed-production";
 import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
+import { ensureApprovedCatalog } from "@/lib/approved-catalog-ensure";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
 import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
@@ -50,6 +51,11 @@ export default async function AppGroupLayout({
   // Load Graham's paper Q4 2026 Orlando branch audit as an editable draft so he
   // can open, sign, and route it to the branch manager. Idempotent, non-fatal.
   await ensureOrlandoQ4AuditDraft();
+
+  // Reconcile the CEO's approved product catalog into the live DB FIRST — the
+  // on-hand baseline can only attach stock to products that exist, and the
+  // build-time seed doesn't reliably reach prod. Idempotent, revisioned, non-fatal.
+  await ensureApprovedCatalog();
 
   // Apply the 2026-10-30 go-live physical-count on-hand baseline (the real
   // starting point for route/technician inventory tracking). Full reset to the

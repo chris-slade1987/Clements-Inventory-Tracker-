@@ -92,7 +92,7 @@ export async function GET() {
   return NextResponse.json({
     note: "On-hand vs the 10/30 count sheet. No secrets, no writes.",
     baselineMarker: marker?.value ?? "(not applied yet)",
-    expectedRevision: "2026-10-30.v2",
+    expectedRevision: "2026-10-30.v3",
     summary: {
       allMatch: totalMismatch === 0,
       mismatches: totalMismatch,
@@ -101,7 +101,7 @@ export async function GET() {
     },
     branches: perBranch,
     interpretation:
-      marker?.value !== "2026-10-30.v2"
+      marker?.value !== "2026-10-30.v3"
         ? "Baseline revision not yet applied on this deployment — load any app page as an admin to trigger the heal, then re-check."
         : totalMismatch === 0 && totalNegatives === 0
           ? "On-hand matches the 10/30 sheet at every warehouse, no negative balances."

@@ -27,7 +27,7 @@ const MARKER = "onhand_baseline_2026-10-30";
 // rows (e.g. Orlando's 254x LESCO 25-0-10) unmatched and therefore unset. The
 // reset is self-correcting (delta = sheet target - current on-hand), so re-running
 // never double-counts — it only moves each product to the 10/30 counted figure.
-const REVISION = "2026-10-30.v2";
+const REVISION = "2026-10-30.v3";
 const COUNT_AT = new Date("2026-10-30T12:00:00Z");
 const REASON = "Go-live on-hand baseline 10/30/2026";
 
