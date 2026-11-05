@@ -10,7 +10,6 @@ import BranchQuarters from "@/components/BranchQuarters";
 import { teamFunnel } from "@/lib/sales-funnel";
 import { currentPeriodKey } from "@/lib/sales";
 import { getProductionRollup } from "@/lib/branch-production-ingest";
-import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 import KpiSummaryButton from "@/components/KpiSummaryButton";
 import { buildScorecardRows, weightedScore, bonusEarned, MANAGER_BONUS_TARGET, getScorecardReview } from "@/lib/scorecard";
 import ScorecardStrip, { type ScorecardStripData } from "@/components/ScorecardStrip";
@@ -37,7 +36,6 @@ export async function OverviewPanel({
   const branch = locked ? (user.branch ?? BRANCHES[0].key) : requested;
   const isCompany = branch === null;
   const scope: Scope = (isCompany ? "company" : branch) as Scope;
-  const branchQuery = branch ? `?branch=${branch}` : "";
   const scopeLabel = isCompany ? "All branches" : branchLabel(branch!);
 
   // Route-completion rollup for leadership — surfaces the Branch Command completion
@@ -52,7 +50,6 @@ export async function OverviewPanel({
     return (
       <>
         <PageHeader title={isCompany ? "Company KPIs" : "Branch KPIs"} subtitle={scopeLabel} />
-        <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
         <EmptyState title="No report data yet" hint="KPIs populate once a Monthly Board Report is uploaded." />
       </>
     );
@@ -156,7 +153,6 @@ export async function OverviewPanel({
         />
       </div>
 
-      <MyBranchViewToggle view="kpis" branchQuery={branchQuery} />
       {selector}
 
       {scorecard ? <ScorecardStrip data={scorecard} /> : null}
