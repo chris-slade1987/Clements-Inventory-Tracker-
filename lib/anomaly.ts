@@ -9,6 +9,7 @@ export const INVENTORY_ALERT_TYPES = [
   "price_increase",
   "duplicate_invoice",
   "negative_stock",
+  "negative_stock_attempt",
   "quantity_spike",
   "low_stock",
   "savings",

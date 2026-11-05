@@ -140,9 +140,9 @@ export async function POST(req: Request) {
     }
 
     // ── Decide a request (super admins only) ─────────────────────────────────
-    if (action === "approve" || action === "deny") {
+    if (action === "approve" || action === "deny" || action === "merge") {
       if (!isSuperAdmin(user)) {
-        return NextResponse.json({ error: "Only a super admin can approve product requests." }, { status: 403 });
+        return NextResponse.json({ error: "Only a super admin can decide product requests." }, { status: 403 });
       }
       const id = s(body?.id);
       if (!id) return NextResponse.json({ error: "Missing request." }, { status: 400 });
@@ -152,6 +152,95 @@ export async function POST(req: Request) {
 
       const note = s(body?.note);
       const now = new Date();
+
+      // ── Merge: this request is the SAME product as an existing catalog item ──
+      // Don't create a new product — fold the request into the chosen target so the
+      // system learns the variant. Repoints the request's off-catalog product (if
+      // any) history onto the target (on-hand consolidates; barcodes carry over so
+      // the next scan resolves — the learning loop), attaches the photos, posts the
+      // on-hand count to the TARGET, and records the alias note. Never hard-deletes.
+      if (action === "merge") {
+        const targetId = s(body?.targetProductId);
+        if (!targetId) return NextResponse.json({ error: "Pick an existing product to merge into." }, { status: 400 });
+        const target = await prisma.product.findUnique({ where: { id: targetId } });
+        if (!target) return NextResponse.json({ error: "Target product not found." }, { status: 404 });
+        if (request.productId && request.productId === targetId) {
+          return NextResponse.json({ error: "That's the same product the request is already about." }, { status: 400 });
+        }
+
+        // If the request references an auto-created off-catalog product, repoint its
+        // whole history onto the target and retire it (mirrors /api/products/confirm
+        // merge — audit trail preserved, attributed to the canonical product).
+        if (request.productId && request.productId !== targetId) {
+          const src = await prisma.product.findUnique({ where: { id: request.productId } });
+          if (src) {
+            await prisma.$transaction([
+              prisma.invoiceLine.updateMany({ where: { productId: src.id }, data: { productId: targetId } }),
+              prisma.stockMovement.updateMany({ where: { productId: src.id }, data: { productId: targetId } }),
+              prisma.productBarcode.updateMany({ where: { productId: src.id }, data: { productId: targetId } }),
+              prisma.checkoutLine.updateMany({ where: { productId: src.id }, data: { productId: targetId } }),
+              prisma.product.update({
+                where: { id: src.id },
+                data: {
+                  active: false, confirmed: true,
+                  notes: [src.notes, `Merged into "${target.name}" (${target.id}) via product request by ${user.name}.`].filter(Boolean).join(" "),
+                },
+              }),
+            ]);
+          }
+        }
+
+        // Attach the request's photos to the target (assigned; first becomes primary
+        // only if the target has none).
+        const reqPhotos = await prisma.productPhoto.findMany({ where: { productRequestId: id, status: "unassigned" }, orderBy: { createdAt: "asc" } });
+        if (reqPhotos.length) {
+          const hasPrimary = (await prisma.productPhoto.count({ where: { productId: targetId, status: "assigned", primary: true } })) > 0;
+          await prisma.$transaction(
+            reqPhotos.map((p, i) => prisma.productPhoto.update({
+              where: { id: p.id },
+              data: { productId: targetId, status: "assigned", primary: !hasPrimary && i === 0, assignedByUserId: user.id, assignedByName: user.name, assignedAt: now },
+            })),
+          );
+        }
+
+        // Post the on-hand count to the TARGET at the request's branch (adjustment —
+        // never write on-hand directly). Only if the source history wasn't already
+        // repointed (that already carried its movements), i.e. no source product.
+        const mergeQty = intOrNull(body?.onHandQty ?? request.onHandQty);
+        let onHandPosted = false;
+        if (!request.productId && mergeQty && mergeQty > 0 && request.warehouseId) {
+          const wh = await prisma.warehouse.findUnique({ where: { id: request.warehouseId }, select: { id: true } });
+          if (wh) {
+            await prisma.stockMovement.create({
+              data: {
+                type: "adjustment", productId: targetId, warehouseId: wh.id, quantity: mergeQty,
+                unit: uomCode(target.unitOfMeasure) ?? "EA",
+                reason: `Initial count — merged from product request "${request.proposedName}"`, userId: user.id,
+              },
+            });
+            onHandPosted = true;
+          }
+        }
+
+        await prisma.productRequest.update({
+          where: { id },
+          data: {
+            status: "approved", productId: targetId, decidedByUserId: user.id, decidedByName: user.name, decidedAt: now,
+            decisionNote: [`Merged into "${target.name}".`, note].filter(Boolean).join(" "),
+          },
+        });
+
+        await notifyRequester(request.requestedByUserId, request.requestedByName, {
+          subject: `Approved (merged): ${request.proposedName}`,
+          body:
+            `${user.name} matched your request "${request.proposedName}" to the existing catalog product "${target.name}". ` +
+            `Go back to Check-Out and dispense it as "${target.name}".` +
+            `${onHandPosted ? `\n\nYour on-hand count of ${mergeQty} was posted to "${target.name}" at ${request.branch ? branchLabel(request.branch) : "your branch"}.` : ""}` +
+            `${note ? `\n\nNote: ${note}` : ""}`,
+          branch: request.branch,
+        });
+        return NextResponse.json({ ok: true, productId: targetId, merged: true, onHandPosted });
+      }
 
       if (action === "approve") {
         // Catalog the product from the REVIEWED fields (the reviewer may correct

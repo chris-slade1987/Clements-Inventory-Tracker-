@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card, EmptyState } from "@/components/ui";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { dateShort } from "@/lib/format";
 import { listProductRequests } from "@/lib/product-requests";
 import ProductRequestsClient from "./ProductRequestsClient";
@@ -16,6 +17,16 @@ export default async function ProductRequestsPage() {
 
   const { pending, decided } = await listProductRequests(50);
 
+  // Approved catalog products, for the "Merge into existing" picker — so a super
+  // admin can fold a request into a product that already exists instead of
+  // creating a duplicate (the learning loop: the variant resolves next time).
+  const catalog = await prisma.product.findMany({
+    where: { approved: true, active: true },
+    select: { id: true, name: true, manufacturer: true },
+    orderBy: { name: "asc" },
+  });
+  const mergeTargets = catalog.map((p) => ({ id: p.id, name: p.name, manufacturer: p.manufacturer }));
+
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted">
@@ -29,7 +40,7 @@ export default async function ProductRequestsPage() {
         {pending.length === 0 ? (
           <EmptyState title="No pending requests" hint="New-product requests from Check-Out will appear here for approval." />
         ) : (
-          <ProductRequestsClient requests={pending} />
+          <ProductRequestsClient requests={pending} mergeTargets={mergeTargets} />
         )}
       </section>
 

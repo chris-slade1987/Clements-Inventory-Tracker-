@@ -800,10 +800,11 @@ export default function ScanCheckoutClient({
         </Overlay>
       ) : null}
       {blockedUncataloged ? (
-        <Overlay onClose={() => setBlockedUncataloged(null)} title="Not cataloged — can't be checked out">
+        <Overlay onClose={() => setBlockedUncataloged(null)} title="Approval required">
           <p className="text-sm text-muted mb-2">
-            A product must be on the approved catalog before it can be dispensed. These can&apos;t be checked out yet —
-            send a super admin a request to catalog them:
+            This product isn&apos;t on the approved catalog, so it needs approval before it can be dispensed.
+            Send it for review — Julie (or another super admin) will approve, merge, or decline it, and you&apos;ll be
+            notified when it&apos;s ready:
           </p>
           <ul className="divide-y divide-line text-sm">
             {blockedUncataloged.map((o, i) => (

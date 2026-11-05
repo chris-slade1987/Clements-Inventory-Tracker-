@@ -5,6 +5,10 @@ import { userCanAccess } from "@/lib/access";
 import { runAnomalyChecks } from "@/lib/anomaly";
 import { runReorderChecks } from "@/lib/reorder";
 import { uomCode } from "@/lib/uom";
+import { postSystemThread } from "@/lib/threads";
+import { superAdminRecipients } from "@/lib/product-requests";
+import { appUrl } from "@/lib/app-url";
+import { branchLabel } from "@/lib/management";
 
 export const maxDuration = 20;
 
@@ -109,6 +113,14 @@ export async function POST(req: Request) {
 
   const invoiceDate = parseDate(invoiceDateRaw);
 
+  // Brand-new products created from this invoice (off-catalog). Collected inside the
+  // transaction and routed to the super-admin approval queue AFTER it commits, so an
+  // unknown product checked IN prompts Julie (or another super admin) to approve,
+  // merge, or decline it — the same approval loop as an unknown at check-out. The
+  // received stock is already posted via the check_in movement, so the request
+  // carries NO onHandQty (approval must never double-count).
+  const createdProducts: { id: string; name: string }[] = [];
+
   const result = await prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.create({
       data: {
@@ -149,6 +161,7 @@ export async function POST(req: Request) {
           },
         });
         productId = created.id;
+        createdProducts.push({ id: created.id, name: created.name });
       }
       if (!productId) continue;
 
@@ -187,6 +200,50 @@ export async function POST(req: Request) {
     return { invoiceId: invoice.id, itemCount, lineCount: lines.length };
   });
 
+  // Route each brand-new product into the super-admin approval queue so an unknown
+  // product checked IN prompts a decision (create / merge / decline) — the learning
+  // loop. No onHandQty on the request (stock already posted via check_in), so
+  // approval/merge never double-counts. Non-fatal; never fails the check-in.
+  const pendingApproval: string[] = [];
+  if (createdProducts.length > 0) {
+    try {
+      for (const p of createdProducts) {
+        await prisma.productRequest.create({
+          data: {
+            status: "pending",
+            productId: p.id,
+            proposedName: p.name,
+            reason: `Received on ${distributor} invoice${invoiceNumber ? ` ${invoiceNumber}` : ""} at ${warehouse.name} — needs catalog approval before it can be checked out.`,
+            onHandQty: null,
+            warehouseId,
+            branch: user.branch ?? null,
+            requestedByUserId: user.id,
+            requestedByName: user.name,
+          },
+        });
+        pendingApproval.push(p.name);
+      }
+      const recipients = await superAdminRecipients(user.id);
+      if (recipients.length > 0) {
+        const list = pendingApproval.map((n) => `• ${n}`).join("\n");
+        const where = user.branch ? ` at ${branchLabel(user.branch)}` : "";
+        await postSystemThread({
+          subject: `${pendingApproval.length} new product${pendingApproval.length === 1 ? "" : "s"} from check-in need approval`,
+          body:
+            `${user.name} checked in ${pendingApproval.length === 1 ? "a product" : "products"} not yet on the approved catalog${where}:\n\n${list}\n\n` +
+            `Create a product profile, merge into an existing product, or decline — in Inventory Administration → Requests: ${appUrl()}/manage/product-requests`,
+          recipients,
+          contextType: "alert",
+          contextLabel: "Product approval request",
+          contextHref: "/manage/product-requests",
+          branch: user.branch ?? null,
+        }).catch(() => {});
+      }
+    } catch {
+      /* approval routing is non-critical; never fail the check-in on its account */
+    }
+  }
+
   // Run the anomaly + reorder agents on the freshly confirmed invoice
   // (best-effort). A receipt shifts on-hand and the purchasing pattern, so the
   // low-stock scan is refreshed here too.
@@ -207,6 +264,7 @@ export async function POST(req: Request) {
       itemCount: result.itemCount,
       lineCount: result.lineCount,
       skippedLines,
+      pendingApproval,
     },
   });
 }

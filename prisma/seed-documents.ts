@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 45 · Last updated November 2, 2026",
+    effective: "Version 46 · Last updated November 4, 2026",
+    // v46: Product approval loop reconciled — a super admin now has THREE decisions on
+    // a request (Create new product / Merge into an existing product / Reject), merge
+    // folds a request into an existing catalog product and remembers its barcode (the
+    // learning loop); an unknown product checked IN now also raises an approval request
+    // (receipt shows "Approval required"); and an over-dispense attempt auto-notifies
+    // the inventory approvers to reconcile in vs out. Reconciled the "Requesting a new
+    // product," Check-IN, and Over-dispense sections. Re-prompts prior acknowledgers.
     // v45: Monthly Responsibilities — documented the monthly **routing sign-off** as a
     // named manager duty: from My Branch → Routes (also the "Complete [month] routing
     // sign-off" dashboard item), review and approve every route for the month, due by
@@ -214,7 +221,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 45,
+    version: 46,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -63,6 +63,7 @@ type Receipt = {
   itemCount: number;
   lineCount: number;
   skippedLines?: number;
+  pendingApproval?: string[];
 };
 
 type DuplicateInfo = {
@@ -465,6 +466,18 @@ export default function CheckInClient({
             </>
           ) : null}
         </dl>
+        {!undone && receipt.pendingApproval && receipt.pendingApproval.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <p className="font-medium">
+              Approval required — {receipt.pendingApproval.length} new product{receipt.pendingApproval.length === 1 ? "" : "s"} sent for review
+            </p>
+            <p className="mt-1 text-amber-800">
+              {receipt.pendingApproval.join(", ")} {receipt.pendingApproval.length === 1 ? "isn't" : "aren't"} on the approved
+              catalog yet. The stock is recorded, but a super admin (Julie, April, or Chris) must approve or merge
+              {receipt.pendingApproval.length === 1 ? " it" : " them"} before {receipt.pendingApproval.length === 1 ? "it" : "they"} can be checked out.
+            </p>
+          </div>
+        ) : null}
         {undone ? (
           <p className="mt-4 rounded-lg bg-slate-100 px-3 py-2 text-sm text-muted">
             This check-in&rsquo;s movements were reversed with offsetting adjustments. On-hand is back to where it was; the audit trail is kept in Reconcile.

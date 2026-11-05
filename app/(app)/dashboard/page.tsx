@@ -1,8 +1,9 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser, branchLocked } from "@/lib/auth";
+import { requireUser, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { pendingProductRequestCount } from "@/lib/product-requests";
 import {
   allTechniciansByUsage,
   onHandValueByCategory,
@@ -79,6 +80,11 @@ export default async function DashboardPage({
   const toConfirm = canConfirm
     ? await prisma.product.count({ where: { confirmed: false, active: true } })
     : 0;
+
+  // New-product approval requests awaiting a super admin's decision (Chris, Julie,
+  // April). Surfaced here on the Inventory dashboard too — not just the Company
+  // dashboard — so the approver sees pending requests wherever they land.
+  const pendingRequests = isSuperAdmin(user) ? await pendingProductRequestCount() : 0;
 
   const [rangeSpend, ytd, catSpend, topProducts, allTechs, ohByCat, ledger, openAlerts, allLowStock] =
     await Promise.all([
@@ -162,6 +168,18 @@ export default async function DashboardPage({
       <MyReviewsCard userId={user.id} />
 
       <RhythmRibbon segments={rhythm} />
+
+      {pendingRequests > 0 ? (
+        <Link href="/manage/product-requests" className="block mb-4">
+          <Card className="p-3 flex items-center gap-3 hover:ring-1 hover:ring-amber-300">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">{pendingRequests}</span>
+            <span className="text-sm text-ink">
+              new-product request{pendingRequests === 1 ? "" : "s"} awaiting your approval — create, merge, or reject
+            </span>
+            <span className="ml-auto text-xs font-medium text-brand-700">Review →</span>
+          </Card>
+        </Link>
+      ) : null}
 
       {toConfirm > 0 ? (
         <Link href="/manage/confirm" className="block mb-4">

@@ -5,6 +5,7 @@ import { onHandByWarehouse } from "@/lib/inventory";
 import { countedProductIds } from "@/lib/stock-count";
 import { saveUpload } from "@/lib/storage";
 import { uomCode } from "@/lib/uom";
+import { notifyOverDispenseAttempt } from "@/lib/overdispense-alert";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -113,19 +114,24 @@ export async function POST(req: Request) {
     .filter((l) => l.after < 0);
 
   if (offending.length > 0) {
-    return NextResponse.json(
-      {
-        error: "negative_stock",
-        offending: offending.map((l) => ({
-          productId: l.productId,
-          name: productById.get(l.productId)?.name ?? "Unknown",
-          onHand: l.current,
-          requested: l.quantity,
-          after: l.after,
-        })),
-      },
-      { status: 409 },
-    );
+    const offenders = offending.map((l) => ({
+      productId: l.productId,
+      name: productById.get(l.productId)?.name ?? "Unknown",
+      onHand: l.current,
+      requested: l.quantity,
+      after: l.after,
+    }));
+    // Notify the inventory approvers (Julie + the other super admins) that a
+    // manager tried to dispense more than is on hand — a reconciliation prompt to
+    // check what's been logged coming IN vs going OUT. Raises a deduped dashboard
+    // alert + an Inbox/email thread. Non-fatal; never blocks the hard stop.
+    await notifyOverDispenseAttempt({
+      warehouseId,
+      warehouseName: warehouse.name,
+      attemptedByName: user.name,
+      offenders,
+    }).catch(() => {});
+    return NextResponse.json({ error: "negative_stock", offending: offenders }, { status: 409 });
   }
 
   // Optional signature: accept a base64 PNG and persist it, or a pre-stored URL.
