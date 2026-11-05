@@ -6,7 +6,6 @@ import {
   dispersedValueByWarehouse,
   distinctDistributors,
   last3MonthsRange,
-  lastMonthRange,
   onHandByProduct,
   onHandValueByWarehouse,
   parseFilters,
@@ -58,14 +57,23 @@ export default async function ReportsPage({
   const scopeDetail = view !== "overview" && locked;
   const detailWarehouseId = scopeDetail ? user.warehouseId ?? undefined : filters.warehouseId || undefined;
 
-  // Per-view default date window (mirrors the FilterBar presets).
+  // Per-view default date window (mirrors the FilterBar presets). Purchases and
+  // Dispersals default to THIS month (through today) — not last month — so newly
+  // logged check-ins/check-outs show up immediately (the report is force-dynamic,
+  // so the only thing that could hide today's movements is an end-of-last-month
+  // default `to`). Spend stays last-3-months (already includes the current month).
   const now = new Date();
   let effFrom = filters.from;
   let effTo = filters.to;
   if ((view === "purchases" || view === "dispersals" || view === "spend") && !effFrom && !effTo) {
-    const r = view === "spend" ? last3MonthsRange(now) : lastMonthRange(now);
-    effFrom = r.from;
-    effTo = r.to;
+    if (view === "spend") {
+      const r = last3MonthsRange(now);
+      effFrom = r.from;
+      effTo = r.to;
+    } else {
+      effFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+      effTo = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    }
   }
   const asOf = view === "onhand" ? filters.asOf ?? now : filters.asOf;
 

@@ -1,27 +1,22 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { pendingProductRequestCount } from "@/lib/product-requests";
+import { INVENTORY_ALERT_TYPES } from "@/lib/anomaly";
 import {
   allTechniciansByUsage,
   onHandValueByCategory,
   productCostMap,
-  productLedgerByDivision,
   purchasedDollarsByWarehouse,
   spendByCategory,
   topProductsBySpend,
-  type DivisionLedger,
   type Ranked,
 } from "@/lib/reporting";
 import { computeReorderFindings, type ReorderFinding } from "@/lib/reorder";
 import { currentPeriods, monthlyBudgetFor } from "@/lib/budgets";
-import { DIVISION_LABELS, divisionLabel } from "@/lib/constants";
 import { money, qty } from "@/lib/format";
 import MyReviewsCard from "@/components/MyReviewsCard";
-import RhythmRibbon from "@/components/RhythmRibbon";
-import { buildInventoryRhythm } from "@/lib/rhythm";
 import StartReorder from "./StartReorder";
 
 export const dynamic = "force-dynamic";
@@ -86,7 +81,7 @@ export default async function DashboardPage({
   // dashboard — so the approver sees pending requests wherever they land.
   const pendingRequests = isSuperAdmin(user) ? await pendingProductRequestCount() : 0;
 
-  const [rangeSpend, ytd, catSpend, topProducts, allTechs, ohByCat, ledger, openAlerts, allLowStock] =
+  const [rangeSpend, ytd, catSpend, topProducts, allTechs, ohByCat, openAlerts, allLowStock] =
     await Promise.all([
       // Branch tiles' PRIMARY spend figure follows the selected spend range.
       purchasedDollarsByWarehouse(rangeStart),
@@ -98,11 +93,11 @@ export default async function DashboardPage({
       // Every technician with usage in scope (no top-N cap).
       allTechniciansByUsage(rangeStart, now, cost, scopeId),
       onHandValueByCategory(cost, scopeId),
-      // Consolidated line-of-service → subcategory → product ledger. On-hand is a
-      // point-in-time snapshot; purchased/dispersed are scoped to the range window.
-      productLedgerByDivision(rangeStart, now, scopeId),
+      // Open alerts — INVENTORY module only (price/duplicate/negative-stock/
+      // over-dispense/quantity-spike/low-stock/savings). Personnel, fleet, and
+      // generic alerts live in their own sections, not on the Inventory dashboard.
       prisma.alert.findMany({
-        where: { status: "open" },
+        where: { status: "open", type: { in: [...INVENTORY_ALERT_TYPES] } },
         orderBy: { createdAt: "desc" },
         include: { product: { select: { name: true } } },
         take: 6,
@@ -124,10 +119,6 @@ export default async function DashboardPage({
   const rangeBudgetLabel =
     range === "quarter" ? "Quarter-to-date budget" : range === "ytd" ? "YTD budget" : range === "30d" ? "30-day budget" : "Monthly budget";
 
-  // Month spend (fixed to this calendar month) for the operating-rhythm ribbon,
-  // independent of the spend-range toggle above.
-  const monthSpendMap = await purchasedDollarsByWarehouse(rangeStartFor("month", now));
-
   const companyRangeSpend = warehouses.reduce((s, w) => s + (rangeSpend.get(w.id) ?? 0), 0);
   const companyMonthlyBudget = warehouses.reduce((s, w) => s + monthlyBudgetFor(w.name), 0);
   const companyRangeBudget = companyMonthlyBudget * monthsInRange;
@@ -147,27 +138,11 @@ export default async function DashboardPage({
     return s ? `/dashboard?${s}` : "/dashboard";
   };
 
-  const monthSpend = scopeId
-    ? monthSpendMap.get(scopeId) ?? 0
-    : warehouses.reduce((s, w) => s + (monthSpendMap.get(w.id) ?? 0), 0);
-  const monthBudget = scopeId && selected ? monthlyBudgetFor(selected.name) : companyMonthlyBudget;
-  const monthBudgetPct = monthBudget > 0 ? Math.round((monthSpend / monthBudget) * 100) : null;
-  const rhythm = buildInventoryRhythm({
-    now,
-    reorderCount: lowStock.length,
-    toConfirm,
-    monthSpendLabel: `${money(monthSpend)}${monthBudgetPct != null ? ` · ${monthBudgetPct}%` : ""}`,
-    monthBudgetPct,
-    openAlerts: openAlerts.length,
-  });
-
   return (
     <>
       <PageHeader title="Dashboard" subtitle={`This month at a glance · ${p.monthLabel}`} />
 
       <MyReviewsCard userId={user.id} />
-
-      <RhythmRibbon segments={rhythm} />
 
       {pendingRequests > 0 ? (
         <Link href="/manage/product-requests" className="block mb-4">
@@ -185,13 +160,35 @@ export default async function DashboardPage({
         <Link href="/manage/confirm" className="block mb-4">
           <Card className="p-3 flex items-center gap-3 hover:ring-1 hover:ring-amber-300">
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">{toConfirm}</span>
-            <span className="text-sm text-ink">
-              product{toConfirm === 1 ? "" : "s"} to confirm before they can be checked out
-            </span>
+            <span className="text-sm text-ink">Products to Confirm</span>
             <span className="ml-auto text-xs font-medium text-brand-700">Review →</span>
           </Card>
         </Link>
       ) : null}
+
+      {/* Open alerts — INVENTORY module only, surfaced at the TOP so the most
+          actionable inventory signals lead the page. */}
+      <Card className="p-0 overflow-hidden mb-4">
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+          <PanelTitle>Open alerts</PanelTitle>
+          <Link href="/alerts" className="text-xs font-medium text-brand-700 hover:underline">View all</Link>
+        </div>
+        {openAlerts.length === 0 ? (
+          <Empty>No open inventory alerts.</Empty>
+        ) : (
+          <ul className="divide-y divide-line">
+            {openAlerts.map((a) => (
+              <li key={a.id} className="px-4 py-3 flex items-start gap-3">
+                <SeverityDot severity={a.severity} />
+                <div className="min-w-0">
+                  <div className="text-sm">{a.message}</div>
+                  <div className="text-xs text-muted">{a.type.replace(/_/g, " ")}{a.product ? ` · ${a.product.name}` : ""}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* Selector: company banner + branch cards. Click to scope the detail below.
           Hidden for branch-locked managers (single branch, no cross-branch view). */}
@@ -313,22 +310,9 @@ export default async function DashboardPage({
         )}
       </Card>
 
-      {/* One detail section, scoped to the selection */}
+      {/* One detail section, scoped to the selection. On-hand by line of service
+          lives in Reports (and Technician spend below), so it's not duplicated here. */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Consolidated ledger: line of service → subcategory → product, showing
-            purchased & dispersed for the range window and current on-hand. This
-            single table replaces the former LOS tiles, on-hand matrix, and
-            product-movement panels. */}
-        <Card className="p-0 overflow-hidden lg:col-span-2">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2 flex-wrap">
-            <PanelTitle>On-hand by line of service{selected ? ` · ${scopeName}` : ""}</PanelTitle>
-            <span className="text-[11px] text-muted">
-              On hand: current · Purchased/Dispersed: {rangeLabel}
-            </span>
-          </div>
-          <LineOfServiceLedger rows={ledger} />
-        </Card>
-
         <Card className="p-4">
           <PanelTitle>Top spend by category · {rangeLabel}</PanelTitle>
           <RankBars rows={catSpend} empty={`No purchases recorded for ${rangeLabel.toLowerCase()} yet.`} />
@@ -374,28 +358,6 @@ export default async function DashboardPage({
             </div>
           )}
         </Card>
-
-        <Card className="p-0 overflow-hidden">
-          <div className="px-4 py-3 border-b border-line flex items-center justify-between">
-            <PanelTitle>Open alerts</PanelTitle>
-            <Link href="/alerts" className="text-xs font-medium text-brand-700 hover:underline">View all</Link>
-          </div>
-          {openAlerts.length === 0 ? (
-            <Empty>No open alerts.</Empty>
-          ) : (
-            <ul className="divide-y divide-line">
-              {openAlerts.map((a) => (
-                <li key={a.id} className="px-4 py-3 flex items-start gap-3">
-                  <SeverityDot severity={a.severity} />
-                  <div className="min-w-0">
-                    <div className="text-sm">{a.message}</div>
-                    <div className="text-xs text-muted">{a.type.replace(/_/g, " ")}{a.product ? ` · ${a.product.name}` : ""}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
       </div>
     </>
   );
@@ -406,96 +368,6 @@ function PanelTitle({ children }: { children: React.ReactNode }) {
 }
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-8 text-center text-sm text-muted">{children}</p>;
-}
-
-// Color accent per line of service — a continuous left rail + tinted band ties
-// every product visually to its category so you never lose your place. Full
-// literal class strings (Tailwind scans source). Unknown codes fall back to slate.
-const DIV_ACCENT: Record<string, { band: string; rail: string; dot: string; text: string }> = {
-  GHP: { band: "bg-sky-50", rail: "border-l-sky-400", dot: "bg-sky-500", text: "text-sky-900" },
-  LO: { band: "bg-emerald-50", rail: "border-l-emerald-400", dot: "bg-emerald-500", text: "text-emerald-900" },
-  TERMITE: { band: "bg-amber-50", rail: "border-l-amber-400", dot: "bg-amber-500", text: "text-amber-900" },
-  RODENT: { band: "bg-violet-50", rail: "border-l-violet-400", dot: "bg-violet-500", text: "text-violet-900" },
-  MOSQUITO: { band: "bg-cyan-50", rail: "border-l-cyan-400", dot: "bg-cyan-500", text: "text-cyan-900" },
-  OTHER: { band: "bg-slate-50", rail: "border-l-slate-400", dot: "bg-slate-400", text: "text-slate-800" },
-  UNCLASSIFIED: { band: "bg-slate-50", rail: "border-l-slate-300", dot: "bg-slate-300", text: "text-slate-700" },
-};
-const accentFor = (code: string) => DIV_ACCENT[code] ?? DIV_ACCENT.UNCLASSIFIED;
-
-// Consolidated line-of-service ledger. One scrolling table with strong visual
-// grouping: each division gets a color-coded, STICKY header band + a continuous
-// colored left rail down all its rows; each subcategory is a bold labeled group
-// header; then per-product rows. On-hand is current; purchased/dispersed are the
-// range window. Iterates the helper's order (DIVISIONS, unclassified trailing).
-function LineOfServiceLedger({ rows }: { rows: DivisionLedger[] }) {
-  if (rows.length === 0) return <Empty>No stock on hand or movement for this scope yet.</Empty>;
-
-  const label = (code: string) =>
-    code === "UNCLASSIFIED" ? "Unclassified" : (DIVISION_LABELS as Record<string, string>)[code] ?? divisionLabel(code);
-  const num = (n: number) => (Math.abs(n) < 1e-6 ? <span className="text-muted/40">—</span> : qty(n));
-
-  return (
-    <div className="overflow-x-auto max-h-[42rem] overflow-y-auto">
-      <table className="w-full border-separate border-spacing-0 text-sm">
-        <thead className="sticky top-0 z-20 bg-surface">
-          <tr className="text-left text-xs text-muted">
-            <th className="border-b border-line px-4 py-2 font-medium">Product</th>
-            <th className="border-b border-line px-3 py-2 font-medium text-right whitespace-nowrap">Purchased</th>
-            <th className="border-b border-line px-3 py-2 font-medium text-right whitespace-nowrap">Dispersed</th>
-            <th className="border-b border-line px-4 py-2 font-medium text-right whitespace-nowrap">On hand</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((d) => {
-            const a = accentFor(d.division);
-            return (
-              <Fragment key={d.division}>
-                {/* Division band — sticky under the column header so you always
-                    see which line of service you're scrolling through. No totals:
-                    summing units across different pack sizes/UoMs isn't meaningful. */}
-                <tr className={`sticky top-[37px] z-10 ${a.band}`}>
-                  <td colSpan={4} className={`border-y border-line border-l-4 ${a.rail} px-4 py-2.5`}>
-                    <span className="flex items-center gap-2">
-                      <span className={`inline-block h-2.5 w-2.5 rounded-full ${a.dot}`} />
-                      <span className={`text-[13px] font-bold uppercase tracking-wide ${a.text}`}>{label(d.division)}</span>
-                      <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] font-medium text-muted">
-                        {d.productCount} product{d.productCount === 1 ? "" : "s"}
-                      </span>
-                    </span>
-                  </td>
-                </tr>
-                {d.subdivisions.map((s) => (
-                  <Fragment key={`${d.division}:${s.subdivision}`}>
-                    {/* Subcategory group header — a clear labeled band, not micro-text. No totals. */}
-                    <tr className="bg-black/[0.035]">
-                      <td colSpan={4} className={`border-b border-line border-l-4 ${a.rail} py-1.5 pl-5 pr-4`}>
-                        <span className="flex items-center gap-2">
-                          <span className={`inline-block h-1.5 w-1.5 rounded-sm ${a.dot}`} />
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-ink">{s.subdivision}</span>
-                          <span className="text-[10px] font-normal text-muted">{s.products.length} product{s.products.length === 1 ? "" : "s"}</span>
-                        </span>
-                      </td>
-                    </tr>
-                    {s.products.map((prod) => (
-                      <tr key={prod.productId} className="hover:bg-black/[0.02]">
-                        <td className={`border-b border-line border-l-4 ${a.rail} py-2 pl-8 pr-4`}>
-                          <span className="block text-ink">{prod.name}</span>
-                          {prod.unit ? <span className="block text-[11px] text-muted">{prod.unit}</span> : null}
-                        </td>
-                        <td className="border-b border-line px-3 py-2 text-right tabular-nums">{num(prod.purchased)}</td>
-                        <td className="border-b border-line px-3 py-2 text-right tabular-nums">{num(prod.dispersed)}</td>
-                        <td className="border-b border-line px-4 py-2 text-right tabular-nums font-medium">{num(prod.onHand)}</td>
-                      </tr>
-                    ))}
-                  </Fragment>
-                ))}
-              </Fragment>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
 }
 
 function BudgetBar({ spent, budget }: { spent: number; budget: number }) {

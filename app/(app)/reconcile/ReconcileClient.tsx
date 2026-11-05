@@ -176,7 +176,9 @@ export default function ReconcileClient({
                       {r.invoiceNumber ? <div>Invoice: {r.invoiceNumber}</div> : null}
                       {r.unitPrice != null ? <div>@ {money(r.unitPrice)}</div> : null}
                       {r.reason ? <div className="text-muted">{r.reason}</div> : null}
-                      {r.isReversed ? <div className="text-amber-600 font-medium">Reversed</div> : null}
+                      {/* The check-out line shows only what was checked out; the
+                          reversal is its own following row (TypeBadge "Reversal"),
+                          so a "Reversed" note here would be duplicative. */}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap text-xs">
                       {r.userName ? <span className="text-ink">{r.userName}</span> : <span className="text-muted">—</span>}

@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import {
   dispersalsDetail,
   last3MonthsRange,
-  lastMonthRange,
   onHandByProduct,
   onHandSnapshot,
   parseFilters,
@@ -54,9 +53,15 @@ export async function GET(req: Request) {
   let from = filters.from;
   let to = filters.to;
   if ((view === "purchases" || view === "dispersals" || view === "spend") && !from && !to) {
-    const r = view === "spend" ? last3MonthsRange(now) : lastMonthRange(now);
-    from = r.from;
-    to = r.to;
+    if (view === "spend") {
+      const r = last3MonthsRange(now);
+      from = r.from;
+      to = r.to;
+    } else {
+      // Match the page: Purchases/Dispersals default to THIS month (through today).
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    }
   }
   const asOf = view === "onhand" ? filters.asOf ?? now : filters.asOf;
   const scoped: ReportFilters = { ...filters, from, to, asOf, warehouseId: detailWarehouseId };
