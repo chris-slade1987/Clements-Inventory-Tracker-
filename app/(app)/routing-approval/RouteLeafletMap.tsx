@@ -32,6 +32,9 @@ export default function RouteLeafletMap({
   const layerRef = useRef<LLayerGroup | null>(null);
   const carRef = useRef<LMarker | null>(null);
   const trailRef = useRef<import("leaflet").Polyline | null>(null);
+  // Road-following geometry (dense [lat,lng] points) the "Play route" animation
+  // travels — set after OSRM returns; falls back to the stop points if it doesn't.
+  const animPathRef = useRef<[number, number][]>([]);
   const rafRef = useRef<number | null>(null);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -84,12 +87,15 @@ export default function RouteLeafletMap({
       layer.clearLayers();
       carRef.current = null;
       trailRef.current = null;
+      animPathRef.current = [];
 
+      // Draw stop markers immediately (they don't wait on road geometry).
       const allPts: [number, number][] = [];
+      const groupPts: [number, number][][] = [];
       for (const g of groups) {
         const pts = g.stops.filter((s) => s.lat != null && s.lng != null).map((s) => [s.lat as number, s.lng as number] as [number, number]);
+        groupPts.push(pts);
         allPts.push(...pts);
-        if (pts.length >= 2) L.polyline(pts, { color: g.color, weight: 3, opacity: multi ? 0.6 : 0.7 }).addTo(layer);
         g.stops.filter((s) => s.lat != null && s.lng != null).forEach((s, i) => {
           const big = s.amt >= 150;
           const sz = big ? 26 : 22;
@@ -104,6 +110,30 @@ export default function RouteLeafletMap({
         });
       }
       if (allPts.length) { try { map.fitBounds(L.latLngBounds(allPts).pad(0.15)); } catch { /* single point */ } }
+
+      // Now draw each group's PATH following actual streets (OSRM road geometry via
+      // our server route), falling back to a straight polyline if it's unavailable.
+      // Road points also feed the Play-route animation so the car drives the streets.
+      const animParts: [number, number][] = [];
+      for (let gi = 0; gi < groups.length; gi++) {
+        const g = groups[gi];
+        const pts = groupPts[gi];
+        if (pts.length < 2) { animParts.push(...pts); continue; }
+        let line: [number, number][] = pts; // straight fallback
+        try {
+          const res = await fetch("/api/routing/road", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ coords: pts }),
+          });
+          const data = await res.json().catch(() => null);
+          if (Array.isArray(data?.line) && data.line.length >= 2) line = data.line as [number, number][];
+        } catch { /* keep straight fallback */ }
+        if (cancelled || !layerRef.current) return;
+        L.polyline(line, { color: g.color, weight: 3, opacity: multi ? 0.6 : 0.75 }).addTo(layer);
+        animParts.push(...line);
+      }
+      if (!cancelled) animPathRef.current = animParts;
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +148,10 @@ export default function RouteLeafletMap({
 
   async function playAnimation() {
     const map = mapRef.current, layer = layerRef.current;
-    if (!map || !layer || orderedPts.length < 2) return;
+    // Travel the road geometry when we have it (dense street-following points),
+    // else fall back to the straight stop-to-stop points.
+    const path = animPathRef.current.length >= 2 ? animPathRef.current : orderedPts;
+    if (!map || !layer || path.length < 2) return;
     const L = (await import("leaflet")).default;
     stopAnimation();
     setPlaying(true);
@@ -128,9 +161,9 @@ export default function RouteLeafletMap({
       html: `<div style="width:16px;height:16px;border-radius:50%;background:#111;border:3px solid #fff;box-shadow:0 0 0 3px rgba(31,122,69,.5),0 2px 6px rgba(0,0,0,.5)"></div>`,
       iconSize: [16, 16], iconAnchor: [8, 8],
     });
-    const car = L.marker(orderedPts[0], { icon: carIcon, zIndexOffset: 1000, interactive: false }).addTo(layer);
+    const car = L.marker(path[0], { icon: carIcon, zIndexOffset: 1000, interactive: false }).addTo(layer);
     carRef.current = car;
-    const trail = L.polyline([orderedPts[0]], { color: "#111", weight: 4, opacity: 0.85 }).addTo(layer);
+    const trail = L.polyline([path[0]], { color: "#111", weight: 4, opacity: 0.85 }).addTo(layer);
     trailRef.current = trail;
 
     const miles = (a: [number, number], b: [number, number]) => {
@@ -140,21 +173,27 @@ export default function RouteLeafletMap({
       return 2 * R * Math.asin(Math.sqrt(h));
     };
 
-    let leg = 0, legStart = performance.now();
-    const legDuration = (i: number) => Math.min(1500, Math.max(320, miles(orderedPts[i], orderedPts[i + 1]) * 130));
+    // Constant-speed travel along the whole path: map elapsed time → cumulative
+    // distance, so a dense road path animates smoothly rather than pausing at each
+    // tiny segment. Total run scales with route length, clamped to a sane range.
+    const seg = path.slice(1).map((p, i) => miles(path[i], p));
+    const cum: number[] = [0];
+    for (const d of seg) cum.push(cum[cum.length - 1] + d);
+    const total = cum[cum.length - 1] || 1;
+    const totalDur = Math.min(22000, Math.max(4500, total * 420));
+    const start = performance.now();
     const step = (now: number) => {
       if (!carRef.current) return; // stopped
-      const a = orderedPts[leg], b = orderedPts[leg + 1];
-      const dur = legDuration(leg);
-      const t = Math.min(1, (now - legStart) / dur);
-      const lat = a[0] + (b[0] - a[0]) * t, lng = a[1] + (b[1] - a[1]) * t;
+      const f = Math.min(1, (now - start) / totalDur);
+      const d = f * total;
+      let i = 0;
+      while (i < seg.length - 1 && cum[i + 1] < d) i++;
+      const segFrac = seg[i] ? (d - cum[i]) / seg[i] : 0;
+      const a = path[i], b = path[i + 1];
+      const lat = a[0] + (b[0] - a[0]) * segFrac, lng = a[1] + (b[1] - a[1]) * segFrac;
       car.setLatLng([lat, lng]);
-      trail.setLatLngs([...orderedPts.slice(0, leg + 1), [lat, lng]]);
-      if (t >= 1) {
-        leg++;
-        if (leg >= orderedPts.length - 1) { setPlaying(false); rafRef.current = null; return; }
-        legStart = now;
-      }
+      trail.setLatLngs([...path.slice(0, i + 1), [lat, lng]]);
+      if (f >= 1) { setPlaying(false); rafRef.current = null; return; }
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
