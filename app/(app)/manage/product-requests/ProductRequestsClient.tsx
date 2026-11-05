@@ -63,10 +63,12 @@ export default function ProductRequestsClient({
 
   const filteredTargets = useMemo(() => {
     const q = mergeQuery.trim().toLowerCase();
-    const list = q
+    // Show the WHOLE approved list (scrollable) when there's no search — never cap
+    // it, or targets past the cap (e.g. PT Microcare, alphabetically after the first
+    // page) become unreachable without typing a search.
+    return q
       ? mergeTargets.filter((t) => t.name.toLowerCase().includes(q) || (t.manufacturer ?? "").toLowerCase().includes(q))
       : mergeTargets;
-    return list.slice(0, 50);
   }, [mergeQuery, mergeTargets]);
 
   function openMerge(id: string) {

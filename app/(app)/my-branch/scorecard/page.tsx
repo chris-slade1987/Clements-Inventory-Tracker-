@@ -6,7 +6,6 @@ import { BRANCHES, branchLabel, listPeriods } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, matchBranchManagerEmployee, serializeScorecardReview } from "@/lib/scorecard";
 import { listScorecardComments, canAccessScorecardCoaching } from "@/lib/scorecard-coaching";
 import ScorecardClient from "@/app/(app)/management/scorecards/ScorecardClient";
-import MyBranchViewToggle from "@/app/(app)/my-branch/MyBranchViewToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +64,6 @@ export default async function MyScorecardPage({
           </div>
         }
       />
-      {/* Branch-home switcher — stays inside the Company center (KPIs = this
-          scorecard view). */}
-      <MyBranchViewToggle view="kpis" branchQuery={sp.branch ? `?branch=${branch}` : ""} />
       <ScorecardClient
         key={`${year}-${quarter}-${branch}`}
         year={year}

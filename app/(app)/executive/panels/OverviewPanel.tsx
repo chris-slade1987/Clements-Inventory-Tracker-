@@ -27,10 +27,19 @@ import ScorecardStrip, { type ScorecardStripData } from "@/components/ScorecardS
 export async function OverviewPanel({
   user,
   sp,
+  basePath = "/executive",
 }: {
   user: SessionUser;
   sp: Record<string, string | undefined>;
+  /** Where the period/basis Controls and the branch selector link. Defaults to the
+   *  Executive center; the Company home mounts this same KPI view at
+   *  `/my-branch/kpis` so managers/super admins see company-wide KPIs with a branch
+   *  toggle WITHOUT leaving the Company section. */
+  basePath?: string;
 }) {
+  // In the Executive center the board is tab-driven (?tab=overview); mounted
+  // elsewhere (Company KPIs) there is no tab param — links go straight to basePath.
+  const usesTab = basePath === "/executive";
   const locked = branchLocked(user);
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = locked ? (user.branch ?? BRANCHES[0].key) : requested;
@@ -126,7 +135,7 @@ export async function OverviewPanel({
         );
       })();
 
-  const tabQuery = (extra: string) => `/executive?tab=overview&${extra}`;
+  const tabQuery = (extra: string) => (usesTab ? `/executive?tab=overview&${extra}` : `${basePath}?${extra}`);
   const selector = !locked ? (
     <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1 w-fit">
       <Link href={tabQuery(`p=${periodKey}&basis=${basisParam}`)} className={`rounded-lg px-3 py-1.5 text-xs font-medium ${isCompany ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:text-ink hover:bg-black/[0.04]"}`}>All branches</Link>
@@ -147,7 +156,7 @@ export async function OverviewPanel({
           periods={periods.map((p) => ({ key: `${p.year}-${String(p.month).padStart(2, "0")}`, label: p.label }))}
           period={periodKey}
           basis={basisParam}
-          basePath="/executive"
+          basePath={basePath}
           forecast
           quarters={availableQuarters.map((q) => ({ key: `q${q}`, label: `Q${q}` }))}
         />
@@ -189,18 +198,20 @@ export async function OverviewPanel({
         <BranchDashboard payload={payload!} />
       )}
 
-      <div className="mt-6 flex flex-col gap-1 text-xs text-muted">
-        <p>
-          Looking for the company financial statements — full P&amp;L, balance sheet and cash flow?{" "}
-          {branchLocked(user) ? "Those live on the Financials tab (leadership access)." : <Link href="/executive?tab=financials" className="font-medium text-brand-700 hover:underline">Open Financials →</Link>}
-        </p>
-        {canViewExec(user) ? (
+      {usesTab ? (
+        <div className="mt-6 flex flex-col gap-1 text-xs text-muted">
           <p>
-            Compare the four branches side by side —{" "}
-            <Link href="/executive?tab=branches" className="font-medium text-brand-700 hover:underline">open the Branches tab →</Link>
+            Looking for the company financial statements — full P&amp;L, balance sheet and cash flow?{" "}
+            {branchLocked(user) ? "Those live on the Financials tab (leadership access)." : <Link href="/executive?tab=financials" className="font-medium text-brand-700 hover:underline">Open Financials →</Link>}
           </p>
-        ) : null}
-      </div>
+          {canViewExec(user) ? (
+            <p>
+              Compare the four branches side by side —{" "}
+              <Link href="/executive?tab=branches" className="font-medium text-brand-700 hover:underline">open the Branches tab →</Link>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </>
   );
 }

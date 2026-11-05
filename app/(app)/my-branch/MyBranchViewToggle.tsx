@@ -8,10 +8,11 @@ import Link from "next/link";
 // query.
 //
 // IMPORTANT: every destination stays INSIDE the Company center (`/my-branch`,
-// `/my-branch/scorecard`, `/routing-approval`, `/branch-command`). KPIs used to
-// jump to `/executive` — a different nav section — which bounced the user out of
-// Company; it now points at the in-Company branch scorecard so the section flow
-// stays linear. Company-wide executive KPIs live under the Executive center.
+// `/my-branch/kpis`, `/routing-approval`, `/branch-command`). KPIs used to jump to
+// `/executive` — a different nav section — which bounced the user out of Company; it
+// now points at the in-Company KPI board (`/my-branch/kpis`, company-wide with a
+// branch toggle, the same budget-vs-actual KPIs managers check daily). The quarterly
+// scorecard is reached from its own tile, not this toggle.
 export default function MyBranchViewToggle({
   view,
   branchQuery = "",
@@ -28,7 +29,7 @@ export default function MyBranchViewToggle({
       <Link href={`/my-branch${branchQuery}`} className={cell(view === "todos")}>
         To-dos
       </Link>
-      <Link href={`/my-branch/scorecard${branchQuery}`} className={cell(view === "kpis")}>
+      <Link href={`/my-branch/kpis${branchQuery}`} className={cell(view === "kpis")}>
         KPIs
       </Link>
       <Link href={`/routing-approval${branchQuery}`} className={cell(view === "routes")}>

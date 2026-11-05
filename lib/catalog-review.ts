@@ -47,6 +47,44 @@ export function dupSignature(name: string): string {
   return s.slice(0, 8);
 }
 
+// Size / packaging / unit words dropped when tokenizing a name for duplicate
+// detection, so "Archer IGR" and "Archer IGR Insecticide 1 qt" compare on their
+// meaningful words only.
+const SIZE_UNIT_TOKENS = new Set([
+  "gal", "gallon", "gallons", "qt", "qts", "quart", "quarts", "oz", "ozs", "ounce", "ounces",
+  "lb", "lbs", "pound", "pounds", "ml", "l", "g", "kg", "ct", "cts", "pk", "pack", "case", "cases",
+  "bottle", "bottles", "jug", "jugs", "pail", "pails", "bag", "bags", "box", "boxes", "each", "ea",
+  "liquid", "concentrate", "conc",
+]);
+
+/** Meaningful-word tokens of a product name (brand prefix, sizes/units, digits and
+ *  punctuation removed) for near-duplicate detection. */
+export function nameTokens(name: string): string[] {
+  const s = (name ?? "").toLowerCase().replace(BRAND_PREFIX, "").replace(/[^a-z0-9\s]/g, " ");
+  return s.split(/\s+/).filter((t) => t && !/\d/.test(t) && !SIZE_UNIT_TOKENS.has(t));
+}
+
+function isTokenSubset(a: string[], b: string[]): boolean {
+  if (a.length === 0 || b.length === 0) return false;
+  const bs = new Set(b);
+  return a.every((t) => bs.has(t));
+}
+
+/** True when two products in a cluster look like the SAME product at different
+ *  verbosity — one's meaningful-token set is contained in the other's. Catches
+ *  "Archer IGR" ⊂ "Archer IGR Insecticide 1 qt" and "Avenue South Emergent
+ *  Herbicide" ⊂ "Avenue South Post Emergent Liquid Herbicide 2.5 gal", so these
+ *  surface in Catalog Review → Duplicates even after both rows were approved. */
+export function hasNearDuplicatePair(ps: { name: string }[]): boolean {
+  const toks = ps.map((p) => nameTokens(p.name));
+  for (let i = 0; i < toks.length; i++) {
+    for (let j = i + 1; j < toks.length; j++) {
+      if (isTokenSubset(toks[i], toks[j]) || isTokenSubset(toks[j], toks[i])) return true;
+    }
+  }
+  return false;
+}
+
 const isAllCaps = (name: string) => /[A-Z]/.test(name) && name === name.toUpperCase();
 
 function toReview(p: {
@@ -111,8 +149,13 @@ export async function catalogReview(): Promise<{
     if (sig.length < 4) continue; // too short to be a reliable signature
     (bySig.get(sig) ?? bySig.set(sig, []).get(sig)!).push(r);
   }
+  // Surface a cluster when it still has an UNRESOLVED member (the original rule) OR
+  // when it contains a near-duplicate pair even if every row is already approved —
+  // so nickname-vs-full-description look-alikes (Archer IGR, Avenue South, etc.) can
+  // be found and merged after the fact, instead of silently living as two catalog
+  // rows (which also splits on-hand and can block check-out of the "wrong" twin).
   const clusters: DuplicateCluster[] = [...bySig.entries()]
-    .filter(([, ps]) => ps.length > 1 && ps.some((p) => !(p.approved && p.confirmed)))
+    .filter(([, ps]) => ps.length > 1 && (ps.some((p) => !(p.approved && p.confirmed)) || hasNearDuplicatePair(ps)))
     .map(([key, ps]) => ({ key, products: ps.sort((a, b) => (b.approved ? 1 : 0) - (a.approved ? 1 : 0) || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.products.length - a.products.length || a.key.localeCompare(b.key));
 

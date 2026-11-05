@@ -252,17 +252,25 @@ export default async function MyBranchPage({
 
   const cadScore = (r: CadenceRow) => (r.done ? 1000 : r.tracked === false ? 900 : daysUntilCal(r.due, now));
   const attnScore = (a: AttentionItem) => (a.severity === "critical" ? -50 : a.severity === "warning" ? 5 : 15);
+  // "What needs you" lists only OPEN work — a completed duty no longer "needs you,"
+  // so done cadence rows drop off the list entirely (their completion still shows in
+  // the Momentum tile + rings). Attention items are open by nature.
   const worklist: ({ sort: number } & ({ k: "cadence"; row: CadenceRow } | { k: "attn"; a: AttentionItem }))[] = [
-    ...cadence.map((row) => ({ sort: cadScore(row), k: "cadence" as const, row })),
+    ...cadence.filter((row) => !row.done).map((row) => ({ sort: cadScore(row), k: "cadence" as const, row })),
     ...attention.map((a) => ({ sort: attnScore(a), k: "attn" as const, a })),
   ].sort((x, y) => x.sort - y.sort);
-  const openWork = worklist.filter((it) => (it.k === "cadence" ? !it.row.done && it.row.tracked !== false : true)).length;
+  const openWork = worklist.filter((it) => (it.k === "cadence" ? it.row.tracked !== false : true)).length;
+
+  // Super admins (Chris, Julie, April) MONITOR branch compliance — these recurring
+  // duties aren't assigned to them personally, so the dashboard is framed as a
+  // monitoring view for them rather than "your checklist."
+  const sa = isSuperAdmin(user);
 
   return (
     <>
       <PageHeader
         title={`Welcome, ${user.name?.split(" ")[0] ?? "Manager"}`}
-        subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
+        subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — ${sa ? "branch compliance status & what needs attention (monitoring view)" : "your monthly checklist & what needs attention"}`}
       />
 
       {/* Company Bulletin — pinned to the TOP, directly under the welcome note.
@@ -314,10 +322,12 @@ export default async function MyBranchPage({
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <div className="flex-1">
             <AchievementBar
-              label="This period's duties complete"
+              label={sa ? `${branchLabel(scBranch)} — recurring duties complete` : "This period's duties complete"}
               value={dutiesDone}
               target={duties.length}
-              caption={`${dutiesDone} of ${duties.length} recurring duties · ${encouragement(duties.length > 0 ? (dutiesDone / duties.length) * 100 : 0)}`}
+              caption={sa
+                ? `Monitoring: ${dutiesDone} of ${duties.length} recurring duties complete at ${branchLabel(scBranch)} this period`
+                : `${dutiesDone} of ${duties.length} recurring duties · ${encouragement(duties.length > 0 ? (dutiesDone / duties.length) * 100 : 0)}`}
               size="lg"
               milestones={duties.map((_, i) => ({ at: ((i + 1) / duties.length) * 100 }))}
             />
