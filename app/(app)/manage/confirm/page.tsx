@@ -3,7 +3,7 @@ import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uomLabel } from "@/lib/uom";
 import { divisionLabel } from "@/lib/constants";
-import { catalogReview, ensureCatalogBaseline } from "@/lib/catalog-review";
+import { catalogReview, ensureCatalogBaseline, REJECTED_ARCHIVED_MARK } from "@/lib/catalog-review";
 import ConfirmQueue from "./ConfirmQueue";
 import OffCatalogList from "./OffCatalogList";
 import DuplicateClusters from "./DuplicateClusters";
@@ -31,7 +31,10 @@ export default async function CatalogReviewPage() {
 
   const [pendingRaw, rejectedRaw, review] = await Promise.all([
     prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
-    prisma.product.findMany({ where: { active: false, notes: { contains: DISCARD_MARK } }, orderBy: { name: "asc" } }),
+    prisma.product.findMany({
+      where: { active: false, notes: { contains: DISCARD_MARK }, NOT: { notes: { contains: REJECTED_ARCHIVED_MARK } } },
+      orderBy: { name: "asc" },
+    }),
     catalogReview(),
   ]);
 

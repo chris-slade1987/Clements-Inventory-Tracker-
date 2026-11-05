@@ -131,7 +131,14 @@ export async function catalogReview(): Promise<{
 // only takes runtime writes, so this fires on the first admin load of Catalog
 // Review after deploy, never again). Bump BASELINE_VERSION to re-baseline later.
 const BASELINE_SETTING_KEY = "catalog-baseline-approved";
-const BASELINE_VERSION = "2026-10-22";
+// 2026-11-05: re-baseline. The catalog is finalized (on-hand loaded + Naples
+// disbursements tested), so the COO asked to clear the review backlog that had
+// re-accumulated from invoice/dispersal back-loads: Approve/Reject, Off-catalog,
+// Duplicates, and New products all go to zero by flags only (approved+confirmed) —
+// NO stock-movement changes, so on-hand is untouched. Also archives the standing
+// Rejected backlog out of the Rejected tab (keeps the discard marker so the deploy
+// reconcile still holds them inactive — nothing is resurrected or hard-deleted).
+const BASELINE_VERSION = "2026-11-05";
 
 // Review markers the baseline clears so confirmed products read clean.
 const STALE_MARKERS = [
@@ -140,13 +147,19 @@ const STALE_MARKERS = [
   /Flagged for review by catalog cleanup[^.]*\.\s*/gi,
 ];
 
-export async function ensureCatalogBaseline(): Promise<{ ran: boolean; approved: number }> {
+// Appended to a rejected (discarded) product's notes so the Rejected tab stops
+// listing the already-handled backlog, WITHOUT removing DISCARD_MARK (the deploy
+// reconcile keys off DISCARD_MARK to keep the product inactive/off-catalog).
+export const REJECTED_ARCHIVED_MARK = "Rejected backlog acknowledged";
+
+export async function ensureCatalogBaseline(): Promise<{ ran: boolean; approved: number; archivedRejected: number }> {
   try {
     const existing = await prisma.setting.findUnique({ where: { key: BASELINE_SETTING_KEY } }).catch(() => null);
-    if (existing?.value === BASELINE_VERSION) return { ran: false, approved: 0 };
+    if (existing?.value === BASELINE_VERSION) return { ran: false, approved: 0, archivedRejected: 0 };
 
     // Only touch active products that still need a decision — leave already
-    // approved+confirmed rows and rejected (inactive) rows alone.
+    // approved+confirmed rows alone. Flags + note cleanup only; never a movement,
+    // so on-hand (= SUM of movements) cannot change.
     const pending = await prisma.product.findMany({
       where: { active: true, OR: [{ approved: false }, { confirmed: false }] },
       select: { id: true, notes: true },
@@ -170,14 +183,38 @@ export async function ensureCatalogBaseline(): Promise<{ ran: boolean; approved:
       }
     }
 
+    // Archive the standing Rejected backlog: append the archived marker so the
+    // Rejected tab (which filters it out) empties, while KEEPING DISCARD_MARK so the
+    // product stays inactive. Inactive rows carry no live on-hand, so this is safe.
+    let archivedRejected = 0;
+    const rejected = await prisma.product.findMany({
+      where: {
+        active: false,
+        notes: { contains: "Discarded from confirm queue" },
+        NOT: { notes: { contains: REJECTED_ARCHIVED_MARK } },
+      },
+      select: { id: true, notes: true },
+    });
+    for (const p of rejected) {
+      try {
+        await prisma.product.update({
+          where: { id: p.id },
+          data: { notes: [p.notes, `${REJECTED_ARCHIVED_MARK}.`].filter(Boolean).join(" ") },
+        });
+        archivedRejected++;
+      } catch (e) {
+        console.error("ensureCatalogBaseline: failed to archive rejected", p.id, e);
+      }
+    }
+
     await prisma.setting.upsert({
       where: { key: BASELINE_SETTING_KEY },
       create: { key: BASELINE_SETTING_KEY, value: BASELINE_VERSION },
       update: { value: BASELINE_VERSION },
     });
-    return { ran: true, approved };
+    return { ran: true, approved, archivedRejected };
   } catch (e) {
     console.error("ensureCatalogBaseline failed (non-fatal):", e);
-    return { ran: false, approved: 0 };
+    return { ran: false, approved: 0, archivedRejected: 0 };
   }
 }
