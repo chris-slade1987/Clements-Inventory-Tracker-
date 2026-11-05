@@ -1,11 +1,17 @@
 import Link from "next/link";
 
 // To-dos ⇄ KPIs ⇄ Routes ⇄ Command toggle for the branch-manager home. The
-// manager's own branch performance (budget-vs-actual KPI gauges), the monthly
-// routing sign-off, and the weekly Branch Command cockpit (route completion,
-// pacing, jobs left behind) all hang off one toggle so a manager never has to hunt
-// for where their branch data lives. Server component — links that preserve the
-// active branch query.
+// manager's own branch performance (the branch scorecard), the monthly routing
+// sign-off, and the weekly Branch Command cockpit (route completion, pacing, jobs
+// left behind) all hang off one toggle so a manager never has to hunt for where
+// their branch data lives. Server component — links that preserve the active branch
+// query.
+//
+// IMPORTANT: every destination stays INSIDE the Company center (`/my-branch`,
+// `/my-branch/scorecard`, `/routing-approval`, `/branch-command`). KPIs used to
+// jump to `/executive` — a different nav section — which bounced the user out of
+// Company; it now points at the in-Company branch scorecard so the section flow
+// stays linear. Company-wide executive KPIs live under the Executive center.
 export default function MyBranchViewToggle({
   view,
   branchQuery = "",
@@ -22,7 +28,7 @@ export default function MyBranchViewToggle({
       <Link href={`/my-branch${branchQuery}`} className={cell(view === "todos")}>
         To-dos
       </Link>
-      <Link href={`/executive?tab=overview${branchQuery ? `&${branchQuery.slice(1)}` : ""}`} className={cell(view === "kpis")}>
+      <Link href={`/my-branch/scorecard${branchQuery}`} className={cell(view === "kpis")}>
         KPIs
       </Link>
       <Link href={`/routing-approval${branchQuery}`} className={cell(view === "routes")}>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { pendingRequestsForBranch, ptoTypeLabel } from "@/lib/pto";
@@ -265,7 +265,16 @@ export default async function MyBranchPage({
         subtitle={`${scopeLabel} · ${MONTHS[month]} ${year} — your monthly checklist & what needs attention`}
       />
 
-      {todo.isOctoberGrace ? (
+      {/* Company Bulletin — pinned to the TOP, directly under the welcome note.
+          Everything below it is unchanged. */}
+      <BulletinBanner />
+
+      {/* The October grace-period note is a MANAGER task reminder ("your
+          outstanding October to-dos … due Fri Nov 6"). Super admins (Chris, Julie,
+          April) MONITOR completion — they are never assigned these operational
+          to-dos — so the deadline notice is hidden for them. They still see the
+          completion data below (tiles, rhythm, and the branch worklist status). */}
+      {todo.isOctoberGrace && !isSuperAdmin(user) ? (
         <div className="mb-5 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
           <div className="text-sm font-medium text-brand-800">Finishing October — grace period through Friday, Nov 6</div>
           <div className="mt-0.5 text-xs text-brand-700">
@@ -295,8 +304,6 @@ export default async function MyBranchPage({
           </div>
         </Link>
       ) : null}
-
-      <BulletinBanner />
 
       <RhythmRibbon segments={rhythm} />
 
@@ -382,7 +389,7 @@ export default async function MyBranchPage({
           sub={insp.pending > 0 ? `${insp.pending} outstanding` : "All done"}
           href="/my-branch/inspections"
         />
-        <Tile label="Needs attention" value={String(attention.length)} tone={attention.some((r) => r.severity === "critical") ? "bad" : attention.length ? "warn" : "good"} sub={attention.length ? "Fleet & reminders" : "All clear"} />
+        <Tile label="Needs attention" value={String(attention.length)} tone={attention.some((r) => r.severity === "critical") ? "bad" : attention.length ? "warn" : "good"} sub={attention.length ? "Fleet & reminders" : "All clear"} href="#needs-attention" />
         {/* The company inventory-alerts firehose is admin-only; a branch manager's
             branch items (incl. low-stock) are in "Needs attention" above. */}
         {!locked ? <Tile label="Open alerts" value={String(openAlerts)} tone={openAlerts ? "warn" : "good"} href="/alerts" /> : null}
@@ -394,7 +401,7 @@ export default async function MyBranchPage({
           done and not-yet-tracked settle to the bottom). Each attention item keeps
           its own Discuss/Clear actions. Replaces the former separate Manager
           Checklist + Needs-attention cards. */}
-      <Card className="p-0 overflow-hidden mb-5" data-testid="manager-checklist">
+      <Card id="needs-attention" className="scroll-mt-20 p-0 overflow-hidden mb-5" data-testid="manager-checklist">
         <div className="px-4 py-3 border-b border-line flex items-start justify-between gap-2">
           <div>
             <div className="text-sm font-medium text-ink">What needs you</div>
