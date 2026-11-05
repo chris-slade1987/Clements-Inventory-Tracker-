@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, homePath } from "@/lib/auth";
+import { requireUser, homePath, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { allReviews, reviewerCandidates, REVIEW_LABEL, STATUS_LABEL, templateForEmployee } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
 import { dateShort } from "@/lib/format";
 import AssignReviewer from "./AssignReviewer";
+import RescheduleReview from "./RescheduleReview";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,8 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default async function ReviewsPage() {
   const user = await requireUser();
-  if (!isHrDirector(user)) redirect(homePath(user));
+  // HR director OR any super admin (Chris, Julie, April).
+  if (!isHrDirector(user) && !isSuperAdmin(user)) redirect(homePath(user));
 
   const [reviews, candidates] = await Promise.all([allReviews(), reviewerCandidates()]);
   const now = Date.now();
@@ -62,14 +64,16 @@ export default async function ReviewsPage() {
                   </div>
 
                   {r.status === "due" || r.status === "sent" ? (
-                    <div className="mt-2">
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
                       <AssignReviewer reviewId={r.id} branch={r.branch} candidates={candidates} currentReviewerId={r.reviewerUserId} currentTemplate={r.template ?? templateForEmployee(r.employee) ?? "technician"} />
+                      <RescheduleReview reviewId={r.id} dueDate={r.dueDate.toISOString()} />
                     </div>
                   ) : (
-                    <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] text-muted">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-muted">
                       <span>Reviewer: {r.reviewerName ?? "—"} {r.reviewerSignedAt ? "✅" : "⏳"}</span>
                       <span>Employee {r.employeeSignedAt ? "✅" : "⏳"}</span>
                       {r.status === "pending_approval" ? <span className="text-brand-600 font-medium">Ready for your approval →</span> : both ? null : null}
+                      <RescheduleReview reviewId={r.id} dueDate={r.dueDate.toISOString()} />
                     </div>
                   )}
                 </li>

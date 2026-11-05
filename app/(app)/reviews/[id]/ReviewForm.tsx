@@ -37,6 +37,7 @@ export default function ReviewForm({
   canSignEmployee,
   canApproveHr,
   canReset,
+  canResend,
 }: {
   reviewId: string;
   form: FormDef;
@@ -50,6 +51,7 @@ export default function ReviewForm({
   canSignEmployee: boolean;
   canApproveHr: boolean;
   canReset: boolean;
+  canResend: boolean;
 }) {
   const router = useRouter();
   const [r, setR] = useState<Record<string, string>>(initialResponses ?? {});
@@ -121,7 +123,7 @@ export default function ReviewForm({
             reviewId={reviewId} role="hr" statement={ACK.hr} defaultName="" onDone={() => router.refresh()} />
         </div>
 
-        {canReset ? <HrTools reviewId={reviewId} status={status} onDone={() => router.refresh()} /> : null}
+        {canReset || canResend ? <HrTools reviewId={reviewId} status={status} canReset={canReset} canResend={canResend} onDone={() => router.refresh()} /> : null}
       </Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -257,38 +259,60 @@ function SignRow({
   );
 }
 
-function HrTools({ reviewId, status, onDone }: { reviewId: string; status: string; onDone: () => void }) {
+function HrTools({ reviewId, status, canReset, canResend, onDone }: { reviewId: string; status: string; canReset: boolean; canResend: boolean; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const dismissed = status === "dismissed";
 
-  async function act(action: "reopen" | "recreate" | "dismiss" | "undismiss", confirmMsg?: string) {
+  async function act(action: "reopen" | "recreate" | "dismiss" | "undismiss" | "resend", confirmMsg?: string) {
     if (confirmMsg && !confirm(confirmMsg)) return;
-    setBusy(true); setError(null);
+    setBusy(true); setError(null); setNote(null);
     const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, reviewId }) });
+    const d = await res.json().catch(() => ({}));
     setBusy(false);
-    if (!res.ok) { const d = await res.json().catch(() => ({})); return setError(d.error ?? "Failed."); }
+    if (!res.ok) { return setError(d.error ?? "Failed."); }
+    if (action === "resend") { setNote(d.emailedTo ? `Sent the sign link to ${d.emailedTo} and their inbox.` : "Sent to their inbox (no email on file)."); return; }
     onDone();
   }
 
   return (
     <div className="mt-4 border-t border-line pt-3">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1.5">HR tools</div>
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted mb-1.5">{canReset ? "HR tools" : "Review tools"}</div>
       {dismissed ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-muted">Dismissed — bypassed, off the outstanding list</span>
-          <button onClick={() => act("undismiss")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Restore review</button>
-        </div>
+        canReset ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-muted">Dismissed — bypassed, off the outstanding list</span>
+            <button onClick={() => act("undismiss")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Restore review</button>
+          </div>
+        ) : (
+          <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-muted">Dismissed — bypassed</span>
+        )
       ) : (
         <div className="flex flex-wrap items-center gap-3">
-          <button onClick={() => act("reopen", "Reopen this review for editing? All signatures are cleared but the answers are kept.")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Reopen &amp; clear signatures</button>
-          <span className="text-muted">·</span>
-          <button onClick={() => act("recreate", "Recreate this review from scratch? All answers AND signatures are cleared — this can't be undone.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Recreate (clear all answers)</button>
-          <span className="text-muted">·</span>
-          <button onClick={() => act("dismiss", "Dismiss this review? It will be bypassed and drop off the outstanding list. You can restore it later.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Dismiss review</button>
+          {canResend ? (
+            <button onClick={() => act("resend", "Resend this review to the employee so they can review and sign it?")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Resend to employee</button>
+          ) : null}
+          {canResend && canReset ? <span className="text-muted">·</span> : null}
+          {canReset ? (
+            <>
+              <button onClick={() => act("reopen", "Reopen this review for editing? All signatures are cleared but the answers are kept — the employee and HR are notified of the revision.")} disabled={busy} className="text-xs font-medium text-brand-700 hover:underline">Reopen &amp; clear signatures</button>
+              <span className="text-muted">·</span>
+              <button onClick={() => act("recreate", "Recreate this review from scratch? All answers AND signatures are cleared — this can't be undone.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Recreate (clear all answers)</button>
+              <span className="text-muted">·</span>
+              <button onClick={() => act("dismiss", "Dismiss this review? It will be bypassed and drop off the outstanding list. You can restore it later.")} disabled={busy} className="text-xs font-medium text-red-600 hover:underline">Dismiss review</button>
+            </>
+          ) : null}
         </div>
       )}
-      <p className="mt-1 text-[11px] text-muted">{dismissed ? "This review is bypassed. Restore it to put it back on the outstanding list." : "Reopen keeps the answers and returns the review to editable. Recreate wipes it to a blank form. Dismiss bypasses a review that isn't needed."}</p>
+      <p className="mt-1 text-[11px] text-muted">
+        {dismissed
+          ? "This review is bypassed. Restore it to put it back on the outstanding list."
+          : canReset
+            ? "Resend sends the employee their copy to sign. Reopen keeps the answers and returns the review to editable (employee + HR are re-notified). Recreate wipes it to a blank form. Dismiss bypasses a review that isn't needed."
+            : "Resend sends the employee their copy to review and sign."}
+      </p>
+      {note ? <p className="mt-1 text-xs text-emerald-700">{note}</p> : null}
       {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
     </div>
   );

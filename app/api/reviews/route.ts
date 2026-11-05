@@ -3,7 +3,7 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector, getHrEmail } from "@/lib/personnel";
 import {
   REVIEW_LABEL,
@@ -11,6 +11,8 @@ import {
   notifyReviewAssigned,
   notifyReviewSignNeeded,
   notifyReviewReopened,
+  notifyReviewResent,
+  notifyReviewRevisedHr,
   getReviewForm,
   templateForEmployee,
   parseResponses,
@@ -60,8 +62,13 @@ export async function POST(req: Request) {
   });
   if (!review) return NextResponse.json({ error: "Review not found." }, { status: 404 });
 
-  const hr = isHrDirector(user);
-  // HR for template management = admin/HR director OR anyone with the HR flag.
+  // Who may ADMINISTER a review (assign, reschedule, reopen, reset, sign on
+  // behalf, final approval): the HR director OR any super admin (Chris, Julie,
+  // April) — Julie now has the same rights as Chris and April. `hr` is kept for
+  // HR-email routing (getHrEmail / hrRecipients) which stays HR-specific.
+  const hrDir = isHrDirector(user);
+  const hr = hrDir || isSuperAdmin(user);
+  // HR for template management = admin/HR director/super admin OR anyone with the HR flag.
   const hrManage = hr || !!user.hrAccess;
   const isReviewer = !!review.reviewerUserId && review.reviewerUserId === user.id;
   const isSubjectEmployee = !!user.employeeId && user.employeeId === review.employeeId;
@@ -110,6 +117,50 @@ export async function POST(req: Request) {
         dueDate: review.dueDate,
       });
       return NextResponse.json({ ok: true, status: updated.status });
+    }
+
+    // ---- resend: re-send the employee their copy to sign (no sig changes) -----
+    // The new-hire equivalent of the quarterly scorecard "resend" — for when the
+    // employee never received their copy (e.g. Matthew's review). Reviewer, HR, or
+    // a super admin may resend; signatures and status are untouched.
+    if (action === "resend") {
+      if (!hr && !isReviewer) return NextResponse.json({ error: "Only the reviewer, HR, or a super admin can resend a review." }, { status: 403 });
+      if (review.status === "completed") return NextResponse.json({ error: "This review is already complete and signed." }, { status: 400 });
+      if (review.status === "dismissed") return NextResponse.json({ error: "Restore the review before resending it." }, { status: 400 });
+      const { to } = await notifyReviewResent(review.id);
+      return NextResponse.json({ ok: true, emailedTo: to });
+    }
+
+    // ---- reschedule: set a new due date (delay / postpone any review) ---------
+    // Super admin / HR director can push a due date out — e.g. the employee is on
+    // prescheduled leave — so the review stops reading overdue. Also re-opens a
+    // dismissed review back onto the outstanding list at the new date.
+    if (action === "reschedule") {
+      if (!hr) return NextResponse.json({ error: "Only HR or a super admin can reschedule a review." }, { status: 403 });
+      const dueStr = str(body?.dueDate);
+      if (!dueStr) return NextResponse.json({ error: "Pick a new due date." }, { status: 400 });
+      const due = new Date(dueStr);
+      if (isNaN(due.getTime())) return NextResponse.json({ error: "That date isn't valid." }, { status: 400 });
+      // Normalize to end-of-day local so "due today" isn't instantly overdue.
+      due.setHours(23, 59, 59, 999);
+      const data: Record<string, unknown> = { dueDate: due };
+      // A dismissed review being rescheduled comes back onto the list.
+      if (review.status === "dismissed") {
+        const hasResponses = review.responses && review.responses !== "{}";
+        data.status = review.hrSignedAt
+          ? "completed"
+          : review.reviewerSignedAt && review.employeeSignedAt
+            ? "pending_approval"
+            : review.reviewerSignedAt || review.employeeSignedAt || hasResponses
+              ? "in_progress"
+              : review.reviewerUserId
+                ? "sent"
+                : "due";
+        data.dismissedByName = null;
+        data.dismissedAt = null;
+      }
+      await prisma.newHireReview.update({ where: { id: review.id }, data });
+      return NextResponse.json({ ok: true, dueDate: due.toISOString() });
     }
 
     // ---- set_template: HR changes which role form the hire is on -------------
@@ -246,6 +297,13 @@ export async function POST(req: Request) {
           : ["reviewer", "employee"];
       if (reinvite.length) {
         await notifyReviewReopened({ reviewId: review.id, roles: reinvite }).catch(() => {});
+      }
+      // Revised-after-signed: if this review carried ANY signature before the
+      // reopen/recreate, the updated version now goes to the employee (re-invited
+      // above) AND to HR for re-approval awareness.
+      const wasSigned = !!(review.reviewerSignedAt || review.employeeSignedAt || review.hrSignedAt);
+      if ((action === "reopen" || action === "recreate") && wasSigned) {
+        await notifyReviewRevisedHr(review.id).catch(() => {});
       }
       return NextResponse.json({ ok: true, status });
     }

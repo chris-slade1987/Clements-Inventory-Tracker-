@@ -45,7 +45,13 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 46 · Last updated November 4, 2026",
+    effective: "Version 47 · Last updated November 5, 2026",
+    // v47: New-hire 30/60-day review administration reconciled — the HR director AND
+    // any super admin (Chris, Julie, April) can assign/reassign, resend the employee
+    // their copy to sign, reopen/revise, dismiss, give final approval, and RESCHEDULE
+    // a review's due date (e.g. employee on prescheduled leave) from HR → New-hire
+    // reviews next to Reassign & notify; a review revised after signing auto-goes to
+    // the employee and HR. Reconciled the Hiring/Onboarding review passage. Re-prompts.
     // v46: Product approval loop reconciled — a super admin now has THREE decisions on
     // a request (Create new product / Merge into an existing product / Reject), merge
     // folds a request into an existing catalog product and remembers its barcode (the
@@ -221,7 +227,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 46,
+    version: 47,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

@@ -231,6 +231,81 @@ export async function notifyReviewReopened(params: {
   }
 }
 
+/**
+ * Re-send the employee their one-time sign link WITHOUT touching any signatures or
+ * status — the new-hire equivalent of the quarterly scorecard "resend." For when
+ * the employee never received their copy to sign (reuses the live token, mints one
+ * if missing). Emails the token link (work email, then personal) + an Inbox nudge.
+ */
+export async function notifyReviewResent(reviewId: string): Promise<{ to: string | null }> {
+  const review = await prisma.newHireReview.findUnique({
+    where: { id: reviewId },
+    include: { employee: { select: { id: true, name: true, email: true, personalEmail: true, branch: true } } },
+  });
+  if (!review) return { to: null };
+  const label = REVIEW_LABEL[review.type] ?? "review";
+  const b = review.branch ? ` (${branchLabel(review.branch)})` : "";
+  let token = review.employeeToken;
+  if (!token) {
+    token = randomBytes(24).toString("hex");
+    await prisma.newHireReview.update({ where: { id: review.id }, data: { employeeToken: token } }).catch(() => {});
+  }
+  const signLink = `${appUrl()}/review-sign/${token}`;
+  const first = review.employee.name.split(" ")[0];
+  const to = review.employee.email ?? review.employee.personalEmail ?? null;
+  await sendEmail({
+    to,
+    subject: `Action needed: sign your ${label}`,
+    kind: "review_resend_employee",
+    relatedType: "newhire_review",
+    relatedId: review.id,
+    text: `Hi ${first},\n\nHere is your ${label}${b} to review and e-sign. Open your secure link to finish your questions and sign:\n${signLink}\n\n— CanopyOS`,
+    html: `<p>Hi ${first},</p><p>Here is your <strong>${label}</strong>${b} to review and e-sign.</p><p><a href="${signLink}">Open &amp; e-sign →</a></p><p>— CanopyOS</p>`,
+  }).catch(() => {});
+  try {
+    const recip = await employeeRecipient(review.employee.id);
+    if (recip) {
+      await postSystemThread({
+        subject: `Sign your ${label}`,
+        body: `Please review and e-sign your ${label}.`,
+        recipients: [recip],
+        contextType: "reminder",
+        contextLabel: `Your ${label}`,
+        contextHref: `/review-sign/${token}`,
+        branch: review.branch,
+      }).catch(() => {});
+    }
+  } catch {
+    /* non-fatal */
+  }
+  return { to };
+}
+
+/**
+ * Tell HR a previously-signed review was reopened and revised — so the updated
+ * version is on their radar for re-approval. Paired with the reopen's employee
+ * re-invite, this is "a revised review automatically goes to the employee AND HR."
+ */
+export async function notifyReviewRevisedHr(reviewId: string): Promise<void> {
+  const review = await prisma.newHireReview.findUnique({
+    where: { id: reviewId },
+    include: { employee: { select: { name: true, branch: true } } },
+  });
+  if (!review) return;
+  const label = REVIEW_LABEL[review.type] ?? "review";
+  const recipients = await hrRecipients();
+  if (recipients.length === 0) return;
+  await postSystemThread({
+    subject: `Revised: ${review.employee.name}'s ${label}`,
+    body: `${review.employee.name}'s ${label} was reopened and revised after being signed. The employee has been asked to re-sign; it will return to HR for final approval.`,
+    recipients,
+    contextType: "reminder",
+    contextLabel: `${label} — ${review.employee.name}`,
+    contextHref: `/reviews/${review.id}`,
+    branch: review.branch,
+  }).catch(() => {});
+}
+
 export async function reviewsForEmployee(employeeId: string) {
   return prisma.newHireReview.findMany({ where: { employeeId }, orderBy: { dueDate: "asc" } });
 }

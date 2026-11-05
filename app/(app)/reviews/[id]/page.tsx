@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader, Card } from "@/components/ui";
 import PrintButton from "@/components/PrintButton";
-import { requireUser, homePath } from "@/lib/auth";
+import { requireUser, homePath, isSuperAdmin } from "@/lib/auth";
 import { isHrDirector } from "@/lib/personnel";
 import { REVIEW_LABEL, STATUS_LABEL, parseResponses, reviewById, getReviewForm, templateForEmployee } from "@/lib/review";
 import { branchLabel } from "@/lib/management";
@@ -18,8 +18,9 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
   const review = await reviewById(id);
   if (!review) notFound();
 
-  const hr = isHrDirector(user);
-  const canManageTemplate = hr || !!user.hrAccess; // admin/HR director OR HR-flag holders
+  // HR director OR any super admin may administer a review (Julie = Chris = April).
+  const hr = isHrDirector(user) || isSuperAdmin(user);
+  const canManageTemplate = hr || !!user.hrAccess; // HR director / super admin OR HR-flag holders
   const isReviewer = !!review.reviewerUserId && review.reviewerUserId === user.id;
   const isSubjectEmployee = !!user.employeeId && user.employeeId === review.employeeId;
   if (!hr && !isReviewer && !isSubjectEmployee) redirect(homePath(user));
@@ -75,6 +76,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         canSignEmployee={(isSubjectEmployee || hr) && !review.employeeSignedAt && !completed}
         canApproveHr={hr && !review.hrSignedAt && !completed}
         canReset={hr}
+        canResend={(hr || isReviewer) && !completed && review.status !== "dismissed"}
       />
     </>
   );
