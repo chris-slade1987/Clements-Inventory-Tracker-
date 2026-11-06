@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
 import { parseJson } from "@/lib/inspection";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
+import { managerTodoPeriod } from "@/lib/date";
 import InspectionForm from "./InspectionForm";
 import InspectionReport from "./InspectionReport";
 import PrintButton from "./PrintButton";
@@ -31,8 +32,15 @@ export default async function InspectPage({
   if (branchLocked(user) && vehicle.branch !== user.branch) redirect("/my-branch/inspections");
 
   const now = new Date();
-  const year = Number(sp.year) || now.getFullYear();
-  const month = Number(sp.month) || now.getMonth() + 1;
+  // Default a NEW inspection to the manager to-do period, not the raw live month.
+  // During the October-2026 grace window this is October, so an inspection started
+  // from the vehicle profile (no ?year/&month) is filed to October — the same month
+  // the Vehicle Inspections list shows — instead of slipping into November and then
+  // reading as "pending." Viewing/editing an existing month always passes the params,
+  // so this only steers the "start a new inspection" default. See lib/date.ts.
+  const todo = managerTodoPeriod(now);
+  const year = Number(sp.year) || todo.year;
+  const month = Number(sp.month) || todo.month;
 
   // Existing inspection for this month (edit mode).
   const existing = await prisma.vehicleInspection.findUnique({

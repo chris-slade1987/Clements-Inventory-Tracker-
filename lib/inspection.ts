@@ -309,7 +309,7 @@ export async function inspectionStatus(year: number, month: number, branch?: str
   const vehicles = await listInspectableVehicles(branch);
   const done = await prisma.vehicleInspection.findMany({
     where: { year, month, ...(branch ? { branch } : {}) },
-    select: { vehicleId: true, scorePct: true, grade: true },
+    select: { vehicleId: true, scorePct: true, grade: true, technicianName: true },
   });
   const doneMap = new Map(done.map((d) => [d.vehicleId, d]));
   const rows = vehicles.map((v) => ({
@@ -321,7 +321,51 @@ export async function inspectionStatus(year: number, month: number, branch?: str
     inspection: doneMap.get(v.id) ?? null,
   }));
   const completed = rows.filter((r) => r.inspection).length;
-  return { rows, total: vehicles.length, completed, pending: vehicles.length - completed };
+
+  // Inspections filed this month for vehicles that are NOT on the required list —
+  // e.g. spare trucks inspected to help a branch finish its monthly list. These
+  // always count as completed EXTRAS; they never add to the required total/pending
+  // math, but without this they'd be invisible (the spare has no assigned driver,
+  // so it isn't an inspectable vehicle). Surfaced as a separate "additional" group.
+  const requiredIds = new Set(vehicles.map((v) => v.id));
+  const extraIds = done.filter((d) => !requiredIds.has(d.vehicleId)).map((d) => d.vehicleId);
+  let extraRows: typeof rows = [];
+  if (extraIds.length) {
+    const extraVehicles = await prisma.vehicle.findMany({
+      where: { id: { in: extraIds } },
+      select: { id: true, unitNumber: true, name: true, branch: true, assignedTo: true },
+    });
+    const vmap = new Map(extraVehicles.map((v) => [v.id, v]));
+    extraRows = extraIds.map((id) => {
+      const v = vmap.get(id);
+      const insp = doneMap.get(id)!;
+      return {
+        id,
+        unitNumber: v?.unitNumber ?? null,
+        name: v?.name ?? "Vehicle",
+        branch: v?.branch ?? null,
+        assignedTo: insp.technicianName ?? v?.assignedTo ?? null,
+        inspection: insp,
+      };
+    });
+  }
+
+  return { rows, extraRows, total: vehicles.length, completed, pending: vehicles.length - completed };
+}
+
+/**
+ * Distinct {year, month} periods that have at least one recorded inspection
+ * (newest first) — powers the month picker on the Vehicle Inspections page so a
+ * manager can open any prior month's reports, not just the current to-do month.
+ */
+export async function inspectionMonths(branch?: string): Promise<{ year: number; month: number }[]> {
+  const rows = await prisma.vehicleInspection.findMany({
+    where: branch ? { branch } : {},
+    select: { year: true, month: true },
+    distinct: ["year", "month"],
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+  });
+  return rows.map((r) => ({ year: r.year, month: r.month }));
 }
 
 /**

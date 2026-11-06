@@ -19,6 +19,7 @@ import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
+import { ensureGraceInspectionsRefiled } from "@/lib/inspection-grace";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -79,6 +80,13 @@ export default async function AppGroupLayout({
   // (Routes view): times shown, floated appointments sorted to the end of each day.
   // Idempotent (revisioned Setting marker), self-retries, non-fatal.
   await ensureRoutingAppointments();
+
+  // Re-file any vehicle inspections completed in early November back to October
+  // while the October-2026 grace window is open, so spare-truck / catch-up
+  // inspections count toward October instead of reading as "pending." Idempotent
+  // (skips vehicles that already have an October record), self-expires after the
+  // window, non-fatal. See lib/inspection-grace.ts.
+  await ensureGraceInspectionsRefiled();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

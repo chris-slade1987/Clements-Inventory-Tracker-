@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps } from "@/lib/inspection";
+import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps, inspectionMonths } from "@/lib/inspection";
 import { managerTodoPeriod } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 
 const MONTHS = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS_SHORT = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function gradeChip(grade: string) {
   const c = grade === "A" || grade === "B" ? "bg-emerald-100 text-emerald-700" : grade === "C" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
@@ -25,32 +26,100 @@ export default async function InspectionsPage({
   const branch = scopedBranch(user, requested);
   const locked = branchLocked(user);
 
-  // Follow the manager to-do period so the outstanding October items stay visible
-  // through the COO's grace window (flips to November on Mon 11/9). See lib/date.ts.
-  const { year, month } = managerTodoPeriod();
+  // The default month is the manager to-do period: during the October-2026 grace
+  // window that's October (so outstanding October items stay visible through the
+  // COO's deadline); otherwise the live Eastern-Time month. A manager can pick any
+  // other month from the selector to read that month's reports. See lib/date.ts.
+  const todo = managerTodoPeriod();
+  const selYear = Number(sp.year) || todo.year;
+  const selMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(Number(sp.month)) ? Number(sp.month) : todo.month;
+  const viewingGrace = todo.isOctoberGrace && selYear === todo.year && selMonth === todo.month;
 
-  const [insp, grades, coverageGaps] = await Promise.all([
-    inspectionStatus(year, month, branch ?? undefined),
+  const [insp, grades, coverageGaps, monthsWithData] = await Promise.all([
+    inspectionStatus(selYear, selMonth, branch ?? undefined),
     technicianGrades(branch ?? undefined),
     vehicleCoverageGaps(branch ?? undefined),
+    inspectionMonths(branch ?? undefined),
   ]);
+
+  // Month-picker options: every month that has data, plus the current to-do month
+  // and whatever month is selected — de-duped, newest first.
+  const monthKey = (y: number, m: number) => y * 100 + m;
+  const optionMap = new Map<number, { year: number; month: number }>();
+  for (const m of [...monthsWithData, { year: todo.year, month: todo.month }, { year: selYear, month: selMonth }]) {
+    optionMap.set(monthKey(m.year, m.month), m);
+  }
+  const monthOptions = [...optionMap.values()].sort((a, b) => monthKey(b.year, b.month) - monthKey(a.year, a.month));
+
+  const branchParam = (key: string | null) => {
+    const p = new URLSearchParams();
+    if (key) p.set("branch", key);
+    p.set("year", String(selYear));
+    p.set("month", String(selMonth));
+    return `/my-branch/inspections?${p.toString()}`;
+  };
+  const monthParam = (y: number, m: number) => {
+    const p = new URLSearchParams();
+    if (requested) p.set("branch", requested);
+    p.set("year", String(y));
+    p.set("month", String(m));
+    return `/my-branch/inspections?${p.toString()}`;
+  };
+
+  const inspectHref = (vehicleId: string, hasReport: boolean) =>
+    `/fleet/${vehicleId}/inspect?${hasReport ? "view=report&" : ""}src=branch&year=${selYear}&month=${selMonth}${requested ? `&branch=${requested}` : ""}`;
 
   return (
     <>
-      <PageHeader title="Vehicle Inspections" subtitle={`${MONTHS[month]} ${year} — ${insp.completed}/${insp.total} complete`} />
+      <PageHeader
+        title="Vehicle Inspections"
+        subtitle={`${MONTHS[selMonth]} ${selYear} — ${insp.completed}/${insp.total} complete${insp.pending > 0 ? ` · ${insp.pending} pending` : ""}`}
+      />
+
+      {/* Month selector — read any month's reports; rolling grades span all months. */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-muted">Month</span>
+        <div className="flex flex-wrap gap-1 rounded-xl bg-black/[0.06] p-1">
+          {monthOptions.map((m) => {
+            const active = m.year === selYear && m.month === selMonth;
+            const isTodo = todo.isOctoberGrace && m.year === todo.year && m.month === todo.month;
+            return (
+              <Link
+                key={monthKey(m.year, m.month)}
+                href={monthParam(m.year, m.month)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium ${active ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:bg-black/[0.04]"}`}
+              >
+                {MONTHS_SHORT[m.month]} {m.year}
+                {isTodo ? <span className={`ml-1 ${active ? "text-white/80" : "text-muted"}`}>· due</span> : null}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
       {locked ? null : (
         <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-black/20 p-1 w-fit">
-          <BranchPill href="/my-branch/inspections" label="All branches" active={branch === null} />
+          <BranchPill href={branchParam(null)} label="All branches" active={branch === null} />
           {BRANCHES.map((b) => (
-            <BranchPill key={b.key} href={`/my-branch/inspections?branch=${b.key}`} label={b.label} active={branch === b.key} />
+            <BranchPill key={b.key} href={branchParam(b.key)} label={b.label} active={branch === b.key} />
           ))}
         </div>
       )}
 
-      {/* This month's inspection status */}
+      {viewingGrace ? (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+          <span className="font-semibold">October grace window.</span> Any inspection completed through end of day
+          <span className="font-medium"> Friday, Nov 6</span> counts toward <span className="font-medium">October {selYear}</span> —
+          including spare-truck and catch-up inspections. November inspections open automatically on Monday, Nov 9.
+        </div>
+      ) : null}
+
+      {/* Selected month's inspection status */}
       <Card className="p-0 overflow-hidden mb-5">
-        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">This month · by vehicle</div>
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
+          <span className="text-sm font-medium text-ink">{MONTHS[selMonth]} {selYear} · by vehicle</span>
+          <span className="text-xs text-muted tabular-nums">{insp.completed}/{insp.total} complete{insp.pending > 0 ? ` · ${insp.pending} pending` : ""}</span>
+        </div>
         {insp.rows.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No active vehicles.</p>
         ) : (
@@ -61,7 +130,7 @@ export default async function InspectionsPage({
                   <th className="px-4 py-2 font-medium">Vehicle</th>
                   <th className="px-3 py-2 font-medium">Branch</th>
                   <th className="px-3 py-2 font-medium">Technician</th>
-                  <th className="px-3 py-2 font-medium">Status</th>
+                  <th className="px-3 py-2 font-medium">{MONTHS[selMonth]} status</th>
                   <th className="px-4 py-2 font-medium text-right">Action</th>
                 </tr>
               </thead>
@@ -78,11 +147,11 @@ export default async function InspectionsPage({
                           <span className="text-xs text-muted tabular-nums">{r.inspection.scorePct}%</span>
                         </span>
                       ) : (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Pending</span>
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Pending · {MONTHS_SHORT[selMonth]}</span>
                       )}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <Link href={`/fleet/${r.id}/inspect?${r.inspection ? "view=report&" : ""}src=branch&year=${year}&month=${month}${requested ? `&branch=${requested}` : ""}`} className="text-xs font-medium text-brand-700 hover:underline">
+                      <Link href={inspectHref(r.id, !!r.inspection)} className="text-xs font-medium text-brand-700 hover:underline">
                         {r.inspection ? "View report" : "Start inspection"}
                       </Link>
                     </td>
@@ -92,6 +161,40 @@ export default async function InspectionsPage({
             </table>
           </div>
         )}
+
+        {/* Spare / additional vehicles inspected this month (not on the required list,
+            e.g. spares inspected to help cover a branch). Always count as completed. */}
+        {insp.extraRows.length > 0 ? (
+          <>
+            <div className="px-4 py-2 border-t border-line bg-black/[0.02] text-xs font-medium text-muted">
+              Additional vehicles inspected in {MONTHS[selMonth]} {selYear} · spares &amp; catch-up (not on the required list)
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <tbody>
+                  {insp.extraRows.map((r) => (
+                    <tr key={r.id} className="border-b border-line last:border-0">
+                      <td className="px-4 py-2 font-medium">{r.unitNumber ? `#${r.unitNumber} · ` : ""}{r.name}</td>
+                      <td className="px-3 py-2 text-muted">{r.branch ? branchLabel(r.branch) : "—"}</td>
+                      <td className="px-3 py-2 text-muted">{r.assignedTo ?? "—"}</td>
+                      <td className="px-3 py-2">
+                        {r.inspection ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <span className={gradeChip(r.inspection.grade)}>{r.inspection.grade}</span>
+                            <span className="text-xs text-muted tabular-nums">{r.inspection.scorePct}%</span>
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <Link href={inspectHref(r.id, true)} className="text-xs font-medium text-brand-700 hover:underline">View report</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
       </Card>
 
       {/* Coverage gaps — techs / advisors with no vehicle linked (fix these) */}
@@ -129,9 +232,12 @@ export default async function InspectionsPage({
         )}
       </Card>
 
-      {/* Technician grades (rolling) */}
+      {/* Technician grades (rolling across all months — feeds the quarterly scorecard) */}
       <Card className="p-0 overflow-hidden">
-        <div className="px-4 py-3 border-b border-line text-sm font-medium text-ink">Technician grades · rolling average</div>
+        <div className="px-4 py-3 border-b border-line flex items-center justify-between gap-2">
+          <span className="text-sm font-medium text-ink">Technician grades · rolling average</span>
+          <span className="text-xs text-muted">All months · feeds the quarterly scorecard</span>
+        </div>
         {grades.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No inspections recorded yet.</p>
         ) : (
@@ -142,6 +248,7 @@ export default async function InspectionsPage({
                   <th className="px-4 py-2 font-medium">Technician</th>
                   <th className="px-3 py-2 font-medium text-right">Inspections</th>
                   <th className="px-3 py-2 font-medium text-right">Avg score</th>
+                  <th className="px-3 py-2 font-medium">Last inspected</th>
                   <th className="px-4 py-2 font-medium text-center">Grade</th>
                 </tr>
               </thead>
@@ -151,6 +258,7 @@ export default async function InspectionsPage({
                     <td className="px-4 py-2 font-medium">{g.technicianName}</td>
                     <td className="px-3 py-2 text-right tabular-nums text-muted">{g.count}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{g.avgPct}%</td>
+                    <td className="px-3 py-2 text-muted">{MONTHS_SHORT[g.lastDate.getMonth() + 1]} {g.lastDate.getFullYear()}</td>
                     <td className="px-4 py-2 text-center"><span className={gradeChip(gradeLetter(g.avgPct))}>{g.grade}</span></td>
                   </tr>
                 ))}

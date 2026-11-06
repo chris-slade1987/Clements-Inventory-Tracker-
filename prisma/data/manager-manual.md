@@ -759,6 +759,12 @@ The form scores out of **20 points** and assigns a letter grade (A ≥ 90%, B �
 
 A live score bar shows the grade and any critical failures as you fill it out, and tells you what's still missing before you can submit (mileage, the next oil change, or a photo). **A critical compliance failure raises an alert to leadership automatically**, and the graded technician is emailed their score **with the four photos attached**. Inspection completeness feeds the branch's quarterly scorecard — a quarter counts as complete only when every inspectable vehicle has been inspected in every month.
 
+**Reading inspections by month.** The Vehicle Inspections page (**My Branch → Vehicle Inspections**) opens on the current inspection month and has a **month selector** across the top — tap any month to read that month's reports. The page header and the "by vehicle" list name the month you're viewing, and every truck not yet inspected that month shows a **Pending · {month}** badge. New inspections are always filed to the month shown on that page: start one from the list and it files to that month automatically. The **Technician grades · rolling average** table at the bottom is intentionally **cumulative across every month** (with a *Last inspected* column) because it feeds each technician's quarterly review — one month's grades don't erase the last.
+
+**Spare and catch-up inspections.** When someone inspects a **spare truck** (one with no permanently assigned driver) to help a branch finish its monthly list, that inspection still counts: it appears under **Additional vehicles inspected** on the month it was completed. Spares aren't on the required list, so they never show as "pending" and never change the branch's complete/pending count — they're bonus coverage.
+
+> **October 2026 grace window.** Because October was the portal's first live month, the COO extended the deadline for outstanding October monthly duties — including vehicle inspections — to **end of day Friday, November 6, 2026**. Through that window the Vehicle Inspections page stays on **October**, and **any inspection completed in early November counts toward October**, including spare and catch-up inspections. November's list opens automatically on **Monday, November 9**. (This grace rule is specific to October 2026; in normal months the page simply follows the live calendar month.)
+
 ## Spare Service Vehicle Checklist
 
 Items Stocked in Spare Vehicle

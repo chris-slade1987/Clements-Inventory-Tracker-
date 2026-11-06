@@ -45,7 +45,14 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 47 · Last updated November 5, 2026",
+    effective: "Version 48 · Last updated November 6, 2026",
+    // v48: Vehicle inspection month handling reconciled — the Vehicle Inspections page
+    // has a month selector (read any month's reports); the header/list name the month;
+    // new inspections file to the month shown (grace-aware, so early-November catch-up
+    // files to October); rolling technician grades are cumulative across months (feed
+    // the quarterly review) with a Last-inspected column; spare/catch-up inspections
+    // appear under "Additional vehicles inspected" and never affect complete/pending.
+    // Added the October-2026 grace note (inspections through Fri Nov 6 count to Oct).
     // v47: New-hire 30/60-day review administration reconciled — the HR director AND
     // any super admin (Chris, Julie, April) can assign/reassign, resend the employee
     // their copy to sign, reopen/revise, dismiss, give final approval, and RESCHEDULE
@@ -227,7 +234,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 47,
+    version: 48,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
