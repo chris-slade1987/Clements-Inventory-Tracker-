@@ -22,20 +22,15 @@ export type ReviewMetric = {
   help: string;
 };
 
-// The quarterly scorecard metrics — grounded in the Director of Sales employment
-// agreement (Howard Cohn, eff. 2026-08-03): the Quarterly Team Sales Bonus tiers,
-// the base step-up milestone, and the Article 1.3 duties. Each is scored
-// Met / Not met / N-A with a note by the reviewer. Weighted toward team build-out in
-// year one — the agreement states meaningful bonus is not expected in Q1.
+// The intangibles — kept deliberately short. Howard's bonus is scored on the HARD
+// branch sales data (the performance table at the top of the review); these are the
+// few role-relevant intangibles that matter alongside it, from Article 1.3 of the
+// Director of Sales agreement. Each is scored Strong / On track / Needs focus + a note.
 export const SALES_REVIEW_METRICS: ReviewMetric[] = [
-  { key: "branch_tiers", label: "Branch sales vs bonus tiers (Stuart · Naples · Orlando)", target: "Each focus branch ≥ $50K/mo Total Branch Sales; stretch $65K / $80K", help: "Total Branch Sales = all new recurring + non-recurring sales at rate-card, per branch per month. The three focus markets drive the quarterly bonus (1.5% @ $50K+, 2% @ $65K+, 2.5% @ $80K+). Vero Beach is excluded from the bonus for now." },
-  { key: "bonus", label: "Quarterly team-sales bonus earned", target: "On pace to the Year-1 target (~$20K–$25K/yr); minimal expected during Q1 build", help: "Sum of each participating branch's monthly tier % of Total Branch Sales, paid quarterly. Teams are being built in year one, so meaningful bonus ramps as branches reach the tiers." },
-  { key: "step_up", label: "Producing-rep milestone (base step-up)", target: "Toward 5 reps each ≥ $30K/mo new recurring, 2 consecutive months", help: "The Step-Up Milestone: five sales reps concurrently producing ≥$30K/mo in gross new recurring revenue for two straight months. Track how many reps are at/above $30K/mo." },
-  { key: "team_build", label: "Sales team build-out (focus markets)", target: "Recruiting, hiring & ramping advisors in Stuart, Naples, Orlando", help: "Building a producing sales team in the primary growth markets — recruiting, hiring, onboarding and ramping advisors (Article 1.1 / 1.3)." },
-  { key: "pipeline_systems", label: "Pipeline, forecasting & accountability", target: "Sales process, KPIs, pipeline & forecasting in place and used; regular reporting", help: "Establishing and running sales processes, KPIs, pipeline management, forecasting, and accountability systems; regular reporting to executive leadership (Article 1.3.2 / 1.3.7)." },
-  { key: "growth", label: "Profitable revenue growth across service lines", target: "Organic growth across GHP, L&O, termite and other lines", help: "Accelerating profitable organic revenue growth across all service lines, not one line only (Article 1.3.3)." },
-  { key: "retention", label: "Customer retention / attrition", target: "Attrition reduced across markets", help: "Improving customer retention and reducing attrition across all markets (Article 1.3.6)." },
-  { key: "pricing", label: "Pricing discipline & sales experience", target: "Rate-card pricing held; scopes standardized", help: "Standardizing scopes of service, holding rate-card pricing discipline, and a consistent customer sales experience (Article 1.3.4)." },
+  { key: "team_build", label: "Sales team build-out & rep ramp", target: "Recruit, hire & ramp producing reps in Stuart, Naples, Orlando", help: "The year-one priority: build producing teams so the branches reach the bonus tiers. Most bonus-branch volume still comes from managers/Howard, with newer reps (Michael, Matthew) ramping. Tracks the step-up milestone (5 reps each ≥$30K/mo new recurring)." },
+  { key: "pipeline_systems", label: "Pipeline, forecasting & accountability", target: "Sales process, KPIs, pipeline & forecasting in place and used; regular reporting", help: "Establishing and running sales processes, KPIs, pipeline management, forecasting, and accountability; regular reporting to executive leadership (Article 1.3.2 / 1.3.7)." },
+  { key: "retention", label: "Customer retention / attrition", target: "Attrition reduced across markets", help: "Improving retention and reducing attrition across all markets (Article 1.3.6)." },
+  { key: "pricing", label: "Pricing discipline & sales mix", target: "Rate-card pricing held; healthy recurring vs one-off mix", help: "Standardizing scopes, holding rate-card pricing, and watching the recurring base vs. large one-off jobs (e.g. the Naples bat-proofing deal) (Article 1.3.4)." },
 ];
 
 // Contract facts that ground the review (from the Director of Sales agreement).
@@ -67,22 +62,12 @@ export function bonusTierFor(monthlySales: number): { pct: number; label: string
 export type ReviewQuestion = { key: string; label: string; help?: string };
 export type ReviewSection = { key: string; title: string; intro?: string; questions: ReviewQuestion[] };
 
-// The qualitative half — leadership & process, then the narrative wrap-up.
+// The notes section — the narrative wrap-up (the leadership items now live in the
+// trimmed intangibles scorecard above).
 export const SALES_REVIEW_SECTIONS: ReviewSection[] = [
   {
-    key: "leadership",
-    title: "Leadership & process",
-    intro: "How the director is running the sales operation this quarter.",
-    questions: [
-      { key: "coaching", label: "Coaching cadence", help: "1:1s, ride-alongs, and goal reviews actually happening on schedule." },
-      { key: "retention", label: "Hiring & retention", help: "Advisor staffing, ramp of new advisors, and retention of strong performers." },
-      { key: "marketing", label: "Marketing & lead quality", help: "Channel performance and lead quality managed (company-provided vs. self-generated)." },
-      { key: "process", label: "Process adherence", help: "Goal sheets completed on time, funnel kept clean, SmarterLaunch readiness." },
-    ],
-  },
-  {
     key: "narrative",
-    title: "Summary & goals",
+    title: "Notes",
     questions: [
       { key: "strengths", label: "Strengths this quarter" },
       { key: "improve", label: "Areas to improve" },

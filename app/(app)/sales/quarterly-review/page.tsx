@@ -1,41 +1,49 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Card, PageHeader } from "@/components/ui";
+import { PageHeader } from "@/components/ui";
 import PrintButton from "@/components/PrintButton";
 import { requireUser, canManageSales } from "@/lib/auth";
-import { money } from "@/lib/format";
-import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, salesReviewSnapshot, DIRECTOR_PROFILE, BONUS_TIERS } from "@/lib/sales-review";
-import SalesReviewForm from "./SalesReviewForm";
+import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, DIRECTOR_PROFILE } from "@/lib/sales-review";
+import { quarterlyBonusBreakdown, nextMonthPeek, monthLabel, MIN_BONUS_TIER } from "@/lib/sales-review-data";
+import SalesReviewForm, { type PerfRow } from "./SalesReviewForm";
 
 export const dynamic = "force-dynamic";
 
-// Quarterly Sales Director Review — housed in the Sales section. Reviewer = COO;
-// subject = the Sales Director; scored on the sales TEAM'S quarterly performance +
-// leadership. Pre-fills a live team snapshot, then the reviewer fills Met-Not +
-// notes + narrative and prints/saves to PDF. See lib/sales-review.ts.
+// Quarterly Sales Director Review — housed in the Sales section. Scored squarely on
+// the hard branch sales data mapped to the agreement's bonus tiers (the performance
+// table), with a short set of role intangibles, notes, and sign-off. Reviewer = COO;
+// subject = the Director of Sales. See lib/sales-review.ts + lib/sales-review-data.ts.
 export default async function SalesQuarterlyReviewPage({
   searchParams,
 }: {
   searchParams: Promise<{ year?: string; quarter?: string }>;
 }) {
   const user = await requireUser();
-  // The Sales Director (to see their own review) and admins / super admins (to
-  // conduct it) — same gate as the rest of the Sales Team management area.
   if (!canManageSales(user)) redirect("/me");
 
   const sp = await searchParams;
   const now = new Date();
   const curYear = now.getFullYear();
   const curQuarter = Math.floor(now.getMonth() / 3) + 1;
-  const year = Number(sp.year) || curYear;
-  const quarter = [1, 2, 3, 4].includes(Number(sp.quarter)) ? Number(sp.quarter) : curQuarter;
+  // Default to Q3 2026 (Howard's first reviewable quarter) when nothing is picked.
+  const year = Number(sp.year) || (curYear === 2026 ? 2026 : curYear);
+  const quarter = [1, 2, 3, 4].includes(Number(sp.quarter)) ? Number(sp.quarter) : (year === 2026 ? 3 : curQuarter);
+  const periodLabel = `Q${quarter} ${year}`;
 
-  const snap = await salesReviewSnapshot(year, quarter);
+  const breakdown = quarterlyBonusBreakdown(year, quarter);
+  const octPeek = nextMonthPeek(year, quarter);
 
-  // Year options: this year and the two prior.
-  const years = [curYear, curYear - 1, curYear - 2];
+  // Flatten to month-major performance rows (Aug: each branch, then Sep: each branch).
+  const perfRows: PerfRow[] = breakdown.months.flatMap((m) =>
+    breakdown.branches.map((b) => {
+      const c = b.months.find((x) => x.key === m)!;
+      return { id: `${b.branch}:${m}`, label: b.label, monthLabel: monthLabel(m).replace(` ${year}`, ""), target: MIN_BONUS_TIER, actual: c.sales, tierPct: c.pct, defaultHit: c.hit };
+    }),
+  );
+  const veroRows = (breakdown.vero?.months ?? []).map((v) => ({ monthLabel: v.label, sales: v.sales }));
 
-  const attainmentPct = snap.teamTarget > 0 && snap.closedYtd != null ? Math.round((snap.closedYtd / snap.teamTarget) * 100) : null;
+  const years = [curYear, curYear - 1, curYear - 2].filter((y, i, a) => a.indexOf(y) === i);
+  if (!years.includes(2026)) years.push(2026);
 
   return (
     <>
@@ -46,135 +54,48 @@ export default async function SalesQuarterlyReviewPage({
 
       <PageHeader
         title="Quarterly Sales Director Review"
-        subtitle={`${DIRECTOR_PROFILE.name} · ${DIRECTOR_PROFILE.title} · ${snap.periodLabel}`}
+        subtitle={`${DIRECTOR_PROFILE.name} · ${DIRECTOR_PROFILE.title} · ${periodLabel}`}
       />
 
-      {/* Compensation & targets — from the Director of Sales employment agreement,
-          so the scorecard is judged against the real contractual KPIs. Visible to
-          the director + leadership only (canManageSales gate). */}
-      <Card className="p-4 mb-4">
-        <h2 className="text-sm font-semibold text-ink">Targets this quarter (per employment agreement)</h2>
-        <div className="mt-2 grid gap-3 sm:grid-cols-2">
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted">Quarterly team-sales bonus — monthly branch tiers</div>
-            <ul className="mt-1 space-y-0.5 text-sm text-ink">
-              {BONUS_TIERS.map((t) => (
-                <li key={t.min} className="tabular-nums">{t.pct}% of Total Branch Sales at {money(t.min)}+/mo</li>
-              ))}
-              <li className="text-muted">Below {money(50000)}/mo: no bonus</li>
-            </ul>
-            <div className="mt-1 text-[11px] text-muted">Year-1 target {DIRECTOR_PROFILE.bonusYear1Target}; minimal bonus expected in Q1 while teams are built.</div>
-          </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted">Focus markets (bonus-participating)</div>
-            <div className="mt-1 text-sm text-ink">{DIRECTOR_PROFILE.focusMarkets.join(" · ")}</div>
-            <div className="mt-0.5 text-[11px] text-muted">{DIRECTOR_PROFILE.excludedMarket}</div>
-            <div className="mt-2 text-[11px] uppercase tracking-wider text-muted">Base step-up milestone</div>
-            <div className="mt-1 text-sm text-ink">{DIRECTOR_PROFILE.stepUpMilestone}</div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Quarter picker */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 print:hidden">
+      {/* Period picker + contract note */}
+      <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden">
         <span className="text-[11px] uppercase tracking-wider text-muted">Quarter</span>
         <div className="flex gap-1 rounded-xl bg-black/[0.06] p-1">
           {[1, 2, 3, 4].map((q) => (
-            <Link
-              key={q}
-              href={`/sales/quarterly-review?year=${year}&quarter=${q}`}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium ${q === quarter ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:bg-black/[0.04]"}`}
-            >
-              Q{q}
-            </Link>
+            <Link key={q} href={`/sales/quarterly-review?year=${year}&quarter=${q}`} className={`rounded-lg px-3 py-1.5 text-xs font-medium ${q === quarter ? "bg-emerald-grad text-white shadow-sm" : "text-ink/80 hover:bg-black/[0.04]"}`}>Q{q}</Link>
           ))}
         </div>
-        <select
-          defaultValue={year}
-          className="rounded-lg border border-line bg-surface px-2 py-1.5 text-sm"
-          // Plain navigation on change via a tiny inline form-less approach: links above
-          // handle quarter; year uses an anchor list fallback below for no-JS safety.
-          disabled
-          aria-label="Year"
-        >
-          {years.map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
-        <div className="flex gap-1">
+        <div className="ml-1 flex gap-1">
           {years.map((y) => (
             <Link key={y} href={`/sales/quarterly-review?year=${y}&quarter=${quarter}`} className={`rounded-lg px-2.5 py-1.5 text-xs font-medium ${y === year ? "bg-black/[0.08] text-ink" : "text-muted hover:text-ink"}`}>{y}</Link>
           ))}
         </div>
       </div>
 
-      {/* Live team snapshot — the performance context the review is scored against. */}
-      <Card className="p-4 mb-5">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-ink">Sales team snapshot</h2>
-          <span className="text-[11px] text-muted">context for {snap.periodLabel} · closed/pipeline are the latest connected figures</span>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Service advisors" value={String(snap.advisors)} sub={`${snap.withGoal}/${snap.advisors} with a goal set`} />
-          <Stat label="Combined monthly goal" value={money(snap.teamTarget)} />
-          <Stat label="Closed (YTD)" value={snap.closedYtd != null ? money(snap.closedYtd) : "—"} sub={attainmentPct != null ? `${attainmentPct}% of monthly goal` : "no feed connected"} />
-          <Stat label="Open pipeline" value={snap.pipeline != null ? money(snap.pipeline) : "—"} />
-        </div>
-        {snap.byBranch.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted border-b border-line">
-                  <th className="px-2 py-2 font-medium">Branch</th>
-                  <th className="px-2 py-2 font-medium text-right">Advisors</th>
-                  <th className="px-2 py-2 font-medium text-right">Goals set</th>
-                  <th className="px-2 py-2 font-medium text-right">Monthly goal</th>
-                  <th className="px-2 py-2 font-medium text-right">Closed</th>
-                  <th className="px-2 py-2 font-medium">Bonus</th>
-                </tr>
-              </thead>
-              <tbody>
-                {snap.byBranch.map((b) => (
-                  <tr key={b.branch} className="border-b border-line last:border-0">
-                    <td className="px-2 py-2">{b.label}</td>
-                    <td className="px-2 py-2 text-right tabular-nums">{b.advisors}</td>
-                    <td className="px-2 py-2 text-right tabular-nums">{b.withGoal}/{b.advisors}</td>
-                    <td className="px-2 py-2 text-right tabular-nums">{money(b.target)}</td>
-                    <td className="px-2 py-2 text-right tabular-nums">{b.closed != null ? money(b.closed) : "—"}</td>
-                    <td className="px-2 py-2">
-                      {b.participating
-                        ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">Participating</span>
-                        : <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">Excluded</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-        {!snap.hasActuals ? (
-          <p className="mt-3 text-[11px] text-amber-700">
-            No closed/pipeline feed is connected yet, so dollar actuals show &ldquo;—&rdquo;. Goals and advisor counts are live;
-            fill the closed figures in the scorecard notes until SmarterLaunch / the sales feed is connected.
-          </p>
-        ) : null}
-      </Card>
+      <p className="mb-4 text-xs text-muted">
+        Bonus is scored on the three focus markets — <span className="font-medium text-ink">{DIRECTOR_PROFILE.focusMarkets.join(" · ")}</span>.
+        Vero Beach is shown for context but excluded from the bonus. Year-1 target {DIRECTOR_PROFILE.bonusYear1Target}; the agreement notes
+        meaningful bonus is not expected while the teams are being built. Step-up milestone: {DIRECTOR_PROFILE.stepUpMilestone}.
+      </p>
 
-      <SalesReviewForm
-        metrics={SALES_REVIEW_METRICS}
-        sections={SALES_REVIEW_SECTIONS}
-        periodLabel={snap.periodLabel}
-        directorDefault={DIRECTOR_PROFILE.name}
-        reviewerDefault={user.name ?? ""}
-      />
+      {breakdown.hasData ? (
+        <SalesReviewForm
+          perfRows={perfRows}
+          veroRows={veroRows}
+          octPeek={octPeek}
+          bonusTarget={DIRECTOR_PROFILE.bonusYear1Target}
+          metrics={SALES_REVIEW_METRICS}
+          sections={SALES_REVIEW_SECTIONS}
+          periodLabel={periodLabel}
+          directorDefault={DIRECTOR_PROFILE.name}
+          reviewerDefault={user.name ?? ""}
+        />
+      ) : (
+        <p className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted">
+          No branch sales loaded for {periodLabel} yet. Q3 2026 (Aug–Sep) is loaded from the verified close-won export;
+          other quarters populate once the sales feed is connected.
+        </p>
+      )}
     </>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-line bg-surface p-3">
-      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
-      <div className="mt-1 text-xl font-light tabular-nums text-ink">{value}</div>
-      {sub ? <div className="mt-0.5 text-[11px] text-muted">{sub}</div> : null}
-    </div>
   );
 }
