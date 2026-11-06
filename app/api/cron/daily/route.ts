@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals, remindAdvisorGoalSheets, remindSalesFocusFollowUps } from "@/lib/jobs";
+import { runDailyDigest, remindScorecardsDue, runCelebrations, remindMonthlyGoals, remindAdvisorGoalSheets, remindSalesFocusFollowUps, remindSalesDirectorReview } from "@/lib/jobs";
 import { runNudges } from "@/lib/nudges";
 import { reindexKnowledge } from "@/lib/copilot/ingest";
 import { geocodeBacklog } from "@/lib/geocode";
@@ -30,6 +30,7 @@ async function run(req: Request) {
     digest: runDailyDigest,
     scorecardsDue: remindScorecardsDue,
     monthlyGoals: remindMonthlyGoals,
+    salesDirectorReview: remindSalesDirectorReview,
     advisorGoalSheets: remindAdvisorGoalSheets,
     salesFocusFollowUps: remindSalesFocusFollowUps,
     // Theme 4 detect-then-offer-action nudges routed through the Inbox:

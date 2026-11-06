@@ -10,6 +10,7 @@ import { etParts } from "@/lib/date";
 import { notifyThread, postSystemThread } from "@/lib/threads";
 import { focusTypeLabel } from "@/lib/sales-focus";
 import { listServiceAdvisors } from "@/lib/sales";
+import { superAdminRecipients } from "@/lib/product-requests";
 import { DigestCollector, sendDigests, dueForDigest } from "@/lib/email-digest";
 
 // Scheduled daily jobs — training reminders and outstanding-signature reminders.
@@ -478,6 +479,75 @@ export async function remindScorecardsDue() {
       await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
     }
     results.push({ period: `${year}Q${q}`, outstanding, emailed });
+  }
+  return results;
+}
+
+/**
+ * Quarterly SALES DIRECTOR review reminder — after each quarter ends, remind the
+ * COO (and the other super admins) to complete the Director of Sales quarterly
+ * review (Howard reports to Chris). Standing in-app Alert + an Inbox thread to the
+ * super admins, idempotent per quarter; the email is weekly-guarded by a Setting
+ * stamp (mirrors `remindScorecardsDue`). Fires in the first ~3 weeks of the new
+ * quarter, then no-ops. (Once the review is persisted in the DB, this can also skip
+ * quarters already completed.)
+ */
+export async function remindSalesDirectorReview() {
+  const now = new Date();
+  const DAY = 86_400_000;
+  const quarterEnd = (year: number, q: number) => new Date(Date.UTC(year, q * 3, 0, 23, 59, 59));
+  const y = now.getUTCFullYear();
+  const candidates: { year: number; q: number }[] = [
+    { year: y - 1, q: 4 }, { year: y, q: 1 }, { year: y, q: 2 }, { year: y, q: 3 }, { year: y, q: 4 },
+  ];
+  const results: { period: string; emailed: boolean }[] = [];
+
+  for (const { year, q } of candidates) {
+    const end = quarterEnd(year, q);
+    if (now < end) continue; // quarter not over yet
+    const close = new Date(end.getTime() + 21 * DAY); // remind for ~3 weeks after quarter-end
+    if (now > close) continue;
+    const daysLeft = Math.max(0, Math.ceil((close.getTime() - now.getTime()) / DAY));
+    const link = `${base()}/sales/quarterly-review?year=${year}&quarter=${q}`;
+    const msg = `Q${q} ${year} Sales Director review is due — complete Howard Cohn's quarterly review (${daysLeft}d left).`;
+
+    await prisma.alert.upsert({
+      where: { dedupeKey: `sales_director_review:${year}Q${q}` },
+      create: { type: "sales_director_review", severity: daysLeft <= 7 ? "critical" : "warning", status: "open", dedupeKey: `sales_director_review:${year}Q${q}`, message: msg },
+      update: { message: msg, status: "open", severity: daysLeft <= 7 ? "critical" : "warning" },
+    }).catch(() => null);
+
+    const key = `sales_director_review_email:${year}Q${q}`;
+    const setting = await prisma.setting.findUnique({ where: { key } }).catch(() => null);
+    const last = setting?.value ? new Date(setting.value) : null;
+    const dueForEmail = !last || now.getTime() - last.getTime() >= 7 * DAY;
+    let emailed = false;
+    if (dueForEmail) {
+      const recipients = await superAdminRecipients().catch(() => []);
+      const to = [...new Set(recipients.map((r) => r.email).filter(Boolean))] as string[];
+      if (to.length) {
+        const r = await sendEmail({
+          to,
+          subject: `Sales Director quarterly review due: Q${q} ${year} (${daysLeft}d left)`,
+          kind: "sales_director_review", relatedType: "sales_review_period", relatedId: `${year}Q${q}`,
+          text: `Reminder: the Q${q} ${year} Sales Director review (Howard Cohn) is ready to complete — ${daysLeft} day(s) left in the window.\n\nComplete and sign it here: ${link}\n\n— CanopyOS`,
+          html: `<p>Reminder: the <strong>Q${q} ${year}</strong> Sales Director review (Howard Cohn) is ready to complete — <strong>${daysLeft} day(s)</strong> left.</p><p><a href="${link}">Open the review →</a></p><p>— CanopyOS</p>`,
+        }).catch(() => null);
+        emailed = !!r;
+      }
+      if (recipients.length) {
+        await postSystemThread({
+          subject: `Sales Director review due — Q${q} ${year}`,
+          body: `Complete Howard Cohn's Q${q} ${year} quarterly sales review. ${daysLeft} day(s) left in the window.`,
+          recipients,
+          contextType: "reminder",
+          contextLabel: "Sales Director review",
+          contextHref: `/sales/quarterly-review?year=${year}&quarter=${q}`,
+        }).catch(() => {});
+      }
+      await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);
+    }
+    results.push({ period: `${year}Q${q}`, emailed });
   }
   return results;
 }

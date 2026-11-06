@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import PrintButton from "@/components/PrintButton";
-import { requireUser, canManageSales } from "@/lib/auth";
+import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, DIRECTOR_PROFILE } from "@/lib/sales-review";
 import { quarterlyBonusBreakdown, nextMonthPeek, monthLabel, MIN_BONUS_TIER } from "@/lib/sales-review-data";
 import SalesReviewForm, { type PerfGroup } from "./SalesReviewForm";
@@ -19,7 +19,9 @@ export default async function SalesQuarterlyReviewPage({
   searchParams: Promise<{ year?: string; quarter?: string }>;
 }) {
   const user = await requireUser();
-  if (!canManageSales(user)) redirect("/me");
+  // Super admins only (Chris, Julie, April) — they access, fill, and submit this
+  // review. The Director signs via an emailed link in the sign-off workflow, not here.
+  if (!isSuperAdmin(user)) redirect("/me");
 
   const sp = await searchParams;
   const now = new Date();

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
-import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
+import { requireUser, canManageSales, canViewSales, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
@@ -174,7 +174,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         }
         actions={canManage ? (
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <Link href="/sales/quarterly-review" className="text-sm font-medium text-brand-700 hover:underline">Quarterly review →</Link>
+            {isSuperAdmin(user) ? <Link href="/sales/quarterly-review" className="text-sm font-medium text-brand-700 hover:underline">Director quarterly review →</Link> : null}
             <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Company sales &amp; cancellations →</Link>
           </span>
         ) : undefined}
