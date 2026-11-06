@@ -237,7 +237,7 @@ export default function SalesReviewForm({
                 </div>
                 <span className="hidden print:inline text-xs font-medium">{d.metrics[m.key]?.score || "—"}</span>
               </div>
-              <input value={d.metrics[m.key]?.note ?? ""} onChange={(e) => setMetric(m.key, { note: e.target.value })} placeholder="Note" className={inputCls} />
+              <textarea value={d.metrics[m.key]?.note ?? ""} onChange={(e) => setMetric(m.key, { note: e.target.value })} rows={3} placeholder="Note" className={inputCls} />
             </div>
           ))}
         </div>
@@ -253,7 +253,7 @@ export default function SalesReviewForm({
               <label key={q.key} className="block text-sm font-medium text-ink">
                 {q.label}
                 {q.help ? <span className="block text-[11px] font-normal text-muted">{q.help}</span> : null}
-                <textarea value={d.answers[q.key] ?? ""} onChange={(e) => setAnswer(q.key, e.target.value)} rows={3} className={inputCls} />
+                <textarea value={d.answers[q.key] ?? ""} onChange={(e) => setAnswer(q.key, e.target.value)} rows={5} className={inputCls} />
               </label>
             ))}
           </div>
