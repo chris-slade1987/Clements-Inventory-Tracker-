@@ -29,7 +29,7 @@ export type ReviewMetric = {
 export const SALES_REVIEW_METRICS: ReviewMetric[] = [
   { key: "team_build", label: "Sales team build-out & rep ramp", target: "Recruit, hire & ramp producing reps in Stuart, Naples, Orlando", help: "The year-one priority: build producing teams so the branches reach the bonus tiers. Most bonus-branch volume still comes from managers/Howard, with newer reps (Michael, Matthew) ramping. Tracks the step-up milestone (5 reps each ≥$30K/mo new recurring)." },
   { key: "pipeline_systems", label: "Pipeline, forecasting & accountability", target: "Sales process, KPIs, pipeline & forecasting in place and used; regular reporting", help: "Establishing and running sales processes, KPIs, pipeline management, forecasting, and accountability; regular reporting to executive leadership (Article 1.3.2 / 1.3.7)." },
-  { key: "retention", label: "Customer retention / attrition", target: "Attrition reduced across markets", help: "Improving retention and reducing attrition across all markets (Article 1.3.6)." },
+  { key: "training_culture", label: "Team training, education & culture", target: "Ongoing rep training/coaching, skill development, and a strong team culture", help: "Investing in the sales team — structured training and product/sales education, skill development, and building a positive, high-accountability culture that keeps strong reps engaged." },
   { key: "pricing", label: "Pricing discipline & sales mix", target: "Rate-card pricing held; healthy recurring vs one-off mix", help: "Standardizing scopes, holding rate-card pricing, and watching the recurring base vs. large one-off jobs (e.g. the Naples bat-proofing deal) (Article 1.3.4)." },
 ];
 
