@@ -4,7 +4,7 @@ import { Card, PageHeader } from "@/components/ui";
 import PrintButton from "@/components/PrintButton";
 import { requireUser, canManageSales } from "@/lib/auth";
 import { money } from "@/lib/format";
-import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, salesReviewSnapshot } from "@/lib/sales-review";
+import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, salesReviewSnapshot, DIRECTOR_PROFILE, BONUS_TIERS } from "@/lib/sales-review";
 import SalesReviewForm from "./SalesReviewForm";
 
 export const dynamic = "force-dynamic";
@@ -46,8 +46,34 @@ export default async function SalesQuarterlyReviewPage({
 
       <PageHeader
         title="Quarterly Sales Director Review"
-        subtitle={`${snap.periodLabel} · Sales Director performance review`}
+        subtitle={`${DIRECTOR_PROFILE.name} · ${DIRECTOR_PROFILE.title} · ${snap.periodLabel}`}
       />
+
+      {/* Compensation & targets — from the Director of Sales employment agreement,
+          so the scorecard is judged against the real contractual KPIs. Visible to
+          the director + leadership only (canManageSales gate). */}
+      <Card className="p-4 mb-4">
+        <h2 className="text-sm font-semibold text-ink">Targets this quarter (per employment agreement)</h2>
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-muted">Quarterly team-sales bonus — monthly branch tiers</div>
+            <ul className="mt-1 space-y-0.5 text-sm text-ink">
+              {BONUS_TIERS.map((t) => (
+                <li key={t.min} className="tabular-nums">{t.pct}% of Total Branch Sales at {money(t.min)}+/mo</li>
+              ))}
+              <li className="text-muted">Below {money(50000)}/mo: no bonus</li>
+            </ul>
+            <div className="mt-1 text-[11px] text-muted">Year-1 target {DIRECTOR_PROFILE.bonusYear1Target}; minimal bonus expected in Q1 while teams are built.</div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-muted">Focus markets (bonus-participating)</div>
+            <div className="mt-1 text-sm text-ink">{DIRECTOR_PROFILE.focusMarkets.join(" · ")}</div>
+            <div className="mt-0.5 text-[11px] text-muted">{DIRECTOR_PROFILE.excludedMarket}</div>
+            <div className="mt-2 text-[11px] uppercase tracking-wider text-muted">Base step-up milestone</div>
+            <div className="mt-1 text-sm text-ink">{DIRECTOR_PROFILE.stepUpMilestone}</div>
+          </div>
+        </div>
+      </Card>
 
       {/* Quarter picker */}
       <div className="mb-4 flex flex-wrap items-center gap-2 print:hidden">
@@ -102,6 +128,7 @@ export default async function SalesQuarterlyReviewPage({
                   <th className="px-2 py-2 font-medium text-right">Goals set</th>
                   <th className="px-2 py-2 font-medium text-right">Monthly goal</th>
                   <th className="px-2 py-2 font-medium text-right">Closed</th>
+                  <th className="px-2 py-2 font-medium">Bonus</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,6 +139,11 @@ export default async function SalesQuarterlyReviewPage({
                     <td className="px-2 py-2 text-right tabular-nums">{b.withGoal}/{b.advisors}</td>
                     <td className="px-2 py-2 text-right tabular-nums">{money(b.target)}</td>
                     <td className="px-2 py-2 text-right tabular-nums">{b.closed != null ? money(b.closed) : "—"}</td>
+                    <td className="px-2 py-2">
+                      {b.participating
+                        ? <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">Participating</span>
+                        : <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">Excluded</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -130,7 +162,7 @@ export default async function SalesQuarterlyReviewPage({
         metrics={SALES_REVIEW_METRICS}
         sections={SALES_REVIEW_SECTIONS}
         periodLabel={snap.periodLabel}
-        directorDefault={""}
+        directorDefault={DIRECTOR_PROFILE.name}
         reviewerDefault={user.name ?? ""}
       />
     </>

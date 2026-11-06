@@ -22,17 +22,47 @@ export type ReviewMetric = {
   help: string;
 };
 
-// The quarterly scorecard metrics — the measurable half, in the Sales section's
-// vocabulary. Each is scored Met / Not met / N-A with a note by the reviewer.
+// The quarterly scorecard metrics — grounded in the Director of Sales employment
+// agreement (Howard Cohn, eff. 2026-08-03): the Quarterly Team Sales Bonus tiers,
+// the base step-up milestone, and the Article 1.3 duties. Each is scored
+// Met / Not met / N-A with a note by the reviewer. Weighted toward team build-out in
+// year one — the agreement states meaningful bonus is not expected in Q1.
 export const SALES_REVIEW_METRICS: ReviewMetric[] = [
-  { key: "attainment", label: "Team sales attainment", target: "≥ 100% of the combined team goal", help: "Total $ closed by the team vs. the sum of the advisors' monthly goals across the quarter." },
-  { key: "close_rate", label: "Team closing rate", target: "≥ the benchmark set with the COO", help: "Total $ sold ÷ total exposure (PC + TC), averaged across the team — the goal sheet's total closing %." },
-  { key: "pipeline", label: "Pipeline coverage", target: "Open pipeline ≥ 1.5× next month's team goal", help: "Enough live exposure in the funnel to cover the upcoming goal, so the quarter doesn't start cold." },
-  { key: "goal_discipline", label: "Goal-setting discipline", target: "100% of advisors set & agree a goal every month", help: "Every service advisor has a monthly goal sheet set and agreed (not left blank) each month of the quarter." },
-  { key: "conversion", label: "Lead → proposal conversion", target: "≥ the prior quarter's rate", help: "Proposals per prospect (ReIs + appointments) for the team — are leads being turned into proposals." },
-  { key: "production", label: "Termite units / new agreements", target: "≥ plan", help: "TC units sold and new recurring agreements vs. the planned run-rate." },
-  { key: "development", label: "Advisor development", target: "Most advisors improving quarter-over-quarter; ride-alongs done", help: "Coaching is moving the needle — advisors' close rate / attainment trending up, ride-alongs completed." },
+  { key: "branch_tiers", label: "Branch sales vs bonus tiers (Stuart · Naples · Orlando)", target: "Each focus branch ≥ $50K/mo Total Branch Sales; stretch $65K / $80K", help: "Total Branch Sales = all new recurring + non-recurring sales at rate-card, per branch per month. The three focus markets drive the quarterly bonus (1.5% @ $50K+, 2% @ $65K+, 2.5% @ $80K+). Vero Beach is excluded from the bonus for now." },
+  { key: "bonus", label: "Quarterly team-sales bonus earned", target: "On pace to the Year-1 target (~$20K–$25K/yr); minimal expected during Q1 build", help: "Sum of each participating branch's monthly tier % of Total Branch Sales, paid quarterly. Teams are being built in year one, so meaningful bonus ramps as branches reach the tiers." },
+  { key: "step_up", label: "Producing-rep milestone (base step-up)", target: "Toward 5 reps each ≥ $30K/mo new recurring, 2 consecutive months", help: "The Step-Up Milestone: five sales reps concurrently producing ≥$30K/mo in gross new recurring revenue for two straight months. Track how many reps are at/above $30K/mo." },
+  { key: "team_build", label: "Sales team build-out (focus markets)", target: "Recruiting, hiring & ramping advisors in Stuart, Naples, Orlando", help: "Building a producing sales team in the primary growth markets — recruiting, hiring, onboarding and ramping advisors (Article 1.1 / 1.3)." },
+  { key: "pipeline_systems", label: "Pipeline, forecasting & accountability", target: "Sales process, KPIs, pipeline & forecasting in place and used; regular reporting", help: "Establishing and running sales processes, KPIs, pipeline management, forecasting, and accountability systems; regular reporting to executive leadership (Article 1.3.2 / 1.3.7)." },
+  { key: "growth", label: "Profitable revenue growth across service lines", target: "Organic growth across GHP, L&O, termite and other lines", help: "Accelerating profitable organic revenue growth across all service lines, not one line only (Article 1.3.3)." },
+  { key: "retention", label: "Customer retention / attrition", target: "Attrition reduced across markets", help: "Improving customer retention and reducing attrition across all markets (Article 1.3.6)." },
+  { key: "pricing", label: "Pricing discipline & sales experience", target: "Rate-card pricing held; scopes standardized", help: "Standardizing scopes of service, holding rate-card pricing discipline, and a consistent customer sales experience (Article 1.3.4)." },
 ];
+
+// Contract facts that ground the review (from the Director of Sales agreement).
+export const BONUS_TIERS = [
+  { min: 80000, pct: 2.5 },
+  { min: 65000, pct: 2.0 },
+  { min: 50000, pct: 1.5 },
+] as const;
+
+export const BONUS_PARTICIPATING_BRANCHES = ["stuart", "naples", "orlando"] as const;
+
+export const DIRECTOR_PROFILE = {
+  name: "Howard Cohn",
+  title: "Director of Sales",
+  reportsTo: "Chief Operating Officer",
+  effectiveDate: "August 3, 2026",
+  bonusYear1Target: "~$20,000–$25,000 (Year 1)",
+  stepUpMilestone: "5 reps each ≥ $30K/mo new recurring, 2 consecutive months (base $125K → $135K)",
+  focusMarkets: ["Stuart", "Naples", "Orlando"],
+  excludedMarket: "Vero Beach — established; added to the bonus later by mutual agreement",
+};
+
+/** The bonus tier a branch's monthly Total Branch Sales falls into (contract §3.3). */
+export function bonusTierFor(monthlySales: number): { pct: number; label: string } {
+  for (const t of BONUS_TIERS) if (monthlySales >= t.min) return { pct: t.pct, label: `${t.pct}%` };
+  return { pct: 0, label: "0% (below $50K)" };
+}
 
 export type ReviewQuestion = { key: string; label: string; help?: string };
 export type ReviewSection = { key: string; title: string; intro?: string; questions: ReviewQuestion[] };
@@ -73,7 +103,7 @@ export type SalesReviewSnapshot = {
   teamTarget: number;
   closedYtd: number | null;
   pipeline: number | null;
-  byBranch: { branch: string; label: string; advisors: number; withGoal: number; target: number; closed: number | null }[];
+  byBranch: { branch: string; label: string; advisors: number; withGoal: number; target: number; closed: number | null; participating: boolean }[];
   hasActuals: boolean;
 };
 
@@ -94,7 +124,7 @@ export async function salesReviewSnapshot(year: number, quarter: number): Promis
     teamTarget: d.totals.target,
     closedYtd: d.totals.closed ?? null,
     pipeline: d.totals.pipeline ?? null,
-    byBranch: d.byBranch.map((b) => ({ branch: b.branch, label: branchLabel(b.branch), advisors: b.advisors, withGoal: b.withGoal, target: b.target, closed: b.closed ?? null })),
+    byBranch: d.byBranch.map((b) => ({ branch: b.branch, label: branchLabel(b.branch), advisors: b.advisors, withGoal: b.withGoal, target: b.target, closed: b.closed ?? null, participating: (BONUS_PARTICIPATING_BRANCHES as readonly string[]).includes(b.branch) })),
     hasActuals: d.totals.closed != null,
   };
 }
