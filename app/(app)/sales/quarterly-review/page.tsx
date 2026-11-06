@@ -5,7 +5,7 @@ import PrintButton from "@/components/PrintButton";
 import { requireUser, canManageSales } from "@/lib/auth";
 import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, DIRECTOR_PROFILE } from "@/lib/sales-review";
 import { quarterlyBonusBreakdown, nextMonthPeek, monthLabel, MIN_BONUS_TIER } from "@/lib/sales-review-data";
-import SalesReviewForm, { type PerfRow } from "./SalesReviewForm";
+import SalesReviewForm, { type PerfGroup } from "./SalesReviewForm";
 
 export const dynamic = "force-dynamic";
 
@@ -33,14 +33,22 @@ export default async function SalesQuarterlyReviewPage({
   const breakdown = quarterlyBonusBreakdown(year, quarter);
   const octPeek = nextMonthPeek(year, quarter);
 
-  // Flatten to month-major performance rows (Aug: each branch, then Sep: each branch).
-  const perfRows: PerfRow[] = breakdown.months.flatMap((m) =>
-    breakdown.branches.map((b) => {
-      const c = b.months.find((x) => x.key === m)!;
-      return { id: `${b.branch}:${m}`, label: b.label, monthLabel: monthLabel(m).replace(` ${year}`, ""), target: MIN_BONUS_TIER, actual: c.sales, tierPct: c.pct, defaultHit: c.hit };
-    }),
-  );
-  const veroRows = (breakdown.vero?.months ?? []).map((v) => ({ monthLabel: v.label, sales: v.sales }));
+  // Group by BRANCH, months nested underneath (Stuart → Aug, Sep; Naples → …).
+  const perfGroups: PerfGroup[] = breakdown.branches.map((b) => ({
+    label: b.label,
+    totalSales: b.totalSales,
+    months: b.months.map((c) => ({
+      id: `${b.branch}:${c.key}`,
+      monthLabel: monthLabel(c.key).replace(` ${year}`, ""),
+      target: MIN_BONUS_TIER,
+      actual: c.sales,
+      tierPct: c.pct,
+      defaultHit: c.hit,
+    })),
+  }));
+  const veroGroup = breakdown.vero
+    ? { label: "Vero Beach", totalSales: breakdown.vero.totalSales, months: breakdown.vero.months.map((v) => ({ monthLabel: v.label, sales: v.sales })) }
+    : null;
 
   const years = [curYear, curYear - 1, curYear - 2].filter((y, i, a) => a.indexOf(y) === i);
   if (!years.includes(2026)) years.push(2026);
@@ -80,8 +88,8 @@ export default async function SalesQuarterlyReviewPage({
 
       {breakdown.hasData ? (
         <SalesReviewForm
-          perfRows={perfRows}
-          veroRows={veroRows}
+          perfGroups={perfGroups}
+          veroGroup={veroGroup}
           octPeek={octPeek}
           bonusTarget={DIRECTOR_PROFILE.bonusYear1Target}
           metrics={SALES_REVIEW_METRICS}
