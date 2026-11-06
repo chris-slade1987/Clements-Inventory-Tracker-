@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
 import type { ReviewMetric, ReviewSection } from "@/lib/sales-review";
@@ -30,11 +31,35 @@ type Draft = {
   reviewDate: string;
 };
 
+// The saved sign-off state for this quarter, loaded server-side.
+export type Persisted = {
+  status: "draft" | "released" | "signed";
+  releasedAt: string | null;
+  reviewerName: string | null;
+  directorName: string | null;
+  directorSignName: string | null;
+  directorSignedAt: string | null;
+  signUrl: string | null;
+  lastEmail: { status: string; at: string; error: string | null } | null;
+  bonus: number;
+  snapshot: {
+    hits: Record<string, boolean>;
+    metrics: Record<string, { score: string; note: string }>;
+    answers: Record<string, string>;
+    rating: string;
+    reviewDate: string;
+  } | null;
+} | null;
+
+const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
+
 // Quarterly Sales Director Review form — dashboard-style, in the COO's order:
 // (1) PERFORMANCE grouped by branch with the months nested underneath (target vs
 // actual, a Yes/No "met target" toggle, auto-calculated bonus), (2) INTANGIBLES,
-// (3) NOTES, (4) SIGN-OFF. Draft kept in the browser per quarter; Print/Save-PDF
-// files it. (DB persistence + e-signatures to follow on approval.)
+// (3) NOTES, (4) SIGN-OFF + RELEASE. While a draft, edits autosave in the browser;
+// Release persists the review and emails the Director a sign link, which locks the
+// form until it's reopened. The Director's signature files it to their personnel
+// record and copies HR (see lib/sales-review-store.ts).
 export default function SalesReviewForm({
   perfGroups,
   veroGroup,
@@ -43,8 +68,12 @@ export default function SalesReviewForm({
   metrics,
   sections,
   periodLabel,
+  year,
+  quarter,
   directorDefault,
+  directorEmail,
   reviewerDefault,
+  persisted,
 }: {
   perfGroups: PerfGroup[];
   veroGroup: VeroGroup;
@@ -53,24 +82,73 @@ export default function SalesReviewForm({
   metrics: ReviewMetric[];
   sections: ReviewSection[];
   periodLabel: string;
+  year: number;
+  quarter: number;
   directorDefault: string;
+  directorEmail: string | null;
   reviewerDefault: string;
+  persisted: Persisted;
 }) {
+  const router = useRouter();
   const allMonths = useMemo(() => perfGroups.flatMap((g) => g.months), [perfGroups]);
   const storageKey = `sales-review-draft:${periodLabel}`;
+  const status = persisted?.status ?? "draft";
+  const locked = status === "released" || status === "signed";
+  const snap = persisted?.snapshot ?? null;
   const [d, setD] = useState<Draft>({
-    hits: Object.fromEntries(allMonths.map((m) => [m.id, m.defaultHit])),
-    metrics: Object.fromEntries(metrics.map((m) => [m.key, { score: "", note: "" }])),
-    answers: {},
-    rating: "",
-    directorName: directorDefault,
-    reviewerName: reviewerDefault,
-    reviewDate: "",
+    hits: { ...Object.fromEntries(allMonths.map((m) => [m.id, m.defaultHit])), ...(snap?.hits ?? {}) },
+    metrics: { ...Object.fromEntries(metrics.map((m) => [m.key, { score: "", note: "" }])), ...(snap?.metrics ?? {}) },
+    answers: { ...(snap?.answers ?? {}) },
+    rating: snap?.rating ?? "",
+    directorName: persisted?.directorName || directorDefault,
+    reviewerName: persisted?.reviewerName || reviewerDefault,
+    reviewDate: snap?.reviewDate ?? "",
   });
   const [restored, setRestored] = useState(false);
+  const [busy, setBusy] = useState<null | "release" | "reopen">(null);
+  const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+  const [lastSignUrl, setLastSignUrl] = useState<string | null>(persisted?.signUrl ?? null);
+
+  async function act(action: "release" | "reopen") {
+    if (action === "release") {
+      if (!d.rating) return setMsg({ tone: "err", text: "Choose an overall rating before releasing." });
+      if (!d.reviewerName.trim()) return setMsg({ tone: "err", text: "Type your name in the Reviewer / COO signature before releasing." });
+      if (!window.confirm(`Release the ${periodLabel} review and email ${d.directorName || "the Sales Director"} a link to sign? The form locks until you reopen it.`)) return;
+    } else if (!window.confirm("Reopen this review to revise it? The Director's current sign link stops working; releasing again sends a fresh one.")) {
+      return;
+    }
+    setBusy(action);
+    setMsg(null);
+    const res = await fetch("/api/sales/review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, year, quarter, draft: d }),
+    });
+    const out = await res.json().catch(() => ({}));
+    setBusy(null);
+    if (!res.ok) return setMsg({ tone: "err", text: out.error ?? "Something went wrong." });
+    if (action === "release") {
+      setLastSignUrl(out.signUrl ?? null);
+      const sent = out.emailStatus === "sent";
+      setMsg({
+        tone: sent ? "ok" : "err",
+        text: sent
+          ? `Released — ${out.directorName} was emailed a sign link${out.directorEmail ? ` at ${out.directorEmail}` : ""}.`
+          : `Released, but the email ${out.directorEmail ? `to ${out.directorEmail} ` : ""}did not send (${out.emailStatus}). Copy the sign link below and send it to ${out.directorName} directly.`,
+      });
+    } else {
+      setMsg({ tone: "ok", text: "Reopened — you can revise and release again." });
+    }
+    router.refresh();
+  }
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    // A released/signed review shows exactly what was released — never the browser draft.
+    if (locked) {
+      setRestored(true);
+      return;
+    }
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) {
@@ -86,13 +164,13 @@ export default function SalesReviewForm({
       }
     } catch { /* no draft */ }
     setRestored(true);
-  }, [storageKey]);
+  }, [storageKey, locked]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (!restored) return;
+    if (!restored || locked) return;
     try { localStorage.setItem(storageKey, JSON.stringify(d)); } catch { /* ignore */ }
-  }, [d, restored, storageKey]);
+  }, [d, restored, storageKey, locked]);
 
   const monthBonus = (m: PerfMonth) => (d.hits[m.id] ? Math.round((m.actual * m.tierPct) / 100) : 0);
   const groupBonus = (g: PerfGroup) => g.months.reduce((s, m) => s + monthBonus(m), 0);
@@ -107,6 +185,18 @@ export default function SalesReviewForm({
 
   return (
     <div className="space-y-5 max-w-4xl">
+      {/* Status banner — where this quarter's review stands in the sign-off flow. */}
+      {status === "released" ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 print:hidden">
+          <span className="font-semibold">Released {fmtDate(persisted?.releasedAt ?? null)}</span> — awaiting {d.directorName}&rsquo;s signature. The form is locked; reopen it below to revise.
+        </div>
+      ) : status === "signed" ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 print:hidden">
+          <span className="font-semibold">Signed by {persisted?.directorSignName} on {fmtDate(persisted?.directorSignedAt ?? null)}</span> — filed to {d.directorName}&rsquo;s personnel record; HR has a copy.
+        </div>
+      ) : null}
+
+      <fieldset disabled={locked} className="space-y-5 min-w-0">
       {/* 1 — PERFORMANCE (grouped by branch; months nested) */}
       <Card className="p-0 overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-2 px-4 py-3 border-b border-line">
@@ -278,20 +368,70 @@ export default function SalesReviewForm({
         </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <label className="block text-sm font-medium text-ink">Sales Director (signature)
-            <input value={d.directorName} onChange={(e) => setD((s) => ({ ...s, directorName: e.target.value }))} placeholder="Type full name" className={inputCls} />
-          </label>
           <label className="block text-sm font-medium text-ink">Reviewer / COO (signature)
             <input value={d.reviewerName} onChange={(e) => setD((s) => ({ ...s, reviewerName: e.target.value }))} placeholder="Type full name" className={inputCls} />
           </label>
           <label className="block text-sm font-medium text-ink">Date
             <input type="date" value={d.reviewDate} onChange={(e) => setD((s) => ({ ...s, reviewDate: e.target.value }))} className={inputCls} />
           </label>
+          <div className="block text-sm font-medium text-ink">Sales Director (signature)
+            <div className="mt-1 rounded-lg border border-dashed border-line px-3 py-2 text-sm font-normal">
+              {status === "signed" ? (
+                <span className="text-ink">{persisted?.directorSignName} <span className="text-muted">· {fmtDate(persisted?.directorSignedAt ?? null)}</span></span>
+              ) : status === "released" ? (
+                <span className="text-amber-700">Awaiting {d.directorName}</span>
+              ) : (
+                <span className="text-muted">{d.directorName} signs via emailed link</span>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="mt-3 text-[11px] text-muted print:hidden">
-          Draft saved in your browser for {periodLabel}. Use <span className="font-medium">Print / Save PDF</span> above to file it.
-          Once approved, this can be wired to release → e-sign → file to the personnel record + copy HR, like the manager scorecard.
-        </p>
+      </Card>
+      </fieldset>
+
+      {/* 5 — RELEASE (outside the locked fieldset so reopen stays clickable) */}
+      <Card className="p-4 print:hidden">
+        <h2 className="text-sm font-semibold text-ink">Release for signature</h2>
+        {status === "draft" ? (
+          <>
+            <p className="mt-0.5 text-xs text-muted">
+              Releasing saves this review, signs it as reviewer, and emails <span className="font-medium text-ink">{d.directorName}</span>
+              {directorEmail ? <> ({directorEmail})</> : <span className="text-red-600"> — no email on file; you&rsquo;ll get a link to send him</span>} a secure link to review and e-sign.
+              Once he signs, it&rsquo;s filed to his personnel record and HR gets a copy. Your edits autosave in this browser until you release.
+            </p>
+            <button type="button" onClick={() => act("release")} disabled={busy !== null}
+              className="mt-3 w-full sm:w-auto rounded-xl bg-emerald-grad px-5 py-3 text-sm font-medium text-white shadow-sm disabled:opacity-50">
+              {busy === "release" ? "Releasing…" : `Release & email to ${d.directorName.split(" ")[0] || "Director"}`}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="mt-0.5 text-xs text-muted">
+              {status === "released"
+                ? <>Released {fmtDate(persisted?.releasedAt ?? null)}{persisted?.lastEmail ? <> · last email {persisted.lastEmail.status === "sent" ? "sent" : <span className="text-red-600">{persisted.lastEmail.status}</span>} {fmtDate(persisted.lastEmail.at)}</> : null}. Reopen to revise; releasing again emails a fresh link.</>
+                : <>Signed and filed. Reopen only if it must be corrected — re-releasing sends it back to {d.directorName} to sign again and overwrites the filed copy.</>}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {status === "released" ? (
+                <button type="button" onClick={() => act("release")} disabled={busy !== null}
+                  className="rounded-xl bg-emerald-grad px-4 py-2.5 text-sm font-medium text-white shadow-sm disabled:opacity-50">
+                  {busy === "release" ? "Sending…" : "Resend sign link"}
+                </button>
+              ) : null}
+              <button type="button" onClick={() => act("reopen")} disabled={busy !== null}
+                className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink hover:bg-black/[0.03] disabled:opacity-50">
+                {busy === "reopen" ? "Reopening…" : "Reopen to revise"}
+              </button>
+            </div>
+          </>
+        )}
+        {status === "released" && lastSignUrl ? (
+          <div className="mt-3">
+            <div className="text-[11px] uppercase tracking-wide text-muted">Sign link</div>
+            <input readOnly value={lastSignUrl} onFocus={(e) => e.currentTarget.select()} className="mt-1 w-full rounded-lg border border-line bg-black/[0.02] px-3 py-2 text-xs" />
+          </div>
+        ) : null}
+        {msg ? <p className={`mt-3 text-sm ${msg.tone === "ok" ? "text-brand-700" : "text-red-600"}`}>{msg.text}</p> : null}
       </Card>
     </div>
   );

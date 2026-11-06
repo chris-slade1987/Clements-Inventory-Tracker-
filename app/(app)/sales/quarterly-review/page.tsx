@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import PrintButton from "@/components/PrintButton";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
+import { appUrl } from "@/lib/app-url";
 import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, DIRECTOR_PROFILE } from "@/lib/sales-review";
 import { quarterlyBonusBreakdown, nextMonthPeek, monthLabel, MIN_BONUS_TIER } from "@/lib/sales-review-data";
-import SalesReviewForm, { type PerfGroup } from "./SalesReviewForm";
+import { getSalesReview, parseSnapshot, lastSalesReviewSignEmail, resolveDirector } from "@/lib/sales-review-store";
+import SalesReviewForm, { type PerfGroup, type Persisted } from "./SalesReviewForm";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +55,38 @@ export default async function SalesQuarterlyReviewPage({
     ? { label: "Vero Beach", totalSales: breakdown.vero.totalSales, months: breakdown.vero.months.map((v) => ({ monthLabel: v.label, sales: v.sales })) }
     : null;
 
+  // Persisted sign-off state (released → awaiting the Director → signed + filed).
+  const [saved, director] = await Promise.all([getSalesReview(year, quarter), resolveDirector()]);
+  let persisted: Persisted = null;
+  if (saved) {
+    const snap = parseSnapshot(saved.data);
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host");
+    const proto = h.get("x-forwarded-proto") ?? "https";
+    const base = (appUrl() || (host ? `${proto}://${host}` : "")).replace(/\/$/, "");
+    const lastEmail = await lastSalesReviewSignEmail(saved.id);
+    persisted = {
+      status: saved.status as "draft" | "released" | "signed",
+      releasedAt: saved.releasedAt?.toISOString() ?? null,
+      reviewerName: saved.reviewerName,
+      directorName: saved.directorName,
+      directorSignName: saved.directorSignName,
+      directorSignedAt: saved.directorSignedAt?.toISOString() ?? null,
+      signUrl: saved.signToken && base ? `${base}/sales-review-sign/${saved.signToken}` : null,
+      lastEmail: lastEmail ? { status: lastEmail.status, at: lastEmail.at.toISOString(), error: lastEmail.error } : null,
+      bonus: saved.bonus,
+      snapshot: snap
+        ? {
+            hits: Object.fromEntries(snap.perfGroups.flatMap((g) => g.months.map((m) => [m.id, m.hit]))),
+            metrics: Object.fromEntries(snap.intangibles.map((m) => [m.key, { score: m.score, note: m.note }])),
+            answers: Object.fromEntries(snap.notes.map((n) => [n.key, n.answer])),
+            rating: snap.rating,
+            reviewDate: snap.reviewDate,
+          }
+        : null,
+    };
+  }
+
   const years = [curYear, curYear - 1, curYear - 2].filter((y, i, a) => a.indexOf(y) === i);
   if (!years.includes(2026)) years.push(2026);
 
@@ -97,8 +132,12 @@ export default async function SalesQuarterlyReviewPage({
           metrics={SALES_REVIEW_METRICS}
           sections={SALES_REVIEW_SECTIONS}
           periodLabel={periodLabel}
-          directorDefault={DIRECTOR_PROFILE.name}
+          year={year}
+          quarter={quarter}
+          directorDefault={director.name || DIRECTOR_PROFILE.name}
+          directorEmail={director.email}
           reviewerDefault={user.name ?? ""}
+          persisted={persisted}
         />
       ) : (
         <p className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted">

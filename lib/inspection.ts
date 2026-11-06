@@ -2,8 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { matchEmployeeByName, type EmployeeLite } from "@/lib/people";
 
 // Monthly vehicle inspection — a digital version of the paper form. Section A
-// is a 1-3 condition rating (max 12), Section C is 8 pass/fail compliance
-// checks (max 8), for a 20-point total that grades the assigned technician.
+// rates 4 condition areas Exceeds / Meets / Below (3 pts each max → 12; Meets
+// and Exceeds both earn the full 3, only Below is penalized — see
+// conditionPoints), Section C is 8 pass/fail compliance checks (max 8), for a
+// 20-point total that grades the assigned technician.
 
 export const CONDITION_ITEMS = [
   { key: "outside", label: "Outside appearance" },
@@ -46,19 +48,31 @@ export function inspectionPhotoLabel(kind: string): string {
   return INSPECTION_PHOTO_KINDS.find((p) => p.key === kind)?.label ?? kind;
 }
 
-export const CONDITION_MAX = CONDITION_ITEMS.length * 3; // 12
+// Points per condition item. COO rule (2026-11): meeting the standard is full
+// credit — "Meets" (2) and "Exceeds" (3) both earn the full 3 points; only
+// "Below standards" (1) is penalized (1 point). The stored rating value (1-3)
+// is unchanged; only the points it earns are.
+export const CONDITION_ITEM_MAX = 3;
+export const CONDITION_BELOW_POINTS = 1;
+
+/** Points a single Section A rating earns (0 when unrated / invalid). */
+export function conditionPoints(rating: unknown): number {
+  const r = Number(rating);
+  if (r === 2 || r === 3) return CONDITION_ITEM_MAX;
+  if (r === 1) return CONDITION_BELOW_POINTS;
+  return 0;
+}
+
+export const CONDITION_MAX = CONDITION_ITEMS.length * CONDITION_ITEM_MAX; // 12
 export const CHECK_MAX = CHECK_ITEMS.length; // 8
 export const MAX_SCORE = CONDITION_MAX + CHECK_MAX; // 20
 
-export type Ratings = Record<string, number>; // item key -> 1..3
+export type Ratings = Record<string, number>; // item key -> 1..3 (rating, not points)
 export type Checks = Record<string, boolean>; // item key -> pass
 
 export function scoreInspection(ratings: Ratings, checks: Checks) {
   let score = 0;
-  for (const it of CONDITION_ITEMS) {
-    const r = Number(ratings[it.key]);
-    if (r >= 1 && r <= 3) score += r;
-  }
+  for (const it of CONDITION_ITEMS) score += conditionPoints(ratings[it.key]);
   for (const it of CHECK_ITEMS) if (checks[it.key]) score += 1;
   const scorePct = Math.round((score / MAX_SCORE) * 1000) / 10;
   return { score, maxScore: MAX_SCORE, scorePct, grade: gradeLetter(scorePct) };

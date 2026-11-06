@@ -7,6 +7,8 @@ import {
   RATING_SCALE,
   CHECK_ITEMS,
   INSPECTION_PHOTO_KINDS,
+  CONDITION_ITEM_MAX,
+  conditionPoints,
   parseJson,
 } from "@/lib/inspection";
 
@@ -61,7 +63,11 @@ export default function InspectionReport({
   const ratings = parseJson<Record<string, number>>(i.ratings, {});
   const issues = parseJson<Record<string, string>>(i.ratingIssues, {});
   const checks = parseJson<Record<string, boolean>>(i.checks, {});
-  const ratingLabel = (v: number) => RATING_SCALE.find((r) => r.value === v)?.short ?? "—";
+  // Label + the points that rating earns (Meets and Exceeds both earn full points).
+  const ratingLabel = (v: number) => {
+    const short = RATING_SCALE.find((r) => r.value === v)?.short;
+    return short ? `${short} · ${conditionPoints(v)}/${CONDITION_ITEM_MAX}` : "—";
+  };
   const photoByKind = new Map(i.photos.map((p) => [p.kind, p.photoUrl]));
   const oilMonth = i.oilChangeNext ? i.oilChangeNext.toLocaleString("en-US", { month: "long", year: "numeric" }) : null;
 

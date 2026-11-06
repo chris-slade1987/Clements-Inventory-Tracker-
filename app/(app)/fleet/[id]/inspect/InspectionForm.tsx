@@ -12,6 +12,7 @@ import {
   MAX_SCORE,
   INSPECTION_PHOTO_KINDS,
   scoreInspection,
+  conditionPoints,
   type Ratings,
   type Checks,
 } from "@/lib/inspection";
@@ -195,7 +196,7 @@ export default function InspectionForm({
       </Card>
 
       {/* Section A — condition ratings */}
-      <SectionTitle n="A" title="Condition" hint="Rate each area." />
+      <SectionTitle n="A" title="Condition" hint="Rate each area. Meets or Exceeds earns the full 3 points; only Below standards loses points (1)." />
       <div className="space-y-2">
         {CONDITION_ITEMS.map((it) => (
           <Card key={it.key} className="p-3">
@@ -212,7 +213,7 @@ export default function InspectionForm({
                         sel ? "bg-emerald-grad text-white shadow" : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      {r.short} · {r.value}
+                      {r.short} · {conditionPoints(r.value)}
                     </button>
                   );
                 })}

@@ -723,6 +723,49 @@ model ScorecardSignature {
   @@map("scorecard_signatures")
 }
 
+// Quarterly Sales Director Review — the filled review FORM (one per year+quarter).
+// Mirrors the manager scorecard sign-off: the COO fills the dashboard-style form
+// and RELEASES it (status=released, signToken set, emailed to the Director), the
+// Director e-signs via the tokenized /sales-review-sign/<token> link
+// (status=signed), which files the review to the Director's personnel record and
+// copies HR. The whole form (branch-performance met-target toggles, intangibles,
+// notes, overall rating, reviewer/COO name + date) is stored as JSON `data`; the
+// authoritative branch sales + computed `bonus` are re-derived server-side at
+// release so the stored snapshot can't be tampered with client-side. Super admins
+// only. Additive model (prisma db push).
+model SalesReview {
+  id      String @id @default(cuid())
+  year    Int
+  quarter Int // 1-4
+  status  String @default("draft") // "draft" | "released" | "signed"
+
+  // The released snapshot: JSON { perfGroups, veroGroup, hits, metrics, answers,
+  // rating, intangibleDefs, sectionDefs } — everything the sign page + personnel
+  // record render from, with no recompute.
+  data  String @default("{}")
+  bonus Int    @default(0) // computed total quarterly bonus at release
+
+  reviewerName     String?   @map("reviewer_name") // COO / reviewer typed name
+  reviewerSignedAt DateTime? @map("reviewer_signed_at")
+  releasedAt       DateTime? @map("released_at")
+
+  directorName     String?   @map("director_name") // the subject (Howard Cohn)
+  directorSignName String?   @map("director_sign_name") // the Director's typed signature
+  directorSignedAt DateTime? @map("director_signed_at")
+
+  signToken String? @unique @map("sign_token") // the Director's emailed sign link
+
+  // Filed personnel-record link (set on sign): the Director's Employee + the record.
+  employeeId        String? @map("employee_id")
+  personnelRecordId String? @map("personnel_record_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([year, quarter])
+  @@map("sales_reviews")
+}
+
 // ---------------------------------------------------------------------------
 // Fleet management. Vehicle registry + maintenance/repair/cost history, so
 // operating cost, cost-per-mile, and replacement timing can be tracked. GPS

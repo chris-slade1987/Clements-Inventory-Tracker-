@@ -72,7 +72,6 @@ export const SALES_REVIEW_SECTIONS: ReviewSection[] = [
       { key: "strengths", label: "Strengths this quarter" },
       { key: "improve", label: "Areas to improve" },
       { key: "goals", label: "Goals & initiatives for next quarter" },
-      { key: "director_comments", label: "Director's self-assessment / comments" },
       { key: "coo_notes", label: "COO summary & notes" },
     ],
   },

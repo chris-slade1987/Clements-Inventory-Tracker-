@@ -45,7 +45,12 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 48 · Last updated November 6, 2026",
+    effective: "Version 49 · Last updated November 6, 2026",
+    // v49: (a) Vehicle inspection grading — Meets and Exceeds both earn full Section A
+    // points; only Below is penalized (stored October grades re-scored). (b) Sales
+    // Team: added the Quarterly Sales Director Review — super-admin form scored on
+    // branch sales vs the bonus tiers, Release & email → Director e-signs via link →
+    // filed to his personnel record + HR/super-admin notice. Re-prompts.
     // v48: Vehicle inspection month handling reconciled — the Vehicle Inspections page
     // has a month selector (read any month's reports); the header/list name the month;
     // new inspections file to the month shown (grace-aware, so early-November catch-up
@@ -234,7 +239,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 48,
+    version: 49,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

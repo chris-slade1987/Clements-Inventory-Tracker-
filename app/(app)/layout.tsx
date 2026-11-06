@@ -20,6 +20,7 @@ import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 import { ensureGraceInspectionsRefiled } from "@/lib/inspection-grace";
+import { ensureInspectionsRescored } from "@/lib/inspection-rescore";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -87,6 +88,13 @@ export default async function AppGroupLayout({
   // (skips vehicles that already have an October record), self-expires after the
   // window, non-fatal. See lib/inspection-grace.ts.
   await ensureGraceInspectionsRefiled();
+
+  // Re-score stored vehicle inspections under the Nov-2026 rule (Meets and Exceeds
+  // both earn full Section A points; only Below is penalized) so October's grades
+  // feed the rolling technician averages correctly. Recomputes from the stored
+  // ratings/checks; idempotent (Setting marker), once, non-fatal.
+  // See lib/inspection-rescore.ts.
+  await ensureInspectionsRescored();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still
