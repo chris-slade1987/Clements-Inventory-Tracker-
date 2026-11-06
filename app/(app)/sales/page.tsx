@@ -172,7 +172,12 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
             ? `${branchLabel(branch)} — how your sales team is performing · ${periodLabel(periodKey)}`
             : `Targets, closed & pipeline across all branches — ${periodLabel(periodKey)}`
         }
-        actions={canManage ? <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Company sales &amp; cancellations →</Link> : undefined}
+        actions={canManage ? (
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/sales/quarterly-review" className="text-sm font-medium text-brand-700 hover:underline">Quarterly review →</Link>
+            <Link href="/management/sales" className="text-sm font-medium text-brand-700 hover:underline">Company sales &amp; cancellations →</Link>
+          </span>
+        ) : undefined}
       />
 
       <MyReviewsCard userId={user.id} />
