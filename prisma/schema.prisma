@@ -745,6 +745,12 @@ model SalesReview {
   data  String @default("{}")
   bonus Int    @default(0) // computed total quarterly bonus at release
 
+  // The reviewer's WORKING draft (client form shape: hits, metrics, answers,
+  // rating, names, date) — autosaved as they type so it follows them across
+  // devices/browsers. Previously the draft lived only in browser storage.
+  draft        String?   // JSON
+  draftSavedAt DateTime? @map("draft_saved_at")
+
   reviewerName     String?   @map("reviewer_name") // COO / reviewer typed name
   reviewerSignedAt DateTime? @map("reviewer_signed_at")
   releasedAt       DateTime? @map("released_at")

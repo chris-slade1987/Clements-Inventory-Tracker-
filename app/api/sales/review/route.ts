@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, isSuperAdmin } from "@/lib/auth";
 import { fail } from "@/lib/http";
-import { releaseSalesReview, reopenSalesReview, type ReleaseDraft } from "@/lib/sales-review-store";
+import { releaseSalesReview, reopenSalesReview, saveSalesReviewDraft, type ReleaseDraft } from "@/lib/sales-review-store";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -21,6 +21,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing year/quarter." }, { status: 400 });
 
   try {
+    if (action === "saveDraft") {
+      const draft = body?.draft;
+      if (!draft || typeof draft !== "object") return NextResponse.json({ error: "Missing draft." }, { status: 400 });
+      const r = await saveSalesReviewDraft(year, quarter, draft as ReleaseDraft);
+      if (!r.ok) return NextResponse.json({ error: "This review is released — reopen it to edit.", locked: true }, { status: 409 });
+      return NextResponse.json(r);
+    }
     if (action === "release") {
       const draft = (body?.draft ?? {}) as ReleaseDraft;
       const reviewerName = String(draft.reviewerName ?? "").trim();

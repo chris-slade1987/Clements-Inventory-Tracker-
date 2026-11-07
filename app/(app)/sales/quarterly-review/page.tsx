@@ -7,7 +7,7 @@ import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { appUrl } from "@/lib/app-url";
 import { SALES_REVIEW_METRICS, SALES_REVIEW_SECTIONS, DIRECTOR_PROFILE } from "@/lib/sales-review";
 import { quarterlyBonusBreakdown, nextMonthPeek, monthLabel, MIN_BONUS_TIER } from "@/lib/sales-review-data";
-import { getSalesReview, parseSnapshot, lastSalesReviewSignEmail, resolveDirector } from "@/lib/sales-review-store";
+import { getSalesReview, parseSnapshot, parseDraft, lastSalesReviewSignEmail, resolveDirector } from "@/lib/sales-review-store";
 import SalesReviewForm, { type PerfGroup, type Persisted } from "./SalesReviewForm";
 
 export const dynamic = "force-dynamic";
@@ -75,6 +75,8 @@ export default async function SalesQuarterlyReviewPage({
       signUrl: saved.signToken && base ? `${base}/sales-review-sign/${saved.signToken}` : null,
       lastEmail: lastEmail ? { status: lastEmail.status, at: lastEmail.at.toISOString(), error: lastEmail.error } : null,
       bonus: saved.bonus,
+      draft: parseDraft(saved.draft),
+      draftSavedAt: saved.draftSavedAt ? saved.draftSavedAt.getTime() : 0,
       snapshot: snap
         ? {
             hits: Object.fromEntries(snap.perfGroups.flatMap((g) => g.months.map((m) => [m.id, m.hit]))),

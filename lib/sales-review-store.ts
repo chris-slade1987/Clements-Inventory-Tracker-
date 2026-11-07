@@ -49,10 +49,45 @@ export async function getSalesReview(year: number, quarter: number) {
 export function parseSnapshot(data: string | null | undefined): ReleaseSnapshot | null {
   if (!data) return null;
   try {
-    return JSON.parse(data) as ReleaseSnapshot;
+    const s = JSON.parse(data) as ReleaseSnapshot;
+    // A draft-only row has data "{}" — not a released snapshot.
+    return s && Array.isArray(s.perfGroups) ? s : null;
   } catch {
     return null;
   }
+}
+
+export function parseDraft(draft: string | null | undefined): ReleaseDraft | null {
+  if (!draft) return null;
+  try {
+    const d = JSON.parse(draft) as ReleaseDraft;
+    return d && typeof d === "object" ? d : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Autosave the reviewer's working draft so it follows them across devices.
+ * Only while the review is a draft — a released/signed review is locked and its
+ * stored draft is left alone.
+ */
+export async function saveSalesReviewDraft(year: number, quarter: number, draft: ReleaseDraft) {
+  const existing = await getSalesReview(year, quarter);
+  if (existing && existing.status !== "draft") return { ok: false as const, locked: true };
+  const savedAt = new Date();
+  const json = JSON.stringify(draft);
+  if (existing) {
+    await prisma.salesReview.update({ where: { id: existing.id }, data: { draft: json, draftSavedAt: savedAt } });
+  } else {
+    await prisma.salesReview
+      .create({ data: { year, quarter, status: "draft", draft: json, draftSavedAt: savedAt, directorName: draft.directorName ?? null, reviewerName: draft.reviewerName ?? null } })
+      .catch(async () => {
+        // Raced another save creating the row — update instead.
+        await prisma.salesReview.update({ where: { year_quarter: { year, quarter } }, data: { draft: json, draftSavedAt: savedAt } });
+      });
+  }
+  return { ok: true as const, savedAt: savedAt.toISOString() };
 }
 
 /** Resolve the Sales Director's employee record + email (Howard Cohn). */
@@ -132,6 +167,9 @@ export async function releaseSalesReview(opts: {
     directorSignName: null,
     directorSignedAt: null,
     personnelRecordId: null,
+    // Keep the working draft in step with what was released.
+    draft: JSON.stringify(opts.draft),
+    draftSavedAt: new Date(),
   };
   const review = await prisma.salesReview.upsert({
     where: { year_quarter: { year, quarter } },

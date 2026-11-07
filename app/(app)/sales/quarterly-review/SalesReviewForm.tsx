@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui";
 import { money } from "@/lib/format";
@@ -42,6 +42,9 @@ export type Persisted = {
   signUrl: string | null;
   lastEmail: { status: string; at: string; error: string | null } | null;
   bonus: number;
+  /** The reviewer's autosaved working draft (server copy) + when it was saved (ms). */
+  draft: DraftIn;
+  draftSavedAt: number;
   snapshot: {
     hits: Record<string, boolean>;
     metrics: Record<string, { score: string; note: string }>;
@@ -51,12 +54,80 @@ export type Persisted = {
   } | null;
 } | null;
 
+// A draft as stored (server or browser) — any field may be missing.
+type DraftIn = {
+  hits?: Record<string, boolean>;
+  metrics?: Record<string, { score?: string; note?: string }>;
+  answers?: Record<string, string>;
+  rating?: string;
+  directorName?: string;
+  reviewerName?: string;
+  reviewDate?: string;
+} | null;
+
+// Field-level merge that never lets a BLANK wipe out text: a non-empty value
+// always beats an empty one; when both sides have different text, the more
+// recently saved side wins (an old browser draft with no timestamp counts as
+// oldest). Keys that no longer exist on the form are kept, so text typed into a
+// since-removed field is never silently dropped.
+function pick(a: string | undefined, aAt: number, b: string | undefined, bAt: number): string {
+  const A = (a ?? "").trim();
+  const B = (b ?? "").trim();
+  if (!A) return b ?? "";
+  if (!B) return a ?? "";
+  if (A === B) return a ?? "";
+  return bAt > aAt ? (b ?? "") : (a ?? "");
+}
+function mergeDraft(base: Draft, baseAt: number, other: DraftIn, otherAt: number): Draft {
+  if (!other) return base;
+  const metrics: Draft["metrics"] = { ...base.metrics };
+  for (const [k, v] of Object.entries(other.metrics ?? {})) {
+    const cur = metrics[k] ?? { score: "", note: "" };
+    metrics[k] = { score: pick(cur.score, baseAt, v?.score, otherAt), note: pick(cur.note, baseAt, v?.note, otherAt) };
+  }
+  const answers: Draft["answers"] = { ...base.answers };
+  for (const [k, v] of Object.entries(other.answers ?? {})) answers[k] = pick(answers[k], baseAt, v, otherAt);
+  const hits = otherAt > baseAt ? { ...base.hits, ...(other.hits ?? {}) } : { ...(other.hits ?? {}), ...base.hits };
+  return {
+    hits,
+    metrics,
+    answers,
+    rating: pick(base.rating, baseAt, other.rating, otherAt),
+    directorName: pick(base.directorName, baseAt, other.directorName, otherAt),
+    reviewerName: pick(base.reviewerName, baseAt, other.reviewerName, otherAt),
+    reviewDate: pick(base.reviewDate, baseAt, other.reviewDate, otherAt),
+  };
+}
+const hasText = (d: DraftIn) =>
+  !!d && (Object.values(d.answers ?? {}).some((v) => (v ?? "").trim()) || Object.values(d.metrics ?? {}).some((m) => (m?.note ?? "").trim() || (m?.score ?? "").trim()) || !!d.rating);
+
+// Labels for fields that were on earlier versions of this form.
+const LEGACY_LABELS: Record<string, string> = {
+  director_comments: "Director's self-assessment / comments",
+  retention: "Customer retention / attrition",
+  coaching: "Coaching cadence",
+  marketing: "Marketing & lead quality",
+  process: "Process adherence",
+  attainment: "Team sales attainment",
+  close_rate: "Team closing rate",
+  pipeline: "Pipeline coverage",
+  goal_discipline: "Goal-setting discipline",
+  conversion: "Lead → proposal conversion",
+  production: "Termite units / new agreements",
+  development: "Advisor development",
+  branch_tiers: "Branch sales vs bonus tiers",
+  bonus: "Quarterly team-sales bonus earned",
+  step_up: "Producing-rep milestone",
+  growth: "Profitable revenue growth",
+};
+
 const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
 
 // Quarterly Sales Director Review form — dashboard-style, in the COO's order:
 // (1) PERFORMANCE grouped by branch with the months nested underneath (target vs
 // actual, a Yes/No "met target" toggle, auto-calculated bonus), (2) INTANGIBLES,
-// (3) NOTES, (4) SIGN-OFF + RELEASE. While a draft, edits autosave in the browser;
+// (3) NOTES, (4) SIGN-OFF + RELEASE. While a draft, edits autosave to the account
+// (SalesReview.draft) and this browser;
 // Release persists the review and emails the Director a sign link, which locks the
 // form until it's reopened. The Director's signature files it to their personnel
 // record and copies HR (see lib/sales-review-store.ts).
@@ -95,16 +166,26 @@ export default function SalesReviewForm({
   const status = persisted?.status ?? "draft";
   const locked = status === "released" || status === "signed";
   const snap = persisted?.snapshot ?? null;
-  const [d, setD] = useState<Draft>({
-    hits: { ...Object.fromEntries(allMonths.map((m) => [m.id, m.defaultHit])), ...(snap?.hits ?? {}) },
-    metrics: { ...Object.fromEntries(metrics.map((m) => [m.key, { score: "", note: "" }])), ...(snap?.metrics ?? {}) },
-    answers: { ...(snap?.answers ?? {}) },
-    rating: snap?.rating ?? "",
-    directorName: persisted?.directorName || directorDefault,
-    reviewerName: persisted?.reviewerName || reviewerDefault,
-    reviewDate: snap?.reviewDate ?? "",
+  const serverDraft = persisted?.draft ?? null;
+  const serverAt = persisted?.draftSavedAt ?? 0;
+  const [d, setD] = useState<Draft>(() => {
+    const base: Draft = {
+      hits: { ...Object.fromEntries(allMonths.map((m) => [m.id, m.defaultHit])), ...(snap?.hits ?? {}) },
+      metrics: { ...Object.fromEntries(metrics.map((m) => [m.key, { score: "", note: "" }])), ...(snap?.metrics ?? {}) },
+      answers: { ...(snap?.answers ?? {}) },
+      rating: snap?.rating ?? "",
+      directorName: persisted?.directorName || directorDefault,
+      reviewerName: persisted?.reviewerName || reviewerDefault,
+      reviewDate: snap?.reviewDate ?? "",
+    };
+    // A released/signed review shows exactly what was released; a draft starts
+    // from the account's autosaved copy (so it follows the reviewer across devices).
+    return locked ? base : mergeDraft(base, 0, serverDraft, serverAt || 1);
   });
   const [restored, setRestored] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(serverDraft ? "saved" : "idle");
+  const [recovered, setRecovered] = useState(false);
+  const skipNextSave = useRef(true);
   const [busy, setBusy] = useState<null | "release" | "reopen">(null);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const [lastSignUrl, setLastSignUrl] = useState<string | null>(persisted?.signUrl ?? null);
@@ -142,35 +223,85 @@ export default function SalesReviewForm({
     router.refresh();
   }
 
+  async function saveToServer(draft: Draft) {
+    setSaveState("saving");
+    try {
+      const res = await fetch("/api/sales/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "saveDraft", year, quarter, draft }),
+      });
+      setSaveState(res.ok ? "saved" : "error");
+    } catch {
+      setSaveState("error");
+    }
+  }
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    // A released/signed review shows exactly what was released — never the browser draft.
+    // A released/signed review shows exactly what was released — never a draft.
     if (locked) {
       setRestored(true);
       return;
     }
+    // Recovery: fold in any draft saved in THIS browser (the only place drafts lived
+    // before account autosave). Blank fields never overwrite text. If the browser
+    // copy adds anything, push it to the account right away so it shows everywhere.
+    let local: DraftIn = null;
+    let localAt = 0;
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) {
-        const saved = JSON.parse(raw) as Partial<Draft>;
-        setD((cur) => ({
-          ...cur,
-          ...saved,
-          hits: { ...cur.hits, ...(saved.hits ?? {}) },
-          metrics: { ...cur.metrics, ...(saved.metrics ?? {}) },
-          answers: { ...cur.answers, ...(saved.answers ?? {}) },
-          reviewerName: saved.reviewerName || cur.reviewerName,
-        }));
+        const parsed = JSON.parse(raw) as DraftIn & { savedAt?: number };
+        local = parsed;
+        localAt = typeof parsed?.savedAt === "number" ? parsed.savedAt : 0;
       }
-    } catch { /* no draft */ }
+    } catch { /* no browser draft */ }
+    if (local && hasText(local)) {
+      const merged = mergeDraft(d, serverAt, local, localAt);
+      if (JSON.stringify(merged) !== JSON.stringify(d)) {
+        setD(merged);
+        setRecovered(true);
+        void saveToServer(merged);
+      }
+    }
     setRestored(true);
-  }, [storageKey, locked]);
+  }, [storageKey, locked]); // eslint-disable-line react-hooks/exhaustive-deps
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // Autosave: this browser immediately (timestamped), the account ~1s after typing stops.
   useEffect(() => {
     if (!restored || locked) return;
-    try { localStorage.setItem(storageKey, JSON.stringify(d)); } catch { /* ignore */ }
-  }, [d, restored, storageKey, locked]);
+    try { localStorage.setItem(storageKey, JSON.stringify({ ...d, savedAt: Date.now() })); } catch { /* ignore */ }
+    if (skipNextSave.current) {
+      skipNextSave.current = false; // the initial render isn't an edit
+      return;
+    }
+    const t = setTimeout(() => void saveToServer(d), 1000);
+    return () => clearTimeout(t);
+  }, [d, restored, storageKey, locked]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Text typed into fields that have since been removed from the form.
+  const metricKeys = new Set(metrics.map((m) => m.key));
+  const questionKeys = new Set(sections.flatMap((s) => s.questions.map((q) => q.key)));
+  const legacy = [
+    ...Object.entries(d.answers)
+      .filter(([k, v]) => !questionKeys.has(k) && (v ?? "").trim())
+      .map(([k, v]) => ({ kind: "answer" as const, key: k, label: LEGACY_LABELS[k] ?? k, text: v.trim() })),
+    ...Object.entries(d.metrics)
+      .filter(([k, v]) => !metricKeys.has(k) && ((v?.note ?? "").trim() || (v?.score ?? "").trim()))
+      .map(([k, v]) => ({ kind: "metric" as const, key: k, label: LEGACY_LABELS[k] ?? k, text: [v.score, v.note].filter((x) => (x ?? "").trim()).join(" — ") })),
+  ];
+  function moveLegacyToSummary(item: (typeof legacy)[number]) {
+    setD((s) => {
+      const existing = (s.answers.coo_notes ?? "").trim();
+      const answers: Record<string, string> = { ...s.answers, coo_notes: `${existing ? `${existing}\n\n` : ""}${item.label}: ${item.text}` };
+      const metricsNext = { ...s.metrics };
+      if (item.kind === "answer") delete answers[item.key];
+      else delete metricsNext[item.key];
+      return { ...s, answers, metrics: metricsNext };
+    });
+  }
 
   const monthBonus = (m: PerfMonth) => (d.hits[m.id] ? Math.round((m.actual * m.tierPct) / 100) : 0);
   const groupBonus = (g: PerfGroup) => g.months.reduce((s, m) => s + monthBonus(m), 0);
@@ -194,6 +325,44 @@ export default function SalesReviewForm({
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 print:hidden">
           <span className="font-semibold">Signed by {persisted?.directorSignName} on {fmtDate(persisted?.directorSignedAt ?? null)}</span> — filed to {d.directorName}&rsquo;s personnel record; HR has a copy.
         </div>
+      ) : null}
+
+      {!locked ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs print:hidden">
+          <span className={saveState === "error" ? "text-red-600" : "text-muted"}>
+            {saveState === "saving"
+              ? "Saving…"
+              : saveState === "saved"
+                ? "All changes saved to your account — open this review on any device."
+                : saveState === "error"
+                  ? "Couldn't save to your account — your changes are kept on this device; they'll save on your next edit."
+                  : "Changes save to your account as you type."}
+          </span>
+        </div>
+      ) : null}
+
+      {recovered ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 print:hidden">
+          <span className="font-semibold">Recovered your earlier notes</span> from this browser and saved them to your account, so they&rsquo;ll now appear on any device.
+        </div>
+      ) : null}
+
+      {!locked && legacy.length > 0 ? (
+        <Card className="p-4 border-amber-200 print:hidden">
+          <h2 className="text-sm font-semibold text-ink">Notes from fields no longer on this form</h2>
+          <p className="mt-0.5 text-xs text-muted">You wrote these in fields that were later removed or renamed. They aren&rsquo;t part of the review until you add them — tap to append one to the COO summary.</p>
+          <div className="mt-3 space-y-3">
+            {legacy.map((item) => (
+              <div key={`${item.kind}:${item.key}`} className="rounded-xl border border-line p-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-muted">{item.label}</div>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{item.text}</p>
+                <button type="button" onClick={() => moveLegacyToSummary(item)} className="mt-2 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-black/[0.03]">
+                  Add to COO summary
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
       ) : null}
 
       <fieldset disabled={locked} className="space-y-5 min-w-0">
@@ -397,7 +566,7 @@ export default function SalesReviewForm({
             <p className="mt-0.5 text-xs text-muted">
               Releasing saves this review, signs it as reviewer, and emails <span className="font-medium text-ink">{d.directorName}</span>
               {directorEmail ? <> ({directorEmail})</> : <span className="text-red-600"> — no email on file; you&rsquo;ll get a link to send him</span>} a secure link to review and e-sign.
-              Once he signs, it&rsquo;s filed to his personnel record and HR gets a copy. Your edits autosave in this browser until you release.
+              Once he signs, it&rsquo;s filed to his personnel record and HR gets a copy. Your edits save to your account as you type.
             </p>
             <button type="button" onClick={() => act("release")} disabled={busy !== null}
               className="mt-3 w-full sm:w-auto rounded-xl bg-emerald-grad px-5 py-3 text-sm font-medium text-white shadow-sm disabled:opacity-50">
