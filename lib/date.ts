@@ -70,6 +70,14 @@ const GRACE_START_YMD = 2026_11_01;
 /** Monday 11/9 — first ET date we show the live (November) to-dos (exclusive). */
 const GRACE_END_YMD = 2026_11_09;
 
+/**
+ * The instant the October grace window closes: 00:00 ET on Monday 11/9/2026
+ * (EST, UTC-5). Anything COMPLETED before this belongs to October, no matter when
+ * a healer gets around to checking it — so re-filing stays correct even if it first
+ * runs after the window has closed.
+ */
+export const OCTOBER_GRACE_CUTOFF = new Date("2026-11-09T05:00:00Z");
+
 export type TodoPeriod = { year: number; month: number; isOctoberGrace: boolean };
 
 /**

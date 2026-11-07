@@ -19,7 +19,7 @@ import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
-import { ensureGraceInspectionsRefiled } from "@/lib/inspection-grace";
+import { ensureGraceInspectionsRefiled, ensureInspectionTechnicianNames } from "@/lib/inspection-grace";
 import { ensureInspectionsRescored } from "@/lib/inspection-rescore";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
@@ -88,6 +88,9 @@ export default async function AppGroupLayout({
   // (skips vehicles that already have an October record), self-expires after the
   // window, non-fatal. See lib/inspection-grace.ts.
   await ensureGraceInspectionsRefiled();
+  // File every inspection under the technician's full company-profile name (one
+  // person, one row in the grades). Idempotent, non-fatal. See lib/inspection-grace.ts.
+  await ensureInspectionTechnicianNames();
 
   // Re-score stored vehicle inspections under the Nov-2026 rule (Meets and Exceeds
   // both earn full Section A points; only Below is penalized) so October's grades

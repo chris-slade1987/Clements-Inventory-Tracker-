@@ -113,25 +113,30 @@ export async function vehicleInspections(vehicleId: string) {
 export async function technicianGrades(branch?: string): Promise<
   { technicianName: string; count: number; avgPct: number; grade: string; lastDate: Date }[]
 > {
+  // Group by PERSON, not by spelling: a linked profile (employeeId) is the key and
+  // its full profile name is what's shown, so "Renzo" (fleet sheet) and "Renzo
+  // Rodriguez" (profile) are one technician. Unlinked rows fall back to the name.
   const rows = await prisma.vehicleInspection.findMany({
-    where: { technicianName: { not: null }, ...(branch ? { branch } : {}) },
-    select: { technicianName: true, scorePct: true, date: true },
+    where: { OR: [{ technicianName: { not: null } }, { employeeId: { not: null } }], ...(branch ? { branch } : {}) },
+    select: { technicianName: true, employeeId: true, scorePct: true, date: true, employee: { select: { name: true } } },
   });
-  const by = new Map<string, { sum: number; count: number; last: Date }>();
+  const by = new Map<string, { name: string; sum: number; count: number; last: Date }>();
   for (const r of rows) {
-    const name = r.technicianName!;
-    const cur = by.get(name) ?? { sum: 0, count: 0, last: r.date };
+    const name = r.employee?.name ?? r.technicianName?.replace(/\*/g, "").trim() ?? "";
+    if (!name) continue;
+    const key = r.employeeId ?? `name:${name.toLowerCase()}`;
+    const cur = by.get(key) ?? { name, sum: 0, count: 0, last: r.date };
     cur.sum += r.scorePct;
     cur.count += 1;
     if (r.date > cur.last) cur.last = r.date;
-    by.set(name, cur);
+    by.set(key, cur);
   }
-  return [...by.entries()]
-    .map(([technicianName, v]) => {
+  return [...by.values()]
+    .map((v) => {
       const avgPct = Math.round((v.sum / v.count) * 10) / 10;
-      return { technicianName, count: v.count, avgPct, grade: gradeLetter(avgPct), lastDate: v.last };
+      return { technicianName: v.name, count: v.count, avgPct, grade: gradeLetter(avgPct), lastDate: v.last };
     })
-    .sort((a, b) => b.avgPct - a.avgPct);
+    .sort((a, b) => b.avgPct - a.avgPct || a.technicianName.localeCompare(b.technicianName));
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -192,6 +197,8 @@ type InspectableVehicle = {
   name: string;
   branch: string | null;
   assignedTo: string | null;
+  /** The resolved driver's full profile name (null when the driver isn't linked). */
+  driverName: string | null;
   currentMileage: number | null;
 };
 
@@ -231,7 +238,7 @@ export async function listInspectableVehicles(branch?: string): Promise<Inspecta
     // resolves to leadership. A technician/advisor with messy or unresolved data
     // is NOT dropped (the earlier include-only rule wrongly excluded real techs).
     if (emp && driverIsLeadership({ role: emp.role, accessLevel: emp.user?.accessLevel ?? null })) continue;
-    out.push({ id: v.id, unitNumber: v.unitNumber, name: v.name, branch: v.branch, assignedTo: v.assignedTo, currentMileage: v.currentMileage });
+    out.push({ id: v.id, unitNumber: v.unitNumber, name: v.name, branch: v.branch, assignedTo: v.assignedTo, driverName: emp?.name ?? null, currentMileage: v.currentMileage });
   }
   return out;
 }
@@ -331,7 +338,8 @@ export async function inspectionStatus(year: number, month: number, branch?: str
     unitNumber: v.unitNumber,
     name: v.name,
     branch: v.branch,
-    assignedTo: v.assignedTo,
+    // Show the driver's full profile name when linked (not the fleet sheet's "Josh F*").
+    assignedTo: v.driverName ?? v.assignedTo,
     inspection: doneMap.get(v.id) ?? null,
   }));
   const completed = rows.filter((r) => r.inspection).length;

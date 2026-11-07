@@ -6,6 +6,7 @@ import RescoreNotices, { type NoticeRow } from "./RescoreNotices";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps, inspectionMonths } from "@/lib/inspection";
 import { managerTodoPeriod } from "@/lib/date";
+import { ensureGraceInspectionsRefiled, ensureInspectionTechnicianNames } from "@/lib/inspection-grace";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,10 @@ export default async function InspectionsPage({
   const selYear = Number(sp.year) || todo.year;
   const selMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(Number(sp.month)) ? Number(sp.month) : todo.month;
   const viewingGrace = todo.isOctoberGrace && selYear === todo.year && selMonth === todo.month;
+
+  // The layout and this page render in parallel — wait for the (shared, once-per-
+  // instance) inspection clean-up so the very first load is never stale.
+  await Promise.all([ensureGraceInspectionsRefiled(), ensureInspectionTechnicianNames()]);
 
   const [insp, grades, coverageGaps, monthsWithData] = await Promise.all([
     inspectionStatus(selYear, selMonth, branch ?? undefined),

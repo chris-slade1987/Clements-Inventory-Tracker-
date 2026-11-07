@@ -106,11 +106,17 @@ export async function POST(req: Request) {
     }
 
     // Resolve the graded employee: explicit pick wins; else match by name.
-    const technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
+    let technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
     let employeeId = str(body?.employeeId);
     if (!employeeId && technicianName) {
       const emps = await listEmployees(vehicle.branch ?? undefined);
-      employeeId = matchEmployeeByName(technicianName, emps.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch })));
+      employeeId = matchEmployeeByName(technicianName, emps.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch, nickname: e.nickname })));
+    }
+    // Always file under the technician's FULL company-profile name when linked, so
+    // one person never splits into "Renzo" + "Renzo Rodriguez" in the grades.
+    if (employeeId) {
+      const linked = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
+      if (linked?.name) technicianName = linked.name;
     }
 
     const data = {

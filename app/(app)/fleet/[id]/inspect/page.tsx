@@ -57,12 +57,16 @@ export default async function InspectPage({
   // Personnel for this branch, and the best match for the assigned driver.
   const employees = await listEmployees(vehicle.branch ?? undefined);
   const empLite = employees.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch }));
-  const matchedEmployeeId = existing?.employeeId ?? matchEmployeeByName(vehicle.assignedTo, empLite);
+  const matchedEmployeeId =
+    existing?.employeeId ?? matchEmployeeByName(existing?.technicianName ?? vehicle.assignedTo, empLite) ?? matchEmployeeByName(vehicle.assignedTo, empLite);
+  // Default the technician to their FULL company-profile name (not the fleet sheet's
+  // short "Renzo" / "Josh F*"), so every inspection files under one consistent name.
+  const matchedEmployeeName = matchedEmployeeId ? employees.find((e) => e.id === matchedEmployeeId)?.name ?? null : null;
 
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
     employeeId: matchedEmployeeId ?? "",
-    technicianName: existing?.technicianName ?? vehicle.assignedTo ?? "",
+    technicianName: matchedEmployeeName ?? existing?.technicianName ?? vehicle.assignedTo ?? "",
     inspectorName: existing?.inspectorName ?? user.name ?? user.email,
     mileage: existing?.mileage != null ? String(existing.mileage) : vehicle.currentMileage != null ? String(vehicle.currentMileage) : "",
     oilChangeNextMileage:
