@@ -159,7 +159,7 @@ export default async function ScorecardsOverviewPage({
       </Card>
       <p className="mt-3 text-xs text-muted">
         Bonus shows once a review is released (Sales Director) or signed (branch managers); the total counts signed reviews only. New-hire 30/60-day reviews stay under{" "}
-        <Link href="/people/reviews" className="text-brand-700 hover:underline">People → Reviews</Link>.
+        <Link href="/management/people/reviews" className="text-brand-700 hover:underline">People → Reviews</Link>.
       </p>
     </>
   );
