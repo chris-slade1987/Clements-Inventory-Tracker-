@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
-import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
+import { requireUser, scopedBranch, branchLocked, isSuperAdmin } from "@/lib/auth";
+import { planRescoreNotices, techEmail, managerEmail } from "@/lib/inspection-rescore-notify";
+import RescoreNotices, { type NoticeRow } from "./RescoreNotices";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { inspectionStatus, technicianGrades, gradeLetter, vehicleCoverageGaps, inspectionMonths } from "@/lib/inspection";
 import { managerTodoPeriod } from "@/lib/date";
@@ -41,6 +43,25 @@ export default async function InspectionsPage({
     vehicleCoverageGaps(branch ?? undefined),
     inspectionMonths(branch ?? undefined),
   ]);
+
+  // Super admins: the one-time "scoring revised" notices (hidden once nothing changed).
+  const notice = isSuperAdmin(user) ? await planRescoreNotices().catch(() => null) : null;
+  const gradeStr = (s: { score: number; grade: string }) => `${s.score}/20 ${s.grade}`;
+  const noticeTechs: NoticeRow[] = (notice?.techs ?? []).map((t) => ({
+    who: t.name,
+    email: t.email,
+    alreadySent: t.alreadySent,
+    detail: t.items.map((it) => `${it.vehicleLabel}: ${gradeStr(it.before)} → ${gradeStr(it.after)}`).join(" · "),
+  }));
+  const noticeManagers: NoticeRow[] = (notice?.managers ?? []).map((m) => ({
+    who: `${m.name ?? "No manager on file"} · ${branchLabel(m.branch)}`,
+    email: m.email,
+    alreadySent: m.alreadySent,
+    detail: m.items.length ? `${m.items.length} re-scored inspection${m.items.length === 1 ? "" : "s"}` : "Methodology notice only",
+  }));
+  const sampleTech = notice?.techs[0] ? techEmail(notice.techs[0]) : null;
+  const sampleMgr = notice?.managers.find((m) => m.items.length) ?? notice?.managers[0];
+  const sampleManager = sampleMgr ? managerEmail(sampleMgr) : null;
 
   // Month-picker options: every month that has data, plus the current to-do month
   // and whatever month is selected — de-duped, newest first.
@@ -105,6 +126,15 @@ export default async function InspectionsPage({
           ))}
         </div>
       )}
+
+      {notice && notice.techs.length > 0 ? (
+        <RescoreNotices
+          techs={noticeTechs}
+          managers={noticeManagers}
+          sampleTech={sampleTech ? { subject: sampleTech.subject, text: sampleTech.text } : null}
+          sampleManager={sampleManager ? { subject: sampleManager.subject, text: sampleManager.text } : null}
+        />
+      ) : null}
 
       {viewingGrace ? (
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
