@@ -303,6 +303,21 @@ export const BRANCH_COMMAND_GO_LIVE = new Date("2026-10-26T00:00:00-04:00");
  * Creates a ChecklistMiss for any (template, branch, week) with no completion and
  * no existing miss. Returns the number created. Safe to call on every page load.
  */
+/**
+ * Weeks when the weekly Branch Command to-do is PAUSED (pulled from managers'
+ * dashboards by the COO on 2026-11-02). A paused week can never become a missed-
+ * duty strike, because managers can't see the duty. `until` is the Monday (UTC)
+ * the to-do is restored — set it when re-adding the weekly item to My Branch;
+ * while null, every week from `from` onward is paused.
+ */
+export const BRANCH_COMMAND_PAUSE: { from: number; until: number | null } = {
+  from: Date.UTC(2026, 10, 2), // Mon 11/2/2026
+  until: null,
+};
+function weekIsPaused(mondayMs: number): boolean {
+  return mondayMs >= BRANCH_COMMAND_PAUSE.from && (BRANCH_COMMAND_PAUSE.until == null || mondayMs < BRANCH_COMMAND_PAUSE.until);
+}
+
 export async function sweepMissedChecklists(now: Date = new Date()): Promise<number> {
   const templates = await prisma.checklistTemplate.findMany({ where: { active: true, cadence: "weekly" } });
   const currentMonday = mondayOf(now).getTime();
@@ -318,6 +333,7 @@ export async function sweepMissedChecklists(now: Date = new Date()): Promise<num
     for (let m = earliest; m < currentMonday; m += week) {
       const weekEnd = m + week; // following Monday 00:00 UTC
       if (now.getTime() < weekEnd) continue; // not fully elapsed yet
+      if (weekIsPaused(m)) continue; // weekly to-do hidden from managers → never a miss
       const midWeek = new Date(m + 3 * 864e5); // Thursday — safe for ISO-week math
       weeks.push({ periodKey: weekPeriodKey(midWeek), periodLabel: weekPeriodLabel(midWeek) });
     }
