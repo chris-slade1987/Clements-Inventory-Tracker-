@@ -183,8 +183,6 @@ export default function SalesReviewForm({
     return locked ? base : mergeDraft(base, 0, serverDraft, serverAt || 1);
   });
   const [restored, setRestored] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(serverDraft ? "saved" : "idle");
-  const [recovered, setRecovered] = useState(false);
   const skipNextSave = useRef(true);
   const [busy, setBusy] = useState<null | "release" | "reopen">(null);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
@@ -224,17 +222,40 @@ export default function SalesReviewForm({
   }
 
   async function saveToServer(draft: Draft) {
-    setSaveState("saving");
     try {
-      const res = await fetch("/api/sales/review", {
+      await fetch("/api/sales/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "saveDraft", year, quarter, draft }),
       });
-      setSaveState(res.ok ? "saved" : "error");
-    } catch {
-      setSaveState("error");
+    } catch { /* still kept in this browser; retried on the next edit */ }
+  }
+
+  // Text typed into fields that were later removed from the form (e.g. the
+  // Director's self-assessment) is moved into the existing COO summary, labeled,
+  // so it reappears on the form instead of staying hidden in the saved draft.
+  function foldRemovedFields(src: Draft): Draft {
+    const metricKeys = new Set(metrics.map((m) => m.key));
+    const questionKeys = new Set(sections.flatMap((sec) => sec.questions.map((q) => q.key)));
+    const answers: Record<string, string> = { ...src.answers };
+    const metricsNext = { ...src.metrics };
+    const moved: string[] = [];
+    for (const [k, v] of Object.entries(src.answers)) {
+      if (questionKeys.has(k)) continue;
+      if ((v ?? "").trim()) moved.push(`${LEGACY_LABELS[k] ?? k}: ${v.trim()}`);
+      delete answers[k];
     }
+    for (const [k, v] of Object.entries(src.metrics)) {
+      if (metricKeys.has(k)) continue;
+      const text = [v?.score, v?.note].filter((x) => (x ?? "").trim()).join(" — ");
+      if (text) moved.push(`${LEGACY_LABELS[k] ?? k}: ${text}`);
+      delete metricsNext[k];
+    }
+    if (!moved.length && Object.keys(answers).length === Object.keys(src.answers).length && Object.keys(metricsNext).length === Object.keys(src.metrics).length) return src;
+    const existing = (answers.coo_notes ?? "").trim();
+    const add = moved.filter((m) => !existing.includes(m));
+    if (add.length) answers.coo_notes = [existing, ...add].filter(Boolean).join("\n\n");
+    return { ...src, answers, metrics: metricsNext };
   }
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -257,13 +278,11 @@ export default function SalesReviewForm({
         localAt = typeof parsed?.savedAt === "number" ? parsed.savedAt : 0;
       }
     } catch { /* no browser draft */ }
-    if (local && hasText(local)) {
-      const merged = mergeDraft(d, serverAt, local, localAt);
-      if (JSON.stringify(merged) !== JSON.stringify(d)) {
-        setD(merged);
-        setRecovered(true);
-        void saveToServer(merged);
-      }
+    let next = local && hasText(local) ? mergeDraft(d, serverAt, local, localAt) : d;
+    next = foldRemovedFields(next);
+    if (JSON.stringify(next) !== JSON.stringify(d)) {
+      setD(next);
+      void saveToServer(next); // recovered notes go to the account right away
     }
     setRestored(true);
   }, [storageKey, locked]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -280,28 +299,6 @@ export default function SalesReviewForm({
     const t = setTimeout(() => void saveToServer(d), 1000);
     return () => clearTimeout(t);
   }, [d, restored, storageKey, locked]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Text typed into fields that have since been removed from the form.
-  const metricKeys = new Set(metrics.map((m) => m.key));
-  const questionKeys = new Set(sections.flatMap((s) => s.questions.map((q) => q.key)));
-  const legacy = [
-    ...Object.entries(d.answers)
-      .filter(([k, v]) => !questionKeys.has(k) && (v ?? "").trim())
-      .map(([k, v]) => ({ kind: "answer" as const, key: k, label: LEGACY_LABELS[k] ?? k, text: v.trim() })),
-    ...Object.entries(d.metrics)
-      .filter(([k, v]) => !metricKeys.has(k) && ((v?.note ?? "").trim() || (v?.score ?? "").trim()))
-      .map(([k, v]) => ({ kind: "metric" as const, key: k, label: LEGACY_LABELS[k] ?? k, text: [v.score, v.note].filter((x) => (x ?? "").trim()).join(" — ") })),
-  ];
-  function moveLegacyToSummary(item: (typeof legacy)[number]) {
-    setD((s) => {
-      const existing = (s.answers.coo_notes ?? "").trim();
-      const answers: Record<string, string> = { ...s.answers, coo_notes: `${existing ? `${existing}\n\n` : ""}${item.label}: ${item.text}` };
-      const metricsNext = { ...s.metrics };
-      if (item.kind === "answer") delete answers[item.key];
-      else delete metricsNext[item.key];
-      return { ...s, answers, metrics: metricsNext };
-    });
-  }
 
   const monthBonus = (m: PerfMonth) => (d.hits[m.id] ? Math.round((m.actual * m.tierPct) / 100) : 0);
   const groupBonus = (g: PerfGroup) => g.months.reduce((s, m) => s + monthBonus(m), 0);
@@ -325,44 +322,6 @@ export default function SalesReviewForm({
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 print:hidden">
           <span className="font-semibold">Signed by {persisted?.directorSignName} on {fmtDate(persisted?.directorSignedAt ?? null)}</span> — filed to {d.directorName}&rsquo;s personnel record; HR has a copy.
         </div>
-      ) : null}
-
-      {!locked ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs print:hidden">
-          <span className={saveState === "error" ? "text-red-600" : "text-muted"}>
-            {saveState === "saving"
-              ? "Saving…"
-              : saveState === "saved"
-                ? "All changes saved to your account — open this review on any device."
-                : saveState === "error"
-                  ? "Couldn't save to your account — your changes are kept on this device; they'll save on your next edit."
-                  : "Changes save to your account as you type."}
-          </span>
-        </div>
-      ) : null}
-
-      {recovered ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 print:hidden">
-          <span className="font-semibold">Recovered your earlier notes</span> from this browser and saved them to your account, so they&rsquo;ll now appear on any device.
-        </div>
-      ) : null}
-
-      {!locked && legacy.length > 0 ? (
-        <Card className="p-4 border-amber-200 print:hidden">
-          <h2 className="text-sm font-semibold text-ink">Notes from fields no longer on this form</h2>
-          <p className="mt-0.5 text-xs text-muted">You wrote these in fields that were later removed or renamed. They aren&rsquo;t part of the review until you add them — tap to append one to the COO summary.</p>
-          <div className="mt-3 space-y-3">
-            {legacy.map((item) => (
-              <div key={`${item.kind}:${item.key}`} className="rounded-xl border border-line p-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-muted">{item.label}</div>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{item.text}</p>
-                <button type="button" onClick={() => moveLegacyToSummary(item)} className="mt-2 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-black/[0.03]">
-                  Add to COO summary
-                </button>
-              </div>
-            ))}
-          </div>
-        </Card>
       ) : null}
 
       <fieldset disabled={locked} className="space-y-5 min-w-0">
@@ -566,7 +525,7 @@ export default function SalesReviewForm({
             <p className="mt-0.5 text-xs text-muted">
               Releasing saves this review, signs it as reviewer, and emails <span className="font-medium text-ink">{d.directorName}</span>
               {directorEmail ? <> ({directorEmail})</> : <span className="text-red-600"> — no email on file; you&rsquo;ll get a link to send him</span>} a secure link to review and e-sign.
-              Once he signs, it&rsquo;s filed to his personnel record and HR gets a copy. Your edits save to your account as you type.
+              Once he signs, it&rsquo;s filed to his personnel record and HR gets a copy. Your edits autosave in this browser until you release.
             </p>
             <button type="button" onClick={() => act("release")} disabled={busy !== null}
               className="mt-3 w-full sm:w-auto rounded-xl bg-emerald-grad px-5 py-3 text-sm font-medium text-white shadow-sm disabled:opacity-50">
