@@ -109,6 +109,8 @@ const RULES: [RegExp, string][] = [
   [/^\/management\/benchmarking(\/|$)/, "benchmarking"],
   [/^\/management\/insights(\/|$)/, "insights"],
   [/^\/management\/sales(\/|$)/, "sales-attrition"],
+  [/^\/management\/scorecards\/overview(\/|$)/, "scorecards-overview"],
+  [/^\/management\/scorecards\/sales-director(\/|$)/, "sales-director-review"],
   [/^\/management\/scorecards(\/|$)/, "scorecards"],
   [/^\/management\/audits(\/|$)/, "audits"],
   // Insurance is folded into the Compliance center as a tab (nav/IA refactor P2);

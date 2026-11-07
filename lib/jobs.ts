@@ -508,7 +508,7 @@ export async function remindSalesDirectorReview() {
     const close = new Date(end.getTime() + 21 * DAY); // remind for ~3 weeks after quarter-end
     if (now > close) continue;
     const daysLeft = Math.max(0, Math.ceil((close.getTime() - now.getTime()) / DAY));
-    const link = `${base()}/sales/quarterly-review?year=${year}&quarter=${q}`;
+    const link = `${base()}/management/scorecards/sales-director?year=${year}&quarter=${q}`;
     const msg = `Q${q} ${year} Sales Director review is due — complete Howard Cohn's quarterly review (${daysLeft}d left).`;
 
     await prisma.alert.upsert({
@@ -542,7 +542,7 @@ export async function remindSalesDirectorReview() {
           recipients,
           contextType: "reminder",
           contextLabel: "Sales Director review",
-          contextHref: `/sales/quarterly-review?year=${year}&quarter=${q}`,
+          contextHref: `/management/scorecards/sales-director?year=${year}&quarter=${q}`,
         }).catch(() => {});
       }
       await prisma.setting.upsert({ where: { key }, create: { key, value: now.toISOString() }, update: { value: now.toISOString() } }).catch(() => null);

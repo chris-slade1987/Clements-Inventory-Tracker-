@@ -1,7 +1,8 @@
 import { PageHeader, EmptyState } from "@/components/ui";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { requireUser, isBoardObserver, scopedBranch, branchLocked } from "@/lib/auth";
+import { requireUser, isBoardObserver, scopedBranch, branchLocked, isSuperAdmin } from "@/lib/auth";
+import ScorecardTabs from "./ScorecardTabs";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { buildScorecardRows, getScorecardReview, listArchivedReviews, matchBranchManagerEmployee, branchManagerEmail, lastSignEmail, serializeScorecardReview } from "@/lib/scorecard";
 import { listScorecardComments, canAccessScorecardCoaching } from "@/lib/scorecard-coaching";
@@ -18,6 +19,9 @@ export default async function ScorecardsPage({
   const user = await requireUser();
   if (isBoardObserver(user)) redirect("/management/board");
   const sp = await searchParams;
+  // Super admins land on the Scorecards Overview (every quarterly review at a
+  // glance); the branch-manager scorecards are one tab over (?view=branch).
+  if (isSuperAdmin(user) && !sp.view && !sp.branch && !sp.year && !sp.quarter) redirect("/management/scorecards/overview");
 
   const periods = await listPeriods();
   const years = Array.from(new Set(periods.map((p) => p.year))).sort((a, b) => b - a);
@@ -82,6 +86,7 @@ export default async function ScorecardsPage({
         title="Manager Scorecards"
         subtitle="Quarterly branch-manager review · fill-out → triple sign-off → file to personnel record → archive"
       />
+      <ScorecardTabs active="branch" isSuper={isSuperAdmin(user)} year={year} quarter={quarter} />
       <ScorecardClient
         key={`${year}-${quarter}-${branch}`}
         year={year}

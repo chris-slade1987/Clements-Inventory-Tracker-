@@ -294,7 +294,7 @@ export async function finalizeSalesReview(reviewId: string) {
   }
 
   // Completion notice → HR director + super admins (Chris/Julie/April) + the Director.
-  const link = `${appUrl()}/sales/quarterly-review?year=${review.year}&quarter=${review.quarter}`;
+  const link = `${appUrl()}/management/scorecards/sales-director?year=${review.year}&quarter=${review.quarter}`;
   const admins = await superAdminRecipients().catch(() => []);
   const directorEmail = director?.email || director?.user?.email || null;
   const recipients = [...new Set([hrDirectorEmail(), ...admins.map((a) => a.email), directorEmail].filter(Boolean) as string[])];
