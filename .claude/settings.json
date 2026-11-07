@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash",
       "Bash(npx tsc --noEmit)",
       "Bash(npx tsc *)",
       "Bash(npx eslint *)",
